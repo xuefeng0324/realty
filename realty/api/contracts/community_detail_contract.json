@@ -1,0 +1,214 @@
+{
+  "page": "CommunityDetail",
+  "baseUrl": "/api/v1",
+  "pathParams": {
+    "communityId": "number"
+  },
+  "commonQueryParams": {
+    "periodType": "weekly|monthly",
+    "weekEnd": "YYYY-MM-DD (当 periodType=weekly 时)",
+    "startDate": "YYYY-MM-DD (当需要区间时)",
+    "endDate": "YYYY-MM-DD (当需要区间时)"
+  },
+  "components": [
+    {
+      "name": "价格走势（ECharts 折线 + 缺失标注）",
+      "api": "GET /communities/{communityId}/price-trend",
+      "requestExample": {
+        "communityId": 101,
+        "periodType": "weekly",
+        "startDate": "2025-12-01",
+        "endDate": "2026-01-14"
+      },
+      "responseExample": {
+        "communityId": 101,
+        "periodType": "weekly",
+        "data": [
+          {
+            "period_start": "2025-12-01",
+            "period_end": "2025-12-07",
+            "avg_unit_price": 79020.4,
+            "median_unit_price": 78650.0,
+            "listing_count": 28,
+            "coverage_score": 0.75,
+            "data_policy": "latest_non_null",
+            "missingFlag": false
+          },
+          {
+            "period_start": "2025-12-08",
+            "period_end": "2025-12-14",
+            "avg_unit_price": null,
+            "median_unit_price": null,
+            "listing_count": 0,
+            "coverage_score": 0.0,
+            "data_policy": "none",
+            "missingFlag": true
+          }
+        ]
+      },
+      "chartMapping": {
+        "xAxis": "period_end",
+        "yAxis": "avg_unit_price",
+        "markWhenMissing": "missingFlag=true（断点/灰线）"
+      }
+    },
+    {
+      "name": "质量分分布（直方图/饼图）",
+      "api": "GET /communities/{communityId}/quality-summary",
+      "requestExample": {
+        "communityId": 101,
+        "periodType": "weekly",
+        "days": 30
+      },
+      "responseExample": {
+        "communityId": 101,
+        "periodType": "weekly",
+        "days": 30,
+        "bins": [
+          { "bin": "0-39", "count": 12 },
+          { "bin": "40-59", "count": 28 },
+          { "bin": "60-79", "count": 41 },
+          { "bin": "80-100", "count": 19 }
+        ],
+        "scoreStats": {
+          "min": 38.5,
+          "max": 96.2,
+          "avg": 68.9,
+          "median": 69.0
+        },
+        "rule_version": "listing_quality_score_v1"
+      },
+      "chartMapping": {
+        "xAxis": "bin",
+        "yAxis": "count"
+      }
+    },
+    {
+      "name": "优缺点雷达图（维度固定 + explain 可追溯）",
+      "api": "GET /communities/{communityId}/quality-summary",
+      "requestExample": {
+        "communityId": 101,
+        "periodType": "weekly",
+        "days": 30,
+        "includeRadar": true
+      },
+      "responseExample": {
+        "communityId": 101,
+        "radar": {
+          "rule_version": "listing_quality_score_v1",
+          "dimensions": [
+            "location_score",
+            "house_quality_score",
+            "building_age_score",
+            "amenity_score",
+            "price_value_score"
+          ],
+          "values": {
+            "location_score": { "avg": 71.2, "min": 40.0, "max": 95.0 },
+            "house_quality_score": { "avg": 74.0, "min": 48.0, "max": 98.0 },
+            "building_age_score": { "avg": 62.5, "min": 35.0, "max": 90.0 },
+            "amenity_score": { "avg": 68.1, "min": 30.0, "max": 92.0 },
+            "price_value_score": { "avg": 66.9, "min": 20.0, "max": 90.0 }
+          }
+        }
+      },
+      "chartMapping": {
+        "radarSeries": "values.{dimension}.avg（可选展示 min/max 为误差带或 tooltip）"
+      }
+    },
+    {
+      "name": "Top 优点/缺点标签（用于筛选提示）",
+      "api": "GET /communities/{communityId}/top-tags",
+      "requestExample": {
+        "communityId": 101,
+        "limit": 20
+      },
+      "responseExample": {
+        "communityId": 101,
+        "advantages": [
+          { "label": "性价比高", "count": 37, "scoreHint": 85.0 },
+          { "label": "强学区优", "count": 22, "scoreHint": 80.0 }
+        ],
+        "disadvantages": [
+          { "label": "房龄偏老", "count": 19, "scoreHint": 50.0 },
+          { "label": "距地铁远", "count": 14, "scoreHint": 45.0 }
+        ]
+      }
+    },
+    {
+      "name": "房源列表（表格）",
+      "api": "POST /listings/filter",
+      "requestBodyExample": {
+        "communityId": 101,
+        "periodType": "weekly",
+        "weekEnd": "2026-01-14",
+        "page": 1,
+        "pageSize": 20,
+        "filters": {
+          "priceRange": [60, 120],
+          "areaRange": [50, 120],
+          "orientation": ["南", "南北"],
+          "hasElevator": null,
+          "decorateType": ["精装", "简装"],
+          "minQualityScore": 65,
+          "schoolProvinceKeyFlag": null,
+          "schoolCityKeyFlag": null,
+          "minSchoolFutureScore": 70
+        },
+        "sort": {
+          "field": "overall_score",
+          "direction": "desc"
+        }
+      },
+      "responseExample": {
+        "communityId": 101,
+        "total": 184,
+        "page": 1,
+        "pageSize": 20,
+        "rule_version": "listing_quality_score_v1",
+        "items": [
+          {
+            "listing_id": 9001,
+            "title": "xx小区 精装 南北通透 近地铁",
+            "price_total": 86.5,
+            "unit_price": 61200.0,
+            "area_sqm": 141.0,
+            "orientation": "南北",
+            "floor_number": "6楼",
+            "decorate_type": "精装",
+            "build_year": 2012,
+            "has_elevator": true,
+            "quality_score": 87.4,
+            "advantages": [
+              { "label": "性价比高", "confidence": 0.92 }
+            ],
+            "disadvantages": [],
+            "explain_preview": {
+              "overall_score": 87.4,
+              "dimension_scores": {
+                "location_score": 78.0,
+                "house_quality_score": 90.0,
+                "building_age_score": 80.0,
+                "amenity_score": 92.0,
+                "price_value_score": 85.0
+              }
+            }
+          }
+        ]
+      },
+      "uiMapping": {
+        "tableColumns": [
+          "title",
+          "price_total",
+          "unit_price",
+          "area_sqm",
+          "orientation",
+          "floor_number",
+          "decorate_type",
+          "quality_score"
+        ],
+        "rowClick": "打开 listing 详情（建议另有 GET /listings/{id}/explain，或在当前接口返回 explain_full）"
+      }
+    }
+  ]
+}

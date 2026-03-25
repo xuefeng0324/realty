@@ -1,0 +1,258 @@
+listing_quality_score v1 完整参数表（可解释、可复现）
+==================================================
+
+1. 目标
+对每一条房源输出 `overall_score_0_100` 以及可解释的维度分与标签：
+- 维度分用于雷达图/维度贡献展示
+- 标签用于“优点/缺点”卡片与筛选
+- explain_json 用于“为什么给这个分”的可追溯展示
+
+2. rule_version 设计
+- listing_quality_score.rule_version 建议默认：`listing_quality_score_v1`
+- 只有当你改变阈值/函数/权重/标签规则时，才升级版本号
+- 所有计算结果都必须记录 rule_version，确保历史可回放对比
+
+3. 输入字段（来自 ETL 标准化后）
+3.1 来自 listing_detail
+- nearest_metro_distance_m（可空）
+- orientation（可空：南/北/东/西/南北/东西 等）
+- bedroom_count / bathroom_count（可空）
+- floor_number（可空）
+- total_floor（可空，可用来判断中低楼层等；MVP 可不强制）
+- has_elevator（可空）
+- decorate_type（可空：精装/简装/毛坯/未知）
+- build_year（可空：建成年份）
+- unit_price（可空：元/㎡）
+- crawl_date / listing_source 等（不直接参与得分，但用于质量追溯）
+
+3.2 来自小区价格快照（price_snapshot_weekly 或 monthly）
+- community_avg_unit_price（可选周/个月：由调用时指定期别）
+
+3.3 来自学校未来趋势分（关联到房源 school_ids）
+- school_future_score_0_100（对每所学校都有，房源可能关联多个学校）
+
+4. 评分维度与权重（默认固定）
+5 个维度（MVP）：
+1) location_score：0-100，权重 w_location = 0.30
+2) house_quality_score：0-100，权重 w_house_quality = 0.25
+3) building_age_score：0-100，权重 w_building_age = 0.15
+4) amenity_score：0-100，权重 w_amenity = 0.15
+5) price_value_score：0-100，权重 w_price_value = 0.15
+
+overall_score = round(
+  0.30*location + 0.25*house_quality + 0.15*building_age + 0.15*amenity + 0.15*price_value
+, 2)
+
+5. 各维度评分函数（阈值表）
+说明：所有维度分均 clamp 到 [0,100]。
+
+5.1 location_score（地铁距离 + 学校未来趋势分）
+输入：
+- nearest_metro_distance_m（可空）
+- schools_future_score（房源关联学校的 future score 列表，可空/为空）
+
+计算步骤：
+A) metro_subscore（0-60，若距离缺失则给中性 30）
+- 若 nearest_metro_distance_m is null：
+  metro_subscore = 30
+- else：
+  - < 500m：60
+  - 500-1000m：50
+  - 1000-2000m：35
+  - > 2000m：20
+
+B) school_subscore（0-40，取学校代表值）
+- 若 schools_future_score 为空/缺失：
+  school_subscore = 20
+- else：
+  建议代表值取 max（强学区更贴近直觉；后续可配置）
+  - school_rep = max(school_future_score)
+  - school_subscore = round(0.8*school_rep + 8, 2)
+    （解释：把 0-100 映射到更窄的 0-88 区间，再 clamp）
+  - clamp 到 [0,40]
+
+location_score = clamp(metro_subscore + school_subscore, 0, 100)
+
+5.2 house_quality_score（朝向 + 户型 + 楼层舒适度）
+输入：
+- orientation
+- bedroom_count / bathroom_count
+- floor_number（MVP：只解析“第X楼/XX楼”等；解析失败则跳过）
+
+子项 A：orientation_score（0-40）
+- orientation 缺失：20
+- orientation 映射（建议）：
+  - 南：40
+  - 南北：36
+  - 东西：34
+  - 东/西：28
+  - 北：18
+  - 其他/未知：25
+
+子项 B：layout_score（0-30）
+- 若 bedroom_count 缺失：15
+- else：
+  - bedrooms >= 3 且 bathrooms >= 2：30
+  - bedrooms == 3 或 bathrooms == 1?：23（可调）
+  - bedrooms == 2：20
+  - bedrooms <= 1：10
+
+子项 C：floor_score（0-30）
+- 若 floor_number 缺失或解析失败：15
+- else 把解析出来 floor = int
+  - 3<=floor<=10：30
+  - 11<=floor<=15：24
+  - 16<=floor<=25：18
+  - >25：12
+  - floor<=2：10
+
+house_quality_score = clamp(orientation_score + layout_score + floor_score, 0, 100)
+
+5.3 building_age_score（房龄衰减）
+输入：build_year（建成年份，可空）
+
+计算：
+- 若 build_year 缺失：50（中性）
+- else：
+  age = current_year - build_year（建议使用抓取时的 year）
+  - age < 5：95
+  - 5<=age<10：85
+  - 10<=age<15：75
+  - 15<=age<20：60
+  - age>=20：40
+
+building_age_score = 上述规则值（clamp 到 [0,100]）
+
+5.4 amenity_score（电梯 + 装修）
+输入：
+- has_elevator（可空）
+- decorate_type（可空）
+
+计算：
+A) elevator_subscore（0-60）
+- has_elevator 缺失：30
+- else：
+  - has_elevator = true：60
+  - false：25
+
+B) decorate_subscore（0-40）
+- decorate_type 缺失：20
+- else 映射（建议）：
+  - 精装：40
+  - 简装：28
+  - 毛坯：18
+  - 其他/未知：22
+
+amenity_score = clamp(elevator_subscore + decorate_subscore, 0, 100)
+
+5.5 price_value_score（性价比：相对小区均价）
+输入：
+- unit_price（元/㎡，可空）
+- community_avg_unit_price（来自指定 period 的小区均价，可空）
+
+计算：
+- 若 unit_price 或 community_avg_unit_price 缺失：50（中性，且解释为缺失回退）
+- else：
+  ratio = unit_price / community_avg_unit_price
+  分段建议（可调）：
+  - ratio < 0.90：95（明显更优）
+  - 0.90<=ratio<0.95：85
+  - 0.95<=ratio<=1.05：70
+  - 1.05<ratio<=1.15：55
+  - ratio > 1.15：40
+
+price_value_score = 上述分段值（clamp）
+
+6. 优点/缺点标签生成规则（advantages/disadvantages）
+建议每条房源最多输出：
+- 优点标签 topK_adv = 3
+- 缺点标签 topK_dis = 3
+
+6.1 优点标签（举例规则，必须与维度阈值一致）
+当命中以下条件时加入 advantages_json：
+- `近地铁优`：nearest_metro_distance_m < 1000 且 location_score >= 70
+- `强学区优`：max(school_future_score) >= 80
+- `户型佳`：bedrooms>=3 且 layout_score >= 25
+- `采光朝向优`：orientation in ['南','南北'] 且 orientation_score >= 36
+- `电梯优`：has_elevator=true 且 amenity_score >= 70
+- `精装修优`：decorate_type='精装'
+- `性价比高`：price_value_score >= 85
+
+6.2 缺点标签
+当命中以下条件时加入 disadvantages_json：
+- `距地铁远`：nearest_metro_distance_m > 2000 且 location_score <= 45
+- `学区弱`：max(school_future_score) < 60
+- `房龄偏老`：building_age_score <= 50
+- `无电梯/设施差`：has_elevator=false 且 amenity_score <= 45
+- `装修偏差`：decorate_type='毛坯'
+- `性价比偏低`：price_value_score <= 55
+
+6.3 标签结构约定
+每个标签元素建议结构：
+{"label":"性价比高","confidence":0.92,"evidence":{"rule":"price_value_score>=85","ratio":0.88}}
+
+7. explain_json 结构定义（前端可直接渲染）
+explain_json 必须包含以下 keys（建议固定）：
+{
+  "rule_version": "listing_quality_score_v1",
+  "inputs_snapshot": {
+    "nearest_metro_distance_m": 800,
+    "orientation": "南北",
+    "bedroom_count": 3,
+    "bathroom_count": 2,
+    "floor_number": "6楼",
+    "has_elevator": true,
+    "decorate_type": "精装",
+    "build_year": 2016,
+    "unit_price": 52000,
+    "community_avg_unit_price": 58000,
+    "school_future_scores": [76, 88]
+  },
+  "dimension_scores": {
+    "location_score": 72.5,
+    "house_quality_score": 86.0,
+    "building_age_score": 95.0,
+    "amenity_score": 92.0,
+    "price_value_score": 80.0
+  },
+  "overall_score": 86.25,
+  "dimension_contributions": {
+    "location_contrib": 21.75,
+    "house_quality_contrib": 21.50,
+    "building_age_contrib": 14.25,
+    "amenity_contrib": 13.80,
+    "price_value_contrib": 12.00
+  },
+  "label_evidence": {
+    "advantages": [
+      {"label":"强学区优","rule":"max_school_future_score>=80","confidence":0.90}
+    ],
+    "disadvantages": []
+  },
+  "missing_fallbacks": [
+    {"field":"nearest_metro_distance_m","policy":"set_to_30","reason":"NULL"}
+  ]
+}
+
+8. 默认缺失回退策略（总结）
+- nearest_metro_distance_m 缺失：location 的 metro_subscore=30
+- 学校未来分缺失：location 的 school_subscore=20
+- orientation 缺失：orientation_score=20
+- bedroom/bathroom 缺失：layout_score=15
+- floor_number 缺失：floor_score=15
+- build_year 缺失：building_age_score=50
+- has_elevator 缺失：elevator_subscore=30
+- decorate_type 缺失：decorate_subscore=20
+- unit_price 或 community_avg_unit_price 缺失：price_value_score=50
+
+9. 建议的默认阈值/参数（MVP 固定）
+- metro distance 分段：<500 / 500-1000 / 1000-2000 / >2000
+- floor 分段：3-10 / 11-15 / 16-25 / >25 / <=2
+- room_count：bedrooms>=3 且 bathrooms>=2 为最高档
+- ratio 分段：<0.90 / 0.90-0.95 / 0.95-1.05 / 1.05-1.15 / >1.15
+
+10. 扩展（未来）
+后续你可在 v2 增加：
+- 朝向细分（采光朝向/通风）
+- 电梯楼 vs 无电梯楼按楼高/楼层阈值更精细
+- 学校更多特征（覆盖率、学区政策变化等）

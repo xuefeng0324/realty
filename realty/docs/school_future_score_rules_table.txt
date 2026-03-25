@@ -1,0 +1,165 @@
+school_future_score 完整规则表（V1，可直接落库/回放）
+===================================================
+
+1. 目标
+为每所学校输出一个可解释的“未来走向趋势分”（0-100），用于：
+- 前端筛选：省一级 / 市一级（硬标签）+ 未来趋势分阈值（软条件）
+- 房源评分：房源关联学校的趋势分作为学校质量贡献（可回溯）
+
+2. rule_version 设计
+建议使用版本化规则，保证历史可复现。
+
+- school_future_score.rule_version：字符串
+- 默认：`school_future_score_v1`
+- 当你新增特征/改权重/改缺失回退策略时：提升版本号（v1 -> v2）。
+
+3. 输入特征（feature set）
+本规则表以可落地的最小集合为主（MVP 能算；未来接入官方/公开平台更多指标时可扩展）。
+
+3.1 原始输入字段（来源）
+以下字段来自 `school_indicator_snapshot` 的标准化字段（或你在 ETL 后落库的结构化字段）：
+- latest_level_score_raw：最新办学水平量化分（0-100）
+- group_school_flag_raw：集团化办学（0/1 或布尔）
+- group_school_strength_raw：集团化强度（0-100，可选，缺失则用 flag 退化）
+- district_balance_level_raw：优质均衡区县档位（例如 0-100 的标准分；或离散档位）
+- trend_delta_raw：近 1-2 个时间点的变化幅度（可用差值映射到 0-100 的中间分）
+
+注意：如果你的官方指标暂未全部具备，允许用缺失回退策略（见第 5 节）。
+
+4. 标准化输出（每个特征的取值范围）
+最终用于计算的中间分（subscores）均被约束到 0-100。
+
+4.1 省一级 / 市一级硬标签（筛选用，不参与连续分的加权方式必须可解释）
+- province_key_flag：省一级（布尔）
+- city_key_flag：市一级（布尔）
+
+4.2 连续趋势分特征（参与最终分）
+特征 A：latest_level_score（0-100）
+- 定义：学校最新办学水平分
+- 取值范围：0-100
+
+特征 B：group_school_bonus（0-100）
+- 定义：集团化办学加分（来自 flag 与强度）
+- 取值范围：0-100
+- 默认映射：
+  - group_school_flag=1 且 group_school_strength_raw 有效：group_school_bonus = group_school_strength_raw
+  - group_school_flag=1 但 strength 缺失：group_school_bonus = 80
+  - group_school_flag=0：group_school_bonus = 40
+
+特征 C：district_balance_bonus（0-100）
+- 定义：优质均衡区县加分（来自区县档位标准分）
+- 取值范围：0-100
+- 映射：
+  - 若 district_balance_level_raw 已是标准分：district_balance_bonus = district_balance_level_raw
+  - 若是离散档位（如 A/B/C 或 1/2/3）：需要在 ETL 标准化成 0-100
+
+特征 D：trend_delta_score（0-100）
+- 定义：近 1-2 期变化趋势分
+- 输入：trend_delta_raw（可以是差值，如 latest - previous，也可以是上升/下降百分比）
+- 默认映射（建议，便于可解释）：
+  - 若 trend_delta_raw > 0：趋势上升
+    trend_delta_score = 50 + clamp( trend_delta_raw_scaled, 0, 50 )
+  - 若 trend_delta_raw <= 0：趋势不升反降
+    trend_delta_score = 50 - clamp( abs(trend_delta_raw_scaled), 0, 50 )
+  - trend_delta_score 最终约束 0-100
+
+5. 缺失回退策略（默认）
+当某些输入特征缺失时，不应直接丢弃计算；需要明确回退规则并可记录。
+
+缺失判定规则（建议）：
+- raw 字段为 NULL 或不可解析 或 超出合理范围（例如 <0 或 >100）则视为缺失
+
+5.1 缺失处理表（默认 MISSING_POLICY=v1）
+1) latest_level_score_raw 缺失
+   - 回退：latest_level_score = 50（中性）
+   - 置信降低：confidence_score -= 0.2
+2) group_school_flag_raw 缺失
+   - 回退：group_school_bonus = 40
+   - confidence_score -= 0.1
+3) district_balance_level_raw 缺失
+   - 回退：district_balance_bonus = 50
+   - confidence_score -= 0.15
+4) trend_delta_raw 缺失
+   - 回退：trend_delta_score = 50
+   - confidence_score -= 0.1
+
+5.2 confidence_score（可选但推荐）
+- 建议字段：`school_future_confidence_0_1`
+- 初始值 1.0，按上述缺失项扣减
+- 最终 clamp 到 [0,1]
+
+6. 最终计算公式（MVP 可直接算）
+6.1 权重（建议固定在 v1）
+- w_latest = 0.55
+- w_group  = 0.20
+- w_district = 0.15
+- w_trend_delta = 0.10
+
+6.2 公式
+school_future_score =
+  round(
+    w_latest  * latest_level_score +
+    w_group   * group_school_bonus +
+    w_district* district_balance_bonus +
+    w_trend_delta* trend_delta_score
+  , 2)
+
+6.3 约束
+- 输出范围：0-100
+- 最终 clamp：max(0, min(100, score))
+
+7. 省一级 / 市一级硬筛选的“规则说明”
+前端筛选时：
+- province_key_flag=true：允许“省一级”筛选
+- city_key_flag=true：允许“市一级”筛选
+
+如果两个标签都未提供或口径缺失：
+- 前端默认不将 school_future_score 当作“硬学区等级”
+- 仅作为“未来趋势分”的连续筛选指标（例如 >=70）
+
+8. 输出 explain_text / feature_contrib_json 结构定义
+8.1 explain_text（可读）
+格式示例（中文）：
+"趋势分 78.20：最新办学水平(0.55*82)、集团化(0.20*80)、区县均衡(0.15*70)、近两期变化(0.10*55)。缺失回退：无。置信度0.95。"
+
+8.2 feature_contrib_json（结构化，可用于前端展示）
+建议结构：
+{
+  "rule_version": "school_future_score_v1",
+  "inputs_used": {
+    "latest_level_score": 82,
+    "group_school_bonus": 80,
+    "district_balance_bonus": 70,
+    "trend_delta_score": 55,
+    "province_key_flag": true,
+    "city_key_flag": false
+  },
+  "weights": {
+    "latest": 0.55,
+    "group": 0.20,
+    "district": 0.15,
+    "trend_delta": 0.10
+  },
+  "contribution": {
+    "latest_contrib": 45.1,
+    "group_contrib": 16.0,
+    "district_contrib": 10.5,
+    "trend_delta_contrib": 5.5
+  },
+  "missing_fallbacks": [
+    {"field":"trend_delta_raw","policy":"set_to_50","reason":"NULL"}
+  ],
+  "confidence_score": 0.95
+}
+
+9. 建议默认阈值（前端筛选）
+- school_future_score >= 80：强趋势
+- 70-79：中高趋势
+- 60-69：中等趋势
+- <60：弱趋势
+
+10. 扩展位（后续接入“未来走向”更多指标）
+当你接入“最新办学水平/集团化办学/优质均衡区县”等更多官方指标时：
+- 保留 v1 不变
+- 在 v2 新增字段并更新权重（rule_version 升级）
+- feature_contrib_json 始终记录每项贡献，保证可解释性。

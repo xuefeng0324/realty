@@ -1,0 +1,142 @@
+{
+  "page": "Dashboard",
+  "baseUrl": "/api/v1",
+  "commonQueryParams": {
+    "cityId": "number",
+    "periodType": "weekly|monthly",
+    "startDate": "YYYY-MM-DD",
+    "endDate": "YYYY-MM-DD"
+  },
+  "components": [
+    {
+      "name": "全城价格走势（ECharts 折线）",
+      "api": "GET /stats/community-price-trend",
+      "request": {
+        "cityId": 1,
+        "periodType": "weekly",
+        "startDate": "2026-01-01",
+        "endDate": "2026-01-31"
+      },
+      "responseExample": {
+        "cityId": 1,
+        "periodType": "weekly",
+        "series": [
+          {
+            "period_start": "2026-01-01",
+            "period_end": "2026-01-07",
+            "avg_unit_price": 52340.5,
+            "median_unit_price": 52110.2,
+            "listing_count": 260,
+            "coverage_score": 0.87,
+            "data_policy": "latest_non_null",
+            "missingFlag": false
+          },
+          {
+            "period_start": "2026-01-08",
+            "period_end": "2026-01-14",
+            "avg_unit_price": null,
+            "median_unit_price": null,
+            "listing_count": 0,
+            "coverage_score": 0.0,
+            "data_policy": "none",
+            "missingFlag": true
+          }
+        ]
+      },
+      "chartMapping": {
+        "xAxis": "period_end",
+        "yAxis": "avg_unit_price",
+        "tooltipFields": [
+          "avg_unit_price",
+          "listing_count",
+          "coverage_score",
+          "data_policy",
+          "missingFlag"
+        ]
+      }
+    },
+    {
+      "name": "区/板块对比（柱状图）",
+      "api": "GET /stats/district-compare",
+      "request": {
+        "cityId": 1,
+        "periodType": "weekly",
+        "weekEnd": "2026-01-14"
+      },
+      "responseExample": {
+        "cityId": 1,
+        "periodType": "weekly",
+        "weekEnd": "2026-01-14",
+        "items": [
+          {
+            "district_name": "南山区",
+            "avg_unit_price": 61230.0,
+            "median_unit_price": 60410.5,
+            "listing_count": 120,
+            "coverage_score": 0.78,
+            "delta_vs_prev": 0.032
+          },
+          {
+            "district_name": "福田区",
+            "avg_unit_price": 68500.2,
+            "median_unit_price": 68110.1,
+            "listing_count": 98,
+            "coverage_score": 0.71,
+            "delta_vs_prev": -0.011
+          }
+        ]
+      },
+      "chartMapping": {
+        "xAxis": "district_name",
+        "yAxis": "avg_unit_price",
+        "tooltipFields": [
+          "avg_unit_price",
+          "delta_vs_prev",
+          "coverage_score"
+        ]
+      }
+    },
+    {
+      "name": "小区排行（Top N 表格）",
+      "api": "GET /stats/community-ranking",
+      "request": {
+        "cityId": 1,
+        "periodType": "weekly",
+        "weekEnd": "2026-01-14",
+        "metric": "avg_unit_price",
+        "top": 20
+      },
+      "responseExample": {
+        "cityId": 1,
+        "periodType": "weekly",
+        "weekEnd": "2026-01-14",
+        "metric": "avg_unit_price",
+        "data": [
+          {
+            "rank": 1,
+            "community_id": 101,
+            "community_name": "xx小区",
+            "avg_unit_price": 83210.8,
+            "median_unit_price": 82990.0,
+            "listing_count": 35,
+            "coverage_score": 0.92,
+            "delta_vs_prev": 0.018
+          },
+          {
+            "rank": 2,
+            "community_id": 88,
+            "community_name": "yy小区",
+            "avg_unit_price": 81200.2,
+            "median_unit_price": 80110.5,
+            "listing_count": 12,
+            "coverage_score": 0.33,
+            "delta_vs_prev": -0.006
+          }
+        ]
+      },
+      "uiInteraction": {
+        "rowClick": "进入 CommunityDetail（GET /communities/{communityId}/...）"
+      }
+    }
+  ]
+}

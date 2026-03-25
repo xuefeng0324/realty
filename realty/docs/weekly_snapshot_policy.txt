@@ -1,0 +1,173 @@
+weekly_snapshot（滚动 7 天口径）实现文档（SQL/Python 伪代码）
+===========================================================
+
+1. 目标
+把房源抓取产生的 `listing_detail` 数据聚合成“每个小区每个周结束日的快照”，用于前端展示“周维度房价走势/排行/性价比基准”等。
+
+2. 定义
+2.1 输入日期（滚动窗口）
+- 每次抓取落库时，存在抓取落库日期 `D`（通常取 listing_detail.crawl_date 的日期部分，时分秒忽略）。
+- 本周窗口定义为：
+  - week_start = D - 6 days
+  - week_end   = D
+
+说明：你要求“从抓取日期按 7 天窗口定义 weekly”，因此这里是 rolling window，而不是自然周。
+
+2.2 输出粒度
+- 输出表：`price_snapshot_weekly`
+- 唯一键建议：`(community_id, week_end_date)` 或 `(community_id, week_start_date, week_end_date)`
+- 本文以下以 `week_end_date` 为主要索引。
+
+3. 数据源与字段假设
+3.1 主要输入
+- `listing_detail`（房源明细）
+  - community_id
+  - crawl_date（DATE）
+  - unit_price（元/㎡，允许空）
+  - price_total（总价，可用于补充异常检测；允许空）
+  - is_valid（BOOLEAN）
+
+可选输入（如果接入的是小区均价爬虫而非房源聚合）：
+- 也可以把 “小区均价原始记录” 当成输入再聚合；
+  但为保持灵活，本策略以 `listing_detail.unit_price` 为基准描述。
+
+3.2 清洗/预处理（必须）
+对窗口内样本执行以下过滤：
+- 过滤：is_valid = true
+- 过滤：unit_price 为非空 且处于合理范围（缺省范围建议）：
+  - unit_price_min = 1000（元/㎡）
+  - unit_price_max = 200000（元/㎡）
+- 可选异常过滤（推荐）：使用 IQR 或 3-sigma 截断
+  - 若样本量 < min_samples_for_robust（建议 8），跳过异常裁剪
+
+4. 均价聚合策略（可切换）
+本策略提供两个口径，并通过“切换条件”控制使用哪一种。
+
+4.1 策略 A：latest_non_null（默认，贴近开源口径）
+含义：窗口内按 crawl_date 从晚到早取“最新且非空”的 unit_price 作为 avg_unit_price。
+
+策略 A 的切换条件（当且仅当满足以下条件时，才使用策略 B）：
+- 条件 A1：窗口内非空样本数量 < min_samples_for_latest（默认 5）
+- 条件 A2：最新非空样本 unit_price 触发异常（例如与窗口 median 的差异过大）
+  - 简单规则（推荐）：|latest - median| / median > 0.25 则视为异常
+
+4.2 策略 B：median_robust（兜底，稳健）
+含义：对窗口内清洗后的 unit_price 取 median 作为 avg_unit_price。
+（median 对极端值更鲁棒）
+
+挂牌数（listing_count）口径建议（与均价策略相同窗口过滤条件一致）：
+- listing_count = 清洗后有效样本条数（unit_price 非空且通过过滤）
+
+4.3 输出统计与质量指标建议
+price_snapshot_weekly 字段建议：
+- avg_unit_price（元/㎡）
+- median_unit_price（可选：保留 median 便于前端置信展示）
+- listing_count（样本量）
+- coverage_score（覆盖率/置信）
+  - 若你有“目标样本量” target_listing_count（例如 30），则：
+    coverage_score = min(1.0, listing_count / target_listing_count)
+  - 若无目标样本量，coverage_score 可简化为：
+    coverage_score = min(1.0, listing_count / 30)
+- data_policy：latest_non_null 或 median_robust
+- source_records_start = window count
+- source_records_used  = 清洗/聚合后 count
+
+5. SQL/Python 伪代码（聚合核心）
+--------------------------------------------
+5.1 Python 伪代码（单小区单周）
+
+function compute_weekly_snapshot(community_id, week_start, week_end):
+    window_listings = SELECT unit_price, crawl_date
+                       FROM listing_detail
+                       WHERE community_id = ?
+                         AND crawl_date BETWEEN week_start AND week_end
+                         AND is_valid = true
+                         AND unit_price IS NOT NULL
+                         AND unit_price BETWEEN unit_price_min AND unit_price_max
+
+    source_records_start = COUNT(window_listings)
+    if source_records_start == 0:
+        return NULL
+
+    prices = [l.unit_price for l in window_listings]
+    clean_prices = apply_iqr_trim_if_needed(prices)
+    source_records_used = COUNT(clean_prices)
+    if source_records_used < 1:
+        return NULL
+
+    median_price = median(clean_prices)
+    latest_record = pick_record_with_max(crawl_date) among window_listings where unit_price not null
+    latest_price = latest_record.unit_price
+
+    if source_records_used < min_samples_for_latest:
+        policy = "median_robust"
+        avg_unit_price = median(clean_prices)
+    else:
+        deviation = abs(latest_price - median_price) / median_price
+        if deviation > 0.25:
+            policy = "median_robust"
+            avg_unit_price = median(clean_prices)
+        else:
+            policy = "latest_non_null"
+            avg_unit_price = latest_price
+
+    listing_count = source_records_used
+    coverage_score = min(1.0, listing_count / target_listing_count)
+
+    INSERT price_snapshot_weekly(...):
+      avg_unit_price, median_unit_price, listing_count, coverage_score,
+      data_policy=policy, source_records_start, source_records_used,
+      week_start_date, week_end_date
+
+    return snapshot
+
+--------------------------------------------
+5.2 SQL 伪代码（思路：先准备窗口样本，再做聚合/选择）
+
+WITH window AS (
+  SELECT community_id, crawl_date, unit_price
+  FROM listing_detail
+  WHERE is_valid=true
+    AND crawl_date BETWEEN :week_start AND :week_end
+    AND unit_price IS NOT NULL
+    AND unit_price BETWEEN :unit_price_min AND :unit_price_max
+    AND community_id = :community_id
+),
+stats AS (
+  SELECT
+    community_id,
+    COUNT(*) AS n_used,
+    percentile_cont(0.5) WITHIN GROUP (ORDER BY unit_price) AS median_price,
+    (SELECT unit_price FROM window ORDER BY crawl_date DESC LIMIT 1) AS latest_price
+  FROM window
+  GROUP BY community_id
+)
+SELECT
+  community_id,
+  CASE
+    WHEN n_used < :min_samples_for_latest THEN median_price
+    WHEN ABS(latest_price - median_price) / NULLIF(median_price,0) > 0.25 THEN median_price
+    ELSE latest_price
+  END AS avg_unit_price,
+  median_price,
+  n_used AS listing_count,
+  LEAST(1.0, n_used / :target_listing_count::numeric) AS coverage_score,
+  CASE
+    WHEN n_used < :min_samples_for_latest THEN 'median_robust'
+    WHEN ABS(latest_price - median_price) / NULLIF(median_price,0) > 0.25 THEN 'median_robust'
+    ELSE 'latest_non_null'
+  END AS data_policy
+FROM stats;
+
+6. 输出异常/缺失的前端标记建议
+- coverage_score < 0.2：标记为“低置信”
+- data_policy 发生 median_robust：前端展示“稳健口径（可能波动）”
+- 若窗口 median_price 与上一周 median_price 偏差 > 30%：标记异常周（可用 markPoint 或数据提醒）
+
+7. 默认参数（建议先固定，后续可配置）
+- unit_price_min = 1000
+- unit_price_max = 200000
+- min_samples_for_latest = 5
+- target_listing_count = 30
+- deviation_threshold = 0.25
+- coverage_low_conf_threshold = 0.2

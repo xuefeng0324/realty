@@ -1,0 +1,38 @@
+# SQLite / local DB（默认路径见 README）
+realty.db
+realty/realty.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+ENV/
+
+# Node / frontend
+node_modules/
+realty/frontend/node_modules/
+realty/frontend/dist/
+*.tsbuildinfo
+realty/frontend/tsconfig.tsbuildinfo
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Env（勿提交密钥）
+.env
+.env.*
+!.env.example
