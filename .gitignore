@@ -1,5 +1,4 @@
 # SQLite / local DB（默认路径见 README）
-realty.db
 realty/realty.db
 
 # Python
