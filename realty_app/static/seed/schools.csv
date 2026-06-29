@@ -1,0 +1,15 @@
+school_id,city_id,official_name,display_name,school_type,province_key_flag,city_key_flag
+1,2,深圳实验学校小学部,,小学,True,True
+2,2,深圳外国语学校龙华高中部,,中学,True,True
+3,2,南山区实验学校麒麟中学,麒麟中学,中学,True,True
+4,2,福田外国语学校,福田外语,中学,False,True
+5,2,南山外国语学校（集团）,南山外语,中学,True,True
+6,2,深圳中学,深中,中学,True,True
+7,2,螺岭外国语实验学校,螺岭外语,小学,True,True
+8,2,育才中学,,中学,True,True
+9,2,百合外国语学校,百合,中学,False,True
+10,2,宝安中学,,中学,False,True
+11,1,广州协和学校,协和,中学,True,True
+12,1,广东实验中学,省实,中学,True,True
+13,3,珠海一中,,中学,False,True
+14,3,北师大珠海附中,北师大附中,中学,False,True

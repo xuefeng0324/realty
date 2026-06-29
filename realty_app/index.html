@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no"
+    />
+    <!-- 强制使用 5+ 内核（uni-app 移动端用） -->
+    <script>
+      document.write(
+        '<script src="https://cdn.jsdelivr.net/npm/eruda@2.5.0/eruda.min.js"><\/script>' +
+          '<script>eruda.init();<\/script>'
+      );
+    </script>
+    <title>Realty App</title>
+    <script>
+      var coverSupport =
+        "CSS" in window &&
+        typeof CSS.supports === "function" &&
+        (CSS.supports("top: env(a)") || CSS.supports("top: constant(a)"));
+      document.write(
+        '<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no' +
+          (coverSupport ? ",viewport-fit=cover" : "") +
+          '"/>'
+      );
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

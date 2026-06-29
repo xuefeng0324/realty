@@ -1,0 +1,51 @@
+{
+  "_comment": "Python 端用同样的输入跑出的期望值（python -m pytest realty/backend/tests/test_scoring_and_snapshot.py -v 之后拷贝过来）。如果后端 Python 规则有改动，这里也要同步更新。",
+
+  "snapshot_cases": [
+    {
+      "_name": "normal_small_window",
+      "_input": { "communityId": 1, "weekEndDate": "2026-03-23", "unitPrices": [71000, 71500, 71200, 71800, 71300] },
+      "_expected": null,
+      "_note": "placeholder"
+    }
+  ],
+
+  "school_cases": [
+    {
+      "_name": "full_inputs_strong_school",
+      "school": { "schoolId": 1001, "provinceKeyFlag": true, "cityKeyFlag": true },
+      "latest": {
+        "latestLevelScoreRaw": 90.0,
+        "groupSchoolFlagRaw": true,
+        "groupSchoolStrengthRaw": 85.0,
+        "districtBalanceLevelRaw": 80.0,
+        "trendDeltaRaw": 0.08
+      },
+      "previous": null,
+      "_expected_trend_score": null,
+      "_note": "由 CI 填充"
+    }
+  ],
+
+  "listing_cases": [
+    {
+      "_name": "full_inputs_best_case",
+      "listing": {
+        "listingId": 9001,
+        "communityId": 1,
+        "orientation": "南",
+        "bedrooms": 3,
+        "bathrooms": 2,
+        "floorNumber": "6",
+        "hasElevator": true,
+        "decorateType": "精装",
+        "buildYear": 2020,
+        "unitPrice": 70000,
+        "nearestMetroDistanceM": 400
+      },
+      "communityAvgUnitPrice": 75000,
+      "schoolsFuture": [{ "trendScore0_100": 85.0, "provinceKeyFlag": true, "cityKeyFlag": true }],
+      "_expected": null
+    }
+  ]
+}

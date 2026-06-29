@@ -1,0 +1,40 @@
+{
+  "name": "realty-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Realty Analytics 手机端 App（基于 uni-app，复用 backend FastAPI）",
+  "scripts": {
+    "dev:h5": "uni",
+    "dev:mp-weixin": "uni -p mp-weixin",
+    "dev:app": "uni -p app",
+    "build:h5": "uni build",
+    "build:mp-weixin": "uni build -p mp-weixin",
+    "build:app": "uni build -p app",
+    "type-check": "vue-tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "3.0.0-4030620241128001",
+    "@dcloudio/uni-app-plus": "3.0.0-4030620241128001",
+    "@dcloudio/uni-components": "3.0.0-4030620241128001",
+    "@dcloudio/uni-h5": "3.0.0-4030620241128001",
+    "@dcloudio/uni-mp-weixin": "3.0.0-4030620241128001",
+    "pinia": "^2.1.7",
+    "vue": "^3.4.21",
+    "vue-i18n": "^9.1.9"
+  },
+  "devDependencies": {
+    "@dcloudio/types": "^3.4.8",
+    "@dcloudio/uni-automator": "3.0.0-4030620241128001",
+    "@dcloudio/uni-cli-shared": "3.0.0-4030620241128001",
+    "@dcloudio/uni-stacktracey": "3.0.0-4030620241128001",
+    "@dcloudio/vite-plugin-uni": "3.0.0-4030620241128001",
+    "@vue/tsconfig": "^0.5.1",
+    "sass": "^1.69.5",
+    "typescript": "^5.3.3",
+    "vite": "5.2.8",
+    "vitest": "^2.1.9",
+    "vue-tsc": "^2.0.6"
+  }
+}

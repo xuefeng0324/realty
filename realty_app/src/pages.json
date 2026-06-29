@@ -1,0 +1,77 @@
+{
+  "pages": [
+    {
+      "path": "pages/dashboard/dashboard",
+      "style": {
+        "navigationBarTitleText": "Realty · 总览",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/community/community",
+      "style": {
+        "navigationBarTitleText": "小区详情"
+      }
+    },
+    {
+      "path": "pages/listing-filter/listing-filter",
+      "style": {
+        "navigationBarTitleText": "房源筛选"
+      }
+    },
+    {
+      "path": "pages/listing-detail/listing-detail",
+      "style": {
+        "navigationBarTitleText": "房源详情"
+      }
+    },
+    {
+      "path": "pages/school/school",
+      "style": {
+        "navigationBarTitleText": "学校查询"
+      }
+    },
+    {
+      "path": "pages/stats70/stats70",
+      "style": {
+        "navigationBarTitleText": "全国 70 城指数"
+      }
+    },
+    {
+      "path": "pages/settings/settings",
+      "style": {
+        "navigationBarTitleText": "设置"
+      }
+    }
+  ],
+  "tabBar": {
+    "color": "#94a3b8",
+    "selectedColor": "#4ade80",
+    "backgroundColor": "#0b1020",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/dashboard/dashboard",
+        "text": "总览"
+      },
+      {
+        "pagePath": "pages/listing-filter/listing-filter",
+        "text": "房源"
+      },
+      {
+        "pagePath": "pages/school/school",
+        "text": "学校"
+      },
+      {
+        "pagePath": "pages/settings/settings",
+        "text": "设置"
+      }
+    ]
+  },
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "Realty App",
+    "navigationBarBackgroundColor": "#0b1020",
+    "backgroundColor": "#0b1020"
+  }
+}
