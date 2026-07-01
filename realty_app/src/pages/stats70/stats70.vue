@@ -34,6 +34,10 @@
         <view class="ranking-tabs">
           <text class="tab" :class="base === '同比' ? 'tab-on' : ''" @click="setBase('同比')">同比</text>
           <text class="tab" :class="base === '环比' ? 'tab-on' : ''" @click="setBase('环比')">环比</text>
+          <view class="ranking-tabs-spacer"></view>
+          <text class="tab sort-toggle" @click="toggleSortDir">
+            {{ sortDir === "desc" ? "降序 ▽" : "升序 △" }}
+          </text>
         </view>
 
         <view
@@ -57,7 +61,10 @@
 
       <!-- 单城市时间序列（点击 row 时显示） -->
       <view v-if="pickedCity" class="card">
-        <view class="card-title">{{ pickedCity }} · 近期 {{ trend.length }} 个月 · 新建同比</view>
+        <view class="card-title">
+          {{ pickedCity }} · 近期 {{ trend.length }} 个月 ·
+          {{ kind === "new" ? "新建" : "二手" }}{{ base }}
+        </view>
         <view v-if="trend.length === 0" class="empty">无时间序列数据</view>
         <view v-else>
           <view v-for="(pt, i) in trend" :key="i" class="trend-row">
@@ -82,6 +89,12 @@
           <text style="color:#4ade80">scripts/crawl_stats_70.py</text> 重新生成。
           指数类型：同比 / 环比（基期=100，&gt;100 上涨，&lt;100 下跌）。
         </view>
+        <view style="margin-top: 12rpx">
+          <text style="color:#cbd5e1">同比</text>：与「上年同月」相比，例如 2026 年 5 月的同比 = 2026 年 5 月房价 ÷ 2025 年 5 月房价 × 100。
+        </view>
+        <view style="margin-top: 6rpx">
+          <text style="color:#cbd5e1">环比</text>：与「上一月」相比，例如 2026 年 5 月的环比 = 2026 年 5 月房价 ÷ 2026 年 4 月房价 × 100。
+        </view>
       </view>
     </view>
   </view>
@@ -91,38 +104,50 @@
 import { computed, ref } from "vue";
 import {
   getLatestMonth,
-  getRankingByYoY,
+  getRanking,
   getCityTrend
 } from "../../local/stats70";
 import { showToast } from "../../utils/format";
 
 type Base = "同比" | "环比";
 type Kind = "new" | "second";
+type SortDir = "desc" | "asc";
 
 const kind = ref<Kind>("new");
 const base = ref<Base>("同比");
+const sortDir = ref<SortDir>("desc");
 
 const latestMonth = ref<string | null>(getLatestMonth());
 
-const sortedDesc = computed(() => base.value === "同比");
-
 const ranking = computed(() => {
-  const all = getRankingByYoY(kind.value);
-  if (!sortedDesc.value) {
-    return [...all].reverse();
-  }
-  return all;
+  const all = getRanking(base.value, kind.value);
+  return sortDir.value === "desc" ? all : [...all].reverse();
 });
 
-const sortLabel = computed(() => (sortedDesc.value ? "降序" : "升序"));
+const sortLabel = computed(() => (sortDir.value === "desc" ? "降序" : "升序"));
 
 const hasData = computed(() => ranking.value.length > 0);
 
 function setKind(k: Kind) {
   kind.value = k;
+  refreshTrend();
 }
 function setBase(b: Base) {
   base.value = b;
+  refreshTrend();
+}
+function toggleSortDir() {
+  sortDir.value = sortDir.value === "desc" ? "asc" : "desc";
+}
+
+function refreshTrend() {
+  if (!pickedCity.value) return;
+  trend.value = getCityTrend(
+    pickedCity.value,
+    12,
+    kind.value === "second" ? "second" : "new",
+    base.value
+  );
 }
 
 function formatIndex(v: number | null): string {
@@ -134,13 +159,13 @@ function valueClass(v: number | null): string {
   if (v == null) return "";
   if (v > 100) return "trend-up";
   if (v < 100) return "trend-down";
-  return "";
+  return "trend-flat";
 }
 
 function barPct(v: number | null): number {
   if (v == null) return 0;
-  // 90..120 -> 0..100
-  const x = (v - 90) * 100 / 30;
+  // 以 100 为中点：90..110 -> 0..100，让 100 落在 50%
+  const x = (v - 90) * 5;
   return Math.max(0, Math.min(100, x));
 }
 
@@ -160,7 +185,12 @@ const trend = ref<{ date: string; yoy: number | null }[]>([]);
 
 function onPickCity(city: string) {
   pickedCity.value = city;
-  trend.value = getCityTrend(city, 12, kind.value === "second" ? "second" : "new");
+  trend.value = getCityTrend(
+    city,
+    12,
+    kind.value === "second" ? "second" : "new",
+    base.value
+  );
 }
 </script>
 
@@ -168,7 +198,16 @@ function onPickCity(city: string) {
 .ranking-tabs {
   display: flex;
   gap: 12rpx;
+  align-items: center;
   margin-bottom: 12rpx;
+}
+
+.ranking-tabs-spacer {
+  flex: 1;
+}
+
+.sort-toggle {
+  margin-left: auto;
 }
 
 .tab {
@@ -248,6 +287,10 @@ function onPickCity(city: string) {
   background: linear-gradient(90deg, #ef4444, #fca5a5);
 }
 
+.rank-bar-fill.trend-flat {
+  background: linear-gradient(90deg, #475569, #94a3b8);
+}
+
 .trend-row {
   display: flex;
   align-items: center;
@@ -275,5 +318,9 @@ function onPickCity(city: string) {
 
 .trend-bar-fill.trend-down {
   background: linear-gradient(90deg, #ef4444, #fca5a5);
+}
+
+.trend-bar-fill.trend-flat {
+  background: linear-gradient(90deg, #475569, #94a3b8);
 }
 </style>

@@ -1,0 +1,8 @@
+{
+  "csv_url": "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/seed/listings.csv",
+  "meta_url": "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/seed/crawl_meta.json",
+  "sha256": "5e964a47a7866267",
+  "row_count": 1226,
+  "generated_at": "2026-07-01T04:08:22+00:00",
+  "source": "anjuke"
+}

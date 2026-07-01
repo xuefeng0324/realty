@@ -18,6 +18,29 @@
         </view>
       </view>
 
+      <!-- v3：从 jsDelivr 拉当周真数据 -->
+      <view class="card">
+        <view class="card-title">实时数据（安居客）</view>
+        <view class="muted">
+          <text v-if="lastRefresh.at">上次刷新：{{ lastRefresh.at }}</text>
+          <text v-else>尚未刷新过，仍用 app 包内数据</text>
+        </view>
+        <view v-if="lastRefresh.sha" class="muted" style="margin-top: 6rpx; font-size: 22rpx;">
+          sha: {{ lastRefresh.sha }}
+        </view>
+        <view class="row-gap" style="margin-top: 16rpx">
+          <button class="btn" size="mini" :disabled="refreshing" @click="refreshFromCdn">
+            {{ refreshing ? "刷新中…" : "刷新数据" }}
+          </button>
+          <button class="btn btn-ghost" size="mini" :disabled="!lastRefresh.sha" @click="restoreSeed">
+            回到种子包
+          </button>
+        </view>
+        <text class="muted" style="margin-top: 12rpx; font-size: 22rpx;">
+          数据源：GitHub Actions 每周抓 m.anjuke.com → jsDelivr CDN → 本 app
+        </text>
+      </view>
+
       <view v-if="errorMsg" class="error">{{ errorMsg }}</view>
       <view v-if="infoMsg" class="card muted">{{ infoMsg }}</view>
 
@@ -88,6 +111,11 @@ import { buildDemoSnapshot } from "../../local/demoData";
 import { buildSeedSnapshot, resetSeedSnapshotCache } from "../../local/seedSnapshot";
 import { getApiBaseUrl, setApiBaseUrl } from "../../api/http";
 import { showToast } from "../../utils/format";
+import {
+  refreshFromRemote,
+  getLastRefreshInfo,
+  clearRemoteCache
+} from "../../local/dataRefresher";
 
 type DataMode = "seed" | "demo" | "csv-url" | "http";
 
@@ -99,6 +127,8 @@ const csvBaseUrl = ref<string>(
   (uni.getStorageSync("realty_app.csvBaseUrl") as string) ?? ""
 );
 const advancedOpen = ref<boolean>(false);
+const refreshing = ref<boolean>(false);
+const lastRefresh = ref<{ sha?: string; at?: string }>(getLastRefreshInfo());
 
 const errorMsg = ref<string>("");
 const infoMsg = ref<string>("");
@@ -243,6 +273,37 @@ async function resetToSeed() {
   uni.setStorageSync("realty_app.dataMode", "seed");
   infoMsg.value = `已加载政府公开种子：${snap.listings.length} 套房源 / ${snap.communities.length} 个小区`;
   showToast("已重置为政府公开种子数据");
+}
+
+async function refreshFromCdn() {
+  if (refreshing.value) return;
+  errorMsg.value = "";
+  infoMsg.value = "";
+  refreshing.value = true;
+  try {
+    const result = await refreshFromRemote();
+    lastRefresh.value = getLastRefreshInfo();
+    if (result.ok && result.changed) {
+      const s = getSnapshot();
+      infoMsg.value = `已更新 ${result.rowCount ?? s?.listings.length ?? 0} 套房源 · ${result.meta?.generated_at ?? ""}`;
+      showToast("数据已更新");
+    } else if (result.ok && !result.changed) {
+      infoMsg.value = `已是最新版本（${result.rowCount ?? "?"} 条） · ${result.meta?.generated_at ?? ""}`;
+      showToast("已是最新");
+    } else {
+      errorMsg.value = result.error ?? "刷新失败";
+    }
+  } catch (e: any) {
+    errorMsg.value = `刷新失败：${e?.message ?? String(e)}`;
+  } finally {
+    refreshing.value = false;
+  }
+}
+
+function restoreSeed() {
+  clearRemoteCache();
+  lastRefresh.value = {};
+  resetToSeed();
 }
 </script>
 

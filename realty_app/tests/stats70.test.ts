@@ -16,6 +16,7 @@ import {
   getLatestIndexForCity,
   getLatestIndexMapForCities,
   getCityTrend,
+  getRanking,
   getRankingByYoY
 } from "../src/local/stats70";
 import { getStats70, hasStats70 } from "../src/local/store";
@@ -73,6 +74,39 @@ describe("stats70 parser", () => {
     expect(r[2].city).toBe("北京"); // 99.5
   });
 
+  test("getRanking 按 同比 / 环比 分别排序", () => {
+    const csv = [
+      "date,city,fixed_base,new_idx,second_idx",
+      "2025/1/1,北京,同比,99.5,97.9",
+      "2025/1/1,北京,环比,99.5,99.4",
+      "2025/1/1,上海,同比,104.2,98.6",
+      "2025/1/1,上海,环比,100.5,99.6",
+      "2025/1/1,广州,同比,103.0,99.0",
+      "2025/1/1,广州,环比,100.1,99.5"
+    ].join("\n");
+    loadStats70FromCSV(csv);
+    // 同比：104.2 > 103.0 > 99.5
+    const byYoY = getRanking("同比", "new");
+    expect(byYoY.map((r) => r.city)).toEqual(["上海", "广州", "北京"]);
+    // 环比：100.5 > 100.1 > 99.5
+    const byMoM = getRanking("环比", "new");
+    expect(byMoM.map((r) => r.city)).toEqual(["上海", "广州", "北京"]);
+    // 二手 同比：98.6 > 99.0 < 97.9
+    const second = getRanking("同比", "second");
+    expect(second.map((r) => r.city)).toEqual(["广州", "上海", "北京"]);
+  });
+
+  test("getRanking 兼容旧名 getRankingByYoY", () => {
+    const csv = [
+      "date,city,fixed_base,new_idx,second_idx",
+      "2025/1/1,北京,同比,99.5,97.9",
+      "2025/1/1,上海,同比,104.2,98.6"
+    ].join("\n");
+    loadStats70FromCSV(csv);
+    expect(getRankingByYoY("new").map((r) => r.city))
+      .toEqual(getRanking("同比", "new").map((r) => r.city));
+  });
+
   test("getCityTrend returns last N months in ascending order", () => {
     const csv = [
       "date,city,fixed_base,new_idx,second_idx",
@@ -88,6 +122,23 @@ describe("stats70 parser", () => {
     expect(t[0].date).toBe("2024/3/1");
     expect(t[2].date).toBe("2024/5/1");
     expect(t[2].yoy).toBe(100.0);
+  });
+
+  test("getCityTrend 支持环比", () => {
+    const csv = [
+      "date,city,fixed_base,new_idx,second_idx",
+      "2024/1/1,深圳,同比,98.1,93.5",
+      "2024/1/1,深圳,环比,100.5,99.0",
+      "2024/2/1,深圳,同比,98.5,93.0",
+      "2024/2/1,深圳,环比,100.2,99.2",
+      "2024/3/1,深圳,同比,99.0,92.5",
+      "2024/3/1,深圳,环比,100.0,99.1"
+    ].join("\n");
+    loadStats70FromCSV(csv);
+    const yoy = getCityTrend("深圳", 12, "new", "同比");
+    expect(yoy.map((p) => p.yoy)).toEqual([98.1, 98.5, 99.0]);
+    const mom = getCityTrend("深圳", 12, "new", "环比");
+    expect(mom.map((p) => p.yoy)).toEqual([100.5, 100.2, 100.0]);
   });
 
   test("getLatestMonth returns the last date present", () => {

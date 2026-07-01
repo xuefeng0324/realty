@@ -1,0 +1,64 @@
+name: crawl-weekly
+
+on:
+  # 每周一 05:00 (UTC+8) = 21:00 UTC (周日)
+  schedule:
+    - cron: "0 21 * * 0"
+  workflow_dispatch:        # 允许在 Actions 页面手动触发
+
+concurrency:
+  group: crawl-weekly
+  cancel-in-progress: false  # 不取消正在跑的 cron（避免一周跑 2 次）
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write  # 自动 commit 需要 write 权限
+
+    steps:
+      - name: 拉代码
+        uses: actions/checkout@v4
+
+      - name: 设 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: 装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4 lxml
+
+      - name: 跑爬虫（m.anjuke.com）
+        id: crawl
+        run: |
+          cd realty_app
+          python scripts/crawl_anjuke.py 2>&1 | tee crawl.log
+        continue-on-error: false
+
+      - name: 看结果
+        run: |
+          cd realty_app
+          echo "===== listings.csv 前 3 行 ====="
+          head -3 static/seed/listings.csv
+          echo "===== 行数 ====="
+          wc -l static/seed/listings.csv
+          echo "===== crawl.log ====="
+          cat crawl.log
+
+      - name: 提交 CSV
+        run: |
+          cd realty_app
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet HEAD -- static/seed/listings.csv; then
+            git add static/seed/listings.csv static/seed/crawl_meta.json
+            git commit -m "data(anjuke): 刷新二手房挂牌 $(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
+              || echo "no commit needed"
+            git push
+          else
+            echo "数据无变化，跳过 commit"
+          fi

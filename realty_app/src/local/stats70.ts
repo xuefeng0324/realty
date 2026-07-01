@@ -10,7 +10,8 @@
  *   loadStats70FromCSV(text)        解析 CSV 文本
  *   getLatestIndexForCity(name)     取某城市最新一行（含 同比 / 环比）
  *   getAllCities()                  返回所有出现过的城市
- *   getRankingByFixedBase(base)     返回所有城市按 同比 / 环比 排序
+ *   getRanking(base, kind)          返回所有城市按 同比 / 环比 排序（降序）
+ *   getRankingByYoY(kind)           旧名，等价于 getRanking("同比", kind)
  *
  * 数据与 business 快照（`setSnapshot`）**完全独立**。App 启动时单独调用
  * `loadStats70FromCSV` 注入；不依赖真实房源数据。
@@ -119,11 +120,20 @@ export function getLatestIndexMapForCities(cityNames: string[]): Map<string, Lat
 }
 
 /**
- * 取某城市最近 N 个月的同比时间序列（新建商品住宅）。
+ * 取某城市最近 N 个月的指数时间序列。
+ * base: "同比" | "环比" —— 选择参与排序的指数维度
+ * kind: "new" | "second" —— 新建 / 二手
+ *
  * 列表按 date 升序。空数组表示没有数据。
+ * 返回字段沿用 `yoy` 名称（历史接口），尽管 base=环比 时它表示的是环比值。
  */
-export function getCityTrend(cityName: string, months: number = 12, kind: "new" | "second" = "new"): { date: string; yoy: number | null }[] {
-  const rows = getStats70ByCity(cityName).filter((r) => r.fixed_base === "同比");
+export function getCityTrend(
+  cityName: string,
+  months: number = 12,
+  kind: "new" | "second" = "new",
+  base: "同比" | "环比" = "同比"
+): { date: string; yoy: number | null }[] {
+  const rows = getStats70ByCity(cityName).filter((r) => r.fixed_base === base);
   const tail = rows.slice(-months);
   return tail.map((r) => ({
     date: r.date,
@@ -132,22 +142,47 @@ export function getCityTrend(cityName: string, months: number = 12, kind: "new" 
 }
 
 /**
- * 全国 70 城排行：把所有城市按"最新月的 同比 指数"降序排序。
- * kind: new  - 新建商品住宅
- *       second - 二手住宅
+ * 全国 70 城排行：把所有城市按"最新月的 指数"降序排序。
+ * base: "同比" | "环比" —— 选择参与排序的指数维度
+ * kind: "new" | "second" —— 新建 / 二手
+ *
+ * 返回的列表已按 value 降序（null 排到末尾）。调用方如果想要升序，
+ * 自行 `[...list].reverse()` 即可。
  */
-export function getRankingByYoY(kind: "new" | "second" = "new"): { city: string; date: string; value: number | null }[] {
+export function getRanking(
+  base: "同比" | "环比" = "同比",
+  kind: "new" | "second" = "new"
+): { city: string; date: string; value: number | null }[] {
   const all = getAllCities();
   const list: { city: string; date: string; value: number | null }[] = [];
   for (const c of all) {
     const li = getLatestIndexForCity(c);
     if (!li) continue;
+    let v: number | null;
+    if (base === "同比") {
+      v = kind === "new" ? li.newYoY : li.secondYoY;
+    } else {
+      v = kind === "new" ? li.newMoM : li.secondMoM;
+    }
     list.push({
       city: c,
       date: li.date,
-      value: kind === "new" ? li.newYoY : li.secondYoY
+      value: v
     });
   }
-  list.sort((a, b) => (b.value ?? -Infinity) - (a.value ?? -Infinity));
+  // null 排到末尾，其它按降序
+  list.sort((a, b) => {
+    if (a.value == null && b.value == null) return 0;
+    if (a.value == null) return 1;
+    if (b.value == null) return -1;
+    return b.value - a.value;
+  });
   return list;
+}
+
+/**
+ * 向后兼容：等价于 `getRanking("同比", kind)`，保留旧调用方不报错。
+ */
+export function getRankingByYoY(kind: "new" | "second" = "new"): { city: string; date: string; value: number | null }[] {
+  return getRanking("同比", kind);
 }
