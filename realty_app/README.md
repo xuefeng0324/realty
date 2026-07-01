@@ -260,17 +260,63 @@ python scripts/crawl_daily_wangqian.py fetch --merge
 
 ## 提交规范
 
-提交代码前建议完成：
+提交代码前**必须**完成以下检查（规范来源与 [fund](https://github.com/xuefeng0324/fund) 仓库对齐，并按本仓库调整）：
 
 | 项目 | 说明 |
 |------|------|
-| 测试 | `npm run test` 通过 |
-| 更新版本信息 | README 顶部版本表**新增**一行（不修改历史版本） |
-| 更新 changelog | `changelog/YYYY-MM-DD-v版本-变更标题.md` |
+| 代码审查 | 检查逻辑正确、改动范围最小，不夹带无关文件 |
+| 补充注释 | 为非显而易见的业务/爬虫逻辑补充必要注释 |
+| 测试 | `npm run test` 全部通过 |
+| 更新版本号 | `package.json` 的 `version` 随功能版本递增（如 `0.2.0`） |
+| 更新版本信息 | 本 README 顶部版本表**新增**一行（**不要修改**历史版本行） |
+| 简要更新日志 | 本 README 底部「更新日志」添加简要说明 |
+| 更新 changelog | `changelog/YYYY-MM-DD-v版本-变更标题.md` 写详细变更（见已有示例） |
 | 数据来源变更 | 同步更新 `DATA_SOURCES.md` |
 | 政府 CSV 变更 | 跑对应 `scripts/crawl_*.py`，一并提交 `static/*.csv` |
 
-**Commit 格式**（与主仓库一致）：`feat(realty_app): …` / `fix(crawl): …` / `data(wangqian): …` / `docs(realty_app): …`
+### Commit message 格式
+
+```
+<type>(<scope>): <简短中文说明>
+
+<可选：多行 body，列出主要变更点>
+```
+
+| type | 用途 | 示例 |
+|------|------|------|
+| `feat` | 新功能 | `feat(realty_app): 深广每日网签抓取与 App 接入` |
+| `fix` | Bug 修复 | `fix(crawl): 0 行写入保护` |
+| `docs` | 文档 | `docs(realty_app): v0.2.0 版本说明与 changelog` |
+| `data` | 仅数据/CSV 更新 | `data(wangqian): 追加深广每日网签 2026-07-02` |
+| `chore` | CI/工具/杂项 | `chore: 移动 GitHub Actions 到仓库根目录` |
+| `perf` | 性能优化 | `perf(realty_app): 减少 stats70 重复解析` |
+
+`scope` 常用：`realty_app`、`crawl`、`backend`、`frontend`；纯数据 commit 可省略 scope。
+
+### changelog 文件命名
+
+```
+changelog/YYYY-MM-DD-vX.Y.Z-变更标题.md
+```
+
+示例：`changelog/2026-07-01-v0.2.0-深广每日网签抓取与App接入.md`
+
+### 开发规范
+
+| 项目 | 说明 |
+|------|------|
+| 爬虫请求 | 政府 API 加合理 `User-Agent` / `Referer`；分页或批量请求加间隔（如 200ms） |
+| 爬虫保护 | 写入 CSV 前校验最小行数，避免空数据覆盖种子（见 `crawl_anjuke.py --min-rows`） |
+| 数据分层 | 宏观（`stats_70.csv` / `daily_wangqian.csv`）与挂牌（`listings.csv`）分开维护 |
+| JS 评分规则 | 改 Python 规则时同步改 `src/rules/` 并更新 `tests/rules.test.ts` |
+| Git 推送 | 含 `.github/workflows/` 的 push 需 `gh` token 带 **`workflow`** scope；本机建议 `G:\Git\cmd\git.exe`（Git 2.23 与 Cursor 内置 git 的 `--trailer` 不兼容） |
+
+### 推送前授权（一次性，长期有效）
+
+```powershell
+gh auth refresh -h github.com -s workflow
+gh auth setup-git
+```
 
 ## 更新日志
 

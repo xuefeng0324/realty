@@ -124,7 +124,47 @@ python -m realty.backend.app.scripts.run_scheduler_loop `
 python -m pytest -q realty\backend\tests
 ```
 
-GitHub Actions 工作流见 `realty\.github\workflows\`（如 `backend-tests.yml`、`frontend-build.yml`）。
+GitHub Actions 工作流见 `.github/workflows/`（如 `crawl-daily-wangqian.yml`、`crawl-weekly.yml`）及 `realty\.github\workflows\`（桌面端 backend-tests、frontend-build）。
+
+## 提交规范
+
+本仓库含 **桌面端**（`realty/`）与 **手机端**（`realty_app/`）两套代码，规范与 [fund](https://github.com/xuefeng0324/fund) 仓库对齐。
+
+### 通用（所有子项目）
+
+| 项目 | 说明 |
+|------|------|
+| Commit 格式 | `<type>(<scope>): 中文说明`，type 见下表 |
+| 不改历史版本 | README 版本表只**追加**新版本行 |
+| changelog | 功能发版时在对应子目录 `changelog/` 新增详细记录 |
+| 不提交垃圾 | 勿提交 `log.zip`、`logs/`、`runs.json`、探测脚本 `_probe_*.py` 等 |
+
+| type | 用途 |
+|------|------|
+| `feat` | 新功能 |
+| `fix` | Bug 修复 |
+| `docs` | 文档 / README / changelog |
+| `data` | 仅 CSV / 种子数据更新（如 `data(wangqian): …`） |
+| `chore` | CI、目录调整、依赖 |
+| `perf` | 性能 |
+
+### 手机端 `realty_app/`
+
+完整清单见 [`realty_app/README.md#提交规范`](realty_app/README.md#提交规范)，摘要：
+
+- `npm run test` 通过
+- 更新 `package.json` version、`realty_app/README.md` 版本表与更新日志
+- 政府数据变更 → `DATA_SOURCES.md` + `scripts/crawl_*.py` + `static/*.csv`
+- push 含 workflow 时需 `gh auth refresh -h github.com -s workflow`
+
+### 桌面端 `realty/backend` + `realty/frontend`
+
+| 项目 | 说明 |
+|------|------|
+| 测试 | `python -m pytest -q realty\backend\tests` |
+| 前端构建 | 改 frontend 后 `npm run build` 确认无报错 |
+| scope 示例 | `feat(backend): …` / `fix(frontend): …` |
+| 评分规则 | Python 与 `realty_app/src/rules/` 保持同步 |
 
 ## 免责声明
 
