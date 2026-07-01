@@ -80,39 +80,58 @@ USER_AGENTS = [
     "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
     "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1",
     "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1",
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+    "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Mobile Safari/537.36",
 ]
+
+# 短页面阈值（小于此大小认为是 captcha / challenge 页）
+MIN_PAGE_BYTES = 8000
 
 
 # --------------------------- HTTP 工具 ---------------------------
 
-def _req(url: str, retries: int = 2, timeout: int = 15) -> str | None:
-    """轻量 GET。失败/反爬拦截返回 None。"""
+def _req(url: str, retries: int = 3, timeout: int = 15, min_bytes: int = MIN_PAGE_BYTES) -> str | None:
+    """轻量 GET。每次失败换 UA，指数 backoff。返回 html 文本或 None。"""
+    last_err = None
     for i in range(retries):
+        ua = random.choice(USER_AGENTS)
         try:
             r = requests.get(
                 url,
                 headers={
-                    "User-Agent": random.choice(USER_AGENTS),
-                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                    "Accept-Language": "zh-CN,zh;q=0.9",
+                    "User-Agent": ua,
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+                    "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
                     "Referer": "https://m.anjuke.com/",
+                    "Connection": "keep-alive",
+                    "Upgrade-Insecure-Requests": "1",
                 },
                 timeout=timeout,
             )
             if r.status_code != 200:
-                print(f"  [warn] status={r.status_code} url={url[:80]}", file=sys.stderr)
-                time.sleep(SLEEP_BETWEEN_REQS * 5)
+                last_err = f"HTTP {r.status_code}"
+                print(f"  [warn] {last_err}, ua={ua[:30]}..., retry {i+1}/{retries}", file=sys.stderr)
+                time.sleep(SLEEP_BETWEEN_REQS * (2 ** i))
                 continue
             r.encoding = r.apparent_encoding or "utf-8"
             html = r.text
-            # 拦截检查：挑战页通常 < 5KB；正常列表页 > 50KB
-            if len(html) < 8000:
-                print(f"  [warn] 短页面 {len(html)} 字节，可能被 captcha 拦", file=sys.stderr)
-                return None  # 不重试，整 IP 这一会话基本废了
+            if len(html) < min_bytes:
+                last_err = f"short page {len(html)}B"
+                print(f"  [warn] {last_err}, ua={ua[:30]}..., retry {i+1}/{retries}", file=sys.stderr)
+                # 短页面通常是被 captcha 拦了 → 换 UA 重试
+                time.sleep(SLEEP_BETWEEN_REQS * (2 ** i) + random.uniform(1, 3))
+                continue
+            if "m.anjuke.com" not in r.url:
+                last_err = f"redirected to {r.url}"
+                print(f"  [warn] {last_err}", file=sys.stderr)
+                continue
             return html
         except requests.RequestException as e:
-            print(f"  [warn] request error: {e}", file=sys.stderr)
-            time.sleep(SLEEP_BETWEEN_REQS)
+            last_err = str(e)
+            print(f"  [warn] req error: {last_err}, retry {i+1}/{retries}", file=sys.stderr)
+            time.sleep(SLEEP_BETWEEN_REQS * (2 ** i))
+    print(f"  [fail] {url[:80]} 全失败: {last_err}", file=sys.stderr)
     return None
 
 
@@ -271,6 +290,12 @@ def main():
     parser.add_argument("--out", type=Path, default=OUT_CSV)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--limit", type=int, default=None)
+    parser.add_argument(
+        "--min-rows",
+        type=int,
+        default=50,
+        help="抓到少于该条数就 abort，不覆盖已有 CSV（保护现有数据）",
+    )
     args = parser.parse_args()
 
     print(f"[crawl] target cities: {[(k, v['name']) for k, v in CITY_CONFIG.items()]}")
@@ -290,9 +315,17 @@ def main():
         all_rows.extend(city_rows)
         print(f"[crawl] city={CITY_CONFIG[city_id]['name']} rows={len(city_rows)} (累计 {len(all_rows)})", file=sys.stderr)
 
+    # 保护：抓到太少就别覆盖（反爬 captcha 时 0 行是常态）
+    if len(all_rows) < args.min_rows and not args.dry_run:
+        print(
+            f"[abort] 抓 {len(all_rows)} 条 < 阈值 {args.min_rows}，"
+            f"已有 CSV 保留不动",
+            file=sys.stderr,
+        )
+        sys.exit(2)
+
     if not args.dry_run:
         write_csv(all_rows, args.out)
-        # 同时写 crawl_meta.json，供 app 端检查远端数据版本
         try:
             import subprocess
             subprocess.run(["python", str(Path(__file__).parent / "publish_csv.py")], check=True)
