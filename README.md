@@ -1,17 +1,18 @@
 # Realty Analytics
 
-房产数据可视化与房源质量评分（MVP）：后端为 **FastAPI + SQLAlchemy**，前端为 **Vue 3 + ECharts**，提供 Dashboard、社区详情与可解释的房源评分说明。
+房产数据可视化与房源质量评分：桌面端为 **FastAPI + Vue 3**，手机端为 **uni-app 纯本地 App**（`realty_app/`），支持政府宏观数据（70 城指数、深广每日网签）与本地房源评分。
 
 ## 仓库结构
 
 ```
-realty/                 # 应用根目录（Python 包 realty.* 所在位置）
+realty/                 # 桌面端（Python 包 realty.*）
   backend/              # FastAPI、规则引擎、ETL 脚本
   frontend/             # Vite + Vue 3
-  docs/                 # 文档与约定
-  api/                  # API 契约等
-  data/                 # 示例数据与数据源相关说明
-  README.txt            # 更细的进度与历史说明（可选读）
+realty_app/             # ★ 手机端 uni-app（纯本地，无后端依赖）
+  scripts/              # 政府数据爬虫（stats_70、daily_wangqian 等）
+  static/               # 打包进 App 的 CSV
+  changelog/            # 版本变更记录
+.github/workflows/      # CI（网签日更、安居客周更等）
 ```
 
 在命令行中，请把 **`G:\github\realty`**（本仓库根目录，即包含 `realty\` 子目录的那一层）作为工作目录；`python realty\backend\run.py` 会把该路径加入 `sys.path`，以便 `import realty.backend...` 正常工作。
@@ -132,6 +133,19 @@ GitHub Actions 工作流见 `realty\.github\workflows\`（如 `backend-tests.yml
 ## 许可证
 
 见仓库根目录 `LICENSE`。
+
+## 手机端 App（realty_app）
+
+- 说明与版本：`realty_app\README.md`
+- 政府数据来源：`realty_app\DATA_SOURCES.md`
+- 变更记录：`realty_app\changelog\`
+
+```powershell
+cd realty_app
+npm install
+npm run test
+npm run dev:h5
+```
 
 ## 更多文档
 

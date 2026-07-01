@@ -2,6 +2,13 @@
 
 电脑端是 Vue 3 + ECharts 的网页 + 电脑端 FastAPI 后端。这一版手机端 App **不再依赖电脑**：评分规则在手机上实时计算，数据存在手机本地（内存版，阶段 A；后续可接 SQLite）。
 
+## 版本信息
+
+| 版本 | 发布日期 | 说明 |
+|------|----------|------|
+| v0.2.0 | 2026-07-01 | 深广每日网签抓取脚本、App 展示、GitHub Actions 工作日定时 merge |
+| v0.1.0 | 2026-06 | 纯本地 App、70 城指数、政府公开种子 listings、评分规则 JS 移植 |
+
 ## 工作原理
 
 ```
@@ -79,12 +86,12 @@ npm run test
 
 | Tab | 页面 | 功能 |
 |-----|------|------|
-| 总览 | `pages/dashboard/dashboard` | 城市/周期/来源/指标筛选；**全国 70 城指数卡片**（点击进入榜单）；区对比柱图；小区 Top 排行；数据覆盖 |
+| 总览 | `pages/dashboard/dashboard` | 城市/周期/来源/指标筛选；**70 城指数**与**政府每日网签**卡片；区对比柱图；小区 Top 排行；数据覆盖 |
 | — | `pages/community/community` | 小区名称；近 12 周价格趋势；质量分布 + 维度雷达；优/缺点 Top 标签；该小区房源列表 |
 | 房源 | `pages/listing-filter/listing-filter` | 总价/面积/挂牌类型/装修/最低评分筛选；标签 + 评分 pill |
 | — | `pages/listing-detail/listing-detail` | 房源详情、维度评分、亮点/不足、源链接、解释 JSON |
 | 学校 | `pages/school/school` | 关键字搜索学校 |
-| — | `pages/stats70/stats70` | **全国 70 城价格指数榜单**：按 同比/环比 × 新建/二手 排序；点击城市看近期 12 月趋势 |
+| — | `pages/stats70/stats70` | **70 城价格指数榜单** + **深广每日网签**（套数/面积、近 14 日趋势） |
 | 设置 | `pages/settings/settings` | 默认即政府公开种子 · 高设置（折叠）改数据模式 / 远程 CSV / HTTP 后端 |
 
 ## 快速开始
@@ -107,7 +114,7 @@ npm install
 npm run test
 ```
 
-应看到 `42 passed (42)`。
+应看到全部测试通过（含 `dailyWangqian.test.ts`）。
 
 ### 3. 启动 H5（最快看到效果）
 
@@ -156,9 +163,12 @@ realty_app/
 │  ├─ utils/format.ts     # 格式化工具
 │  └─ ...（入口、路由、清单等同前）
 ├─ tests/                 # ★ vitest 测试
-│  ├─ rules.test.ts       # 18 个 JS-vs-Python 对照测试
-│  ├─ pipeline.test.ts    # 9 个端到端测试
-│  └─ expected.json       # 占位（后续 Python 端跑真值回填）
+│  ├─ rules.test.ts       # JS-vs-Python 对照
+│  ├─ stats70.test.ts
+│  ├─ dailyWangqian.test.ts
+│  └─ pipeline.test.ts
+├─ changelog/             # 按日期-版本-变更标题记录
+├─ DATA_SOURCES.md        # 政府宏观数据来源说明
 ├─ package.json / tsconfig.json / vite.config.ts / vitest.config.ts / ...
 └─ README.md
 ```
@@ -207,6 +217,25 @@ CSV 字段（窄表）：`date, city, fixed_base, new_idx, second_idx`（`fixed_
 
 > 注：第三方 CSV 是反向工程、人工整理版本，覆盖到 2006 年；统计局官方源是 HTML 表格，需自爬（`crawl_stats_70.py crawl`）。
 
+## 政府数据：深广每日网签（v0.2.0 新增）
+
+住建局公布的**成交套数/面积**（宏观），与 70 城**价格指数**是不同维度。
+
+- **数据源**：深圳 `fdc.zjj.sz.gov.cn`（新房+二手）；广州 `mrxjspfqyxx.ashx`（新房住宅签约）
+- **加载方式**：`App.vue` 启动时内联 `static/daily_wangqian.csv`
+- **更新方式**：
+
+```bash
+# 本地抓取并 merge 历史
+python scripts/crawl_daily_wangqian.py fetch --merge
+```
+
+- **CI**：`.github/workflows/crawl-daily-wangqian.yml` 工作日 09:30（北京时间）自动 merge 并 commit
+
+**局限**：接口只返回最近一个交易日；广州二手房暂无日更 API（仅月度图片公告）。
+
+完整字段与 API 说明见 [DATA_SOURCES.md](./DATA_SOURCES.md)。
+
 ### 阶段 2：政府真数据接入（已实现 + 持续中）
 
 手机端默认使用**政府公开种子数据**（见上表），由 `scripts/seed_real_data.py` 派生。
@@ -228,6 +257,31 @@ CSV 字段（窄表）：`date, city, fixed_base, new_idx, second_idx`（`fixed_
 - H5/小程序模式下不能接 SQLite 插件，只能用内存；数据量受限于设备 RAM
 - App 模式（Android/iOS）才能接 SQLite 插件
 - demo 数据每次启动都重新生成，不持久化（要持久化可以加 `uni.setStorageSync`）
+
+## 提交规范
+
+提交代码前建议完成：
+
+| 项目 | 说明 |
+|------|------|
+| 测试 | `npm run test` 通过 |
+| 更新版本信息 | README 顶部版本表**新增**一行（不修改历史版本） |
+| 更新 changelog | `changelog/YYYY-MM-DD-v版本-变更标题.md` |
+| 数据来源变更 | 同步更新 `DATA_SOURCES.md` |
+| 政府 CSV 变更 | 跑对应 `scripts/crawl_*.py`，一并提交 `static/*.csv` |
+
+**Commit 格式**（与主仓库一致）：`feat(realty_app): …` / `fix(crawl): …` / `data(wangqian): …` / `docs(realty_app): …`
+
+## 更新日志
+
+详细变更见 [changelog/](./changelog/) 目录。
+
+### v0.2.0 (2026-07-01)
+
+**深广每日网签抓取与 App 接入**
+
+- 新增 `crawl_daily_wangqian.py` 与 `daily_wangqian.csv`
+- Dashboard / stats70 展示政府网签；工作日 GitHub Actions 自动 merge
 
 ## License
 
