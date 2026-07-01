@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { onLaunch, onShow } from "@dcloudio/uni-app";
-import { setSnapshot, isLoaded, hasStats70 } from "./local/store";
+import { setSnapshot, isLoaded, hasStats70, hasDailyWangqian } from "./local/store";
 import { buildSeedSnapshot } from "./local/seedSnapshot";
 import { loadStats70FromCSV } from "./local/stats70";
+import { loadDailyWangqianFromCSV } from "./local/dailyWangqian";
 // 直接以 raw 字符串 import，绕开 app-plus 静态资源下载问题。
 //   H5/小程序：`?raw` query 由 vite 处理返回字符串
 //   app-plus：在 webpack/vite 阶段把文件内联进来
@@ -11,6 +12,8 @@ import { loadStats70FromCSV } from "./local/stats70";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import stats70Raw from "../static/stats_70.csv?raw";
+// @ts-ignore
+import dailyWangqianRaw from "../static/daily_wangqian.csv?raw";
 
 onLaunch(() => {
   // 启动时加载种子"真数据"快照（来自国家统计局 70 城指数 + 公开政策派生）
@@ -31,6 +34,14 @@ onLaunch(() => {
       console.log("[realty_app] stats_70 loaded:", rows.length);
     } catch (e) {
       console.warn("[realty_app] stats_70 parse failed", e);
+    }
+  }
+  if (!hasDailyWangqian() && typeof dailyWangqianRaw === "string" && dailyWangqianRaw.length > 0) {
+    try {
+      const rows = loadDailyWangqianFromCSV(dailyWangqianRaw);
+      console.log("[realty_app] daily_wangqian loaded:", rows.length);
+    } catch (e) {
+      console.warn("[realty_app] daily_wangqian parse failed", e);
     }
   }
   console.log("[realty_app] launched, snapshot loaded:", isLoaded());

@@ -96,6 +96,41 @@
         <view class="stats70-foot muted">点击进入全国 70 城榜单 ›</view>
       </view>
 
+      <!-- 深广每日网签（政府公布，与 70 城指数不同维度） -->
+      <view class="card wangqian-card" @click="goStats70">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">政府每日网签</view>
+          <view class="muted" style="font-size: 22rpx">{{ wangqianDateLabel }}</view>
+        </view>
+
+        <view v-if="!wangqianReady" class="empty" style="padding: 24rpx 0">
+          网签数据未加载。
+        </view>
+        <view v-else-if="!currentWangqian" class="empty" style="padding: 24rpx 0">
+          当前城市暂无网签日更（仅深圳/广州）
+        </view>
+        <view v-else>
+          <view class="stats70-grid">
+            <view class="stats70-cell">
+              <text class="cell-label">新房 套数</text>
+              <text class="cell-value wangqian-up">
+                {{ formatWangqianUnits(currentWangqian.newUnits) }}
+              </text>
+              <text class="cell-sub muted">{{ formatWangqianArea(currentWangqian.newArea) }}</text>
+            </view>
+            <view class="stats70-cell">
+              <text class="cell-label">二手 套数</text>
+              <text class="cell-value wangqian-up">
+                {{ formatWangqianUnits(currentWangqian.secondUnits) }}
+              </text>
+              <text class="cell-sub muted">{{ formatWangqianArea(currentWangqian.secondArea) }}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="stats70-foot muted">住建局公布成交套数 · 详情见 70 城页 ›</view>
+      </view>
+
       <view v-if="runtime" class="card muted">
         <text>DB: {{ runtime.database_file || runtime.database_url }}</text>
         <text> · 规则: {{ runtime.rule_version_listing }}</text>
@@ -201,7 +236,8 @@ import {
   getLatestMonth,
   type LatestIndexForCity
 } from "../../local/stats70";
-import { hasStats70 } from "../../local/store";
+import { getLatestCityDaily, type CityDailySnapshot } from "../../local/dailyWangqian";
+import { hasStats70, hasDailyWangqian } from "../../local/store";
 import type {
   CityItem,
   CommunityRankingItem,
@@ -512,6 +548,34 @@ function trendClass(v: number | null): string {
   return "stats70-flat";
 }
 
+// 政府网签卡片 -------------------------------------------------------
+const wangqianReady = computed(() => hasDailyWangqian());
+
+const currentWangqian = computed<CityDailySnapshot | null>(() => {
+  if (!hasDailyWangqian()) return null;
+  const city = cities.value.find((c) => c.city_id === app.cityId);
+  if (!city) return null;
+  const name = city.city_name.replace(/市$/, "");
+  if (name !== "深圳" && name !== "广州") return null;
+  return getLatestCityDaily(name);
+});
+
+const wangqianDateLabel = computed(() => {
+  const d = currentWangqian.value?.date;
+  return d || "";
+});
+
+function formatWangqianUnits(v: number | null): string {
+  if (v == null) return "—";
+  return String(v);
+}
+
+function formatWangqianArea(v: number | null): string {
+  if (v == null) return "";
+  if (v >= 10000) return `${(v / 10000).toFixed(1)} 万㎡`;
+  return `${Math.round(v)} ㎡`;
+}
+
 /** 现在 stats70 CSV 在 App.vue 里已经同步注入（?raw），这里不再二次 fetch。 */
 async function ensureStats70Loaded() {
   /* 留作占位 */
@@ -811,5 +875,14 @@ onShow(async () => {
 
 .stats70-flat {
   color: #94a3b8 !important;
+}
+
+.wangqian-card {
+  background: linear-gradient(135deg, #111827 0%, #0c1a2e 100%);
+  border: 1rpx solid #1e3a5f;
+}
+
+.wangqian-up {
+  color: #38bdf8 !important;
 }
 </style>

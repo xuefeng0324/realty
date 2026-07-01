@@ -14,6 +14,7 @@ import type {
   DataSnapshot,
   LocalCity,
   LocalCommunity,
+  LocalDailyWangqianRow,
   LocalListing,
   LocalSchool,
   LocalStats70Row
@@ -23,6 +24,9 @@ let snapshot: DataSnapshot | null = null;
 
 /** 国家统计局 70 城价格指数，独立于 business 数据快照。 */
 let stats70: LocalStats70Row[] = [];
+
+/** 深广政府网签日更，独立于 business 数据快照。 */
+let dailyWangqian: LocalDailyWangqianRow[] = [];
 
 export function setSnapshot(s: DataSnapshot) {
   snapshot = s;
@@ -57,6 +61,23 @@ export function hasStats70(): boolean {
 export function getStats70ByCity(cityName: string): LocalStats70Row[] {
   const target = (cityName ?? "").replace(/市$/, "");
   return stats70.filter((r) => r.city === target);
+}
+
+export function setDailyWangqian(rows: LocalDailyWangqianRow[]) {
+  dailyWangqian = rows;
+}
+
+export function getDailyWangqian(): LocalDailyWangqianRow[] {
+  return dailyWangqian;
+}
+
+export function hasDailyWangqian(): boolean {
+  return dailyWangqian.length > 0;
+}
+
+export function getDailyWangqianByCity(cityName: string): LocalDailyWangqianRow[] {
+  const target = (cityName ?? "").replace(/市$/, "");
+  return dailyWangqian.filter((r) => r.city === target);
 }
 
 /**

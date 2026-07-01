@@ -84,6 +84,18 @@ export interface LocalStats70Row {
   second_idx: number | null;
 }
 
+/** 政府网签日更（`scripts/crawl_daily_wangqian.py` 输出）。 */
+export interface LocalDailyWangqianRow {
+  date: string;
+  city: string;
+  category: "新房" | "二手";
+  district: string;
+  units: number;
+  area_sqm: number;
+  granularity: "city" | "district";
+  source_url: string;
+}
+
 export interface DataSnapshot {
   importedAt: string;
   source: string;

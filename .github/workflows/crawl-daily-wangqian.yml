@@ -1,0 +1,58 @@
+name: crawl-daily-wangqian
+
+on:
+  # 工作日 09:30 北京时间 = 01:30 UTC（政府数据通常 T+1 更新）
+  schedule:
+    - cron: "30 1 * * 1-5"
+  workflow_dispatch:
+
+concurrency:
+  group: crawl-daily-wangqian
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - name: 拉代码
+        uses: actions/checkout@v4
+
+      - name: 设 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: 装依赖
+        run: pip install requests
+
+      - name: 抓取深广网签（merge 追加）
+        run: |
+          cd realty_app
+          python scripts/crawl_daily_wangqian.py fetch --merge 2>&1 | tee wangqian.log
+
+      - name: 看结果
+        run: |
+          cd realty_app
+          echo "===== daily_wangqian.csv 行数 ====="
+          wc -l static/daily_wangqian.csv
+          echo "===== 最近全市汇总 ====="
+          grep ',全市,city,' static/daily_wangqian.csv | tail -6 || true
+          cat wangqian.log
+
+      - name: 提交 CSV
+        run: |
+          cd realty_app
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet HEAD -- static/daily_wangqian.csv; then
+            git add static/daily_wangqian.csv
+            git commit -m "data(wangqian): 追加深广每日网签 $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git push
+          else
+            echo "数据无变化（同日已抓过），跳过 commit"
+          fi
