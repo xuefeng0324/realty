@@ -1,0 +1,21 @@
+name: hello
+
+# 这是一个临时 hello workflow，用来「启动」 GitHub Actions 功能。
+# GitHub 在 Actions 未启用时，会隐藏仓库里所有的 workflow。
+# 第一次 Configure 这个 hello workflow 之后，Actions 就被启用了，
+# 然后你的 crawl-weekly 也会出现在 Actions 页面里。
+#
+# 你之后可以删除这个文件，不影响 crawl-weekly。
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 验证 Actions 已启用
+        run: echo "✅ Actions 已启用！crawl-weekly 现在应该在 Actions 列表里了"
