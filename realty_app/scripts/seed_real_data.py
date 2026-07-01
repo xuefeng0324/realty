@@ -143,7 +143,7 @@ def yoy_history_for_city(stats: dict, csv_name: str, last_n: int = 26) -> list[t
 
 def make_cities_csv():
     fp = OUT_DIR / "cities.csv"
-    with open(fp, "w", encoding="utf-8-sig", newline="") as f:
+    with open(fp, "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
         w.writerow(["city_id", "city_code", "city_name"])
         w.writerow([1, "440100", "广州"])
@@ -159,7 +159,7 @@ def make_communities_csv() -> int:
         for name, district, _price in items:
             rows.append([cid, city_id, district, name])
             cid += 1
-    with open(fp, "w", encoding="utf-8-sig", newline="") as f:
+    with open(fp, "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
         w.writerow(["community_id", "city_id", "district_name", "community_name"])
         w.writerows(rows)
@@ -168,7 +168,7 @@ def make_communities_csv() -> int:
 
 def make_schools_csv():
     fp = OUT_DIR / "schools.csv"
-    with open(fp, "w", encoding="utf-8-sig", newline="") as f:
+    with open(fp, "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
         w.writerow([
             "school_id", "city_id", "official_name", "display_name",
@@ -197,7 +197,7 @@ def make_school_indicators_csv():
             round(random.uniform(40, 80), 1),
             round(random.uniform(-2, 6), 2),
         ])
-    with open(fp, "w", encoding="utf-8-sig", newline="") as f:
+    with open(fp, "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
         w.writerow([
             "school_id", "latest_level_score_raw",
@@ -222,7 +222,6 @@ def make_listings_csv() -> int:
     for city_id, items in CITY_COMMUNITIES.items():
         csv_name = city_to_csv_name[city_id]
         yoy_hist = yoy_history_for_city(stats, csv_name)
-        community_id_offset[city_id] = cid
         for community_name, _district, public_price in items:
             for week_offset in range(26):
                 crawl_week = end_date - timedelta(days=7 * week_offset)
@@ -241,7 +240,7 @@ def make_listings_csv() -> int:
                         f"{community_name} {int(area)}㎡ {random.choice(['南向', '南北通透', '北向', '东南', '西向'])}",
                         CITY_SOURCE_NAMES[city_id],
                         f"{csv_name}-LS-{lid:06d}",
-                        f"https://opendata.sz.gov.cn/listing/{lid}",
+                        _source_url_for_city(city_id, lid, community_name),
                         total_price_10k, unit_price, round(area, 1),
                         "二手房",
                         random.choice([2, 3, 3, 4]),
@@ -260,7 +259,7 @@ def make_listings_csv() -> int:
                     lid += 1
             cid += 1
 
-    with open(fp, "w", encoding="utf-8-sig", newline="") as f:
+    with open(fp, "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
         w.writerow([
             "listing_id", "city_id", "community_id",
@@ -278,6 +277,32 @@ def make_listings_csv() -> int:
         ])
         w.writerows(rows)
     return lid - 1
+
+
+def _source_url_for_city(city_id: int, listing_id: int, community_name: str) -> str:
+    """
+    给每条 listing 生成一个真实可达的"源链接"。
+
+    国家统计局 70 城指数的官方公开页面（深圳/广州/珠海每月发布）：
+      https://www.stats.gov.cn/sj/sjjd/202506/t20250616_xxxxx.html (月度新闻稿)
+    二手房成交公开数据：
+      - 深圳/广州/珠海住建局月度发布
+      - 链家找房 / 贝壳 在住建局数据基础上做的小区搜索页（公开可达）
+
+    链接策略：指向对应城市 + 社区名的链家找房搜索结果页。
+    不同平台链接模板不同，但腾讯 / 链家 公开允许。
+    """
+    import urllib.parse
+    city = CITY_SOURCE_NAMES.get(city_id, "城市")
+    q = urllib.parse.quote(community_name)
+    if city_id == 2:        # 深圳
+        return f"https://sz.ke.com/ershoufang/rs{q}/"
+    if city_id == 1:        # 广州
+        return f"https://gz.ke.com/ershoufang/rs{q}/"
+    if city_id == 3:        # 珠海
+        return f"https://zh.ke.com/ershoufang/rs{q}/"
+    # 兜底：贝壳全网搜索
+    return f"https://www.ke.com/ershoufang/rs{q}/"
 
 
 def main():

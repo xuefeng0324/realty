@@ -8,68 +8,91 @@
         <view class="form-grid">
           <view class="form-item">
             <text class="form-label">城市</text>
-            <picker mode="selector" :range="cityLabels" :value="cityIndex" @change="onCityChange">
-              <view class="picker-value">{{ currentCityLabel }}</view>
-            </picker>
+            <view class="picker-value tap" @click="pickCity">
+              {{ currentCityLabel || "请选择" }}
+              <text class="picker-caret">▾</text>
+            </view>
           </view>
           <view class="form-item">
             <text class="form-label">周期</text>
-            <picker mode="selector" :range="periods" :value="periodIndex" @change="onPeriodChange">
-              <view class="picker-value">{{ app.weekEnd || "请选择" }}</view>
-            </picker>
+            <view class="picker-value tap" @click="pickPeriod">
+              {{ app.weekEnd || "请选择" }}
+              <text class="picker-caret">▾</text>
+            </view>
           </view>
           <view class="form-item">
             <text class="form-label">来源</text>
-            <picker mode="selector" :range="sourceLabels" :value="sourceIndex" @change="onSourceChange">
-              <view class="picker-value">{{ app.source || "全部" }}</view>
-            </picker>
+            <view class="picker-value tap" @click="pickSource">
+              {{ app.source || "全部" }}
+              <text class="picker-caret">▾</text>
+            </view>
           </view>
           <view class="form-item">
             <text class="form-label">挂牌类型</text>
-            <picker mode="selector" :range="listingTypeLabels" :value="listingTypeIndex" @change="onListingTypeChange">
-              <view class="picker-value">{{ listingTypeLabels[listingTypeIndex] }}</view>
-            </picker>
+            <view class="picker-value tap" @click="pickListingType">
+              {{ listingTypeLabels[listingTypeIndex] }}
+              <text class="picker-caret">▾</text>
+            </view>
           </view>
 
           <view class="form-item">
             <text class="form-label">最低评分</text>
-            <picker mode="selector" :range="scoreThresholds" :value="scoreIndex" @change="onScoreChange">
-              <view class="picker-value">{{ minQualityScore || "不限" }}</view>
-            </picker>
+            <view class="picker-value tap" @click="pickScore">
+              {{ scoreIndex === 0 ? "不限" : minQualityScore + "+" }}
+              <text class="picker-caret">▾</text>
+            </view>
           </view>
           <view class="form-item">
             <text class="form-label">装修</text>
-            <picker mode="selector" :range="decorateOptions" :value="decorateIndex" @change="onDecorateChange">
-              <view class="picker-value">{{ decorateOptions[decorateIndex] }}</view>
-            </picker>
+            <view class="picker-value tap" @click="pickDecorate">
+              {{ decorateOptions[decorateIndex] }}
+              <text class="picker-caret">▾</text>
+            </view>
           </view>
         </view>
 
         <view class="slider-row">
-          <text class="form-label">总价 {{ priceRange[0] }} - {{ priceRange[1] }} 万</text>
+          <text class="form-label">总价（万）下限</text>
           <slider
-            range
-            :min="0"
-            :max="2000"
-            :step="50"
-            :value="priceRange"
-            @change="onPriceChange"
-            activeColor="#22c55e"
-            backgroundColor="#1f2937"
+            :min="PRICE_MIN" :max="PRICE_MAX" :step="PRICE_STEP" :value="priceRange[0]"
+            activeColor="#22c55e" backgroundColor="#1f2937" block-size="20"
+            show-value
+            @change="onPriceLoChange"
+            @changing="onPriceLoChange"
           />
+          <text class="form-label">总价（万）上限</text>
+          <slider
+            :min="PRICE_MIN" :max="PRICE_MAX" :step="PRICE_STEP" :value="priceRange[1]"
+            activeColor="#22c55e" backgroundColor="#1f2937" block-size="20"
+            show-value
+            @change="onPriceHiChange"
+            @changing="onPriceHiChange"
+          />
+          <view class="range-meta muted">
+            <text>当前区间：{{ priceRange[0] }} - {{ priceRange[1] }} 万</text>
+          </view>
         </view>
+
         <view class="slider-row">
-          <text class="form-label">面积 {{ areaRange[0] }} - {{ areaRange[1] }} ㎡</text>
+          <text class="form-label">面积（㎡）下限</text>
           <slider
-            range
-            :min="0"
-            :max="300"
-            :step="10"
-            :value="areaRange"
-            @change="onAreaChange"
-            activeColor="#22c55e"
-            backgroundColor="#1f2937"
+            :min="AREA_MIN" :max="AREA_MAX" :step="AREA_STEP" :value="areaRange[0]"
+            activeColor="#22c55e" backgroundColor="#1f2937" block-size="20"
+            show-value
+            @change="onAreaLoChange"
+            @changing="onAreaLoChange"
           />
+          <text class="form-label">面积（㎡）上限</text>
+          <slider
+            :min="AREA_MIN" :max="AREA_MAX" :step="AREA_STEP" :value="areaRange[1]"
+            activeColor="#22c55e" backgroundColor="#1f2937" block-size="20"
+            show-value
+            @change="onAreaHiChange"
+            @changing="onAreaHiChange"
+          />
+          <view class="range-meta muted">
+            <text>当前区间：{{ areaRange[0] }} - {{ areaRange[1] }} ㎡</text>
+          </view>
         </view>
 
         <view class="row-gap" style="margin-top: 16rpx">
@@ -113,6 +136,26 @@
             {{ it.quality_score.toFixed(1) }}
           </view>
         </view>
+      </view>
+    </view>
+
+    <!-- 内置 popup -->
+    <view v-if="sheet.open" class="sheet-mask" @click="closeSheet">
+      <view class="sheet" @click.stop>
+        <view class="sheet-title">{{ sheet.title }}</view>
+        <scroll-view scroll-y class="sheet-list">
+          <view
+            v-for="(label, idx) in sheet.items"
+            :key="idx"
+            class="sheet-item"
+            :class="{ 'sheet-item--active': idx === sheet.currentIndex }"
+            @click="sheetPick(idx)"
+          >
+            <text>{{ label }}</text>
+            <text v-if="idx === sheet.currentIndex" class="sheet-check">✓</text>
+          </view>
+        </scroll-view>
+        <view class="sheet-cancel" @click="closeSheet">取消</view>
       </view>
     </view>
   </view>
@@ -175,47 +218,143 @@ const items = ref<ListingItem[]>([]);
 const total = ref(0);
 const errorMsg = ref("");
 
-function onCityChange(e: any) {
-  const c = cities.value[Number(e.detail.value)];
-  if (c) {
-    app.setCityId(c.city_id);
-    loadMeta();
-  }
+// 内置 popup（替代 uni-app picker，跨平台一致）
+const sheet = ref<{
+  open: boolean;
+  title: string;
+  items: string[];
+  currentIndex: number;
+  onPick: (idx: number) => void;
+}>({
+  open: false,
+  title: "",
+  items: [],
+  currentIndex: -1,
+  onPick: () => {}
+});
+
+function openSheet(title: string, items: string[], currentIndex: number, onPick: (idx: number) => void) {
+  sheet.value = { open: true, title, items, currentIndex, onPick };
+}
+function closeSheet() {
+  sheet.value.open = false;
+}
+function sheetPick(idx: number) {
+  const cb = sheet.value.onPick;
+  closeSheet();
+  cb(idx);
 }
 
-function onPeriodChange(e: any) {
-  const p = periods.value[Number(e.detail.value)];
-  if (p) {
-    app.setWeekEnd(p);
+function pickCity() {
+  if (cities.value.length === 0) return;
+  const items = cities.value.map((c) => c.city_name);
+  const cur = cities.value.findIndex((c) => c.city_id === app.cityId);
+  openSheet("选择城市", items, cur, (idx) => {
+    const c = cities.value[idx];
+    if (c) {
+      app.setCityId(c.city_id);
+      loadMeta();
+      applyFilter();
+    }
+  });
+}
+
+function pickPeriod() {
+  if (periods.value.length === 0) return;
+  const list = periods.value.slice().reverse();
+  const cur = list.indexOf(app.weekEnd);
+  openSheet("选择周期（最近的在前）", list, cur >= 0 ? cur : 0, (idx) => {
+    const p = list[idx];
+    if (p) {
+      app.setWeekEnd(p);
+      applyFilter();
+    }
+  });
+}
+
+function pickSource() {
+  const items = ["全部", ...sourceOptions.value.map((s) => s.source || "(空来源)")];
+  let cur = 0;
+  if (app.source) {
+    const idx = sourceOptions.value.findIndex((s) => s.source === app.source);
+    if (idx >= 0) cur = idx + 1;
+  }
+  openSheet("数据来源", items, cur, (idx) => {
+    if (idx === 0) app.setSource("");
+    else {
+      const s = sourceOptions.value[idx - 1];
+      if (s) app.setSource(s.source);
+    }
     applyFilter();
-  }
+  });
 }
 
-function onSourceChange(e: any) {
-  const idx = Number(e.detail.value);
-  if (idx === 0) app.setSource("");
-  else app.setSource(sourceOptions.value[idx - 1].source);
-  applyFilter();
+function pickListingType() {
+  openSheet("挂牌类型", listingTypeLabels, listingTypeIndex.value, (idx) => {
+    listingTypeIndex.value = idx;
+    applyFilter();
+  });
 }
 
-function onListingTypeChange(e: any) {
-  listingTypeIndex.value = Number(e.detail.value);
+function pickScore() {
+  const items = scoreThresholds.map((v) => (v === 0 ? "不限" : `${v}+`));
+  openSheet("最低评分", items, scoreIndex.value, (idx) => {
+    scoreIndex.value = idx;
+    applyFilter();
+  });
 }
 
-function onDecorateChange(e: any) {
-  decorateIndex.value = Number(e.detail.value);
+function pickDecorate() {
+  openSheet("装修", decorateOptions, decorateIndex.value, (idx) => {
+    decorateIndex.value = idx;
+    applyFilter();
+  });
 }
 
-function onScoreChange(e: any) {
-  scoreIndex.value = Number(e.detail.value);
+// 双 thumb slider：改用两个独立 <slider>（下限 / 上限），避开 <slider range> 在 H5 上的渲染问题
+const PRICE_MIN = 0;
+const PRICE_MAX = 2000;
+const AREA_MIN = 0;
+const AREA_MAX = 300;
+const PRICE_STEP = 50;
+const AREA_STEP = 10;
+
+let _applyDebounce: ReturnType<typeof setTimeout> | null = null;
+function scheduleApply() {
+  if (_applyDebounce) clearTimeout(_applyDebounce);
+  _applyDebounce = setTimeout(() => {
+    applyFilter();
+    _applyDebounce = null;
+  }, 120);
 }
 
-function onPriceChange(e: any) {
-  priceRange.value = e.detail.value as [number, number];
+function onPriceLoChange(e: any) {
+  const v = Number(e.detail.value);
+  if (!Number.isFinite(v)) return;
+  const lo = Math.min(v, priceRange.value[1]);
+  priceRange.value = [lo, priceRange.value[1]];
+  scheduleApply();
 }
-
-function onAreaChange(e: any) {
-  areaRange.value = e.detail.value as [number, number];
+function onPriceHiChange(e: any) {
+  const v = Number(e.detail.value);
+  if (!Number.isFinite(v)) return;
+  const hi = Math.max(v, priceRange.value[0]);
+  priceRange.value = [priceRange.value[0], hi];
+  scheduleApply();
+}
+function onAreaLoChange(e: any) {
+  const v = Number(e.detail.value);
+  if (!Number.isFinite(v)) return;
+  const lo = Math.min(v, areaRange.value[1]);
+  areaRange.value = [lo, areaRange.value[1]];
+  scheduleApply();
+}
+function onAreaHiChange(e: any) {
+  const v = Number(e.detail.value);
+  if (!Number.isFinite(v)) return;
+  const hi = Math.max(v, areaRange.value[0]);
+  areaRange.value = [areaRange.value[0], hi];
+  scheduleApply();
 }
 
 async function loadMeta() {
@@ -326,6 +465,144 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 8rpx;
+}
+
+.range-track {
+  position: relative;
+  height: 64rpx;
+  padding: 26rpx 0;
+  box-sizing: border-box;
+  touch-action: none;
+}
+
+.range-track-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 6rpx;
+  background: #1f2937;
+  border-radius: 4rpx;
+  transform: translateY(-50%);
+}
+
+.range-track-fill {
+  position: absolute;
+  top: 50%;
+  height: 6rpx;
+  background: #22c55e;
+  border-radius: 4rpx;
+  transform: translateY(-50%);
+}
+
+.range-thumb {
+  position: absolute;
+  top: 50%;
+  width: 48rpx;
+  height: 48rpx;
+  background: #22c55e;
+  border: 4rpx solid #f3f4f6;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.5);
+  z-index: 2;
+}
+
+.thumb-bubble {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  color: #f3f4f6;
+  border-radius: 6rpx;
+  padding: 2rpx 8rpx;
+  font-size: 20rpx;
+  white-space: nowrap;
+  margin-bottom: 6rpx;
+  border: 1rpx solid #1f2937;
+}
+
+.range-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 22rpx;
+  margin-top: 4rpx;
+}
+
+.picker-value.tap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.picker-caret {
+  color: #64748b;
+  font-size: 22rpx;
+  margin-left: 8rpx;
+}
+
+.sheet-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+}
+
+.sheet {
+  width: 100%;
+  max-height: 70vh;
+  background: #0f172a;
+  border-top-left-radius: 24rpx;
+  border-top-right-radius: 24rpx;
+  display: flex;
+  flex-direction: column;
+  padding: 16rpx 0;
+  box-sizing: border-box;
+}
+
+.sheet-title {
+  text-align: center;
+  font-size: 28rpx;
+  color: #94a3b8;
+  padding: 16rpx;
+  border-bottom: 1rpx solid #1e293b;
+}
+
+.sheet-list {
+  flex: 1;
+  max-height: 56vh;
+  padding: 0 16rpx;
+}
+
+.sheet-item {
+  padding: 24rpx 16rpx;
+  border-bottom: 1rpx solid #1e293b;
+  color: #f3f4f6;
+  font-size: 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sheet-item--active {
+  color: #4ade80;
+  background: #1e293b;
+}
+
+.sheet-check {
+  color: #4ade80;
+  font-weight: bold;
+}
+
+.sheet-cancel {
+  text-align: center;
+  padding: 28rpx 0;
+  color: #94a3b8;
+  font-size: 30rpx;
+  border-top: 1rpx solid #1e293b;
 }
 
 .listing-row {
