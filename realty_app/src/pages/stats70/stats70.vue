@@ -81,54 +81,6 @@
         </view>
       </view>
 
-      <!-- 深广每日网签（政府公布） -->
-      <view class="card">
-        <view class="card-title">深广每日网签</view>
-        <view class="muted" v-if="wangqianReady">
-          最近交易日：{{ wangqianDateLabel }}（住建局公布，非 70 城指数）
-        </view>
-        <view v-if="!wangqianReady" class="empty" style="padding: 24rpx 0">
-          暂无网签数据。请确认包内 daily_wangqian.csv 已生成。
-        </view>
-        <view v-else class="wangqian-grid">
-          <view
-            v-for="snap in wangqianSnapshots"
-            :key="snap.city"
-            class="wangqian-cell"
-          >
-            <view class="wangqian-city">{{ snap.city }}</view>
-            <view class="wangqian-metric">
-              <text class="muted">新房</text>
-              <text class="wangqian-val">{{ formatUnits(snap.newUnits) }} 套</text>
-              <text class="muted wangqian-area">{{ formatArea(snap.newArea) }}</text>
-            </view>
-            <view class="wangqian-metric" v-if="snap.secondUnits != null">
-              <text class="muted">二手</text>
-              <text class="wangqian-val">{{ formatUnits(snap.secondUnits) }} 套</text>
-              <text class="muted wangqian-area">{{ formatArea(snap.secondArea) }}</text>
-            </view>
-            <view class="wangqian-metric" v-else>
-              <text class="muted">二手日更暂未接入</text>
-            </view>
-          </view>
-        </view>
-        <view v-if="wangqianTrend.length" style="margin-top: 16rpx">
-          <view class="muted" style="margin-bottom: 8rpx">
-            {{ wangqianTrendCity }} · 新房近 {{ wangqianTrend.length }} 日套数
-          </view>
-          <view v-for="(pt, i) in wangqianTrend" :key="i" class="trend-row">
-            <view class="muted" style="width: 160rpx">{{ pt.date }}</view>
-            <view class="trend-bar-track">
-              <view
-                class="trend-bar-fill trend-up"
-                :style="{ width: wangqianBarPct(pt.units) + '%' }"
-              ></view>
-            </view>
-            <view style="width: 100rpx">{{ pt.units }}</view>
-          </view>
-        </view>
-      </view>
-
       <view class="card muted">
         <view style="margin-bottom: 8rpx">关于数据来源</view>
         <view>
@@ -144,10 +96,7 @@
           <text style="color:#cbd5e1">环比</text>：与「上一月」相比，例如 2026 年 5 月的环比 = 2026 年 5 月房价 ÷ 2026 年 4 月房价 × 100。
         </view>
         <view style="margin-top: 12rpx">
-          深广每日网签来自住建局官网 API，字段见
-          <text style="color:#4ade80">/static/daily_wangqian.csv</text>，由
-          <text style="color:#4ade80">scripts/crawl_daily_wangqian.py</text>
-          生成；需每日定时跑脚本积累历史（接口不支持回溯）。
+          深广每日网签已移至「总览 → 政府每日网签」独立页面。
         </view>
       </view>
     </view>
@@ -161,13 +110,6 @@ import {
   getRanking,
   getCityTrend
 } from "../../local/stats70";
-import {
-  getLatestCityDaily,
-  getCityDailyTrend,
-  getSupportedWangqianCities,
-  hasDailyWangqian
-} from "../../local/dailyWangqian";
-import { showToast } from "../../utils/format";
 
 type Base = "同比" | "环比";
 type Kind = "new" | "second";
@@ -187,42 +129,6 @@ const ranking = computed(() => {
 const sortLabel = computed(() => (sortDir.value === "desc" ? "降序" : "升序"));
 
 const hasData = computed(() => ranking.value.length > 0);
-
-const wangqianReady = computed(() => hasDailyWangqian());
-const wangqianSnapshots = computed(() =>
-  getSupportedWangqianCities()
-    .map((c) => getLatestCityDaily(c))
-    .filter((x): x is NonNullable<typeof x> => x != null)
-);
-const wangqianDateLabel = computed(() => {
-  const dates = wangqianSnapshots.value.map((s) => s.date);
-  if (dates.length === 0) return "—";
-  return [...new Set(dates)].sort().join(" / ");
-});
-const wangqianTrendCity = computed(() => wangqianSnapshots.value[0]?.city ?? "深圳");
-const wangqianTrendDays = computed(() => (wangqianTrendCity.value === "深圳" ? 30 : 14));
-const wangqianTrend = computed(() =>
-  getCityDailyTrend(wangqianTrendCity.value, wangqianTrendDays.value, "新房")
-);
-const wangqianMaxUnits = computed(() => {
-  const vals = wangqianTrend.value.map((p) => p.units);
-  return vals.length ? Math.max(...vals, 1) : 1;
-});
-
-function formatUnits(v: number | null): string {
-  if (v == null) return "—";
-  return String(v);
-}
-
-function formatArea(v: number | null): string {
-  if (v == null) return "";
-  if (v >= 10000) return `${(v / 10000).toFixed(1)} 万㎡`;
-  return `${Math.round(v)} ㎡`;
-}
-
-function wangqianBarPct(units: number): number {
-  return Math.max(4, Math.min(100, (units / wangqianMaxUnits.value) * 100));
-}
 
 function setKind(k: Kind) {
   kind.value = k;
@@ -418,42 +324,5 @@ function onPickCity(city: string) {
 
 .trend-bar-fill.trend-flat {
   background: linear-gradient(90deg, #475569, #94a3b8);
-}
-
-.wangqian-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 20rpx;
-  margin-top: 12rpx;
-}
-
-.wangqian-cell {
-  padding: 16rpx;
-  background: #0f172a;
-  border-radius: 12rpx;
-  border: 1rpx solid #1f2937;
-}
-
-.wangqian-city {
-  font-size: 28rpx;
-  font-weight: 600;
-  margin-bottom: 8rpx;
-}
-
-.wangqian-metric {
-  display: flex;
-  align-items: baseline;
-  gap: 12rpx;
-  margin-top: 6rpx;
-}
-
-.wangqian-val {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #4ade80;
-}
-
-.wangqian-area {
-  font-size: 22rpx;
 }
 </style>

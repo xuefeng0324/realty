@@ -41,6 +41,25 @@
         </text>
       </view>
 
+      <!-- 政府在线查询（WebView，页内登录） -->
+      <view class="card">
+        <view class="card-title">政府在线查询</view>
+        <view class="muted">
+          「成交走势」无需登录。查预售/楼盘表：先点「住建局登录」，成功后再点「深圳预售公示」。也可用 i深圳 App → i深房。
+        </view>
+        <view class="row-gap" style="margin-top: 16rpx">
+          <button class="btn" size="mini" @click="openGov('szPortal')">住建局登录</button>
+          <button class="btn btn-ghost" size="mini" @click="openGov('szPresale')">深圳预售公示</button>
+        </view>
+        <view class="row-gap" style="margin-top: 12rpx">
+          <button class="btn btn-ghost" size="mini" @click="openGov('szWangqianTrend')">成交走势</button>
+          <button class="btn btn-ghost" size="mini" @click="openGov('szZjjPortal')">住建局官网</button>
+        </view>
+        <text class="muted" style="margin-top: 12rpx; font-size: 22rpx; display: block">
+          {{ govLinkNotes.szPortal }}
+        </text>
+      </view>
+
       <!-- 政府网签宏观数据 -->
       <view class="card">
         <view class="card-title">政府网签（深广）</view>
@@ -145,8 +164,15 @@ import {
   clearWangqianRemoteCache
 } from "../../local/wangqianDataRefresher";
 import { loadDailyWangqianFromCSV } from "../../local/dailyWangqian";
+import { GOV_WEB_LINKS, openGovWeb, type GovWebLinkKey } from "../../config/govLinks";
 // @ts-ignore
 import dailyWangqianRaw from "../../../static/daily_wangqian.csv?raw";
+
+const govLinkNotes = GOV_WEB_LINKS;
+
+function openGov(key: GovWebLinkKey) {
+  openGovWeb(key);
+}
 
 type DataMode = "seed" | "demo" | "csv-url" | "http";
 

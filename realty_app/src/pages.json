@@ -38,9 +38,22 @@
       }
     },
     {
+      "path": "pages/wangqian/wangqian",
+      "style": {
+        "navigationBarTitleText": "政府每日网签",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
       "path": "pages/settings/settings",
       "style": {
         "navigationBarTitleText": "设置"
+      }
+    },
+    {
+      "path": "pages/gov-webview/gov-webview",
+      "style": {
+        "navigationBarTitleText": "政府公示"
       }
     }
   ],
