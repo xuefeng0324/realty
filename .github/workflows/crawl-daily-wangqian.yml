@@ -31,20 +31,23 @@ jobs:
         run: pip install requests
 
       - name: 抓取深广网签（merge 追加）
+        shell: bash
         run: |
+          set -o pipefail   # 否则 python 失败会被 tee 吞掉导致假成功
           cd realty_app
           python scripts/crawl_daily_wangqian.py fetch --merge 2>&1 | tee wangqian.log
           python scripts/publish_wangqian_meta.py
 
       - name: 看结果
+        shell: bash
         run: |
           cd realty_app
           echo "===== daily_wangqian.csv 行数 ====="
           wc -l static/daily_wangqian.csv
           echo "===== wangqian_meta.json ====="
           cat static/wangqian_meta.json || true
-          echo "===== 最近全市汇总 ====="
-          grep ',全市,city,' static/daily_wangqian.csv | tail -6 || true
+          echo "===== 最近全市汇总（date,city,category,scope,全市,...）====="
+          grep ',全市,' static/daily_wangqian.csv | tail -8 || true
           cat wangqian.log
 
       - name: 提交 CSV

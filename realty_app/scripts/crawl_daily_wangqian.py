@@ -8,6 +8,8 @@
       页面：https://fdc.zjj.sz.gov.cn/public/marketInfo/housePriceTrendInfo.html
     - 分区最新日：POST getYsfCjxxGsDataNew / getEsfCjxxGsDataNew
       页面：http://zjj.sz.gov.cn/xxgk/ztzl/pubdata/
+    - 最近完整月分区：POST getYsfCjxxGsMonthDataNew / getEsfCjxxGsMonthDataNew
+      页面：smcMonthDealInfo.html / tmcMonthDealInfo.html（granularity=month/month_district）
 
   广州住建「商品房销售统计」
     - 新房签约（按区）：GET /ysqgk/Api/WebApi/mrxjspfqyxx.ashx
@@ -20,9 +22,13 @@
     本脚本对广州仅抓「新房/住宅签约」。
 
 输出窄表（与 App `dailyWangqian.ts` 对齐）：
-  date,city,category,district,units,area_sqm,granularity,source_url
+  date,city,category,scope,district,units,area_sqm,granularity,source_url
 
   category   新房 | 二手
+  scope      住宅 | 全部
+             - 住宅：走势页 getFjzsInfoData（商品住房口径，可回溯 90 天）
+             - 全部：分区公示 getEsf/YsfCjxxGsDataNew（含非住宅二手，仅最新日）
+             深圳二手两套口径不同（住宅 188 ≠ 全部 239，差值为非住宅），故都保留。
   district   全市 或 行政区名
   granularity city | district
 
@@ -57,6 +63,7 @@ OUT_FIELDS = [
     "date",
     "city",
     "category",
+    "scope",
     "district",
     "units",
     "area_sqm",
@@ -64,11 +71,17 @@ OUT_FIELDS = [
     "source_url",
 ]
 
+# 口径：走势页（商品住房）= 住宅；分区公示（含非住宅二手）= 全部
+SCOPE_RESIDENTIAL = "住宅"
+SCOPE_ALL = "全部"
+
 SZ_BASE = "https://fdc.zjj.sz.gov.cn"
 SZ_TREND_API = f"{SZ_BASE}/api/marketInfoShow/getFjzsInfoData"
 SZ_TREND_SOURCE = f"{SZ_BASE}/public/marketInfo/housePriceTrendInfo.html"
 SZ_NEW_API = f"{SZ_BASE}/api/marketInfoShow/getYsfCjxxGsDataNew"
 SZ_SECOND_API = f"{SZ_BASE}/api/marketInfoShow/getEsfCjxxGsDataNew"
+SZ_NEW_MONTH_API = f"{SZ_BASE}/api/marketInfoShow/getYsfCjxxGsMonthDataNew"
+SZ_SECOND_MONTH_API = f"{SZ_BASE}/api/marketInfoShow/getEsfCjxxGsMonthDataNew"
 SZ_DISTRICT_SOURCE = "http://zjj.sz.gov.cn/xxgk/ztzl/pubdata/"
 
 GZ_BASE = "https://zfcj.gz.gov.cn"
@@ -86,6 +99,7 @@ class Row:
     date: str
     city: str
     category: str
+    scope: str
     district: str
     units: int
     area_sqm: float
@@ -93,13 +107,21 @@ class Row:
     source_url: str
 
     def key(self) -> tuple[str, ...]:
-        return (self.date, self.city, self.category, self.district, self.granularity)
+        return (
+            self.date,
+            self.city,
+            self.category,
+            self.scope,
+            self.district,
+            self.granularity,
+        )
 
     def as_list(self) -> list[str]:
         return [
             self.date,
             self.city,
             self.category,
+            self.scope,
             self.district,
             str(self.units),
             f"{self.area_sqm:.2f}",
@@ -108,9 +130,32 @@ class Row:
         ]
 
 
+class _LegacyTLSAdapter(requests.adapters.HTTPAdapter):
+    """兼容旧服务端的 TLS 重协商。
+
+    深圳 fdc 子站在 OpenSSL 3（如 GitHub Actions ubuntu）下会报
+    UNSAFE_LEGACY_RENEGOTIATION_DISABLED；本地 Windows/OpenSSL 1.1 无此问题。
+    开启 OP_LEGACY_SERVER_CONNECT (0x4) 即可，仅影响握手、不降低证书校验。
+    """
+
+    def init_poolmanager(self, *args: Any, **kwargs: Any) -> Any:
+        import ssl
+
+        try:
+            from urllib3.util.ssl_ import create_urllib3_context
+
+            ctx = create_urllib3_context()
+        except Exception:  # pragma: no cover - 退回默认上下文
+            ctx = ssl.create_default_context()
+        ctx.options |= 0x4  # OP_LEGACY_SERVER_CONNECT
+        kwargs["ssl_context"] = ctx
+        return super().init_poolmanager(*args, **kwargs)
+
+
 def _session() -> requests.Session:
     s = requests.Session()
     s.headers.update({"User-Agent": UA})
+    s.mount("https://", _LegacyTLSAdapter())
     return s
 
 
@@ -121,6 +166,15 @@ def parse_cn_date_day(text: str) -> str:
         raise ValueError(f"无法解析日期：{text!r}")
     y, mo, d = (int(m.group(i)) for i in range(1, 4))
     return f"{y:04d}-{mo:02d}-{d:02d}"
+
+
+def parse_cn_month(text: str) -> str:
+    """2026年6月 → 2026-06-01（用当月 1 号做该月的代表日期，便于 CSV 主键排序）。"""
+    m = re.search(r"(\d{4})\s*年\s*(\d{1,2})\s*月", text or "")
+    if not m:
+        raise ValueError(f"无法解析月份：{text!r}")
+    y, mo = int(m.group(1)), int(m.group(2))
+    return f"{y:04d}-{mo:02d}-01"
 
 
 def parse_gz_datetime(text: str) -> str:
@@ -182,6 +236,7 @@ def fetch_shenzhen_city_trend(sess: requests.Session, days: int) -> list[Row]:
                     str(day),
                     "深圳",
                     category,
+                    SCOPE_RESIDENTIAL,
                     "全市",
                     u,
                     a,
@@ -193,13 +248,19 @@ def fetch_shenzhen_city_trend(sess: requests.Session, days: int) -> list[Row]:
 
 
 def fetch_shenzhen_district_latest(sess: requests.Session) -> list[Row]:
-    """最新交易日分区新房/二手（饼图 API）。"""
+    """最新交易日分区新房/二手（饼图 API）。
+
+    口径说明：
+      - 新房 getYsfCjxxGsDataNew 为「商品住房」→ scope=住宅，分区合计与走势页一致。
+      - 二手 getEsfCjxxGsDataNew 为「二手房」（含非住宅）→ scope=全部；
+        另写一条「全市/全部」汇总行，便于 App 同时展示住宅(走势)与全部(分区)。
+    """
     headers = _fdc_json_headers("/public/marketInfo/smcDayDealInfo.html")
     rows: list[Row] = []
 
-    for category, api, referer_page in [
-        ("新房", SZ_NEW_API, "smcDayDealInfo.html"),
-        ("二手", SZ_SECOND_API, "tmcDayDealInfo.html"),
+    for category, scope, api, referer_page in [
+        ("新房", SCOPE_RESIDENTIAL, SZ_NEW_API, "smcDayDealInfo.html"),
+        ("二手", SCOPE_ALL, SZ_SECOND_API, "tmcDayDealInfo.html"),
     ]:
         headers["Referer"] = f"{SZ_BASE}/public/marketInfo/{referer_page}"
         r = sess.post(api, headers=headers, json={}, timeout=30)
@@ -231,22 +292,74 @@ def fetch_shenzhen_district_latest(sess: requests.Session) -> list[Row]:
             prev = by_district.get(name, (0, 0.0))
             by_district[name] = (prev[0], a)
 
+        for dist, (u, a) in sorted(by_district.items()):
+            rows.append(
+                Row(day, "深圳", category, scope, dist, u, a, "district", SZ_DISTRICT_SOURCE)
+            )
+
+        # 二手：分区合计写一条「全市/全部」行（住宅口径的全市由走势页负责）。
+        if category == "二手":
+            total_u = sum(u for u, _ in by_district.values())
+            total_a = sum(a for _, a in by_district.values())
+            rows.append(
+                Row(day, "深圳", "二手", SCOPE_ALL, "全市", total_u, total_a, "city", SZ_DISTRICT_SOURCE)
+            )
+    return rows
+
+
+def fetch_shenzhen_month_latest(sess: requests.Session) -> list[Row]:
+    """最近完整月的分区成交（新房/二手），granularity=month(全市) / month_district。
+
+    getYsf/EsfCjxxGsMonthDataNew：xmlDateMonth=数据月，dataTs 按区套数、dataMj 按区面积。
+    月度也拆住宅(新房=商品住房)/全部(二手=含非住宅)口径，与日更一致。
+    """
+    headers = _fdc_json_headers("/public/marketInfo/smcMonthDealInfo.html")
+    rows: list[Row] = []
+    for category, scope, api, referer_page in [
+        ("新房", SCOPE_RESIDENTIAL, SZ_NEW_MONTH_API, "smcMonthDealInfo.html"),
+        ("二手", SCOPE_ALL, SZ_SECOND_MONTH_API, "tmcMonthDealInfo.html"),
+    ]:
+        headers["Referer"] = f"{SZ_BASE}/public/marketInfo/{referer_page}"
+        r = sess.post(api, headers=headers, json={}, timeout=30)
+        r.raise_for_status()
+        body = r.json()
+        if body.get("status") != 1:
+            raise RuntimeError(f"深圳 {category} 月度接口异常：{body}")
+        data = body.get("data") or {}
+        if data.get("result") == "failed":
+            raise RuntimeError(f"深圳 {category} 月度：{data.get('error')}")
+
+        month_day = parse_cn_month(str(data.get("xmlDateMonth", "")))
+        ts_items = data.get("dataTs") or []
+        mj_items = data.get("dataMj") or []
+        by_district: dict[str, tuple[int, float]] = {}
+        for it in ts_items:
+            name = str(it.get("name", "")).strip()
+            if name:
+                by_district[name] = (int(round(float(it.get("value") or 0))), 0.0)
+        for it in mj_items:
+            name = str(it.get("name", "")).strip()
+            if name:
+                prev = by_district.get(name, (0, 0.0))
+                by_district[name] = (prev[0], float(it.get("value") or 0))
+
         total_u = sum(u for u, _ in by_district.values())
         total_a = sum(a for _, a in by_district.values())
         rows.append(
-            Row(day, "深圳", category, "全市", total_u, total_a, "city", SZ_DISTRICT_SOURCE)
+            Row(month_day, "深圳", category, scope, "全市", total_u, total_a, "month", SZ_DISTRICT_SOURCE)
         )
         for dist, (u, a) in sorted(by_district.items()):
             rows.append(
-                Row(day, "深圳", category, dist, u, a, "district", SZ_DISTRICT_SOURCE)
+                Row(month_day, "深圳", category, scope, dist, u, a, "month_district", SZ_DISTRICT_SOURCE)
             )
     return rows
 
 
 def fetch_shenzhen(sess: requests.Session, sz_days: int) -> list[Row]:
-    """深圳：历史全市 + 最新日分区。"""
+    """深圳：历史全市 + 最新日分区 + 最近完整月分区。"""
     rows = fetch_shenzhen_city_trend(sess, sz_days)
     rows.extend(fetch_shenzhen_district_latest(sess))
+    rows.extend(fetch_shenzhen_month_latest(sess))
     return rows
 
 
@@ -271,9 +384,10 @@ def fetch_guangzhou(sess: requests.Session) -> list[Row]:
 
     total_u = sum(u for u, _ in by_district.values())
     total_a = sum(a for _, a in by_district.values())
-    rows = [Row(day, "广州", "新房", "全市", total_u, total_a, "city", GZ_SOURCE)]
+    # 广州 zhuZaiTaoShu 本身即住宅签约口径
+    rows = [Row(day, "广州", "新房", SCOPE_RESIDENTIAL, "全市", total_u, total_a, "city", GZ_SOURCE)]
     for dist, (u, a) in sorted(by_district.items()):
-        rows.append(Row(day, "广州", "新房", dist, u, a, "district", GZ_SOURCE))
+        rows.append(Row(day, "广州", "新房", SCOPE_RESIDENTIAL, dist, u, a, "district", GZ_SOURCE))
     return rows
 
 
@@ -285,16 +399,23 @@ def read_existing(path: Path) -> list[Row]:
         reader = csv.DictReader(f)
         for r in reader:
             try:
+                category = str(r.get("category", "")).strip()
+                source_url = str(r.get("source_url", "")).strip()
+                granularity = str(r.get("granularity", "city")).strip()
+                scope = str(r.get("scope", "")).strip()
+                if not scope:
+                    scope = _infer_scope(category, granularity, source_url)
                 rows.append(
                     Row(
                         date=str(r.get("date", "")).strip(),
                         city=str(r.get("city", "")).strip(),
-                        category=str(r.get("category", "")).strip(),
+                        category=category,
+                        scope=scope,
                         district=str(r.get("district", "")).strip(),
                         units=int(float(r.get("units") or 0)),
                         area_sqm=float(r.get("area_sqm") or 0),
-                        granularity=str(r.get("granularity", "city")).strip(),
-                        source_url=str(r.get("source_url", "")).strip(),
+                        granularity=granularity,
+                        source_url=source_url,
                     )
                 )
             except (TypeError, ValueError):
@@ -302,12 +423,24 @@ def read_existing(path: Path) -> list[Row]:
     return rows
 
 
+def _infer_scope(category: str, granularity: str, source_url: str) -> str:
+    """旧 CSV 无 scope 列时的兼容推断。
+
+    走势页(housePriceTrendInfo) = 住宅；二手分区公示 = 全部；其余默认住宅。
+    """
+    if "housePriceTrendInfo" in source_url:
+        return SCOPE_RESIDENTIAL
+    if category == "二手" and granularity in ("district", "month_district"):
+        return SCOPE_ALL
+    return SCOPE_RESIDENTIAL
+
+
 def merge_rows(existing: list[Row], fresh: list[Row]) -> list[Row]:
     merged: dict[tuple[str, ...], Row] = {r.key(): r for r in existing}
     for r in fresh:
         merged[r.key()] = r
     out = list(merged.values())
-    out.sort(key=lambda x: (x.date, x.city, x.category, x.granularity, x.district))
+    out.sort(key=lambda x: (x.date, x.city, x.category, x.scope, x.granularity, x.district))
     return out
 
 

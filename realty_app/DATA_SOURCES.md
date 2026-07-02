@@ -35,11 +35,26 @@
 
 ### 2.1 深圳 — 住建局 fdc 子站
 
-| 类别 | Endpoint | 说明 |
-|------|----------|------|
-| 全市历史 | `POST …/getFjzsInfoData` `{startDate,endDate,dateType:""}` | 近 90 天可回溯；新房/二手套数+面积 |
-| 新房分区（最新日） | `POST …/getYsfCjxxGsDataNew` | 商品房成交按区 |
-| 二手分区（最新日） | `POST …/getEsfCjxxGsDataNew` | 二手房成交按区 |
+| 类别 | Endpoint | 口径(scope) | 说明 |
+|------|----------|------|------|
+| 全市历史 | `POST …/getFjzsInfoData` `{startDate,endDate,dateType:""}` | 住宅 | 近 90 天可回溯；新房/二手套数+面积；走势页柱状图，Y 轴「商品住房成交量」 |
+| 新房分区（最新日） | `POST …/getYsfCjxxGsDataNew` | 住宅 | 「商品住房成交套数」按区；**分区合计 = 走势新房（已实测 70=70）** |
+| 二手分区（最新日） | `POST …/getEsfCjxxGsDataNew` | 全部 | 「二手房成交套数」按区（含非住宅）；**分区合计 = 全部二手 ≠ 走势住宅二手** |
+| 新房月度分区 | `POST …/getYsfCjxxGsMonthDataNew` | 住宅 | 最近完整月「商品住房」按区累计（如 2026-06 全市 2413 套）；granularity=month/month_district |
+| 二手月度分区 | `POST …/getEsfCjxxGsMonthDataNew` | 全部 | 最近完整月「二手房」按区累计（如 2026-06 全市 6214 套）；含全部 11 行政区 |
+
+> 月度接口带全部 11 个行政区，是 App 里唯一能看到「全市各区」成交的来源
+> （挂牌 listings 仅覆盖少数区）。
+
+**两套口径为什么不同（已实测，非猜测）**
+
+- 走势页 `getFjzsInfoData` 二手 = **住宅口径**（商品住房），如 2026-07-01 = **188 套**。
+- 分区公示 `getEsfCjxxGsDataNew` 二手 = **全部口径**（含非住宅/商办），同日 = **239 套**。
+- 差额 51 套即非住宅二手（套均约 69㎡，明显小于住宅套均 102㎡，与「小面积商办」一致）。
+- 新房两套都是「商品住房（住宅）」，故一致（70=70）。
+
+App 因此把二手拆成「住宅 / 全部」两列都展示，不再互相覆盖或隐藏。可用
+`scripts/verify_sz_wangqian_apis.py` 复验两套接口。
 
 - 趋势页：https://fdc.zjj.sz.gov.cn/public/marketInfo/housePriceTrendInfo.html
 - 公示入口：http://zjj.sz.gov.cn/xxgk/ztzl/pubdata/
@@ -64,18 +79,22 @@
 
 ### 2.3 CSV 字段
 
-`date, city, category, district, units, area_sqm, granularity, source_url`
+`date, city, category, scope, district, units, area_sqm, granularity, source_url`
 
 | 字段 | 说明 |
 |------|------|
 | `date` | `YYYY-MM-DD` 交易日 |
 | `city` | `深圳` / `广州` |
 | `category` | `新房` / `二手` |
+| `scope` | `住宅`（走势页 getFjzsInfoData，可回溯 90 天）/ `全部`（分区公示，含非住宅二手，仅最新日） |
 | `district` | `全市` 或行政区名 |
 | `units` | 成交套数 |
 | `area_sqm` | 成交面积（平方米） |
 | `granularity` | `city` 全市汇总 / `district` 分区 |
 | `source_url` | 政府公示页链接 |
+
+> 旧 CSV 无 `scope` 列时，加载器按 `source_url`（含 `housePriceTrendInfo` → 住宅）与
+> `category+granularity`（二手+district → 全部）自动推断，向后兼容。
 
 ### 2.4 本地 / CI 更新
 
