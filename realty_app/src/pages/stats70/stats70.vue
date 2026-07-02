@@ -200,7 +200,10 @@ const wangqianDateLabel = computed(() => {
   return [...new Set(dates)].sort().join(" / ");
 });
 const wangqianTrendCity = computed(() => wangqianSnapshots.value[0]?.city ?? "深圳");
-const wangqianTrend = computed(() => getCityDailyTrend(wangqianTrendCity.value, 14, "新房"));
+const wangqianTrendDays = computed(() => (wangqianTrendCity.value === "深圳" ? 30 : 14));
+const wangqianTrend = computed(() =>
+  getCityDailyTrend(wangqianTrendCity.value, wangqianTrendDays.value, "新房")
+);
 const wangqianMaxUnits = computed(() => {
   const vals = wangqianTrend.value.map((p) => p.units);
   return vals.length ? Math.max(...vals, 1) : 1;

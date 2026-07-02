@@ -41,6 +41,29 @@
         </text>
       </view>
 
+      <!-- 政府网签宏观数据 -->
+      <view class="card">
+        <view class="card-title">政府网签（深广）</view>
+        <view class="muted">
+          <text v-if="lastWangqianRefresh.at">上次刷新：{{ lastWangqianRefresh.at }}</text>
+          <text v-else>尚未刷新过，仍用 app 包内网签数据</text>
+        </view>
+        <view v-if="lastWangqianRefresh.sha" class="muted" style="margin-top: 6rpx; font-size: 22rpx;">
+          sha: {{ lastWangqianRefresh.sha }}
+        </view>
+        <view class="row-gap" style="margin-top: 16rpx">
+          <button class="btn" size="mini" :disabled="wangqianRefreshing" @click="refreshWangqianFromCdn">
+            {{ wangqianRefreshing ? "刷新中…" : "刷新网签" }}
+          </button>
+          <button class="btn btn-ghost" size="mini" @click="restoreWangqianBundle">
+            回到包内网签
+          </button>
+        </view>
+        <text class="muted" style="margin-top: 12rpx; font-size: 22rpx;">
+          数据源：GitHub Actions 工作日抓 zjj.sz.gov.cn → jsDelivr CDN → 本 app
+        </text>
+      </view>
+
       <view v-if="errorMsg" class="error">{{ errorMsg }}</view>
       <view v-if="infoMsg" class="card muted">{{ infoMsg }}</view>
 
@@ -116,6 +139,14 @@ import {
   getLastRefreshInfo,
   clearRemoteCache
 } from "../../local/dataRefresher";
+import {
+  refreshWangqianFromRemote,
+  getLastWangqianRefreshInfo,
+  clearWangqianRemoteCache
+} from "../../local/wangqianDataRefresher";
+import { loadDailyWangqianFromCSV } from "../../local/dailyWangqian";
+// @ts-ignore
+import dailyWangqianRaw from "../../../static/daily_wangqian.csv?raw";
 
 type DataMode = "seed" | "demo" | "csv-url" | "http";
 
@@ -129,6 +160,8 @@ const csvBaseUrl = ref<string>(
 const advancedOpen = ref<boolean>(false);
 const refreshing = ref<boolean>(false);
 const lastRefresh = ref<{ sha?: string; at?: string }>(getLastRefreshInfo());
+const wangqianRefreshing = ref<boolean>(false);
+const lastWangqianRefresh = ref<{ sha?: string; at?: string }>(getLastWangqianRefreshInfo());
 
 const errorMsg = ref<string>("");
 const infoMsg = ref<string>("");
@@ -297,6 +330,42 @@ async function refreshFromCdn() {
     errorMsg.value = `刷新失败：${e?.message ?? String(e)}`;
   } finally {
     refreshing.value = false;
+  }
+}
+
+async function refreshWangqianFromCdn() {
+  if (wangqianRefreshing.value) return;
+  errorMsg.value = "";
+  infoMsg.value = "";
+  wangqianRefreshing.value = true;
+  try {
+    const result = await refreshWangqianFromRemote();
+    lastWangqianRefresh.value = getLastWangqianRefreshInfo();
+    if (result.ok && result.changed) {
+      infoMsg.value = `网签已更新 ${result.rowCount ?? "?"} 行 · ${result.meta?.generated_at ?? ""}`;
+      showToast("网签已更新");
+    } else if (result.ok && !result.changed) {
+      infoMsg.value = `网签已是最新（${result.rowCount ?? "?"} 行） · ${result.meta?.generated_at ?? ""}`;
+      showToast("网签已是最新");
+    } else {
+      errorMsg.value = result.error ?? "网签刷新失败";
+    }
+  } catch (e: any) {
+    errorMsg.value = `网签刷新失败：${e?.message ?? String(e)}`;
+  } finally {
+    wangqianRefreshing.value = false;
+  }
+}
+
+function restoreWangqianBundle() {
+  clearWangqianRemoteCache();
+  lastWangqianRefresh.value = {};
+  if (typeof dailyWangqianRaw === "string" && dailyWangqianRaw.length > 0) {
+    loadDailyWangqianFromCSV(dailyWangqianRaw);
+    infoMsg.value = "已恢复包内网签数据";
+    showToast("已恢复包内网签");
+  } else {
+    errorMsg.value = "包内网签数据不可用";
   }
 }
 

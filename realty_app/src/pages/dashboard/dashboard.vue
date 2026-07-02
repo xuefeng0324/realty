@@ -96,8 +96,8 @@
         <view class="stats70-foot muted">点击进入全国 70 城榜单 ›</view>
       </view>
 
-      <!-- 深广每日网签（政府公布，与 70 城指数不同维度） -->
-      <view class="card wangqian-card" @click="goStats70">
+      <!-- 政府每日网签（住建局 fdc，跟当前城市联动） -->
+      <view class="card wangqian-card">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">政府每日网签</view>
           <view class="muted" style="font-size: 22rpx">{{ wangqianDateLabel }}</view>
@@ -126,9 +126,62 @@
               <text class="cell-sub muted">{{ formatWangqianArea(currentWangqian.secondArea) }}</text>
             </view>
           </view>
+
+          <!-- 90 日二手趋势 -->
+          <view v-if="wangqianSecondTrend.length" class="wangqian-section">
+            <view class="wangqian-section-title">
+              二手近 {{ wangqianSecondTrend.length }} 个交易日（套数）
+            </view>
+            <scroll-view scroll-y class="wq-trend-scroll">
+              <view
+                v-for="(pt, i) in wangqianSecondTrend"
+                :key="'t-' + i"
+                class="wq-trend-row"
+              >
+                <text class="wq-trend-date">{{ formatWangqianDateShort(pt.date) }}</text>
+                <view class="wq-trend-track">
+                  <view
+                    class="wq-trend-fill"
+                    :style="{ width: wangqianSecondBarPct(pt.units) + '%' }"
+                  ></view>
+                </view>
+                <text class="wq-trend-val">{{ pt.units }}</text>
+              </view>
+            </scroll-view>
+          </view>
+
+          <!-- 各区分区表（最近交易日） -->
+          <view v-if="wangqianDistrictRows.length" class="wangqian-section">
+            <view class="wangqian-section-title">
+              各区分区 · {{ wangqianDistrictDate }}
+            </view>
+            <view class="wq-table-head">
+              <text class="wq-col-name">行政区</text>
+              <text class="wq-col-num">新房</text>
+              <text class="wq-col-num">二手</text>
+            </view>
+            <scroll-view scroll-y class="wq-table-body">
+              <view
+                v-for="row in wangqianDistrictRows"
+                :key="row.district"
+                class="wq-table-row"
+              >
+                <text class="wq-col-name">{{ row.district }}</text>
+                <text class="wq-col-num">{{ row.newUnits }}</text>
+                <text class="wq-col-num">{{ formatWangqianUnits(row.secondUnits) }}</text>
+              </view>
+            </scroll-view>
+          </view>
+          <view
+            v-else-if="currentWangqianCityName === '广州'"
+            class="muted"
+            style="margin-top: 16rpx; font-size: 22rpx"
+          >
+            广州暂无二手分区日更，上表仅含新房签约分区。
+          </view>
         </view>
 
-        <view class="stats70-foot muted">住建局公布成交套数 · 详情见 70 城页 ›</view>
+        <view class="stats70-foot muted" @click.stop="goStats70">70 城指数与更多宏观数据 ›</view>
       </view>
 
       <view v-if="runtime" class="card muted">
@@ -236,7 +289,12 @@ import {
   getLatestMonth,
   type LatestIndexForCity
 } from "../../local/stats70";
-import { getLatestCityDaily, type CityDailySnapshot } from "../../local/dailyWangqian";
+import {
+  getLatestCityDaily,
+  getCityDailyTrend,
+  getLatestDistrictBreakdown,
+  type CityDailySnapshot
+} from "../../local/dailyWangqian";
 import { hasStats70, hasDailyWangqian } from "../../local/store";
 import type {
   CityItem,
@@ -553,17 +611,51 @@ const wangqianReady = computed(() => hasDailyWangqian());
 
 const currentWangqian = computed<CityDailySnapshot | null>(() => {
   if (!hasDailyWangqian()) return null;
-  const city = cities.value.find((c) => c.city_id === app.cityId);
-  if (!city) return null;
-  const name = city.city_name.replace(/市$/, "");
+  const name = currentWangqianCityName.value;
+  if (!name) return null;
   if (name !== "深圳" && name !== "广州") return null;
   return getLatestCityDaily(name);
+});
+
+const currentWangqianCityName = computed(() => {
+  const city = cities.value.find((c) => c.city_id === app.cityId);
+  return city?.city_name.replace(/市$/, "") ?? "";
 });
 
 const wangqianDateLabel = computed(() => {
   const d = currentWangqian.value?.date;
   return d || "";
 });
+
+const wangqianSecondTrend = computed(() => {
+  const name = currentWangqianCityName.value;
+  if (name !== "深圳" && name !== "广州") return [];
+  return getCityDailyTrend(name, 90, "二手");
+});
+
+const wangqianSecondMaxUnits = computed(() => {
+  const vals = wangqianSecondTrend.value.map((p) => p.units);
+  return vals.length ? Math.max(...vals, 1) : 1;
+});
+
+const wangqianDistrictBreakdown = computed(() => {
+  const name = currentWangqianCityName.value;
+  if (name !== "深圳" && name !== "广州") return null;
+  return getLatestDistrictBreakdown(name);
+});
+
+const wangqianDistrictDate = computed(() => wangqianDistrictBreakdown.value?.date ?? "");
+const wangqianDistrictRows = computed(() => wangqianDistrictBreakdown.value?.rows ?? []);
+
+function formatWangqianDateShort(dateStr: string): string {
+  const parts = dateStr.split("-");
+  if (parts.length === 3) return `${parts[1]}/${parts[2]}`;
+  return dateStr;
+}
+
+function wangqianSecondBarPct(units: number): number {
+  return Math.max(3, Math.min(100, (units / wangqianSecondMaxUnits.value) * 100));
+}
 
 function formatWangqianUnits(v: number | null): string {
   if (v == null) return "—";
@@ -884,5 +976,89 @@ onShow(async () => {
 
 .wangqian-up {
   color: #38bdf8 !important;
+}
+
+.wangqian-section {
+  margin-top: 24rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #1f2937;
+}
+
+.wangqian-section-title {
+  font-size: 24rpx;
+  color: #94a3b8;
+  margin-bottom: 12rpx;
+}
+
+.wq-trend-scroll {
+  max-height: 360rpx;
+}
+
+.wq-trend-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 4rpx 0;
+  font-size: 22rpx;
+}
+
+.wq-trend-date {
+  width: 72rpx;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.wq-trend-track {
+  flex: 1;
+  height: 12rpx;
+  background: #1f2937;
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.wq-trend-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0ea5e9, #38bdf8);
+  border-radius: 6rpx;
+}
+
+.wq-trend-val {
+  width: 56rpx;
+  text-align: right;
+  color: #e2e8f0;
+  flex-shrink: 0;
+}
+
+.wq-table-head,
+.wq-table-row {
+  display: flex;
+  align-items: center;
+  padding: 10rpx 0;
+  font-size: 24rpx;
+}
+
+.wq-table-head {
+  color: #64748b;
+  border-bottom: 1rpx solid #1f2937;
+}
+
+.wq-table-row {
+  border-bottom: 1rpx solid #0f172a;
+  color: #e2e8f0;
+}
+
+.wq-col-name {
+  flex: 1.2;
+}
+
+.wq-col-num {
+  width: 100rpx;
+  text-align: right;
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.wq-table-body {
+  max-height: 420rpx;
 }
 </style>

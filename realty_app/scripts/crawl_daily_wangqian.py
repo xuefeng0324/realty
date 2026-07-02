@@ -4,9 +4,10 @@
 
 数据源（已实测可匿名访问）：
   深圳住建局 fdc 子站
-    - 一手：POST /api/marketInfoShow/getYsfCjxxGsDataNew
-    - 二手：POST /api/marketInfoShow/getEsfCjxxGsDataNew
-    页面：http://zjj.sz.gov.cn/xxgk/ztzl/pubdata/ （内嵌 iframe）
+    - 全市历史（近 N 日）：POST /api/marketInfoShow/getFjzsInfoData
+      页面：https://fdc.zjj.sz.gov.cn/public/marketInfo/housePriceTrendInfo.html
+    - 分区最新日：POST getYsfCjxxGsDataNew / getEsfCjxxGsDataNew
+      页面：http://zjj.sz.gov.cn/xxgk/ztzl/pubdata/
 
   广州住建「商品房销售统计」
     - 新房签约（按区）：GET /ysqgk/Api/WebApi/mrxjspfqyxx.ashx
@@ -27,8 +28,8 @@
 
 使用：
   python scripts/crawl_daily_wangqian.py fetch
-  python scripts/crawl_daily_wangqian.py fetch --merge   # 与已有 CSV 去重合并
-  python scripts/crawl_daily_wangqian.py fetch --city 深圳
+  python scripts/crawl_daily_wangqian.py fetch --merge
+  python scripts/crawl_daily_wangqian.py fetch --city 深圳 --sz-days 90
 
 依赖：pip install requests
 """
@@ -39,7 +40,7 @@ import csv
 import re
 import sys
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -64,9 +65,11 @@ OUT_FIELDS = [
 ]
 
 SZ_BASE = "https://fdc.zjj.sz.gov.cn"
+SZ_TREND_API = f"{SZ_BASE}/api/marketInfoShow/getFjzsInfoData"
+SZ_TREND_SOURCE = f"{SZ_BASE}/public/marketInfo/housePriceTrendInfo.html"
 SZ_NEW_API = f"{SZ_BASE}/api/marketInfoShow/getYsfCjxxGsDataNew"
 SZ_SECOND_API = f"{SZ_BASE}/api/marketInfoShow/getEsfCjxxGsDataNew"
-SZ_SOURCE = "http://zjj.sz.gov.cn/xxgk/ztzl/pubdata/"
+SZ_DISTRICT_SOURCE = "http://zjj.sz.gov.cn/xxgk/ztzl/pubdata/"
 
 GZ_BASE = "https://zfcj.gz.gov.cn"
 GZ_NEW_API = f"{GZ_BASE}/ysqgk/Api/WebApi/mrxjspfqyxx.ashx"
@@ -129,30 +132,69 @@ def parse_gz_datetime(text: str) -> str:
     return f"{y:04d}-{mo:02d}-{d:02d}"
 
 
-def _sum_pie(items: list[dict[str, Any]]) -> tuple[int, float]:
-    units = 0
-    area = 0.0
-    for it in items or []:
-        v = it.get("value")
-        if v is None:
-            continue
-        try:
-            fv = float(v)
-        except (TypeError, ValueError):
-            continue
-        # 套数为整数，面积为小数
-        if abs(fv - round(fv)) < 1e-6 and fv < 10000:
-            units += int(round(fv))
-        else:
-            area += fv
-    return units, area
-
-
-def fetch_shenzhen(sess: requests.Session) -> list[Row]:
-    headers = {
-        "Referer": f"{SZ_BASE}/public/marketInfo/smcDayDealInfo.html",
+def _fdc_json_headers(referer_path: str) -> dict[str, str]:
+    return {
+        "Referer": f"{SZ_BASE}{referer_path}",
         "Content-Type": "application/json",
     }
+
+
+def fetch_shenzhen_city_trend(sess: requests.Session, days: int) -> list[Row]:
+    """全市新房/二手近 N 个交易日（getFjzsInfoData，可回溯）。"""
+    if days <= 0:
+        return []
+    end = date.today()
+    start = end - timedelta(days=days)
+    headers = _fdc_json_headers("/public/marketInfo/housePriceTrendInfo.html")
+    r = sess.post(
+        SZ_TREND_API,
+        headers=headers,
+        json={
+            "startDate": start.isoformat(),
+            "endDate": end.isoformat(),
+            "dateType": "",
+        },
+        timeout=45,
+    )
+    r.raise_for_status()
+    body = r.json()
+    if body.get("status") != 1:
+        raise RuntimeError(f"深圳趋势接口异常：{body}")
+    data = body.get("data") or {}
+    if data.get("result") == "failed":
+        raise RuntimeError(f"深圳趋势：{data.get('error')}")
+
+    dates = data.get("date") or []
+    rows: list[Row] = []
+    series = [
+        ("新房", data.get("ysfTotalTs") or [], data.get("ysfDealArea") or []),
+        ("二手", data.get("esfTotalTs") or [], data.get("esfDealArea") or []),
+    ]
+    for category, units_arr, area_arr in series:
+        for i, day in enumerate(dates):
+            try:
+                u = int(round(float(units_arr[i])))
+                a = float(area_arr[i])
+            except (IndexError, TypeError, ValueError):
+                continue
+            rows.append(
+                Row(
+                    str(day),
+                    "深圳",
+                    category,
+                    "全市",
+                    u,
+                    a,
+                    "city",
+                    SZ_TREND_SOURCE,
+                )
+            )
+    return rows
+
+
+def fetch_shenzhen_district_latest(sess: requests.Session) -> list[Row]:
+    """最新交易日分区新房/二手（饼图 API）。"""
+    headers = _fdc_json_headers("/public/marketInfo/smcDayDealInfo.html")
     rows: list[Row] = []
 
     for category, api, referer_page in [
@@ -192,12 +234,19 @@ def fetch_shenzhen(sess: requests.Session) -> list[Row]:
         total_u = sum(u for u, _ in by_district.values())
         total_a = sum(a for _, a in by_district.values())
         rows.append(
-            Row(day, "深圳", category, "全市", total_u, total_a, "city", SZ_SOURCE)
+            Row(day, "深圳", category, "全市", total_u, total_a, "city", SZ_DISTRICT_SOURCE)
         )
         for dist, (u, a) in sorted(by_district.items()):
             rows.append(
-                Row(day, "深圳", category, dist, u, a, "district", SZ_SOURCE)
+                Row(day, "深圳", category, dist, u, a, "district", SZ_DISTRICT_SOURCE)
             )
+    return rows
+
+
+def fetch_shenzhen(sess: requests.Session, sz_days: int) -> list[Row]:
+    """深圳：历史全市 + 最新日分区。"""
+    rows = fetch_shenzhen_city_trend(sess, sz_days)
+    rows.extend(fetch_shenzhen_district_latest(sess))
     return rows
 
 
@@ -277,11 +326,15 @@ def cmd_fetch(args: argparse.Namespace) -> int:
     cities = {c.strip() for c in args.city.split(",") if c.strip()}
 
     if not cities or "深圳" in cities:
-        print("[fetch] 深圳 fdc.zjj.sz.gov.cn …")
-        sz_rows = fetch_shenzhen(sess)
+        print(f"[fetch] 深圳 fdc（趋势 {args.sz_days} 天 + 最新日分区）…")
+        sz_rows = fetch_shenzhen(sess, args.sz_days)
         fresh.extend(sz_rows)
-        city_days = sorted({r.date for r in sz_rows if r.granularity == "city"})
-        print(f"  → {len(sz_rows)} 行，交易日 {city_days}")
+        city_rows = [r for r in sz_rows if r.granularity == "city" and r.district == "全市"]
+        city_days = sorted({r.date for r in city_rows})
+        print(
+            f"  → {len(sz_rows)} 行，全市交易日 {len(city_days)} 天"
+            f"（{city_days[0] if city_days else '?'} … {city_days[-1] if city_days else '?'}）"
+        )
 
     if not cities or "广州" in cities:
         print("[fetch] 广州 mrxjspfqyxx.ashx …")
@@ -314,6 +367,12 @@ def main() -> int:
         "--city",
         default="深圳,广州",
         help="逗号分隔：深圳 / 广州，默认两城都抓",
+    )
+    p.add_argument(
+        "--sz-days",
+        type=int,
+        default=90,
+        help="深圳全市历史回溯天数（getFjzsInfoData），0 表示跳过",
     )
     p.set_defaults(func=cmd_fetch)
 

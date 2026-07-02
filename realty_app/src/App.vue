@@ -4,6 +4,9 @@ import { setSnapshot, isLoaded, hasStats70, hasDailyWangqian } from "./local/sto
 import { buildSeedSnapshot } from "./local/seedSnapshot";
 import { loadStats70FromCSV } from "./local/stats70";
 import { loadDailyWangqianFromCSV } from "./local/dailyWangqian";
+import {
+  refreshWangqianFromRemote
+} from "./local/wangqianDataRefresher";
 // 直接以 raw 字符串 import，绕开 app-plus 静态资源下载问题。
 //   H5/小程序：`?raw` query 由 vite 处理返回字符串
 //   app-plus：在 webpack/vite 阶段把文件内联进来
@@ -44,6 +47,12 @@ onLaunch(() => {
       console.warn("[realty_app] daily_wangqian parse failed", e);
     }
   }
+  // 静默尝试从 jsDelivr 拉最新网签（失败则保留包内数据）
+  void refreshWangqianFromRemote().then((r) => {
+    if (r.ok && r.changed) {
+      console.log("[realty_app] daily_wangqian remote updated:", r.rowCount);
+    }
+  }).catch(() => {});
   console.log("[realty_app] launched, snapshot loaded:", isLoaded());
 });
 

@@ -122,3 +122,54 @@ export function getSupportedWangqianCities(): string[] {
   }
   return [...set].sort();
 }
+
+export interface DistrictDailyRow {
+  district: string;
+  newUnits: number;
+  newArea: number;
+  secondUnits: number | null;
+  secondArea: number | null;
+}
+
+/** 最近交易日各行政区网签（深圳含新房+二手分区；广州仅新房）。 */
+export function getLatestDistrictBreakdown(cityName: string): {
+  date: string;
+  rows: DistrictDailyRow[];
+} | null {
+  const snap = getLatestCityDaily(cityName);
+  if (!snap) return null;
+
+  const target = (cityName ?? "").replace(/市$/, "");
+  const districtRows = getDailyWangqianByCity(target).filter(
+    (r) => r.granularity === "district" && r.date === snap.date
+  );
+  if (districtRows.length === 0) return { date: snap.date, rows: [] };
+
+  const byDist = new Map<string, DistrictDailyRow>();
+  for (const r of districtRows) {
+    let row = byDist.get(r.district);
+    if (!row) {
+      row = {
+        district: r.district,
+        newUnits: 0,
+        newArea: 0,
+        secondUnits: null,
+        secondArea: null
+      };
+      byDist.set(r.district, row);
+    }
+    if (r.category === "新房") {
+      row.newUnits = r.units;
+      row.newArea = r.area_sqm;
+    } else {
+      row.secondUnits = r.units;
+      row.secondArea = r.area_sqm;
+    }
+  }
+
+  const rows = [...byDist.values()].sort(
+    (a, b) =>
+      b.newUnits + (b.secondUnits ?? 0) - (a.newUnits + (a.secondUnits ?? 0))
+  );
+  return { date: snap.date, rows };
+}

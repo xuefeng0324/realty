@@ -27,6 +27,8 @@
 |------|-----|
 | **脚本** | `scripts/crawl_daily_wangqian.py` |
 | **App CSV** | `static/daily_wangqian.csv` |
+| **远端 meta** | `static/wangqian_meta.json`（`publish_wangqian_meta.py` 生成） |
+| **App 刷新** | `src/local/wangqianDataRefresher.ts`；设置页「刷新网签」；启动时静默拉取 |
 | **加载模块** | `src/local/dailyWangqian.ts` |
 | **CI** | `.github/workflows/crawl-daily-wangqian.yml`（工作日 09:30 北京时间） |
 | **维度** | 日更；全市 + 行政区；套数 + 面积（㎡） |
@@ -35,12 +37,20 @@
 
 | 类别 | Endpoint | 说明 |
 |------|----------|------|
-| 新房 | `POST https://fdc.zjj.sz.gov.cn/api/marketInfoShow/getYsfCjxxGsDataNew` | 商品房成交套数/面积（按区） |
-| 二手 | `POST https://fdc.zjj.sz.gov.cn/api/marketInfoShow/getEsfCjxxGsDataNew` | 二手房成交套数/面积（按区） |
+| 全市历史 | `POST …/getFjzsInfoData` `{startDate,endDate,dateType:""}` | 近 90 天可回溯；新房/二手套数+面积 |
+| 新房分区（最新日） | `POST …/getYsfCjxxGsDataNew` | 商品房成交按区 |
+| 二手分区（最新日） | `POST …/getEsfCjxxGsDataNew` | 二手房成交按区 |
 
-- 入口页面：<http://zjj.sz.gov.cn/xxgk/ztzl/pubdata/>
-- 无需登录；返回字段 `dataTs`（套数）、`dataMj`（面积）、`xmlDateDay`（交易日）
-- **不支持按日期回溯**，仅最近一个交易日
+- 趋势页：https://fdc.zjj.sz.gov.cn/public/marketInfo/housePriceTrendInfo.html
+- 公示入口：http://zjj.sz.gov.cn/xxgk/ztzl/pubdata/
+- 无需登录
+
+### 2.1.1 暂不可用（需登录）
+
+| 资源 | 说明 |
+|------|------|
+| `zjj.sz.gov.cn:8004` 房源库 | 预售/现售/二手房源明细，办事平台 |
+| `fdc…/szfdccommon/#/publicInfo` | 预售许可等，`/szfdccommon/api/publicInfo/list` 返回 401 |
 
 ### 2.2 广州 — 商品房销售统计
 
