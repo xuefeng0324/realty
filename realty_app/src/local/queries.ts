@@ -7,6 +7,7 @@
  */
 
 import * as store from "./store";
+import { getWangqianDistrictNames } from "./dailyWangqian";
 import type {
   CommunityRankingItem,
   CommunityRankingResponse,
@@ -87,12 +88,20 @@ export async function getSources(params: { cityId: number }) {
   };
 }
 
+const normDistrict = (d: string): string => (d ?? "").replace(/区$/, "").trim();
+
 export async function getCoverage(params: { cityId: number; source?: string }) {
   const communities = store.getCommunitiesByCity(params.cityId);
+  // 全量行政区 = 社区所在区 ∪ 政府网签分区（深圳/广州能拿到全部真实行政区），去「区」后缀归一。
+  const city = store.getCityById(params.cityId);
   const allDistricts = new Set<string>();
   for (const c of communities) {
-    if (c.districtName) allDistricts.add(c.districtName);
+    if (c.districtName) allDistricts.add(normDistrict(c.districtName));
   }
+  if (city) {
+    for (const d of getWangqianDistrictNames(city.cityName)) allDistricts.add(d);
+  }
+
   const coveredPairs: { district_name: string; listing_count: number }[] = [];
   const districtCounts = new Map<string, number>();
   for (const l of store.getListingsByCity(params.cityId)) {
@@ -105,7 +114,7 @@ export async function getCoverage(params: { cityId: number; source?: string }) {
     coveredPairs.push({ district_name: name, listing_count: count });
   }
   coveredPairs.sort((a, b) => b.listing_count - a.listing_count);
-  const coveredNames = new Set(districtCounts.keys());
+  const coveredNames = new Set([...districtCounts.keys()].map(normDistrict));
   const emptyDistricts = [...allDistricts].filter((d) => !coveredNames.has(d));
   return {
     cityId: params.cityId,

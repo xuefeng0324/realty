@@ -89,10 +89,17 @@ export interface LocalDailyWangqianRow {
   date: string;
   city: string;
   category: "新房" | "二手";
+  /**
+   * 统计口径：
+   * - 住宅：走势页 getFjzsInfoData（商品住房，可回溯 90 天）
+   * - 全部：分区公示 getEsf/YsfCjxxGsDataNew（含非住宅二手，仅最新日）
+   */
+  scope: "住宅" | "全部";
   district: string;
   units: number;
   area_sqm: number;
-  granularity: "city" | "district";
+  /** city/district = 日更；month/month_district = 最近完整月累计 */
+  granularity: "city" | "district" | "month" | "month_district";
   source_url: string;
 }
 
