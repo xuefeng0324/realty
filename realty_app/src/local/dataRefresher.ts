@@ -26,10 +26,7 @@ import type {
   LocalListing
 } from "./types";
 import { setSnapshot, getSnapshot } from "./store";
-
-/** 远端 meta + CSV 的 jsDelivr 基础 URL。前缀由用户在设置页配置（默认 xuefeng0324/realty）。 */
-const DEFAULT_REPO = "xuefeng0324/realty";
-const CDN_BASE = `https://cdn.jsdelivr.net/gh/${DEFAULT_REPO}@main/realty_app/static/seed`;
+import { downloadText, fetchFromMirrors } from "./remoteFetch";
 
 interface RemoteMeta {
   csv_url: string;
@@ -66,42 +63,6 @@ function bOrNull(v: string | undefined): boolean | null {
   if (t === "1" || t === "true") return true;
   if (t === "0" || t === "false") return false;
   return null;
-}
-
-/** 用 uni.request 拉文本（h5/app-plus 通用）；返回字符串或 null。 */
-function downloadText(url: string, timeoutMs = 15000): Promise<string | null> {
-  return new Promise((resolve) => {
-    let resolved = false;
-    const finish = (v: string | null) => { if (!resolved) { resolved = true; resolve(v); } };
-
-    const u = (typeof uni !== "undefined" ? uni : undefined) as any;
-    if (u && typeof u.request === "function") {
-      u.request({
-        url,
-        method: "GET",
-        timeout: timeoutMs,
-        success: (res: any) => {
-          if (res.statusCode === 200 && typeof res.data === "string") {
-            finish(res.data);
-          } else {
-            finish(null);
-          }
-        },
-        fail: () => finish(null)
-      });
-      return;
-    }
-    if (typeof fetch === "function") {
-      const ctl = new AbortController();
-      const t = setTimeout(() => ctl.abort(), timeoutMs);
-      fetch(url, { signal: ctl.signal })
-        .then((r) => r.text())
-        .then((txt) => { clearTimeout(t); finish(txt); })
-        .catch(() => { clearTimeout(t); finish(null); });
-      return;
-    }
-    finish(null);
-  });
 }
 
 /** 把 raw listings CSV 解析成 LocalListing[]。 */
@@ -187,14 +148,19 @@ function mergeListingsIntoSnapshot(
  * 拉远端 crawl_meta.json → 看 sha 是否变化 → 拉 CSV → merge → setSnapshot
  */
 export async function refreshFromRemote(): Promise<RefreshResult> {
-  const metaUrl = `${CDN_BASE}/crawl_meta.json`;
-  const metaText = await downloadText(metaUrl, 8000);
-  if (!metaText) {
-    return { ok: false, changed: false, error: "无法连接 jsDelivr，请检查网络" };
+  const metaHit = await fetchFromMirrors("seed/crawl_meta.json", 8000, (t) =>
+    t.includes("sha256")
+  );
+  if (!metaHit) {
+    return {
+      ok: false,
+      changed: false,
+      error: "无法连接任一 CDN 镜像（jsDelivr 可能被网络屏蔽），请检查网络或稍后再试"
+    };
   }
   let meta: RemoteMeta;
   try {
-    meta = JSON.parse(metaText);
+    meta = JSON.parse(metaHit.text);
   } catch {
     return { ok: false, changed: false, error: "远端 meta 格式错误" };
   }
@@ -206,9 +172,8 @@ export async function refreshFromRemote(): Promise<RefreshResult> {
     return { ok: true, changed: false, meta, rowCount: meta.row_count };
   }
 
-  // 拉 CSV
-  const csvUrl = meta.csv_url ?? `${CDN_BASE}/listings.csv`;
-  const csvText = await downloadText(csvUrl, 20000);
+  // 用命中的同一镜像拉 CSV（meta.csv_url 写死 cdn.jsdelivr，可能被墙）
+  const csvText = await downloadText(`${metaHit.base}/seed/listings.csv`, 20000);
   if (!csvText || csvText.length < 100) {
     return { ok: false, changed: false, error: "远端 CSV 拉取失败", meta };
   }

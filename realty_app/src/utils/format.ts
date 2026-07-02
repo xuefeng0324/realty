@@ -48,6 +48,22 @@ export function showToast(title: string, icon: "success" | "error" | "none" = "n
   uni.showToast({ title, icon, duration: 2000 });
 }
 
+/**
+ * 某个日期（YYYY-MM-DD）距今天的「自然日」天数。
+ * 按日历日取整：今天=0、昨天=1，不受当前时刻影响（避免 7-1 到 7-2 下午被算成 2 天）。
+ * 返回 null 表示日期缺失/非法。
+ */
+export function daysAgoFromToday(isoDate: string | null | undefined): number | null {
+  if (!isoDate) return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(isoDate.trim());
+  if (!m) return null;
+  const then = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  if (Number.isNaN(then.getTime())) return null;
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((today.getTime() - then.getTime()) / 86400000);
+}
+
 export async function copyText(text: string): Promise<void> {
   // #ifdef H5
   try {

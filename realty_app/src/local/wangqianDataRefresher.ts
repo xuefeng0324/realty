@@ -9,9 +9,7 @@
 
 import { loadDailyWangqianFromCSV } from "./dailyWangqian";
 import { hasDailyWangqian } from "./store";
-
-const DEFAULT_REPO = "xuefeng0324/realty";
-const CDN_STATIC = `https://cdn.jsdelivr.net/gh/${DEFAULT_REPO}@main/realty_app/static`;
+import { downloadText, fetchFromMirrors } from "./remoteFetch";
 
 const STORAGE_SHA = "realty:lastWangqianSha";
 const STORAGE_AT = "realty:lastWangqianAt";
@@ -33,67 +31,26 @@ export interface WangqianRefreshResult {
   rowCount?: number;
 }
 
-function downloadText(url: string, timeoutMs = 15000): Promise<string | null> {
-  return new Promise((resolve) => {
-    let resolved = false;
-    const finish = (v: string | null) => {
-      if (!resolved) {
-        resolved = true;
-        resolve(v);
-      }
-    };
-
-    const u = (typeof uni !== "undefined" ? uni : undefined) as any;
-    if (u && typeof u.request === "function") {
-      u.request({
-        url,
-        method: "GET",
-        timeout: timeoutMs,
-        success: (res: any) => {
-          if (res.statusCode === 200 && typeof res.data === "string") {
-            finish(res.data);
-          } else {
-            finish(null);
-          }
-        },
-        fail: () => finish(null)
-      });
-      return;
-    }
-    if (typeof fetch === "function") {
-      const ctl = new AbortController();
-      const t = setTimeout(() => ctl.abort(), timeoutMs);
-      fetch(url, { signal: ctl.signal })
-        .then((r) => r.text())
-        .then((txt) => {
-          clearTimeout(t);
-          finish(txt);
-        })
-        .catch(() => {
-          clearTimeout(t);
-          finish(null);
-        });
-      return;
-    }
-    finish(null);
-  });
-}
-
 function getUniStorage() {
   return (typeof uni !== "undefined" ? uni : undefined) as any;
 }
 
 /** 拉远端 wangqian_meta.json → 对比 sha → 拉 CSV → 注入 store。 */
 export async function refreshWangqianFromRemote(): Promise<WangqianRefreshResult> {
-  const metaUrl = `${CDN_STATIC}/wangqian_meta.json`;
-  const metaText = await downloadText(metaUrl, 8000);
-  if (!metaText) {
-    return { ok: false, changed: false, error: "无法连接 jsDelivr（网签 meta）" };
+  const metaHit = await fetchFromMirrors("wangqian_meta.json", 8000, (t) =>
+    t.includes("sha256")
+  );
+  if (!metaHit) {
+    return {
+      ok: false,
+      changed: false,
+      error: "无法连接任一 CDN 镜像（网签 meta，jsDelivr 可能被网络屏蔽）"
+    };
   }
 
   let meta: WangqianRemoteMeta;
   try {
-    meta = JSON.parse(metaText);
+    meta = JSON.parse(metaHit.text);
   } catch {
     return { ok: false, changed: false, error: "远端 wangqian_meta 格式错误" };
   }
@@ -104,8 +61,8 @@ export async function refreshWangqianFromRemote(): Promise<WangqianRefreshResult
     return { ok: true, changed: false, meta, rowCount: meta.row_count };
   }
 
-  const csvUrl = meta.csv_url ?? `${CDN_STATIC}/daily_wangqian.csv`;
-  const csvText = await downloadText(csvUrl, 20000);
+  // 用命中的同一镜像拉 CSV（meta.csv_url 写死 cdn.jsdelivr，可能被墙）
+  const csvText = await downloadText(`${metaHit.base}/daily_wangqian.csv`, 20000);
   if (!csvText || csvText.length < 50 || !csvText.includes("date,city")) {
     return { ok: false, changed: false, error: "远端 daily_wangqian.csv 拉取失败", meta };
   }

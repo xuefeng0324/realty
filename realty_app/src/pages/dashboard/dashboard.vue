@@ -37,6 +37,7 @@
         <view class="row-gap" style="margin-top: 16rpx">
           <button class="btn" size="mini" @click="reload">刷新</button>
         </view>
+        <text v-if="periodHint" class="muted period-hint">{{ periodHint }}</text>
       </view>
 
       <!-- 全国 70 城指数（顶部第一张卡，入口也是 stats70 页） -->
@@ -96,11 +97,14 @@
         <view class="stats70-foot muted">点击进入全国 70 城榜单 ›</view>
       </view>
 
-      <!-- 政府每日网签（住建局 fdc，跟当前城市联动） -->
-      <view class="card wangqian-card">
+      <!-- 政府每日网签（摘要，点击进详情页） -->
+      <view class="card wangqian-card" @click="goWangqian">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">政府每日网签</view>
-          <view class="muted" style="font-size: 22rpx">{{ wangqianDateLabel }}</view>
+          <view class="muted" style="font-size: 22rpx">
+            {{ wangqianDateLabel }}
+            <text v-if="wangqianFreshLabel" class="wq-fresh" :class="wangqianFreshClass">{{ wangqianFreshLabel }}</text>
+          </view>
         </view>
 
         <view v-if="!wangqianReady" class="empty" style="padding: 24rpx 0">
@@ -112,76 +116,30 @@
         <view v-else>
           <view class="stats70-grid">
             <view class="stats70-cell">
-              <text class="cell-label">新房 套数</text>
+              <text class="cell-label">新房 · 住宅</text>
               <text class="cell-value wangqian-up">
                 {{ formatWangqianUnits(currentWangqian.newUnits) }}
               </text>
               <text class="cell-sub muted">{{ formatWangqianArea(currentWangqian.newArea) }}</text>
             </view>
             <view class="stats70-cell">
-              <text class="cell-label">二手 套数</text>
-              <text class="cell-value wangqian-up">
-                {{ formatWangqianUnits(currentWangqian.secondUnits) }}
+              <text class="cell-label">二手 · 住宅</text>
+              <text class="cell-value wangqian-res">
+                {{ formatWangqianUnits(currentWangqian.secondResidentialUnits) }}
               </text>
-              <text class="cell-sub muted">{{ formatWangqianArea(currentWangqian.secondArea) }}</text>
+              <text class="cell-sub muted">{{ formatWangqianArea(currentWangqian.secondResidentialArea) }}</text>
             </view>
-          </view>
-
-          <!-- 90 日二手趋势 -->
-          <view v-if="wangqianSecondTrend.length" class="wangqian-section">
-            <view class="wangqian-section-title">
-              二手近 {{ wangqianSecondTrend.length }} 个交易日（套数）
+            <view class="stats70-cell" v-if="currentWangqian.secondAllUnits != null">
+              <text class="cell-label">二手 · 全部</text>
+              <text class="cell-value wangqian-all">
+                {{ formatWangqianUnits(currentWangqian.secondAllUnits) }}
+              </text>
+              <text class="cell-sub muted">{{ formatWangqianArea(currentWangqian.secondAllArea) }}</text>
             </view>
-            <scroll-view scroll-y class="wq-trend-scroll">
-              <view
-                v-for="(pt, i) in wangqianSecondTrend"
-                :key="'t-' + i"
-                class="wq-trend-row"
-              >
-                <text class="wq-trend-date">{{ formatWangqianDateShort(pt.date) }}</text>
-                <view class="wq-trend-track">
-                  <view
-                    class="wq-trend-fill"
-                    :style="{ width: wangqianSecondBarPct(pt.units) + '%' }"
-                  ></view>
-                </view>
-                <text class="wq-trend-val">{{ pt.units }}</text>
-              </view>
-            </scroll-view>
-          </view>
-
-          <!-- 各区分区表（最近交易日） -->
-          <view v-if="wangqianDistrictRows.length" class="wangqian-section">
-            <view class="wangqian-section-title">
-              各区分区 · {{ wangqianDistrictDate }}
-            </view>
-            <view class="wq-table-head">
-              <text class="wq-col-name">行政区</text>
-              <text class="wq-col-num">新房</text>
-              <text class="wq-col-num">二手</text>
-            </view>
-            <scroll-view scroll-y class="wq-table-body">
-              <view
-                v-for="row in wangqianDistrictRows"
-                :key="row.district"
-                class="wq-table-row"
-              >
-                <text class="wq-col-name">{{ row.district }}</text>
-                <text class="wq-col-num">{{ row.newUnits }}</text>
-                <text class="wq-col-num">{{ formatWangqianUnits(row.secondUnits) }}</text>
-              </view>
-            </scroll-view>
-          </view>
-          <view
-            v-else-if="currentWangqianCityName === '广州'"
-            class="muted"
-            style="margin-top: 16rpx; font-size: 22rpx"
-          >
-            广州暂无二手分区日更，上表仅含新房签约分区。
           </view>
         </view>
 
-        <view class="stats70-foot muted" @click.stop="goStats70">70 城指数与更多宏观数据 ›</view>
+        <view class="stats70-foot">点击查看 90 日趋势与分区 ›</view>
       </view>
 
       <view v-if="runtime" class="card muted">
@@ -227,6 +185,14 @@
             </view>
             <view class="bar-value">{{ formatBarValue(it) }}</view>
           </view>
+        </view>
+        <view
+          v-if="coverage && coverage.total_districts > districtItems.length"
+          class="muted district-note"
+          @click="goWangqian"
+        >
+          仅显示有挂牌房源的区（{{ districtItems.length }} / 全市 {{ coverage.total_districts }} 区）。
+          挂牌来自安居客周度抓取，覆盖有限；全市各区成交见「政府每日网签」›
         </view>
       </view>
 
@@ -291,11 +257,11 @@ import {
 } from "../../local/stats70";
 import {
   getLatestCityDaily,
-  getCityDailyTrend,
-  getLatestDistrictBreakdown,
   type CityDailySnapshot
 } from "../../local/dailyWangqian";
 import { hasStats70, hasDailyWangqian } from "../../local/store";
+import { refreshFromRemote } from "../../local/dataRefresher";
+import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
   CityItem,
   CommunityRankingItem,
@@ -304,7 +270,7 @@ import type {
   RuntimeMetaResponse,
   SourceStatItem
 } from "../../api/contracts";
-import { coverageText, formatUnitPrice, showToast } from "../../utils/format";
+import { coverageText, formatUnitPrice, showToast, daysAgoFromToday } from "../../utils/format";
 
 const app = useAppStore();
 
@@ -320,6 +286,15 @@ const districtItems = ref<DistrictCompareItem[]>([]);
 
 const errorMsg = ref<string>("");
 const loading = ref<boolean>(false);
+
+// 房源来自安居客「每周快照」，最新周期是上一个完整周（周日结束），并非当天。
+// 这里给一句说明，避免用户误以为“周期结束日没更新到今天”是 bug。
+const periodHint = computed(() => {
+  const list = periods.value;
+  if (list.length === 0) return "";
+  const latest = list[list.length - 1];
+  return `房源为安居客每周快照，最新周期 ${latest}（非当日）`;
+});
 
 // Picker 辅助
 const cityLabels = computed(() => cities.value.map((c) => c.city_name));
@@ -469,9 +444,28 @@ async function loadAll() {
   }
 }
 
+/**
+ * 「刷新」= 先尝试从 CDN 镜像拉最新（安居客 listings + 深广网签），
+ * 再重算本地视图。任一远端成功即提示已刷新；全失败则回退本地并提示网络问题。
+ */
 async function reload() {
+  if (loading.value) return;
+  loading.value = true;
+  errorMsg.value = "";
+  let remoteOk = false;
+  try {
+    const results = await Promise.allSettled([
+      refreshFromRemote(),
+      refreshWangqianFromRemote()
+    ]);
+    remoteOk = results.some(
+      (r) => r.status === "fulfilled" && (r.value as { ok?: boolean })?.ok === true
+    );
+  } catch {
+    // 忽略：远端不可用时回退本地数据
+  }
   await loadAll();
-  showToast("已刷新");
+  showToast(remoteOk ? "已刷新" : "网络不可用，仍用本地数据");
 }
 
 async function loadSources() {
@@ -570,6 +564,12 @@ function goStats70() {
   uni.navigateTo({ url: "/pages/stats70/stats70" });
 }
 
+function goWangqian() {
+  const name = currentWangqianCityName.value;
+  const city = name === "深圳" || name === "广州" ? name : "深圳";
+  uni.navigateTo({ url: `/pages/wangqian/wangqian?city=${encodeURIComponent(city)}` });
+}
+
 // 70 城指数卡片 -------------------------------------------------------
 const stats70Ready = computed(() => hasStats70());
 const stats70MonthLabel = computed(() => {
@@ -627,35 +627,23 @@ const wangqianDateLabel = computed(() => {
   return d || "";
 });
 
-const wangqianSecondTrend = computed(() => {
-  const name = currentWangqianCityName.value;
-  if (name !== "深圳" && name !== "广州") return [];
-  return getCityDailyTrend(name, 90, "二手");
+const wangqianDaysAgo = computed(() =>
+  daysAgoFromToday(currentWangqian.value?.date)
+);
+const wangqianFreshLabel = computed(() => {
+  const n = wangqianDaysAgo.value;
+  if (n == null) return "";
+  if (n <= 0) return "今日";
+  if (n === 1) return "昨日";
+  return `${n} 天前`;
 });
-
-const wangqianSecondMaxUnits = computed(() => {
-  const vals = wangqianSecondTrend.value.map((p) => p.units);
-  return vals.length ? Math.max(...vals, 1) : 1;
+const wangqianFreshClass = computed(() => {
+  const n = wangqianDaysAgo.value;
+  if (n == null) return "";
+  if (n <= 3) return "wq-fresh-ok";
+  if (n <= 7) return "wq-fresh-warn";
+  return "wq-fresh-stale";
 });
-
-const wangqianDistrictBreakdown = computed(() => {
-  const name = currentWangqianCityName.value;
-  if (name !== "深圳" && name !== "广州") return null;
-  return getLatestDistrictBreakdown(name);
-});
-
-const wangqianDistrictDate = computed(() => wangqianDistrictBreakdown.value?.date ?? "");
-const wangqianDistrictRows = computed(() => wangqianDistrictBreakdown.value?.rows ?? []);
-
-function formatWangqianDateShort(dateStr: string): string {
-  const parts = dateStr.split("-");
-  if (parts.length === 3) return `${parts[1]}/${parts[2]}`;
-  return dateStr;
-}
-
-function wangqianSecondBarPct(units: number): number {
-  return Math.max(3, Math.min(100, (units / wangqianSecondMaxUnits.value) * 100));
-}
 
 function formatWangqianUnits(v: number | null): string {
   if (v == null) return "—";
@@ -668,14 +656,7 @@ function formatWangqianArea(v: number | null): string {
   return `${Math.round(v)} ㎡`;
 }
 
-/** 现在 stats70 CSV 在 App.vue 里已经同步注入（?raw），这里不再二次 fetch。 */
-async function ensureStats70Loaded() {
-  /* 留作占位 */
-  return;
-}
-
 onMounted(async () => {
-  await ensureStats70Loaded();
   const res = await getCities();
   cities.value = res.items || [];
   if (cities.value.length > 0) {
@@ -689,8 +670,7 @@ onMounted(async () => {
 });
 
 onPullDownRefresh(async () => {
-  await ensureStats70Loaded();
-  await loadAll();
+  await reload();
   uni.stopPullDownRefresh();
 });
 
@@ -779,6 +759,14 @@ onShow(async () => {
   color: #64748b;
   font-size: 22rpx;
   margin-left: 8rpx;
+}
+
+.period-hint {
+  display: block;
+  margin-top: 12rpx;
+  color: #94a3b8;
+  font-size: 22rpx;
+  line-height: 1.4;
 }
 
 /* 内置 sheet popup */
@@ -882,6 +870,15 @@ onShow(async () => {
   font-size: 24rpx;
 }
 
+.district-note {
+  margin-top: 16rpx;
+  padding-top: 12rpx;
+  border-top: 1rpx solid #1f2937;
+  font-size: 22rpx;
+  line-height: 1.5;
+  color: #64748b;
+}
+
 .community-row {
   display: flex;
   align-items: center;
@@ -975,90 +972,34 @@ onShow(async () => {
 }
 
 .wangqian-up {
+  color: #4ade80 !important;
+}
+
+.wq-fresh {
+  margin-left: 10rpx;
+  padding: 2rpx 10rpx;
+  border-radius: 999rpx;
+  font-size: 20rpx;
+}
+.wq-fresh-ok {
+  background: rgba(34, 197, 94, 0.18);
+  color: #4ade80;
+}
+.wq-fresh-warn {
+  background: rgba(234, 179, 8, 0.18);
+  color: #facc15;
+}
+.wq-fresh-stale {
+  background: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+}
+
+.wangqian-res {
   color: #38bdf8 !important;
 }
 
-.wangqian-section {
-  margin-top: 24rpx;
-  padding-top: 16rpx;
-  border-top: 1rpx solid #1f2937;
+.wangqian-all {
+  color: #f59e0b !important;
 }
 
-.wangqian-section-title {
-  font-size: 24rpx;
-  color: #94a3b8;
-  margin-bottom: 12rpx;
-}
-
-.wq-trend-scroll {
-  max-height: 360rpx;
-}
-
-.wq-trend-row {
-  display: flex;
-  align-items: center;
-  gap: 10rpx;
-  padding: 4rpx 0;
-  font-size: 22rpx;
-}
-
-.wq-trend-date {
-  width: 72rpx;
-  color: #64748b;
-  flex-shrink: 0;
-}
-
-.wq-trend-track {
-  flex: 1;
-  height: 12rpx;
-  background: #1f2937;
-  border-radius: 6rpx;
-  overflow: hidden;
-}
-
-.wq-trend-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #0ea5e9, #38bdf8);
-  border-radius: 6rpx;
-}
-
-.wq-trend-val {
-  width: 56rpx;
-  text-align: right;
-  color: #e2e8f0;
-  flex-shrink: 0;
-}
-
-.wq-table-head,
-.wq-table-row {
-  display: flex;
-  align-items: center;
-  padding: 10rpx 0;
-  font-size: 24rpx;
-}
-
-.wq-table-head {
-  color: #64748b;
-  border-bottom: 1rpx solid #1f2937;
-}
-
-.wq-table-row {
-  border-bottom: 1rpx solid #0f172a;
-  color: #e2e8f0;
-}
-
-.wq-col-name {
-  flex: 1.2;
-}
-
-.wq-col-num {
-  width: 100rpx;
-  text-align: right;
-  color: #38bdf8;
-  font-weight: 600;
-}
-
-.wq-table-body {
-  max-height: 420rpx;
-}
 </style>
