@@ -281,7 +281,7 @@ onMounted(async () => {
 .explain-box {
   margin-top: 16rpx;
   padding: 16rpx;
-  background: #0f172a;
+  background: #111827;
   border: 1rpx solid #1f2937;
   border-radius: 12rpx;
   font-family: monospace;

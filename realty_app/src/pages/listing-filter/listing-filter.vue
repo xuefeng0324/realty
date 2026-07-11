@@ -554,7 +554,7 @@ onMounted(async () => {
 .sheet {
   width: 100%;
   max-height: 70vh;
-  background: #0f172a;
+  background: #111827;
   border-top-left-radius: 24rpx;
   border-top-right-radius: 24rpx;
   display: flex;
@@ -611,6 +611,7 @@ onMounted(async () => {
   gap: 16rpx;
   padding: 20rpx 0;
   border-bottom: 1rpx solid #1f2937;
+  min-height: 88rpx; /* a11y: 至少 44pt 触摸目标 */
 }
 
 .listing-row:last-child {

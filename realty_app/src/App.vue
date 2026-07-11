@@ -211,4 +211,37 @@ text {
   border-radius: 12rpx;
   margin-bottom: 16rpx;
 }
+
+/* a11y：列表项/可点击行保证至少 44pt 触摸高度（750rpx 设计稿对应 88rpx） */
+.tap-target {
+  min-height: 88rpx;
+}
+
+/* a11y：键盘焦点（web/小程序可触发） */
+.focusable:focus,
+button:focus,
+.btn:focus {
+  outline: 2rpx solid #4ade80;
+  outline-offset: 2rpx;
+}
+
+/* a11y：屏幕阅读器专用隐藏文本（保留视觉空白） */
+.sr-only {
+  position: absolute;
+  width: 1rpx;
+  height: 1rpx;
+  padding: 0;
+  margin: -1rpx;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* a11y：可点击卡/行的按压反馈 */
+.card-active,
+.row-active {
+  opacity: 0.75;
+  background: #1e293b !important;
+}
 </style>

@@ -215,12 +215,19 @@ async function loadAll() {
   }
 }
 
-async function loadListings(weekEnd: string) {
+async function loadListings(_weekEnd: string) {
+  // 注：ListingFilterRequest 不含 weekEnd；该参数在 getListingDetail 中使用，
+  // 保留入参以兼容旧调用方（当前调用方传入但本函数忽略）。
   try {
+    const cityId = app.cityId;
+    if (cityId == null) {
+      listings.value = [];
+      listingsTotal.value = 0;
+      return;
+    }
     const res = await filterListings({
-      cityId: app.cityId || undefined,
+      cityId,
       communityId: communityId.value,
-      weekEnd,
       page: 1,
       pageSize: 20,
       sort: { field: "overall_score", direction: "desc" },
@@ -275,7 +282,7 @@ onMounted(() => {
 .chart-track {
   flex: 1;
   height: 16rpx;
-  background: #1f2937;
+  background: #1e293b;
   border-radius: 8rpx;
   overflow: hidden;
 }
@@ -312,7 +319,7 @@ onMounted(() => {
 .dim-track {
   flex: 1;
   height: 16rpx;
-  background: #1f2937;
+  background: #1e293b;
   border-radius: 8rpx;
   overflow: hidden;
 }
@@ -361,6 +368,7 @@ onMounted(() => {
   gap: 16rpx;
   padding: 20rpx 0;
   border-bottom: 1rpx solid #1f2937;
+  min-height: 88rpx; /* a11y: 至少 44pt 触摸目标 */
 }
 
 .listing-row:last-child {

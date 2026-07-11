@@ -388,7 +388,7 @@ onLoad((opts?: Record<string, string>) => {
 .metric-cell {
   flex: 1 1 calc(33% - 12rpx);
   min-width: 180rpx;
-  background: #0b1220;
+  background: #111827;
   border: 1rpx solid #1f2937;
   border-radius: 12rpx;
   padding: 16rpx 20rpx;
@@ -459,7 +459,7 @@ onLoad((opts?: Record<string, string>) => {
   border-bottom: 1rpx solid #1f2937;
 }
 .wq-table-row {
-  border-bottom: 1rpx solid #0f172a;
+  border-bottom: 1rpx solid #1f2937;
   color: #e2e8f0;
 }
 .wq-total {
@@ -497,7 +497,7 @@ onLoad((opts?: Record<string, string>) => {
 .sheet {
   width: 100%;
   max-height: 70vh;
-  background: #0f172a;
+  background: #111827;
   border-top-left-radius: 24rpx;
   border-top-right-radius: 24rpx;
   padding: 16rpx 0;

@@ -21,6 +21,7 @@ import type {
   TagItem,
   ListingItem,
   ListingFilterResponse,
+  ListingFilterRequest,
   ListingDetailResponse,
   SchoolItem,
   SchoolFutureScoreResponse,
@@ -447,7 +448,7 @@ function parseSchoolIds(json: string | null): number[] {
   return [];
 }
 
-export async function filterListings(req: any): Promise<ListingFilterResponse> {
+export async function filterListings(req: ListingFilterRequest): Promise<ListingFilterResponse> {
   const filters = req.filters ?? {};
   let items = store.getListingsByCity(req.cityId ?? -1);
   if (req.communityId) items = items.filter((l) => l.communityId === req.communityId);

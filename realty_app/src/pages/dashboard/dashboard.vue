@@ -41,7 +41,13 @@
       </view>
 
       <!-- 全国 70 城指数（顶部第一张卡，入口也是 stats70 页） -->
-      <view class="card stats70-card" @click="goStats70">
+      <view
+        class="card stats70-card tap-target"
+        role="button"
+        tabindex="0"
+        hover-class="card-active"
+        @click="goStats70"
+      >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">全国 70 城价格指数</view>
           <view class="muted" style="font-size: 22rpx">{{ stats70MonthLabel }}</view>
@@ -98,7 +104,13 @@
       </view>
 
       <!-- 政府每日网签（摘要，点击进详情页） -->
-      <view class="card wangqian-card" @click="goWangqian">
+      <view
+        class="card wangqian-card tap-target"
+        role="button"
+        tabindex="0"
+        hover-class="card-active"
+        @click="goWangqian"
+      >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">政府每日网签</view>
           <view class="muted" style="font-size: 22rpx">
@@ -207,7 +219,10 @@
         <view
           v-for="item in ranking"
           :key="item.community_id"
-          class="community-row"
+          class="community-row tap-target"
+          role="button"
+          tabindex="0"
+          hover-class="row-active"
           @click="goCommunity(item.community_id)"
         >
           <view class="community-rank">#{{ item.rank }}</view>
@@ -230,8 +245,11 @@
           <view
             v-for="(label, idx) in sheet.items"
             :key="idx"
-            class="sheet-item"
+            class="sheet-item tap-target"
             :class="{ 'sheet-item--active': idx === sheet.currentIndex }"
+            role="button"
+            tabindex="0"
+            hover-class="row-active"
             @click="sheetPick(idx)"
           >
             <text>{{ label }}</text>
@@ -782,7 +800,7 @@ onShow(async () => {
 .sheet {
   width: 100%;
   max-height: 70vh;
-  background: #0f172a;
+  background: #111827;
   border-top-left-radius: 24rpx;
   border-top-right-radius: 24rpx;
   display: flex;
@@ -929,7 +947,7 @@ onShow(async () => {
 
 .stats70-cell {
   flex: 1 1 calc(50% - 8rpx);
-  background: #0b1220;
+  background: #111827;
   border: 1rpx solid #1f2937;
   border-radius: 12rpx;
   padding: 16rpx 20rpx;
