@@ -14,7 +14,6 @@
 
         <view class="row-gap" style="margin-top: 16rpx">
           <button class="btn" size="mini" @click="resetToSeed">重置为政府公开种子</button>
-          <button class="btn btn-ghost" size="mini" @click="resetToDemo">切到示例数据</button>
         </view>
       </view>
 
@@ -149,7 +148,6 @@ import { computed, ref } from "vue";
 import { DEFAULT_API_BASE_URL, STORAGE_KEYS } from "../../config";
 import { setSnapshot, getSnapshot } from "../../local/store";
 import { importSnapshot } from "../../local/importer";
-import { buildDemoSnapshot } from "../../local/demoData";
 import { buildSeedSnapshot, resetSeedSnapshotCache } from "../../local/seedSnapshot";
 import { getApiBaseUrl, setApiBaseUrl } from "../../api/http";
 import { showToast } from "../../utils/format";
@@ -174,7 +172,7 @@ function openGov(key: GovWebLinkKey) {
   openGovWeb(key);
 }
 
-type DataMode = "seed" | "demo" | "csv-url" | "http";
+type DataMode = "seed" | "csv-url" | "http";
 
 const dataMode = ref<DataMode>(
   (uni.getStorageSync("realty_app.dataMode") as DataMode) ?? "seed"
@@ -206,14 +204,13 @@ const counts = computed(() => {
   };
 });
 
-const dataModeLabels = ["政府公开种子", "示例数据（内置）", "下载 CSV（远程）", "HTTP 后端"];
+const dataModeLabels = ["政府公开种子", "下载 CSV（远程）", "HTTP 后端"];
 const dataModeIndex = computed(() =>
   {
     const v = dataMode.value;
     if (v === "seed") return 0;
-    if (v === "demo") return 1;
-    if (v === "csv-url") return 2;
-    return 3;
+    if (v === "csv-url") return 1;
+    return 2;
   }
 );
 const dataModeLabel = computed(() => dataModeLabels[dataModeIndex.value]);
@@ -230,8 +227,7 @@ function pickDataMode() {
     success: (res: any) => {
       const idx = Number(res.tapIndex);
       if (idx === 0) dataMode.value = "seed";
-      else if (idx === 1) dataMode.value = "demo";
-      else if (idx === 2) dataMode.value = "csv-url";
+      else if (idx === 1) dataMode.value = "csv-url";
       else dataMode.value = "http";
     },
     fail: () => {}
@@ -308,20 +304,12 @@ async function downloadNewCsv() {
       "HTTP 模式下数据由后端实时提供，无需手动下载。请打开 app 其他页面即可看到最新数据。";
     return;
   }
-  if (dataMode.value === "seed" || dataMode.value === "demo") {
+  if (dataMode.value === "seed") {
     await resetToSeed();
     return;
   }
-  // 其他兜底：重新随机生成 demo 数据
-  setSnapshot(buildDemoSnapshot());
-  infoMsg.value = "已重新生成示例数据";
-}
-
-function resetToDemo() {
-  setSnapshot(buildDemoSnapshot());
-  dataMode.value = "demo";
-  uni.setStorageSync("realty_app.dataMode", "demo");
-  showToast("已重置为示例数据");
+  // 不应到这里；保留兜底提示，避免静默失败
+  infoMsg.value = "当前数据源无需手动下载。";
 }
 
 async function resetToSeed() {
