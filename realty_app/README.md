@@ -6,6 +6,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v0.3.0 | 2026-07-12 | 移除示例数据 demoData，所有数据统一走政府公开种子；新增 Playwright E2E smoke 验证；修复 favicon 404 |
 | v0.2.0 | 2026-07-01 | 深广每日网签抓取脚本、App 展示、GitHub Actions 工作日定时 merge |
 | v0.1.0 | 2026-06 | 纯本地 App、70 城指数、政府公开种子 listings、评分规则 JS 移植 |
 
@@ -151,7 +152,6 @@ realty_app/
 │  │  ├─ store.ts         # 内存数据 store
 │  │  ├─ csv.ts           # CSV 解析器
 │  │  ├─ importer.ts      # 4-5 个 CSV → DataSnapshot
-│  │  ├─ demoData.ts      # 程序化生成 demo
 │  │  └─ queries.ts       # ★ 与 backend API 同名的本地查询函数
 │  ├─ rules/              # ★ JS 版三套评分规则（与 Python 1:1）
 │  │  ├─ scoreUtils.ts
@@ -328,6 +328,17 @@ gh auth setup-git
 
 - 新增 `crawl_daily_wangqian.py` 与 `daily_wangqian.csv`
 - Dashboard / stats70 展示政府网签；工作日 GitHub Actions 自动 merge
+
+### v0.3.0 (2026-07-12)
+
+**移除示例数据 + E2E smoke 验证**
+
+- 删除 `src/local/demoData.ts`：所有数据统一走 `buildSeedSnapshot()` 政府公开种子（1226 套真房源）
+- 设置页去掉"切到示例数据"按钮与兜底分支；`DataMode` 联合类型去掉 `"demo"`
+- 端到端测试 `tests/pipeline.test.ts` 全部改用真数据；删除与种子快照重复的 describe 块
+- 新增 `tests/e2e/smoke.mjs`：Playwright 自动化验证 dev server UI、console error、404 资源
+- 新增 `tests/e2e/make-favicon.mjs`：生成最小 favicon 工具（已用 `<link rel="icon" href="data:," />` 取代）
+- `index.html` 添加 `<link rel="icon" href="data:," />`，消除浏览器默认 favicon 404
 
 ## License
 
