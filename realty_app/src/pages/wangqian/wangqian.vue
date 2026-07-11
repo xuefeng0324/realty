@@ -167,7 +167,14 @@
       </view>
 
       <!-- 深圳预售公示入口 -->
-      <view v-if="cityName === '深圳'" class="card link-card" @click="openPresale">
+      <view
+        v-if="cityName === '深圳'"
+        class="card link-card tap-target"
+        role="button"
+        tabindex="0"
+        hover-class="card-active"
+        @click="openPresale"
+      >
         深圳预售公示（楼盘表，需政务账号登录）›
       </view>
 
@@ -190,8 +197,11 @@
         <view
           v-for="c in supportedCities"
           :key="c"
-          class="sheet-item"
+          class="sheet-item tap-target"
           :class="{ 'sheet-item--active': c === cityName }"
+          role="button"
+          tabindex="0"
+          hover-class="row-active"
           @click="chooseCity(c)"
         >
           <text>{{ c }}</text>

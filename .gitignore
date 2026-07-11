@@ -24,6 +24,9 @@ realty/frontend/dist/
 *.tsbuildinfo
 realty/frontend/tsconfig.tsbuildinfo
 
+# Vitest coverage report（npm run test:coverage 生成，不入版本）
+realty_app/coverage/
+
 # IDE / OS
 .idea/
 .vscode/
@@ -36,6 +39,6 @@ Thumbs.db
 .env.*
 !.env.example
 
-# 仓库根目录的 git plumbing 临时脚本（避开 Cursor --trailer 注入用的）
+# 仓库根目录的 git plumbing 临时 message 文件（commit.ps1 一次性写入）
+/.git_commit_msg_*.txt
 /.git_commit_*.ps1
-/.git_commit_*.txt

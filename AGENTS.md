@@ -60,10 +60,10 @@ deleted   path/to/old_file.ts        # 一句话说明删除原因
 **有**则列出（按优先级排序），**没有**则明确写"暂无后续"。
 
 常见类型：
-- 已知 TODO（如本仓库 `changelog/2026-07-12-v0.3.0-优化批次.md` 中"后续可做"）
-- 跑验证命令（`npm test` / `npm run type-check` / `node tests/e2e/smoke.mjs`）
+- 已知 TODO（如本仓库 `changelog/2026-07-12-v0.3.0-类型工具脚本与可视化回归.md` 中"后续可做"）
+- 跑验证命令：推荐 `powershell -File realty_app/scripts/check.ps1`（一键 type-check + test + smoke），比手动跑三条命令稳
 - 文档同步（README / DATA_SOURCES.md / changelog）
-- 提交与推送（提示 `git add` 范围 / commit message 草稿）
+- 提交与推送：推荐 `powershell -File realty_app/scripts/commit.ps1 -MessageFile .git_msg.txt -Add ... -Push`（绕开 Cursor 的 --trailer 注入）
 - 重构机会（发现的可以以后再做的小改进）
 
 ### 5. 验证状态

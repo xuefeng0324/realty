@@ -114,7 +114,13 @@
 
       <!-- 解释 JSON 折叠 -->
       <view v-if="data && data.score.explain_json" class="card">
-        <view class="row-between" @click="toggleExplain">
+        <view
+          class="row-between tap-target"
+          role="button"
+          tabindex="0"
+          hover-class="row-active"
+          @click="toggleExplain"
+        >
           <view class="card-title">评分解释</view>
           <view class="muted">{{ explainOpen ? "收起" : "展开" }}</view>
         </view>

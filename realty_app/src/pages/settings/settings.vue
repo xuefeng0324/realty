@@ -87,7 +87,13 @@
 
       <!-- 高级设置（折叠） -->
       <view class="card">
-        <view class="row-between" @click="toggleAdvanced">
+        <view
+          class="row-between tap-target"
+          role="button"
+          tabindex="0"
+          hover-class="row-active"
+          @click="toggleAdvanced"
+        >
           <view class="card-title" style="margin-bottom: 0">高级设置</view>
           <text class="muted">{{ advancedOpen ? "▾" : "▸" }}</text>
         </view>
@@ -95,7 +101,14 @@
         <view v-if="advancedOpen" style="margin-top: 16rpx">
           <view class="form-item">
             <text class="form-label">数据源类型</text>
-            <view class="picker-value tap" @click="pickDataMode" style="display: flex; justify-content: space-between;">
+            <view
+            class="picker-value tap tap-target"
+            role="button"
+            tabindex="0"
+            hover-class="row-active"
+            @click="pickDataMode"
+            style="display: flex; justify-content: space-between;"
+          >
               <text>{{ dataModeLabels[dataModeIndex] }}</text>
               <text class="muted">▾</text>
             </view>

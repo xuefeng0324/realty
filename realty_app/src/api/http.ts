@@ -8,8 +8,8 @@ import { DEFAULT_API_BASE_URL, STORAGE_KEYS } from "../config";
 
 export class ApiError extends Error {
   status: number;
-  data: any;
-  constructor(message: string, status: number, data: any) {
+  data: unknown;
+  constructor(message: string, status: number, data: unknown) {
     super(message);
     this.name = "ApiError";
     this.status = status;
@@ -27,7 +27,7 @@ function readBaseUrl(): string {
   return DEFAULT_API_BASE_URL;
 }
 
-function buildUrl(path: string, params?: Record<string, any>): string {
+function buildUrl(path: string, params?: Record<string, unknown>): string {
   const base = readBaseUrl().replace(/\/+$/, "");
   let url = base + (path.startsWith("/") ? path : "/" + path);
   if (params) {
@@ -42,12 +42,12 @@ function buildUrl(path: string, params?: Record<string, any>): string {
   return url;
 }
 
-export async function apiGet<T = any>(path: string, params?: Record<string, any>): Promise<T> {
+export async function apiGet<T = unknown>(path: string, params?: Record<string, unknown>): Promise<T> {
   const url = buildUrl(path, params);
   // #ifdef H5
   const res = await fetch(url, { method: "GET", headers: { Accept: "application/json" } });
   const text = await res.text();
-  let data: any = null;
+  let data: unknown = null;
   try {
     data = text ? JSON.parse(text) : null;
   } catch {
@@ -77,7 +77,7 @@ export async function apiGet<T = any>(path: string, params?: Record<string, any>
   // #endif
 }
 
-export async function apiPost<T = any>(path: string, body?: any): Promise<T> {
+export async function apiPost<T = unknown>(path: string, body?: unknown): Promise<T> {
   const url = buildUrl(path);
   // #ifdef H5
   const res = await fetch(url, {
@@ -86,7 +86,7 @@ export async function apiPost<T = any>(path: string, body?: any): Promise<T> {
     body: body == null ? undefined : JSON.stringify(body)
   });
   const text = await res.text();
-  let data: any = null;
+  let data: unknown = null;
   try {
     data = text ? JSON.parse(text) : null;
   } catch {
@@ -103,7 +103,7 @@ export async function apiPost<T = any>(path: string, body?: any): Promise<T> {
       url,
       method: "POST",
       header: { "Content-Type": "application/json", Accept: "application/json" },
-      data: body,
+      data: body as string | Record<string, unknown> | undefined,
       success: (r) => {
         if (r.statusCode >= 200 && r.statusCode < 300) {
           resolve(r.data as T);

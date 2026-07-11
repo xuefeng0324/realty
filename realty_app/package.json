@@ -12,7 +12,8 @@
     "build:app": "uni build -p app",
     "type-check": "vue-tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@dcloudio/uni-app": "3.0.0-4030620241128001",
@@ -30,9 +31,11 @@
     "@dcloudio/uni-cli-shared": "3.0.0-4030620241128001",
     "@dcloudio/uni-stacktracey": "3.0.0-4030620241128001",
     "@dcloudio/vite-plugin-uni": "3.0.0-4030620241128001",
+    "@vitest/coverage-v8": "^2.1.9",
     "@vue/tsconfig": "^0.5.1",
     "playwright": "^1.61.1",
     "sass": "^1.69.5",
+    "sharp": "^0.35.3",
     "typescript": "^5.3.3",
     "vite": "5.2.8",
     "vitest": "^2.1.9",

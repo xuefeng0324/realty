@@ -350,6 +350,17 @@ gh auth setup-git
 - a11y：`App.vue` 加 `.tap-target` / `.focusable:focus` / `.sr-only` / `.card-active` 工具类；主要可点击 card 与行加 `role="button"` / `tabindex="0"` / `hover-class`
 - 详见 [changelog/2026-07-12-v0.3.0-优化批次.md](./changelog/2026-07-12-v0.3.0-优化批次.md)
 
+### v0.3.0 优化批次-2 (2026-07-12)
+
+**类型工具收尾 + 工程脚本 + 可视化回归**
+
+- 类型层：`api/http.ts` 把 `ApiError.data`、`buildUrl` params、`apiGet<T>` / `apiPost<T>` 默认泛型全部从 `any` 改为 `unknown`；新增 `src/utils/errorMessage.ts` 提供 `toErrorMessage(e: unknown)` 工具
+- a11y 收尾：listing-detail / school / stats70 / wangqian / settings 五个页面的可点击 view 补 `role="button"` / `tabindex` / `hover-class`（gov-webview 已是 button）
+- 工程脚本：`scripts/check.ps1` 一键跑 type-check + test + smoke；`scripts/commit.ps1` 参数化 git plumbing commit（绕开 Cursor 的 `--trailer` 注入 + Git 2.24 不支持）
+- 测试覆盖：装 `@vitest/coverage-v8` + `vitest.config.ts` 加 coverage provider（exclude pages/store/main），新增 `npm run test:coverage`；当前 `src/rules/` 评分核心 95.86% 覆盖
+- 视觉回归：`tests/e2e/visual-diff.mjs` 用 sharp 做像素 diff 对比 baseline，缺 sharp 时 fallback 字节 hash；baseline.png 入版本
+- 详见 [changelog/2026-07-12-v0.3.0-类型工具脚本与可视化回归.md](./changelog/2026-07-12-v0.3.0-类型工具脚本与可视化回归.md)
+
 ## License
 
 与主仓库一致（`LICENSE`）。

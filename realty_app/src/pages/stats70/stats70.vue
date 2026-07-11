@@ -11,10 +11,24 @@
         </view>
 
         <view class="row-gap" style="margin-top: 12rpx" v-if="latestMonth">
-          <text class="tag" :class="kind === 'new' ? 'tag-success' : ''" @click="setKind('new')">
+          <text
+            class="tag tap-target"
+            :class="kind === 'new' ? 'tag-success' : ''"
+            role="button"
+            tabindex="0"
+            hover-class="row-active"
+            @click="setKind('new')"
+          >
             新建
           </text>
-          <text class="tag" :class="kind === 'second' ? 'tag-success' : ''" @click="setKind('second')">
+          <text
+            class="tag tap-target"
+            :class="kind === 'second' ? 'tag-success' : ''"
+            role="button"
+            tabindex="0"
+            hover-class="row-active"
+            @click="setKind('second')"
+          >
             二手
           </text>
         </view>
@@ -32,10 +46,30 @@
           <view class="muted">共 {{ ranking.length }} 城</view>
         </view>
         <view class="ranking-tabs">
-          <text class="tab" :class="base === '同比' ? 'tab-on' : ''" @click="setBase('同比')">同比</text>
-          <text class="tab" :class="base === '环比' ? 'tab-on' : ''" @click="setBase('环比')">环比</text>
+          <text
+            class="tab tap-target"
+            :class="base === '同比' ? 'tab-on' : ''"
+            role="button"
+            tabindex="0"
+            hover-class="row-active"
+            @click="setBase('同比')"
+          >同比</text>
+          <text
+            class="tab tap-target"
+            :class="base === '环比' ? 'tab-on' : ''"
+            role="button"
+            tabindex="0"
+            hover-class="row-active"
+            @click="setBase('环比')"
+          >环比</text>
           <view class="ranking-tabs-spacer"></view>
-          <text class="tab sort-toggle" @click="toggleSortDir">
+          <text
+            class="tab sort-toggle tap-target"
+            role="button"
+            tabindex="0"
+            hover-class="row-active"
+            @click="toggleSortDir"
+          >
             {{ sortDir === "desc" ? "降序 ▽" : "升序 △" }}
           </text>
         </view>
@@ -43,7 +77,10 @@
         <view
           v-for="(it, idx) in ranking"
           :key="it.city"
-          class="rank-row"
+          class="rank-row tap-target"
+          role="button"
+          tabindex="0"
+          hover-class="row-active"
           @click="onPickCity(it.city)"
         >
           <view class="rank-no">#{{ idx + 1 }}</view>

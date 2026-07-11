@@ -37,7 +37,10 @@
         <view
           v-for="s in results"
           :key="s.school_id"
-          class="school-row"
+          class="school-row tap-target"
+          role="button"
+          tabindex="0"
+          hover-class="row-active"
           @click="openSchool(s.school_id)"
         >
           <view class="school-main">
