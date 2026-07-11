@@ -129,6 +129,26 @@ export interface ListingFilterResponse {
   items: ListingItem[];
 }
 
+export interface ListingFilterFilters {
+  priceRange?: [number, number]; // 总价万元 [lo, hi]
+  areaRange?: [number, number]; // 面积 ㎡
+  orientation?: string;
+  decorateType?: string;
+  listingType?: string; // "all" / 在售 / 二手 ...
+  hasElevator?: boolean;
+  minQualityScore?: number;
+  minSchoolFutureScore?: number;
+}
+
+export interface ListingFilterRequest {
+  cityId: number;
+  communityId?: number;
+  page?: number;
+  pageSize?: number;
+  filters?: ListingFilterFilters;
+  sort?: { field?: "overall_score" | "unit_price" | "area_sqm"; direction?: "asc" | "desc" };
+}
+
 export interface ListingDetailResponse {
   listing: {
     listing_id: number;
