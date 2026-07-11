@@ -340,6 +340,15 @@ gh auth setup-git
 - 新增 `tests/e2e/make-favicon.mjs`：生成最小 favicon 工具（已用 `<link rel="icon" href="data:," />` 取代）
 - `index.html` 添加 `<link rel="icon" href="data:," />`，消除浏览器默认 favicon 404
 
+### v0.3.0 优化批次 (2026-07-12)
+
+**类型收敛 + 暗色主题一致性 + a11y 改进**
+
+- 类型：`filterListings(body: any)` 在 `api/listings.ts` 和 `local/queries.ts` 改为 `ListingFilterRequest`；community.vue 调用点去除误传的 `weekEnd`、`cityId` 早返回避 `undefined`
+- 暗色主题：把页面里散落的 `#0b1220` / `#0f172a` 硬编码统一为 `App.vue` palette 的 `#111827` card、`#1e293b` panel、`#1f2937` border（仅 `.thumb-bubble` tooltip 保留 `#0f172a`，设计上需更深）
+- a11y：`App.vue` 加 `.tap-target` / `.focusable:focus` / `.sr-only` / `.card-active` 工具类；主要可点击 card 与行加 `role="button"` / `tabindex="0"` / `hover-class`
+- 详见 [changelog/2026-07-12-v0.3.0-优化批次.md](./changelog/2026-07-12-v0.3.0-优化批次.md)
+
 ## License
 
 与主仓库一致（`LICENSE`）。

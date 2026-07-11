@@ -35,3 +35,7 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# 仓库根目录的 git plumbing 临时脚本（避开 Cursor --trailer 注入用的）
+/.git_commit_*.ps1
+/.git_commit_*.txt
