@@ -273,6 +273,7 @@ python scripts/crawl_daily_wangqian.py fetch --merge
 | 更新 changelog | `changelog/YYYY-MM-DD-v版本-变更标题.md` 写详细变更（见已有示例） |
 | 数据来源变更 | 同步更新 `DATA_SOURCES.md` |
 | 政府 CSV 变更 | 跑对应 `scripts/crawl_*.py`，一并提交 `static/*.csv` |
+| AI 任务结束汇报 | AI agent 改动代码后，按仓库根 [AGENTS.md](../AGENTS.md) 的 5 段模板汇报（修改文件 / 内容总结 / 优缺点 / 下一步 / 验证状态） |
 
 ### Commit message 格式
 
