@@ -266,6 +266,7 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
+import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
 import { getCommunityRanking, getDistrictCompare } from "../../local/queries";
 import {
@@ -455,8 +456,8 @@ async function loadAll() {
       app.setWeekEnd(today);
     }
     await loadRankingAndDistrict();
-  } catch (e: any) {
-    errorMsg.value = e?.message || String(e);
+  } catch (e) {
+    errorMsg.value = toErrorMessage(e);
   } finally {
     loading.value = false;
   }
@@ -502,8 +503,8 @@ async function loadPeriods() {
   try {
     const res = await getPeriods({ cityId: app.cityId });
     periods.value = res.items || [];
-  } catch (e: any) {
-    errorMsg.value = `加载周期失败：${e?.message || String(e)}`;
+  } catch (e) {
+    errorMsg.value = `加载周期失败：${toErrorMessage(e)}`;
   }
 }
 
@@ -545,8 +546,8 @@ async function loadRankingAndDistrict() {
     ranking.value = r.data || [];
     rankingTotal.value = Number(r.total || r.data?.length || 0);
     districtItems.value = d.items || [];
-  } catch (e: any) {
-    errorMsg.value = `加载失败：${e?.message || String(e)}`;
+  } catch (e) {
+    errorMsg.value = `加载失败：${toErrorMessage(e)}`;
   }
 }
 

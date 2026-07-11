@@ -63,6 +63,7 @@ import { computed, onMounted, ref } from "vue";
 import { getCities } from "../../local/queries";
 import { searchSchools } from "../../local/queries";
 import type { CityItem, SchoolItem } from "../../api/contracts";
+import { toErrorMessage } from "../../utils/errorMessage";
 import { useAppStore } from "../../store/app";
 import { showToast } from "../../utils/format";
 
@@ -101,8 +102,8 @@ async function search() {
   try {
     const res = await searchSchools({ cityId: app.cityId, q });
     results.value = res.items || [];
-  } catch (e: any) {
-    errorMsg.value = e?.message || String(e);
+  } catch (e) {
+    errorMsg.value = toErrorMessage(e);
     results.value = null;
   }
 }

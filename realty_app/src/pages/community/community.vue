@@ -136,6 +136,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+import { toErrorMessage } from "../../utils/errorMessage";
 import { onLoad } from "@dcloudio/uni-app";
 import { getCommunityPriceTrend } from "../../local/queries";
 import { getQualitySummary, getTopTags } from "../../local/queries";
@@ -210,8 +211,8 @@ async function loadAll() {
     tags.value = t;
 
     await loadListings(weekEnd);
-  } catch (e: any) {
-    errorMsg.value = e?.message || String(e);
+  } catch (e) {
+    errorMsg.value = toErrorMessage(e);
   }
 }
 

@@ -137,6 +137,7 @@ import { computed, onMounted, ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { getListingDetail } from "../../local/queries";
 import type { ListingDetailResponse } from "../../api/contracts";
+import { toErrorMessage } from "../../utils/errorMessage";
 import {
   copyText,
   dimensionLabelCN,
@@ -208,8 +209,8 @@ onMounted(async () => {
   }
   try {
     data.value = await getListingDetail(listingId.value);
-  } catch (e: any) {
-    errorMsg.value = e?.message || String(e);
+  } catch (e) {
+    errorMsg.value = toErrorMessage(e);
   }
 });
 </script>

@@ -361,6 +361,17 @@ gh auth setup-git
 - 视觉回归：`tests/e2e/visual-diff.mjs` 用 sharp 做像素 diff 对比 baseline，缺 sharp 时 fallback 字节 hash；baseline.png 入版本
 - 详见 [changelog/2026-07-12-v0.3.0-类型工具脚本与可视化回归.md](./changelog/2026-07-12-v0.3.0-类型工具脚本与可视化回归.md)
 
+### v0.3.0 优化批次-3 (2026-07-12)
+
+**catch 迁移 + http/errorMessage 单测**
+
+- 6 个页面 / 10 处 `catch (e: any) { e?.message || String(e) }` 统一迁到 `catch (e) { toErrorMessage(e) }`，catch 类型从 `any` 收紧到 `unknown`
+- 新增 `tests/http.test.ts`（18 用例）覆盖 `http.ts` 全部 H5 分支：buildUrl 拼接/参数过滤/URL 编码、apiGet/apiPost 4xx/5xx/JSON 解析失败、set/getApiBaseUrl 持久化往返
+- 新增 `tests/errorMessage.test.ts`（10 用例）覆盖 `errorMessage.ts`：`ApiError`、Error、uni-app `{errMsg}`、字符串、null、自定义 fallback
+- `vitest.config.ts` 更新注释，明确 `src/api` 与 `src/utils` 因有单测已纳入覆盖统计；`src/pages` / `src/store` / `src/main.ts` 仍排除（UI/全局）
+- 当前覆盖率：`src/api/http.ts` 66.01%（从 0% 起步）、`src/utils/errorMessage.ts` 85.71%
+- 详见 [changelog/2026-07-12-v0.3.0-catch迁移与http单测.md](./changelog/2026-07-12-v0.3.0-catch迁移与http单测.md)
+
 ## License
 
 与主仓库一致（`LICENSE`）。

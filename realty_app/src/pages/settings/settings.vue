@@ -159,6 +159,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { DEFAULT_API_BASE_URL, STORAGE_KEYS } from "../../config";
+import { toErrorMessage } from "../../utils/errorMessage";
 import { setSnapshot, getSnapshot } from "../../local/store";
 import { importSnapshot } from "../../local/importer";
 import { buildSeedSnapshot, resetSeedSnapshotCache } from "../../local/seedSnapshot";
@@ -274,8 +275,8 @@ async function save() {
     }
     uni.setStorageSync("realty_app.dataMode", dataMode.value);
     showToast("已保存");
-  } catch (e: any) {
-    errorMsg.value = e?.message || String(e);
+  } catch (e) {
+    errorMsg.value = toErrorMessage(e);
   }
 }
 
@@ -307,8 +308,8 @@ async function downloadNewCsv() {
     try {
       await loadFromCsvUrl(csvBaseUrl.value);
       showToast("下载完成");
-    } catch (e: any) {
-      errorMsg.value = `下载失败：${e?.message || String(e)}`;
+    } catch (e) {
+      errorMsg.value = `下载失败：${toErrorMessage(e)}`;
     }
     return;
   }
@@ -353,8 +354,8 @@ async function refreshFromCdn() {
     } else {
       errorMsg.value = result.error ?? "刷新失败";
     }
-  } catch (e: any) {
-    errorMsg.value = `刷新失败：${e?.message ?? String(e)}`;
+  } catch (e) {
+    errorMsg.value = `刷新失败：${toErrorMessage(e)}`;
   } finally {
     refreshing.value = false;
   }
@@ -377,8 +378,8 @@ async function refreshWangqianFromCdn() {
     } else {
       errorMsg.value = result.error ?? "网签刷新失败";
     }
-  } catch (e: any) {
-    errorMsg.value = `网签刷新失败：${e?.message ?? String(e)}`;
+  } catch (e) {
+    errorMsg.value = `网签刷新失败：${toErrorMessage(e)}`;
   } finally {
     wangqianRefreshing.value = false;
   }

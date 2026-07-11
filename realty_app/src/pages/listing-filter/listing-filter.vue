@@ -167,6 +167,7 @@ import { onLoad } from "@dcloudio/uni-app";
 import { filterListings } from "../../local/queries";
 import { getCities, getPeriods, getSources } from "../../local/queries";
 import type { CityItem, ListingItem, SourceStatItem } from "../../api/contracts";
+import { toErrorMessage } from "../../utils/errorMessage";
 import { useAppStore } from "../../store/app";
 import {
   formatArea,
@@ -402,8 +403,8 @@ async function applyFilter() {
     const res = await filterListings(body);
     items.value = res.items || [];
     total.value = res.total || items.value.length;
-  } catch (e: any) {
-    errorMsg.value = e?.message || String(e);
+  } catch (e) {
+    errorMsg.value = toErrorMessage(e);
     items.value = [];
     total.value = 0;
   }
