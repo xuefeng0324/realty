@@ -880,6 +880,87 @@ export async function getCommunityMetroPlanning(
   };
 }
 
+// ---------- 板块级周维度价格序列 (v0.8.0+) ----------
+export interface DistrictTrendPoint {
+  week_end: string;
+  listing_count: number;
+  avg_unit_price: number;
+  median_unit_price: number;
+  min_unit_price: number;
+  max_unit_price: number;
+}
+
+export interface DistrictTrendItem {
+  city_id: number;
+  district_name: string;
+  points: DistrictTrendPoint[];
+  /** 最近一周相对 N 周前的环比变化率 (e.g. -0.012 = -1.2%)。null 表示样本不足 */
+  recent_change_ratio: number | null;
+  /** 最近一周均价 (元/㎡) */
+  latest_avg_unit_price: number | null;
+  /** 最近 4 周累计房源数 */
+  recent_4w_listing_count: number;
+}
+
+/**
+ * 给定城市 + 区，从 store 拿周维度价格序列，
+ * 计算最近 4 周 vs 前 4 周的环比变化率。
+ */
+export async function getDistrictTrend(params: {
+  cityId: number;
+  districtName: string;
+}): Promise<DistrictTrendItem | null> {
+  const { cityId, districtName } = params;
+  const rows = store.getDistrictTrendByDistrict(cityId, districtName);
+  if (rows.length === 0) return null;
+
+  const points: DistrictTrendPoint[] = rows.map((r) => ({
+    week_end: r.weekEnd,
+    listing_count: r.listingCount,
+    avg_unit_price: r.avgUnitPrice,
+    median_unit_price: r.medianUnitPrice,
+    min_unit_price: r.minUnitPrice,
+    max_unit_price: r.maxUnitPrice
+  }));
+
+  // 取最近 4 周 & 前 4 周均值，算环比
+  const tail4 = rows.slice(-4);
+  const prev4 = rows.slice(-8, -4);
+  let recent_change_ratio: number | null = null;
+  if (tail4.length >= 2 && prev4.length >= 1) {
+    const tailAvg = avg(tail4.map((p) => p.avgUnitPrice));
+    const prevAvg = avg(prev4.map((p) => p.avgUnitPrice));
+    if (tailAvg != null && prevAvg != null && prevAvg > 0) {
+      recent_change_ratio = (tailAvg - prevAvg) / prevAvg;
+    }
+  }
+
+  return {
+    city_id: cityId,
+    district_name: districtName,
+    points,
+    recent_change_ratio,
+    latest_avg_unit_price: tail4.length > 0 ? tail4[tail4.length - 1].avgUnitPrice : null,
+    recent_4w_listing_count: tail4.reduce((s, p) => s + p.listingCount, 0)
+  };
+}
+
+/**
+ * 给定城市，返回所有有数据的区最近 1 周均价 + 4 周环比。
+ * 用于 dashboard 卡片列表。
+ */
+export async function getCityDistrictOverview(params: {
+  cityId: number;
+}): Promise<DistrictTrendItem[]> {
+  const districtNames = store.getDistrictsByCity(params.cityId);
+  const out: DistrictTrendItem[] = [];
+  for (const d of districtNames) {
+    const item = await getDistrictTrend({ cityId: params.cityId, districtName: d });
+    if (item) out.push(item);
+  }
+  return out;
+}
+
 // ---------- helpers ----------
 function avg(arr: number[]): number | null {
   if (arr.length === 0) return null;

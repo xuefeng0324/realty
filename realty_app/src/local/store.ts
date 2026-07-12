@@ -15,6 +15,7 @@ import type {
   LocalCity,
   LocalCommunity,
   LocalDailyWangqianRow,
+  LocalDistrictTrend,
   LocalHospital,
   LocalListing,
   LocalMetroLine,
@@ -206,6 +207,37 @@ export function getMetroLinesByDistrict(cityId: number, districtName: string): L
       m.cityId === cityId &&
       m.districts.some((d) => d === districtName)
   );
+}
+
+/**
+ * 板块级周维度价格序列 (v0.8.0+)
+ */
+export function getDistrictTrends(): LocalDistrictTrend[] {
+  return snapshot?.districtTrends ?? [];
+}
+
+/**
+ * 给定城市 + 区，返回该区按 week_end 升序的价格序列。
+ * 用于 dashboard "区级近 N 周趋势" 卡片。
+ */
+export function getDistrictTrendByDistrict(
+  cityId: number,
+  districtName: string
+): LocalDistrictTrend[] {
+  return (snapshot?.districtTrends ?? [])
+    .filter((t) => t.cityId === cityId && t.districtName === districtName)
+    .sort((a, b) => a.weekEnd.localeCompare(b.weekEnd));
+}
+
+/**
+ * 给定城市，返回该城市所有区按"最近一周 listing_count"排序的列表。
+ */
+export function getDistrictsByCity(cityId: number): string[] {
+  const set = new Set<string>();
+  for (const t of snapshot?.districtTrends ?? []) {
+    if (t.cityId === cityId) set.add(t.districtName);
+  }
+  return [...set];
 }
 
 export function getAvailableWeeks(cityId?: number): { weekStartDate: string; weekEndDate: string }[] {

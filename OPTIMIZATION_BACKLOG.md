@@ -103,3 +103,26 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 - 2026-07-12 18:48：A 完成 → v0.5.0（行政标准化 + 学校扩充）
 - 2026-07-12 19:20：D 完成 → v0.6.0（医院清单 + UI 集成）
 - 2026-07-12 19:55：E 完成 → v0.7.0（地铁规划 + UI 集成）
+- 2026-07-12 19:25：F 完成 → v0.8.0（板块级房价序列 + dashboard 卡片）
+
+## F 段补充：板块级房价序列（v0.8.0）
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟡 F | trend-1 | 调研 NBS / 链家 / 自建区级指数方案 | ✅ v0.8.0 | NBS 只到城市；链家成交 API 商封；**改用 listings 自聚合** |
+| 🟡 F | trend-2 | 写 compute_district_trend.py（标准库） | ✅ v0.8.0 | 1286 条 → 269 行；15 区 × 27 周 |
+| 🟡 F | trend-3 | local 层 LocalDistrictTrend + getDistrictTrend + getCityDistrictOverview | ✅ v0.8.0 | 4 周均值环比 |
+| 🟡 F | trend-4 | UI dashboard 「区级近 8 周房价趋势」卡片 | ✅ v0.8.0 | 柱状条 + 颜色编码 |
+| 🟡 F | trend-5 | buildIntegrity +7 测试 + smoke_district_trend + commit v0.8.0 | ✅ v0.8.0 | 154/154 通过；6/6 smoke 全绿 |
+
+## 下一步候选（按"边际收益/工作量"排序）
+
+| 编号 | 任务 | 工作量 | 收益 | 数据源 |
+|------|------|--------|------|--------|
+| trend-6 | **学区溢价** — listings 的 school_ids 关联学区评分 → 衍生"学区溢价率"(%) | 2h | 🔴 高 | 已有的 schools.csv + school_indicators.csv |
+| trend-7 | **议价空间** — chainjia detail 拿最近成交价 vs 当前挂牌价，量化议价空间 | 8h | 🔴 高 | 链家 detail（被 CAPTCHA 拦，需换源） |
+| trend-8 | **预测下一周均价** — 用 70 城指数 + listings 滞后 4 周做 ARIMA | 4h | 🟡 中 | 已有 stats70 + listings |
+| trend-9 | **板块网签热度榜** — daily_wangqian 的 district 维度已有 264 条，做"近 30 天网签热度 Top N" | 1h | 🟡 中 | 已有 daily_wangqian.csv |
+| trend-10 | **成交 vs 挂牌对比** | 8h+ | 🟢 低 | 需要新数据源（链家成交被 CAPTCHA 拦） |
+
+推荐 **trend-6 学区溢价** 或 **trend-9 网签热度榜**（数据现成，1-2h 出活）。

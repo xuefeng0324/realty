@@ -388,6 +388,71 @@ describe("build integrity", () => {
     });
   });
 
+  describe("板块级房价序列完整性（v0.8.0）", () => {
+    const trendPath = resolve(ROOT, "static/seed/district_trend.csv");
+
+    it("存在 district_trend.csv（compute_district_trend.py 输出）", () => {
+      expect(existsSync(trendPath)).toBe(true);
+    });
+
+    it("district_trend.csv 行数 ≥ 100", () => {
+      if (!existsSync(trendPath)) return;
+      const rows = readCsv(trendPath);
+      expect(rows.length).toBeGreaterThanOrEqual(100);
+    });
+
+    it("district_trend.csv 至少覆盖 8 个区", () => {
+      if (!existsSync(trendPath)) return;
+      const rows = readCsv(trendPath);
+      const districts = new Set(rows.map((r) => r.district_name));
+      expect(districts.size).toBeGreaterThanOrEqual(8);
+    });
+
+    it("district_trend.csv 至少覆盖 10 个周（week_end）", () => {
+      if (!existsSync(trendPath)) return;
+      const rows = readCsv(trendPath);
+      const weeks = new Set(rows.map((r) => r.week_end));
+      expect(weeks.size).toBeGreaterThanOrEqual(10);
+    });
+
+    it("district_trend.csv 关键字段非空：avg_unit_price > 1000", () => {
+      if (!existsSync(trendPath)) return;
+      const rows = readCsv(trendPath);
+      const bad = rows.filter(
+        (r) => !r.avg_unit_price || Number(r.avg_unit_price) <= 1000
+      );
+      expect(bad.length).toBe(0);
+    });
+
+    it("district_trend.csv city_id 仅 1 / 2 / 3（广州/深圳/珠海）", () => {
+      if (!existsSync(trendPath)) return;
+      const rows = readCsv(trendPath);
+      const cids = new Set(rows.map((r) => r.city_id));
+      for (const c of cids) {
+        expect(["1", "2", "3"]).toContain(c);
+      }
+    });
+
+    it("district_trend.csv 的 district_name 与 admin_districts.csv 重合（剔除空值）", () => {
+      const adminPath = resolve(ROOT, "static/seed/admin_districts.csv");
+      if (!existsSync(trendPath) || !existsSync(adminPath)) return;
+      const trends = readCsv(trendPath);
+      const admins = readCsv(adminPath);
+      const adminSet = new Set(admins.map((r) => r.district_name));
+      const trendDists = new Set(trends.map((r) => r.district_name));
+      let matched = 0;
+      let total = 0;
+      for (const d of trendDists) {
+        if (!d) continue;
+        total += 1;
+        if (adminSet.has(d)) matched += 1;
+      }
+      // 至少 80% 匹配（允许少量历史遗留命名差异）
+      expect(total).toBeGreaterThan(0);
+      expect(matched / total).toBeGreaterThanOrEqual(0.8);
+    });
+  });
+
   describe("CI 必装文件", () => {
     it("存在 tests/e2e/smoke.mjs", () => {
       expect(existsSync(resolve(ROOT, "tests/e2e/smoke.mjs"))).toBe(true);

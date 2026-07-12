@@ -6,6 +6,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v0.8.0 | 2026-07-12 | 板块级房价序列：按 (城市/区/周) 聚合 listings.csv 均值/中位数 → `district_trend.csv`（269 行，15 区 × 27 周）；dashboard 新增「区级近 8 周房价趋势」卡片（含柱状条 + 4 周环比变化率） |
 | v0.7.0 | 2026-07-12 | 地铁规划：手填 21 条线路（深圳五期 13 + 四期 2 + 广州三期调整 3 + 广州四期 1 + 珠海 2）→ `metro_planning.csv`；listing/community 新增"未来周边地铁"卡片（按状态/速度/站数排序，仅当现有最近地铁 ≥ 1km 显示） |
 | v0.6.0 | 2026-07-12 | 医院清单：手填深广珠 50 家三甲+二甲 → `hospitals.csv`；新增 `seed_hospitals.py` / `crawl_amap_hospital.py`（高德 POI 校验）；`crawl_amap_poi.py` hospital 半径 1500→3000m；listing/community 页新增 "周边医院" 卡片（等级/类型/区） |
 | v0.5.0 | 2026-07-12 | Option A 政府开放数据：拉 `modood/Administrative-divisions-of-China` 得 23 条官方区名做 `admin_districts.csv`；`schools.csv` 14→58 条；新增 `import_admin_divisions.py` / `validate_districts.py` / `seed_schools.py` |
@@ -527,6 +528,30 @@ gh auth setup-git
   - 规划线路高德 POI 二次验证（建成才有）
 - **验证**：147/147 单测过（+7 buildIntegrity）；type-check clean；smoke_metro / smoke_hospital / smoke_poi / smoke_enrich 全绿
 - 详见 [changelog/2026-07-12-v0.7.0-地铁规划.md](./changelog/2026-07-12-v0.7.0-地铁规划.md)
+
+### v0.8.0 (2026-07-12) — 板块级房价序列 + dashboard 卡片
+
+- **数据**
+  - 新增 `static/seed/district_trend.csv`：**269 行**
+    - schema：`city_id, district_name, week_end, listing_count, avg_unit_price, median_unit_price, min_unit_price, max_unit_price`
+    - 覆盖 15 个区 × 27 周 = 3 城 (广州 / 深圳 / 珠海)
+    - 由 `scripts/compute_district_trend.py` 从 `listings.csv` (1286 条) 按 (城市/区/周日) 聚合
+- **数据层**
+  - `types.ts`：新增 `LocalDistrictTrend` 接口 + `DataSnapshot.districtTrends`
+  - `importer.ts` / `seedSnapshot.ts`：解析并默认加载
+  - `store.ts`：新增 `getDistrictTrendByDistrict` + `getDistrictsByCity`
+  - `queries.ts`：新增 `DistrictTrendItem` + `getDistrictTrend` + `getCityDistrictOverview`
+  - `dataRefresher.ts`：远程刷新时保留 `districtTrends`
+  - `settings.vue`：csv-url 模式也拉 `district_trend.csv`
+- **UI**
+  - dashboard 新增「**区级近 8 周房价趋势**」卡片
+  - 每个区一行：区名 + 最近 4 周均价 + 4 周环比变化率 (▲红涨/▼绿跌)
+  - 8 个柱状条 (normalized 30-100%) 直观展示波动
+- **测试**
+  - `buildIntegrity.test.ts` +7 测试 (存在/行数/区数/周数/字段范围/city_id/区名匹配)
+  - `smoke_district_trend.mjs` Playwright：广州(4 区) + 深圳(9 区) 截图
+- **验证**：154/154 单测过 (+7 v0.8.0)；type-check clean；6/6 smoke 全绿
+- 详见 [changelog/2026-07-12-v0.8.0-板块级房价序列.md](./changelog/2026-07-12-v0.8.0-板块级房价序列.md)
 
 ## License
 

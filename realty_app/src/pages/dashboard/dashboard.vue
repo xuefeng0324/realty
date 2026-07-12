@@ -208,6 +208,49 @@
         </view>
       </view>
 
+      <!-- v0.8.0 区级近 8 周价格趋势 -->
+      <view v-if="trendItems.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">区级近 8 周房价趋势</view>
+          <view class="muted" style="font-size: 22rpx">按近 4 周均价 vs 前 4 周均价</view>
+        </view>
+        <view v-for="it in trendItems" :key="it.district_name" class="trend-row">
+          <view class="trend-row-head">
+            <text class="trend-name">{{ it.district_name }}</text>
+            <view class="trend-meta">
+              <text class="muted" style="font-size: 22rpx">
+                最近 4 周 {{ it.recent_4w_listing_count }} 套 · 均价 {{ formatTrendPrice(it.latest_avg_unit_price) }}
+              </text>
+            </view>
+            <text class="trend-change" :class="trendDeltaClass(it.recent_change_ratio)">
+              {{ trendArrow(it.recent_change_ratio) }} {{ trendPct(it.recent_change_ratio) }}
+            </text>
+          </view>
+          <view class="trend-bars">
+            <view
+              v-for="p in it.points"
+              :key="p.week_end"
+              class="trend-bar-col"
+              :title="`${p.week_end} 均价 ${Math.round(p.avg_unit_price).toLocaleString()} 元/㎡ (${p.listing_count} 套)`"
+            >
+              <view
+                class="trend-bar-fill"
+                :style="{ height: trendBarPct(it, p) + '%' }"
+              ></view>
+            </view>
+          </view>
+          <view class="trend-axis">
+            <text class="muted" style="font-size: 20rpx">
+              {{ it.points[0]?.week_end }} → {{ it.points[it.points.length - 1]?.week_end }}
+            </text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：本地 listings.csv 按 (城市/区/周) 聚合均价（中位数 = 排除极端值后更稳健）。
+          样本量较小的区波动较大，仅供参考。
+        </view>
+      </view>
+
       <!-- 小区排行 -->
       <view class="card">
         <view class="row-between">
@@ -268,7 +311,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, type DistrictTrendItem } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -302,6 +345,7 @@ const coverage = ref<CoverageResponse | null>(null);
 const ranking = ref<CommunityRankingItem[]>([]);
 const rankingTotal = ref<number>(0);
 const districtItems = ref<DistrictCompareItem[]>([]);
+const trendItems = ref<DistrictTrendItem[]>([]);
 
 const errorMsg = ref<string>("");
 const loading = ref<boolean>(false);
@@ -546,6 +590,10 @@ async function loadRankingAndDistrict() {
     ranking.value = r.data || [];
     rankingTotal.value = Number(r.total || r.data?.length || 0);
     districtItems.value = d.items || [];
+    // v0.8.0 区级近 N 周趋势
+    if (app.cityId) {
+      trendItems.value = await getCityDistrictOverview({ cityId: app.cityId });
+    }
   } catch (e) {
     errorMsg.value = `加载失败：${toErrorMessage(e)}`;
   }
@@ -564,6 +612,50 @@ function districtPct(it: DistrictCompareItem): number {
     return ((it.listing_count || 0) / maxDistrictValue()) * 100;
   }
   return ((it.avg_unit_price || 0) / maxDistrictValue()) * 100;
+}
+
+// ----- v0.8.0 区级近 8 周趋势 -----
+function trendDeltaClass(ratio: number | null): string {
+  if (ratio == null) return "";
+  if (ratio > 0.005) return "trend-up";
+  if (ratio < -0.005) return "trend-down";
+  return "trend-flat";
+}
+
+function trendArrow(ratio: number | null): string {
+  if (ratio == null) return "—";
+  if (ratio > 0.005) return "▲";
+  if (ratio < -0.005) return "▼";
+  return "—";
+}
+
+function trendPct(ratio: number | null): string {
+  if (ratio == null) return "—";
+  const pct = ratio * 100;
+  const sign = pct > 0 ? "+" : "";
+  return `${sign}${pct.toFixed(1)}%`;
+}
+
+function formatTrendPrice(v: number | null): string {
+  if (v == null) return "—";
+  return `${Math.round(v).toLocaleString()} 元/㎡`;
+}
+
+function last4WAvgPrice(it: DistrictTrendItem): number | null {
+  const tail = it.points.slice(-4);
+  if (tail.length === 0) return null;
+  const sum = tail.reduce((s, p) => s + p.avg_unit_price, 0);
+  return sum / tail.length;
+}
+
+function trendBarPct(it: DistrictTrendItem, p: { avg_unit_price: number }): number {
+  if (it.points.length === 0) return 0;
+  const vals = it.points.map((q) => q.avg_unit_price);
+  const maxV = Math.max(...vals);
+  const minV = Math.min(...vals);
+  if (maxV === minV) return 50;
+  // normalize to 30-100%
+  return 30 + ((p.avg_unit_price - minV) / (maxV - minV)) * 70;
 }
 
 function formatBarValue(it: DistrictCompareItem): string {
@@ -1021,4 +1113,67 @@ onShow(async () => {
   color: #f59e0b !important;
 }
 
+/* v0.8.0 区级近 8 周趋势 */
+.trend-row {
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid #1f2937;
+}
+.trend-row:last-child {
+  border-bottom: none;
+}
+.trend-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+.trend-name {
+  font-size: 26rpx;
+  color: #f3f4f6;
+  font-weight: 500;
+  min-width: 140rpx;
+}
+.trend-meta {
+  flex: 1;
+  text-align: right;
+}
+.trend-change {
+  font-size: 24rpx;
+  font-weight: 600;
+  min-width: 100rpx;
+  text-align: right;
+}
+.trend-up {
+  color: #ef4444;
+}
+.trend-down {
+  color: #22c55e;
+}
+.trend-flat {
+  color: #94a3b8;
+}
+.trend-bars {
+  display: flex;
+  align-items: flex-end;
+  height: 60rpx;
+  gap: 4rpx;
+  margin-top: 8rpx;
+}
+.trend-bar-col {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.trend-bar-fill {
+  width: 80%;
+  background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%);
+  border-radius: 2rpx 2rpx 0 0;
+  min-height: 4rpx;
+}
+.trend-axis {
+  margin-top: 4rpx;
+  text-align: center;
+}
 </style>

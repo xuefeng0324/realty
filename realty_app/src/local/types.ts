@@ -161,6 +161,22 @@ export interface LocalMetroLine {
   notes: string | null;
 }
 
+/**
+ * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
+ * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
+ * 用于 dashboard 展示"区级近 N 周房价趋势"。
+ */
+export interface LocalDistrictTrend {
+  cityId: number;
+  districtName: string;
+  weekEnd: string;
+  listingCount: number;
+  avgUnitPrice: number;
+  medianUnitPrice: number;
+  minUnitPrice: number;
+  maxUnitPrice: number;
+}
+
 export interface DataSnapshot {
   importedAt: string;
   source: string;
@@ -175,6 +191,8 @@ export interface DataSnapshot {
   hospitals: LocalHospital[];
   /** v0.7.0: 规划/在建地铁线路 */
   metroLines: LocalMetroLine[];
+  /** v0.8.0: 板块级周维度价格序列 */
+  districtTrends: LocalDistrictTrend[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

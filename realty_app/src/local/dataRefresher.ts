@@ -143,6 +143,7 @@ function mergeListingsIntoSnapshot(
     pois: existing?.pois ?? [],
     hospitals: existing?.hospitals ?? [],
     metroLines: existing?.metroLines ?? [],
+    districtTrends: existing?.districtTrends ?? [],
     availableWeeks
   };
 }

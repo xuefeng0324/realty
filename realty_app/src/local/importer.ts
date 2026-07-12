@@ -19,6 +19,7 @@ import type {
   DataSnapshot,
   LocalCity,
   LocalCommunity,
+  LocalDistrictTrend,
   LocalHospital,
   LocalListing,
   LocalMetroLine,
@@ -63,6 +64,8 @@ export interface SnapshotInputs {
   hospitalsCSV?: string;
   /** v0.7.0: 规划/在建地铁线路 (可选，缺则装空数组) */
   metroPlanningCSV?: string;
+  /** v0.8.0: 板块级周维度价格序列 (可选，缺则装空数组) */
+  districtTrendCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -220,6 +223,32 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
         .filter((m): m is LocalMetroLine => m !== null)
     : [];
 
+  // 板块级周维度价格序列 (v0.8.0+): 可选
+  const districtTrends: LocalDistrictTrend[] = inputs.districtTrendCSV
+    ? rowsToObjects<Record<string, string>>(parseCSV(inputs.districtTrendCSV))
+        .map((r) => {
+          const cid = n(r.city_id);
+          const avg = n(r.avg_unit_price);
+          const med = n(r.median_unit_price);
+          const cnt = n(r.listing_count);
+          if (cid == null || avg == null || med == null || cnt == null) return null;
+          const dn = s(r.district_name);
+          const we = s(r.week_end);
+          if (!dn || !we) return null;
+          return {
+            cityId: cid,
+            districtName: dn,
+            weekEnd: we,
+            listingCount: cnt,
+            avgUnitPrice: avg,
+            medianUnitPrice: med,
+            minUnitPrice: n(r.min_unit_price) ?? avg,
+            maxUnitPrice: n(r.max_unit_price) ?? avg
+          } as LocalDistrictTrend;
+        })
+        .filter((m): m is LocalDistrictTrend => m !== null)
+    : [];
+
   // 聚合可用周：基于 listings 的 crawl_date
   const weekEnds = new Set<string>();
   for (const l of listings) {
@@ -243,6 +272,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     pois,
     hospitals,
     metroLines,
+    districtTrends,
     availableWeeks
   };
 }

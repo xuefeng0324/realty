@@ -33,6 +33,9 @@ import hospitalsCSV from "../../static/seed/hospitals.csv?raw";
 // v0.7.0 地铁规划
 // @ts-ignore
 import metroPlanningCSV from "../../static/seed/metro_planning.csv?raw";
+// v0.8.0 板块级房价序列
+// @ts-ignore
+import districtTrendCSV from "../../static/seed/district_trend.csv?raw";
 
 let cached: DataSnapshot | null = null;
 
@@ -48,7 +51,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       listingsCSV: String(listingsCSV ?? ""),
       poisCSV: String(poisCSV ?? ""),
       hospitalsCSV: String(hospitalsCSV ?? ""),
-      metroPlanningCSV: String(metroPlanningCSV ?? "")
+      metroPlanningCSV: String(metroPlanningCSV ?? ""),
+      districtTrendCSV: String(districtTrendCSV ?? "")
     },
     "seed:public-derived"
   );
