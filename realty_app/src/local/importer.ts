@@ -133,7 +133,9 @@ function parseLifeConvenience(csvText: string): LocalLifeConvenience[] {
         subwayNear: num(r.subway_near ?? undefined),
         schoolNear: num(r.school_near ?? undefined),
         hospitalNear: num(r.hospital_near ?? undefined),
-        score: num(r.score ?? undefined)
+        marketNear: num(r.market_near ?? undefined),
+        score: num(r.score ?? undefined),
+        score100: num(r.score100 ?? r.score ?? undefined)
       } as LocalLifeConvenience;
     })
     .filter((x): x is LocalLifeConvenience => x !== null);

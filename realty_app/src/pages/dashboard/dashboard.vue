@@ -512,7 +512,7 @@
         </view>
       </view>
 
-      <!-- v0.31.0 new-9 生活便利度榜 (5 维: mall/park/subway/school/hospital) -->
+      <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
       <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card">
         <view class="row-between">
           <view class="card-title">🧭 生活便利度 Top 小区 · {{ lifeConvenience.cityName }}</view>
@@ -520,7 +520,7 @@
         </view>
         <view v-if="lifeConvenience.items.length === 0" class="empty">暂无数据</view>
         <view class="lc-summary muted">
-          城市均分 {{ lifeConvenience.avgScore }} · 最高 {{ lifeConvenience.maxScore }}
+          城市均分 {{ lifeConvenience.avgScore }} / 110 · 最高 {{ lifeConvenience.maxScore }} / 110
         </view>
         <view
           v-for="it in lifeConvenience.items"
@@ -552,15 +552,20 @@
               <text class="lc-dim-label">Y</text>
               <text class="lc-dim-val">{{ it.hospitalNear }}</text>
             </view>
+            <view class="lc-dim">
+              <text class="lc-dim-label">C</text>
+              <text class="lc-dim-val">{{ it.marketNear }}</text>
+            </view>
           </view>
           <view class="lc-right">
-            <text :class="['lc-score', lifeScoreClass(it.score)]">{{ it.score }}</text>
+            <text :class="['lc-score', lifeScoreClass(it.score100)]">{{ it.score100 }}</text>
             <view class="muted" style="font-size: 20rpx">/ 100</view>
           </view>
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：poi_seed.csv → life_convenience.csv (compute_life_convenience.py)。
-          评分维度 M=商场 P=公园 S=地铁 X=学校 Y=医院。满分 100，按综合分降序。
+          数据源：poi_seed.csv + poi_market.csv (高德新拉) → life_convenience.csv。
+          评分维度 M=商场 P=公园 S=地铁 X=学校 Y=医院 C=菜市场。
+          满分 110 (≈ score100 / 100)，按综合分降序。
         </view>
       </view>
 

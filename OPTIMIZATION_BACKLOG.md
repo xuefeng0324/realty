@@ -253,6 +253,16 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🔴 S.1 | ci-1 | 修复 GitHub Actions e2e 计划任务 Node 20 deprecation 警告 | ✅ v0.31.1 | Node 20 → Node 22 LTS |
 | 🟡 S.1 | ci-2 | e2e smoke step 加 `continue-on-error: true`，失败信息入 artifact | ✅ v0.31.1 | 维护者按需修，不阻塞 PR |
 
+## T 段补充：菜市场 POI 扩充 + 生活便利度 v2 (v0.32.0)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+| --- | --- | --- | --- | --- |
+| 🟢 T | new-10 | 调研菜市场数据源 + 4 keywords 设计 (菜市场/农贸市场/肉菜市场/集市) | ✅ v0.32.0 | 高德 `/v3/place/around` |
+| 🟢 T | new-10 | `crawl_market_poi.py` + `poi_market.csv` (147 行) | ✅ v0.32.0 | 49 小区 × 4 keywords = 196 API 调用 |
+| 🟢 T | new-10 | 升级 `compute_life_convenience.py`: 加菜市场维度 + score100 归一化 (100→110) | ✅ v0.32.0 | LocalLifeConvenience 加 marketNear/score100 |
+| 🟢 T | new-10 | dashboard 「🧭 生活便利度 v2」6 维 (M/P/S/X/Y/C) + 归一化显示 | ✅ v0.32.0 | 京基100 满分 100/100 |
+| 🟢 T | new-10 | buildIntegrity +1 测试 + smoke_life_convenience dimCount 5→6 + commit v0.32.0 | ✅ v0.32.0 | 323/323 通过；smoke 全绿 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

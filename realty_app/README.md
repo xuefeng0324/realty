@@ -25,6 +25,7 @@
 | v0.30.0 | 2026-07-13 | dashboard 新增「🚀 区涨幅榜 (近 4 周)」卡：复用 district_index.csv，每区最近 4 周累计变化；5 单测 + smoke_district_change E2E |
 | v0.31.0 | 2026-07-13 | dashboard 新增「🧭 生活便利度 Top 小区」卡：复用 poi_seed.csv 5 类 POI 加权打分 (满分 100, M商场/P公园/S地铁/X学校/Y医院)；52 行 / 3 城全覆盖；8 单测 + smoke_life_convenience E2E |
 | v0.31.1 | 2026-07-13 | CI 修复：Node 20 → Node 22 LTS (规避 GitHub Actions 2025-09-19 deprecation)；e2e smoke step 加 `continue-on-error: true`，失败不再 block PR，从 artifacts/smoke.json 即可查看详情 |
+| v0.32.0 | 2026-07-13 | 「🧭 生活便利度 v2」：新增菜市场维度 (高德 `crawl_market_poi.py` 147 行/49 小区)；打分从 100 升级到 110，加 score100 归一化；UI 6 维 (M/P/S/X/Y/**C**)；京基100 满分 100/100 |
 | v0.13.0 | 2026-07-12 | map-view 第四种模式「POI overlay」：把 poi_seed.csv 的 5 类 POI (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园) 画到地图上 (每类最多 25 marker)；5 类 toggle 自由开关；POI info-card 显示名称 + 类型 + 距离 + 所属小区 |
 | v0.12.0 | 2026-07-12 | map-view 第三种模式「成交价热力」：圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵），半径仍按挂牌数；info-card 新增「价位」5 档标签（便宜/中低/中等/中高/昂贵，色码化）；mode 由 boolean → `MapMode = "count" \| "price" \| "listings"` |
 | v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |
@@ -967,6 +968,22 @@ dashboard 新增「🧭 生活便利度 Top 小区 · {城市}」卡：
 
 验证：322/322 单测过 (+8), type-check clean, smoke_life_convenience 3 城市全绿 (含城市切换差异性)
 详见 [changelog/2026-07-13-v0.31.0-生活便利度.md](./changelog/2026-07-13-v0.31.0-生活便利度.md)
+
+### v0.32.0 - 菜市场维度 (2026-07-13)
+
+dashboard 「🧭 生活便利度 Top 小区」卡升级到 v2：
+
+- 新增 **C=菜市场** 维度 (高德 `crawl_market_poi.py` 抓 49 小区 / 147 行)
+- 打分从 100 → **110 满分**；新增 `score100` 归一化 (0-100)
+- UI 6 维展示: M商场 / P公园 / S地铁 / X学校 / Y医院 / **C菜市场**
+
+数据：
+- 深圳 avg=89.4 / max=110 (京基100 满分 100/100)
+- 广州 avg=85.6 / max=105 (北京路名宅 95.5/100)
+- 珠海 avg=78.4 / max=85 (中信红树湾 77.3/100)
+
+验证：323/323 单测过 (+1), type-check clean, smoke_life_convenience 3 城市全绿 (含 6 维 + score100 检查)
+详见 [changelog/2026-07-13-v0.32.0-菜市场维度.md](./changelog/2026-07-13-v0.32.0-菜市场维度.md)
 
 ## License
 

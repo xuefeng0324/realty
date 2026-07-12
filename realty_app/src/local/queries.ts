@@ -1961,7 +1961,7 @@ export function getDistrictChangeRank(params: { cityId: number }): DistrictChang
 }
 
 /**
- * v0.31.0: 生活便利度榜 (按综合分降序)
+ * v0.32.0: 生活便利度榜 (按综合分降序, 6 维)
  * 用于 dashboard "生活便利度" 卡片
  */
 export interface LifeConvenienceItem {
@@ -1973,7 +1973,11 @@ export interface LifeConvenienceItem {
   subwayNear: number;
   schoolNear: number;
   hospitalNear: number;
+  marketNear: number;
+  /** 综合分 (0-110) */
   score: number;
+  /** 归一化 (0-100) */
+  score100: number;
 }
 
 export interface LifeConvenienceResponse {
@@ -2012,7 +2016,9 @@ export function getLifeConvenienceRank(params: {
       subwayNear: l.subwayNear,
       schoolNear: l.schoolNear,
       hospitalNear: l.hospitalNear,
-      score: l.score
+      marketNear: l.marketNear,
+      score: l.score,
+      score100: l.score100
     }));
 
   const avg = Math.round((all.reduce((s, r) => s + r.score, 0) / all.length) * 10) / 10;

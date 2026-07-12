@@ -49,14 +49,16 @@ async function checkCity(browser, ctx, cityName, minRows) {
     const firstName = (await page.locator(".lc-row .lc-name").first().textContent())?.trim();
     const firstScore = (await page.locator(".lc-row .lc-score").first().textContent())?.trim();
     const score = Number(firstScore);
+    // v0.32.0 归一化到 0-100 (score100)
     if (!Number.isFinite(score) || score < 0 || score > 100) {
-      console.log(`❌ [${cityName}] score 越界: ${firstScore}`);
+      console.log(`❌ [${cityName}] score100 越界: ${firstScore}`);
       return { ok: false, reason: "score-out-of-range" };
     }
 
     const dimCount = await page.locator(".lc-row").first().locator(".lc-dim").count();
-    if (dimCount !== 5) {
-      console.log(`❌ [${cityName}] 维度数不对: ${dimCount}`);
+    // v0.32.0 新增 C=菜市场 维度 (6 维)
+    if (dimCount !== 6) {
+      console.log(`❌ [${cityName}] 维度数不对 (期望 6): ${dimCount}`);
       return { ok: false, reason: "dim-count-wrong" };
     }
 
@@ -77,7 +79,7 @@ async function checkCity(browser, ctx, cityName, minRows) {
     await page.waitForTimeout(500);
     const safeName = cityName.replace(/[^\w一-龥]/g, "");
     await page.screenshot({
-      path: resolve(SCREENSHOT_DIR, `v0.31.0_life_convenience_${safeName}.png`),
+      path: resolve(SCREENSHOT_DIR, `v0.32.0_life_convenience_${safeName}.png`),
       fullPage: false
     });
 

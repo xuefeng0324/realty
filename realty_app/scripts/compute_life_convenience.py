@@ -1,22 +1,25 @@
 """
-compute_life_convenience.py — v0.31.0 new-9 生活便利度
-====================================================
+compute_life_convenience.py — v0.32.0 new-10 生活便利度 v2
+=========================================================
 
-基于 poi_seed.csv 计算每个 community 的生活便利度综合分。
+v0.31.0 起基于 poi_seed.csv 计算每个 community 的生活便利度综合分。
+v0.32.0 起新增 菜市场 (poi_market.csv) 维度，打分规则从 100 → 120 满分。
 
-打分规则 (满分 100):
-  mall     ≤500m: 25, ≤1000m: 20, ≤1500m: 10, >1500m: 0
-  park     ≤500m: 15, ≤1000m: 10, ≤1500m: 5,  >1500m: 0
-  subway   ≤300m: 25, ≤500m: 20,  ≤800m: 15,  ≤1500m: 5
-  school   ≤500m: 10, ≤1000m: 7,  ≤1500m: 4
-  hospital ≤1000m: 15, ≤2000m: 10, ≤3000m: 5
+打分规则 (满分 120):
+  mall     ≤500m: 25, ≤1000m: 20, ≤1500m: 10, >1500m: 0   (max 25)
+  park     ≤500m: 15, ≤1000m: 10, ≤1500m: 5,  >1500m: 0   (max 15)
+  subway   ≤300m: 25, ≤500m: 20,  ≤800m: 15,  ≤1500m: 5   (max 25)
+  school   ≤500m: 10, ≤1000m: 7,  ≤1500m: 4                (max 10)
+  hospital ≤1000m: 15, ≤2000m: 10, ≤3000m: 5               (max 15)
+  market   ≤500m: 20, ≤1000m: 15, ≤1500m: 10, >1500m: 0   (max 20)  ← 新增
 
-总 max = 100
+总 max = 25+15+25+10+15+20 = 110；显示时 score_normalized = score / 110 * 100
 
 输出: life_convenience.csv
   community_id, city_id, district_name, community_name,
-  mall_near, park_near, subway_near, school_near, hospital_near,
-  score (0-100)
+  mall_near, park_near, subway_near, school_near, hospital_near, market_near,
+  score (0-110)
+  score100 (0-100, 归一化)
 """
 from __future__ import annotations
 import csv
@@ -25,6 +28,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 POI = REPO_ROOT / "static" / "seed" / "poi_seed.csv"
+MARKET = REPO_ROOT / "static" / "seed" / "poi_market.csv"
 COMMUNITIES = REPO_ROOT / "static" / "seed" / "communities.csv"
 OUT = REPO_ROOT / "static" / "seed" / "life_convenience.csv"
 
@@ -33,8 +37,10 @@ THRESHOLDS = {
     "park": [(500, 15), (1000, 10), (1500, 5), (99999, 0)],
     "subway": [(300, 25), (500, 20), (800, 15), (1500, 5), (99999, 0)],
     "school": [(500, 10), (1000, 7), (1500, 4), (99999, 0)],
-    "hospital": [(1000, 15), (2000, 10), (3000, 5), (99999, 0)]
+    "hospital": [(1000, 15), (2000, 10), (3000, 5), (99999, 0)],
+    "market": [(500, 20), (1000, 15), (1500, 10), (99999, 0)],
 }
+MAX_SCORE = 25 + 15 + 25 + 10 + 15 + 20  # 110
 
 
 def score_for(dist: float | None, cat: str) -> int:
@@ -79,6 +85,22 @@ def main():
             if cur is None or dist < cur:
                 nearest[key] = dist
 
+    # v0.32.0 加载菜市场
+    if MARKET.exists():
+        with open(MARKET, encoding="utf-8-sig") as f:
+            for r in csv.DictReader(f):
+                try:
+                    cid = int(r["community_id"])
+                    dist = float(r["distance_m"]) if r.get("distance_m") else None
+                except (KeyError, ValueError):
+                    continue
+                if dist is None:
+                    continue
+                key = (cid, "market")
+                cur = nearest.get(key)
+                if cur is None or dist < cur:
+                    nearest[key] = dist
+
     # 3) 算分
     rows: list[dict] = []
     for cid, info in cid_info.items():
@@ -87,6 +109,7 @@ def main():
             dist = nearest.get((cid, cat))
             scores[cat] = score_for(dist, cat)
         total = sum(scores.values())
+        score100 = round(total / MAX_SCORE * 100, 1)
         rows.append({
             "community_id": cid,
             "city_id": info["city_id"],
@@ -97,11 +120,14 @@ def main():
             "subway_near": scores["subway"],
             "school_near": scores["school"],
             "hospital_near": scores["hospital"],
-            "score": total
+            "market_near": scores.get("market", 0),
+            "score": total,
+            "score100": score100
         })
 
     fieldnames = ["community_id", "city_id", "district_name", "community_name",
-                  "mall_near", "park_near", "subway_near", "school_near", "hospital_near", "score"]
+                  "mall_near", "park_near", "subway_near", "school_near", "hospital_near", "market_near",
+                  "score", "score100"]
     with open(OUT, "w", encoding="utf-8-sig", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fieldnames)
         w.writeheader()

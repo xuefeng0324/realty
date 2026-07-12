@@ -358,8 +358,8 @@ export interface LocalDistrictIndex {
 }
 
 /**
- * v0.31.0: 生活便利度综合分 (scripts/compute_life_convenience.py)
- * 满分 100, 5 维度 (mall/park/subway/school/hospital) 加权
+ * v0.32.0: 生活便利度综合分 (scripts/compute_life_convenience.py)
+ * 满分 110, 6 维度 (mall/park/subway/school/hospital/market) 加权
  */
 export interface LocalLifeConvenience {
   communityId: number;
@@ -371,8 +371,11 @@ export interface LocalLifeConvenience {
   subwayNear: number;
   schoolNear: number;
   hospitalNear: number;
-  /** 综合分 (0-100) */
+  marketNear: number;
+  /** 综合分 (0-110) */
   score: number;
+  /** 归一化 (0-100)，score / 110 * 100 */
+  score100: number;
 }
 
 /**

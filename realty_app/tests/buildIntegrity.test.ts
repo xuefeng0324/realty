@@ -1758,14 +1758,24 @@ describe("build integrity", () => {
       expect(ids.has("3")).toBe(true);
     });
 
-    it("life_convenience.csv score 在 0-100 范围", () => {
+    it("life_convenience.csv score 在 0-110 范围, score100 归一化到 0-100", () => {
       const rows = readCsv(resolve(ROOT, "static/seed/life_convenience.csv"));
       for (const r of rows) {
         const s = Number(r["score"]);
+        const s100 = Number(r["score100"]);
         expect(Number.isFinite(s)).toBe(true);
+        expect(Number.isFinite(s100)).toBe(true);
         expect(s).toBeGreaterThanOrEqual(0);
-        expect(s).toBeLessThanOrEqual(100);
+        expect(s).toBeLessThanOrEqual(110);
+        // score100 ≈ score/110*100 (容差 0.2 浮点)
+        expect(Math.abs(s100 - s / 110 * 100)).toBeLessThanOrEqual(0.2);
       }
+    });
+
+    it("life_convenience.csv 含 market_near 列 (v0.32.0 new-10 菜市场扩充)", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/life_convenience.csv"));
+      expect(rows[0]).toHaveProperty("market_near");
+      expect(rows[0]).toHaveProperty("score100");
     });
 
     it("types.ts 定义 LocalLifeConvenience 接口", () => {
