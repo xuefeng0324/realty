@@ -1925,4 +1925,63 @@ describe("build integrity", () => {
       expect(content).toMatch(/getCommunityScoreRank\(\{[\s\S]+?weights:\s*csWeights\.value/);
     });
   });
+
+  // ────────────────────────────────────────────────────────────────────
+  // v0.35.0 map-9 地铁步行通勤 (metro_walk.csv)
+  // ────────────────────────────────────────────────────────────────────
+  describe("v0.35.0 map-9 地铁步行通勤", () => {
+    it("metro_walk.csv 存在且 >= 30 行", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/metro_walk.csv"));
+      expect(rows.length).toBeGreaterThanOrEqual(30);
+    });
+
+    it("metro_walk.csv walk_minutes 0-60 范围 + station_name 非空", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/metro_walk.csv"));
+      for (const r of rows) {
+        const m = Number(r["walk_minutes"]);
+        expect(Number.isFinite(m)).toBe(true);
+        expect(m).toBeGreaterThanOrEqual(0);
+        expect(m).toBeLessThan(60);
+        expect(r["station_name"]).toBeTruthy();
+      }
+    });
+
+    it("metro_walk.csv 至少有一行 source=AMAP_API (高德实测)", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/metro_walk.csv"));
+      const apiCount = rows.filter((r) => r["source"] === "AMAP_API").length;
+      expect(apiCount).toBeGreaterThanOrEqual(1);
+    });
+
+    it("types.ts 定义 LocalMetroWalk 接口", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(content).toMatch(/export\s+interface\s+LocalMetroWalk/);
+      expect(content).toMatch(/walkMinutes/);
+      expect(content).toMatch(/source:\s*"AMAP_API"\s*\|\s*"ESTIMATED"/);
+    });
+
+    it("importer.ts 解析 metroWalkCSV 并入 snapshot", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(content).toMatch(/metroWalkCSV\?:\s*string/);
+      expect(content).toMatch(/parseMetroWalk\(/);
+      expect(content).toMatch(/metroWalks:\s*LocalMetroWalk\[\]/);
+    });
+
+    it("queries.ts getMetroWalkRanking 按 walkMinutes 升序 + 返回 avg + fastest", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/export\s+function\s+getMetroWalkRanking/);
+      expect(content).toMatch(/sort\(\(a,\s*b\)\s*=>\s*a\.walkMinutes\s*-\s*b\.walkMinutes\)/);
+      expect(content).toMatch(/avgMinutes/);
+      expect(content).toMatch(/fastestCommunity/);
+    });
+
+    it("dashboard.vue 地铁步行通勤卡 + 颜色分档 (mw-min-green/orange/red)", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(content).toMatch(/地铁步行通勤 Top/);
+      expect(content).toMatch(/metroWalk\.value = await\s+getMetroWalkRanking/);
+      expect(content).toMatch(/mwBandClass/);
+      expect(content).toMatch(/mw-min-green/);
+      expect(content).toMatch(/mw-min-orange/);
+      expect(content).toMatch(/mw-min-red/);
+    });
+  });
 });

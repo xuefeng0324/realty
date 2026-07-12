@@ -31,6 +31,7 @@ import type {
   LocalListingTag,
   LocalMetroLine,
   LocalMetroLineGeo,
+  LocalMetroWalk,
   LocalPoi,
   LocalSchool,
   LocalSchoolIndicator,
@@ -105,6 +106,8 @@ export interface SnapshotInputs {
   lifeConvenienceCSV?: string;
   /** v0.33.0: 小区综合评分 */
   communityScoreCSV?: string;
+  /** v0.35.0: 步行到最近地铁站 */
+  metroWalkCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -145,6 +148,32 @@ function parseCommunityScore(csvText: string): LocalCommunityScore[] {
       } as LocalCommunityScore;
     })
     .filter((x): x is LocalCommunityScore => x !== null);
+}
+
+function parseMetroWalk(csvText: string): LocalMetroWalk[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.community_id);
+      if (cid == null) return null;
+      const num = (v: string | undefined) => {
+        if (v === undefined || v === "") return 0;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : 0;
+      };
+      return {
+        communityId: cid,
+        cityId: n(r.city_id) ?? 0,
+        communityName: s(r.community_name) ?? "",
+        stationName: s(r.station_name) ?? "",
+        stationLat: num(r.station_lat ?? undefined),
+        stationLng: num(r.station_lng ?? undefined),
+        straightM: num(r.straight_m ?? undefined),
+        walkDistanceM: num(r.walk_distance_m ?? undefined),
+        walkMinutes: num(r.walk_minutes ?? undefined),
+        source: (s(r.source ?? "") ?? "") as "" | "AMAP_API" | "ESTIMATED"
+      } as LocalMetroWalk;
+    })
+    .filter((x): x is LocalMetroWalk => x !== null);
 }
 
 function parseLifeConvenience(csvText: string): LocalLifeConvenience[] {
@@ -676,6 +705,11 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     ? parseCommunityScore(inputs.communityScoreCSV)
     : [];
 
+  // v0.35.0 map-9: 步行到最近地铁站
+  const metroWalks: LocalMetroWalk[] = inputs.metroWalkCSV
+    ? parseMetroWalk(inputs.metroWalkCSV)
+    : [];
+
   // 聚合可用周：基于 listings 的 crawl_date
   const weekEnds = new Set<string>();
   for (const l of listings) {
@@ -713,6 +747,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     districtIndices,
     lifeConveniences,
     communityScores,
+    metroWalks,
     availableWeeks
   };
 }

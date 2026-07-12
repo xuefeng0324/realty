@@ -23,6 +23,7 @@ import type {
   LocalLayoutDistribution,
   LocalLifeConvenience,
   LocalCommunityScore,
+  LocalMetroWalk,
   LocalListing,
   LocalListingSchoolPremium,
   LocalListingTag,
@@ -363,6 +364,17 @@ export function getCommunityScores(): LocalCommunityScore[] {
 
 export function getCommunityScoresByCity(cityId: number): LocalCommunityScore[] {
   return (snapshot?.communityScores ?? []).filter((c) => c.cityId === cityId);
+}
+
+/**
+ * v0.35.0: 步行到最近地铁站 (全量 + 按城市过滤)
+ */
+export function getMetroWalks(): LocalMetroWalk[] {
+  return snapshot?.metroWalks ?? [];
+}
+
+export function getMetroWalksByCity(cityId: number): LocalMetroWalk[] {
+  return (snapshot?.metroWalks ?? []).filter((m) => m.cityId === cityId);
 }
 
 /**

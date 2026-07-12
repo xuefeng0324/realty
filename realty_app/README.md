@@ -28,6 +28,7 @@
 | v0.32.0 | 2026-07-13 | 「🧭 生活便利度 v2」：新增菜市场维度 (高德 `crawl_market_poi.py` 147 行/49 小区)；打分从 100 升级到 110，加 score100 归一化；UI 6 维 (M/P/S/X/Y/**C**)；京基100 满分 100/100 |
 | v0.33.0 | 2026-07-13 | 「🏅 小区综合评分 Top 小区」：合成 6 维生活便利度 (50%) + 学区评分 (30%) + 通勤分 (20%) → 0-100 单分；金银铜牌；52 行 / 3 城；深圳 京基100 = 95.4 排第一 |
 | v0.34.0 | 2026-07-13 | 综合评分权重自定义：4 预设 chip (⚖️均衡 / 🎓学区 / 🚇通勤 / 🧭生活) + 3 slider；切换预设立即重排 + rank_city 同步；337/337 单测过 |
+| v0.35.0 | 2026-07-13 | 地铁步行通勤：🚶 metro_walk.csv (37 行，AMAP_API 4 + ESTIMATED 30 + 5 skip)；3 色分档 (绿 ≤5 / 橙 ≤10 / 红 >10min)；quota 友好 fallback 启发式；深圳 振华路42号 0min 居首 |
 | v0.13.0 | 2026-07-12 | map-view 第四种模式「POI overlay」：把 poi_seed.csv 的 5 类 POI (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园) 画到地图上 (每类最多 25 marker)；5 类 toggle 自由开关；POI info-card 显示名称 + 类型 + 距离 + 所属小区 |
 | v0.12.0 | 2026-07-12 | map-view 第三种模式「成交价热力」：圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵），半径仍按挂牌数；info-card 新增「价位」5 档标签（便宜/中低/中等/中高/昂贵，色码化）；mode 由 boolean → `MapMode = "count" \| "price" \| "listings"` |
 | v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |
@@ -1022,6 +1023,32 @@ dashboard 新增「🏅 小区综合评分 Top 小区 · {城市}」卡：
 
 验证：337/337 单测过 (+6), type-check clean, smoke_community_score_weight 全绿 (4 预设切换 + 排名变化)
 详见 [changelog/2026-07-13-v0.34.0-权重自定义.md](./changelog/2026-07-13-v0.34.0-权重自定义.md)
+
+### v0.35.0 - 地铁步行通勤 (2026-07-13)
+
+「🚶 地铁步行通勤 Top」卡片新增 — 把每个小区到**最近地铁站**的步行时长直接展示出来：
+
+- 颜色三档：
+  - 🟢 ≤ 5 min (地铁上盖)
+  - 🟠 ≤ 10 min (步行方便)
+  - 🔴 > 10 min (需接驳)
+
+数据源：poi_seed.csv (subway 类别) → 高德 `/v3/direction/walking` API。
+
+**亮点**：
+- quota 友好：49 小区 ~ 49 次 API；本数据 37 行 (AMAP_API 4 + ESTIMATED 30 + 5 个小区无 subway POI skip)
+- quota 用尽时自动启发式 (直线 × 1.45 / 80m·min⁻¹)，每行立即写盘，支持续跑
+- 行内展示：`{min}min / {m}m / 来源：高德|估算`
+
+Top 5 (深圳)：
+1. 振华路42号 — 0 min → 燕南(地铁站)
+2. 京基100 — 4 min → 老街(地铁站)
+3. 凤凰路66号大厦 — 4 min → 黄贝岭(地铁站)
+4. 水围村 — 9 min → 民宝(地铁站)
+5. 万科城 — 13 min → 贝尔路(地铁站)
+
+验证：344/344 单测过 (+7), type-check clean, smoke_metro_walk 全绿（深/广双截图 ✓）
+详见 [changelog/2026-07-13-v0.35.0-地铁步行通勤.md](./changelog/2026-07-13-v0.35.0-地铁步行通勤.md)
 
 ## License
 

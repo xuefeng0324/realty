@@ -157,6 +157,7 @@ function mergeListingsIntoSnapshot(
     districtIndices: existing?.districtIndices ?? [],
     lifeConveniences: existing?.lifeConveniences ?? [],
     communityScores: existing?.communityScores ?? [],
+    metroWalks: existing?.metroWalks ?? [],
     availableWeeks
   };
 }

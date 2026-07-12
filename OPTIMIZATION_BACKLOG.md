@@ -282,6 +282,23 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 V | trend-16 | dashboard 4 chip + 3 slider + reloadCommunityScore | ✅ v0.34.0 | 颜色分档同步 |
 | 🟢 V | trend-16 | buildIntegrity +6 测试 + smoke_community_score_weight E2E + commit v0.34.0 | ✅ v0.34.0 | 337/337 通过；smoke 全绿 |
 
+## W 段补充：地铁步行通勤 (v0.35.0)
+
+- 用高德 `/v3/direction/walking` 给每个 community 算 → 最近地铁站 的步行时长
+- 配额友好：49 小区 ~ 49 次 API (远低于 5000-30000)
+- quota 用尽时 fallback 到启发式 (直线 × 1.45 / 80m·min⁻¹)，续跑 + 每行立即写盘
+- 数据：metro_walk.csv (37 行，real 数据 4 行 + EST 30 行 + 5 个无 subway POI 已 skip)
+- UI：dashboard 🚶 步行通勤 Top，3 色分档 (≤5 / ≤10 / >10min)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+| --- | --- | --- | --- | --- |
+| 🟢 W | map-9 | 调研高德 walking API + quota 风险 | ✅ v0.35.0 | API key 单日 ~50 次最稳 |
+| 🟢 W | map-9 | crawl_amap_metro_walk.py (含启发式 fallback + 续跑) | ✅ v0.35.0 | quota_hit 时 set flag, 后续全 EST |
+| 🟢 W | map-9 | LocalMetroWalk + parseMetroWalk + 接入 snapshot | ✅ v0.35.0 | metroWalks[] 已注入 |
+| 🟢 W | map-9 | getMetroWalkRanking (avg / fastest / totalCount + Top N) | ✅ v0.35.0 | 按 walkMinutes 升序 |
+| 🟢 W | map-9 | dashboard 🚶 卡 + 3 色分档 (mw-min-green/orange/red) | ✅ v0.35.0 | 414×896 截图验证 |
+| 🟢 W | map-9 | buildIntegrity +7 测试 + smoke_metro_walk E2E + commit v0.35.0 | ✅ v0.35.0 | 344/344 通过；smoke 全绿 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

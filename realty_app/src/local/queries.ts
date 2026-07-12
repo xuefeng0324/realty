@@ -2113,3 +2113,81 @@ export function getCommunityScoreRank(params: {
     items
   };
 }
+/* ============================================================================
+ * v0.35.0 map-9: 步行到最近地铁站
+ * ========================================================================== */
+
+export interface MetroWalkItem {
+  communityId: number;
+  cityId: number;
+  communityName: string;
+  districtName: string;
+  stationName: string;
+  stationLat: number;
+  stationLng: number;
+  /** 直线距离 (米) */
+  straightM: number;
+  /** 实际步行距离 (米) */
+  walkDistanceM: number;
+  /** 步行分钟 */
+  walkMinutes: number;
+  /** 数据来源 */
+  source: "AMAP_API" | "ESTIMATED" | "";
+}
+
+export interface MetroWalkResponse {
+  cityId: number;
+  cityName: string;
+  avgMinutes: number;
+  fastestMinutes: number;
+  fastestCommunity: string | null;
+  totalCount: number;
+  /** 按 walkMinutes 升序 Top N */
+  items: MetroWalkItem[];
+}
+
+export function getMetroWalkRanking(params: {
+  cityId: number;
+  topN?: number;
+  /** 仅展示 ≤ N 分钟的小区 */
+  maxMinutes?: number;
+}): MetroWalkResponse | null {
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const all = store.getMetroWalksByCity(params.cityId);
+  if (all.length === 0) return null;
+
+  const sorted = all.slice().sort((a, b) => a.walkMinutes - b.walkMinutes);
+  const maxMin = params.maxMinutes ?? Infinity;
+  const filtered = sorted.filter((r) => r.walkMinutes <= maxMin);
+  const topN = params.topN ?? 20;
+  const items: MetroWalkItem[] = filtered.slice(0, topN).map((r) => {
+    const comm = store.getCommunityById(r.communityId);
+    return {
+      communityId: r.communityId,
+      cityId: r.cityId,
+      communityName: r.communityName,
+      districtName: comm?.districtName ?? "",
+      stationName: r.stationName,
+      stationLat: r.stationLat,
+      stationLng: r.stationLng,
+      straightM: r.straightM,
+      walkDistanceM: r.walkDistanceM,
+      walkMinutes: r.walkMinutes,
+      source: r.source
+    };
+  });
+
+  const avg = Math.round((sorted.reduce((s, r) => s + r.walkMinutes, 0) / sorted.length) * 10) / 10;
+  const fastest = sorted[0];
+
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    avgMinutes: avg,
+    fastestMinutes: fastest?.walkMinutes ?? 0,
+    fastestCommunity: fastest?.communityName ?? null,
+    totalCount: sorted.length,
+    items
+  };
+}

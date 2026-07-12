@@ -81,6 +81,10 @@ import lifeConvenienceCSV from "../../static/seed/life_convenience.csv?raw";
 // @ts-ignore
 import communityScoreCSV from "../../static/seed/community_score.csv?raw";
 
+// v0.35.0 步行到最近地铁站 (scripts/crawl_amap_metro_walk.py)
+// @ts-ignore
+import metroWalkCSV from "../../static/seed/metro_walk.csv?raw";
+
 let cached: DataSnapshot | null = null;
 
 /** 拿默认快照。第一次解析后缓存。 */
@@ -109,7 +113,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       listingTagsCSV: String(listingTagsCSV ?? ""),
       districtIndexCSV: String(districtIndexCSV ?? ""),
       lifeConvenienceCSV: String(lifeConvenienceCSV ?? ""),
-      communityScoreCSV: String(communityScoreCSV ?? "")
+      communityScoreCSV: String(communityScoreCSV ?? ""),
+      metroWalkCSV: String(metroWalkCSV ?? "")
     },
     "seed:public-derived"
   );

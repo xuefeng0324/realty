@@ -626,6 +626,39 @@
         </view>
       </view>
 
+      <!-- v0.35.0 map-9 地铁步行通勤榜 (community → 最近地铁站, 步行时长) -->
+      <view v-if="metroWalk && metroWalk.items.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">🚶 地铁步行通勤 Top · {{ metroWalk.cityName }}</view>
+          <view class="muted">Top {{ metroWalk.items.length }}</view>
+        </view>
+        <view class="mw-summary muted">
+          平均步行 {{ metroWalk.avgMinutes }}min · 最快 {{ metroWalk.fastestMinutes }}min ({{ metroWalk.fastestCommunity }})
+          · 共 {{ metroWalk.totalCount }} 个小区
+        </view>
+        <view
+          v-for="it in metroWalk.items"
+          :key="it.communityId"
+          class="mw-row"
+        >
+          <view class="mw-rank">
+            <text :class="['mw-min', mwBandClass(it.walkMinutes)]">{{ it.walkMinutes.toFixed(0) }}min</text>
+          </view>
+          <view class="mw-mid">
+            <view class="mw-name">{{ it.communityName }}</view>
+            <view class="mw-dist muted">{{ it.districtName }} · → {{ it.stationName }}</view>
+          </view>
+          <view class="mw-right">
+            <view class="muted" style="font-size: 20rpx">{{ it.walkDistanceM }}m</view>
+            <view class="mw-src muted" v-if="it.source">{{ it.source === 'AMAP_API' ? '高德' : '估算' }}</view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：poi_seed.csv (subway) → 高德 /v3/direction/walking。
+          步行时长按距离升序；绿/橙/红三档 (≤5 / ≤10 / &gt;10min)，AMAP_API 是高德实测，其余为启发式估算（直线×1.45 / 80m·min⁻¹）。
+        </view>
+      </view>
+
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
       <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card">
         <view class="row-between">
@@ -1034,7 +1067,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, getMetroWalkRanking, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -1082,6 +1115,8 @@ const districtIndex = ref<DistrictIndexResponse | null>(null);
 const districtChange = ref<DistrictChangeResponse | null>(null);
 const lifeConvenience = ref<LifeConvenienceResponse | null>(null);
 const communityScore = ref<CommunityScoreResponse | null>(null);
+// v0.35.0 map-9: 地铁步行通勤
+const metroWalk = ref<MetroWalkResponse | null>(null);
 // v0.34.0 trend-16: 综合评分权重自定义
 const csWeights = ref<{ life: number; school: number; commute: number }>({ life: 50, school: 30, commute: 20 });
 const csPresets: { key: string; label: string; weights: { life: number; school: number; commute: number } }[] = [
@@ -1122,6 +1157,23 @@ async function reloadCommunityScore() {
   } catch (e) {
     console.warn("getCommunityScoreRank failed:", e);
   }
+}
+
+// v0.35.0 map-9: 地铁步行通勤
+async function reloadMetroWalk() {
+  try {
+    metroWalk.value = await getMetroWalkRanking({
+      cityId: app.cityId,
+      topN: 10
+    });
+  } catch (e) {
+    console.warn("getMetroWalkRanking failed:", e);
+  }
+}
+function mwBandClass(min: number) {
+  if (min <= 5) return "mw-min-green";
+  if (min <= 10) return "mw-min-orange";
+  return "mw-min-red";
 }
 const schoolPremiumOverview = ref<SchoolPremiumOverview | null>(null);
 const schoolPremiumCommunityItems = ref<SchoolPremiumCommunityItem[]>([]);
@@ -1473,6 +1525,16 @@ async function loadRankingAndDistrict() {
       } catch (e) {
         console.warn("getCommunityScoreRank failed:", e);
         communityScore.value = null;
+      }
+      // v0.35.0 map-9 地铁步行通勤榜
+      try {
+        metroWalk.value = await getMetroWalkRanking({
+          cityId: app.cityId,
+          topN: 10
+        });
+      } catch (e) {
+        console.warn("getMetroWalkRanking failed:", e);
+        metroWalk.value = null;
       }
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
@@ -3100,6 +3162,74 @@ onShow(async () => {
 }
 .cs-total-low {
   color: #94a3b8;
+}
+
+/* v0.35.0 map-9 地铁步行通勤 */
+.mw-summary {
+  font-size: 24rpx;
+  margin: 8rpx 0 16rpx;
+}
+.mw-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 10rpx 0;
+  border-bottom: 1rpx solid #1f2937;
+}
+.mw-row:last-child {
+  border-bottom: none;
+}
+.mw-rank {
+  flex: 0 0 100rpx;
+  text-align: center;
+}
+.mw-min {
+  display: inline-block;
+  padding: 6rpx 12rpx;
+  border-radius: 12rpx;
+  font-weight: 700;
+  font-size: 28rpx;
+  font-variant-numeric: tabular-nums;
+  min-width: 80rpx;
+}
+.mw-min-green {
+  background: rgba(34, 197, 94, 0.18);
+  color: #22c55e;
+}
+.mw-min-orange {
+  background: rgba(251, 191, 36, 0.18);
+  color: #fbbf24;
+}
+.mw-min-red {
+  background: rgba(248, 113, 113, 0.18);
+  color: #f87171;
+}
+.mw-mid {
+  flex: 1;
+  min-width: 0;
+}
+.mw-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mw-dist {
+  font-size: 22rpx;
+  margin-top: 2rpx;
+}
+.mw-right {
+  flex: 0 0 auto;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.mw-src {
+  font-size: 18rpx;
+  margin-top: 4rpx;
 }
 
 /* v0.10.0 网签热度榜 */

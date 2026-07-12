@@ -402,6 +402,23 @@ export interface LocalCommunityScore {
 }
 
 /**
+ * v0.35.0: 步行到最近地铁站 (scripts/crawl_amap_metro_walk.py)
+ * source: AMAP_API (高德实际) 或 ESTIMATED (启发式: 直线×1.45/80m·min⁻¹)
+ */
+export interface LocalMetroWalk {
+  communityId: number;
+  cityId: number;
+  communityName: string;
+  stationName: string;
+  stationLat: number;
+  stationLng: number;
+  straightM: number;
+  walkDistanceM: number;
+  walkMinutes: number;
+  source: "AMAP_API" | "ESTIMATED" | "";
+}
+
+/**
  * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
  * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
  * 用于 dashboard 展示"区级近 N 周房价趋势"。
@@ -458,6 +475,8 @@ export interface DataSnapshot {
   lifeConveniences: LocalLifeConvenience[];
   /** v0.33.0: 小区综合评分 (scripts/compute_community_score.py) */
   communityScores: LocalCommunityScore[];
+  /** v0.35.0: 步行到最近地铁站 (scripts/crawl_amap_metro_walk.py) */
+  metroWalks: LocalMetroWalk[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }
