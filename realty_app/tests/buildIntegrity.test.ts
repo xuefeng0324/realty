@@ -1536,4 +1536,29 @@ describe("build integrity", () => {
       expect(rows.length).toBeGreaterThanOrEqual(30);
     });
   });
+
+  // ────────────────────────────────────────────────────────────────────
+  // v0.27.0 map-8 marker 密度过滤
+  // ────────────────────────────────────────────────────────────────────
+  describe("v0.27.0 map-8 marker 密度过滤", () => {
+    it("map-view.vue 含密度过滤逻辑 (zoom 阈值)", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/map-view/map-view.vue"), "utf8");
+      // 密度过滤：在 listingClusterMarkers 中判断 scale
+      expect(content).toMatch(/scale <= 10/);
+      expect(content).toMatch(/scale <= 11/);
+      // 应基于 community listing_count
+      expect(content).toMatch(/listing_count >= 5|>= 5/);
+      expect(content).toMatch(/listing_count >= 2|>= 2/);
+    });
+
+    it("map-view.vue legend 含 v0.27.0 密度过滤说明", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/map-view/map-view.vue"), "utf8");
+      expect(content).toMatch(/v0\.27\.0 密度过滤/);
+    });
+
+    it("cluster.ts 仍存在 (密度过滤复用 grid 聚合)", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/cluster.ts"), "utf8");
+      expect(content).toMatch(/export function clusterMarkers/);
+    });
+  });
 });

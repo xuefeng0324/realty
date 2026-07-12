@@ -200,6 +200,14 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟡 N | trend-11 | dashboard 3 组 chip 控件 + watch 重载 + 切城市重置 | ✅ v0.26.0 | 区多选 + 5 档最低评分 + 4 排序 |
 | 🟡 N | trend-11 | buildIntegrity +7 测试 + smoke_trend11 E2E + commit v0.26.0 | ✅ v0.26.0 | 287/287 通过；15/15 smoke 全绿 |
 
+## O 段补充：marker 密度过滤（v0.27.0）
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+| --- | --- | --- | --- | --- |
+| 🟢 O | map-8 | 调研 map-view zoom/cluster 现状 + 密度过滤方案 | ✅ v0.27.0 | listings 模式按 zoom 阈值预过滤 |
+| 🟢 O | map-8 | zoom ≤10 过滤 ≥5 套；zoom 11 过滤 ≥2 套；legend 显示阈值 | ✅ v0.27.0 | listingClusterMarkers computed 前置 filter |
+| 🟢 O | map-8 | buildIntegrity +3 测试 + smoke_cluster 扩展 + commit v0.27.0 | ✅ v0.27.0 | 290/290 通过；16/16 smoke 全绿 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

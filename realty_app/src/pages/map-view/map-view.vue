@@ -23,7 +23,7 @@
           挂牌数热力：圆点 = 挂牌数 (颜色: 红=多 / 蓝=少)
         </text>
         <text v-else-if="mode === 'listings'">
-          挂牌点 (v0.18.0 聚合)：每点 = 该小区 1 套挂牌 (单点)；多套聚合显示数字 (红气泡)，点击放大；点击单点 → 小区详情
+          挂牌点 (v0.18.0 聚合 + v0.27.0 密度过滤)：每点 = 该小区 1 套挂牌 (单点)；多套聚合显示数字 (红气泡)，点击放大；点击单点 → 小区详情。当前 zoom {{ Math.round(mapScale) }} — 城市级过滤只显示 ≥5 套的社区，区级过滤 ≥2 套。
         </text>
         <text v-else-if="mode === 'poi'">
           POI overlay (v0.22.0 聚合)：5 类配套图标 (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园)，同类按 grid 聚合；单点=该 POI，聚合=带数字气泡，点击聚合放大
@@ -542,7 +542,36 @@ const listingMarkerInputs = computed<ClusterInputPoint[]>(() => {
 });
 
 const listingClusterMarkers = computed<any[]>(() => {
-  const clusters = clusterMarkers(listingMarkerInputs.value, Math.round(mapScale.value));
+  // v0.27.0 map-8: 密度过滤 — 低 zoom 时只保留 listings 较多的社区
+  const scale = Math.round(mapScale.value);
+  const inputs = listingMarkerInputs.value;
+  let visibleInputs: ClusterInputPoint[] = inputs;
+  if (scale <= 10) {
+    // zoom <= 10 (城市级): 只保留 listing_count >= 5 的社区
+    const cnt = new Map<number, number>();
+    for (const p of inputs) {
+      const cid = (p.payload as { communityId?: number }).communityId;
+      if (cid == null) continue;
+      cnt.set(cid, (cnt.get(cid) ?? 0) + 1);
+    }
+    visibleInputs = inputs.filter((p) => {
+      const cid = (p.payload as { communityId?: number }).communityId;
+      return cid != null && (cnt.get(cid) ?? 0) >= 5;
+    });
+  } else if (scale <= 11) {
+    // zoom 11 (区级): 保留 listing_count >= 2
+    const cnt = new Map<number, number>();
+    for (const p of inputs) {
+      const cid = (p.payload as { communityId?: number }).communityId;
+      if (cid == null) continue;
+      cnt.set(cid, (cnt.get(cid) ?? 0) + 1);
+    }
+    visibleInputs = inputs.filter((p) => {
+      const cid = (p.payload as { communityId?: number }).communityId;
+      return cid != null && (cnt.get(cid) ?? 0) >= 2;
+    });
+  }
+  const clusters = clusterMarkers(visibleInputs, scale);
   return clusters.map((c) => {
     if (c.count === 1) {
       const p = c.payload[0] as { listingId: number; name: string; totalPrice10k: number | null };

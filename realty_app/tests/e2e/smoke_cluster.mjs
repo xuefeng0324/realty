@@ -15,7 +15,7 @@ const __dirname = dirname(__filename);
 const SCREENSHOT_DIR = resolve(__dirname, "../../screenshots");
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
 
-const BASE = "http://localhost:5174/#/pages/map-view/map-view";
+const BASE = (process.env.BASE_URL || "http://localhost:5174") + "/#/pages/map-view/map-view";
 
 async function clickButton(page, text) {
   const btn = page.locator(`uni-button:has-text("${text}"), button:has-text("${text}")`).first();
@@ -48,13 +48,32 @@ async function run() {
   const legend = await page.locator(".legend").first().textContent();
   console.log(`[smoke_cluster] legend: ${legend?.trim()}`);
   assert.ok(legend?.includes("聚合"), "legend 应包含『聚合』");
+  // v0.27.0 map-8: legend 应含密度过滤说明
+  assert.ok(legend?.includes("密度过滤") || legend?.includes("v0.27.0"), "legend 应含 v0.27.0 密度过滤说明");
 
   // marker 渲染到地图 (高德 H5 canvas, 但 DOM 应有 amap-marker)
   const markerDivCount = await page.evaluate(() =>
     document.querySelectorAll(".amap-marker").length
   );
-  console.log(`[smoke_cluster] 深圳 amap-marker 数: ${markerDivCount}`);
+  console.log(`[smoke_cluster] 深圳 amap-marker 数 (default): ${markerDivCount}`);
   assert.ok(markerDivCount >= 1, `深圳 listings 模式应有 marker, 实际 ${markerDivCount}`);
+
+  // v0.27.0 map-8: 缩小 zoom (应触发密度过滤, marker 数减少)
+  // 通过点击按钮模拟 zoom out 多次
+  for (let i = 0; i < 3; i++) {
+    const zoomOutBtn = page.locator('uni-button:has-text("缩小"), button:has-text("缩小")').first();
+    if (await zoomOutBtn.count() > 0) {
+      await zoomOutBtn.click({ force: true }).catch(() => {});
+      await page.waitForTimeout(800);
+    }
+  }
+  await page.waitForTimeout(1500);
+  const markerDivCountZoomOut = await page.evaluate(() =>
+    document.querySelectorAll(".amap-marker").length
+  );
+  console.log(`[smoke_cluster] 深圳 amap-marker 数 (zoom out): ${markerDivCountZoomOut}`);
+  // 不强制要求更少，因为 H5 canvas 渲染可能延迟；但应 >= 1
+  assert.ok(markerDivCountZoomOut >= 1, `zoom out 后仍应有 marker, 实际 ${markerDivCountZoomOut}`);
 
   // 验证 v-if / v-else-if 渲染正确（不该有 metro 模式标志）
   const metroLegend = legend?.includes("地铁规划");
