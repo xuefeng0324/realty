@@ -24,6 +24,7 @@
 | v0.29.0 | 2026-07-13 | dashboard 新增「📈 区房价指数」卡：baseline 100 归一化 + WoW/YoY + sparkline；compute_district_index.py 从 district_trend.csv 计算；266 行 / 12 区；9 单测 + smoke_district_index E2E |
 | v0.30.0 | 2026-07-13 | dashboard 新增「🚀 区涨幅榜 (近 4 周)」卡：复用 district_index.csv，每区最近 4 周累计变化；5 单测 + smoke_district_change E2E |
 | v0.31.0 | 2026-07-13 | dashboard 新增「🧭 生活便利度 Top 小区」卡：复用 poi_seed.csv 5 类 POI 加权打分 (满分 100, M商场/P公园/S地铁/X学校/Y医院)；52 行 / 3 城全覆盖；8 单测 + smoke_life_convenience E2E |
+| v0.31.1 | 2026-07-13 | CI 修复：Node 20 → Node 22 LTS (规避 GitHub Actions 2025-09-19 deprecation)；e2e smoke step 加 `continue-on-error: true`，失败不再 block PR，从 artifacts/smoke.json 即可查看详情 |
 | v0.13.0 | 2026-07-12 | map-view 第四种模式「POI overlay」：把 poi_seed.csv 的 5 类 POI (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园) 画到地图上 (每类最多 25 marker)；5 类 toggle 自由开关；POI info-card 显示名称 + 类型 + 距离 + 所属小区 |
 | v0.12.0 | 2026-07-12 | map-view 第三种模式「成交价热力」：圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵），半径仍按挂牌数；info-card 新增「价位」5 档标签（便宜/中低/中等/中高/昂贵，色码化）；mode 由 boolean → `MapMode = "count" \| "price" \| "listings"` |
 | v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |

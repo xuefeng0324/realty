@@ -35,7 +35,8 @@ jobs:
       - name: 设 Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          # Node.js 20 已被 GitHub Actions 弃用（2025-09-19），升级到 Node 22 LTS
+          node-version: "22"
           cache: npm
           cache-dependency-path: realty_app/package-lock.json
 

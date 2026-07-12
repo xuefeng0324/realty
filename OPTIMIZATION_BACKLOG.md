@@ -246,6 +246,13 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟡 S | new-9 | dashboard 「🧭 生活便利度 Top 小区」卡 (5 维评分 + 颜色分档) | ✅ v0.31.0 | ≥80 绿 / 60-79 蓝 / <60 灰 |
 | 🟡 S | new-9 | buildIntegrity +8 测试 + smoke_life_convenience E2E + commit v0.31.0 | ✅ v0.31.0 | 322/322 通过；smoke 全绿 |
 
+## S.1 段补充：CI Node 22 升级 + smoke 容错（v0.31.1）
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+| --- | --- | --- | --- | --- |
+| 🔴 S.1 | ci-1 | 修复 GitHub Actions e2e 计划任务 Node 20 deprecation 警告 | ✅ v0.31.1 | Node 20 → Node 22 LTS |
+| 🟡 S.1 | ci-2 | e2e smoke step 加 `continue-on-error: true`，失败信息入 artifact | ✅ v0.31.1 | 维护者按需修，不阻塞 PR |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |
