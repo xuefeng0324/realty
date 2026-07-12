@@ -474,6 +474,44 @@
         </view>
       </view>
 
+      <!-- v0.30.0 trend-14 区涨幅榜 (4 周累计) -->
+      <view v-if="districtChange && districtChange.items.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">🚀 区涨幅榜 (近 4 周) · {{ districtChange.cityName }}</view>
+          <view class="muted">Top {{ districtChange.items.length }}</view>
+        </view>
+        <view v-if="districtChange.items.length === 0" class="empty">暂无数据</view>
+        <view
+          v-for="it in districtChange.items"
+          :key="it.districtName"
+          class="dc-row"
+        >
+          <view class="dc-rank">
+            <text :class="['sp-medal-mini', spMedalClass(it.rank)]">{{ it.rank }}</text>
+          </view>
+          <view class="dc-mid">
+            <view class="dc-name">{{ it.districtName }}</view>
+            <view class="muted">最新 WoW
+              <text v-if="it.latestMom != null" :class="diChangeClass(it.latestMom)">
+                {{ it.latestMom > 0 ? "+" : "" }}{{ it.latestMom.toFixed(1) }}%
+              </text>
+              <text v-else class="muted">—</text>
+            </view>
+          </view>
+          <view class="dc-right">
+            <text v-if="it.recentChange4w != null" :class="['dc-4w', diChangeClass(it.recentChange4w)]">
+              {{ it.recentChange4w > 0 ? "+" : "" }}{{ it.recentChange4w.toFixed(1) }}%
+            </text>
+            <text v-else class="muted">—</text>
+            <view class="muted" style="font-size: 20rpx">4 周累计</view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：district_index.csv (compute_district_index.py) → 4 周累计变化 (last / 4w_ago - 1)。
+          按涨幅降序；金色前 3 名；区可点击 (此版本仅展示)。
+        </view>
+      </view>
+
       <!-- v0.11.0 学区溢价榜 -->
       <view v-if="schoolPremiumOverview && schoolPremiumOverview.items.length > 0" class="card">
         <view class="row-between">
@@ -825,7 +863,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -870,6 +908,7 @@ const layoutDistribution = ref<LayoutDistributionResponse | null>(null);
 const tagCloud = ref<TagCloudResponse | null>(null);
 const tagCloudFilteredHint = ref<string>("");
 const districtIndex = ref<DistrictIndexResponse | null>(null);
+const districtChange = ref<DistrictChangeResponse | null>(null);
 const schoolPremiumOverview = ref<SchoolPremiumOverview | null>(null);
 const schoolPremiumCommunityItems = ref<SchoolPremiumCommunityItem[]>([]);
 // v0.26.0 trend-11: 过滤 + 排序 controls
@@ -1190,6 +1229,15 @@ async function loadRankingAndDistrict() {
       } catch (e) {
         console.warn("getDistrictIndex failed:", e);
         districtIndex.value = null;
+      }
+      // v0.30.0 区涨幅榜
+      try {
+        districtChange.value = await getDistrictChangeRank({
+          cityId: app.cityId
+        });
+      } catch (e) {
+        console.warn("getDistrictChangeRank failed:", e);
+        districtChange.value = null;
       }
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
@@ -2532,6 +2580,36 @@ onShow(async () => {
   border-radius: 2rpx;
   min-height: 4rpx;
   opacity: 0.7;
+}
+
+/* v0.30.0 区涨幅榜 */
+.dc-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 8rpx 0;
+  border-bottom: 1rpx solid #1f2937;
+}
+.dc-rank {
+  flex: 0 0 60rpx;
+}
+.dc-mid {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.dc-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+.dc-right {
+  flex: 0 0 auto;
+  text-align: right;
+}
+.dc-4w {
+  font-size: 32rpx;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 /* v0.10.0 网签热度榜 */

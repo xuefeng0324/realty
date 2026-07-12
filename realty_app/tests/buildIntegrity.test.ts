@@ -1703,4 +1703,41 @@ describe("build integrity", () => {
       expect(content).toMatch(/momChange|yoyChange/);
     });
   });
+
+  // ────────────────────────────────────────────────────────────────────
+  // v0.30.0 trend-14 区涨幅榜
+  // ────────────────────────────────────────────────────────────────────
+  describe("v0.30.0 trend-14 区涨幅榜", () => {
+    it("queries.ts 增加 getDistrictChangeRank 函数", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/export function getDistrictChangeRank/);
+    });
+
+    it("queries.ts 导出 DistrictChangeResponse 接口", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/export interface DistrictChangeResponse/);
+    });
+
+    it("queries.ts DistrictChangeItem 含 recentChange4w 字段", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      const block = content.match(/export interface DistrictChangeItem[\s\S]+?^}/m);
+      expect(block).toBeTruthy();
+      expect(block![0]).toMatch(/recentChange4w/);
+      expect(block![0]).toMatch(/latestMom/);
+    });
+
+    it("dashboard.vue 渲染区涨幅榜卡片", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(content).toMatch(/districtChange/);
+      expect(content).toMatch(/区涨幅榜|🚀/);
+      expect(content).toMatch(/getDistrictChangeRank/);
+      expect(content).toMatch(/recentChange4w/);
+      expect(content).toMatch(/dc-row/);
+    });
+
+    it("dashboard.vue loadAll 调用 getDistrictChangeRank", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(content).toMatch(/getDistrictChangeRank\(\{\s*cityId:\s*app\.cityId/);
+    });
+  });
 });

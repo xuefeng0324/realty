@@ -1881,3 +1881,81 @@ export function getDistrictIndex(params: { cityId: number }): DistrictIndexRespo
     items
   };
 }
+
+// ============================================================================
+// v0.30.0 trend-14 区涨幅榜
+// ============================================================================
+
+export interface DistrictChangeItem {
+  districtName: string;
+  /** 最近 WoW % */
+  latestMom: number | null;
+  /** 最近 4 周累计变化 % (last - 4w_ago) / 4w_ago */
+  recentChange4w: number | null;
+  /** 最近 WoW 涨幅排名 */
+  rank: number;
+}
+
+export interface DistrictChangeResponse {
+  cityId: number;
+  cityName: string;
+  /** 按最近 4 周涨幅降序 */
+  items: DistrictChangeItem[];
+}
+
+/**
+ * 给定城市，按"最近 4 周累计变化"对区排序，返回涨幅榜。
+ * 用于 dashboard "区涨幅榜" 卡片。
+ */
+export function getDistrictChangeRank(params: { cityId: number }): DistrictChangeResponse | null {
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const all = store.getDistrictIndicesByCity(params.cityId);
+  if (all.length === 0) return null;
+
+  const byDistrict: Record<string, LocalDistrictIndex[]> = {};
+  for (const r of all) {
+    if (!byDistrict[r.districtName]) byDistrict[r.districtName] = [];
+    byDistrict[r.districtName].push(r);
+  }
+  for (const k in byDistrict) {
+    byDistrict[k].sort((a, b) => a.weekEnd.localeCompare(b.weekEnd));
+  }
+
+  const items: DistrictChangeItem[] = [];
+  for (const dn in byDistrict) {
+    const arr = byDistrict[dn];
+    if (arr.length < 2) continue;
+    const last = arr[arr.length - 1];
+    // 找 4 周前 (如果有)
+    const lastWeek = new Date(last.weekEnd + "T00:00:00Z");
+    const fourWeeksAgo = new Date(lastWeek.getTime() - 28 * 24 * 3600 * 1000);
+    const fourWStr = fourWeeksAgo.toISOString().slice(0, 10);
+    // 找 ≤ fourWStr 的最近一周
+    const older = [...arr].reverse().find((x) => x.weekEnd <= fourWStr);
+    let recentChange4w: number | null = null;
+    if (older && older.medianUnitPrice > 0) {
+      recentChange4w =
+        Math.round(((last.medianUnitPrice - older.medianUnitPrice) / older.medianUnitPrice) * 1000) / 10;
+    }
+    items.push({
+      districtName: dn,
+      latestMom: last.momChange,
+      recentChange4w,
+      rank: 0
+    });
+  }
+  // 排序: recentChange4w 降序 (null 排最后)
+  items.sort((a, b) => {
+    if (a.recentChange4w == null && b.recentChange4w == null) return 0;
+    if (a.recentChange4w == null) return 1;
+    if (b.recentChange4w == null) return -1;
+    return b.recentChange4w - a.recentChange4w;
+  });
+  items.forEach((it, i) => (it.rank = i + 1));
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    items
+  };
+}

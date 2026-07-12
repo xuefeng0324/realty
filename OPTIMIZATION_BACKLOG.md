@@ -226,6 +226,15 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟡 Q | trend-13 | dashboard 「📈 区房价指数」卡 + WoW/YoY + sparkline | ✅ v0.29.0 | 颜色编码 ≥110 红 / <90 绿 |
 | 🟡 Q | trend-13 | buildIntegrity +9 测试 + smoke_district_index E2E + commit v0.29.0 | ✅ v0.29.0 | 309/309 通过；22/22 smoke 全绿 |
 
+## R 段补充：区涨幅榜（v0.30.0）
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+| --- | --- | --- | --- | --- |
+| 🟢 R | trend-14 | 调研 district_index.csv + 涨幅榜设计 | ✅ v0.30.0 | 复用 index 数据 |
+| 🟢 R | trend-14 | getDistrictChangeRank + DistrictChangeItem/Response | ✅ v0.30.0 | 按 4 周累计变化降序 |
+| 🟢 R | trend-14 | dashboard 「🚀 区涨幅榜」卡 + 颜色编码 | ✅ v0.30.0 | 金牌前 3 名 |
+| 🟢 R | trend-14 | buildIntegrity +5 测试 + smoke_district_change E2E + commit v0.30.0 | ✅ v0.30.0 | 314/314 通过；23/23 smoke 全绿 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

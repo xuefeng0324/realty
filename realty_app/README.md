@@ -22,6 +22,7 @@
 | v0.27.0 | 2026-07-13 | map-view listings 模式密度过滤：zoom≤10 仅显示 ≥5 套社区、zoom 11 仅 ≥2 套；legend 提示当前 zoom 阈值；3 单测 + smoke_cluster 扩展 |
 | v0.28.0 | 2026-07-13 | dashboard 新增「🏷️ 房源标签云」卡 (5 档字号)：compute_listing_tags.py 派生 18 类标签 (户型/价格/朝向/装修/学区/地铁/楼龄/楼层/电梯/平台)；listing_tags.csv 7517 行；10 单测 + smoke_tagcloud E2E |
 | v0.29.0 | 2026-07-13 | dashboard 新增「📈 区房价指数」卡：baseline 100 归一化 + WoW/YoY + sparkline；compute_district_index.py 从 district_trend.csv 计算；266 行 / 12 区；9 单测 + smoke_district_index E2E |
+| v0.30.0 | 2026-07-13 | dashboard 新增「🚀 区涨幅榜 (近 4 周)」卡：复用 district_index.csv，每区最近 4 周累计变化；5 单测 + smoke_district_change E2E |
 | v0.13.0 | 2026-07-12 | map-view 第四种模式「POI overlay」：把 poi_seed.csv 的 5 类 POI (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园) 画到地图上 (每类最多 25 marker)；5 类 toggle 自由开关；POI info-card 显示名称 + 类型 + 距离 + 所属小区 |
 | v0.12.0 | 2026-07-12 | map-view 第三种模式「成交价热力」：圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵），半径仍按挂牌数；info-card 新增「价位」5 档标签（便宜/中低/中等/中高/昂贵，色码化）；mode 由 boolean → `MapMode = "count" \| "price" \| "listings"` |
 | v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |
@@ -933,6 +934,19 @@ dashboard 新增「📈 区房价指数 · {城市}」卡：
 
 验证：309/309 单测过 (+9), type-check clean, 22/22 smoke 全绿
 详见 [changelog/2026-07-13-v0.29.0-区房价指数.md](./changelog/2026-07-13-v0.29.0-区房价指数.md)
+
+### v0.30.0 - 区涨幅榜 (2026-07-13)
+
+dashboard 新增「🚀 区涨幅榜 (近 4 周) · {城市}」卡：
+- 按最近 4 周累计中位价变化排序
+- 显示：排名、区名、最新 WoW、4 周累计变化
+- 颜色：>+0.5% 红 / <-0.5% 绿
+- 金牌前 3
+
+实现：`getDistrictChangeRank()` query 复用 `district_index.csv`，每区取最近一周和 4 周前的 medianUnitPrice 计算累计变化。
+
+验证：314/314 单测过 (+5), type-check clean, 23/23 smoke 全绿
+详见 [changelog/2026-07-13-v0.30.0-区涨幅榜.md](./changelog/2026-07-13-v0.30.0-区涨幅榜.md)
 
 ## License
 
