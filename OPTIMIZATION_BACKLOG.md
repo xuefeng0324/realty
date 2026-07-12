@@ -173,6 +173,15 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟡 K | trend-9 | `getDistrictWangqianRank({ cityId, category, weeksBack, limit })` + tab 切换 + UI 集成 | ✅ v0.23.0 | 3 tab: 新房/二手/全部 |
 | 🟡 K | trend-9 | buildIntegrity +5 测试 + smoke_district_wangqian_rank E2E + commit v0.23.0 | ✅ v0.23.0 | 261/261 通过；22/22 smoke 全绿 |
 
+## L 段补充：通勤时长榜（v0.24.0）
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟡 L | new-5 | 调研 Gaode /v3/direction/transit API + 选 CBD 目的地 | ✅ v0.24.0 | 深圳福田CBD / 广州珠江新城 |
+| 🟡 L | new-5 | crawl_amap_commute.py 拉取 transit 数据 + commute.csv | ✅ v0.24.0 | 38 次 API (深圳 30 + 广州 8) |
+| 🟡 L | new-5 | data layer + dashboard '通勤时长' 卡 + 行可点 | ✅ v0.24.0 | 分钟 badge (绿/灰/红) 颜色编码 |
+| 🟡 L | new-5 | buildIntegrity +8 测试 + smoke_commute E2E + commit v0.24.0 | ✅ v0.24.0 | 269/269 通过；23/23 smoke 全绿 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

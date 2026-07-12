@@ -331,6 +331,47 @@
         </view>
       </view>
 
+      <!-- v0.24.0 new-5: 通勤时长榜 (community → 城市 CBD 公交通勤) -->
+      <view v-if="commuteRanking && commuteRanking.fastest.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">
+            🚇 通勤时长榜 · {{ commuteRanking.cityName }} → {{ commuteRanking.cbdName }}
+          </view>
+          <view class="muted" style="font-size: 22rpx">
+            城市均 {{ commuteRanking.cityAvgMinutes ?? "—" }} 分钟
+            · {{ commuteRanking.totalCommunities }} 小区
+          </view>
+        </view>
+        <view
+          v-for="(it, idx) in commuteRanking.fastest"
+          :key="it.communityId"
+          class="wq-row tap-target"
+          role="button"
+          tabindex="0"
+          hover-class="row-active"
+          @click="goCommunity(it.communityId)"
+        >
+          <text class="wq-rank" :class="rankClass(idx + 1)">{{ idx + 1 }}</text>
+          <text class="wq-name">{{ it.communityName }}</text>
+          <text class="wq-area">
+            <text class="muted" style="font-size: 20rpx">{{ it.districtName }}</text>
+          </text>
+          <text class="wq-units">
+            <text :class="['commute-badge', commuteMinutesClass(it.transitMinutes, commuteRanking.cityAvgMinutes)]">
+              {{ Math.round(it.transitMinutes) }} 分钟
+            </text>
+            <text class="muted" style="font-size: 20rpx; margin-left: 4rpx">
+              ({{ (it.transitDistanceM / 1000).toFixed(1) }}km)
+            </text>
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：高德 /v3/direction/transit/integrated (公交通勤方案 1, 早 08:30)。
+          深圳 → 福田CBD (30 小区, 38 次 API)；广州 → 珠江新城 (8 小区, 10 次 API)。
+          行可点 → 小区详情。
+        </view>
+      </view>
+
       <!-- v0.11.0 学区溢价榜 -->
       <view v-if="schoolPremiumOverview && schoolPremiumOverview.items.length > 0" class="card">
         <view class="row-between">
@@ -638,7 +679,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -677,6 +718,8 @@ const wangqianOverview = ref<WangqianOverviewItem | null>(null);
 // v0.23.0 trend-9: 全品类区级网签热度榜 (tab 切换)
 const districtWangqianRank = ref<DistrictWangqianRankResponse | null>(null);
 const wqRankCat = ref<"新房" | "二手" | "全部">("全部");
+// v0.24.0 new-5: 通勤时长榜
+const commuteRanking = ref<CommuteRankingResponse | null>(null);
 const schoolPremiumOverview = ref<SchoolPremiumOverview | null>(null);
 const schoolPremiumCommunityItems = ref<SchoolPremiumCommunityItem[]>([]);
 const weatherResp = ref<WeatherResponse | null>(null);
@@ -955,6 +998,16 @@ async function loadRankingAndDistrict() {
       wangqianOverview.value = heat;
       // v0.23.0 trend-9: 全品类区级网签热度榜
       await loadDistrictWangqianRank();
+      // v0.24.0 new-5: 通勤时长榜
+      try {
+        commuteRanking.value = await getCommuteRanking({
+          cityId: app.cityId,
+          limit: 10
+        });
+      } catch (e) {
+        console.warn("getCommuteRanking failed:", e);
+        commuteRanking.value = null;
+      }
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
         cityId: app.cityId,
@@ -1162,6 +1215,16 @@ function commercialScoreClass(score: number): string {
   if (score >= 80) return "price-up";
   if (score >= 50) return "muted";
   return "price-down";
+}
+
+// v0.24.0 new-5: 通勤时长颜色编码
+// 比城市均值快 → 绿（更优）；接近 → 灰；比均值慢 > 30% → 红
+function commuteMinutesClass(minutes: number, cityAvg: number | null): string {
+  if (cityAvg == null || cityAvg <= 0) return "muted";
+  const ratio = minutes / cityAvg;
+  if (ratio < 0.85) return "price-down";   // 绿
+  if (ratio > 1.3) return "price-up";      // 红
+  return "muted";                            // 灰
 }
 
 // v0.16.0 weather helpers
@@ -1981,6 +2044,21 @@ onShow(async () => {
 .wq-cat-tab-off {
   background: transparent;
   color: #cbd5e1;
+}
+
+/* v0.24.0 new-5: 通勤时长 badge */
+.commute-badge {
+  display: inline-block;
+  font-size: 22rpx;
+  font-weight: 600;
+  padding: 2rpx 10rpx;
+  border-radius: 8rpx;
+}
+.wq-area {
+  flex: 0 0 100rpx;
+  font-size: 22rpx;
+  color: #94a3b8;
+  text-align: right;
 }
 
 /* v0.10.0 网签热度榜 */

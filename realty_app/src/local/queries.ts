@@ -1601,3 +1601,63 @@ export async function getCommunityCompareByDistrict(params: {
     items: rows
   };
 }
+
+// ---------- v0.24.0 new-5: 通勤时长榜 ----------
+export interface CommuteItem {
+  communityId: number;
+  communityName: string;
+  districtName: string;
+  transitMinutes: number;
+  transitDistanceM: number;
+}
+
+export interface CommuteRankingResponse {
+  cityId: number;
+  cityName: string;
+  cbdName: string;
+  /** Top N (最快通勤的 N 个小区) */
+  fastest: CommuteItem[];
+  /** 城市平均通勤时长 (分钟)，null 表示无数据 */
+  cityAvgMinutes: number | null;
+  totalCommunities: number;
+}
+
+/**
+ * 给定 cityId，返回该城市所有有通勤数据的小区。
+ * - fastest: 按 transit_minutes 升序 Top N (默认 10)
+ * - cityAvgMinutes: 算术平均
+ */
+export async function getCommuteRanking(params: {
+  cityId: number;
+  limit?: number;
+}): Promise<CommuteRankingResponse | null> {
+  const limit = params.limit ?? 10;
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const commutes = store.getCommutesByCity(params.cityId).filter(
+    (c) => c.transitMinutes != null
+  );
+  if (commutes.length === 0) return null;
+  // 通过 store.getCommunityById 取区+小区名
+  const items: CommuteItem[] = commutes.map((c) => {
+    const cm = store.getCommunityById(c.communityId);
+    return {
+      communityId: c.communityId,
+      communityName: cm?.communityName ?? `#${c.communityId}`,
+      districtName: cm?.districtName ?? "",
+      transitMinutes: c.transitMinutes ?? 0,
+      transitDistanceM: c.transitDistanceM ?? 0
+    };
+  });
+  items.sort((a, b) => a.transitMinutes - b.transitMinutes);
+  const sum = items.reduce((s, it) => s + it.transitMinutes, 0);
+  const cbdName = commutes[0]?.cbdName ?? "";
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    cbdName,
+    fastest: items.slice(0, limit),
+    cityAvgMinutes: Math.round((sum / items.length) * 10) / 10,
+    totalCommunities: items.length
+  };
+}

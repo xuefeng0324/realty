@@ -151,6 +151,7 @@ function mergeListingsIntoSnapshot(
     weather: existing?.weather ?? [],
     listingSchoolPremia: existing?.listingSchoolPremia ?? [],
     communityCommercials: existing?.communityCommercials ?? [],
+    commutes: existing?.commutes ?? [],
     availableWeeks
   };
 }

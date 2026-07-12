@@ -1345,4 +1345,58 @@ describe("build integrity", () => {
       expect(content).toMatch(/setWqRankCat\(cat\)/);
     });
   });
+
+  // --------------------------------------------------------------
+  // v0.24.0 new-5: 通勤时长榜
+  // --------------------------------------------------------------
+  describe("v0.24.0 通勤时长榜", () => {
+    it("queries.ts 增加 getCommuteRanking 函数", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/getCommuteRanking/);
+    });
+
+    it("queries.ts 导出 CommuteRankingResponse 接口", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/export interface CommuteRankingResponse/);
+    });
+
+    it("store.ts 增加 getCommutesByCity 函数", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(content).toMatch(/getCommutesByCity/);
+    });
+
+    it("importer.ts 解析 commuteCSV 到 LocalCommute[]", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(content).toMatch(/const commutes: LocalCommute\[\]/);
+    });
+
+    it("dashboard.vue 渲染「🚇 通勤时长榜」卡", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/dashboard/dashboard.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/通勤时长榜/);
+    });
+
+    it("commute.csv 存在且 >= 10 行", () => {
+      const csv = readFileSync(resolve(ROOT, "static/seed/commute.csv"), "utf8");
+      const rows = csv.split(/\r?\n/).filter((l) => l.trim().length > 0);
+      expect(rows.length).toBeGreaterThanOrEqual(11); // header + 10+ data
+    });
+
+    it("commute.csv 同时含 city_name=深圳 和 广州 行", () => {
+      const csv = readFileSync(resolve(ROOT, "static/seed/commute.csv"), "utf8");
+      expect(csv).toMatch(/深圳/);
+      expect(csv).toMatch(/广州/);
+    });
+
+    it("commute.csv 每行含 cbd_name 和 transit_minutes 字段", () => {
+      const csv = readFileSync(resolve(ROOT, "static/seed/commute.csv"), "utf8");
+      const rows = csv.split(/\r?\n/).filter((l) => l.trim().length > 0);
+      const header = rows[0].split(",");
+      expect(header).toContain("cbd_name");
+      expect(header).toContain("transit_minutes");
+      expect(header).toContain("transit_distance_m");
+    });
+  });
 });

@@ -57,6 +57,9 @@ import listingSchoolPremiumCSV from "../../static/seed/listing_school_premium.cs
 // v0.19.0 小区商业热度评分 (高德 POI 餐饮/银行/便利店)
 // @ts-ignore
 import communityCommercialCSV from "../../static/seed/community_commercial.csv?raw";
+// v0.24.0 通勤时长 (高德 direction/transit API)
+// @ts-ignore
+import commuteCSV from "../../static/seed/commute.csv?raw";
 
 let cached: DataSnapshot | null = null;
 
@@ -80,7 +83,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       metroPlanningGeoCSV: String(metroPlanningGeoCSV ?? ""),
       weatherCSV: String(weatherCSV ?? ""),
       listingSchoolPremiumCSV: String(listingSchoolPremiumCSV ?? ""),
-      communityCommercialCSV: String(communityCommercialCSV ?? "")
+      communityCommercialCSV: String(communityCommercialCSV ?? ""),
+      commuteCSV: String(commuteCSV ?? "")
     },
     "seed:public-derived"
   );

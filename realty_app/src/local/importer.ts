@@ -32,7 +32,8 @@ import type {
   LocalSchoolPremiumCommunity,
   LocalSchoolPremiumDistrict,
   LocalWangqianDistrictWeekly,
-  LocalWeather
+  LocalWeather,
+  LocalCommute
 } from "./types";
 
 const POI_CATEGORIES = new Set(["subway", "school", "hospital", "mall", "park"]);
@@ -87,6 +88,8 @@ export interface SnapshotInputs {
   listingSchoolPremiumCSV?: string;
   /** v0.19.0: 小区商业热度评分 (可选) */
   communityCommercialCSV?: string;
+  /** v0.24.0: 通勤时长 (可选) */
+  commuteCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -472,6 +475,31 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
         .filter((m): m is LocalCommunityCommercial => m !== null)
     : [];
 
+  // v0.24.0 new-5: 通勤时长 (community → CBD)
+  const commutes: LocalCommute[] = inputs.commuteCSV
+    ? rowsToObjects<Record<string, string>>(parseCSV(inputs.commuteCSV))
+        .map((r) => {
+          const cid = n(r.community_id);
+          if (cid == null) return null;
+          const numOrNull = (v: string | undefined) => {
+            if (v === undefined || v === "") return null;
+            const x = Number(v);
+            return Number.isFinite(x) ? x : null;
+          };
+          return {
+            communityId: cid,
+            cityId: n(r.city_id) ?? 0,
+            cityName: s(r.city_name) ?? "",
+            cbdName: s(r.cbd_name) ?? "",
+            cbdLat: Number(r.cbd_lat ?? 0),
+            cbdLng: Number(r.cbd_lng ?? 0),
+            transitMinutes: numOrNull(r.transit_minutes ?? undefined),
+            transitDistanceM: numOrNull(r.transit_distance_m ?? undefined)
+          } as LocalCommute;
+        })
+        .filter((m): m is LocalCommute => m !== null)
+    : [];
+
   // 聚合可用周：基于 listings 的 crawl_date
   const weekEnds = new Set<string>();
   for (const l of listings) {
@@ -503,6 +531,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     weather,
     listingSchoolPremia,
     communityCommercials,
+    commutes,
     availableWeeks
   };
 }

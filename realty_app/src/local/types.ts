@@ -293,6 +293,24 @@ export interface LocalCommunityCommercial {
 }
 
 /**
+ * 通勤时长（v0.24.0 new-5）。
+ * community → 城市 CBD (深圳福田CBD / 广州珠江新城) 公交通勤方案。
+ * 由 `scripts/crawl_amap_commute.py` 生成。
+ */
+export interface LocalCommute {
+  communityId: number;
+  cityId: number;
+  cityName: string;
+  cbdName: string;
+  cbdLat: number;
+  cbdLng: number;
+  /** 第一方案的预期时长 (分钟)，可能为 null (API 失败) */
+  transitMinutes: number | null;
+  /** 总距离 (米) */
+  transitDistanceM: number | null;
+}
+
+/**
  * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
  * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
  * 用于 dashboard 展示"区级近 N 周房价趋势"。
@@ -337,6 +355,8 @@ export interface DataSnapshot {
   listingSchoolPremia: LocalListingSchoolPremium[];
   /** v0.19.0: 小区商业热度评分 (scripts/compute_commercial_density.py) */
   communityCommercials: LocalCommunityCommercial[];
+  /** v0.24.0: 通勤时长 (community → 城市 CBD 公交通勤) (scripts/crawl_amap_commute.py) */
+  commutes: LocalCommute[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

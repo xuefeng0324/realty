@@ -15,6 +15,7 @@ import type {
   LocalCity,
   LocalCommunity,
   LocalCommunityCommercial,
+  LocalCommute,
   LocalDailyWangqianRow,
   LocalDistrictTrend,
   LocalHospital,
@@ -287,6 +288,21 @@ export function getCommunityCommercials(): LocalCommunityCommercial[] {
 
 export function getCommunityCommercialsByCity(cityId: number): LocalCommunityCommercial[] {
   return (snapshot?.communityCommercials ?? []).filter((c) => c.cityId === cityId);
+}
+
+/**
+ * 通勤时长 (v0.24.0+)
+ */
+export function getCommutes(): LocalCommute[] {
+  return snapshot?.commutes ?? [];
+}
+
+export function getCommutesByCity(cityId: number): LocalCommute[] {
+  return (snapshot?.commutes ?? []).filter((c) => c.cityId === cityId);
+}
+
+export function getCommuteByCommunity(communityId: number): LocalCommute | null {
+  return (snapshot?.commutes ?? []).find((c) => c.communityId === communityId) ?? null;
 }
 
 /**
