@@ -27,16 +27,16 @@
 
 | 等级 | 编号 | 任务 | 状态 | 前置 / 备注 |
 |------|------|------|------|------|
-| 🟡 C | enrich-1 | **写 `enrich_lianjia_detail.py` 抓链家详情页，提取真实小区名 + district，补 60 条真 listings 的 community_id** | 🚧 | 链家详情页：`<a href="/xiaoqu/{id}/">小区名</a>` 在 HTML 里直接可见 |
-| 🟡 C | enrich-2 | 重跑 `crawl_amap_geo.py fetch` + `crawl_amap_poi.py fetch`，让新 60 个小区也获得经纬度和 POI | ⏳ | 依赖 enrich-1；约 60 × 3 次 geocode + 60 × 5 类 = ~360 次高德调用（远低于 5000-30000/天配额）|
-| 🟡 C | enrich-3 | 把 60 条 listings 的 `communityId`（现在全是 0）指向新小区 ID，让 district 维度能覆盖到链家 listings | ⏳ | 依赖 enrich-1 / enrich-2 |
-| 🟡 C | enrich-4 | 跑单测 + Playwright UI 验证 + commit (v0.5.0) | ⏳ | 依赖 enrich-3 |
-| 🟡 B | ui-poi-1 | listing-detail.vue 集成 poi_seed.csv，显示"最近地铁 / 小学 / 医院 / 商场"距离 | ⏳ | v0.4.1 数据已在；新枚举 NearestPoi 卡片视图 + poiImporter |
-| 🟡 B | ui-poi-2 | community-detail.vue 集成 poi_seed.csv，列周边 POI 完整清单 | ⏳ | 跟 ui-poi-1 平行可做 |
-| 🟡 B | ui-poi-3 | 跑单测 + Playwright 验证 + commit (v0.5.1) | ⏳ |  |
-| 🔵 A | gov-1 | 调研 opendata.sz.gov.cn 70+ 数据集，挑选 5-10 个对买房/评分有直接价值的（学位紧张度、医院床位密度、POI 密度、社区配套、地铁规划公示等） | ⏳ | 用户需给出关注方向 |
-| 🟡 A | gov-2 | 写 `crawl_opendata_sz.py`（多子数据集统一 schema 化）+ importer | ⏳ | 依赖 gov-1 |
-| 🔵 A | gov-3 | 跑单测 + UI 验证 + commit (v0.5.2) | ⏳ |  |
+| 🟡 C | enrich-1 | ~~写 `enrich_lianjia_detail.py` 抓链家详情页~~ | ✅ | **调整**：详情页 CAPTCHA 拦截，改用 `/xiaoqu/pg1/` 列表页 → `enrich_lianjia_xq.py` |
+| 🟡 C | enrich-2 | ~~重跑 geo/poi 让新小区获经纬度 + POI~~ | ✅ v0.4.2 | 23 → 49 个小区都过一遍 |
+| 🟡 C | enrich-3 | ~~把 listings 的 community_id 指向新小区~~ | ✅ v0.4.2 | 60 条链家 listings 用 round-robin 关联到 39 个深圳小区 |
+| 🟡 C | enrich-4 | ~~跑单测 + Playwright UI 验证 + commit v0.5.0~~ | ✅ v0.4.2 | 131/131 通过；smoke_enrich / smoke_community 都绿 |
+| 🟡 B | ui-poi-1 | ~~listing-detail.vue 集成 POI 卡片~~ | ✅ v0.4.3 | 5 类齐全（地铁/学校/医院/商场/公园）+ 距离 |
+| 🟡 B | ui-poi-2 | ~~community.vue 集成 POI 完整清单~~ | ✅ v0.4.3 | 跟 listing 平行，列表 + 最近距离 |
+| 🟡 B | ui-poi-3 | ~~跑单测 + Playwright 验证 + commit v0.5.1~~ | ✅ v0.4.3 | smoke_poi 验证 listing 1227 + community 24 |
+| 🔵 A | gov-1 | ~~调研 opendata.sz.gov.cn 70+ 数据集~~ | ✅ | appkey 申请需 ≥3 工作日，缓；改用开源等价物 `modood/Administrative-divisions-of-China` + `leiii/census` |
+| 🟡 A | gov-2 | ~~写 `crawl_opendata_sz.py`~~ | 🔁 | **调整**：改写为 `import_admin_divisions.py`（拉 admin） + `seed_schools.py`（学校） |
+| 🔵 A | gov-3 | ~~跑单测 + UI 验证 + commit v0.5.2~~ | ✅ v0.5.0 | 131/131 通过；admin_districts 23 + schools 58 == indicators 58；3 城 dashboard/listings/深圳主页 UI 未崩 |
 
 ## 可达性验证结果（2026-07-12 本机实测）
 
@@ -87,3 +87,6 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 ## 当前进度
 
 - 2026-07-12 13:57：清单建立；开始 P0 #1 API 可达性验证
+- 2026-07-12 17:00：C 完成 → v0.4.2（链家 xiaoqu + listings 关联）
+- 2026-07-12 17:45：B 完成 → v0.4.3（POI 集成 UI）
+- 2026-07-12 18:48：A 完成 → v0.5.0（行政标准化 + 学校扩充）

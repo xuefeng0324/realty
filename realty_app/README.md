@@ -6,6 +6,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v0.5.0 | 2026-07-12 | Option A 政府开放数据：拉 `modood/Administrative-divisions-of-China` 得 23 条官方区名做 `admin_districts.csv`；`schools.csv` 14→58 条；新增 `import_admin_divisions.py` / `validate_districts.py` / `seed_schools.py` |
 | v0.4.3 | 2026-07-12 | 把 v0.4.1 POI 真数据集成到 listing-detail + community 页（5 类周边配套卡片） |
 | v0.4.2 | 2026-07-12 | 接链家 xiaoqu 列表页真小区（深圳 +29 个，5.7× POI）+ 把链家 listings 的 community_id 由 0 轮询关联到 39 个深圳小区 |
 | v0.4.1 | 2026-07-12 | 接高德 POI：23 个 seed 小区经纬度 + 周边配套（地铁/学校/医院/商场/公园），新增 `crawl_amap_*.py` 与数据完整性单测 |
@@ -458,6 +459,26 @@ gh auth setup-git
 - **UI**：`listing-detail.vue` + `community.vue` 各加"周边配套"卡片：5 类（地铁/学校/医院/商场/公园）每类最近 3 个 + 距离，icon + emoji
 - **验证**：126/126 单测过（+2 buildIntegrity：5 类覆盖 + distance_m 合法）；type-check clean；listing 1227 + community 24 Playwright 渲染
 - 详见 [changelog/2026-07-12-v0.4.3-高德POI集成到UI.md](./changelog/2026-07-12-v0.4.3-高德POI集成到UI.md)
+
+### v0.5.0 (2026-07-12) — Option A：行政标准化 + 学校扩充
+
+- **数据**
+  - 新增 `static/seed/admin_districts.csv`：拉 `modood/Administrative-divisions-of-China` 过滤得 23 条官方区（广州 11 + 深圳 9 + 珠海 3）；人工补 `大鹏新区`
+  - `static/seed/schools.csv` 14 → 58（深圳 32 / 广州 18 / 珠海 8，知名中小学）
+  - `static/seed/school_indicators.csv` 14 → 58（一对一）
+- **脚本**
+  - `scripts/import_admin_divisions.py` — 拉 `areas.json` 过滤输出 csv（纯 stdlib）
+  - `scripts/validate_districts.py` — 校验 `communities.district_name` 是否在 `admin_districts.csv` 内
+  - `scripts/seed_schools.py` — 合并手填数据 + 生成 school_indicators
+- **测试**
+  - `tests/buildIntegrity.test.ts` 新增 describe `政府开放数据配套（v0.5.0 / Option A）` 共 5 条用例
+  - `tests/e2e/smoke_admin.mjs`（新）— 浏览器拉 3 个 csv 校验字段 + 3 张页面截图
+- **不做**
+  - `opendata.sz.gov.cn` appkey 申请（≥3 工作日）
+  - 国家级 CPI / GDP（`crawl_stats_70.py` 已覆盖）
+  - 地铁规划、房价指数细化、宏观指标 → 推迟到 v0.6 / v0.7 / v0.8
+- **验证**：131/131 单测过；type-check clean；smoke_admin / smoke_enrich / smoke_poi 全绿；dashboard + listings + 深圳主页 UI 未崩
+- 详见 [changelog/2026-07-12-v0.5.0-行政标准化+学校扩充.md](./changelog/2026-07-12-v0.5.0-行政标准化+学校扩充.md)
 
 ## License
 

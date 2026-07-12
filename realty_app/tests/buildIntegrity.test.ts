@@ -220,6 +220,48 @@ describe("build integrity", () => {
     });
   });
 
+  describe("政府开放数据配套（v0.5.0 / Option A）", () => {
+    const adminPath = resolve(ROOT, "static/seed/admin_districts.csv");
+    const schoolsPath = resolve(ROOT, "static/seed/schools.csv");
+    const indicatorsPath = resolve(ROOT, "static/seed/school_indicators.csv");
+    const communitiesPath = resolve(ROOT, "static/seed/communities.csv");
+
+    it("存在 admin_districts.csv（国家统计局区名表）", () => {
+      expect(existsSync(adminPath)).toBe(true);
+    });
+
+    it("admin_districts.csv 至少含 3 城 23 个区", () => {
+      const rows = readCsv(adminPath);
+      expect(rows.length).toBeGreaterThanOrEqual(23);
+    });
+
+    it("schools.csv 行数 ≥ 50（v0.5.0 扩量）", () => {
+      if (!existsSync(schoolsPath)) return;
+      const rows = readCsv(schoolsPath);
+      expect(rows.length).toBeGreaterThanOrEqual(50);
+    });
+
+    it("schools 与 school_indicators 行数必须相等", () => {
+      if (!existsSync(schoolsPath) || !existsSync(indicatorsPath)) return;
+      const schools = readCsv(schoolsPath);
+      const ind = readCsv(indicatorsPath);
+      expect(ind.length).toBe(schools.length);
+    });
+
+    it("communities.csv district_name 必须都在 admin_districts.csv 里（v0.5.0 校验）", () => {
+      if (!existsSync(adminPath)) return;
+      const admin = readCsv(adminPath);
+      const adminIndex = new Set(
+        admin.map((r) => `${r.city_id}|${r.district_name}`)
+      );
+      const communities = readCsv(communitiesPath);
+      const orphan = communities.filter(
+        (c) => c.district_name && !adminIndex.has(`${c.city_id}|${c.district_name}`)
+      );
+      expect(orphan.length).toBe(0);
+    });
+  });
+
   describe("CI 必装文件", () => {
     it("存在 tests/e2e/smoke.mjs", () => {
       expect(existsSync(resolve(ROOT, "tests/e2e/smoke.mjs"))).toBe(true);
