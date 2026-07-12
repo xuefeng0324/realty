@@ -22,6 +22,7 @@ import type {
   LocalLayoutDistribution,
   LocalListing,
   LocalListingSchoolPremium,
+  LocalListingTag,
   LocalMetroLine,
   LocalMetroLineGeo,
   LocalPoi,
@@ -315,6 +316,17 @@ export function getLayoutDistributions(): LocalLayoutDistribution[] {
 
 export function getLayoutDistributionsByCity(cityId: number): LocalLayoutDistribution[] {
   return (snapshot?.layoutDistributions ?? []).filter((l) => l.cityId === cityId);
+}
+
+/**
+ * v0.28.0: 房源 tags (全量 + 按城市过滤)
+ */
+export function getListingTags(): LocalListingTag[] {
+  return snapshot?.listingTags ?? [];
+}
+
+export function getListingTagsByCity(cityId: number): LocalListingTag[] {
+  return (snapshot?.listingTags ?? []).filter((t) => t.cityId === cityId);
 }
 
 /**

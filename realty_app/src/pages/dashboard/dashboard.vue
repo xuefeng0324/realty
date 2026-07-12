@@ -404,6 +404,31 @@
         </view>
       </view>
 
+      <!-- v0.28.0 new-6 房源 tags 标签云 -->
+      <view v-if="tagCloud && tagCloud.tags.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">🏷️ 房源标签云 · {{ tagCloud.cityName }}</view>
+          <view class="muted">{{ tagCloud.tags.length }} 个标签 / {{ tagCloud.totalTags }} 次命中</view>
+        </view>
+        <view class="tag-cloud">
+          <text
+            v-for="t in tagCloud.tags"
+            :key="t.tag"
+            :class="['tag-chip', 'tag-size-' + tagSizeClass(t.count, tagCloudMaxCount)]"
+            @click="onPickTag(t.tag)"
+          >
+            {{ t.tag }} · {{ t.count }}
+          </text>
+        </view>
+        <view v-if="tagCloudFilteredHint" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          {{ tagCloudFilteredHint }}
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：listings.csv 派生 tags (scripts/compute_listing_tags.py)。
+          字号 = 命中数映射 (大=热门)；点击 tag 高亮 (此版本仅显示提示)。
+        </view>
+      </view>
+
       <!-- v0.11.0 学区溢价榜 -->
       <view v-if="schoolPremiumOverview && schoolPremiumOverview.items.length > 0" class="card">
         <view class="row-between">
@@ -755,7 +780,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -797,6 +822,8 @@ const wqRankCat = ref<"新房" | "二手" | "全部">("全部");
 // v0.24.0 new-5: 通勤时长榜
 const commuteRanking = ref<CommuteRankingResponse | null>(null);
 const layoutDistribution = ref<LayoutDistributionResponse | null>(null);
+const tagCloud = ref<TagCloudResponse | null>(null);
+const tagCloudFilteredHint = ref<string>("");
 const schoolPremiumOverview = ref<SchoolPremiumOverview | null>(null);
 const schoolPremiumCommunityItems = ref<SchoolPremiumCommunityItem[]>([]);
 // v0.26.0 trend-11: 过滤 + 排序 controls
@@ -1098,6 +1125,17 @@ async function loadRankingAndDistrict() {
         console.warn("getLayoutDistribution failed:", e);
         layoutDistribution.value = null;
       }
+      // v0.28.0 房源 tags 标签云
+      try {
+        tagCloud.value = await getListingTagCloud({
+          cityId: app.cityId,
+          limit: 30
+        });
+        tagCloudFilteredHint.value = "";
+      } catch (e) {
+        console.warn("getListingTagCloud failed:", e);
+        tagCloud.value = null;
+      }
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
         cityId: app.cityId,
@@ -1365,6 +1403,26 @@ function formatShare(s: number): string {
   return pct >= 10 ? `${Math.round(pct)}%` : `${pct.toFixed(1)}%`;
 }
 
+// v0.28.0 new-6 标签云 helpers
+const tagCloudMaxCount = computed(() => {
+  if (!tagCloud.value || tagCloud.value.tags.length === 0) return 1;
+  return Math.max(...tagCloud.value.tags.map((t) => t.count));
+});
+
+function tagSizeClass(count: number, max: number): 1 | 2 | 3 | 4 | 5 {
+  if (max <= 0) return 1;
+  const ratio = count / max;
+  if (ratio >= 0.8) return 5;
+  if (ratio >= 0.6) return 4;
+  if (ratio >= 0.4) return 3;
+  if (ratio >= 0.2) return 2;
+  return 1;
+}
+
+function onPickTag(tag: string): void {
+  tagCloudFilteredHint.value = `已点击标签「${tag}」(v0.28.0 仅展示, 后续版本可联动过滤 listing 列表)`;
+}
+
 // v0.16.0 weather helpers
 function weatherEmoji(cond: string): string {
   if (!cond) return "❓";
@@ -1580,6 +1638,7 @@ watch(
     spDistrictFilter.value = "";
     spMinScore.value = 0;
     spSort.value = "avg_school_score";
+    tagCloudFilteredHint.value = "";
     await loadAll();
   }
 );
@@ -2301,6 +2360,53 @@ onShow(async () => {
   background: #0ea5e9;
   color: #fff;
   border-color: #38bdf8;
+}
+
+/* v0.28.0 new-6 标签云 */
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  padding: 6rpx 0 4rpx;
+}
+.tag-chip {
+  display: inline-block;
+  padding: 6rpx 14rpx;
+  border-radius: 999rpx;
+  background: #0f172a;
+  border: 1rpx solid #334155;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+.tag-chip:active {
+  background: #0ea5e9;
+  color: #fff;
+  border-color: #38bdf8;
+}
+.tag-size-1 {
+  font-size: 22rpx;
+}
+.tag-size-2 {
+  font-size: 26rpx;
+  color: #e2e8f0;
+}
+.tag-size-3 {
+  font-size: 30rpx;
+  color: #f1f5f9;
+  background: #1e293b;
+}
+.tag-size-4 {
+  font-size: 34rpx;
+  color: #fff;
+  background: #0c4a6e;
+  border-color: #0ea5e9;
+}
+.tag-size-5 {
+  font-size: 40rpx;
+  color: #fff;
+  background: linear-gradient(90deg, #0ea5e9, #38bdf8);
+  border-color: #38bdf8;
+  font-weight: 600;
 }
 
 /* v0.10.0 网签热度榜 */

@@ -28,7 +28,7 @@ import type {
   SchoolFutureScoreResponse,
   CityItem
 } from "../api/contracts";
-import type { LocalLayoutDistribution, LocalListing } from "./types";
+import type { LocalLayoutDistribution, LocalListing, LocalListingTag } from "./types";
 import {
   generateWeeklySnapshot,
   type SnapshotResult
@@ -1744,5 +1744,59 @@ export function getLayoutDistribution(params: {
       decorate: pickDim("decorate")
     },
     totalListings: total
+  };
+}
+
+// ============================================================================
+// v0.28.0 new-6 房源 tags 标签云
+// ============================================================================
+
+export interface TagCloudItem {
+  tag: string;
+  count: number;
+  share: number; // 0-1, 占该 city listing_tags 总和的比例
+}
+
+export interface TagCloudResponse {
+  cityId: number;
+  cityName: string;
+  /** Top tags 按 count 降序 */
+  tags: TagCloudItem[];
+  /** 总 tags 计数 (用于计算 share) */
+  totalTags: number;
+}
+
+/**
+ * 给定 cityId，返回 tag -> count 统计。
+ * 标签云按 count 降序输出，可选 limit 截取前 N。
+ */
+export function getListingTagCloud(params: {
+  cityId: number;
+  limit?: number;
+}): TagCloudResponse | null {
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const all = store.getListingTagsByCity(params.cityId);
+  if (all.length === 0) return null;
+  const cnt = new Map<string, number>();
+  for (const t of all) {
+    cnt.set(t.tag, (cnt.get(t.tag) ?? 0) + 1);
+  }
+  const sorted = [...cnt.entries()].sort((a, b) => {
+    if (b[1] !== a[1]) return b[1] - a[1];
+    return a[0].localeCompare(b[0]);
+  });
+  const total = all.length;
+  const limit = params.limit ?? 30;
+  const items: TagCloudItem[] = sorted.slice(0, limit).map(([tag, count]) => ({
+    tag,
+    count,
+    share: total > 0 ? Math.round((count / total) * 1000) / 1000 : 0
+  }));
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    tags: items,
+    totalTags: total
   };
 }

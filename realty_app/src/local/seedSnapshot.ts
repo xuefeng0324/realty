@@ -65,6 +65,10 @@ import commuteCSV from "../../static/seed/commute.csv?raw";
 // @ts-ignore
 import layoutDistributionCSV from "../../static/seed/layout_distribution.csv?raw";
 
+// v0.28.0 房源 tags (scripts/compute_listing_tags.py)
+// @ts-ignore
+import listingTagsCSV from "../../static/seed/listing_tags.csv?raw";
+
 let cached: DataSnapshot | null = null;
 
 /** 拿默认快照。第一次解析后缓存。 */
@@ -89,7 +93,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       listingSchoolPremiumCSV: String(listingSchoolPremiumCSV ?? ""),
       communityCommercialCSV: String(communityCommercialCSV ?? ""),
       commuteCSV: String(commuteCSV ?? ""),
-      layoutDistributionCSV: String(layoutDistributionCSV ?? "")
+      layoutDistributionCSV: String(layoutDistributionCSV ?? ""),
+      listingTagsCSV: String(listingTagsCSV ?? "")
     },
     "seed:public-derived"
   );

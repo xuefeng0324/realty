@@ -329,6 +329,17 @@ export interface LocalLayoutDistribution {
 }
 
 /**
+ * v0.28.0: 房源标签 (scripts/compute_listing_tags.py)
+ * 每个 row 是 (listing_id, tag) 一对。
+ */
+export interface LocalListingTag {
+  listingId: number;
+  cityId: number;
+  districtName: string;
+  tag: string;
+}
+
+/**
  * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
  * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
  * 用于 dashboard 展示"区级近 N 周房价趋势"。
@@ -377,6 +388,8 @@ export interface DataSnapshot {
   commutes: LocalCommute[];
   /** v0.25.0: 户型/面积/朝向/装修分布 (scripts/compute_layout_distribution.py) */
   layoutDistributions: LocalLayoutDistribution[];
+  /** v0.28.0: 房源 tags 列表 (scripts/compute_listing_tags.py) */
+  listingTags: LocalListingTag[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

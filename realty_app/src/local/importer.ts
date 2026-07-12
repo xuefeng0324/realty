@@ -25,6 +25,7 @@ import type {
   LocalListing,
   LocalLayoutDistribution,
   LocalListingSchoolPremium,
+  LocalListingTag,
   LocalMetroLine,
   LocalMetroLineGeo,
   LocalPoi,
@@ -93,6 +94,8 @@ export interface SnapshotInputs {
   commuteCSV?: string;
   /** v0.25.0: 户型/面积/朝向/装修分布 (可选) */
   layoutDistributionCSV?: string;
+  /** v0.28.0: 房源 tags (单 tag 一行) */
+  listingTagsCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -103,6 +106,23 @@ function weekEndFromDate(iso: string): string {
 }
 
 const LAYOUT_DIMS = new Set(["bedrooms", "area_sqm", "orientation", "decorate"]);
+
+function parseListingTags(csvText: string): LocalListingTag[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const lid = n(r.listing_id);
+      const cid = n(r.city_id);
+      const tag = s(r.tag);
+      if (lid == null || cid == null || !tag) return null;
+      return {
+        listingId: lid,
+        cityId: cid,
+        districtName: s(r.district_name) ?? "",
+        tag
+      } as LocalListingTag;
+    })
+    .filter((x): x is LocalListingTag => x !== null);
+}
 
 function parseLayoutDistribution(csvText: string): LocalLayoutDistribution[] {
   return rowsToObjects<Record<string, string>>(parseCSV(csvText))
@@ -539,6 +559,11 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     ? parseLayoutDistribution(inputs.layoutDistributionCSV)
     : [];
 
+  // v0.28.0 new-6: 房源 tags
+  const listingTags: LocalListingTag[] = inputs.listingTagsCSV
+    ? parseListingTags(inputs.listingTagsCSV)
+    : [];
+
   // 聚合可用周：基于 listings 的 crawl_date
   const weekEnds = new Set<string>();
   for (const l of listings) {
@@ -572,6 +597,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     communityCommercials,
     commutes,
     layoutDistributions,
+    listingTags,
     availableWeeks
   };
 }

@@ -208,6 +208,15 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 O | map-8 | zoom ≤10 过滤 ≥5 套；zoom 11 过滤 ≥2 套；legend 显示阈值 | ✅ v0.27.0 | listingClusterMarkers computed 前置 filter |
 | 🟢 O | map-8 | buildIntegrity +3 测试 + smoke_cluster 扩展 + commit v0.27.0 | ✅ v0.27.0 | 290/290 通过；16/16 smoke 全绿 |
 
+## P 段补充：房源标签云（v0.28.0）
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+| --- | --- | --- | --- | --- |
+| 🟡 P | new-6 | compute_listing_tags.py + 派生 18 类 tag + listing_tags.csv + summary | ✅ v0.28.0 | 7517 行 / 1286 listings |
+| 🟡 P | new-6 | data layer (LocalListingTag / parseListingTags / store / getListingTagCloud) | ✅ v0.28.0 | 含 Top 名校区/朝南/带电梯/楼龄新/三房 |
+| 🟡 P | new-6 | dashboard 「🏷️ 房源标签云」卡 + 5 档字号 + 点击 tag 提示 | ✅ v0.28.0 | 切城市重置 hint |
+| 🟡 P | new-6 | buildIntegrity +10 测试 + smoke_tagcloud E2E + commit v0.28.0 | ✅ v0.28.0 | 300/300 通过 (**总数突破 300**)；21/21 smoke 全绿 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

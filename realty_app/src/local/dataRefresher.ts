@@ -153,6 +153,7 @@ function mergeListingsIntoSnapshot(
     communityCommercials: existing?.communityCommercials ?? [],
     commutes: existing?.commutes ?? [],
     layoutDistributions: existing?.layoutDistributions ?? [],
+    listingTags: existing?.listingTags ?? [],
     availableWeeks
   };
 }

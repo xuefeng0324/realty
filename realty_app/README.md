@@ -20,6 +20,7 @@
 | v0.25.0 | 2026-07-13 | dashboard 新增「🏠 户型分布」卡，4 维度 (户型/面积/朝向/装修) 各 bucket 占比条形图；compute_layout_distribution.py 聚合 listings.csv (54 行)；10 单测 + smoke_layout E2E (3 城市 × 4 维度) |
 | v0.26.0 | 2026-07-13 | dashboard 「学区评分 Top 小区」卡增强：3 组 chip 控件 (区多选 / 最低评分 / 4 种排序)；store.ts SchoolPremiumCommunitySort 类型 + minScore/districtFilter/sort 参数；7 单测 + smoke_trend11 E2E |
 | v0.27.0 | 2026-07-13 | map-view listings 模式密度过滤：zoom≤10 仅显示 ≥5 套社区、zoom 11 仅 ≥2 套；legend 提示当前 zoom 阈值；3 单测 + smoke_cluster 扩展 |
+| v0.28.0 | 2026-07-13 | dashboard 新增「🏷️ 房源标签云」卡 (5 档字号)：compute_listing_tags.py 派生 18 类标签 (户型/价格/朝向/装修/学区/地铁/楼龄/楼层/电梯/平台)；listing_tags.csv 7517 行；10 单测 + smoke_tagcloud E2E |
 | v0.13.0 | 2026-07-12 | map-view 第四种模式「POI overlay」：把 poi_seed.csv 的 5 类 POI (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园) 画到地图上 (每类最多 25 marker)；5 类 toggle 自由开关；POI info-card 显示名称 + 类型 + 距离 + 所属小区 |
 | v0.12.0 | 2026-07-12 | map-view 第三种模式「成交价热力」：圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵），半径仍按挂牌数；info-card 新增「价位」5 档标签（便宜/中低/中等/中高/昂贵，色码化）；mode 由 boolean → `MapMode = "count" \| "price" \| "listings"` |
 | v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |
@@ -893,6 +894,26 @@ legend 文案显示当前 zoom 阈值，过滤逻辑不依赖 cluster。
 
 验证：290/290 单测过 (+3), type-check clean, 16/16 smoke 全绿
 详见 [changelog/2026-07-13-v0.27.0-map8-marker密度过滤.md](./changelog/2026-07-13-v0.27.0-map8-marker密度过滤.md)
+
+### v0.28.0 - 房源标签云 (2026-07-13)
+
+dashboard 新增「🏷️ 房源标签云 · {城市}」卡，5 档字号颜色梯度 (大=热门)，点击 tag 显示提示。
+
+派生规则 (compute_listing_tags.py)：
+- **户型** 一房/两房/三房/四房/大户型 (≥150㎡)
+- **价格** 笋盘 (<城市中位 70%) / 高价 (>1.5×)
+- **朝向** 朝南 / 南北通透
+- **装修** 豪装/精装/简装/毛坯
+- **学区** 名校区 (学区评分 ≥ 80)
+- **地铁** 近地铁 (≤500m) / 地铁可达 (≤1500m)
+- **楼龄** 楼龄新 (≥2015) / 老破小 (≤2000 且 <70㎡)
+- **楼层** 高楼层 (≥20 层) / 带电梯
+- **平台** VR房源 / 随时看房 (来自 listings.tags_json)
+
+数据规模：listing_tags.csv 7517 行 (1286 listings × 平均 5.8 tag)。
+
+验证：300/300 单测过 (+10, **总数突破 300**), type-check clean, 21/21 smoke 全绿
+详见 [changelog/2026-07-13-v0.28.0-房源标签云.md](./changelog/2026-07-13-v0.28.0-房源标签云.md)
 
 ## License
 

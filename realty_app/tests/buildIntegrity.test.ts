@@ -1561,4 +1561,73 @@ describe("build integrity", () => {
       expect(content).toMatch(/export function clusterMarkers/);
     });
   });
+
+  // ────────────────────────────────────────────────────────────────────
+  // v0.28.0 new-6 房源 tags 标签云
+  // ────────────────────────────────────────────────────────────────────
+  describe("v0.28.0 new-6 房源 tags 标签云", () => {
+    it("listing_tags.csv 存在且 >= 1000 行", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/listing_tags.csv"));
+      expect(rows.length).toBeGreaterThanOrEqual(1000);
+    });
+
+    it("listing_tags.csv 含 3 个 city_id", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/listing_tags.csv"));
+      const ids = new Set(rows.map((r) => r["city_id"]));
+      expect(ids.has("1")).toBe(true);
+      expect(ids.has("2")).toBe(true);
+      expect(ids.has("3")).toBe(true);
+    });
+
+    it("listing_tags_summary.csv 存在 (city, tag, count, share)", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/listing_tags_summary.csv"));
+      expect(rows.length).toBeGreaterThan(20);
+      const header = Object.keys(rows[0]);
+      expect(header).toContain("city_id");
+      expect(header).toContain("tag");
+      expect(header).toContain("count");
+      expect(header).toContain("share");
+    });
+
+    it("listing_tags_summary.csv 至少出现 10 个不同 tag", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/listing_tags_summary.csv"));
+      const tags = new Set(rows.map((r) => r["tag"]));
+      expect(tags.size).toBeGreaterThanOrEqual(10);
+    });
+
+    it("queries.ts 增加 getListingTagCloud 函数", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/export function getListingTagCloud/);
+    });
+
+    it("queries.ts 导出 TagCloudResponse 接口", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/export interface TagCloudResponse/);
+    });
+
+    it("store.ts 增加 getListingTagsByCity 函数", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(content).toMatch(/export function getListingTagsByCity/);
+    });
+
+    it("types.ts 增加 LocalListingTag 接口", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(content).toMatch(/export interface LocalListingTag/);
+    });
+
+    it("importer.ts 解析 listingTagsCSV 输入", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(content).toMatch(/listingTagsCSV\?: string/);
+      expect(content).toMatch(/parseListingTags/);
+    });
+
+    it("dashboard.vue 渲染标签云卡片", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(content).toMatch(/tagCloud/);
+      expect(content).toMatch(/房源标签云|🏷️/);
+      expect(content).toMatch(/getListingTagCloud/);
+      expect(content).toMatch(/tag-size-/);
+      expect(content).toMatch(/onPickTag/);
+    });
+  });
 });
