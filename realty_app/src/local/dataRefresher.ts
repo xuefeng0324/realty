@@ -148,6 +148,7 @@ function mergeListingsIntoSnapshot(
     schoolPremiumDistricts: existing?.schoolPremiumDistricts ?? [],
     schoolPremiumCommunities: existing?.schoolPremiumCommunities ?? [],
     metroLineGeos: existing?.metroLineGeos ?? [],
+    weather: existing?.weather ?? [],
     availableWeeks
   };
 }

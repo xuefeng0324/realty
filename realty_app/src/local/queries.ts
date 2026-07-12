@@ -769,6 +769,103 @@ export async function getMetroLineGeos(params: {
   return { cityId: params.cityId, total: items.length, items };
 }
 
+// ---------- 天气 (v0.16.0+) ----------
+export interface WeatherForecastDay {
+  date: string;
+  week: string;
+  dayweather: string;
+  nightweather: string;
+  daytemp: string;
+  nighttemp: string;
+  daywind: string;
+  nightwind: string;
+  daypower: string;
+  nightpower: string;
+}
+
+export interface WeatherLive {
+  weather: string;
+  temperature: string;
+  winddirection: string;
+  windpower: string;
+  humidity: string;
+  report_time: string;
+}
+
+export interface WeatherResponse {
+  cityId: number;
+  cityName: string;
+  live: WeatherLive | null;
+  forecast: WeatherForecastDay[];
+  /**
+   * 粗略 AQI 估算 (基于湿度 + 风力 + 温度) — 因为高德 weather API 不含真实 AQI。
+   * 0 = 优 / 1 = 良 / 2 = 轻度污染 / 3 = 中度污染 / null = 无法估算
+   * 仅用作演示,生产环境请接 AQICN / 国控站 API。
+   */
+  aqi_estimate: { level: 0 | 1 | 2 | 3 | null; label: string } | null;
+  source: string;
+}
+
+/**
+ * 估算 AQI (粗略):
+ * - 湿度 >= 80% 且风力 <= 2 级 → 良 (因为高湿度不利于扩散)
+ * - 风力 >= 5 级 → 优 (强风扩散好)
+ * - 气温 > 35°C 且湿度 > 60% → 轻度污染 (高温闷热易累积污染物)
+ * - 其它 → 优
+ */
+function estimateAqi(humidity: number | null, windpower: string, temperature: number | null): { level: 0 | 1 | 2 | 3; label: string } {
+  if (humidity == null || temperature == null) {
+    return { level: 1, label: "良(估算)" };
+  }
+  // windpower 可能是 "≤3" / "4" / "1-3"
+  let wind = 0;
+  const m = windpower.match(/(\d+)/g);
+  if (m) {
+    wind = Math.max(...m.map((x) => parseInt(x, 10)));
+  }
+  if (wind >= 5) return { level: 0, label: "优(估算·强风)" };
+  if (humidity >= 85 && wind <= 2) return { level: 2, label: "轻度污染(估算·闷热)" };
+  if (temperature >= 35 && humidity >= 60) return { level: 2, label: "轻度污染(估算·高温闷热)" };
+  if (humidity >= 80) return { level: 1, label: "良(估算·高湿)" };
+  return { level: 0, label: "优(估算)" };
+}
+
+export async function getWeather(params: { cityId: number }): Promise<WeatherResponse> {
+  const { live, forecast } = store.getWeatherByCity(params.cityId);
+  let forecastDays: WeatherForecastDay[] = [];
+  if (forecast?.forecastJson) {
+    try {
+      forecastDays = JSON.parse(forecast.forecastJson) as WeatherForecastDay[];
+    } catch {
+      forecastDays = [];
+    }
+  }
+  let aqi: { level: 0 | 1 | 2 | 3 | null; label: string } | null = null;
+  if (live) {
+    const h = live.humidity ? Number(live.humidity) : null;
+    const t = live.temperature ? Number(live.temperature) : null;
+    const est = estimateAqi(h, live.windpower, t);
+    aqi = { level: est.level, label: est.label };
+  }
+  return {
+    cityId: params.cityId,
+    cityName: live?.cityName ?? forecast?.cityName ?? "",
+    live: live
+      ? {
+          weather: live.weather,
+          temperature: live.temperature,
+          winddirection: live.winddirection,
+          windpower: live.windpower,
+          humidity: live.humidity,
+          report_time: live.reportTime
+        }
+      : null,
+    forecast: forecastDays,
+    aqi_estimate: aqi,
+    source: "amap:weather"
+  };
+}
+
 // ---------- 医院 (v0.6.0+) ----------
 export interface HospitalItem {
   hospital_id: number;

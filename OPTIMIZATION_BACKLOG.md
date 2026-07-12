@@ -189,5 +189,8 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | trend-8 | **预测下一周均价** — 用 70 城指数 + listings 滞后 4 周做 ARIMA | 4h | 🟡 中 | 已有 stats70 + listings |
 | trend-9 | **板块网签热度榜** — daily_wangqian 的 district 维度已有 264 条，做"近 30 天网签热度 Top N" | 1h | 🟡 中 | 已有 daily_wangqian.csv |
 | trend-10 | **成交 vs 挂牌对比** | 8h+ | 🟢 低 | 需要新数据源（链家成交被 CAPTCHA 拦） |
+| new-1 | **空气质量/天气** — 高德 weather API 拿实时 + 4 天预报 | 4h | 🟡 中 | 高德 `/v3/weather/weatherInfo` ✅ v0.16.0 |
+| new-2 | **周边商业配套密度** — POI 已支持餐饮/银行/便利店,做"周边商业热度"评分 | 4h | 🟡 中 | 已有 poi_seed.csv (扩展品类) |
+| map-2 | **marker 聚合** — 1km 内多 marker 合并显示数字 | 4h | 🟡 中 | 自实现 |
 
 推荐 **trend-6 学区溢价** 或 **trend-9 网签热度榜**（数据现成，1-2h 出活）。

@@ -25,7 +25,8 @@ import type {
   LocalSchoolPremiumCommunity,
   LocalSchoolPremiumDistrict,
   LocalStats70Row,
-  LocalWangqianDistrictWeekly
+  LocalWangqianDistrictWeekly,
+  LocalWeather
 } from "./types";
 
 let snapshot: DataSnapshot | null = null;
@@ -244,6 +245,24 @@ export function getMetroLineGeos(): LocalMetroLineGeo[] {
 
 export function getMetroLineGeosByCity(cityId: number): LocalMetroLineGeo[] {
   return (snapshot?.metroLineGeos ?? []).filter((m) => m.cityId === cityId);
+}
+
+/**
+ * 实时天气 + 预报 (v0.16.0+)
+ */
+export function getWeather(): LocalWeather[] {
+  return snapshot?.weather ?? [];
+}
+
+export function getWeatherByCity(cityId: number): {
+  live: LocalWeather | null;
+  forecast: LocalWeather | null;
+} {
+  const all = (snapshot?.weather ?? []).filter((w) => w.cityId === cityId);
+  return {
+    live: all.find((w) => w.reportType === "live") ?? null,
+    forecast: all.find((w) => w.reportType === "forecast") ?? null
+  };
 }
 
 /**

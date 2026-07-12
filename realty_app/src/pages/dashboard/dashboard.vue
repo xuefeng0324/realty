@@ -376,6 +376,64 @@
           同一区内的学校评分聚合到该区所有小区，便于横向对比「住在哪个小区最沾名校光」。
         </view>
       </view>
+
+      <!-- v0.16.0 实时天气 + 4 天预报 -->
+      <view v-if="weatherResp && (weatherResp.live || weatherResp.forecast.length > 0)" class="card">
+        <view class="row-between">
+          <view class="card-title">🌤️ {{ weatherResp.cityName }} 实时天气</view>
+          <view class="muted">
+            {{ weatherResp.live?.report_time || "—" }}
+          </view>
+        </view>
+        <view v-if="weatherResp.live" class="weather-live">
+          <view class="weather-main">
+            <text class="weather-icon">{{ weatherEmoji(weatherResp.live.weather) }}</text>
+            <view class="weather-info">
+              <text class="weather-temp">{{ weatherResp.live.temperature }}°C</text>
+              <text class="weather-cond">{{ weatherResp.live.weather }}</text>
+            </view>
+          </view>
+          <view class="weather-stats">
+            <view class="weather-stat">
+              <text class="weather-stat-label">💧 湿度</text>
+              <text class="weather-stat-value">{{ weatherResp.live.humidity }}%</text>
+            </view>
+            <view class="weather-stat">
+              <text class="weather-stat-label">💨 风力</text>
+              <text class="weather-stat-value">{{ weatherResp.live.windpower }}级 {{ weatherResp.live.winddirection }}</text>
+            </view>
+            <view class="weather-stat">
+              <text class="weather-stat-label">🌫 AQI</text>
+              <text :class="['weather-stat-value', 'aqi-chip', aqiChipClass]">
+                {{ weatherResp.aqi_estimate?.label ?? "—" }}
+              </text>
+            </view>
+          </view>
+        </view>
+        <view v-if="weatherResp.forecast.length > 0" class="weather-forecast">
+          <view class="forecast-title">未来 4 天预报</view>
+          <view class="forecast-grid">
+            <view
+              v-for="(d, idx) in weatherResp.forecast"
+              :key="d.date"
+              class="forecast-day"
+            >
+              <text class="forecast-week">{{ idx === 0 ? "今天" : d.week }}</text>
+              <text class="forecast-date">{{ d.date.slice(5) }}</text>
+              <text class="forecast-icon">{{ weatherEmoji(d.dayweather) }}</text>
+              <view class="forecast-temp">
+                <text class="forecast-high">{{ d.daytemp }}°</text>
+                <text class="forecast-low">/ {{ d.nighttemp }}°</text>
+              </view>
+              <text class="forecast-cond">{{ d.dayweather }}</text>
+            </view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：高德地图 /v3/weather/weatherInfo (实况 + 4 天预报)。
+          AQI 因高德 API 不提供 AQI 字段，此处按湿度+风力+温度粗略估算，仅供参考。
+        </view>
+      </view>
     </view>
 
     <!-- 内置 popup：城市/周期/来源/指标选择 -->
@@ -409,7 +467,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -447,6 +505,7 @@ const trendItems = ref<DistrictTrendItem[]>([]);
 const wangqianOverview = ref<WangqianOverviewItem | null>(null);
 const schoolPremiumOverview = ref<SchoolPremiumOverview | null>(null);
 const schoolPremiumCommunityItems = ref<SchoolPremiumCommunityItem[]>([]);
+const weatherResp = ref<WeatherResponse | null>(null);
 
 const errorMsg = ref<string>("");
 const loading = ref<boolean>(false);
@@ -727,6 +786,13 @@ async function loadRankingAndDistrict() {
       });
       schoolPremiumCommunityItems.value = spc?.items ?? [];
     }
+
+    // v0.16.0 实时天气 + 4 天预报
+    try {
+      weatherResp.value = await getWeather({ cityId: app.cityId });
+    } catch (e) {
+      console.warn("getWeather failed:", e);
+    }
   } catch (e) {
     errorMsg.value = `加载失败：${toErrorMessage(e)}`;
   }
@@ -842,6 +908,32 @@ function spMedalClass(rank: number): string {
   if (rank === 3) return "medal-bronze";
   return "medal-flat-mini";
 }
+
+// v0.16.0 weather helpers
+function weatherEmoji(cond: string): string {
+  if (!cond) return "❓";
+  if (cond.includes("晴")) return "☀️";
+  if (cond.includes("多云")) return "⛅";
+  if (cond.includes("阴")) return "☁️";
+  if (cond.includes("雨")) {
+    if (cond.includes("雷")) return "⛈️";
+    if (cond.includes("大")) return "🌧️";
+    return "🌦️";
+  }
+  if (cond.includes("雪")) return "❄️";
+  if (cond.includes("雾")) return "🌫️";
+  if (cond.includes("霾")) return "😷";
+  return "🌡️";
+}
+
+const aqiChipClass = computed(() => {
+  const lvl = weatherResp.value?.aqi_estimate?.level;
+  if (lvl == null) return "aqi-unknown";
+  if (lvl === 0) return "aqi-good";
+  if (lvl === 1) return "aqi-ok";
+  if (lvl === 2) return "aqi-light";
+  return "aqi-mid";
+});
 
 function formatWqArea(sqm: number): string {
   if (sqm >= 10000) return `${(sqm / 10000).toFixed(1)} 万㎡`;
@@ -1432,6 +1524,126 @@ onShow(async () => {
   flex-direction: column;
   justify-content: center;
 }
+
+/* v0.16.0 weather */
+.weather-live {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8rpx;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+.weather-main {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+.weather-icon {
+  font-size: 60rpx;
+  line-height: 1;
+}
+.weather-info {
+  display: flex;
+  flex-direction: column;
+}
+.weather-temp {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #f97316;
+  line-height: 1.1;
+}
+.weather-cond {
+  font-size: 24rpx;
+  color: #64748b;
+}
+.weather-stats {
+  display: flex;
+  gap: 16rpx;
+  flex-wrap: wrap;
+}
+.weather-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background: rgba(248, 250, 252, 0.7);
+  border-radius: 8rpx;
+  padding: 6rpx 12rpx;
+}
+.weather-stat-label {
+  font-size: 20rpx;
+  color: #94a3b8;
+}
+.weather-stat-value {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #0f172a;
+}
+.aqi-chip {
+  border-radius: 6rpx;
+  padding: 2rpx 8rpx;
+  font-size: 22rpx !important;
+}
+.aqi-good { background: rgba(34, 197, 94, 0.18); color: #15803d !important; }
+.aqi-ok { background: rgba(132, 204, 22, 0.18); color: #65a30d !important; }
+.aqi-light { background: rgba(234, 179, 8, 0.18); color: #b45309 !important; }
+.aqi-mid { background: rgba(220, 38, 38, 0.18); color: #b91c1c !important; }
+.aqi-unknown { background: rgba(148, 163, 184, 0.15); color: #475569 !important; }
+.weather-forecast {
+  margin-top: 12rpx;
+}
+.forecast-title {
+  font-size: 22rpx;
+  color: #64748b;
+  margin-bottom: 8rpx;
+}
+.forecast-grid {
+  display: flex;
+  gap: 8rpx;
+  overflow-x: auto;
+}
+.forecast-day {
+  flex: 1;
+  min-width: 110rpx;
+  background: rgba(248, 250, 252, 0.7);
+  border-radius: 8rpx;
+  padding: 8rpx 4rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rpx;
+}
+.forecast-week {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #0f172a;
+}
+.forecast-date {
+  font-size: 18rpx;
+  color: #94a3b8;
+}
+.forecast-icon {
+  font-size: 36rpx;
+  line-height: 1;
+}
+.forecast-temp {
+  display: flex;
+  gap: 4rpx;
+}
+.forecast-high {
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #dc2626;
+}
+.forecast-low {
+  font-size: 22rpx;
+  color: #0ea5e9;
+}
+.forecast-cond {
+  font-size: 18rpx;
+  color: #475569;
+}
+
 .sp-mid {
   flex: 1;
 }

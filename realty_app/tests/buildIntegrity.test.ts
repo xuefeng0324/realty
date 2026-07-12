@@ -23,12 +23,42 @@ import { resolve } from "node:path";
 const ROOT = resolve(__dirname, "..");
 
 function readCsv(p: string): Record<string, string>[] {
+  // RFC4180-lite parser: 支持双引号 quoted field, 处理 "" 转义
   const raw = readFileSync(p, "utf8");
   const lines = raw.split(/\r?\n/).filter((l) => l.length > 0);
+  const parseLine = (line: string): string[] => {
+    const cells: string[] = [];
+    let cur = "";
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (inQuotes) {
+        if (ch === '"' && line[i + 1] === '"') {
+          cur += '"';
+          i++;
+        } else if (ch === '"') {
+          inQuotes = false;
+        } else {
+          cur += ch;
+        }
+      } else {
+        if (ch === ",") {
+          cells.push(cur);
+          cur = "";
+        } else if (ch === '"' && cur === "") {
+          inQuotes = true;
+        } else {
+          cur += ch;
+        }
+      }
+    }
+    cells.push(cur);
+    return cells;
+  };
   const [header, ...rest] = lines;
-  const keys = header.split(",");
+  const keys = parseLine(header);
   return rest.map((line) => {
-    const cells = line.split(",");
+    const cells = parseLine(line);
     const row: Record<string, string> = {};
     keys.forEach((k, i) => (row[k] = cells[i] ?? ""));
     return row;
@@ -906,6 +936,80 @@ describe("build integrity", () => {
           r.end_confidence !== "missing"
       );
       expect(drawable.length).toBeGreaterThanOrEqual(18);
+    });
+  });
+
+  // ---------- v0.16.0 实时天气 + 4 天预报 ----------
+  describe("天气 v0.16.0", () => {
+    const weatherPath = resolve(ROOT, "static/seed/weather.csv");
+
+    it("weather.csv 存在且 = 6 行 (3 城市 × 2 类型)", () => {
+      if (!existsSync(weatherPath)) return; // 可选
+      const rows = readCsv(weatherPath);
+      expect(rows.length).toBe(6);
+      const cityIds = new Set(rows.map((r) => r.city_id));
+      expect(cityIds.size).toBe(3);
+      const types = new Set(rows.map((r) => r.report_type));
+      expect(types.has("live")).toBe(true);
+      expect(types.has("forecast")).toBe(true);
+    });
+
+    it("queries.ts 提供 getWeather 函数", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/local/queries.ts"),
+        "utf-8"
+      );
+      expect(content).toMatch(/export async function getWeather/);
+      expect(content).toMatch(/WeatherResponse/);
+    });
+
+    it("store.ts 提供 getWeatherByCity 函数", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/local/store.ts"),
+        "utf-8"
+      );
+      expect(content).toMatch(/export function getWeatherByCity/);
+    });
+
+    it("types.ts 增加 LocalWeather 接口", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/local/types.ts"),
+        "utf-8"
+      );
+      expect(content).toMatch(/export interface LocalWeather/);
+    });
+
+    it("dashboard.vue 加天气卡 + weatherEmoji helper", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/dashboard/dashboard.vue"),
+        "utf-8"
+      );
+      expect(content).toMatch(/weatherResp/);
+      expect(content).toMatch(/weatherEmoji/);
+      expect(content).toMatch(/forecast-grid/);
+    });
+
+    it("weather.csv: live 行有 weather + temperature", () => {
+      if (!existsSync(weatherPath)) return;
+      const rows = readCsv(weatherPath);
+      const lives = rows.filter((r) => r.report_type === "live");
+      expect(lives.length).toBe(3);
+      for (const lv of lives) {
+        expect(lv.weather).toBeTruthy();
+        expect(lv.temperature).toBeTruthy();
+      }
+    });
+
+    it("weather.csv: forecast 行的 forecast_json 含 4 个 cast", () => {
+      if (!existsSync(weatherPath)) return;
+      const rows = readCsv(weatherPath);
+      const fcs = rows.filter((r) => r.report_type === "forecast");
+      expect(fcs.length).toBe(3);
+      for (const fc of fcs) {
+        expect(fc.forecast_json).toBeTruthy();
+        const parsed = JSON.parse(fc.forecast_json);
+        expect(parsed.length).toBe(4);
+      }
     });
   });
 });

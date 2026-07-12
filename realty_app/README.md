@@ -8,6 +8,7 @@
 |------|----------|------|
 | v0.14.0 | 2026-07-12 | dashboard 新增「学区评分 Top 小区」卡：按 avg_school_score 降序展示该城市里沾名校光最多的小区（金/银/铜牌 + 区 + 评分 + 学校数 + 中位单价）；广州 Top 1: 珠江帝景苑 (天河 86.0)，深圳 Top 1: 笋岗仓库综合楼 (罗湖 90.3) |
 | v0.15.0 | 2026-07-12 | map-view 新增「地铁规划」模式：21 条规划/在建地铁线 polyline overlay（绿=即将开通 / 橙=在建 / 灰=规划）；起点/终点 marker + 线路 info-card |
+| v0.16.0 | 2026-07-12 | dashboard 新增「实时天气」卡：高德 weather API 拿 3 城实况 + 4 天预报；含天气 emoji / 湿度 / 风力 / 粗略 AQI 估算 |
 | v0.13.0 | 2026-07-12 | map-view 第四种模式「POI overlay」：把 poi_seed.csv 的 5 类 POI (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园) 画到地图上 (每类最多 25 marker)；5 类 toggle 自由开关；POI info-card 显示名称 + 类型 + 距离 + 所属小区 |
 | v0.12.0 | 2026-07-12 | map-view 第三种模式「成交价热力」：圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵），半径仍按挂牌数；info-card 新增「价位」5 档标签（便宜/中低/中等/中高/昂贵，色码化）；mode 由 boolean → `MapMode = "count" \| "price" \| "listings"` |
 | v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |
@@ -698,6 +699,29 @@ gh auth setup-git
   - `tests/e2e/smoke_metro_overlay.mjs` (新增)：5 模式轮换 + 深圳/广州切换 + 截图
 - **验证**：204/204 单测过 (+6)，type-check clean，12/12 smoke 全绿
 - 详见 [changelog/2026-07-12-v0.15.0-地铁规划overlay.md](./changelog/2026-07-12-v0.15.0-地铁规划overlay.md)
+
+### v0.16.0 - 实时天气 + 4 天预报 (2026-07-12)
+- dashboard 新增「实时天气」卡：用高德 `/v3/weather/weatherInfo` 拿 3 城实况 + 4 天预报
+- **数据源**：高德 weather API (extensions=base/all), 无需额外 key
+- **数据**：`static/seed/weather.csv` (6 行 = 3 城 × 2 类型)
+- **UI**：
+  - 大字温度 + 天气 emoji (☀️/⛅/☁️/🌦️/⛈️/❄️/🌫️)
+  - 湿度 / 风力 / AQI 三个 stat 卡片
+  - AQI 估算按 level 0-3 着色 (绿/黄绿/橙/红)
+  - 未来 4 天预报 grid (今天/周几 + 日期 + emoji + day/night 温度)
+  - 切换城市自动更新
+- **AQI 估算规则** (粗略, 仅演示):
+  - 风力 >= 5 级 → 优
+  - 湿度 >= 85% 且风力 <= 2 → 轻度污染 (闷热)
+  - 温度 >= 35°C 且湿度 >= 60% → 轻度污染 (高温闷热)
+  - 其它 → 良
+  - 生产环境请接 AQICN 或国控站 API 拿真实 AQI
+- **测试**
+  - `tests/buildIntegrity.test.ts` 新增 7 个测试
+  - **fix**: readCsv 升级为 RFC4180-lite (支持 quoted field + "" 转义)
+  - `tests/e2e/smoke_weather.mjs` (新增)：深圳 → 卡片 → 切广州 → 卡片更新
+- **验证**：211/211 单测过 (+7), type-check clean, 18/18 smoke 全绿
+- 详见 [changelog/2026-07-12-v0.16.0-实时天气.md](./changelog/2026-07-12-v0.16.0-实时天气.md)
 
 ## License
 

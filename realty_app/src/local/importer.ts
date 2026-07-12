@@ -29,7 +29,8 @@ import type {
   LocalSchoolIndicator,
   LocalSchoolPremiumCommunity,
   LocalSchoolPremiumDistrict,
-  LocalWangqianDistrictWeekly
+  LocalWangqianDistrictWeekly,
+  LocalWeather
 } from "./types";
 
 const POI_CATEGORIES = new Set(["subway", "school", "hospital", "mall", "park"]);
@@ -78,6 +79,8 @@ export interface SnapshotInputs {
   schoolPremiumCommunityCSV?: string;
   /** v0.15.0: 地铁规划线坐标 (polyline 用,可选) */
   metroPlanningGeoCSV?: string;
+  /** v0.16.0: 实时天气 + 4 天预报 (高德 weather API,可选) */
+  weatherCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -388,6 +391,31 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
         .filter((m): m is LocalMetroLineGeo => m !== null)
     : [];
 
+  // 实时天气 + 预报 (v0.16.0+): 可选
+  const weather: LocalWeather[] = inputs.weatherCSV
+    ? rowsToObjects<Record<string, string>>(parseCSV(inputs.weatherCSV))
+        .map((r) => {
+          const cid = n(r.city_id);
+          const adcode = s(r.adcode);
+          const rt = (s(r.report_type) ?? "") === "forecast" ? "forecast" : "live";
+          if (cid == null || !adcode) return null;
+          return {
+            cityId: cid,
+            cityName: s(r.city_name) ?? "",
+            adcode,
+            reportType: rt as LocalWeather["reportType"],
+            reportTime: s(r.report_time) ?? "",
+            weather: s(r.weather) ?? "",
+            temperature: s(r.temperature) ?? "",
+            winddirection: s(r.winddirection) ?? "",
+            windpower: s(r.windpower) ?? "",
+            humidity: s(r.humidity) ?? "",
+            forecastJson: s(r.forecast_json) ?? ""
+          } as LocalWeather;
+        })
+        .filter((m): m is LocalWeather => m !== null)
+    : [];
+
   // 聚合可用周：基于 listings 的 crawl_date
   const weekEnds = new Set<string>();
   for (const l of listings) {
@@ -416,6 +444,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     schoolPremiumDistricts,
     schoolPremiumCommunities,
     metroLineGeos,
+    weather,
     availableWeeks
   };
 }

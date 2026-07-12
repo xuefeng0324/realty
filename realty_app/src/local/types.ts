@@ -225,6 +225,41 @@ export interface LocalMetroLineGeo {
 }
 
 /**
+ * 天气预报条目（v0.16.0）。
+ * report_type=live 时, weather/temperature/winddirection/windpower/humidity 有值,
+ * forecast_json 为空。report_type=forecast 时, forecast_json 存 4 天 JSON 数组。
+ */
+export interface LocalWeather {
+  cityId: number;
+  cityName: string;
+  adcode: string;
+  reportType: "live" | "forecast";
+  reportTime: string;
+  weather: string;
+  temperature: string;
+  winddirection: string;
+  windpower: string;
+  humidity: string;
+  forecastJson: string;
+}
+
+/**
+ * 预报日条目（解析 forecast_json 后用）。
+ */
+export interface LocalWeatherForecastDay {
+  date: string;
+  week: string;
+  dayweather: string;
+  nightweather: string;
+  daytemp: string;
+  nighttemp: string;
+  daywind: string;
+  nightwind: string;
+  daypower: string;
+  nightpower: string;
+}
+
+/**
  * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
  * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
  * 用于 dashboard 展示"区级近 N 周房价趋势"。
@@ -263,6 +298,8 @@ export interface DataSnapshot {
   schoolPremiumDistricts: LocalSchoolPremiumDistrict[];
   /** v0.11.0: 小区级学区评分 (按小区聚合) */
   schoolPremiumCommunities: LocalSchoolPremiumCommunity[];
+  /** v0.16.0: 实时天气 + 4 天预报 (高德 weather API) */
+  weather: LocalWeather[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }
