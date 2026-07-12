@@ -10,6 +10,7 @@
 | v0.15.0 | 2026-07-12 | map-view 新增「地铁规划」模式：21 条规划/在建地铁线 polyline overlay（绿=即将开通 / 橙=在建 / 灰=规划）；起点/终点 marker + 线路 info-card |
 | v0.16.0 | 2026-07-12 | dashboard 新增「实时天气」卡：高德 weather API 拿 3 城实况 + 4 天预报；含天气 emoji / 湿度 / 风力 / 粗略 AQI 估算 |
 | v0.17.0 | 2026-07-12 | dashboard 新增「🏫 高学区评分房源」卡 (listing 维度)：每个 listing 拿到其 community 所在区的平均学区评分 + 板块溢价率；Top 10 高评分房源，金/银/铜牌分级，区溢价 price-up/down 色码；点击跳 listing 详情；1286 行 listing_school_premium.csv |
+| v0.18.0 | 2026-07-12 | map-view listings 模式 marker 聚合 (网格算法)：单点保留原 id, 多套合并为红色气泡 (callout "N 套")；zoom 越大聚合越少；点击 cluster → zoom in +1 + 居中；cluster.ts + 7 单测 + 5 buildIntegrity + smoke_cluster.mjs E2E |
 | v0.13.0 | 2026-07-12 | map-view 第四种模式「POI overlay」：把 poi_seed.csv 的 5 类 POI (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园) 画到地图上 (每类最多 25 marker)；5 类 toggle 自由开关；POI info-card 显示名称 + 类型 + 距离 + 所属小区 |
 | v0.12.0 | 2026-07-12 | map-view 第三种模式「成交价热力」：圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵），半径仍按挂牌数；info-card 新增「价位」5 档标签（便宜/中低/中等/中高/昂贵，色码化）；mode 由 boolean → `MapMode = "count" \| "price" \| "listings"` |
 | v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |
@@ -743,6 +744,26 @@ gh auth setup-git
   - 1 个新 E2E: `smoke_listing_premium.mjs` 深圳+广州各截图
 - **验证**：219/219 单测过 (+8), type-check clean, 20/20 smoke 全绿
 - 详见 [changelog/2026-07-12-v0.17.0-listing学区溢价.md](./changelog/2026-07-12-v0.17.0-listing学区溢价.md)
+
+### v0.18.0 - Marker 聚合 (2026-07-12)
+
+- **背景**：listings 模式直接渲染每套挂牌一个 marker (最多 200/城市)。同小区多套挂牌完全重叠，且 DOM 节点过多导致渲染卡顿。本次引入**网格聚合**：同一网格内的 marker 合并为 1 个 cluster marker。
+- **算法** (cluster.ts)：
+  - `clusterCellDeg(zoom)` = 0.04 / 2^(zoom-11)，zoom 11 → 4km，zoom 14 → 500m，zoom 17 → 130m
+  - `clusterMarkers(points, zoom)` 按 lat/lng/cell 桶分，单点保留原 id，**多点用负 id + count + 平均 lat/lng**
+- **UI 集成** (map-view.vue)：
+  - `listingMarkerInputs` (输入: 600 listing) + `listingClusterMarkers` (输出)
+  - 单点: 16x16 默认蓝圆 + callout "小区名 + 总价" (BYCLICK)
+  - cluster: 32x32 或 44x44 红色气泡 + callout "N 套" (ALWAYS)
+  - legend 更新: 提示聚合行为
+  - `onMarkerTap` 处理 cluster marker (负 id + count > 1) → zoom in +1 + mapCenter 移动 + showToast
+  - 解决高德 H5 "Marker.iconPath is required" 警告 (inline SVG data URI)
+- **测试**：
+  - 7 个 cluster 单测 (cluster.test.ts)
+  - 5 个 buildIntegrity 测试 (cluster.ts 存在/导出、map-view.vue 集成)
+  - 1 个新 E2E: smoke_cluster.mjs (深圳 listings 模式 + 截图)
+- **验证**：231/231 单测过 (+12), type-check clean, 19/19 smoke 全绿
+- 详见 [changelog/2026-07-12-v0.18.0-marker聚合.md](./changelog/2026-07-12-v0.18.0-marker聚合.md)
 
 ## License
 

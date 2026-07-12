@@ -23,7 +23,7 @@
           挂牌数热力：圆点 = 挂牌数 (颜色: 红=多 / 蓝=少)
         </text>
         <text v-else-if="mode === 'listings'">
-          挂牌点：每点 = 该小区 1 套挂牌；点击 → 小区详情
+          挂牌点 (v0.18.0 聚合)：每点 = 该小区 1 套挂牌 (单点)；多套聚合显示数字 (红气泡)，点击放大；点击单点 → 小区详情
         </text>
         <text v-else-if="mode === 'poi'">
           POI overlay：5 类配套图标 (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园)
@@ -53,7 +53,7 @@
         :latitude="mapCenter.lat"
         :longitude="mapCenter.lng"
         :scale="mapScale"
-        :markers="mode === 'listings' ? listingMarkers : (mode === 'poi' ? poiMarkers : (mode === 'metro' ? metroLineMarkers : []))"
+        :markers="mode === 'listings' ? listingClusterMarkers : (mode === 'poi' ? poiMarkers : (mode === 'metro' ? metroLineMarkers : []))"
         :circles="(mode === 'listings' || mode === 'poi' || mode === 'metro') ? [] : heatCircles"
         :polyline="mode === 'metro' ? metroPolylines : []"
         :show-location="true"
@@ -161,6 +161,26 @@ import {
 import { getCities, getPoisByCommunity } from "../../local/store";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { showToast } from "../../utils/format";
+import { clusterMarkers, type ClusterInputPoint, type ClusterOutputPoint } from "../../local/cluster";
+
+// v0.18.0 高德 H5 marker 必须有 iconPath, 否则 console 报 "Marker.iconPath is required"
+// 用 inline SVG data URI 兜底 (16x16 蓝色圆点)
+const DEFAULT_MARKER_ICON =
+  "data:image/svg+xml;base64," +
+  btoa(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="#0ea5e9" stroke="#fff" stroke-width="2"/></svg>`
+  );
+// cluster 红气泡 (32x32)
+const CLUSTER_MARKER_ICON_SMALL =
+  "data:image/svg+xml;base64," +
+  btoa(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#ef4444" stroke="#fff" stroke-width="3"/></svg>`
+  );
+const CLUSTER_MARKER_ICON_LARGE =
+  "data:image/svg+xml;base64," +
+  btoa(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#ef4444" stroke="#fff" stroke-width="3"/></svg>`
+  );
 
 const app = useAppStore();
 const errorMsg = ref<string>("");
@@ -409,11 +429,13 @@ const poiCategoryCounts = computed(() => {
   return out;
 });
 
-// listings 模式下：每个 listing 一个 marker (限 200 / 城市避免卡)
-const listingMarkers = computed(() => {
+// v0.18.0 map-2: listings 模式下用网格聚合 (cluster) 而非逐点
+//   - 每个 listing 先转成 ClusterInputPoint
+//   - 根据当前 mapScale 算 cell 大小 (zoom 11 → 4km, zoom 14 → 500m)
+//   - 输出 cluster markers (单点保留原 id, 多点用负 id + count)
+const listingMarkerInputs = computed<ClusterInputPoint[]>(() => {
   if (!app.cityId) return [];
   const listings = getListingsByCity(app.cityId);
-  const out: any[] = [];
   // 按 community 索引 lat/lng
   const cidToGeo = new Map<number, { lat: number; lng: number; name: string; district: string }>();
   for (const c of communityMarkers.value) {
@@ -426,7 +448,9 @@ const listingMarkers = computed(() => {
       });
     }
   }
-  for (let i = 0; i < listings.length && i < 200; i++) {
+  const out: ClusterInputPoint[] = [];
+  // 上限 600 (城市级一次性渲染过多 marker 会卡)
+  for (let i = 0; i < listings.length && i < 600; i++) {
     const l = listings[i];
     const geo = cidToGeo.get(l.communityId);
     if (!geo) continue;
@@ -434,23 +458,57 @@ const listingMarkers = computed(() => {
       id: l.listingId,
       latitude: geo.lat,
       longitude: geo.lng,
-      width: 16,
-      height: 16,
-      // callout 用：marker 点击时显示
-      title: `${geo.name} · ${l.totalPrice10k ?? "?"}万`,
-      // H5 用 callout (气泡)
-      callout: {
-        content: `${geo.name}\n${l.totalPrice10k ?? "?"}万`,
-        color: "#ffffff",
-        bgColor: "#0ea5e9",
-        padding: 4,
-        borderRadius: 4,
-        fontSize: 11,
-        display: "BYCLICK"
-      }
+      payload: { listingId: l.listingId, communityId: l.communityId, name: geo.name, totalPrice10k: l.totalPrice10k }
     });
   }
   return out;
+});
+
+const listingClusterMarkers = computed<any[]>(() => {
+  const clusters = clusterMarkers(listingMarkerInputs.value, Math.round(mapScale.value));
+  return clusters.map((c) => {
+    if (c.count === 1) {
+      const p = c.payload[0] as { listingId: number; name: string; totalPrice10k: number | null };
+      return {
+        id: c.id,
+        latitude: c.latitude,
+        longitude: c.longitude,
+        width: 16,
+        height: 16,
+        iconPath: DEFAULT_MARKER_ICON,
+        title: `${p.name} · ${p.totalPrice10k ?? "?"}万`,
+        callout: {
+          content: `${p.name}\n${p.totalPrice10k ?? "?"}万`,
+          color: "#ffffff",
+          bgColor: "#0ea5e9",
+          padding: 4,
+          borderRadius: 4,
+          fontSize: 11,
+          display: "BYCLICK"
+        }
+      };
+    }
+    // 聚合点：用大号圆形 + 数字 (uni-app 不支持自定义 canvas, 用宽高度 + label)
+    const size = c.count >= 100 ? 44 : c.count >= 10 ? 38 : 32;
+    return {
+      id: c.id,
+      latitude: c.latitude,
+      longitude: c.longitude,
+      width: size,
+      height: size,
+      iconPath: size >= 44 ? CLUSTER_MARKER_ICON_LARGE : CLUSTER_MARKER_ICON_SMALL,
+      // 用 callout 模拟 cluster 气泡 (高德 H5 不支持自定义 marker DOM)
+      callout: {
+        content: `${c.count} 套`,
+        color: "#ffffff",
+        bgColor: "#ef4444",
+        padding: 6,
+        borderRadius: size / 2,
+        fontSize: 13,
+        display: "ALWAYS"
+      }
+    };
+  });
 });
 
 // 热力图：用 uni-app map 的 circles 模拟 (无独立热力图层)
@@ -531,12 +589,24 @@ function onMarkerTap(e: any) {
     return;
   }
   if (markerId < 0) {
-    // POI marker: 反解 id → communityId + poiRank + category
+    // v0.18.0 cluster markers: 负 id + count > 1 → zoom in +1
+    // 优先判断 cluster marker (callout 是 "N 套" 格式)
+    const clusters = listingClusterMarkers.value;
+    const clusterHit = clusters.find((c) => c.id === markerId);
+    if (clusterHit && typeof clusterHit.callout?.content === "string") {
+      const m = clusterHit.callout.content.match(/^(\d+)\s*套$/);
+      if (m && Number(m[1]) > 1) {
+        mapScale.value = Math.min(17, Math.round(mapScale.value) + 1);
+        mapCenter.value = { lat: clusterHit.latitude, lng: clusterHit.longitude };
+        showToast(`放大到 zoom ${mapScale.value} (聚合 ${m[1]} 套)`);
+        return;
+      }
+    }
+    // 否则走 POI 流程
     const absId = -markerId;
     const cats: PoiCat[] = ["subway", "school", "hospital", "mall", "park"];
     for (const cat of cats) {
       const cc = catCode(cat);
-      // 找包含该 (communityId, poiRank, cc) 的 POI
       const candidates = getPoisByCity(app.cityId).filter(
         (p) => p.poiCategory === cat
       );

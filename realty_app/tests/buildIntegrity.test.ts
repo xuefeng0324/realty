@@ -1072,4 +1072,36 @@ describe("build integrity", () => {
       expect(content).toMatch(/高学区评分房源/);
     });
   });
+
+  // --------------------------------------------------------------
+  // v0.18.0 map-2: marker 聚合 (cluster.ts)
+  // --------------------------------------------------------------
+  describe("v0.18.0 marker 聚合", () => {
+    it("cluster.ts 存在且导出 clusterMarkers", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/cluster.ts"), "utf8");
+      expect(content).toMatch(/export function clusterMarkers/);
+    });
+
+    it("cluster.ts 导出 clusterCellDeg (zoom → cell 度数)", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/cluster.ts"), "utf8");
+      expect(content).toMatch(/export function clusterCellDeg/);
+    });
+
+    it("map-view.vue 用 listingClusterMarkers (非 listingMarkers)", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/map-view/map-view.vue"), "utf8");
+      expect(content).toMatch(/listingClusterMarkers/);
+      // markers prop 应指向新 computed
+      expect(content).toMatch(/:markers="mode === 'listings' \? listingClusterMarkers/);
+    });
+
+    it("map-view.vue 引入 cluster.ts", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/map-view/map-view.vue"), "utf8");
+      expect(content).toMatch(/from "\.\.\/\.\.\/local\/cluster"/);
+    });
+
+    it("onMarkerTap 处理 cluster marker (count > 1 → zoom in)", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/map-view/map-view.vue"), "utf8");
+      expect(content).toMatch(/聚合 \$\{m\[1\]\} 套/);
+    });
+  });
 });
