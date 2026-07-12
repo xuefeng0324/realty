@@ -147,6 +147,14 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 
 推荐 **map-7 成交价热力**（2h，🔴 高）或 **map-5 POI overlay**（4h，🔴 高）。
 
+## H 段补充：同区多小区对比（v0.20.0）
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 H | trend-8 | 调研 community + 4-12 小区/区的数据需求 | ✅ v0.20.0 | 52 community × 15 district (福田区 12 个最多) |
+| 🟢 H | trend-8 | `getCommunityCompareByDistrict({ cityId, weekEnd, districtName })` query + UI 集成 | ✅ v0.20.0 | 复用 snapshotForCommunityAtWeek |
+| 🟢 H | trend-8 | buildIntegrity +5 测试 + smoke_district_compare + commit v0.20.0 | ✅ v0.20.0 | 246/246 通过；21/21 smoke 全绿 |
+
 ## G 段补充：地图找房（v0.9.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |
@@ -186,7 +194,7 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 |------|------|--------|------|--------|
 | trend-6 | **学区溢价** — listings 的 school_ids 关联学区评分 → 衍生"学区溢价率"(%) | 2h | 🔴 高 | 已有的 schools.csv + school_indicators.csv ✅ **v0.17.0 (listing 维度 Top 10)** |
 | trend-7 | **议价空间** — chainjia detail 拿最近成交价 vs 当前挂牌价，量化议价空间 | 8h | 🔴 高 | 链家 detail（被 CAPTCHA 拦，需换源） |
-| trend-8 | **预测下一周均价** — 用 70 城指数 + listings 滞后 4 周做 ARIMA | 4h | 🟡 中 | 已有 stats70 + listings |
+| trend-8 | **预测下一周均价** — 用 70 城指数 + listings 滞后 4 周做 ARIMA | 4h | 🟡 中 | 已有 stats70 + listings ✅ **v0.20.0 (改为「同区多小区对比」横柱图)** |
 | trend-9 | **板块网签热度榜** — daily_wangqian 的 district 维度已有 264 条，做"近 30 天网签热度 Top N" | 1h | 🟡 中 | 已有 daily_wangqian.csv |
 | trend-10 | **成交 vs 挂牌对比** | 8h+ | 🟢 低 | 需要新数据源（链家成交被 CAPTCHA 拦） |
 | new-1 | **空气质量/天气** — 高德 weather API 拿实时 + 4 天预报 | 4h | 🟡 中 | 高德 `/v3/weather/weatherInfo` ✅ v0.16.0 |

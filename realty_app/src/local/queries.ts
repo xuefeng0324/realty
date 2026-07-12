@@ -1462,3 +1462,75 @@ export async function getCommercialRanking(params: {
     items
   };
 }
+
+// ---------- 同区多小区对比 (v0.20.0 trend-8) ----------
+export interface DistrictCommunityCompareItem {
+  rank: number;
+  communityId: number;
+  communityName: string;
+  districtName: string;
+  avgUnitPrice: number | null;
+  medianUnitPrice: number | null;
+  listingCount: number;
+  coverageScore: number;
+}
+
+export interface DistrictCommunityCompareResponse {
+  cityId: number;
+  cityName: string;
+  districtName: string;
+  weekEnd: string;
+  metric: "avg_unit_price" | "listing_count";
+  total: number;
+  items: DistrictCommunityCompareItem[];
+}
+
+/**
+ * 给定 cityId + districtName，返回该区所有 community 的横向对比 (按 metric 降序)。
+ * 复用 snapshotForCommunityAtWeek (与 getCommunityRanking 一致)。
+ */
+export async function getCommunityCompareByDistrict(params: {
+  cityId: number;
+  weekEnd: string;
+  districtName: string;
+  metric?: "avg_unit_price" | "listing_count";
+}): Promise<DistrictCommunityCompareResponse> {
+  const cityName = store.getCities().find((c) => c.cityId === params.cityId)?.cityName ?? "";
+  const metric = params.metric ?? "avg_unit_price";
+  const rows: DistrictCommunityCompareItem[] = [];
+  for (const c of store.getCommunitiesByCity(params.cityId)) {
+    if (c.districtName !== params.districtName) continue;
+    const snap = snapshotForCommunityAtWeek(params.cityId, c.communityId, params.weekEnd);
+    if (!snap) continue;
+    rows.push({
+      rank: 0,
+      communityId: c.communityId,
+      communityName: c.communityName,
+      districtName: c.districtName,
+      avgUnitPrice: snap.avgUnitPrice,
+      medianUnitPrice: snap.medianUnitPrice,
+      listingCount: snap.listingCount,
+      coverageScore: snap.coverageScore
+    });
+  }
+  rows.sort((a, b) => {
+    if (metric === "avg_unit_price") {
+      const av = a.avgUnitPrice ?? -Infinity;
+      const bv = b.avgUnitPrice ?? -Infinity;
+      if (av !== bv) return bv - av;
+      return b.listingCount - a.listingCount;
+    }
+    if (b.listingCount !== a.listingCount) return b.listingCount - a.listingCount;
+    return (b.avgUnitPrice ?? -Infinity) - (a.avgUnitPrice ?? -Infinity);
+  });
+  rows.forEach((r, idx) => (r.rank = idx + 1));
+  return {
+    cityId: params.cityId,
+    cityName,
+    districtName: params.districtName,
+    weekEnd: params.weekEnd,
+    metric,
+    total: rows.length,
+    items: rows
+  };
+}

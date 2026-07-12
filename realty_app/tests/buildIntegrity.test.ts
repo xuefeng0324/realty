@@ -1177,4 +1177,43 @@ describe("build integrity", () => {
       expect(content).toMatch(/商业热度 Top/);
     });
   });
+
+  // --------------------------------------------------------------
+  // v0.20.0 trend-8: 同区多小区对比
+  // --------------------------------------------------------------
+  describe("v0.20.0 同区多小区对比", () => {
+    it("queries.ts 增加 getCommunityCompareByDistrict 函数", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/getCommunityCompareByDistrict/);
+    });
+
+    it("queries.ts 导出 DistrictCommunityCompareResponse 接口", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/export interface DistrictCommunityCompareResponse/);
+    });
+
+    it("dashboard.vue 含 selectedDistrict ref", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/dashboard/dashboard.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/selectedDistrict = ref/);
+    });
+
+    it("dashboard.vue 渲染「📊 {districtName} 小区对比」卡", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/dashboard/dashboard.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/小区对比/);
+    });
+
+    it("dashboard.vue onPickDistrict 调用 loadDistrictCompare", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/dashboard/dashboard.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/loadDistrictCompare\(name\)/);
+    });
+  });
 });

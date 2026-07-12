@@ -12,6 +12,7 @@
 | v0.17.0 | 2026-07-12 | dashboard 新增「🏫 高学区评分房源」卡 (listing 维度)：每个 listing 拿到其 community 所在区的平均学区评分 + 板块溢价率；Top 10 高评分房源，金/银/铜牌分级，区溢价 price-up/down 色码；点击跳 listing 详情；1286 行 listing_school_premium.csv |
 | v0.18.0 | 2026-07-12 | map-view listings 模式 marker 聚合 (网格算法)：单点保留原 id, 多套合并为红色气泡 (callout "N 套")；zoom 越大聚合越少；点击 cluster → zoom in +1 + 居中；cluster.ts + 7 单测 + 5 buildIntegrity + smoke_cluster.mjs E2E |
 | v0.19.0 | 2026-07-12 | dashboard 新增「🛒 商业热度」卡：3 类商业 POI (🍴餐饮/🏦银行/🏪便利店) + 0-100 商业热度评分 (按数量阶梯打分 + 距离权重)；147 次高德 POI 调用产出 416 行 poi_commercial.csv + 52 行 community_commercial.csv；94% 小区有分；10 单测 + smoke_commercial E2E |
+| v0.20.0 | 2026-07-12 | dashboard 「区/板块对比」卡上点击任一区，下方弹出「📊 {区} · {市} 小区对比」横柱图 (按均价排序)，展示该区所有 community 均价+挂牌数；可点行进小区详情；5 单测 + smoke_district_compare E2E |
 | v0.13.0 | 2026-07-12 | map-view 第四种模式「POI overlay」：把 poi_seed.csv 的 5 类 POI (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园) 画到地图上 (每类最多 25 marker)；5 类 toggle 自由开关；POI info-card 显示名称 + 类型 + 距离 + 所属小区 |
 | v0.12.0 | 2026-07-12 | map-view 第三种模式「成交价热力」：圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵），半径仍按挂牌数；info-card 新增「价位」5 档标签（便宜/中低/中等/中高/昂贵，色码化）；mode 由 boolean → `MapMode = "count" \| "price" \| "listings"` |
 | v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |
@@ -788,6 +789,16 @@ gh auth setup-git
   - 1 个新 E2E: `smoke_commercial.mjs` (深圳+广州切换 + emoji 验证 + 截图)
 - **验证**：241/241 单测过 (+10), type-check clean, 20/20 smoke 全绿
 - 详见 [changelog/2026-07-12-v0.19.0-商业热度.md](./changelog/2026-07-12-v0.19.0-商业热度.md)
+
+### v0.20.0 - 同区多小区对比 (2026-07-12)
+- dashboard 「区/板块对比」卡 → 点任一区 → 下方展示「📊 {区} · {市} 小区对比」横柱图
+- 数据源：listings.csv + communities.csv 按 community + 周聚合 (复用 snapshotForCommunityAtWeek)
+- 新 query: `getCommunityCompareByDistrict({ cityId, weekEnd, districtName })`
+- UI: 卡内列出该区所有 community (按均价降序)，每行小区名 + 横柱(长度=均价比例) + 元/㎡；点击行 → /pages/community/community?id={id}；「✕ 关闭」可收起
+- 边际保护：listingCount<3 显示 ⚠️ 单价仅供参考
+- 新增 E2E: `tests/e2e/smoke_district_compare.mjs` (验证卡出现/行数/价格/关闭)
+- **验证**：246/246 单测过 (+5), type-check clean, 21/21 smoke 全绿
+- 详见 [changelog/2026-07-12-v0.20.0-同区多小区对比.md](./changelog/2026-07-12-v0.20.0-同区多小区对比.md)
 
 ## License
 

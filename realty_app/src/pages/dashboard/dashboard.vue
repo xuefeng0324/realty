@@ -515,6 +515,47 @@
         </view>
       </view>
 
+      <!-- v0.20.0 trend-8: 同区多小区对比 (点区/板块对比 区名后展示) -->
+      <view v-if="districtCompareResp && districtCompareResp.items.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">📊 {{ districtCompareResp.districtName }} · {{ districtCompareResp.cityName }} 小区对比</view>
+          <view class="muted tap-target" @click="closeDistrictCompare">✕ 关闭</view>
+        </view>
+        <view class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
+          均价柱状图 ({{ districtCompareResp.weekEnd }} 周快照 · 共 {{ districtCompareResp.total }} 个小区)
+        </view>
+        <view
+          v-for="it in districtCompareResp.items"
+          :key="it.communityId"
+          class="bar-row tap-target"
+          role="button"
+          tabindex="0"
+          hover-class="row-active"
+          @click="goCommunity(it.communityId)"
+        >
+          <view class="bar-name">{{ it.communityName }}</view>
+          <view class="bar-track">
+            <view
+              class="bar-fill"
+              :style="{ width: districtBarPct(it, districtMaxPrice()) + '%' }"
+            ></view>
+          </view>
+          <view class="bar-value">
+            {{ it.avgUnitPrice ? formatNum(it.avgUnitPrice) + " 元/㎡" : "—" }}
+          </view>
+        </view>
+        <view
+          v-if="districtCompareResp.items[0] && districtCompareResp.items[0].listingCount < 3"
+          class="muted"
+          style="margin-top: 8rpx; font-size: 22rpx"
+        >
+          ⚠️ 部分小区挂牌数少于 3 套，单价仅供参考
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：listings.csv (按社区+周聚合均价 + 挂牌数)。点击柱条 → 小区详情。
+        </view>
+      </view>
+
     <!-- 内置 popup：城市/周期/来源/指标选择 -->
     <view v-if="sheet.open" class="sheet-mask" @click="closeSheet">
       <view class="sheet" @click.stop>
@@ -547,7 +588,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -588,6 +629,9 @@ const schoolPremiumCommunityItems = ref<SchoolPremiumCommunityItem[]>([]);
 const weatherResp = ref<WeatherResponse | null>(null);
 const listingPremiumOverview = ref<ListingSchoolPremiumOverview | null>(null);
 const commercialResp = ref<CommercialRankingResponse | null>(null);
+// v0.20.0 trend-8: 同区多小区对比
+const selectedDistrict = ref<string | null>(null);
+const districtCompareResp = ref<DistrictCommunityCompareResponse | null>(null);
 
 const errorMsg = ref<string>("");
 const loading = ref<boolean>(false);
@@ -1072,7 +1116,43 @@ function formatBarValue(it: DistrictCompareItem): string {
 }
 
 function onPickDistrict(name: string) {
+  // v0.20.0 trend-8: 点击区 → 加载该区所有小区对比
+  selectedDistrict.value = name;
   uni.showToast({ title: `已选区：${name}`, icon: "none" });
+  loadDistrictCompare(name);
+}
+
+async function loadDistrictCompare(districtName: string) {
+  if (!app.cityId || !app.weekEnd) {
+    districtCompareResp.value = null;
+    return;
+  }
+  try {
+    districtCompareResp.value = await getCommunityCompareByDistrict({
+      cityId: app.cityId,
+      weekEnd: app.weekEnd,
+      districtName,
+      metric: "avg_unit_price"
+    });
+  } catch (e) {
+    console.warn("getCommunityCompareByDistrict failed:", e);
+    districtCompareResp.value = null;
+  }
+}
+
+function closeDistrictCompare() {
+  selectedDistrict.value = null;
+  districtCompareResp.value = null;
+}
+
+function districtBarPct(it: { avgUnitPrice: number | null; listingCount: number }, maxPrice: number): number {
+  if (!it.avgUnitPrice || !maxPrice) return 0;
+  return Math.max(2, Math.round((it.avgUnitPrice / maxPrice) * 100));
+}
+
+function districtMaxPrice(): number {
+  const items = districtCompareResp.value?.items ?? [];
+  return Math.max(1, ...items.map((it) => it.avgUnitPrice ?? 0));
 }
 
 function goCommunity(id: number) {
