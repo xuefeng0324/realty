@@ -1879,4 +1879,50 @@ describe("build integrity", () => {
       expect(content).toMatch(/getCommunityScoreRank\(\{\s*cityId:\s*app\.cityId/);
     });
   });
+
+  // ────────────────────────────────────────────────────────────────────
+  // v0.34.0 trend-16 综合评分权重自定义
+  // ────────────────────────────────────────────────────────────────────
+  describe("v0.34.0 trend-16 综合评分权重自定义", () => {
+    it("queries.ts getCommunityScoreRank 接受 weights 参数", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/getCommunityScoreRank[\s\S]+?weights\?:\s*\{\s*life:\s*number/);
+    });
+
+    it("queries.ts weights 重新计算 totalScore (覆盖原 CSV 预存值)", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      // 公式: totalScore = life*wf.life + school*wf.school + commute*wf.commute
+      expect(content).toMatch(/l\.lifeScore\s*\*\s*wf\.life/);
+      expect(content).toMatch(/l\.schoolScore\s*\*\s*wf\.school/);
+      expect(content).toMatch(/l\.commuteScore\s*\*\s*wf\.commute/);
+    });
+
+    it("queries.ts weights 总和归一化 (避免全 0 时除零)", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/w\.life\s*\/\s*wSum/);
+    });
+
+    it("queries.ts 按新 totalScore 重排 rank_city", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/newRank\[l\.communityId\]/);
+    });
+
+    it("dashboard.vue 综合评分卡包含 4 个预设 chip + 3 个 slider", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(content).toMatch(/csPresets/);
+      expect(content).toMatch(/applyCsPreset/);
+      expect(content).toMatch(/onCsWeightChange/);
+      expect(content).toMatch(/cs-weights/);
+      // 4 个预设: 均衡/学区/通勤/生活
+      expect(content).toMatch(/均衡/);
+      expect(content).toMatch(/学区/);
+      expect(content).toMatch(/通勤/);
+      expect(content).toMatch(/生活/);
+    });
+
+    it("dashboard.vue reloadCommunityScore 用 csWeights 重算", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(content).toMatch(/getCommunityScoreRank\(\{[\s\S]+?weights:\s*csWeights\.value/);
+    });
+  });
 });

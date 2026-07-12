@@ -273,6 +273,15 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 U | trend-15 | dashboard 「🏅 小区综合评分 Top 小区」卡 (3 维细分 + 金银铜牌) | ✅ v0.33.0 | ≥80 绿 / 65-79 蓝 / <65 灰 |
 | 🟢 U | trend-15 | buildIntegrity +8 测试 + smoke_community_score E2E + commit v0.33.0 | ✅ v0.33.0 | 331/331 通过；smoke 全绿 |
 
+## V 段补充：综合评分权重自定义 (v0.34.0)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+| --- | --- | --- | --- | --- |
+| 🟢 V | trend-16 | 调研权重自定义方案 (4 预设 + 3 slider) | ✅ v0.34.0 | 总和归一化, 重排 rank_city |
+| 🟢 V | trend-16 | queries.getCommunityScoreRank + weights 参数 | ✅ v0.34.0 | 实时重算 totalScore |
+| 🟢 V | trend-16 | dashboard 4 chip + 3 slider + reloadCommunityScore | ✅ v0.34.0 | 颜色分档同步 |
+| 🟢 V | trend-16 | buildIntegrity +6 测试 + smoke_community_score_weight E2E + commit v0.34.0 | ✅ v0.34.0 | 337/337 通过；smoke 全绿 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

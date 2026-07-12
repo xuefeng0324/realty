@@ -520,7 +520,71 @@
         </view>
         <view v-if="communityScore.items.length === 0" class="empty">暂无数据</view>
         <view class="cs-summary muted">
-          城市均分 {{ communityScore.avgScore }} · 最高 {{ communityScore.maxScore }} · 权重 生活50%/学区30%/通勤20%
+          城市均分 {{ communityScore.avgScore }} · 最高 {{ communityScore.maxScore }}
+        </view>
+        <!-- v0.34.0 trend-16 权重自定义 -->
+        <view class="cs-weights">
+          <view class="cs-presets">
+            <text
+              v-for="p in csPresets"
+              :key="p.key"
+              :class="['cs-preset-chip', csPresetActive(p) ? 'cs-preset-on' : '']"
+              @click="applyCsPreset(p)"
+            >{{ p.label }}</text>
+          </view>
+          <view class="cs-sliders">
+            <view class="cs-slider-row">
+              <text class="cs-slider-label">生活</text>
+              <slider
+                :value="csWeights.life"
+                min="0"
+                max="100"
+                step="5"
+                activeColor="#38bdf8"
+                backgroundColor="#334155"
+                block-size="20"
+                @change="onCsWeightChange('life', $event)"
+                class="cs-slider"
+              />
+              <text class="cs-slider-val">{{ csWeights.life }}%</text>
+            </view>
+            <view class="cs-slider-row">
+              <text class="cs-slider-label">学区</text>
+              <slider
+                :value="csWeights.school"
+                min="0"
+                max="100"
+                step="5"
+                activeColor="#22c55e"
+                backgroundColor="#334155"
+                block-size="20"
+                @change="onCsWeightChange('school', $event)"
+                class="cs-slider"
+              />
+              <text class="cs-slider-val">{{ csWeights.school }}%</text>
+            </view>
+            <view class="cs-slider-row">
+              <text class="cs-slider-label">通勤</text>
+              <slider
+                :value="csWeights.commute"
+                min="0"
+                max="100"
+                step="5"
+                activeColor="#fbbf24"
+                backgroundColor="#334155"
+                block-size="20"
+                @change="onCsWeightChange('commute', $event)"
+                class="cs-slider"
+              />
+              <text class="cs-slider-val">{{ csWeights.commute }}%</text>
+            </view>
+            <view class="muted" style="font-size: 20rpx; margin-top: 4rpx">
+              当前权重：生活 {{ csWeights.life }}% · 学区 {{ csWeights.school }}% · 通勤 {{ csWeights.commute }}%
+              <text v-if="csWeightSum !== 100" style="color: #fbbf24">
+                (自动归一化，原值总和 {{ csWeightSum }})
+              </text>
+            </view>
+          </view>
         </view>
         <view
           v-for="it in communityScore.items"
@@ -1018,6 +1082,47 @@ const districtIndex = ref<DistrictIndexResponse | null>(null);
 const districtChange = ref<DistrictChangeResponse | null>(null);
 const lifeConvenience = ref<LifeConvenienceResponse | null>(null);
 const communityScore = ref<CommunityScoreResponse | null>(null);
+// v0.34.0 trend-16: 综合评分权重自定义
+const csWeights = ref<{ life: number; school: number; commute: number }>({ life: 50, school: 30, commute: 20 });
+const csPresets: { key: string; label: string; weights: { life: number; school: number; commute: number } }[] = [
+  { key: "balanced", label: "⚖️ 均衡", weights: { life: 50, school: 30, commute: 20 } },
+  { key: "school", label: "🎓 学区", weights: { life: 20, school: 60, commute: 20 } },
+  { key: "commute", label: "🚇 通勤", weights: { life: 20, school: 20, commute: 60 } },
+  { key: "life", label: "🧭 生活", weights: { life: 70, school: 20, commute: 10 } }
+];
+const csWeightSum = computed(() => csWeights.value.life + csWeights.value.school + csWeights.value.commute);
+
+function applyCsPreset(p: { key: string; weights: { life: number; school: number; commute: number } }) {
+  csWeights.value = { ...p.weights };
+  reloadCommunityScore();
+}
+
+function csPresetActive(p: { key: string; weights: { life: number; school: number; commute: number } }): boolean {
+  return (
+    csWeights.value.life === p.weights.life &&
+    csWeights.value.school === p.weights.school &&
+    csWeights.value.commute === p.weights.commute
+  );
+}
+
+function onCsWeightChange(dim: "life" | "school" | "commute", e: any) {
+  // uni-app slider @change: e.detail.value
+  const v = typeof e === "number" ? e : e?.detail?.value ?? csWeights.value[dim];
+  csWeights.value = { ...csWeights.value, [dim]: Number(v) };
+  reloadCommunityScore();
+}
+
+async function reloadCommunityScore() {
+  try {
+    communityScore.value = await getCommunityScoreRank({
+      cityId: app.cityId,
+      topN: 8,
+      weights: csWeights.value
+    });
+  } catch (e) {
+    console.warn("getCommunityScoreRank failed:", e);
+  }
+}
 const schoolPremiumOverview = ref<SchoolPremiumOverview | null>(null);
 const schoolPremiumCommunityItems = ref<SchoolPremiumCommunityItem[]>([]);
 // v0.26.0 trend-11: 过滤 + 排序 controls
@@ -1362,7 +1467,8 @@ async function loadRankingAndDistrict() {
       try {
         communityScore.value = await getCommunityScoreRank({
           cityId: app.cityId,
-          topN: 8
+          topN: 8,
+          weights: csWeights.value
         });
       } catch (e) {
         console.warn("getCommunityScoreRank failed:", e);
@@ -2855,6 +2961,53 @@ onShow(async () => {
 .cs-summary {
   font-size: 22rpx;
   margin-bottom: 8rpx;
+}
+.cs-weights {
+  background: #0f172a;
+  border-radius: 8rpx;
+  padding: 10rpx 12rpx;
+  margin-bottom: 12rpx;
+}
+.cs-presets {
+  display: flex;
+  gap: 8rpx;
+  margin-bottom: 12rpx;
+  flex-wrap: wrap;
+}
+.cs-preset-chip {
+  font-size: 22rpx;
+  padding: 6rpx 14rpx;
+  border-radius: 999rpx;
+  background: #1e293b;
+  color: #cbd5e1;
+  border: 1rpx solid #334155;
+}
+.cs-preset-on {
+  background: #38bdf8;
+  color: #0f172a;
+  border-color: #38bdf8;
+  font-weight: 600;
+}
+.cs-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 4rpx;
+}
+.cs-slider-label {
+  font-size: 22rpx;
+  color: #94a3b8;
+  min-width: 60rpx;
+}
+.cs-slider {
+  flex: 1;
+}
+.cs-slider-val {
+  font-size: 22rpx;
+  color: #e2e8f0;
+  min-width: 60rpx;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 .cs-row {
   display: flex;
