@@ -1216,4 +1216,49 @@ describe("build integrity", () => {
       expect(content).toMatch(/loadDistrictCompare\(name\)/);
     });
   });
+
+  // --------------------------------------------------------------
+  // v0.21.0 map-7: 价格热力升级 (5 档分位 + legend)
+  // --------------------------------------------------------------
+  describe("v0.21.0 价格热力升级", () => {
+    it("map-view.vue 含 priceColorRamp5 5 档分位函数", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/map-view/map-view.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/function priceColorRamp5/);
+    });
+
+    it("map-view.vue 含 priceBuckets computed (legend)", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/map-view/map-view.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/priceBuckets = computed/);
+    });
+
+    it("map-view.vue 含 cityAvgPrice computed (城市均价)", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/map-view/map-view.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/cityAvgPrice = computed/);
+    });
+
+    it("map-view.vue 渲染「🎨 价格分位图例」卡片", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/map-view/map-view.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/价格分位图例/);
+    });
+
+    it("map-view.vue heatCircles 在 price 模式用 5 档分位", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/map-view/map-view.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/priceColorRamp5\(tPrice\)/);
+    });
+  });
 });

@@ -41,6 +41,34 @@ async function run() {
       throw new Error(`legend 未切到成交价模式: ${legend}`);
     }
     console.log("[price] legend 切到成交价 ✓");
+
+    // v0.21.0: 验证「价格分位图例」卡片
+    await page.waitForTimeout(800);
+    const legendCard = page.locator("text=价格分位图例").first();
+    await legendCard.waitFor({ timeout: 5000 });
+    const legendRows = await page.locator(".legend-row").count();
+    console.log(`[price] 价格分位图例行数: ${legendRows}`);
+    if (legendRows < 5) {
+      throw new Error(`价格分位图例行数应 >= 5, 实际 ${legendRows}`);
+    }
+    // 验证有「最便宜」和「最贵」
+    const cheapestText = await page.locator("text=最便宜").count();
+    const priciestText = await page.locator("text=最贵").count();
+    if (cheapestText < 1 || priciestText < 1) {
+      throw new Error(`图例应包含「最便宜」「最贵」分位`);
+    }
+    // 验证有 swatch + 城市均价
+    const swatchCount = await page.locator(".legend-swatch").count();
+    console.log(`[price] swatch 数: ${swatchCount}`);
+    if (swatchCount < 5) {
+      throw new Error(`图例 swatch 应 >= 5, 实际 ${swatchCount}`);
+    }
+    const cityAvgText = await page.locator("text=城市均价").count();
+    if (cityAvgText < 1) {
+      throw new Error(`图例应包含「城市均价」汇总`);
+    }
+    console.log("[price] 价格分位图例 ✓ (5 档 + 城市均价)");
+
     await page.screenshot({
       path: resolve(OUT_DIR, "smoke_price_heatmap.png"),
       fullPage: true
