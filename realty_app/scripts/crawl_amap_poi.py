@@ -44,14 +44,22 @@ POI_KINDS = [
     ("mall",      "商场"),
     ("park",      "公园"),
 ]
-RADIUS_M = 1500
+# 不同类别不同半径：医院通常较远（关外 / 新区）；地铁/学校/商场/公园 1.5km 足
+POI_RADIUS_M = {
+    "subway": 1500,
+    "school": 1500,
+    "hospital": 3000,  # v0.6.0 扩半径
+    "mall": 1500,
+    "park": 1500,
+}
+DEFAULT_RADIUS_M = 1500
 TOP = 5  # 给 5 个，UI 可只读最近 3
 
 
-def call_around(keywords: str, location: str, key: str) -> list[dict]:
+def call_around(keywords: str, location: str, key: str, radius: int) -> list[dict]:
     qs = "&".join(f"{k}={urllib.parse.quote_plus(str(v))}" for k, v in {
         "key": key, "keywords": keywords, "location": location,
-        "radius": RADIUS_M, "offset": TOP, "extensions": "base",
+        "radius": radius, "offset": TOP, "extensions": "base",
     }.items())
     url = f"{API_BASE}/v3/place/around?{qs}"
     last_err = None
@@ -91,8 +99,9 @@ def fetch_for_community(community: dict, key: str) -> list[dict]:
     loc = f"{float(community['lng']):.6f},{float(community['lat']):.6f}"
     rows = []
     for cat, kw in POI_KINDS:
+        radius = POI_RADIUS_M.get(cat, DEFAULT_RADIUS_M)
         try:
-            pois = call_around(kw, loc, key)
+            pois = call_around(kw, loc, key, radius)
         except Exception as e:
             print(f"    [warn] {community['community_name']} {kw}: {e}")
             continue

@@ -119,6 +119,26 @@ export interface LocalPoi {
   address: string;
 }
 
+/**
+ * 医院清单（`scripts/seed_hospitals.py` + `crawl_amap_hospital.py`）。
+ * 与 schools.csv 类似的扁平表，用于：
+ *  - 城市/区/医院等级/类型的筛选
+ *  - listing/community 详情展示"周边医院 Top N"
+ */
+export interface LocalHospital {
+  hospitalId: number;
+  cityId: number;
+  officialName: string;
+  displayName: string | null;
+  hospitalType: string | null;
+  hospitalLevel: "三甲" | "三级" | "二甲" | "二级" | "其他" | null;
+  districtName: string | null;
+  address: string | null;
+  lat: number | null;
+  lng: number | null;
+  keyFlag: boolean | null;
+}
+
 export interface DataSnapshot {
   importedAt: string;
   source: string;
@@ -129,6 +149,8 @@ export interface DataSnapshot {
   listings: LocalListing[];
   /** v0.4.2: 高德周边 POI (community_id × poi_category) */
   pois: LocalPoi[];
+  /** v0.6.0: 医院清单 */
+  hospitals: LocalHospital[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

@@ -15,6 +15,7 @@ import type {
   LocalCity,
   LocalCommunity,
   LocalDailyWangqianRow,
+  LocalHospital,
   LocalListing,
   LocalPoi,
   LocalSchool,
@@ -161,6 +162,27 @@ export function getTopPoisByCategory(
   return getPoisByCommunity(communityId)
     .filter((p) => p.poiCategory === category)
     .slice(0, limit);
+}
+
+/**
+ * 医院清单 (v0.6.0+)
+ */
+export function getHospitals(): LocalHospital[] {
+  return snapshot?.hospitals ?? [];
+}
+
+export function getHospitalsByCity(cityId: number): LocalHospital[] {
+  return (snapshot?.hospitals ?? []).filter((h) => h.cityId === cityId);
+}
+
+export function getHospitalById(hospitalId: number): LocalHospital | undefined {
+  return snapshot?.hospitals.find((h) => h.hospitalId === hospitalId);
+}
+
+export function getHospitalsByDistrict(cityId: number, districtName: string): LocalHospital[] {
+  return (snapshot?.hospitals ?? []).filter(
+    (h) => h.cityId === cityId && h.districtName === districtName
+  );
 }
 
 export function getAvailableWeeks(cityId?: number): { weekStartDate: string; weekEndDate: string }[] {

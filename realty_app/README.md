@@ -6,6 +6,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v0.6.0 | 2026-07-12 | 医院清单：手填深广珠 50 家三甲+二甲 → `hospitals.csv`；新增 `seed_hospitals.py` / `crawl_amap_hospital.py`（高德 POI 校验）；`crawl_amap_poi.py` hospital 半径 1500→3000m；listing/community 页新增 "周边医院" 卡片（等级/类型/区） |
 | v0.5.0 | 2026-07-12 | Option A 政府开放数据：拉 `modood/Administrative-divisions-of-China` 得 23 条官方区名做 `admin_districts.csv`；`schools.csv` 14→58 条；新增 `import_admin_divisions.py` / `validate_districts.py` / `seed_schools.py` |
 | v0.4.3 | 2026-07-12 | 把 v0.4.1 POI 真数据集成到 listing-detail + community 页（5 类周边配套卡片） |
 | v0.4.2 | 2026-07-12 | 接链家 xiaoqu 列表页真小区（深圳 +29 个，5.7× POI）+ 把链家 listings 的 community_id 由 0 轮询关联到 39 个深圳小区 |
@@ -479,6 +480,29 @@ gh auth setup-git
   - 地铁规划、房价指数细化、宏观指标 → 推迟到 v0.6 / v0.7 / v0.8
 - **验证**：131/131 单测过；type-check clean；smoke_admin / smoke_enrich / smoke_poi 全绿；dashboard + listings + 深圳主页 UI 未崩
 - 详见 [changelog/2026-07-12-v0.5.0-行政标准化+学校扩充.md](./changelog/2026-07-12-v0.5.0-行政标准化+学校扩充.md)
+
+### v0.6.0 (2026-07-12) — 医院清单 + UI 集成
+
+- **数据**
+  - 新增 `static/seed/hospitals.csv`：手填深广珠 **50 家**三甲+二甲（深圳 25 / 广州 19 / 珠海 6）
+  - 新增 `static/seed/hospitals_geo.csv`：高德 POI 校验（high=4 / medium=24 / low=22）
+  - `poi_seed.csv` hospital 类：113 → 143 行（半径 1500m → 3000m）
+- **脚本**
+  - `scripts/seed_hospitals.py` — 手填 50 条（深广珠三甲+二甲）
+  - `scripts/crawl_amap_hospital.py` — 高德 text 搜索校验 + haversine 距离打分
+  - `crawl_amap_poi.py` 调整：POI_RADIUS_M 字典，hospital=3000m，其他=1500m
+- **代码**
+  - `LocalHospital` / `getCommunityHospitals` / 5km + 同区兜底逻辑
+  - `listing-detail.vue` + `community.vue` 新增 "周边医院" 卡片（5 类色码等级标签）
+  - `settings.vue` csv-url 模式拉 hospitals.csv
+- **测试**
+  - `tests/buildIntegrity.test.ts` +9 用例（hospitals.csv / geo.csv / 三城覆盖 / 三甲 / 经纬度 / poi_seed 医院类）
+  - `tests/e2e/smoke_hospital.mjs`（新）— 验证 listing 1227 + community 24 显示医院
+- **不做**
+  - `46319943/3AHospital` — 太旧（2020 最后更新）
+  - `wjw.sz.gov.cn` appkey 申请 — 流程长
+- **验证**：140/140 单测过（+9 buildIntegrity）；type-check clean；smoke_hospital / smoke_poi / smoke_enrich / smoke_admin 全绿
+- 详见 [changelog/2026-07-12-v0.6.0-医院清单.md](./changelog/2026-07-12-v0.6.0-医院清单.md)
 
 ## License
 

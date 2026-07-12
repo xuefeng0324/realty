@@ -27,6 +27,9 @@ import listingsCSV from "../../static/seed/listings.csv?raw";
 // v0.4.2 POI
 // @ts-ignore
 import poisCSV from "../../static/seed/poi_seed.csv?raw";
+// v0.6.0 医院清单
+// @ts-ignore
+import hospitalsCSV from "../../static/seed/hospitals.csv?raw";
 
 let cached: DataSnapshot | null = null;
 
@@ -40,7 +43,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       schoolsCSV: String(schoolsCSV ?? ""),
       schoolIndicatorsCSV: String(schoolIndicatorsCSV ?? ""),
       listingsCSV: String(listingsCSV ?? ""),
-      poisCSV: String(poisCSV ?? "")
+      poisCSV: String(poisCSV ?? ""),
+      hospitalsCSV: String(hospitalsCSV ?? "")
     },
     "seed:public-derived"
   );

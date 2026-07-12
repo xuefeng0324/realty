@@ -95,6 +95,26 @@
         </view>
       </view>
 
+      <!-- 周边医院 (v0.6.0+) -->
+      <view v-if="hospitals.length > 0" class="card">
+        <view class="card-title">周边医院（5km 内 {{ hospitals.length }} 家）</view>
+        <view
+          v-for="(h, idx) in hospitals"
+          :key="idx"
+          class="hosp-row"
+        >
+          <view class="hosp-main">
+            <text class="hosp-name">{{ h.official_name }}</text>
+            <view class="hosp-tags">
+              <text v-if="h.hospital_level" class="hosp-level" :class="'lvl-' + (h.hospital_level || '其他')">{{ h.hospital_level }}</text>
+              <text v-if="h.hospital_type" class="hosp-type">{{ h.hospital_type }}</text>
+              <text v-if="h.district_name" class="muted">{{ h.district_name }}</text>
+            </view>
+          </view>
+          <text class="muted">{{ h.distance_m != null ? formatDistance(h.distance_m) : "-" }}</text>
+        </view>
+      </view>
+
       <!-- 优/缺点 Top 标签 -->
       <view v-if="tags" class="card">
         <view class="card-title">优点 Top {{ tags.advantages.length }}</view>
@@ -167,9 +187,10 @@ import {
   getQualitySummary,
   getTopTags,
   filterListings,
-  getCommunityPois
+  getCommunityPois,
+  getCommunityHospitals
 } from "../../local/queries";
-import type { PoiCategory, PoiItem } from "../../local/queries";
+import type { PoiCategory, PoiItem, HospitalItem } from "../../local/queries";
 import type {
   ListingItem,
   PriceTrendItem,
@@ -195,6 +216,7 @@ const tags = ref<TopTagsResponse | null>(null);
 const listings = ref<ListingItem[]>([]);
 const listingsTotal = ref<number>(0);
 const pois = ref<PoiItem[]>([]);
+const hospitals = ref<HospitalItem[]>([]);
 
 const POI_GROUPS: PoiCategory[] = ["subway", "school", "hospital", "mall", "park"];
 
@@ -296,6 +318,13 @@ async function loadAll() {
     pois.value = r.items;
   } catch {
     pois.value = [];
+  }
+  // 周边医院 (v0.6.0+)
+  try {
+    const h = await getCommunityHospitals({ communityId: communityId.value });
+    hospitals.value = h.items;
+  } catch {
+    hospitals.value = [];
   }
 }
 
@@ -494,6 +523,56 @@ onMounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* 周边医院 (v0.6.0) */
+.hosp-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 10rpx 0;
+  border-bottom: 1rpx solid #1f2937;
+}
+.hosp-row:last-child {
+  border-bottom: none;
+}
+.hosp-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  min-width: 0;
+}
+.hosp-name {
+  font-size: 26rpx;
+  color: #f3f4f6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hosp-tags {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex-wrap: wrap;
+  font-size: 22rpx;
+}
+.hosp-level {
+  padding: 2rpx 8rpx;
+  border-radius: 6rpx;
+  font-weight: 600;
+  color: #fff;
+}
+.hosp-level.lvl-三甲 { background: #dc2626; }
+.hosp-level.lvl-三级 { background: #ea580c; }
+.hosp-level.lvl-二甲 { background: #ca8a04; }
+.hosp-level.lvl-二级 { background: #65a30d; }
+.hosp-level.lvl-其他 { background: #6b7280; }
+.hosp-type {
+  color: #93c5fd;
+  background: #1e3a8a;
+  padding: 2rpx 6rpx;
+  border-radius: 4rpx;
 }
 
 .listing-main {

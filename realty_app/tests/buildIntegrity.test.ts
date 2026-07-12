@@ -262,6 +262,76 @@ describe("build integrity", () => {
     });
   });
 
+  describe("医院清单完整性（v0.6.0）", () => {
+    const hospitalsPath = resolve(ROOT, "static/seed/hospitals.csv");
+    const hospitalsGeoPath = resolve(ROOT, "static/seed/hospitals_geo.csv");
+
+    it("存在 hospitals.csv（seed_hospitals.py 输出）", () => {
+      expect(existsSync(hospitalsPath)).toBe(true);
+    });
+
+    it("hospitals.csv 行数 ≥ 50（深广珠三甲+二甲）", () => {
+      if (!existsSync(hospitalsPath)) return;
+      const rows = readCsv(hospitalsPath);
+      expect(rows.length).toBeGreaterThanOrEqual(50);
+    });
+
+    it("hospitals.csv 三城覆盖：深圳 ≥ 20 / 广州 ≥ 15 / 珠海 ≥ 5", () => {
+      if (!existsSync(hospitalsPath)) return;
+      const rows = readCsv(hospitalsPath);
+      const sz = rows.filter((r) => r.city_id === "2").length;
+      const gz = rows.filter((r) => r.city_id === "1").length;
+      const zh = rows.filter((r) => r.city_id === "3").length;
+      expect(sz).toBeGreaterThanOrEqual(20);
+      expect(gz).toBeGreaterThanOrEqual(15);
+      expect(zh).toBeGreaterThanOrEqual(5);
+    });
+
+    it("hospitals.csv 至少 30 条是三甲", () => {
+      if (!existsSync(hospitalsPath)) return;
+      const rows = readCsv(hospitalsPath);
+      const top = rows.filter((r) => r.hospital_level === "三甲").length;
+      expect(top).toBeGreaterThanOrEqual(30);
+    });
+
+    it("hospitals.csv 的 lat/lng 在中国境内（lat 3-54, lng 73-135）", () => {
+      if (!existsSync(hospitalsPath)) return;
+      const rows = readCsv(hospitalsPath);
+      const bad = rows.filter((r) => {
+        const lat = Number(r.lat);
+        const lng = Number(r.lng);
+        return Number.isNaN(lat) || Number.isNaN(lng) || lat < 3 || lat > 54 || lng < 73 || lng > 135;
+      });
+      expect(bad.length).toBe(0);
+    });
+
+    it("存在 hospitals_geo.csv（高德校验输出）", () => {
+      expect(existsSync(hospitalsGeoPath)).toBe(true);
+    });
+
+    it("hospitals_geo.csv 行数 == hospitals.csv 行数", () => {
+      if (!existsSync(hospitalsPath) || !existsSync(hospitalsGeoPath)) return;
+      const h = readCsv(hospitalsPath);
+      const hg = readCsv(hospitalsGeoPath);
+      expect(hg.length).toBe(h.length);
+    });
+
+    it("hospitals_geo.csv 至少 4 条 confidence=high", () => {
+      if (!existsSync(hospitalsGeoPath)) return;
+      const rows = readCsv(hospitalsGeoPath);
+      const high = rows.filter((r) => r.confidence === "high").length;
+      expect(high).toBeGreaterThanOrEqual(4);
+    });
+
+    it("poi_seed.csv 医院类 (hospital) 行数 ≥ 100（v0.6.0 扩 3km 半径）", () => {
+      const poiPath = resolve(ROOT, "static/seed/poi_seed.csv");
+      if (!existsSync(poiPath)) return;
+      const rows = readCsv(poiPath);
+      const hospitals = rows.filter((r) => r.poi_category === "hospital");
+      expect(hospitals.length).toBeGreaterThanOrEqual(100);
+    });
+  });
+
   describe("CI 必装文件", () => {
     it("存在 tests/e2e/smoke.mjs", () => {
       expect(existsSync(resolve(ROOT, "tests/e2e/smoke.mjs"))).toBe(true);

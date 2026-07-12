@@ -655,6 +655,154 @@ export async function getCommunityPois(params: { communityId: number }): Promise
   };
 }
 
+// ---------- 医院 (v0.6.0+) ----------
+export interface HospitalItem {
+  hospital_id: number;
+  official_name: string;
+  display_name: string | null;
+  hospital_type: string | null;
+  hospital_level: "三甲" | "三级" | "二甲" | "二级" | "其他" | null;
+  district_name: string | null;
+  address: string | null;
+  lat: number | null;
+  lng: number | null;
+  key_flag: boolean | null;
+  distance_m: number | null;
+}
+
+export interface CommunityHospitalsResponse {
+  community_id: number;
+  /** 半径（米）；默认 3000 = poi_seed.csv hospital 类的搜索半径 */
+  radius_m: number;
+  items: HospitalItem[];
+}
+
+/** 计算两点球面距离（米） */
+function haversineM(lng1: number, lat1: number, lng2: number, lat2: number): number {
+  const R = 6371000.0;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+/**
+ * 取某小区附近 N 个医院（按距离升序）
+ * 数据源：
+ *   1) hospitals.csv 中该 city 的所有医院（按 lat/lng 与小区距离过滤）
+ *   2) poi_seed.csv 中 poi_category=hospital 的 POI（按 community_id 直接拿）
+ * 两者合并去重，按距离排序。
+ *
+ * 半径默认 5000m（5km），覆盖大部分城市的"几公里内"语义。
+ * 如果半径内不足 limit 个，会放宽到同 district_name 的医院补足。
+ */
+export async function getCommunityHospitals(
+  params: { communityId: number; limit?: number; radiusM?: number }
+): Promise<CommunityHospitalsResponse> {
+  const limit = params.limit ?? 5;
+  const radius = params.radiusM ?? 5000;
+  const community = store.getCommunityById(params.communityId);
+  if (!community) {
+    return { community_id: params.communityId, radius_m: radius, items: [] };
+  }
+
+  // 找小区经纬度
+  const poisForC = store.getPoisByCommunity(params.communityId);
+  const firstPoi = poisForC[0];
+  let cLng: number | null = firstPoi?.lng ?? null;
+  let cLat: number | null = firstPoi?.lat ?? null;
+  if (cLng == null || cLat == null) {
+    return { community_id: params.communityId, radius_m: radius, items: [] };
+  }
+
+  const cityHospitals = store.getHospitalsByCity(community.cityId);
+  const seen = new Set<string>();
+  const merged: HospitalItem[] = [];
+
+  // 1) 半径内
+  for (const h of cityHospitals) {
+    if (h.lat == null || h.lng == null) continue;
+    const dist = haversineM(cLng, cLat, h.lng, h.lat);
+    if (dist > radius) continue;
+    const key = `h-${h.hospitalId}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    merged.push({
+      hospital_id: h.hospitalId,
+      official_name: h.officialName,
+      display_name: h.displayName,
+      hospital_type: h.hospitalType,
+      hospital_level: h.hospitalLevel,
+      district_name: h.districtName,
+      address: h.address,
+      lat: h.lat,
+      lng: h.lng,
+      key_flag: h.keyFlag,
+      distance_m: Math.round(dist)
+    });
+  }
+
+  // 2) poi_seed hospital 类（更精确）
+  const poiHospitals = store
+    .getPoisByCommunity(params.communityId)
+    .filter((p) => p.poiCategory === "hospital");
+  for (const p of poiHospitals) {
+    const key = `p-${p.poiName}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    merged.push({
+      hospital_id: -p.poiRank - params.communityId * 1000,
+      official_name: p.poiName,
+      display_name: null,
+      hospital_type: p.poiType,
+      hospital_level: null,
+      district_name: null,
+      address: p.address,
+      lat: p.lat,
+      lng: p.lng,
+      key_flag: null,
+      distance_m: p.distanceM
+    });
+  }
+
+  // 3) 兜底：若还不够 limit 个，放宽到同 district_name 的医院（不限半径）
+  if (merged.length < limit && community.districtName) {
+    const inDistrict = cityHospitals.filter(
+      (h) => h.districtName === community.districtName && !seen.has(`h-${h.hospitalId}`)
+    );
+    for (const h of inDistrict) {
+      if (h.lat == null || h.lng == null) continue;
+      const dist = haversineM(cLng, cLat, h.lng, h.lat);
+      const key = `h-${h.hospitalId}`;
+      seen.add(key);
+      merged.push({
+        hospital_id: h.hospitalId,
+        official_name: h.officialName,
+        display_name: h.displayName,
+        hospital_type: h.hospitalType,
+        hospital_level: h.hospitalLevel,
+        district_name: h.districtName,
+        address: h.address,
+        lat: h.lat,
+        lng: h.lng,
+        key_flag: h.keyFlag,
+        distance_m: Math.round(dist)
+      });
+      if (merged.length >= limit * 2) break;
+    }
+  }
+
+  merged.sort((a, b) => (a.distance_m ?? 1e18) - (b.distance_m ?? 1e18));
+  return {
+    community_id: params.communityId,
+    radius_m: radius,
+    items: merged.slice(0, limit)
+  };
+}
+
 // ---------- helpers ----------
 function avg(arr: number[]): number | null {
   if (arr.length === 0) return null;

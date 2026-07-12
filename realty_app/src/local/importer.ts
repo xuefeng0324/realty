@@ -19,6 +19,7 @@ import type {
   DataSnapshot,
   LocalCity,
   LocalCommunity,
+  LocalHospital,
   LocalListing,
   LocalPoi,
   LocalSchool,
@@ -26,6 +27,7 @@ import type {
 } from "./types";
 
 const POI_CATEGORIES = new Set(["subway", "school", "hospital", "mall", "park"]);
+const HOSPITAL_LEVELS = new Set(["三甲", "三级", "二甲", "二级", "其他"]);
 
 function n(v: string | undefined): number | null {
   if (v == null) return null;
@@ -55,6 +57,8 @@ export interface SnapshotInputs {
   listingsCSV: string;
   /** v0.4.2: 高德 POI (可选，缺则装空数组) */
   poisCSV?: string;
+  /** v0.6.0: 医院清单 (可选，缺则装空数组) */
+  hospitalsCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -156,6 +160,31 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
         .filter((p): p is LocalPoi => p !== null)
     : [];
 
+  // 医院清单 (v0.6.0+): 可选
+  const hospitals: LocalHospital[] = inputs.hospitalsCSV
+    ? rowsToObjects<Record<string, string>>(parseCSV(inputs.hospitalsCSV))
+        .map((r) => {
+          const hid = n(r.hospital_id);
+          const cid = n(r.city_id);
+          if (hid == null || cid == null) return null;
+          const lvl = s(r.hospital_level);
+          return {
+            hospitalId: hid,
+            cityId: cid,
+            officialName: s(r.official_name) ?? "",
+            displayName: s(r.display_name),
+            hospitalType: s(r.hospital_type),
+            hospitalLevel: lvl && HOSPITAL_LEVELS.has(lvl) ? (lvl as LocalHospital["hospitalLevel"]) : null,
+            districtName: s(r.district_name),
+            address: s(r.address),
+            lat: n(r.lat),
+            lng: n(r.lng),
+            keyFlag: b(r.key_flag)
+          } as LocalHospital;
+        })
+        .filter((h): h is LocalHospital => h !== null)
+    : [];
+
   // 聚合可用周：基于 listings 的 crawl_date
   const weekEnds = new Set<string>();
   for (const l of listings) {
@@ -177,6 +206,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     schoolIndicators,
     listings,
     pois,
+    hospitals,
     availableWeeks
   };
 }

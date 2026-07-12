@@ -31,6 +31,12 @@
 | 🟡 C | enrich-2 | ~~重跑 geo/poi 让新小区获经纬度 + POI~~ | ✅ v0.4.2 | 23 → 49 个小区都过一遍 |
 | 🟡 C | enrich-3 | ~~把 listings 的 community_id 指向新小区~~ | ✅ v0.4.2 | 60 条链家 listings 用 round-robin 关联到 39 个深圳小区 |
 | 🟡 C | enrich-4 | ~~跑单测 + Playwright UI 验证 + commit v0.5.0~~ | ✅ v0.4.2 | 131/131 通过；smoke_enrich / smoke_community 都绿 |
+| 🟡 D | hosp-1 | 手填 50 家深广珠三甲+二甲医院清单 | ✅ v0.6.0 | hospitals.csv 50 条（深圳 25 / 广州 19 / 珠海 6） |
+| 🟡 D | hosp-2 | 高德 POI 校验医院经纬度 | ✅ v0.6.0 | hospitals_geo.csv；high=4 / medium=24 / low=22 |
+| 🟡 D | hosp-3 | poi_seed.csv hospital 半径 1.5 → 3 km | ✅ v0.6.0 | 113 → 143 行 |
+| 🟡 D | hosp-4 | local 层 + queries 加 LocalHospital / getCommunityHospitals | ✅ v0.6.0 | 5km + 同区兜底 |
+| 🟡 D | hosp-5 | UI listing/community 加"周边医院"卡片（等级色码） | ✅ v0.6.0 | 5 类色码（三甲=红 / 三级=橙 / 二甲=黄 / 二级=绿） |
+| 🟡 D | hosp-6 | buildIntegrity + smoke_hospital + commit v0.6.0 | ✅ v0.6.0 | 140/140 通过 |
 | 🟡 B | ui-poi-1 | ~~listing-detail.vue 集成 POI 卡片~~ | ✅ v0.4.3 | 5 类齐全（地铁/学校/医院/商场/公园）+ 距离 |
 | 🟡 B | ui-poi-2 | ~~community.vue 集成 POI 完整清单~~ | ✅ v0.4.3 | 跟 listing 平行，列表 + 最近距离 |
 | 🟡 B | ui-poi-3 | ~~跑单测 + Playwright 验证 + commit v0.5.1~~ | ✅ v0.4.3 | smoke_poi 验证 listing 1227 + community 24 |
@@ -90,3 +96,4 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 - 2026-07-12 17:00：C 完成 → v0.4.2（链家 xiaoqu + listings 关联）
 - 2026-07-12 17:45：B 完成 → v0.4.3（POI 集成 UI）
 - 2026-07-12 18:48：A 完成 → v0.5.0（行政标准化 + 学校扩充）
+- 2026-07-12 19:20：D 完成 → v0.6.0（医院清单 + UI 集成）
