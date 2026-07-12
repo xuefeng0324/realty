@@ -152,6 +152,7 @@ function mergeListingsIntoSnapshot(
     listingSchoolPremia: existing?.listingSchoolPremia ?? [],
     communityCommercials: existing?.communityCommercials ?? [],
     commutes: existing?.commutes ?? [],
+    layoutDistributions: existing?.layoutDistributions ?? [],
     availableWeeks
   };
 }

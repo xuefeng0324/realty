@@ -17,6 +17,7 @@
 | v0.22.0 | 2026-07-12 | map-view POI 模式聚合：复用 cluster.ts 每类单独 grid 聚合 (避免 5 类 POI 混合)，678 总 POI → zoom 11 显示 < 100 marker；单 POI = 彩色 emoji 圆图标，聚合 = 带数字气泡；click 聚合自动放大；5 单测 + smoke_poi_overlay 扩展 |
 | v0.23.0 | 2026-07-12 | dashboard 新增「🔥 全品类区级网签热度榜」卡，3 tab 切换 (新房/二手/全部)，Top 10 + 横柱 + 套/天；数据源 wangqian_district_weekly.csv (66 行)；5 单测 + smoke_district_wangqian_rank E2E |
 | v0.24.0 | 2026-07-12 | dashboard 新增「🚇 通勤时长榜」卡，community → 城市 CBD (深圳福田CBD/广州珠江新城) 公交通勤 Top 10；高德 /v3/direction/transit/integrated API，38 行 commute.csv；城市均值 + 分钟 badge (绿/灰/红) 颜色编码；8 单测 + smoke_commute E2E |
+| v0.25.0 | 2026-07-13 | dashboard 新增「🏠 户型分布」卡，4 维度 (户型/面积/朝向/装修) 各 bucket 占比条形图；compute_layout_distribution.py 聚合 listings.csv (54 行)；10 单测 + smoke_layout E2E (3 城市 × 4 维度) |
 | v0.13.0 | 2026-07-12 | map-view 第四种模式「POI overlay」：把 poi_seed.csv 的 5 类 POI (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园) 画到地图上 (每类最多 25 marker)；5 类 toggle 自由开关；POI info-card 显示名称 + 类型 + 距离 + 所属小区 |
 | v0.12.0 | 2026-07-12 | map-view 第三种模式「成交价热力」：圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵），半径仍按挂牌数；info-card 新增「价位」5 档标签（便宜/中低/中等/中高/昂贵，色码化）；mode 由 boolean → `MapMode = "count" \| "price" \| "listings"` |
 | v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |
@@ -844,6 +845,21 @@ gh auth setup-git
 - `scripts/crawl_amap_commute.py` 38 次 API 调用 (深圳 30 + 广州 8)
 - **验证**：269/269 单测过 (+8), type-check clean, 23/23 smoke 全绿
 - 详见 [changelog/2026-07-12-v0.24.0-通勤时长.md](./changelog/2026-07-12-v0.24.0-通勤时长.md)
+
+### v0.25.0 - 户型分布 (2026-07-13)
+
+dashboard 新增「🏠 户型分布 · {城市}」卡，按 4 维度统计在售房源分布：
+
+- **户型** (1室/2室/3室/4室/5室+)：基于 `listings.csv.bedrooms`
+- **面积 (㎡)** (<50/50-80/80-110/110-150/150+)：基于 `area_sqm`
+- **朝向** (南/东南/南北通透/西南/西/东/北...)：基于 `orientation` (合并 南北 → 南北通透)
+- **装修** (精装/豪装/普装/简装/毛坯)：基于 `decorate_type`
+
+每个 bucket 显示：bucket 名 + 条形比例 + 房源数 + 占比。3 城市合计 54 行（深圳 27 行 / 广州 13 行 / 珠海 14 行）。
+
+数据流：`compute_layout_distribution.py` 聚合 `listings.csv` → `layout_distribution.csv` → importer → store → queries → dashboard UI。
+BOM 修复：`tests/buildIntegrity.test.ts` 的 `readCsv` 增强支持去除 BOM。
+详见 [changelog/2026-07-13-v0.25.0-户型分布.md](./changelog/2026-07-13-v0.25.0-户型分布.md)
 
 ## License
 

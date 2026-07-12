@@ -19,6 +19,7 @@ import type {
   LocalDailyWangqianRow,
   LocalDistrictTrend,
   LocalHospital,
+  LocalLayoutDistribution,
   LocalListing,
   LocalListingSchoolPremium,
   LocalMetroLine,
@@ -303,6 +304,17 @@ export function getCommutesByCity(cityId: number): LocalCommute[] {
 
 export function getCommuteByCommunity(communityId: number): LocalCommute | null {
   return (snapshot?.commutes ?? []).find((c) => c.communityId === communityId) ?? null;
+}
+
+/**
+ * v0.25.0: 户型/面积/朝向/装修分布 (全量 + 按城市过滤)
+ */
+export function getLayoutDistributions(): LocalLayoutDistribution[] {
+  return snapshot?.layoutDistributions ?? [];
+}
+
+export function getLayoutDistributionsByCity(cityId: number): LocalLayoutDistribution[] {
+  return (snapshot?.layoutDistributions ?? []).filter((l) => l.cityId === cityId);
 }
 
 /**

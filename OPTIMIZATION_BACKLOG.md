@@ -182,6 +182,15 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟡 L | new-5 | data layer + dashboard '通勤时长' 卡 + 行可点 | ✅ v0.24.0 | 分钟 badge (绿/灰/红) 颜色编码 |
 | 🟡 L | new-5 | buildIntegrity +8 测试 + smoke_commute E2E + commit v0.24.0 | ✅ v0.24.0 | 269/269 通过；23/23 smoke 全绿 |
 
+## M 段补充：户型分布（v0.25.0）
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+| --- | --- | --- | --- | --- |
+| 🟢 M | new-7 | 调研 listings.csv 户型/面积/朝向/装修字段 + dashboard 现状 | ✅ v0.25.0 | 1286 listings (深圳 590 / 广州 431 / 珠海 265) |
+| 🟢 M | new-7 | compute_layout_distribution.py + layout_distribution.csv + data layer | ✅ v0.25.0 | 54 行 (4 维度聚合) |
+| 🟢 M | new-7 | dashboard '户型分布' 卡 + 4 维度条形图 + share % | ✅ v0.25.0 | BOM 修复 readCsv |
+| 🟢 M | new-7 | buildIntegrity +10 测试 + smoke_layout E2E + commit v0.25.0 | ✅ v0.25.0 | 280/280 通过；24/24 smoke 全绿 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

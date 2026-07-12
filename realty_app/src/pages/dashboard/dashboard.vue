@@ -372,6 +372,38 @@
         </view>
       </view>
 
+      <!-- v0.25.0 户型/面积/朝向/装修分布 -->
+      <view v-if="layoutDistribution && layoutDistribution.totalListings > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">🏠 户型分布 · {{ layoutDistribution.cityName }}</view>
+          <view class="muted">共 {{ layoutDistribution.totalListings }} 套</view>
+        </view>
+
+        <view v-for="dim in layoutDims" :key="dim.key" style="margin-top: 12rpx">
+          <view class="ld-dim-title">{{ dim.label }}</view>
+          <view v-if="layoutDistribution.dimensions[dim.key].length === 0" class="muted" style="font-size: 22rpx; padding: 6rpx 0">
+            无数据
+          </view>
+          <view
+            v-for="b in layoutDistribution.dimensions[dim.key]"
+            :key="dim.key + '-' + b.bucket"
+            class="ld-row"
+          >
+            <text class="ld-bucket">{{ b.bucket }}</text>
+            <view class="ld-bar-wrap">
+              <view class="ld-bar" :style="{ width: Math.round(b.share * 100) + '%' }"></view>
+            </view>
+            <text class="ld-count">{{ b.count }} 套</text>
+            <text class="ld-pct">{{ formatShare(b.share) }}</text>
+          </view>
+        </view>
+
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：listings.csv 按 (city, dimension, bucket) 聚合。
+          户型 / 面积 / 朝向 / 装修 各维度占比，条形比例代表 share。
+        </view>
+      </view>
+
       <!-- v0.11.0 学区溢价榜 -->
       <view v-if="schoolPremiumOverview && schoolPremiumOverview.items.length > 0" class="card">
         <view class="row-between">
@@ -679,7 +711,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -720,6 +752,7 @@ const districtWangqianRank = ref<DistrictWangqianRankResponse | null>(null);
 const wqRankCat = ref<"新房" | "二手" | "全部">("全部");
 // v0.24.0 new-5: 通勤时长榜
 const commuteRanking = ref<CommuteRankingResponse | null>(null);
+const layoutDistribution = ref<LayoutDistributionResponse | null>(null);
 const schoolPremiumOverview = ref<SchoolPremiumOverview | null>(null);
 const schoolPremiumCommunityItems = ref<SchoolPremiumCommunityItem[]>([]);
 const weatherResp = ref<WeatherResponse | null>(null);
@@ -1008,6 +1041,15 @@ async function loadRankingAndDistrict() {
         console.warn("getCommuteRanking failed:", e);
         commuteRanking.value = null;
       }
+      // v0.25.0 户型/面积/朝向/装修分布
+      try {
+        layoutDistribution.value = await getLayoutDistribution({
+          cityId: app.cityId
+        });
+      } catch (e) {
+        console.warn("getLayoutDistribution failed:", e);
+        layoutDistribution.value = null;
+      }
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
         cityId: app.cityId,
@@ -1225,6 +1267,20 @@ function commuteMinutesClass(minutes: number, cityAvg: number | null): string {
   if (ratio < 0.85) return "price-down";   // 绿
   if (ratio > 1.3) return "price-up";      // 红
   return "muted";                            // 灰
+}
+
+// v0.25.0 户型分布 helpers
+const layoutDims: { key: keyof LayoutDistributionResponse["dimensions"]; label: string }[] = [
+  { key: "bedrooms", label: "户型" },
+  { key: "area_sqm", label: "面积 (㎡)" },
+  { key: "orientation", label: "朝向" },
+  { key: "decorate", label: "装修" }
+];
+
+function formatShare(s: number): string {
+  if (!Number.isFinite(s)) return "—";
+  const pct = s * 100;
+  return pct >= 10 ? `${Math.round(pct)}%` : `${pct.toFixed(1)}%`;
 }
 
 // v0.16.0 weather helpers
@@ -2059,6 +2115,51 @@ onShow(async () => {
   font-size: 22rpx;
   color: #94a3b8;
   text-align: right;
+}
+
+/* v0.25.0 户型分布 */
+.ld-dim-title {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-bottom: 6rpx;
+  padding-left: 4rpx;
+}
+.ld-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 4rpx 0;
+  font-size: 22rpx;
+}
+.ld-bucket {
+  flex: 0 0 90rpx;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+.ld-bar-wrap {
+  flex: 1 1 auto;
+  height: 16rpx;
+  background: #1f2937;
+  border-radius: 8rpx;
+  overflow: hidden;
+}
+.ld-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+  border-radius: 8rpx;
+  min-width: 4rpx;
+}
+.ld-count {
+  flex: 0 0 80rpx;
+  text-align: right;
+  color: #cbd5e1;
+}
+.ld-pct {
+  flex: 0 0 80rpx;
+  text-align: right;
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
 }
 
 /* v0.10.0 网签热度榜 */

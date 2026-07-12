@@ -28,7 +28,7 @@ import type {
   SchoolFutureScoreResponse,
   CityItem
 } from "../api/contracts";
-import type { LocalListing } from "./types";
+import type { LocalLayoutDistribution, LocalListing } from "./types";
 import {
   generateWeeklySnapshot,
   type SnapshotResult
@@ -1659,5 +1659,84 @@ export async function getCommuteRanking(params: {
     fastest: items.slice(0, limit),
     cityAvgMinutes: Math.round((sum / items.length) * 10) / 10,
     totalCommunities: items.length
+  };
+}
+
+// ============================================================================
+// v0.25.0 new-7 户型/面积/朝向/装修分布
+// ============================================================================
+
+export interface LayoutBucket {
+  bucket: string;
+  count: number;
+  share: number;
+  medianUnitPrice: number | null;
+  avgAreaSqm: number | null;
+}
+
+export interface LayoutDistributionResponse {
+  cityId: number;
+  cityName: string;
+  /** 4 个维度的分布 */
+  dimensions: {
+    bedrooms: LayoutBucket[];
+    area_sqm: LayoutBucket[];
+    orientation: LayoutBucket[];
+    decorate: LayoutBucket[];
+  };
+  /** 该 city 在 listings.csv 中的总房源数 (用于 share 校验) */
+  totalListings: number;
+}
+
+const LAYOUT_DIMENSION_ORDER: Record<keyof LayoutDistributionResponse["dimensions"], string[]> = {
+  bedrooms: ["1室", "2室", "3室", "4室", "5室+", "未知"],
+  area_sqm: ["<50", "50-80", "80-110", "110-150", "150+", "未知"],
+  orientation: ["南", "东南", "南北通透", "西南", "西", "东", "北", "西北", "东北", "其他", "未知"],
+  decorate: ["精装", "豪装", "普装", "简装", "毛坯", "其他", "未知"]
+};
+
+/**
+ * 获取某城市在 4 个维度的分布。
+ * 返回的 buckets 已按 LAYOUT_DIMENSION_ORDER 排序，未出现的 bucket 不出现。
+ */
+export function getLayoutDistribution(params: {
+  cityId: number;
+}): LayoutDistributionResponse | null {
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const all = store.getLayoutDistributionsByCity(params.cityId);
+  if (all.length === 0) return null;
+  const total = all.reduce((s, b) => (b.dimension === "bedrooms" ? s + b.count : s), 0);
+
+  const pickDim = (dim: keyof LayoutDistributionResponse["dimensions"]): LayoutBucket[] => {
+    const order = LAYOUT_DIMENSION_ORDER[dim];
+    const byBucket = new Map<string, LocalLayoutDistribution>();
+    for (const r of all) {
+      if (r.dimension === dim) byBucket.set(r.bucket, r);
+    }
+    return order
+      .filter((b) => byBucket.has(b))
+      .map((b) => {
+        const x = byBucket.get(b)!;
+        return {
+          bucket: x.bucket,
+          count: x.count,
+          share: x.share,
+          medianUnitPrice: x.medianUnitPrice,
+          avgAreaSqm: x.avgAreaSqm
+        };
+      });
+  };
+
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    dimensions: {
+      bedrooms: pickDim("bedrooms"),
+      area_sqm: pickDim("area_sqm"),
+      orientation: pickDim("orientation"),
+      decorate: pickDim("decorate")
+    },
+    totalListings: total
   };
 }

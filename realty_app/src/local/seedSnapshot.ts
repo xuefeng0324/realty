@@ -61,6 +61,10 @@ import communityCommercialCSV from "../../static/seed/community_commercial.csv?r
 // @ts-ignore
 import commuteCSV from "../../static/seed/commute.csv?raw";
 
+// v0.25.0 户型分布 (scripts/compute_layout_distribution.py)
+// @ts-ignore
+import layoutDistributionCSV from "../../static/seed/layout_distribution.csv?raw";
+
 let cached: DataSnapshot | null = null;
 
 /** 拿默认快照。第一次解析后缓存。 */
@@ -84,7 +88,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       weatherCSV: String(weatherCSV ?? ""),
       listingSchoolPremiumCSV: String(listingSchoolPremiumCSV ?? ""),
       communityCommercialCSV: String(communityCommercialCSV ?? ""),
-      commuteCSV: String(commuteCSV ?? "")
+      commuteCSV: String(commuteCSV ?? ""),
+      layoutDistributionCSV: String(layoutDistributionCSV ?? "")
     },
     "seed:public-derived"
   );

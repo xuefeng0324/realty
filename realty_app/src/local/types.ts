@@ -311,6 +311,24 @@ export interface LocalCommute {
 }
 
 /**
+ * v0.25.0: 户型/面积/朝向/装修分布
+ * (scripts/compute_layout_distribution.py)
+ * 每个 row 是 (city_id, dimension, bucket) 一个聚合桶
+ */
+export interface LocalLayoutDistribution {
+  cityId: number;
+  cityName: string;
+  /** 维度：bedrooms / area_sqm / orientation / decorate */
+  dimension: "bedrooms" | "area_sqm" | "orientation" | "decorate";
+  /** bucket 名 (如 "3室", "80-110", "南北通透", "精装") */
+  bucket: string;
+  count: number;
+  share: number;
+  medianUnitPrice: number | null;
+  avgAreaSqm: number | null;
+}
+
+/**
  * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
  * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
  * 用于 dashboard 展示"区级近 N 周房价趋势"。
@@ -357,6 +375,8 @@ export interface DataSnapshot {
   communityCommercials: LocalCommunityCommercial[];
   /** v0.24.0: 通勤时长 (community → 城市 CBD 公交通勤) (scripts/crawl_amap_commute.py) */
   commutes: LocalCommute[];
+  /** v0.25.0: 户型/面积/朝向/装修分布 (scripts/compute_layout_distribution.py) */
+  layoutDistributions: LocalLayoutDistribution[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

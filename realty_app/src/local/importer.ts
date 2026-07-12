@@ -23,6 +23,7 @@ import type {
   LocalDistrictTrend,
   LocalHospital,
   LocalListing,
+  LocalLayoutDistribution,
   LocalListingSchoolPremium,
   LocalMetroLine,
   LocalMetroLineGeo,
@@ -90,6 +91,8 @@ export interface SnapshotInputs {
   communityCommercialCSV?: string;
   /** v0.24.0: 通勤时长 (可选) */
   commuteCSV?: string;
+  /** v0.25.0: 户型/面积/朝向/装修分布 (可选) */
+  layoutDistributionCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -97,6 +100,37 @@ function weekEndFromDate(iso: string): string {
   const day = d.getUTCDay();
   d.setUTCDate(d.getUTCDate() - day);
   return d.toISOString().slice(0, 10);
+}
+
+const LAYOUT_DIMS = new Set(["bedrooms", "area_sqm", "orientation", "decorate"]);
+
+function parseLayoutDistribution(csvText: string): LocalLayoutDistribution[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.city_id);
+      const dim = s(r.dimension);
+      const bucket = s(r.bucket);
+      if (cid == null || !dim || !bucket) return null;
+      if (!LAYOUT_DIMS.has(dim)) return null;
+      const count = n(r.count) ?? 0;
+      const share = Number(r.share ?? 0);
+      const numOrNull = (v: string | undefined) => {
+        if (v === undefined || v === "") return null;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : null;
+      };
+      return {
+        cityId: cid,
+        cityName: s(r.city_name) ?? "",
+        dimension: dim as LocalLayoutDistribution["dimension"],
+        bucket,
+        count,
+        share: Number.isFinite(share) ? share : 0,
+        medianUnitPrice: numOrNull(r.median_unit_price ?? undefined),
+        avgAreaSqm: numOrNull(r.avg_area_sqm ?? undefined)
+      } as LocalLayoutDistribution;
+    })
+    .filter((x): x is LocalLayoutDistribution => x !== null);
 }
 
 export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnapshot {
@@ -500,6 +534,11 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
         .filter((m): m is LocalCommute => m !== null)
     : [];
 
+  // v0.25.0 new-7: 户型/面积/朝向/装修分布
+  const layoutDistributions: LocalLayoutDistribution[] = inputs.layoutDistributionCSV
+    ? parseLayoutDistribution(inputs.layoutDistributionCSV)
+    : [];
+
   // 聚合可用周：基于 listings 的 crawl_date
   const weekEnds = new Set<string>();
   for (const l of listings) {
@@ -532,6 +571,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     listingSchoolPremia,
     communityCommercials,
     commutes,
+    layoutDistributions,
     availableWeeks
   };
 }

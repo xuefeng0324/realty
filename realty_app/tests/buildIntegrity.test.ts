@@ -24,7 +24,8 @@ const ROOT = resolve(__dirname, "..");
 
 function readCsv(p: string): Record<string, string>[] {
   // RFC4180-lite parser: 支持双引号 quoted field, 处理 "" 转义
-  const raw = readFileSync(p, "utf8");
+  let raw = readFileSync(p, "utf8");
+  if (raw.charCodeAt(0) === 0xfeff) raw = raw.slice(1);
   const lines = raw.split(/\r?\n/).filter((l) => l.length > 0);
   const parseLine = (line: string): string[] => {
     const cells: string[] = [];
@@ -1397,6 +1398,77 @@ describe("build integrity", () => {
       expect(header).toContain("cbd_name");
       expect(header).toContain("transit_minutes");
       expect(header).toContain("transit_distance_m");
+    });
+  });
+
+  // ────────────────────────────────────────────────────────────────────
+  // v0.25.0 new-7 户型/面积/朝向/装修分布
+  // ────────────────────────────────────────────────────────────────────
+  describe("v0.25.0 户型分布", () => {
+    it("layout_distribution.csv 存在且 >= 20 行", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/layout_distribution.csv"));
+      expect(rows.length).toBeGreaterThanOrEqual(20);
+    });
+
+    it("layout_distribution.csv 含 3 个 city_id (1,2,3)", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/layout_distribution.csv"));
+      const ids = new Set(rows.map((r) => r["city_id"]));
+      expect(ids.has("1")).toBe(true);
+      expect(ids.has("2")).toBe(true);
+      expect(ids.has("3")).toBe(true);
+    });
+
+    it("layout_distribution.csv 含 4 个 dimension 值", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/layout_distribution.csv"));
+      const dims = new Set(rows.map((r) => r["dimension"]));
+      expect(dims.has("bedrooms")).toBe(true);
+      expect(dims.has("area_sqm")).toBe(true);
+      expect(dims.has("orientation")).toBe(true);
+      expect(dims.has("decorate")).toBe(true);
+    });
+
+    it("queries.ts 增加 getLayoutDistribution 函数", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/export function getLayoutDistribution/);
+    });
+
+    it("queries.ts 导出 LayoutDistributionResponse 接口", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/export interface LayoutDistributionResponse/);
+    });
+
+    it("store.ts 增加 getLayoutDistributionsByCity 函数", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(content).toMatch(/export function getLayoutDistributionsByCity/);
+    });
+
+    it("types.ts 增加 LocalLayoutDistribution 接口", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(content).toMatch(/export interface LocalLayoutDistribution/);
+    });
+
+    it("types.ts DataSnapshot 增加 layoutDistributions 字段", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(content).toMatch(/layoutDistributions: LocalLayoutDistribution\[\]/);
+    });
+
+    it("importer.ts 解析 layoutDistributionCSV 输入", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(content).toMatch(/layoutDistributionCSV\?: string/);
+      expect(content).toMatch(/parseLayoutDistribution/);
+    });
+
+    it("seedSnapshot.ts 导入 layout_distribution.csv", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/seedSnapshot.ts"), "utf8");
+      expect(content).toMatch(/layout_distribution\.csv\?raw/);
+    });
+
+    it("dashboard.vue 渲染户型分布卡片", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(content).toMatch(/layoutDistribution/);
+      expect(content).toMatch(/户型分布/);
+      expect(content).toMatch(/getLayoutDistribution/);
+      expect(content).toMatch(/layoutDims/);
     });
   });
 });

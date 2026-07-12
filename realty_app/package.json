@@ -1,6 +1,6 @@
 {
   "name": "realty-app",
-  "version": "0.24.0",
+  "version": "0.25.0",
   "private": true,
   "description": "Realty Analytics 手机端 App（基于 uni-app，复用 backend FastAPI）",
   "scripts": {
