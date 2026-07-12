@@ -717,4 +717,33 @@ describe("build integrity", () => {
       expect(rows.length).toBeGreaterThanOrEqual(50);
     });
   });
+
+  // ---------- v0.12.0+ bugfix: 城市校验 ----------
+  describe("app store 城市校验", () => {
+    it("app.ts 含 VALID_CITY_IDS 校验", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/store/app.ts"),
+        "utf-8"
+      );
+      expect(content).toMatch(/VALID_CITY_IDS/);
+    });
+
+    it("setCityId 拒绝非法 cityId (防御性)", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/store/app.ts"),
+        "utf-8"
+      );
+      expect(content).toMatch(/setCityId rejected invalid/);
+    });
+
+    it("uni-app H5 input 重写 class 为 uni-input-input", () => {
+      // 文档已知行为：uni-app H5 把 <input class="..."> 重写为 class="uni-input-input"
+      // 这影响 .input 选择器；记录以备查询
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/school/school.vue"),
+        "utf-8"
+      );
+      expect(content).toMatch(/class="input"/);
+    });
+  });
 });

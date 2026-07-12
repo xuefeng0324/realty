@@ -12,8 +12,16 @@ export const useAppStore = defineStore("app", () => {
   const source = ref<string>("");
   const metric = ref<"avg_unit_price" | "listing_count">("avg_unit_price");
 
+  // 合法城市 ID 集合（深 2 / 广 1 / 珠 3）；载入时校验避免 localStorage 被脏写
+  const VALID_CITY_IDS = new Set([1, 2, 3]);
+
   const cityIdInit = uni.getStorageSync(STORAGE_KEYS.cityId);
-  if (typeof cityIdInit === "number") cityId.value = cityIdInit;
+  if (typeof cityIdInit === "number" && VALID_CITY_IDS.has(cityIdInit)) {
+    cityId.value = cityIdInit;
+  } else if (typeof cityIdInit === "number") {
+    // 无效值，清理 storage 避免下次仍出错
+    try { uni.removeStorageSync(STORAGE_KEYS.cityId); } catch (_) {}
+  }
 
   const weekEndInit = uni.getStorageSync(STORAGE_KEYS.weekEnd);
   if (typeof weekEndInit === "string") weekEnd.value = weekEndInit;
@@ -25,6 +33,11 @@ export const useAppStore = defineStore("app", () => {
   if (metricInit === "avg_unit_price" || metricInit === "listing_count") metric.value = metricInit;
 
   function setCityId(v: number) {
+    // 防御性：拒绝非法值
+    if (!VALID_CITY_IDS.has(v)) {
+      console.warn(`[app store] setCityId rejected invalid value: ${v}`);
+      return;
+    }
     cityId.value = v;
     uni.setStorageSync(STORAGE_KEYS.cityId, v);
   }
