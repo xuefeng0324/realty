@@ -1984,4 +1984,67 @@ describe("build integrity", () => {
       expect(content).toMatch(/mw-min-red/);
     });
   });
+
+  // ────────────────────────────────────────────────────────────────────
+  // v0.36.0 map-10 地铁规划受益 (metro_benefit.csv)
+  // ────────────────────────────────────────────────────────────────────
+  describe("v0.36.0 map-10 地铁规划受益", () => {
+    it("metro_benefit.csv 存在且 >= 40 行", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/metro_benefit.csv"));
+      expect(rows.length).toBeGreaterThanOrEqual(40);
+    });
+
+    it("metro_benefit.csv benefit_score 0-100 + status 是 3 档之一", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/metro_benefit.csv"));
+      const okStatuses = new Set(["规划", "在建", "即将开通", ""]);
+      for (const r of rows) {
+        const s = Number(r["benefit_score"]);
+        expect(Number.isFinite(s)).toBe(true);
+        expect(s).toBeGreaterThanOrEqual(0);
+        expect(s).toBeLessThanOrEqual(100);
+        expect(okStatuses.has(r["nearest_line_status"])).toBe(true);
+      }
+    });
+
+    it("compute_metro_benefit.py 跨城过滤 (不能用深圳 station 给广州算分)", () => {
+      const content = readFileSync(resolve(ROOT, "scripts/compute_metro_benefit.py"), "utf8");
+      expect(content).toMatch(/if s\["city_id"\] is not None and s\["city_id"\] != c\["city_id"\]/);
+    });
+
+    it("types.ts 定义 LocalMetroBenefit 接口", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(content).toMatch(/export\s+interface\s+LocalMetroBenefit/);
+      expect(content).toMatch(/benefitScore:\s*number/);
+      expect(content).toMatch(/nearestLineStatus:\s*"规划"\s*\|\s*"在建"\s*\|\s*"即将开通"/);
+    });
+
+    it("importer.ts parseMetroBenefit + 接入 snapshot", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(content).toMatch(/metroBenefitCSV\?:\s*string/);
+      expect(content).toMatch(/parseMetroBenefit\(/);
+      expect(content).toMatch(/metroBenefits:\s*LocalMetroBenefit\[\]/);
+    });
+
+    it("queries.ts getMetroBenefitRanking 按受益分降序 + 返回 avg/max/nearCount", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/export\s+function\s+getMetroBenefitRanking/);
+      expect(content).toMatch(/b\.benefitScore\s*-\s*a\.benefitScore/);
+      expect(content).toMatch(/avgScore/);
+      expect(content).toMatch(/maxScore/);
+      expect(content).toMatch(/nearCount/);
+    });
+
+    it("dashboard.vue 地铁规划受益卡 + 3 档 mb-tag-green/orange/red + status 徽章", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(content).toMatch(/地铁规划受益 Top/);
+      expect(content).toMatch(/metroBenefit\.value = await\s+getMetroBenefitRanking/);
+      expect(content).toMatch(/mbBandClass/);
+      expect(content).toMatch(/mb-tag-green/);
+      expect(content).toMatch(/mb-tag-orange/);
+      expect(content).toMatch(/mb-tag-red/);
+      expect(content).toMatch(/mb-st-open/);
+      expect(content).toMatch(/mb-st-build/);
+      expect(content).toMatch(/mb-st-plan/);
+    });
+  });
 });

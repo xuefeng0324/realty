@@ -85,6 +85,10 @@ import communityScoreCSV from "../../static/seed/community_score.csv?raw";
 // @ts-ignore
 import metroWalkCSV from "../../static/seed/metro_walk.csv?raw";
 
+// v0.36.0 地铁规划受益 (scripts/compute_metro_benefit.py)
+// @ts-ignore
+import metroBenefitCSV from "../../static/seed/metro_benefit.csv?raw";
+
 let cached: DataSnapshot | null = null;
 
 /** 拿默认快照。第一次解析后缓存。 */
@@ -114,7 +118,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       districtIndexCSV: String(districtIndexCSV ?? ""),
       lifeConvenienceCSV: String(lifeConvenienceCSV ?? ""),
       communityScoreCSV: String(communityScoreCSV ?? ""),
-      metroWalkCSV: String(metroWalkCSV ?? "")
+      metroWalkCSV: String(metroWalkCSV ?? ""),
+      metroBenefitCSV: String(metroBenefitCSV ?? "")
     },
     "seed:public-derived"
   );

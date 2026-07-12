@@ -23,6 +23,7 @@ import type {
   LocalLayoutDistribution,
   LocalLifeConvenience,
   LocalCommunityScore,
+  LocalMetroBenefit,
   LocalMetroWalk,
   LocalListing,
   LocalListingSchoolPremium,
@@ -375,6 +376,17 @@ export function getMetroWalks(): LocalMetroWalk[] {
 
 export function getMetroWalksByCity(cityId: number): LocalMetroWalk[] {
   return (snapshot?.metroWalks ?? []).filter((m) => m.cityId === cityId);
+}
+
+/**
+ * v0.36.0: 地铁规划受益 (全量 + 按城市过滤)
+ */
+export function getMetroBenefits(): LocalMetroBenefit[] {
+  return snapshot?.metroBenefits ?? [];
+}
+
+export function getMetroBenefitsByCity(cityId: number): LocalMetroBenefit[] {
+  return (snapshot?.metroBenefits ?? []).filter((m) => m.cityId === cityId);
 }
 
 /**

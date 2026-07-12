@@ -419,6 +419,25 @@ export interface LocalMetroWalk {
 }
 
 /**
+ * v0.36.0: 地铁规划受益 (scripts/compute_metro_benefit.py)
+ * 取每小区到最近规划/在建地铁站 (start or end) 的距离，按 status 权重算 0-100 受益分
+ */
+export interface LocalMetroBenefit {
+  communityId: number;
+  cityId: number;
+  districtName: string;
+  communityName: string;
+  nearestLineId: number;
+  nearestLineName: string;
+  nearestLineStatus: "规划" | "在建" | "即将开通" | "";
+  nearestStationName: string;
+  nearestDistanceM: number;
+  openYearExpected: number | null;
+  /** 0-100, 综合距离 + status 权重 */
+  benefitScore: number;
+}
+
+/**
  * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
  * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
  * 用于 dashboard 展示"区级近 N 周房价趋势"。
@@ -477,6 +496,8 @@ export interface DataSnapshot {
   communityScores: LocalCommunityScore[];
   /** v0.35.0: 步行到最近地铁站 (scripts/crawl_amap_metro_walk.py) */
   metroWalks: LocalMetroWalk[];
+  /** v0.36.0: 地铁规划受益 (scripts/compute_metro_benefit.py) */
+  metroBenefits: LocalMetroBenefit[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

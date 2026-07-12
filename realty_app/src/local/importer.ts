@@ -31,6 +31,7 @@ import type {
   LocalListingTag,
   LocalMetroLine,
   LocalMetroLineGeo,
+  LocalMetroBenefit,
   LocalMetroWalk,
   LocalPoi,
   LocalSchool,
@@ -108,6 +109,8 @@ export interface SnapshotInputs {
   communityScoreCSV?: string;
   /** v0.35.0: 步行到最近地铁站 */
   metroWalkCSV?: string;
+  /** v0.36.0: 地铁规划受益 */
+  metroBenefitCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -148,6 +151,38 @@ function parseCommunityScore(csvText: string): LocalCommunityScore[] {
       } as LocalCommunityScore;
     })
     .filter((x): x is LocalCommunityScore => x !== null);
+}
+
+function parseMetroBenefit(csvText: string): LocalMetroBenefit[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.community_id);
+      if (cid == null) return null;
+      const num = (v: string | undefined) => {
+        if (v === undefined || v === "") return 0;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : 0;
+      };
+      const numOrNull = (v: string | undefined): number | null => {
+        if (v === undefined || v === "") return null;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : null;
+      };
+      return {
+        communityId: cid,
+        cityId: n(r.city_id) ?? 0,
+        districtName: s(r.district) ?? "",
+        communityName: s(r.community_name) ?? "",
+        nearestLineId: num(r.nearest_line_id ?? undefined),
+        nearestLineName: s(r.nearest_line_name) ?? "",
+        nearestLineStatus: (s(r.nearest_line_status) ?? "") as "" | "规划" | "在建" | "即将开通",
+        nearestStationName: s(r.nearest_station_name) ?? "",
+        nearestDistanceM: num(r.nearest_distance_m ?? undefined),
+        openYearExpected: numOrNull(r.open_year_expected ?? undefined),
+        benefitScore: num(r.benefit_score ?? undefined)
+      } as LocalMetroBenefit;
+    })
+    .filter((x): x is LocalMetroBenefit => x !== null);
 }
 
 function parseMetroWalk(csvText: string): LocalMetroWalk[] {
@@ -710,6 +745,11 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     ? parseMetroWalk(inputs.metroWalkCSV)
     : [];
 
+  // v0.36.0 map-10: 地铁规划受益
+  const metroBenefits: LocalMetroBenefit[] = inputs.metroBenefitCSV
+    ? parseMetroBenefit(inputs.metroBenefitCSV)
+    : [];
+
   // 聚合可用周：基于 listings 的 crawl_date
   const weekEnds = new Set<string>();
   for (const l of listings) {
@@ -748,6 +788,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     lifeConveniences,
     communityScores,
     metroWalks,
+    metroBenefits,
     availableWeeks
   };
 }

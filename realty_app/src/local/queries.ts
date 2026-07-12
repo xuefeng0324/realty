@@ -2191,3 +2191,79 @@ export function getMetroWalkRanking(params: {
     items
   };
 }
+
+/* ============================================================================
+ * v0.36.0 map-10: 地铁规划受益
+ * ========================================================================== */
+
+export interface MetroBenefitItem {
+  communityId: number;
+  cityId: number;
+  communityName: string;
+  districtName: string;
+  lineName: string;
+  lineStatus: "规划" | "在建" | "即将开通" | "";
+  stationName: string;
+  distanceM: number;
+  openYear: number | null;
+  benefitScore: number;
+}
+
+export interface MetroBenefitResponse {
+  cityId: number;
+  cityName: string;
+  totalCount: number;
+  /** 受益分 >= 60 的小区数 (真正"近地铁") */
+  nearCount: number;
+  avgScore: number;
+  maxScore: number;
+  items: MetroBenefitItem[];
+}
+
+export function getMetroBenefitRanking(params: {
+  cityId: number;
+  topN?: number;
+  /** 仅受益分 ≥ N 的 */
+  minScore?: number;
+}): MetroBenefitResponse | null {
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const all = store.getMetroBenefitsByCity(params.cityId);
+  if (all.length === 0) return null;
+
+  // 按受益分降序, 距离升序 (tiebreak)
+  const sorted = all.slice().sort((a, b) => {
+    if (b.benefitScore !== a.benefitScore) return b.benefitScore - a.benefitScore;
+    return a.nearestDistanceM - b.nearestDistanceM;
+  });
+
+  const minScore = params.minScore ?? 0;
+  const filtered = sorted.filter((l) => l.benefitScore >= minScore);
+  const topN = params.topN ?? 12;
+  const items: MetroBenefitItem[] = filtered.slice(0, topN).map((l) => ({
+    communityId: l.communityId,
+    cityId: l.cityId,
+    communityName: l.communityName,
+    districtName: l.districtName,
+    lineName: l.nearestLineName,
+    lineStatus: l.nearestLineStatus,
+    stationName: l.nearestStationName,
+    distanceM: l.nearestDistanceM,
+    openYear: l.openYearExpected,
+    benefitScore: l.benefitScore
+  }));
+
+  const avg = Math.round((all.reduce((s, r) => s + r.benefitScore, 0) / all.length) * 10) / 10;
+  const max = all.reduce((m, r) => (r.benefitScore > m ? r.benefitScore : m), 0);
+  const near = all.filter((r) => r.benefitScore >= 60).length;
+
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    totalCount: all.length,
+    nearCount: near,
+    avgScore: avg,
+    maxScore: max,
+    items
+  };
+}

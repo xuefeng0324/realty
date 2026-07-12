@@ -299,6 +299,21 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 W | map-9 | dashboard 🚶 卡 + 3 色分档 (mw-min-green/orange/red) | ✅ v0.35.0 | 414×896 截图验证 |
 | 🟢 W | map-9 | buildIntegrity +7 测试 + smoke_metro_walk E2E + commit v0.35.0 | ✅ v0.35.0 | 344/344 通过；smoke 全绿 |
 
+## X 段补充：地铁规划受益 (v0.36.0)
+
+- 用 `metro_planning.csv` + `metro_planning_geo.csv` join 出 42 个 start/end 站
+- 距离分 × status 权重 → 受益分 (0-100)
+- 必须同城 (防跨城误匹配)
+- 数据：metro_benefit.csv 49 行 × 21 规划线路 (深圳 30 + 广州 11 + 珠海 8)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+| --- | --- | --- | --- | --- |
+| 🟢 X | map-10 | compute_metro_benefit.py (haver 距离 × status 权重) | ✅ v0.36.0 | 0 API, 纯本地 |
+| 🟢 X | map-10 | LocalMetroBenefit + parseMetroBenefit + snapshot | ✅ v0.36.0 | metroBenefits[] 已注入 |
+| 🟢 X | map-10 | getMetroBenefitRanking (avg / max / nearCount + 距离 tiebreak) | ✅ v0.36.0 | ≥60 算"真近" |
+| 🟢 X | map-10 | dashboard 🚇 受益 Top 卡 + 3 色分档 + 3 色 status 徽章 | ✅ v0.36.0 | 414×896 截图验证 |
+| 🟢 X | map-10 | buildIntegrity +7 测试 + smoke_metro_benefit E2E + commit v0.36.0 | ✅ v0.36.0 | 351/351 通过；smoke 全绿 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

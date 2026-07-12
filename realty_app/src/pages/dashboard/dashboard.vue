@@ -659,6 +659,40 @@
         </view>
       </view>
 
+      <!-- v0.36.0 map-10 地铁规划受益榜 (规划/在建线路 + 距离 → 受益分) -->
+      <view v-if="metroBenefit && metroBenefit.items.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">🚇 地铁规划受益 Top · {{ metroBenefit.cityName }}</view>
+          <view class="muted">Top {{ metroBenefit.items.length }}</view>
+        </view>
+        <view class="mb-summary muted">
+          平均受益 {{ metroBenefit.avgScore }} · 最高 {{ metroBenefit.maxScore }} · {{ metroBenefit.nearCount }} 个小区真近地铁 (≥60)
+        </view>
+        <view
+          v-for="it in metroBenefit.items"
+          :key="it.communityId"
+          class="mb-row"
+        >
+          <view class="mb-rank">
+            <text :class="['mb-tag', mbBandClass(it.benefitScore)]">{{ it.benefitScore }}</text>
+          </view>
+          <view class="mb-mid">
+            <view class="mb-name">{{ it.communityName }}</view>
+            <view class="mb-dist muted">{{ it.districtName }} · → {{ it.lineName }}「{{ it.stationName }}」</view>
+          </view>
+          <view class="mb-right">
+            <view :class="['mb-status', 'mb-st-' + (it.lineStatus === '即将开通' ? 'open' : it.lineStatus === '在建' ? 'build' : 'plan')]">
+              {{ it.lineStatus || '规划' }}
+            </view>
+            <view class="muted" style="font-size: 20rpx">{{ it.distanceM }}m · {{ it.openYear ?? '?' }}</view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：metro_planning_geo.csv + metro_planning.csv → scripts/compute_metro_benefit.py。
+          受益分 = 距离分 × status 权重 (即将开通×1.5 / 在建×1.2 / 规划×1.0)。按受益分降序。
+        </view>
+      </view>
+
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
       <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card">
         <view class="row-between">
@@ -1067,7 +1101,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, getMetroWalkRanking, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, getMetroWalkRanking, getMetroBenefitRanking, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -1117,6 +1151,8 @@ const lifeConvenience = ref<LifeConvenienceResponse | null>(null);
 const communityScore = ref<CommunityScoreResponse | null>(null);
 // v0.35.0 map-9: 地铁步行通勤
 const metroWalk = ref<MetroWalkResponse | null>(null);
+// v0.36.0 map-10: 地铁规划受益
+const metroBenefit = ref<MetroBenefitResponse | null>(null);
 // v0.34.0 trend-16: 综合评分权重自定义
 const csWeights = ref<{ life: number; school: number; commute: number }>({ life: 50, school: 30, commute: 20 });
 const csPresets: { key: string; label: string; weights: { life: number; school: number; commute: number } }[] = [
@@ -1174,6 +1210,23 @@ function mwBandClass(min: number) {
   if (min <= 5) return "mw-min-green";
   if (min <= 10) return "mw-min-orange";
   return "mw-min-red";
+}
+
+// v0.36.0 map-10: 地铁规划受益
+async function reloadMetroBenefit() {
+  try {
+    metroBenefit.value = await getMetroBenefitRanking({
+      cityId: app.cityId,
+      topN: 10
+    });
+  } catch (e) {
+    console.warn("getMetroBenefitRanking failed:", e);
+  }
+}
+function mbBandClass(score: number) {
+  if (score >= 75) return "mb-tag-green";
+  if (score >= 40) return "mb-tag-orange";
+  return "mb-tag-red";
 }
 const schoolPremiumOverview = ref<SchoolPremiumOverview | null>(null);
 const schoolPremiumCommunityItems = ref<SchoolPremiumCommunityItem[]>([]);
@@ -1535,6 +1588,16 @@ async function loadRankingAndDistrict() {
       } catch (e) {
         console.warn("getMetroWalkRanking failed:", e);
         metroWalk.value = null;
+      }
+      // v0.36.0 map-10 地铁规划受益榜
+      try {
+        metroBenefit.value = await getMetroBenefitRanking({
+          cityId: app.cityId,
+          topN: 10
+        });
+      } catch (e) {
+        console.warn("getMetroBenefitRanking failed:", e);
+        metroBenefit.value = null;
       }
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
@@ -3230,6 +3293,90 @@ onShow(async () => {
 .mw-src {
   font-size: 18rpx;
   margin-top: 4rpx;
+}
+
+/* v0.36.0 map-10 地铁规划受益 */
+.mb-summary {
+  font-size: 24rpx;
+  margin: 8rpx 0 16rpx;
+}
+.mb-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 10rpx 0;
+  border-bottom: 1rpx solid #1f2937;
+}
+.mb-row:last-child {
+  border-bottom: none;
+}
+.mb-rank {
+  flex: 0 0 100rpx;
+  text-align: center;
+}
+.mb-tag {
+  display: inline-block;
+  padding: 6rpx 12rpx;
+  border-radius: 12rpx;
+  font-weight: 700;
+  font-size: 28rpx;
+  font-variant-numeric: tabular-nums;
+  min-width: 80rpx;
+}
+.mb-tag-green {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+.mb-tag-orange {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+}
+.mb-tag-red {
+  background: rgba(248, 113, 113, 0.2);
+  color: #f87171;
+}
+.mb-mid {
+  flex: 1;
+  min-width: 0;
+}
+.mb-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mb-dist {
+  font-size: 22rpx;
+  margin-top: 2rpx;
+}
+.mb-right {
+  flex: 0 0 auto;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4rpx;
+}
+.mb-status {
+  display: inline-block;
+  padding: 4rpx 10rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+.mb-st-open {
+  background: rgba(34, 197, 94, 0.25);
+  color: #22c55e;
+}
+.mb-st-build {
+  background: rgba(251, 191, 36, 0.25);
+  color: #fbbf24;
+}
+.mb-st-plan {
+  background: rgba(148, 163, 184, 0.25);
+  color: #94a3b8;
 }
 
 /* v0.10.0 网签热度榜 */
