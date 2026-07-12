@@ -69,6 +69,10 @@ import layoutDistributionCSV from "../../static/seed/layout_distribution.csv?raw
 // @ts-ignore
 import listingTagsCSV from "../../static/seed/listing_tags.csv?raw";
 
+// v0.29.0 区级房价指数 (scripts/compute_district_index.py)
+// @ts-ignore
+import districtIndexCSV from "../../static/seed/district_index.csv?raw";
+
 let cached: DataSnapshot | null = null;
 
 /** 拿默认快照。第一次解析后缓存。 */
@@ -94,7 +98,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       communityCommercialCSV: String(communityCommercialCSV ?? ""),
       commuteCSV: String(commuteCSV ?? ""),
       layoutDistributionCSV: String(layoutDistributionCSV ?? ""),
-      listingTagsCSV: String(listingTagsCSV ?? "")
+      listingTagsCSV: String(listingTagsCSV ?? ""),
+      districtIndexCSV: String(districtIndexCSV ?? "")
     },
     "seed:public-derived"
   );

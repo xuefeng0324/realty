@@ -21,6 +21,7 @@ import type {
   LocalCommunity,
   LocalCommunityCommercial,
   LocalDistrictTrend,
+  LocalDistrictIndex,
   LocalHospital,
   LocalListing,
   LocalLayoutDistribution,
@@ -96,6 +97,8 @@ export interface SnapshotInputs {
   layoutDistributionCSV?: string;
   /** v0.28.0: 房源 tags (单 tag 一行) */
   listingTagsCSV?: string;
+  /** v0.29.0: 区级房价指数 (CSV) */
+  districtIndexCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -106,6 +109,35 @@ function weekEndFromDate(iso: string): string {
 }
 
 const LAYOUT_DIMS = new Set(["bedrooms", "area_sqm", "orientation", "decorate"]);
+
+function parseDistrictIndex(csvText: string): LocalDistrictIndex[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.city_id);
+      const dn = s(r.district_name);
+      const we = s(r.week_end);
+      const med = n(r.median_unit_price);
+      const idx = n(r.index_value);
+      const cnt = n(r.listing_count);
+      if (cid == null || !dn || !we || med == null || idx == null || cnt == null) return null;
+      const numOrNull = (v: string | undefined) => {
+        if (v === undefined || v === "") return null;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : null;
+      };
+      return {
+        cityId: cid,
+        districtName: dn,
+        weekEnd: we,
+        medianUnitPrice: med,
+        indexValue: idx,
+        momChange: numOrNull(r.mom_change ?? undefined),
+        yoyChange: numOrNull(r.yoy_change ?? undefined),
+        listingCount: cnt
+      } as LocalDistrictIndex;
+    })
+    .filter((x): x is LocalDistrictIndex => x !== null);
+}
 
 function parseListingTags(csvText: string): LocalListingTag[] {
   return rowsToObjects<Record<string, string>>(parseCSV(csvText))
@@ -564,6 +596,11 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     ? parseListingTags(inputs.listingTagsCSV)
     : [];
 
+  // v0.29.0 trend-13: 区级房价指数
+  const districtIndices: LocalDistrictIndex[] = inputs.districtIndexCSV
+    ? parseDistrictIndex(inputs.districtIndexCSV)
+    : [];
+
   // 聚合可用周：基于 listings 的 crawl_date
   const weekEnds = new Set<string>();
   for (const l of listings) {
@@ -598,6 +635,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     commutes,
     layoutDistributions,
     listingTags,
+    districtIndices,
     availableWeeks
   };
 }

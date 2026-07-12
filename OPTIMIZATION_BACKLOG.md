@@ -217,6 +217,15 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟡 P | new-6 | dashboard 「🏷️ 房源标签云」卡 + 5 档字号 + 点击 tag 提示 | ✅ v0.28.0 | 切城市重置 hint |
 | 🟡 P | new-6 | buildIntegrity +10 测试 + smoke_tagcloud E2E + commit v0.28.0 | ✅ v0.28.0 | 300/300 通过 (**总数突破 300**)；21/21 smoke 全绿 |
 
+## Q 段补充：区房价指数（v0.29.0）
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+| --- | --- | --- | --- | --- |
+| 🟡 Q | trend-13 | 调研 政府公开 + 现有 listings 计算指数可行 | ✅ v0.29.0 | 复用 district_trend.csv |
+| 🟡 Q | trend-13 | compute_district_index.py baseline=100 + index + mom + yoy + district_index.csv | ✅ v0.29.0 | 266 行 / 12 区 |
+| 🟡 Q | trend-13 | dashboard 「📈 区房价指数」卡 + WoW/YoY + sparkline | ✅ v0.29.0 | 颜色编码 ≥110 红 / <90 绿 |
+| 🟡 Q | trend-13 | buildIntegrity +9 测试 + smoke_district_index E2E + commit v0.29.0 | ✅ v0.29.0 | 309/309 通过；22/22 smoke 全绿 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

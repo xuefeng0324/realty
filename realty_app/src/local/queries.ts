@@ -28,7 +28,7 @@ import type {
   SchoolFutureScoreResponse,
   CityItem
 } from "../api/contracts";
-import type { LocalLayoutDistribution, LocalListing, LocalListingTag } from "./types";
+import type { LocalLayoutDistribution, LocalListing, LocalListingTag, LocalDistrictIndex } from "./types";
 import {
   generateWeeklySnapshot,
   type SnapshotResult
@@ -1798,5 +1798,86 @@ export function getListingTagCloud(params: {
     cityName: city.cityName,
     tags: items,
     totalTags: total
+  };
+}
+
+// ============================================================================
+// v0.29.0 trend-13 板块房价指数
+// ============================================================================
+
+export interface DistrictIndexItem {
+  districtName: string;
+  /** 该区最新周 index_value (基准 100) */
+  indexValue: number;
+  /** 最近一周 mom_change % */
+  momChange: number | null;
+  /** 最近一周 yoy_change % */
+  yoyChange: number | null;
+  /** 最新周中位价 */
+  latestMedianPrice: number;
+  /** 最新周房源数 */
+  latestListingCount: number;
+  /** 该区共多少周数据 */
+  totalWeeks: number;
+  /** 该区周序列 (用于 sparkline / 折线) */
+  weeklySeries: Array<{
+    weekEnd: string;
+    indexValue: number;
+    medianUnitPrice: number;
+    listingCount: number;
+  }>;
+}
+
+export interface DistrictIndexResponse {
+  cityId: number;
+  cityName: string;
+  /** 各区最新指数排序 (按最新周 index_value 降序) */
+  items: DistrictIndexItem[];
+}
+
+/**
+ * 获取某城市所有区最新一周的房价指数 + 周序列。
+ */
+export function getDistrictIndex(params: { cityId: number }): DistrictIndexResponse | null {
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const all = store.getDistrictIndicesByCity(params.cityId);
+  if (all.length === 0) return null;
+
+  // 按 (city, district) 分组
+  const byDistrict: Record<string, LocalDistrictIndex[]> = {};
+  for (const r of all) {
+    if (!byDistrict[r.districtName]) byDistrict[r.districtName] = [];
+    byDistrict[r.districtName].push(r);
+  }
+  for (const k in byDistrict) {
+    byDistrict[k].sort((a, b) => a.weekEnd.localeCompare(b.weekEnd));
+  }
+
+  const items: DistrictIndexItem[] = [];
+  for (const dn in byDistrict) {
+    const arr = byDistrict[dn];
+    const last = arr[arr.length - 1];
+    items.push({
+      districtName: dn,
+      indexValue: last.indexValue,
+      momChange: last.momChange,
+      yoyChange: last.yoyChange,
+      latestMedianPrice: last.medianUnitPrice,
+      latestListingCount: last.listingCount,
+      totalWeeks: arr.length,
+      weeklySeries: arr.map((x) => ({
+        weekEnd: x.weekEnd,
+        indexValue: x.indexValue,
+        medianUnitPrice: x.medianUnitPrice,
+        listingCount: x.listingCount
+      }))
+    });
+  }
+  items.sort((a, b) => b.indexValue - a.indexValue);
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    items
   };
 }

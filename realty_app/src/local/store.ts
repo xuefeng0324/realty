@@ -18,6 +18,7 @@ import type {
   LocalCommute,
   LocalDailyWangqianRow,
   LocalDistrictTrend,
+  LocalDistrictIndex,
   LocalHospital,
   LocalLayoutDistribution,
   LocalListing,
@@ -327,6 +328,17 @@ export function getListingTags(): LocalListingTag[] {
 
 export function getListingTagsByCity(cityId: number): LocalListingTag[] {
   return (snapshot?.listingTags ?? []).filter((t) => t.cityId === cityId);
+}
+
+/**
+ * v0.29.0: 区级房价指数
+ */
+export function getDistrictIndices(): LocalDistrictIndex[] {
+  return snapshot?.districtIndices ?? [];
+}
+
+export function getDistrictIndicesByCity(cityId: number): LocalDistrictIndex[] {
+  return (snapshot?.districtIndices ?? []).filter((d) => d.cityId === cityId);
 }
 
 /**

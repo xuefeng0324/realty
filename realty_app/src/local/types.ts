@@ -340,6 +340,24 @@ export interface LocalListingTag {
 }
 
 /**
+ * v0.29.0: 区级房价指数 (scripts/compute_district_index.py)
+ * index_value = 该区 baseline 中位价对应 100 基准
+ */
+export interface LocalDistrictIndex {
+  cityId: number;
+  districtName: string;
+  weekEnd: string;
+  medianUnitPrice: number;
+  /** 指数 (>= 100 表示高于 baseline) */
+  indexValue: number;
+  /** 周环比变化 % (空 = 无前一周期数据) */
+  momChange: number | null;
+  /** 同比变化 % (空 = 无去年同期数据) */
+  yoyChange: number | null;
+  listingCount: number;
+}
+
+/**
  * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
  * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
  * 用于 dashboard 展示"区级近 N 周房价趋势"。
@@ -390,6 +408,8 @@ export interface DataSnapshot {
   layoutDistributions: LocalLayoutDistribution[];
   /** v0.28.0: 房源 tags 列表 (scripts/compute_listing_tags.py) */
   listingTags: LocalListingTag[];
+  /** v0.29.0: 区级房价指数 (scripts/compute_district_index.py) */
+  districtIndices: LocalDistrictIndex[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

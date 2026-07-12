@@ -429,6 +429,51 @@
         </view>
       </view>
 
+      <!-- v0.29.0 trend-13 区房价指数 -->
+      <view v-if="districtIndex && districtIndex.items.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">📈 区房价指数 · {{ districtIndex.cityName }}</view>
+          <view class="muted">基准 100 = 各区最早周中位价</view>
+        </view>
+        <view
+          v-for="it in districtIndex.items.slice(0, 6)"
+          :key="it.districtName"
+          class="di-row"
+          @click="toggleDistrictIndexExpand(it.districtName)"
+        >
+          <view class="di-mid">
+            <view class="di-name">{{ it.districtName }}</view>
+            <view class="muted">
+              {{ it.latestListingCount }} 套 · ¥{{ formatNum(it.latestMedianPrice) }}/㎡ · {{ it.totalWeeks }} 周
+            </view>
+          </view>
+          <view class="di-right">
+            <text :class="['di-index', diIndexClass(it.indexValue)]">{{ it.indexValue.toFixed(1) }}</text>
+            <view class="muted" style="font-size: 20rpx">
+              <text v-if="it.momChange != null" :class="diChangeClass(it.momChange)">
+                {{ it.momChange > 0 ? "+" : "" }}{{ it.momChange.toFixed(1) }}% WoW
+              </text>
+              <text v-else class="muted">— WoW</text>
+              <text v-if="it.yoyChange != null" :class="diChangeClass(it.yoyChange)" style="margin-left: 8rpx">
+                {{ it.yoyChange > 0 ? "+" : "" }}{{ it.yoyChange.toFixed(1) }}% YoY
+              </text>
+            </view>
+          </view>
+          <view class="di-spark-wrap">
+            <view
+              v-for="(pt, i) in sparkPoints(it.weeklySeries)"
+              :key="i"
+              class="di-spark-bar"
+              :style="{ height: pt + '%' }"
+            ></view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：district_trend.csv (scripts/compute_district_trend.py) → 归一化为 index (scripts/compute_district_index.py)。
+          指数 = 各区 baseline 中位价 × 100；WoW / YoY = 周 / 同比变化。
+        </view>
+      </view>
+
       <!-- v0.11.0 学区溢价榜 -->
       <view v-if="schoolPremiumOverview && schoolPremiumOverview.items.length > 0" class="card">
         <view class="row-between">
@@ -780,7 +825,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -824,6 +869,7 @@ const commuteRanking = ref<CommuteRankingResponse | null>(null);
 const layoutDistribution = ref<LayoutDistributionResponse | null>(null);
 const tagCloud = ref<TagCloudResponse | null>(null);
 const tagCloudFilteredHint = ref<string>("");
+const districtIndex = ref<DistrictIndexResponse | null>(null);
 const schoolPremiumOverview = ref<SchoolPremiumOverview | null>(null);
 const schoolPremiumCommunityItems = ref<SchoolPremiumCommunityItem[]>([]);
 // v0.26.0 trend-11: 过滤 + 排序 controls
@@ -1136,6 +1182,15 @@ async function loadRankingAndDistrict() {
         console.warn("getListingTagCloud failed:", e);
         tagCloud.value = null;
       }
+      // v0.29.0 区房价指数
+      try {
+        districtIndex.value = await getDistrictIndex({
+          cityId: app.cityId
+        });
+      } catch (e) {
+        console.warn("getDistrictIndex failed:", e);
+        districtIndex.value = null;
+      }
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
         cityId: app.cityId,
@@ -1421,6 +1476,35 @@ function tagSizeClass(count: number, max: number): 1 | 2 | 3 | 4 | 5 {
 
 function onPickTag(tag: string): void {
   tagCloudFilteredHint.value = `已点击标签「${tag}」(v0.28.0 仅展示, 后续版本可联动过滤 listing 列表)`;
+}
+
+// v0.29.0 区房价指数 helpers
+function diIndexClass(v: number): string {
+  if (v >= 110) return "price-up";   // 涨 10%+ 红
+  if (v >= 100) return "muted";       // +0-10% 灰
+  if (v >= 90) return "muted";        // -0-10% 灰
+  return "price-down";                 // -10%+ 绿
+}
+
+function diChangeClass(v: number | null): string {
+  if (v == null) return "muted";
+  if (v > 0.5) return "price-up";
+  if (v < -0.5) return "price-down";
+  return "muted";
+}
+
+/** 把 weeklySeries 转成 sparkline 高度比例 (0-100) */
+function sparkPoints(series: Array<{ indexValue: number }>): number[] {
+  if (series.length === 0) return [];
+  const min = Math.min(...series.map((s) => s.indexValue));
+  const max = Math.max(...series.map((s) => s.indexValue));
+  const range = max - min;
+  if (range === 0) return series.map(() => 50);
+  return series.map((s) => Math.round(((s.indexValue - min) / range) * 100));
+}
+
+function toggleDistrictIndexExpand(_name: string): void {
+  // 此版本仅展示, 不展开额外面板
 }
 
 // v0.16.0 weather helpers
@@ -2407,6 +2491,47 @@ onShow(async () => {
   background: linear-gradient(90deg, #0ea5e9, #38bdf8);
   border-color: #38bdf8;
   font-weight: 600;
+}
+
+/* v0.29.0 区房价指数 */
+.di-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 10rpx 0;
+  border-bottom: 1rpx solid #1f2937;
+}
+.di-mid {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.di-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+.di-right {
+  flex: 0 0 auto;
+  text-align: right;
+}
+.di-index {
+  font-size: 36rpx;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.di-spark-wrap {
+  flex: 0 0 220rpx;
+  display: flex;
+  align-items: flex-end;
+  gap: 2rpx;
+  height: 40rpx;
+}
+.di-spark-bar {
+  flex: 1 1 auto;
+  background: #38bdf8;
+  border-radius: 2rpx;
+  min-height: 4rpx;
+  opacity: 0.7;
 }
 
 /* v0.10.0 网签热度榜 */

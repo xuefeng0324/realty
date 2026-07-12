@@ -1630,4 +1630,77 @@ describe("build integrity", () => {
       expect(content).toMatch(/onPickTag/);
     });
   });
+
+  // ────────────────────────────────────────────────────────────────────
+  // v0.29.0 trend-13 区房价指数
+  // ────────────────────────────────────────────────────────────────────
+  describe("v0.29.0 trend-13 区房价指数", () => {
+    it("district_index.csv 存在且 >= 100 行", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/district_index.csv"));
+      expect(rows.length).toBeGreaterThanOrEqual(100);
+    });
+
+    it("district_index.csv 含 3 个 city_id", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/district_index.csv"));
+      const ids = new Set(rows.map((r) => r["city_id"]));
+      expect(ids.has("1")).toBe(true);
+      expect(ids.has("2")).toBe(true);
+      expect(ids.has("3")).toBe(true);
+    });
+
+    it("district_index.csv baseline 周 index_value = 100", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/district_index.csv"));
+      const byDistrict: Record<string, Record<string, string>[]> = {};
+      for (const r of rows) {
+        const k = `${r["city_id"]}|${r["district_name"]}`;
+        if (!byDistrict[k]) byDistrict[k] = [];
+        byDistrict[k].push(r);
+      }
+      // baseline 周 = listing_count >= 4 中最早一周
+      for (const k in byDistrict) {
+        const filtered = byDistrict[k]
+          .filter((r) => Number(r["listing_count"]) >= 4)
+          .sort((a, b) => a["week_end"].localeCompare(b["week_end"]));
+        if (filtered.length === 0) continue;
+        const baseline = filtered[0];
+        expect(Number(baseline["index_value"])).toBeCloseTo(100, 1);
+      }
+    });
+
+    it("queries.ts 增加 getDistrictIndex 函数", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/export function getDistrictIndex/);
+    });
+
+    it("queries.ts 导出 DistrictIndexResponse 接口", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/export interface DistrictIndexResponse/);
+    });
+
+    it("store.ts 增加 getDistrictIndicesByCity 函数", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(content).toMatch(/export function getDistrictIndicesByCity/);
+    });
+
+    it("types.ts 增加 LocalDistrictIndex 接口", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(content).toMatch(/export interface LocalDistrictIndex/);
+    });
+
+    it("importer.ts 解析 districtIndexCSV 输入", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(content).toMatch(/districtIndexCSV\?: string/);
+      expect(content).toMatch(/parseDistrictIndex/);
+    });
+
+    it("dashboard.vue 渲染区房价指数卡片 + sparkline", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(content).toMatch(/districtIndex/);
+      expect(content).toMatch(/区房价指数|📈/);
+      expect(content).toMatch(/getDistrictIndex/);
+      expect(content).toMatch(/sparkPoints/);
+      expect(content).toMatch(/di-spark-bar/);
+      expect(content).toMatch(/momChange|yoyChange/);
+    });
+  });
 });
