@@ -24,6 +24,9 @@ import schoolsCSV from "../../static/seed/schools.csv?raw";
 import schoolIndicatorsCSV from "../../static/seed/school_indicators.csv?raw";
 // @ts-ignore
 import listingsCSV from "../../static/seed/listings.csv?raw";
+// v0.4.2 POI
+// @ts-ignore
+import poisCSV from "../../static/seed/poi_seed.csv?raw";
 
 let cached: DataSnapshot | null = null;
 
@@ -36,7 +39,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       communitiesCSV: String(communitiesCSV ?? ""),
       schoolsCSV: String(schoolsCSV ?? ""),
       schoolIndicatorsCSV: String(schoolIndicatorsCSV ?? ""),
-      listingsCSV: String(listingsCSV ?? "")
+      listingsCSV: String(listingsCSV ?? ""),
+      poisCSV: String(poisCSV ?? "")
     },
     "seed:public-derived"
   );

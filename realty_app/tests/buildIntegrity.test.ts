@@ -197,6 +197,27 @@ describe("build integrity", () => {
       const rows = readCsv(poiPath);
       expect(rows.length).toBeGreaterThanOrEqual(600);
     });
+
+    it("poi_seed.csv 5 个 category 各自有数据", () => {
+      if (!existsSync(poiPath)) return;
+      const rows = readCsv(poiPath);
+      const cats = new Set(rows.map((r) => r.poi_category));
+      for (const cat of ["subway", "school", "hospital", "mall", "park"]) {
+        expect(cats.has(cat)).toBe(true);
+      }
+    });
+
+    it("每个 poi 的 distance_m 是有限正数", () => {
+      if (!existsSync(poiPath)) return;
+      const rows = readCsv(poiPath);
+      const bad = rows.filter(
+        (r) =>
+          !r.distance_m ||
+          Number.isNaN(Number(r.distance_m)) ||
+          Number(r.distance_m) < 0
+      );
+      expect(bad.length).toBe(0);
+    });
   });
 
   describe("CI 必装文件", () => {

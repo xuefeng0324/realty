@@ -112,6 +112,30 @@
         </view>
       </view>
 
+      <!-- 周边配套 (v0.4.2+ 高德 POI 数据) -->
+      <view v-if="pois.length > 0" class="card">
+        <view class="card-title">周边配套（{{ poiSummary }}）</view>
+        <view
+          v-for="grp in poiGroups"
+          :key="grp.category"
+          class="poi-section"
+        >
+          <view class="poi-cat">
+            <text class="poi-cat-icon">{{ categoryIcon(grp.category) }}</text>
+            <text class="poi-cat-name">{{ categoryLabel(grp.category) }}</text>
+            <text class="muted">最近 {{ grp.nearest }}m</text>
+          </view>
+          <view
+            v-for="p in grp.items"
+            :key="p.poi_rank"
+            class="poi-row"
+          >
+            <text class="poi-name">{{ p.poi_name }}</text>
+            <text class="muted">{{ formatDistance(p.distance_m) }}</text>
+          </view>
+        </view>
+      </view>
+
       <!-- 解释 JSON 折叠 -->
       <view v-if="data && data.score.explain_json" class="card">
         <view
@@ -135,8 +159,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
-import { getListingDetail } from "../../local/queries";
+import { getListingDetail, getCommunityPois } from "../../local/queries";
 import type { ListingDetailResponse } from "../../api/contracts";
+import type { PoiCategory, PoiItem } from "../../local/queries";
 import { toErrorMessage } from "../../utils/errorMessage";
 import {
   copyText,
@@ -152,6 +177,53 @@ const listingId = ref<number>(0);
 const data = ref<ListingDetailResponse | null>(null);
 const errorMsg = ref<string>("");
 const explainOpen = ref(false);
+const pois = ref<PoiItem[]>([]);
+
+const POI_GROUPS: PoiCategory[] = ["subway", "school", "hospital", "mall", "park"];
+
+const poiGroups = computed(() => {
+  return POI_GROUPS.map((cat) => {
+    const items = pois.value.filter((p) => p.poi_category === cat);
+    if (items.length === 0) return null;
+    return {
+      category: cat,
+      items: items.slice(0, 3),
+      nearest: items[0]?.distance_m ?? 0
+    };
+  }).filter((g): g is { category: PoiCategory; items: PoiItem[]; nearest: number } => g !== null);
+});
+
+const poiSummary = computed(() => {
+  const stats: string[] = [];
+  for (const cat of POI_GROUPS) {
+    const n = pois.value.filter((p) => p.poi_category === cat).length;
+    if (n > 0) stats.push(`${categoryLabel(cat)} ${n}`);
+  }
+  return stats.join(" · ");
+});
+
+function categoryLabel(c: PoiCategory): string {
+  return ({
+    subway: "地铁",
+    school: "学校",
+    hospital: "医院",
+    mall: "商场",
+    park: "公园"
+  } as const)[c];
+}
+function categoryIcon(c: PoiCategory): string {
+  return ({
+    subway: "🚇",
+    school: "🏫",
+    hospital: "🏥",
+    mall: "🛍",
+    park: "🌳"
+  } as const)[c];
+}
+function formatDistance(m: number): string {
+  if (m < 1000) return `${m}m`;
+  return `${(m / 1000).toFixed(1)}km`;
+}
 
 const dimensionKeys = computed(() => {
   if (!data.value) return [];
@@ -209,6 +281,17 @@ onMounted(async () => {
   }
   try {
     data.value = await getListingDetail(listingId.value);
+    if (data.value?.listing.community_id) {
+      try {
+        const r = await getCommunityPois({
+          communityId: data.value.listing.community_id
+        });
+        pois.value = r.items;
+      } catch {
+        // POI 不可用时不阻塞主流程
+        pois.value = [];
+      }
+    }
   } catch (e) {
     errorMsg.value = toErrorMessage(e);
   }
@@ -276,6 +359,43 @@ onMounted(async () => {
   text-align: right;
   color: #f3f4f6;
   font-size: 24rpx;
+}
+
+/* POI 周边 (v0.4.2) */
+.poi-section {
+  margin-top: 16rpx;
+}
+.poi-cat {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 8rpx;
+}
+.poi-cat-icon {
+  font-size: 28rpx;
+}
+.poi-cat-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #f3f4f6;
+  flex: 1;
+}
+.poi-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8rpx 0 8rpx 40rpx;
+  border-bottom: 1rpx solid #1f2937;
+  font-size: 24rpx;
+  color: #e2e8f0;
+}
+.poi-row:last-child {
+  border-bottom: none;
+}
+.poi-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tag-row {

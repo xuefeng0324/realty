@@ -103,6 +103,22 @@ export interface LocalDailyWangqianRow {
   source_url: string;
 }
 
+/**
+ * 高德周边 POI（`scripts/crawl_amap_poi.py` 输出）。
+ * 字段对齐 poi_seed.csv；category ∈ {subway, school, hospital, mall, park}
+ */
+export interface LocalPoi {
+  communityId: number;
+  poiCategory: "subway" | "school" | "hospital" | "mall" | "park";
+  poiRank: number;
+  poiName: string;
+  poiType: string;
+  distanceM: number;
+  lat: number;
+  lng: number;
+  address: string;
+}
+
 export interface DataSnapshot {
   importedAt: string;
   source: string;
@@ -111,6 +127,8 @@ export interface DataSnapshot {
   schools: LocalSchool[];
   schoolIndicators: LocalSchoolIndicator[];
   listings: LocalListing[];
+  /** v0.4.2: 高德周边 POI (community_id × poi_category) */
+  pois: LocalPoi[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

@@ -6,6 +6,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v0.4.3 | 2026-07-12 | 把 v0.4.1 POI 真数据集成到 listing-detail + community 页（5 类周边配套卡片） |
 | v0.4.2 | 2026-07-12 | 接链家 xiaoqu 列表页真小区（深圳 +29 个，5.7× POI）+ 把链家 listings 的 community_id 由 0 轮询关联到 39 个深圳小区 |
 | v0.4.1 | 2026-07-12 | 接高德 POI：23 个 seed 小区经纬度 + 周边配套（地铁/学校/医院/商场/公园），新增 `crawl_amap_*.py` 与数据完整性单测 |
 | v0.4.0 | 2026-07-12 | 接链家在售 API 真 listings（60 条）入 seed；新增 `crawl_lianjia_listings.py` + `tests/e2e/smoke_listings.mjs` UI 验证 |
@@ -448,6 +449,15 @@ gh auth setup-git
 - **数据源实测**：xq 列表页 HTTP 200 / 146 KB / 30 个 li；链家详情页 CAPTCHA 全拦截 → 改用 round-robin 关联（不是 1:1 真实映射，详见 changelog）
 - **验证**：119/119 单测过；type-check clean；listing-detail (id=1227) + community-detail (id=24 中核集团宿舍) Playwright 截图渲染
 - 详见 [changelog/2026-07-12-v0.4.2-链家xiaoqu真小区补足.md](./changelog/2026-07-12-v0.4.2-链家xiaoqu真小区补足.md)
+
+### v0.4.3 (2026-07-12)
+
+**把 POI 数据集成到 listing-detail + community UI**
+
+- **数据层**：`types/importer/store/queries` 加 `LocalPoi/PoiItem/PoiCategory` 全套类型；`DataSnapshot.pois` 字段；`getCommunityPois({communityId})` 查询
+- **UI**：`listing-detail.vue` + `community.vue` 各加"周边配套"卡片：5 类（地铁/学校/医院/商场/公园）每类最近 3 个 + 距离，icon + emoji
+- **验证**：126/126 单测过（+2 buildIntegrity：5 类覆盖 + distance_m 合法）；type-check clean；listing 1227 + community 24 Playwright 渲染
+- 详见 [changelog/2026-07-12-v0.4.3-高德POI集成到UI.md](./changelog/2026-07-12-v0.4.3-高德POI集成到UI.md)
 
 ## License
 

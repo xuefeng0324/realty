@@ -16,6 +16,7 @@ import type {
   LocalCommunity,
   LocalDailyWangqianRow,
   LocalListing,
+  LocalPoi,
   LocalSchool,
   LocalStats70Row
 } from "./types";
@@ -132,6 +133,34 @@ export function getListingById(listingId: number): LocalListing | undefined {
 
 export function getListingsByCommunity(communityId: number): LocalListing[] {
   return (snapshot?.listings ?? []).filter((l) => l.communityId === communityId);
+}
+
+/**
+ * POI 周边配套 (v0.4.2+)
+ * 返回某小区全部 POI 行，按 category → rank 排序。
+ */
+export function getPoisByCommunity(communityId: number): LocalPoi[] {
+  return (snapshot?.pois ?? [])
+    .filter((p) => p.communityId === communityId)
+    .sort((a, b) => {
+      if (a.poiCategory !== b.poiCategory) {
+        return a.poiCategory.localeCompare(b.poiCategory);
+      }
+      return a.poiRank - b.poiRank;
+    });
+}
+
+/**
+ * 按 category 聚合最近 N 个 POI（默认 3）
+ */
+export function getTopPoisByCategory(
+  communityId: number,
+  category: LocalPoi["poiCategory"],
+  limit = 3
+): LocalPoi[] {
+  return getPoisByCommunity(communityId)
+    .filter((p) => p.poiCategory === category)
+    .slice(0, limit);
 }
 
 export function getAvailableWeeks(cityId?: number): { weekStartDate: string; weekEndDate: string }[] {

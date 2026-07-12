@@ -614,6 +614,47 @@ export async function getSchoolFutureScore(params: { schoolId: number }): Promis
   };
 }
 
+// ---------- POI 周边配套 (v0.4.2+) ----------
+
+export type PoiCategory = "subway" | "school" | "hospital" | "mall" | "park";
+
+export interface PoiItem {
+  poi_category: PoiCategory;
+  poi_rank: number;
+  poi_name: string;
+  poi_type: string;
+  distance_m: number;
+  lat: number;
+  lng: number;
+  address: string;
+}
+
+export interface CommunityPoisResponse {
+  community_id: number;
+  items: PoiItem[];
+}
+
+/**
+ * 取某小区全部 POI（按 category, rank 排序）
+ * 配套 CSV: static/seed/poi_seed.csv (crawl_amap_poi.py)
+ */
+export async function getCommunityPois(params: { communityId: number }): Promise<CommunityPoisResponse> {
+  const rows = store.getPoisByCommunity(params.communityId);
+  return {
+    community_id: params.communityId,
+    items: rows.map((p) => ({
+      poi_category: p.poiCategory,
+      poi_rank: p.poiRank,
+      poi_name: p.poiName,
+      poi_type: p.poiType,
+      distance_m: p.distanceM,
+      lat: p.lat,
+      lng: p.lng,
+      address: p.address
+    }))
+  };
+}
+
 // ---------- helpers ----------
 function avg(arr: number[]): number | null {
   if (arr.length === 0) return null;

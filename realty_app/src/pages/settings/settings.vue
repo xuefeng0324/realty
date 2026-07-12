@@ -293,7 +293,8 @@ async function loadFromCsvUrl(base: string) {
       communitiesCSV: await fetchText("communities.csv"),
       schoolsCSV: await fetchText("schools.csv"),
       schoolIndicatorsCSV: await fetchText("school_indicators.csv"),
-      listingsCSV: await fetchText("listings.csv")
+      listingsCSV: await fetchText("listings.csv"),
+      poisCSV: await fetchText("poi_seed.csv").catch(() => "")
     },
     "csv-url:" + root
   );

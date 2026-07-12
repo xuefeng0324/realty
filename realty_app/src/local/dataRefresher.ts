@@ -140,6 +140,7 @@ function mergeListingsIntoSnapshot(
     schools,
     schoolIndicators,
     listings: remoteListings,
+    pois: existing?.pois ?? [],
     availableWeeks
   };
 }

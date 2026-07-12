@@ -20,9 +20,12 @@ import type {
   LocalCity,
   LocalCommunity,
   LocalListing,
+  LocalPoi,
   LocalSchool,
   LocalSchoolIndicator
 } from "./types";
+
+const POI_CATEGORIES = new Set(["subway", "school", "hospital", "mall", "park"]);
 
 function n(v: string | undefined): number | null {
   if (v == null) return null;
@@ -50,6 +53,8 @@ export interface SnapshotInputs {
   schoolsCSV: string;
   schoolIndicatorsCSV: string;
   listingsCSV: string;
+  /** v0.4.2: 高德 POI (可选，缺则装空数组) */
+  poisCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -122,6 +127,35 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     crawlDate: s(r.crawl_date)
   }));
 
+  // POI (v0.4.2+): 可选
+  const pois: LocalPoi[] = inputs.poisCSV
+    ? rowsToObjects<Record<string, string>>(parseCSV(inputs.poisCSV))
+        .map((r) => {
+          const cat = (r.poi_category ?? "").trim();
+          if (!POI_CATEGORIES.has(cat)) return null;
+          const cid = n(r.community_id);
+          const rank = n(r.poi_rank);
+          const dist = n(r.distance_m);
+          const lat = n(r.lat);
+          const lng = n(r.lng);
+          if (cid == null || rank == null || dist == null || lat == null || lng == null) {
+            return null;
+          }
+          return {
+            communityId: cid,
+            poiCategory: cat as LocalPoi["poiCategory"],
+            poiRank: rank,
+            poiName: s(r.poi_name) ?? "",
+            poiType: s(r.poi_type) ?? "",
+            distanceM: dist,
+            lat,
+            lng,
+            address: s(r.address) ?? ""
+          } as LocalPoi;
+        })
+        .filter((p): p is LocalPoi => p !== null)
+    : [];
+
   // 聚合可用周：基于 listings 的 crawl_date
   const weekEnds = new Set<string>();
   for (const l of listings) {
@@ -142,6 +176,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     schools,
     schoolIndicators,
     listings,
+    pois,
     availableWeeks
   };
 }
