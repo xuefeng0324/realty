@@ -1471,4 +1471,69 @@ describe("build integrity", () => {
       expect(content).toMatch(/layoutDims/);
     });
   });
+
+  // ────────────────────────────────────────────────────────────────────
+  // v0.26.0 trend-11 学区评分小区榜增强
+  // ────────────────────────────────────────────────────────────────────
+  describe("v0.26.0 trend-11 学区评分小区榜增强", () => {
+    it("store.ts 导出 SchoolPremiumCommunitySort 类型", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(content).toMatch(/export type SchoolPremiumCommunitySort/);
+      expect(content).toMatch(/avg_school_score/);
+      expect(content).toMatch(/median_unit_price/);
+      expect(content).toMatch(/listing_count/);
+      expect(content).toMatch(/school_count/);
+    });
+
+    it("store.ts getSchoolPremiumCommunityRank 支持 minScore + districtFilter + sort", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      const block = content.match(
+        /export function getSchoolPremiumCommunityRank[\s\S]+?^}/m
+      );
+      expect(block).toBeTruthy();
+      const body = block![0];
+      expect(body).toMatch(/minScore/);
+      expect(body).toMatch(/districtFilter/);
+      expect(body).toMatch(/sort/);
+    });
+
+    it("queries.ts 透传 minScore/districtFilter/sort", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      const block = content.match(
+        /export async function getSchoolPremiumCommunityRank[\s\S]+?^}/m
+      );
+      expect(block).toBeTruthy();
+      const body = block![0];
+      expect(body).toMatch(/minScore/);
+      expect(body).toMatch(/districtFilter/);
+      expect(body).toMatch(/sort/);
+    });
+
+    it("dashboard.vue 含 3 个 spc-row (区 / 最低评分 / 排序)", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      const matches = content.match(/class="spc-row"/g) || [];
+      expect(matches.length).toBeGreaterThanOrEqual(3);
+    });
+
+    it("dashboard.vue 含 spDistrictOptions / spMinScoreOptions / spSortOptions 控件", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(content).toMatch(/spDistrictOptions/);
+      expect(content).toMatch(/spMinScoreOptions/);
+      expect(content).toMatch(/spSortOptions/);
+      expect(content).toMatch(/toggleSpDistrict/);
+      expect(content).toMatch(/spSortLabel/);
+    });
+
+    it("dashboard.vue loadAll 透传 minScore/districtFilter/sort", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(content).toMatch(/spMinScore\.value/);
+      expect(content).toMatch(/spDistrictFilter\.value/);
+      expect(content).toMatch(/spSort\.value/);
+    });
+
+    it("school_premium_community.csv 仍 >= 30 行", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/school_premium_community.csv"));
+      expect(rows.length).toBeGreaterThanOrEqual(30);
+    });
+  });
 });

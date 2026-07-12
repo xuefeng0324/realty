@@ -191,6 +191,15 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 M | new-7 | dashboard '户型分布' 卡 + 4 维度条形图 + share % | ✅ v0.25.0 | BOM 修复 readCsv |
 | 🟢 M | new-7 | buildIntegrity +10 测试 + smoke_layout E2E + commit v0.25.0 | ✅ v0.25.0 | 280/280 通过；24/24 smoke 全绿 |
 
+## N 段补充：学区评分小区榜增强（v0.26.0）
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+| --- | --- | --- | --- | --- |
+| 🟡 N | trend-11 | 调研 school_premium_community.csv + 现卡 + 缺失能力 | ✅ v0.26.0 | 52 行 (深 39 / 广 8 / 珠 5) |
+| 🟡 N | trend-11 | store SchoolPremiumCommunitySort + minScore/districtFilter/sort 参数 | ✅ v0.26.0 | 4 种排序: 评分/均价/挂牌/校数 |
+| 🟡 N | trend-11 | dashboard 3 组 chip 控件 + watch 重载 + 切城市重置 | ✅ v0.26.0 | 区多选 + 5 档最低评分 + 4 排序 |
+| 🟡 N | trend-11 | buildIntegrity +7 测试 + smoke_trend11 E2E + commit v0.26.0 | ✅ v0.26.0 | 287/287 通过；15/15 smoke 全绿 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

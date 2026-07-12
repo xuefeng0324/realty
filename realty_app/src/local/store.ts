@@ -457,9 +457,22 @@ export function getCommunitySchoolScore(communityId: number): number {
  * 过滤 school_count >= 1, listing_count >= 1（避免空数据）。
  * 用于 dashboard "学区评分 Top 小区" 卡片。
  */
+export type SchoolPremiumCommunitySort =
+  | "avg_school_score" // 评分降序（默认）
+  | "median_unit_price" // 均价升序（最便宜）
+  | "listing_count" // 房源数降序（货量最大）
+  | "school_count"; // 学校数降序
+
 export function getSchoolPremiumCommunityRank(params: {
   cityId: number;
+  /** v0.26.0: 可选过滤 + 排序 */
   minListings?: number;
+  /** 最低学区评分 */
+  minScore?: number;
+  /** 限定区 (districtName); 多个用 | 分隔 */
+  districtFilter?: string;
+  /** 排序方式 (默认 avg_school_score) */
+  sort?: SchoolPremiumCommunitySort;
   limit?: number;
 }): Array<{
   communityId: number;
@@ -471,21 +484,45 @@ export function getSchoolPremiumCommunityRank(params: {
   medianUnitPrice: number;
   rank: number;
 }> {
-  const { cityId, minListings = 1, limit = 10 } = params;
+  const {
+    cityId,
+    minListings = 1,
+    minScore = 0,
+    districtFilter = "",
+    sort = "avg_school_score",
+    limit = 10
+  } = params;
+  const districts = new Set(
+    districtFilter
+      .split("|")
+      .map((d) => d.trim())
+      .filter(Boolean)
+  );
   const rows = (snapshot?.schoolPremiumCommunities ?? []).filter(
     (c) =>
       c.cityId === cityId &&
       c.schoolCount >= 1 &&
-      c.avgSchoolScore > 0 &&
-      c.listingCount >= minListings
+      c.avgSchoolScore >= minScore &&
+      c.listingCount >= minListings &&
+      (districts.size === 0 || districts.has(c.districtName))
   );
-  return rows
-    .sort((a, b) => {
-      if (b.avgSchoolScore !== a.avgSchoolScore) {
-        return b.avgSchoolScore - a.avgSchoolScore;
-      }
-      return b.medianUnitPrice - a.medianUnitPrice;
-    })
+  const sorted = [...rows].sort((a, b) => {
+    switch (sort) {
+      case "median_unit_price":
+        return a.medianUnitPrice - b.medianUnitPrice; // 便宜优先
+      case "listing_count":
+        return b.listingCount - a.listingCount;
+      case "school_count":
+        return b.schoolCount - a.schoolCount;
+      case "avg_school_score":
+      default:
+        if (b.avgSchoolScore !== a.avgSchoolScore) {
+          return b.avgSchoolScore - a.avgSchoolScore;
+        }
+        return b.medianUnitPrice - a.medianUnitPrice;
+    }
+  });
+  return sorted
     .slice(0, limit)
     .map((c, i) => ({
       communityId: c.communityId,

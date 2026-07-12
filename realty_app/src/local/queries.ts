@@ -1441,6 +1441,9 @@ export interface SchoolPremiumCommunityOverview {
 export async function getSchoolPremiumCommunityRank(params: {
   cityId: number;
   minListings?: number;
+  minScore?: number;
+  districtFilter?: string;
+  sort?: import("./store").SchoolPremiumCommunitySort;
   limit?: number;
 }): Promise<SchoolPremiumCommunityOverview | null> {
   const city = store.getCityById(params.cityId);
@@ -1448,6 +1451,9 @@ export async function getSchoolPremiumCommunityRank(params: {
   const rows = store.getSchoolPremiumCommunityRank({
     cityId: params.cityId,
     minListings: params.minListings,
+    minScore: params.minScore,
+    districtFilter: params.districtFilter,
+    sort: params.sort,
     limit: params.limit
   });
   if (rows.length === 0) return null;

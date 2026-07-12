@@ -463,12 +463,56 @@
         </view>
       </view>
 
-      <!-- v0.14.0 学区评分 Top 小区 -->
+      <!-- v0.14.0 + v0.26.0 学区评分 Top 小区 (增强) -->
       <view v-if="schoolPremiumCommunityItems.length > 0" class="card">
         <view class="row-between">
-          <view class="card-title">学区评分 Top {{ schoolPremiumCommunityItems.length }} 小区</view>
-          <view class="muted">按区内学校 latest_level_score 加权</view>
+          <view class="card-title">学区评分 Top 小区 · {{ schoolPremiumCommunityItems.length }}</view>
+          <view class="muted">{{ spSortLabel }}</view>
         </view>
+
+        <!-- v0.26.0 trend-11 过滤 + 排序 -->
+        <view class="spc-controls">
+          <view class="spc-row">
+            <text class="spc-label">区</text>
+            <view class="spc-chips">
+              <text
+                v-for="d in spDistrictOptions"
+                :key="d"
+                :class="['spc-chip', spDistrictFilter.includes(d) ? 'spc-chip-on' : '']"
+                @click="toggleSpDistrict(d)"
+              >
+                {{ d }}
+              </text>
+            </view>
+          </view>
+          <view class="spc-row">
+            <text class="spc-label">最低评分</text>
+            <view class="spc-chips">
+              <text
+                v-for="opt in spMinScoreOptions"
+                :key="opt"
+                :class="['spc-chip', spMinScore === opt ? 'spc-chip-on' : '']"
+                @click="spMinScore = opt"
+              >
+                {{ opt === 0 ? '不限' : opt + '+' }}
+              </text>
+            </view>
+          </view>
+          <view class="spc-row">
+            <text class="spc-label">排序</text>
+            <view class="spc-chips">
+              <text
+                v-for="opt in spSortOptions"
+                :key="opt.value"
+                :class="['spc-chip', spSort === opt.value ? 'spc-chip-on' : '']"
+                @click="spSort = opt.value"
+              >
+                {{ opt.label }}
+              </text>
+            </view>
+          </view>
+        </view>
+
         <view v-if="schoolPremiumCommunityItems.length === 0" class="empty">暂无数据</view>
         <view
           v-for="item in schoolPremiumCommunityItems"
@@ -485,7 +529,7 @@
           <view class="community-main">
             <view class="community-name">{{ item.communityName }}</view>
             <view class="muted">
-              {{ item.districtName }} · 评分 {{ item.avgSchoolScore.toFixed(1) }} · {{ item.schoolCount }} 所学校
+              {{ item.districtName }} · 评分 {{ item.avgSchoolScore.toFixed(1) }} · {{ item.schoolCount }} 所学校 · {{ item.listingCount }} 套
             </view>
           </view>
           <view class="community-sp-price">
@@ -496,7 +540,7 @@
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：schools.csv (district_name) + school_indicators.csv (latest_level_score_raw)。
-          同一区内的学校评分聚合到该区所有小区，便于横向对比「住在哪个小区最沾名校光」。
+          支持按区过滤、最低评分筛选、4 种排序 (评分/均价/挂牌/校数)。
         </view>
       </view>
 
@@ -755,6 +799,10 @@ const commuteRanking = ref<CommuteRankingResponse | null>(null);
 const layoutDistribution = ref<LayoutDistributionResponse | null>(null);
 const schoolPremiumOverview = ref<SchoolPremiumOverview | null>(null);
 const schoolPremiumCommunityItems = ref<SchoolPremiumCommunityItem[]>([]);
+// v0.26.0 trend-11: 过滤 + 排序 controls
+const spDistrictFilter = ref<string>(""); // '|'-separated district names
+const spMinScore = ref<number>(0);
+const spSort = ref<import("../../local/store").SchoolPremiumCommunitySort>("avg_school_score");
 const weatherResp = ref<WeatherResponse | null>(null);
 const listingPremiumOverview = ref<ListingSchoolPremiumOverview | null>(null);
 const commercialResp = ref<CommercialRankingResponse | null>(null);
@@ -1055,9 +1103,12 @@ async function loadRankingAndDistrict() {
         cityId: app.cityId,
         limit: 10
       });
-      // v0.14.0 学区评分 Top 小区
+      // v0.14.0 + v0.26.0 学区评分 Top 小区 (增强：过滤 + 排序)
       const spc = await getSchoolPremiumCommunityRank({
         cityId: app.cityId,
+        minScore: spMinScore.value,
+        districtFilter: spDistrictFilter.value,
+        sort: spSort.value,
         limit: 10
       });
       schoolPremiumCommunityItems.value = spc?.items ?? [];
@@ -1235,6 +1286,37 @@ function spMedalClass(rank: number): string {
   if (rank === 3) return "medal-bronze";
   return "medal-flat-mini";
 }
+
+// v0.26.0 trend-11 过滤 + 排序 controls
+function _computeDistrictOptions(): string[] {
+  const districts = new Set<string>();
+  for (const c of schoolPremiumCommunityItems.value) {
+    districts.add(c.districtName);
+  }
+  return [...districts].sort();
+}
+
+const spDistrictOptions = computed<string[]>(() => _computeDistrictOptions());
+const spMinScoreOptions = [0, 70, 75, 80, 85];
+const spSortOptions = [
+  { value: "avg_school_score", label: "评分" },
+  { value: "median_unit_price", label: "均价" },
+  { value: "listing_count", label: "挂牌" },
+  { value: "school_count", label: "校数" }
+] as const;
+
+function toggleSpDistrict(d: string): void {
+  const list = spDistrictFilter.value ? spDistrictFilter.value.split("|") : [];
+  const idx = list.indexOf(d);
+  if (idx >= 0) list.splice(idx, 1);
+  else list.push(d);
+  spDistrictFilter.value = list.filter(Boolean).join("|");
+}
+
+const spSortLabel = computed(() => {
+  const opt = spSortOptions.find((o) => o.value === spSort.value);
+  return opt ? `按${opt.label}排序` : "";
+});
 
 // v0.17.0 listing 学区评分等级 → medal class
 function lpScoreClass(score: number): string {
@@ -1494,7 +1576,28 @@ watch(
     if (cityId === _lastCityId && weekEnd === _lastWeekEnd) return;
     _lastCityId = cityId;
     _lastWeekEnd = weekEnd;
+    // v0.26.0 trend-11: 切城市时重置过滤 (区/最低评分/排序保留)
+    spDistrictFilter.value = "";
+    spMinScore.value = 0;
+    spSort.value = "avg_school_score";
     await loadAll();
+  }
+);
+
+// v0.26.0 trend-11: 过滤/排序变化时重新加载该卡
+watch(
+  () => [spDistrictFilter.value, spMinScore.value, spSort.value] as const,
+  async () => {
+    const cid = app.cityId;
+    if (cid == null) return;
+    const spc = await getSchoolPremiumCommunityRank({
+      cityId: cid,
+      minScore: spMinScore.value,
+      districtFilter: spDistrictFilter.value,
+      sort: spSort.value,
+      limit: 10
+    });
+    schoolPremiumCommunityItems.value = spc?.items ?? [];
   }
 );
 
@@ -2160,6 +2263,44 @@ onShow(async () => {
   text-align: right;
   color: #94a3b8;
   font-variant-numeric: tabular-nums;
+}
+
+/* v0.26.0 trend-11 学区评分小区榜 - 过滤/排序控件 */
+.spc-controls {
+  padding: 8rpx 0 12rpx;
+  border-bottom: 1rpx dashed #1f2937;
+  margin-bottom: 6rpx;
+}
+.spc-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8rpx;
+  padding: 4rpx 0;
+  font-size: 22rpx;
+}
+.spc-label {
+  flex: 0 0 90rpx;
+  color: #94a3b8;
+  padding-top: 6rpx;
+}
+.spc-chips {
+  flex: 1 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6rpx;
+}
+.spc-chip {
+  padding: 4rpx 12rpx;
+  border-radius: 999rpx;
+  background: #0f172a;
+  border: 1rpx solid #334155;
+  color: #cbd5e1;
+  font-size: 22rpx;
+}
+.spc-chip-on {
+  background: #0ea5e9;
+  color: #fff;
+  border-color: #38bdf8;
 }
 
 /* v0.10.0 网签热度榜 */
