@@ -24,6 +24,7 @@ import type {
   LocalDistrictIndex,
   LocalHospital,
   LocalLifeConvenience,
+  LocalCommunityScore,
   LocalListing,
   LocalLayoutDistribution,
   LocalListingSchoolPremium,
@@ -102,6 +103,8 @@ export interface SnapshotInputs {
   districtIndexCSV?: string;
   /** v0.31.0: 生活便利度 */
   lifeConvenienceCSV?: string;
+  /** v0.33.0: 小区综合评分 */
+  communityScoreCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -112,6 +115,37 @@ function weekEndFromDate(iso: string): string {
 }
 
 const LAYOUT_DIMS = new Set(["bedrooms", "area_sqm", "orientation", "decorate"]);
+
+function parseCommunityScore(csvText: string): LocalCommunityScore[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.community_id);
+      if (cid == null) return null;
+      const num = (v: string | undefined) => {
+        if (v === undefined || v === "") return 0;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : 0;
+      };
+      const numOrNull = (v: string | undefined): number | null => {
+        if (v === undefined || v === "") return null;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : null;
+      };
+      return {
+        communityId: cid,
+        cityId: n(r.city_id) ?? 0,
+        districtName: s(r.district_name) ?? "",
+        communityName: s(r.community_name) ?? "",
+        lifeScore: num(r.life_score ?? undefined),
+        schoolScore: num(r.school_score ?? undefined),
+        commuteMinutes: numOrNull(r.commute_minutes ?? undefined),
+        commuteScore: num(r.commute_score ?? undefined),
+        totalScore: num(r.total_score ?? undefined),
+        rankCity: num(r.rank_city ?? undefined)
+      } as LocalCommunityScore;
+    })
+    .filter((x): x is LocalCommunityScore => x !== null);
+}
 
 function parseLifeConvenience(csvText: string): LocalLifeConvenience[] {
   return rowsToObjects<Record<string, string>>(parseCSV(csvText))
@@ -637,6 +671,11 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     ? parseLifeConvenience(inputs.lifeConvenienceCSV)
     : [];
 
+  // v0.33.0 trend-15: 小区综合评分
+  const communityScores: LocalCommunityScore[] = inputs.communityScoreCSV
+    ? parseCommunityScore(inputs.communityScoreCSV)
+    : [];
+
   // 聚合可用周：基于 listings 的 crawl_date
   const weekEnds = new Set<string>();
   for (const l of listings) {
@@ -673,6 +712,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     listingTags,
     districtIndices,
     lifeConveniences,
+    communityScores,
     availableWeeks
   };
 }

@@ -1810,4 +1810,73 @@ describe("build integrity", () => {
       expect(content).toMatch(/getLifeConvenienceRank\(\{\s*cityId:\s*app\.cityId/);
     });
   });
+
+  // ────────────────────────────────────────────────────────────────────
+  // v0.33.0 trend-15 小区综合评分 (community_score.csv)
+  // ────────────────────────────────────────────────────────────────────
+  describe("v0.33.0 trend-15 小区综合评分", () => {
+    it("community_score.csv 存在且 >= 50 行", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/community_score.csv"));
+      expect(rows.length).toBeGreaterThanOrEqual(50);
+    });
+
+    it("community_score.csv total_score 0-100 范围", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/community_score.csv"));
+      for (const r of rows) {
+        const t = Number(r["total_score"]);
+        expect(Number.isFinite(t)).toBe(true);
+        expect(t).toBeGreaterThanOrEqual(0);
+        expect(t).toBeLessThanOrEqual(100);
+      }
+    });
+
+    it("community_score.csv rank_city 1-based 且每城内连续", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/community_score.csv"));
+      const byCity: Record<string, number[]> = {};
+      for (const r of rows) {
+        const c = r["city_id"];
+        byCity[c] = byCity[c] ?? [];
+        byCity[c].push(Number(r["rank_city"]));
+      }
+      for (const c in byCity) {
+        const ranks = byCity[c].slice().sort((a, b) => a - b);
+        expect(ranks[0]).toBe(1);
+        for (let i = 0; i < ranks.length; i++) {
+          expect(ranks[i]).toBe(i + 1);
+        }
+      }
+    });
+
+    it("types.ts 定义 LocalCommunityScore 接口", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(content).toMatch(/export interface LocalCommunityScore/);
+      expect(content).toMatch(/communityScores: LocalCommunityScore\[\]/);
+    });
+
+    it("importer.ts 解析 communityScoreCSV 输入", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(content).toMatch(/communityScoreCSV\?: string/);
+      expect(content).toMatch(/parseCommunityScore/);
+    });
+
+    it("queries.ts 增加 getCommunityScoreRank 函数", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/export function getCommunityScoreRank/);
+      expect(content).toMatch(/export interface CommunityScoreResponse/);
+    });
+
+    it("dashboard.vue 渲染小区综合评分卡片 + 3 维细分", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(content).toMatch(/communityScore/);
+      expect(content).toMatch(/小区综合评分|🏅/);
+      expect(content).toMatch(/getCommunityScoreRank/);
+      expect(content).toMatch(/csTotalClass|csMedalClass/);
+      expect(content).toMatch(/cs-row|cs-scores/);
+    });
+
+    it("dashboard.vue loadAll 调用 getCommunityScoreRank", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(content).toMatch(/getCommunityScoreRank\(\{\s*cityId:\s*app\.cityId/);
+    });
+  });
 });

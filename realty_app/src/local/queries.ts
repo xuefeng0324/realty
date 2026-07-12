@@ -28,7 +28,7 @@ import type {
   SchoolFutureScoreResponse,
   CityItem
 } from "../api/contracts";
-import type { LocalLayoutDistribution, LocalListing, LocalListingTag, LocalDistrictIndex, LocalLifeConvenience } from "./types";
+import type { LocalLayoutDistribution, LocalListing, LocalListingTag, LocalDistrictIndex, LocalLifeConvenience, LocalCommunityScore } from "./types";
 import {
   generateWeeklySnapshot,
   type SnapshotResult
@@ -2023,6 +2023,73 @@ export function getLifeConvenienceRank(params: {
 
   const avg = Math.round((all.reduce((s, r) => s + r.score, 0) / all.length) * 10) / 10;
   const max = all.reduce((m, r) => (r.score > m ? r.score : m), 0);
+
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    avgScore: avg,
+    maxScore: max,
+    items
+  };
+}
+
+/**
+ * v0.33.0: 小区综合评分榜 (按 totalScore 降序)
+ * 用于 dashboard "🏅 小区综合评分" 卡片
+ */
+export interface CommunityScoreItem {
+  communityId: number;
+  districtName: string;
+  communityName: string;
+  lifeScore: number;
+  schoolScore: number;
+  commuteMinutes: number | null;
+  commuteScore: number;
+  totalScore: number;
+  rankCity: number;
+}
+
+export interface CommunityScoreResponse {
+  cityId: number;
+  cityName: string;
+  avgScore: number;
+  maxScore: number;
+  /** 按 totalScore 降序 */
+  items: CommunityScoreItem[];
+}
+
+export function getCommunityScoreRank(params: {
+  cityId: number;
+  topN?: number;
+  minScore?: number;
+}): CommunityScoreResponse | null {
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const all = store.getCommunityScoresByCity(params.cityId);
+  if (all.length === 0) return null;
+
+  const minScore = params.minScore ?? 0;
+  const topN = params.topN ?? 10;
+  const filtered = all.filter((l) => l.totalScore >= minScore);
+
+  const items: CommunityScoreItem[] = filtered
+    .slice()
+    .sort((a, b) => b.totalScore - a.totalScore)
+    .slice(0, topN)
+    .map((l) => ({
+      communityId: l.communityId,
+      districtName: l.districtName,
+      communityName: l.communityName,
+      lifeScore: l.lifeScore,
+      schoolScore: l.schoolScore,
+      commuteMinutes: l.commuteMinutes,
+      commuteScore: l.commuteScore,
+      totalScore: l.totalScore,
+      rankCity: l.rankCity
+    }));
+
+  const avg = Math.round((all.reduce((s, r) => s + r.totalScore, 0) / all.length) * 10) / 10;
+  const max = all.reduce((m, r) => (r.totalScore > m ? r.totalScore : m), 0);
 
   return {
     cityId: params.cityId,

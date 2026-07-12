@@ -77,6 +77,10 @@ import districtIndexCSV from "../../static/seed/district_index.csv?raw";
 // @ts-ignore
 import lifeConvenienceCSV from "../../static/seed/life_convenience.csv?raw";
 
+// v0.33.0 小区综合评分 (scripts/compute_community_score.py)
+// @ts-ignore
+import communityScoreCSV from "../../static/seed/community_score.csv?raw";
+
 let cached: DataSnapshot | null = null;
 
 /** 拿默认快照。第一次解析后缓存。 */
@@ -104,7 +108,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       layoutDistributionCSV: String(layoutDistributionCSV ?? ""),
       listingTagsCSV: String(listingTagsCSV ?? ""),
       districtIndexCSV: String(districtIndexCSV ?? ""),
-      lifeConvenienceCSV: String(lifeConvenienceCSV ?? "")
+      lifeConvenienceCSV: String(lifeConvenienceCSV ?? ""),
+      communityScoreCSV: String(communityScoreCSV ?? "")
     },
     "seed:public-derived"
   );

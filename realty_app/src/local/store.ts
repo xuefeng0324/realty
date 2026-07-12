@@ -22,6 +22,7 @@ import type {
   LocalHospital,
   LocalLayoutDistribution,
   LocalLifeConvenience,
+  LocalCommunityScore,
   LocalListing,
   LocalListingSchoolPremium,
   LocalListingTag,
@@ -351,6 +352,17 @@ export function getLifeConveniences(): LocalLifeConvenience[] {
 
 export function getLifeConveniencesByCity(cityId: number): LocalLifeConvenience[] {
   return (snapshot?.lifeConveniences ?? []).filter((l) => l.cityId === cityId);
+}
+
+/**
+ * v0.33.0: 小区综合评分 (全量 + 按城市过滤)
+ */
+export function getCommunityScores(): LocalCommunityScore[] {
+  return snapshot?.communityScores ?? [];
+}
+
+export function getCommunityScoresByCity(cityId: number): LocalCommunityScore[] {
+  return (snapshot?.communityScores ?? []).filter((c) => c.cityId === cityId);
 }
 
 /**

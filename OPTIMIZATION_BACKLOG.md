@@ -263,6 +263,16 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 T | new-10 | dashboard 「🧭 生活便利度 v2」6 维 (M/P/S/X/Y/C) + 归一化显示 | ✅ v0.32.0 | 京基100 满分 100/100 |
 | 🟢 T | new-10 | buildIntegrity +1 测试 + smoke_life_convenience dimCount 5→6 + commit v0.32.0 | ✅ v0.32.0 | 323/323 通过；smoke 全绿 |
 
+## U 段补充：小区综合评分 (v0.33.0)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+| --- | --- | --- | --- | --- |
+| 🟢 U | trend-15 | 调研 6 类分数合成方案 + 权重设计 | ✅ v0.33.0 | life*0.5 + school*0.3 + commute*0.2 |
+| 🟢 U | trend-15 | compute_community_score.py + community_score.csv (52 行) | ✅ v0.33.0 | rank_city 按城内降序 |
+| 🟢 U | trend-15 | LocalCommunityScore + parseCommunityScore + store + query | ✅ v0.33.0 | 全套数据层 |
+| 🟢 U | trend-15 | dashboard 「🏅 小区综合评分 Top 小区」卡 (3 维细分 + 金银铜牌) | ✅ v0.33.0 | ≥80 绿 / 65-79 蓝 / <65 灰 |
+| 🟢 U | trend-15 | buildIntegrity +8 测试 + smoke_community_score E2E + commit v0.33.0 | ✅ v0.33.0 | 331/331 通过；smoke 全绿 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

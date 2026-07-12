@@ -512,6 +512,56 @@
         </view>
       </view>
 
+      <!-- v0.33.0 trend-15 小区综合评分榜 (生活+学区+通勤 加权) -->
+      <view v-if="communityScore && communityScore.items.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">🏅 小区综合评分 Top 小区 · {{ communityScore.cityName }}</view>
+          <view class="muted">Top {{ communityScore.items.length }}</view>
+        </view>
+        <view v-if="communityScore.items.length === 0" class="empty">暂无数据</view>
+        <view class="cs-summary muted">
+          城市均分 {{ communityScore.avgScore }} · 最高 {{ communityScore.maxScore }} · 权重 生活50%/学区30%/通勤20%
+        </view>
+        <view
+          v-for="it in communityScore.items"
+          :key="it.communityId"
+          class="cs-row"
+        >
+          <view class="cs-rank">
+            <text :class="['cs-medal', csMedalClass(it.rankCity)]">{{ csMedalText(it.rankCity) }}</text>
+          </view>
+          <view class="cs-mid">
+            <view class="cs-name">{{ it.communityName }}</view>
+            <view class="cs-dist muted">{{ it.districtName }}</view>
+          </view>
+          <view class="cs-scores">
+            <view class="cs-dim">
+              <text class="cs-dim-label">生活</text>
+              <text class="cs-dim-val">{{ it.lifeScore.toFixed(0) }}</text>
+            </view>
+            <view class="cs-dim">
+              <text class="cs-dim-label">学区</text>
+              <text class="cs-dim-val">{{ it.schoolScore.toFixed(0) }}</text>
+            </view>
+            <view class="cs-dim">
+              <text class="cs-dim-label">通勤</text>
+              <text class="cs-dim-val">
+                <text v-if="it.commuteMinutes != null">{{ it.commuteScore.toFixed(0) }}</text>
+                <text v-else>—</text>
+              </text>
+            </view>
+          </view>
+          <view class="cs-right">
+            <text :class="['cs-total', csTotalClass(it.totalScore)]">{{ it.totalScore.toFixed(0) }}</text>
+            <view class="muted" style="font-size: 20rpx">/ 100</view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：life_convenience.csv (50%) + school_premium_community.csv (30%) + commute.csv (20%) → community_score.csv。
+          综合分 0-100，按总分降序；金色前 3 名。
+        </view>
+      </view>
+
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
       <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card">
         <view class="row-between">
@@ -920,7 +970,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -967,6 +1017,7 @@ const tagCloudFilteredHint = ref<string>("");
 const districtIndex = ref<DistrictIndexResponse | null>(null);
 const districtChange = ref<DistrictChangeResponse | null>(null);
 const lifeConvenience = ref<LifeConvenienceResponse | null>(null);
+const communityScore = ref<CommunityScoreResponse | null>(null);
 const schoolPremiumOverview = ref<SchoolPremiumOverview | null>(null);
 const schoolPremiumCommunityItems = ref<SchoolPremiumCommunityItem[]>([]);
 // v0.26.0 trend-11: 过滤 + 排序 controls
@@ -1307,6 +1358,16 @@ async function loadRankingAndDistrict() {
         console.warn("getLifeConvenienceRank failed:", e);
         lifeConvenience.value = null;
       }
+      // v0.33.0 trend-15 小区综合评分榜
+      try {
+        communityScore.value = await getCommunityScoreRank({
+          cityId: app.cityId,
+          topN: 8
+        });
+      } catch (e) {
+        console.warn("getCommunityScoreRank failed:", e);
+        communityScore.value = null;
+      }
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
         cityId: app.cityId,
@@ -1617,6 +1678,31 @@ function lifeScoreClass(s: number): string {
   if (s >= 80) return "lc-score-high";
   if (s >= 60) return "lc-score-mid";
   return "lc-score-low";
+}
+
+/**
+ * v0.33.0: 综合评分分档颜色
+ *   ≥80 高 (绿) / 65-79 中 (蓝) / <65 低 (灰)
+ */
+function csTotalClass(s: number): string {
+  if (s >= 80) return "cs-total-high";
+  if (s >= 65) return "cs-total-mid";
+  return "cs-total-low";
+}
+
+/** v0.33.0: 综合评分金牌前 3 名 */
+function csMedalClass(rank: number): string {
+  if (rank === 1) return "cs-medal-gold";
+  if (rank === 2) return "cs-medal-silver";
+  if (rank === 3) return "cs-medal-bronze";
+  return "cs-medal-none";
+}
+
+function csMedalText(rank: number): string {
+  if (rank === 1) return "🥇";
+  if (rank === 2) return "🥈";
+  if (rank === 3) return "🥉";
+  return String(rank);
 }
 
 /** 把 weeklySeries 转成 sparkline 高度比例 (0-100) */
@@ -2762,6 +2848,104 @@ onShow(async () => {
   color: #38bdf8;
 }
 .lc-score-low {
+  color: #94a3b8;
+}
+
+/* v0.33.0 小区综合评分榜 */
+.cs-summary {
+  font-size: 22rpx;
+  margin-bottom: 8rpx;
+}
+.cs-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 8rpx 0;
+  border-bottom: 1rpx solid #1f2937;
+}
+.cs-row:last-child {
+  border-bottom: none;
+}
+.cs-rank {
+  width: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cs-medal {
+  font-size: 36rpx;
+  font-weight: 700;
+}
+.cs-medal-gold {
+  color: #fbbf24;
+}
+.cs-medal-silver {
+  color: #d1d5db;
+}
+.cs-medal-bronze {
+  color: #fb923c;
+}
+.cs-medal-none {
+  color: #94a3b8;
+  font-size: 28rpx;
+}
+.cs-mid {
+  flex: 1;
+  min-width: 0;
+}
+.cs-name {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cs-dist {
+  font-size: 20rpx;
+}
+.cs-scores {
+  display: flex;
+  gap: 6rpx;
+  flex-wrap: nowrap;
+}
+.cs-dim {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #1e293b;
+  border-radius: 6rpx;
+  padding: 2rpx 6rpx;
+  min-width: 50rpx;
+}
+.cs-dim-label {
+  font-size: 18rpx;
+  color: #94a3b8;
+  font-weight: 600;
+}
+.cs-dim-val {
+  font-size: 22rpx;
+  color: #cbd5e1;
+  font-variant-numeric: tabular-nums;
+}
+.cs-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 60rpx;
+}
+.cs-total {
+  font-size: 36rpx;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.cs-total-high {
+  color: #22c55e;
+}
+.cs-total-mid {
+  color: #38bdf8;
+}
+.cs-total-low {
   color: #94a3b8;
 }
 

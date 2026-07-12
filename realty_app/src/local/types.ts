@@ -379,6 +379,29 @@ export interface LocalLifeConvenience {
 }
 
 /**
+ * v0.33.0: 小区综合评分 v2 (scripts/compute_community_score.py)
+ * 满分 100, 3 维度加权: 生活(50%) + 学区(30%) + 通勤(20%)
+ */
+export interface LocalCommunityScore {
+  communityId: number;
+  cityId: number;
+  districtName: string;
+  communityName: string;
+  /** 生活便利度 (0-100) */
+  lifeScore: number;
+  /** 学区评分 (0-100) */
+  schoolScore: number;
+  /** 最近 CBD 通勤分钟 (无则 null) */
+  commuteMinutes: number | null;
+  /** 通勤分 (0-100, 由 minutes 换算) */
+  commuteScore: number;
+  /** 综合分 (0-100) */
+  totalScore: number;
+  /** 该城市内排名 (1-based) */
+  rankCity: number;
+}
+
+/**
  * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
  * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
  * 用于 dashboard 展示"区级近 N 周房价趋势"。
@@ -433,6 +456,8 @@ export interface DataSnapshot {
   districtIndices: LocalDistrictIndex[];
   /** v0.31.0: 生活便利度 (scripts/compute_life_convenience.py) */
   lifeConveniences: LocalLifeConvenience[];
+  /** v0.33.0: 小区综合评分 (scripts/compute_community_score.py) */
+  communityScores: LocalCommunityScore[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }
