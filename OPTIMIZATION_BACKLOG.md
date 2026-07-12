@@ -21,6 +21,23 @@
 | 🟢 P2 | ui-1 | App 地图视图（用上 listings 经纬度） | ⏳ | 依赖 data-1 |
 | 🟢 P2 | ui-2 | 成交 vs 挂牌对比视图 | ⏳ | 依赖 data-2 |
 
+### 用户最新指令追加（2026-07-12 16:48）
+
+按"边际收益/工作量"原则，下面 3 项由用户加进 backlog；执行顺序先 **C** 再 **B** 再 **A**：
+
+| 等级 | 编号 | 任务 | 状态 | 前置 / 备注 |
+|------|------|------|------|------|
+| 🟡 C | enrich-1 | **写 `enrich_lianjia_detail.py` 抓链家详情页，提取真实小区名 + district，补 60 条真 listings 的 community_id** | 🚧 | 链家详情页：`<a href="/xiaoqu/{id}/">小区名</a>` 在 HTML 里直接可见 |
+| 🟡 C | enrich-2 | 重跑 `crawl_amap_geo.py fetch` + `crawl_amap_poi.py fetch`，让新 60 个小区也获得经纬度和 POI | ⏳ | 依赖 enrich-1；约 60 × 3 次 geocode + 60 × 5 类 = ~360 次高德调用（远低于 5000-30000/天配额）|
+| 🟡 C | enrich-3 | 把 60 条 listings 的 `communityId`（现在全是 0）指向新小区 ID，让 district 维度能覆盖到链家 listings | ⏳ | 依赖 enrich-1 / enrich-2 |
+| 🟡 C | enrich-4 | 跑单测 + Playwright UI 验证 + commit (v0.5.0) | ⏳ | 依赖 enrich-3 |
+| 🟡 B | ui-poi-1 | listing-detail.vue 集成 poi_seed.csv，显示"最近地铁 / 小学 / 医院 / 商场"距离 | ⏳ | v0.4.1 数据已在；新枚举 NearestPoi 卡片视图 + poiImporter |
+| 🟡 B | ui-poi-2 | community-detail.vue 集成 poi_seed.csv，列周边 POI 完整清单 | ⏳ | 跟 ui-poi-1 平行可做 |
+| 🟡 B | ui-poi-3 | 跑单测 + Playwright 验证 + commit (v0.5.1) | ⏳ |  |
+| 🔵 A | gov-1 | 调研 opendata.sz.gov.cn 70+ 数据集，挑选 5-10 个对买房/评分有直接价值的（学位紧张度、医院床位密度、POI 密度、社区配套、地铁规划公示等） | ⏳ | 用户需给出关注方向 |
+| 🟡 A | gov-2 | 写 `crawl_opendata_sz.py`（多子数据集统一 schema 化）+ importer | ⏳ | 依赖 gov-1 |
+| 🔵 A | gov-3 | 跑单测 + UI 验证 + commit (v0.5.2) | ⏳ |  |
+
 ## 可达性验证结果（2026-07-12 本机实测）
 
 | URL | HTTP | 长度 | 状态 |

@@ -10,6 +10,7 @@
  *  4. package.json 与 manifest.json 的 version 对齐
  *  5. CI 必装文件存在
  *  6. 高德 POI 抓取数据完整性（v0.4.1）：communities_geo.csv + poi_seed.csv
+ *  7. 链家 listings 关联完整性（v0.4.2）：community_id 不全部为 0；新加小区 ≥ 29
  *
  * 为什么不放到 e2e：
  *  这是纯文件 / JSON 解析，不依赖 dev server，跑在 vitest node 环境下毫秒级。
@@ -149,6 +150,52 @@ describe("build integrity", () => {
       const poiRows = readCsv(poiPath);
       const orphan = poiRows.filter((r) => !validIds.has(r.community_id));
       expect(orphan.length).toBe(0);
+    });
+  });
+
+  describe("链家 xiaoqu + listings enrich（v0.4.2）", () => {
+    const communitiesPath = resolve(ROOT, "static/seed/communities.csv");
+    const listingsPath = resolve(ROOT, "static/seed/listings.csv");
+    const poiPath = resolve(ROOT, "static/seed/poi_seed.csv");
+
+    it("communities.csv 行数 ≥ 52（23 seed + ≥29 lianjia xiaoqu）", () => {
+      const rows = readCsv(communitiesPath);
+      expect(rows.length).toBeGreaterThanOrEqual(52);
+    });
+
+    it("深圳 (city_id=2) 小区数 ≥ 35（v0.4.1 = 6）", () => {
+      const rows = readCsv(communitiesPath);
+      const sz = rows.filter((r) => r.city_id === "2").length;
+      expect(sz).toBeGreaterThanOrEqual(35);
+    });
+
+    it("链家 listings 的 community_id 大部分 ≠ 0（关联率 ≥ 90%）", () => {
+      const rows = readCsv(listingsPath).filter((r) => r.source === "链家在售");
+      const linked = rows.filter(
+        (r) => r.community_id && r.community_id !== "0"
+      ).length;
+      const ratio = rows.length === 0 ? 0 : (linked * 100) / rows.length;
+      expect(ratio).toBeGreaterThanOrEqual(90);
+    });
+
+    it("链家 listings 的 community_id 必须是 communities.csv 里的真小区（无孤儿）", () => {
+      const communities = readCsv(communitiesPath);
+      const validIds = new Set(communities.map((r) => r.community_id));
+      const listings = readCsv(listingsPath);
+      const orphan = listings.filter(
+        (l) =>
+          l.source === "链家在售" &&
+          l.community_id &&
+          l.community_id !== "0" &&
+          !validIds.has(l.community_id)
+      );
+      expect(orphan.length).toBe(0);
+    });
+
+    it("poi_seed.csv 行数 ≥ 600（v0.4.2 扩到 49 个小区 × 5 类）", () => {
+      if (!existsSync(poiPath)) return;
+      const rows = readCsv(poiPath);
+      expect(rows.length).toBeGreaterThanOrEqual(600);
     });
   });
 

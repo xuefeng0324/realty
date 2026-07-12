@@ -6,6 +6,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v0.4.2 | 2026-07-12 | 接链家 xiaoqu 列表页真小区（深圳 +29 个，5.7× POI）+ 把链家 listings 的 community_id 由 0 轮询关联到 39 个深圳小区 |
 | v0.4.1 | 2026-07-12 | 接高德 POI：23 个 seed 小区经纬度 + 周边配套（地铁/学校/医院/商场/公园），新增 `crawl_amap_*.py` 与数据完整性单测 |
 | v0.4.0 | 2026-07-12 | 接链家在售 API 真 listings（60 条）入 seed；新增 `crawl_lianjia_listings.py` + `tests/e2e/smoke_listings.mjs` UI 验证 |
 | v0.3.1 | 2026-07-12 | CI 修复（actionlint 死引用）+ crawl workflow 缓存优化 + check.ps1 Node 预检 + build 完整性单测 |
@@ -437,6 +438,16 @@ gh auth setup-git
 - **新单测**：`tests/buildIntegrity.test.ts` 加 5 个用例，覆盖 `communities_geo.csv`/`poi_seed.csv` 文件存在 + geocode 覆盖率 + POI 孤儿检测
 - **配额**：23 小区 × 4-5 次 = 79-115 次/天，远低于 5000-30000 配额
 - 详见 [changelog/2026-07-12-v0.4.1-高德POI真数据接入.md](./changelog/2026-07-12-v0.4.1-高德POI真数据接入.md)
+
+### v0.4.2 (2026-07-12)
+
+**接链家 xiaoqu 真小区源 + 关联链家 listings**
+
+- **新脚本**：`scripts/enrich_lianjia_xq.py`（抓链家 xiaoqu 列表页 → 30 个真小区带 district+bizcircle）+ `scripts/enrich_lianjia_listings.py`（给链家 listings 的 community_id=0 → 轮询关联）
+- **数据**：深圳 seed 小区 6 → **39**（+33）；POI 115 → **657**（+542，~5.7×）；district coverage 4 → 9 区
+- **数据源实测**：xq 列表页 HTTP 200 / 146 KB / 30 个 li；链家详情页 CAPTCHA 全拦截 → 改用 round-robin 关联（不是 1:1 真实映射，详见 changelog）
+- **验证**：119/119 单测过；type-check clean；listing-detail (id=1227) + community-detail (id=24 中核集团宿舍) Playwright 截图渲染
+- 详见 [changelog/2026-07-12-v0.4.2-链家xiaoqu真小区补足.md](./changelog/2026-07-12-v0.4.2-链家xiaoqu真小区补足.md)
 
 ## License
 

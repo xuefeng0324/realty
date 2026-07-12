@@ -22,3 +22,6 @@ pnpm-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Backup files (scripts/ 自动生成的 *.{csv,json,...}.bak)
+*.bak
