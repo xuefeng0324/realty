@@ -274,6 +274,25 @@ export interface LocalListingSchoolPremium {
 }
 
 /**
+ * 小区商业热度评分（v0.19.0 new-2）。
+ * 由 `scripts/seed_commercial_poi.py` + `compute_commercial_density.py` 生成。
+ * 餐饮 + 银行 + 便利店 3 类 POI 加权，0..100 整数。
+ */
+export interface LocalCommunityCommercial {
+  communityId: number;
+  cityId: number;
+  districtName: string;
+  communityName: string;
+  restaurantCount: number;
+  bankCount: number;
+  convenienceCount: number;
+  nearestRestaurantM: number | null;
+  nearestBankM: number | null;
+  nearestConvenienceM: number | null;
+  commercialScore: number;
+}
+
+/**
  * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
  * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
  * 用于 dashboard 展示"区级近 N 周房价趋势"。
@@ -316,6 +335,8 @@ export interface DataSnapshot {
   weather: LocalWeather[];
   /** v0.17.0: listing 维度学区评分 + 溢价率 (scripts/compute_listing_school_premium.py) */
   listingSchoolPremia: LocalListingSchoolPremium[];
+  /** v0.19.0: 小区商业热度评分 (scripts/compute_commercial_density.py) */
+  communityCommercials: LocalCommunityCommercial[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

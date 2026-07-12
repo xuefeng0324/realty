@@ -54,6 +54,9 @@ import weatherCSV from "../../static/seed/weather.csv?raw";
 // v0.17.0 listing 维度学区评分 + 溢价率
 // @ts-ignore
 import listingSchoolPremiumCSV from "../../static/seed/listing_school_premium.csv?raw";
+// v0.19.0 小区商业热度评分 (高德 POI 餐饮/银行/便利店)
+// @ts-ignore
+import communityCommercialCSV from "../../static/seed/community_commercial.csv?raw";
 
 let cached: DataSnapshot | null = null;
 
@@ -76,7 +79,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       schoolPremiumCommunityCSV: String(schoolPremiumCommunityCSV ?? ""),
       metroPlanningGeoCSV: String(metroPlanningGeoCSV ?? ""),
       weatherCSV: String(weatherCSV ?? ""),
-      listingSchoolPremiumCSV: String(listingSchoolPremiumCSV ?? "")
+      listingSchoolPremiumCSV: String(listingSchoolPremiumCSV ?? ""),
+      communityCommercialCSV: String(communityCommercialCSV ?? "")
     },
     "seed:public-derived"
   );

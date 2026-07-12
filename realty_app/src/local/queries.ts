@@ -8,6 +8,7 @@
 
 import * as store from "./store";
 import { getWangqianDistrictNames } from "./dailyWangqian";
+import type { LocalCommunityCommercial } from "./types";
 import type {
   CommunityRankingItem,
   CommunityRankingResponse,
@@ -1400,4 +1401,64 @@ function addDays(iso: string, days: number): string {
   const d = new Date(iso + "T00:00:00Z");
   d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
+}
+
+// ---------- 小区商业热度 (v0.19.0+) ----------
+export interface CommercialRankingItem {
+  rank: number;
+  communityId: number;
+  communityName: string;
+  districtName: string;
+  commercialScore: number;
+  restaurantCount: number;
+  bankCount: number;
+  convenienceCount: number;
+  nearestRestaurantM: number | null;
+  nearestBankM: number | null;
+  nearestConvenienceM: number | null;
+}
+
+export interface CommercialRankingResponse {
+  cityId: number;
+  cityName: string;
+  total: number;
+  items: CommercialRankingItem[];
+}
+
+/**
+ * 给定 cityId，返回商业热度 Top N 小区 (按 commercial_score 降序)。
+ * 过滤: commercialScore > 0
+ */
+export async function getCommercialRanking(params: {
+  cityId: number;
+  limit?: number;
+  minScore?: number;
+}): Promise<CommercialRankingResponse> {
+  const cityName = store.getCities().find((c) => c.cityId === params.cityId)?.cityName ?? "";
+  const all = store.getCommunityCommercialsByCity(params.cityId);
+  const limit = params.limit ?? 10;
+  const minScore = params.minScore ?? 0;
+  const filtered = all
+    .filter((c) => c.commercialScore > minScore)
+    .sort((a, b) => b.commercialScore - a.commercialScore)
+    .slice(0, limit);
+  const items: CommercialRankingItem[] = filtered.map((c, idx) => ({
+    rank: idx + 1,
+    communityId: c.communityId,
+    communityName: c.communityName,
+    districtName: c.districtName,
+    commercialScore: c.commercialScore,
+    restaurantCount: c.restaurantCount,
+    bankCount: c.bankCount,
+    convenienceCount: c.convenienceCount,
+    nearestRestaurantM: c.nearestRestaurantM,
+    nearestBankM: c.nearestBankM,
+    nearestConvenienceM: c.nearestConvenienceM
+  }));
+  return {
+    cityId: params.cityId,
+    cityName,
+    total: all.filter((c) => c.commercialScore > minScore).length,
+    items
+  };
 }

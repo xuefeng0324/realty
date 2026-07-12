@@ -475,6 +475,46 @@
         </view>
       </view>
 
+      <!-- v0.19.0 商业热度榜 (小区维度) -->
+      <view v-if="commercialResp && commercialResp.items.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">🛒 商业热度 Top {{ commercialResp.items.length }} · {{ commercialResp.cityName }}</view>
+          <view class="muted">共 {{ commercialResp.total }} 个小区上榜</view>
+        </view>
+        <view
+          v-for="item in commercialResp.items"
+          :key="item.communityId"
+          class="community-row tap-target"
+          role="button"
+          tabindex="0"
+          hover-class="row-active"
+          @click="goCommunity(item.communityId)"
+        >
+          <view class="community-rank">
+            <text class="sp-medal-mini" :class="spMedalClass(item.rank)">
+              {{ item.rank }}
+            </text>
+          </view>
+          <view class="community-main">
+            <view class="community-name">{{ item.communityName }}</view>
+            <view class="muted">
+              {{ item.districtName }} ·
+              🍴{{ item.restaurantCount }} 🏦{{ item.bankCount }} 🏪{{ item.convenienceCount }}
+            </view>
+          </view>
+          <view class="community-sp-price">
+            <text :class="['sp-up', commercialScoreClass(item.commercialScore)]">
+              {{ item.commercialScore.toFixed(0) }}
+            </text>
+            <view class="muted" style="font-size: 20rpx">商业分</view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：高德 /v3/place/around (餐饮/银行/便利店 3 类 POI，每类最近 3 个，按距离衰减加权)。
+          评分 = 餐饮(50) + 银行(30) + 便利店(20)，每类按数量阶梯打分并乘以最近距离权重 (≤300m×1.0 / 800m×0.7 / 1500m×0.4 / 1500m+×0.1)。
+        </view>
+      </view>
+
     <!-- 内置 popup：城市/周期/来源/指标选择 -->
     <view v-if="sheet.open" class="sheet-mask" @click="closeSheet">
       <view class="sheet" @click.stop>
@@ -507,7 +547,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -547,6 +587,7 @@ const schoolPremiumOverview = ref<SchoolPremiumOverview | null>(null);
 const schoolPremiumCommunityItems = ref<SchoolPremiumCommunityItem[]>([]);
 const weatherResp = ref<WeatherResponse | null>(null);
 const listingPremiumOverview = ref<ListingSchoolPremiumOverview | null>(null);
+const commercialResp = ref<CommercialRankingResponse | null>(null);
 
 const errorMsg = ref<string>("");
 const loading = ref<boolean>(false);
@@ -845,6 +886,16 @@ async function loadRankingAndDistrict() {
     } catch (e) {
       console.warn("getTopListingsBySchoolPremium failed:", e);
     }
+
+    // v0.19.0 商业热度榜
+    try {
+      commercialResp.value = await getCommercialRanking({
+        cityId: app.cityId,
+        limit: 10
+      });
+    } catch (e) {
+      console.warn("getCommercialRanking failed:", e);
+    }
   } catch (e) {
     errorMsg.value = `加载失败：${toErrorMessage(e)}`;
   }
@@ -974,6 +1025,14 @@ function goListing(listingId: number) {
   uni.navigateTo({
     url: `/pages/listing-detail/listing-detail?id=${listingId}`
   });
+}
+
+// v0.19.0 商业热度评分色码 (>=80 高分 price-up / 50-80 中 muted / <50 低 price-down)
+// 注：复用现有价格色码 — price-up 红 = 高商业热度, price-down 绿 = 低
+function commercialScoreClass(score: number): string {
+  if (score >= 80) return "price-up";
+  if (score >= 50) return "muted";
+  return "price-down";
 }
 
 // v0.16.0 weather helpers

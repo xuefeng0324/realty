@@ -1104,4 +1104,77 @@ describe("build integrity", () => {
       expect(content).toMatch(/聚合 \$\{m\[1\]\} 套/);
     });
   });
+
+  // --------------------------------------------------------------
+  // v0.19.0 new-2: 小区商业热度 (poi_commercial.csv + community_commercial.csv)
+  // --------------------------------------------------------------
+  describe("v0.19.0 商业热度 (餐饮/银行/便利店)", () => {
+    const commercialCsv = resolve(ROOT, "static/seed/poi_commercial.csv");
+    const communityCommercialCsv = resolve(ROOT, "static/seed/community_commercial.csv");
+
+    it("poi_commercial.csv 存在", () => {
+      expect(existsSync(commercialCsv)).toBe(true);
+    });
+
+    it("poi_commercial.csv 行数 >= 200", () => {
+      if (!existsSync(commercialCsv)) return;
+      const rows = readCsv(commercialCsv);
+      expect(rows.length).toBeGreaterThanOrEqual(200);
+    });
+
+    it("poi_commercial.csv 至少有 3 类 (restaurant/bank/convenience)", () => {
+      if (!existsSync(commercialCsv)) return;
+      const rows = readCsv(commercialCsv);
+      const cats = new Set(rows.map((r) => r.poi_category));
+      expect(cats.has("restaurant")).toBe(true);
+      expect(cats.has("bank")).toBe(true);
+      expect(cats.has("convenience")).toBe(true);
+    });
+
+    it("community_commercial.csv 存在且行数 >= 30", () => {
+      if (!existsSync(communityCommercialCsv)) return;
+      const rows = readCsv(communityCommercialCsv);
+      expect(rows.length).toBeGreaterThanOrEqual(30);
+    });
+
+    it("community_commercial.csv >= 80% community 有 score > 0", () => {
+      if (!existsSync(communityCommercialCsv)) return;
+      const rows = readCsv(communityCommercialCsv);
+      const ok = rows.filter((r) => Number(r.commercial_score) > 0).length;
+      expect(ok / rows.length).toBeGreaterThanOrEqual(0.8);
+    });
+
+    it("commercial_score 范围 0..100", () => {
+      if (!existsSync(communityCommercialCsv)) return;
+      const rows = readCsv(communityCommercialCsv);
+      for (const r of rows) {
+        const s = Number(r.commercial_score);
+        expect(s).toBeGreaterThanOrEqual(0);
+        expect(s).toBeLessThanOrEqual(100);
+      }
+    });
+
+    it("types.ts 增加 LocalCommunityCommercial 接口", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(content).toMatch(/export interface LocalCommunityCommercial/);
+    });
+
+    it("store.ts 增加 getCommunityCommercials 函数", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(content).toMatch(/function getCommunityCommercials/);
+    });
+
+    it("queries.ts 增加 getCommercialRanking 函数", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/getCommercialRanking/);
+    });
+
+    it("dashboard.vue 渲染「🛒 商业热度」卡", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/dashboard/dashboard.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/商业热度 Top/);
+    });
+  });
 });

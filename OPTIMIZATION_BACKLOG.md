@@ -190,7 +190,7 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | trend-9 | **板块网签热度榜** — daily_wangqian 的 district 维度已有 264 条，做"近 30 天网签热度 Top N" | 1h | 🟡 中 | 已有 daily_wangqian.csv |
 | trend-10 | **成交 vs 挂牌对比** | 8h+ | 🟢 低 | 需要新数据源（链家成交被 CAPTCHA 拦） |
 | new-1 | **空气质量/天气** — 高德 weather API 拿实时 + 4 天预报 | 4h | 🟡 中 | 高德 `/v3/weather/weatherInfo` ✅ v0.16.0 |
-| new-2 | **周边商业配套密度** — POI 已支持餐饮/银行/便利店,做"周边商业热度"评分 | 4h | 🟡 中 | 已有 poi_seed.csv (扩展品类) |
+| new-2 | **周边商业配套密度** — POI 已支持餐饮/银行/便利店,做"周边商业热度"评分 | 4h | 🟡 中 | 已有 poi_seed.csv (扩展品类) ✅ **v0.19.0 (147 次 API 调用, 416 行 poi_commercial.csv, 94% 小区有分)** |
 | map-2 | **marker 聚合** — 1km 内多 marker 合并显示数字 | 4h | 🟡 中 | 自实现（uni-app 自带 initMarkerCluster 仅 App/小程序支持） ✅ **v0.18.0** |
 
 推荐 **map-2 marker 聚合** 或 **new-2 周边商业配套密度**（基于已有 poi_seed.csv 扩展品类）。

@@ -150,6 +150,7 @@ function mergeListingsIntoSnapshot(
     metroLineGeos: existing?.metroLineGeos ?? [],
     weather: existing?.weather ?? [],
     listingSchoolPremia: existing?.listingSchoolPremia ?? [],
+    communityCommercials: existing?.communityCommercials ?? [],
     availableWeeks
   };
 }

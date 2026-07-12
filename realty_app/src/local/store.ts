@@ -14,6 +14,7 @@ import type {
   DataSnapshot,
   LocalCity,
   LocalCommunity,
+  LocalCommunityCommercial,
   LocalDailyWangqianRow,
   LocalDistrictTrend,
   LocalHospital,
@@ -275,6 +276,17 @@ export function getListingSchoolPremia(): LocalListingSchoolPremium[] {
 
 export function getListingSchoolPremiumByCity(cityId: number): LocalListingSchoolPremium[] {
   return (snapshot?.listingSchoolPremia ?? []).filter((p) => p.cityId === cityId);
+}
+
+/**
+ * 小区商业热度 (v0.19.0+)
+ */
+export function getCommunityCommercials(): LocalCommunityCommercial[] {
+  return snapshot?.communityCommercials ?? [];
+}
+
+export function getCommunityCommercialsByCity(cityId: number): LocalCommunityCommercial[] {
+  return (snapshot?.communityCommercials ?? []).filter((c) => c.cityId === cityId);
 }
 
 /**

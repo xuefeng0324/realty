@@ -19,6 +19,7 @@ import type {
   DataSnapshot,
   LocalCity,
   LocalCommunity,
+  LocalCommunityCommercial,
   LocalDistrictTrend,
   LocalHospital,
   LocalListing,
@@ -84,6 +85,8 @@ export interface SnapshotInputs {
   weatherCSV?: string;
   /** v0.17.0: listing 维度学区评分 + 溢价率 (可选) */
   listingSchoolPremiumCSV?: string;
+  /** v0.19.0: 小区商业热度评分 (可选) */
+  communityCommercialCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -440,6 +443,35 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
         .filter((m): m is LocalListingSchoolPremium => m !== null)
     : [];
 
+  // 小区商业热度 (v0.19.0+): 可选
+  const communityCommercials: LocalCommunityCommercial[] = inputs.communityCommercialCSV
+    ? rowsToObjects<Record<string, string>>(parseCSV(inputs.communityCommercialCSV))
+        .map((r) => {
+          const cid = n(r.community_id);
+          if (cid == null) return null;
+          const cityIdRaw = n(r.city_id);
+          const numOrNull = (v: string | undefined) => {
+            if (v === undefined || v === "") return null;
+            const x = Number(v);
+            return Number.isFinite(x) ? x : null;
+          };
+          return {
+            communityId: cid,
+            cityId: cityIdRaw ?? 0,
+            districtName: s(r.district_name) ?? "",
+            communityName: s(r.community_name) ?? "",
+            restaurantCount: n(r.restaurant_count) ?? 0,
+            bankCount: n(r.bank_count) ?? 0,
+            convenienceCount: n(r.convenience_count) ?? 0,
+            nearestRestaurantM: numOrNull(r.nearest_restaurant_m ?? undefined),
+            nearestBankM: numOrNull(r.nearest_bank_m ?? undefined),
+            nearestConvenienceM: numOrNull(r.nearest_convenience_m ?? undefined),
+            commercialScore: Number(r.commercial_score ?? 0)
+          } as LocalCommunityCommercial;
+        })
+        .filter((m): m is LocalCommunityCommercial => m !== null)
+    : [];
+
   // 聚合可用周：基于 listings 的 crawl_date
   const weekEnds = new Set<string>();
   for (const l of listings) {
@@ -470,6 +502,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     metroLineGeos,
     weather,
     listingSchoolPremia,
+    communityCommercials,
     availableWeeks
   };
 }

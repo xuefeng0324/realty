@@ -11,6 +11,7 @@
 | v0.16.0 | 2026-07-12 | dashboard 新增「实时天气」卡：高德 weather API 拿 3 城实况 + 4 天预报；含天气 emoji / 湿度 / 风力 / 粗略 AQI 估算 |
 | v0.17.0 | 2026-07-12 | dashboard 新增「🏫 高学区评分房源」卡 (listing 维度)：每个 listing 拿到其 community 所在区的平均学区评分 + 板块溢价率；Top 10 高评分房源，金/银/铜牌分级，区溢价 price-up/down 色码；点击跳 listing 详情；1286 行 listing_school_premium.csv |
 | v0.18.0 | 2026-07-12 | map-view listings 模式 marker 聚合 (网格算法)：单点保留原 id, 多套合并为红色气泡 (callout "N 套")；zoom 越大聚合越少；点击 cluster → zoom in +1 + 居中；cluster.ts + 7 单测 + 5 buildIntegrity + smoke_cluster.mjs E2E |
+| v0.19.0 | 2026-07-12 | dashboard 新增「🛒 商业热度」卡：3 类商业 POI (🍴餐饮/🏦银行/🏪便利店) + 0-100 商业热度评分 (按数量阶梯打分 + 距离权重)；147 次高德 POI 调用产出 416 行 poi_commercial.csv + 52 行 community_commercial.csv；94% 小区有分；10 单测 + smoke_commercial E2E |
 | v0.13.0 | 2026-07-12 | map-view 第四种模式「POI overlay」：把 poi_seed.csv 的 5 类 POI (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园) 画到地图上 (每类最多 25 marker)；5 类 toggle 自由开关；POI info-card 显示名称 + 类型 + 距离 + 所属小区 |
 | v0.12.0 | 2026-07-12 | map-view 第三种模式「成交价热力」：圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵），半径仍按挂牌数；info-card 新增「价位」5 档标签（便宜/中低/中等/中高/昂贵，色码化）；mode 由 boolean → `MapMode = "count" \| "price" \| "listings"` |
 | v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |
@@ -764,6 +765,29 @@ gh auth setup-git
   - 1 个新 E2E: smoke_cluster.mjs (深圳 listings 模式 + 截图)
 - **验证**：231/231 单测过 (+12), type-check clean, 19/19 smoke 全绿
 - 详见 [changelog/2026-07-12-v0.18.0-marker聚合.md](./changelog/2026-07-12-v0.18.0-marker聚合.md)
+
+### v0.19.0 - 周边商业配套密度 (2026-07-12)
+
+- **背景**：之前 POI overlay 只覆盖 5 类 (地铁/学校/医院/商场/公园)。本次新增 3 类商业 POI (🍴餐饮/🏦银行/🏪便利店)，并基于此给每个小区算 **0-100 商业热度评分**。
+- **数据**：
+  - 高德 /v3/place/around: 49 小区 × 3 类 = 147 次 API 调用
+  - `poi_commercial.csv` (416 行)
+  - `community_commercial.csv` (52 行, 94% 有 score > 0)
+- **评分模型**：
+  - 餐饮(50) + 银行(30) + 便利店(20)，每类按数量阶梯打分
+  - 距离权重: ≤300m ×1.0 / 800m ×0.7 / 1500m ×0.4 / 1500m+ ×0.1
+- **数据层**：
+  - `LocalCommunityCommercial` 接口 (types.ts)
+  - `getCommunityCommercials/ByCity` (store.ts)
+  - `getCommercialRanking({ cityId, limit, minScore })` (queries.ts)
+  - importer 解析 `community_commercial.csv`
+  - settings.vue 拉 csv
+- **UI**：dashboard 新增 🛒 商业热度 Top 卡 (Top 10)，按 score desc 排序，medal + 商业分色码 (>=80 红 / 50-80 灰 / <50 绿)，点击跳 community 详情
+- **测试**：
+  - 10 个新单测 (buildIntegrity)：csv 存在/行数/3 类/coverage/score 范围/接口/dashboard
+  - 1 个新 E2E: `smoke_commercial.mjs` (深圳+广州切换 + emoji 验证 + 截图)
+- **验证**：241/241 单测过 (+10), type-check clean, 20/20 smoke 全绿
+- 详见 [changelog/2026-07-12-v0.19.0-商业热度.md](./changelog/2026-07-12-v0.19.0-商业热度.md)
 
 ## License
 
