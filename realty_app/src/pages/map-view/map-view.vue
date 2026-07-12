@@ -25,8 +25,11 @@
         <text v-else-if="mode === 'listings'">
           挂牌点：每点 = 该小区 1 套挂牌；点击 → 小区详情
         </text>
-        <text v-else>
+        <text v-else-if="mode === 'poi'">
           POI overlay：5 类配套图标 (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园)
+        </text>
+        <text v-else>
+          地铁规划：21 条规划/在建线路（绿=即将开通 / 橙=在建 / 灰=规划）；按 status 着色
         </text>
       </view>
 
@@ -50,8 +53,9 @@
         :latitude="mapCenter.lat"
         :longitude="mapCenter.lng"
         :scale="mapScale"
-        :markers="mode === 'listings' ? listingMarkers : (mode === 'poi' ? poiMarkers : [])"
-        :circles="(mode === 'listings' || mode === 'poi') ? [] : heatCircles"
+        :markers="mode === 'listings' ? listingMarkers : (mode === 'poi' ? poiMarkers : (mode === 'metro' ? metroLineMarkers : []))"
+        :circles="(mode === 'listings' || mode === 'poi' || mode === 'metro') ? [] : heatCircles"
+        :polyline="mode === 'metro' ? metroPolylines : []"
         :show-location="true"
         :enable-zoom="true"
         :enable-scroll="true"
@@ -114,6 +118,31 @@
       </view>
       <button class="btn" size="mini" @click="goCommunity">查看小区详情 →</button>
     </view>
+
+    <!-- v0.15.0 Metro line info card -->
+    <view v-if="selectedMetro" class="info-card">
+      <view class="row-between">
+        <text class="info-name">🚇 {{ selectedMetro.lineName }}</text>
+        <text class="info-close" @click="closeMetroCard">✕</text>
+      </view>
+      <text class="info-line">
+        {{ selectedMetro.status || "—" }} · 预计 {{ selectedMetro.openYearExpected ?? "?" }} 开通
+      </text>
+      <view class="info-row">
+        <view class="info-stat">
+          <text class="info-stat-label">线路</text>
+          <text class="info-stat-value">{{ selectedMetro.startStation }} ↔ {{ selectedMetro.endStation }}</text>
+        </view>
+        <view class="info-stat">
+          <text class="info-stat-label">站点</text>
+          <text class="info-stat-value">{{ selectedMetro.stationCount ?? "—" }}</text>
+        </view>
+        <view class="info-stat">
+          <text class="info-stat-label">长度</text>
+          <text class="info-stat-value">{{ selectedMetro.lengthKm ?? "—" }}km</text>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
@@ -125,7 +154,9 @@ import {
   getCommunitiesByCity,
   getListingsByCity,
   getCommunityById,
-  getPoisByCity
+  getPoisByCity,
+  getMetroLineGeosByCity,
+  getMetroLinesByCity
 } from "../../local/store";
 import { getCities, getPoisByCommunity } from "../../local/store";
 import { toErrorMessage } from "../../utils/errorMessage";
@@ -135,18 +166,28 @@ const app = useAppStore();
 const errorMsg = ref<string>("");
 /** v0.12.0 三种模式: count=挂牌数热力, price=成交价热力, listings=挂牌点
  *  v0.13.0 加 poi 模式: 5 类 POI marker overlay
+ *  v0.15.0 加 metro 模式: 地铁规划线 polyline overlay
  */
-type MapMode = "count" | "price" | "listings" | "poi";
+type MapMode = "count" | "price" | "listings" | "poi" | "metro";
 type PoiCat = "subway" | "school" | "hospital" | "mall" | "park";
 const mode = ref<MapMode>("count");
 const poiFilter = ref<Set<PoiCat>>(new Set(["subway", "school", "hospital", "mall", "park"]));
 const selectedCommunityId = ref<number | null>(null);
 const selectedPoi = ref<{ poiName: string; poiCategory: PoiCat; poiType: string | null; distanceM: number; address: string | null; communityId: number } | null>(null);
+const selectedMetroLineId = ref<number | null>(null);
+const selectedMetro = computed(() => {
+  if (selectedMetroLineId.value == null) return null;
+  return getMetroLinesByCity(app.cityId).find((l) => l.lineId === selectedMetroLineId.value) ?? null;
+});
+function closeMetroCard() {
+  selectedMetroLineId.value = null;
+}
 
 const modeLabel = computed(() => {
   if (mode.value === "count") return "切到成交价热力";
   if (mode.value === "price") return "切到挂牌点";
   if (mode.value === "listings") return "切到 POI";
+  if (mode.value === "poi") return "切到地铁规划";
   return "切到挂牌数热力";
 });
 
@@ -282,6 +323,83 @@ function catCode(cat: PoiCat): number {
   return { subway: 1, school: 2, hospital: 3, mall: 4, park: 5 }[cat];
 }
 
+// v0.15.0 metro overlay
+function metroStatusColor(status: string | null): string {
+  if (status === "即将开通") return "#22c55e"; // 绿
+  if (status === "在建") return "#f59e0b"; // 橙
+  return "#94a3b8"; // 灰 (规划)
+}
+
+const metroLineMarkers = computed(() => {
+  if (!app.cityId || mode.value !== "metro") return [];
+  const geos = getMetroLineGeosByCity(app.cityId);
+  const out: any[] = [];
+  for (const g of geos) {
+    if (g.startLat == null || g.startLng == null) continue;
+    out.push({
+      id: 9000000 + g.lineId,
+      latitude: g.startLat,
+      longitude: g.startLng,
+      width: 14,
+      height: 14,
+      title: `🚇 ${g.lineName} · 起点 ${g.startStation}`,
+      callout: {
+        content: `🚇 ${g.lineName}\n${g.startStation}`,
+        color: "#ffffff",
+        bgColor: "#0ea5e9",
+        padding: 4,
+        borderRadius: 4,
+        fontSize: 11,
+        display: "BYCLICK"
+      }
+    });
+    if (g.endLat == null || g.endLng == null) continue;
+    out.push({
+      id: 9100000 + g.lineId,
+      latitude: g.endLat,
+      longitude: g.endLng,
+      width: 14,
+      height: 14,
+      title: `🚇 ${g.lineName} · 终点 ${g.endStation}`,
+      callout: {
+        content: `🚇 ${g.lineName}\n${g.endStation}`,
+        color: "#ffffff",
+        bgColor: "#0ea5e9",
+        padding: 4,
+        borderRadius: 4,
+        fontSize: 11,
+        display: "BYCLICK"
+      }
+    });
+  }
+  return out;
+});
+
+const metroPolylines = computed(() => {
+  if (!app.cityId || mode.value !== "metro") return [];
+  const geos = getMetroLineGeosByCity(app.cityId);
+  const lines = getMetroLinesByCity(app.cityId);
+  const lineMap = new Map(lines.map((l) => [l.lineId, l]));
+  const out: any[] = [];
+  for (const g of geos) {
+    if (g.startLat == null || g.startLng == null || g.endLat == null || g.endLng == null) continue;
+    const line = lineMap.get(g.lineId);
+    const status = line?.status ?? null;
+    const color = metroStatusColor(status);
+    out.push({
+      points: [
+        { latitude: g.startLat, longitude: g.startLng },
+        { latitude: g.endLat, longitude: g.endLng }
+      ],
+      color,
+      width: 4,
+      // H5 高德 polyline 不支持 dottedLine，但用色码已够区分
+      arrowLine: true
+    });
+  }
+  return out;
+});
+
 // poiSeed 总体统计（5 类各多少）
 const poiCategoryCounts = computed(() => {
   if (!app.cityId) return { subway: 0, school: 0, hospital: 0, mall: 0, park: 0 };
@@ -404,6 +522,14 @@ function onMarkerTap(e: any) {
   const detail = e?.detail ?? {};
   const markerId = detail.markerId ?? detail.id;
   if (markerId == null) return;
+  // v0.15.0 metro line markers: 9000000 = start, 9100000 = end
+  if (markerId >= 9000000 && markerId < 9200000) {
+    const base = markerId >= 9100000 ? markerId - 9100000 : markerId - 9000000;
+    selectedMetroLineId.value = base;
+    selectedCommunityId.value = null;
+    selectedPoi.value = null;
+    return;
+  }
   if (markerId < 0) {
     // POI marker: 反解 id → communityId + poiRank + category
     const absId = -markerId;
@@ -443,7 +569,7 @@ function onMarkerTap(e: any) {
 }
 
 function toggleType() {
-  // count → price → listings → poi → count
+  // count → price → listings → poi → metro → count
   if (mode.value === "count") {
     mode.value = "price";
     showToast("成交价热力（绿=便宜/红=贵）");
@@ -453,9 +579,15 @@ function toggleType() {
   } else if (mode.value === "listings") {
     mode.value = "poi";
     selectedPoi.value = null;
+    selectedMetroLineId.value = null;
     showToast("POI 模式（5 类配套图标）");
+  } else if (mode.value === "poi") {
+    mode.value = "metro";
+    selectedPoi.value = null;
+    showToast("地铁规划模式（21 条线路）");
   } else {
     mode.value = "count";
+    selectedMetroLineId.value = null;
     showToast("挂牌数热力（红=多/蓝=少）");
   }
 }

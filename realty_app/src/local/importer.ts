@@ -23,6 +23,7 @@ import type {
   LocalHospital,
   LocalListing,
   LocalMetroLine,
+  LocalMetroLineGeo,
   LocalPoi,
   LocalSchool,
   LocalSchoolIndicator,
@@ -75,6 +76,8 @@ export interface SnapshotInputs {
   schoolPremiumDistrictCSV?: string;
   /** v0.11.0: 小区级学区评分 (可选) */
   schoolPremiumCommunityCSV?: string;
+  /** v0.15.0: 地铁规划线坐标 (polyline 用,可选) */
+  metroPlanningGeoCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -356,6 +359,35 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
         .filter((m): m is LocalSchoolPremiumCommunity => m !== null)
     : [];
 
+  // 地铁规划线坐标 (v0.15.0+): 可选
+  const metroLineGeos: LocalMetroLineGeo[] = inputs.metroPlanningGeoCSV
+    ? rowsToObjects<Record<string, string>>(parseCSV(inputs.metroPlanningGeoCSV))
+        .map((r) => {
+          const lid = n(r.line_id);
+          const cid = n(r.city_id);
+          if (lid == null || cid == null) return null;
+          const confOk = (v: string | undefined): LocalMetroLineGeo["startConfidence"] => {
+            const t = (v ?? "").trim();
+            if (t === "high" || t === "medium" || t === "low" || t === "manual") return t;
+            return "missing";
+          };
+          return {
+            lineId: lid,
+            lineName: s(r.line_name) ?? "",
+            cityId: cid,
+            startStation: s(r.start_station) ?? "",
+            endStation: s(r.end_station) ?? "",
+            startLat: n(r.start_lat),
+            startLng: n(r.start_lng),
+            startConfidence: confOk(r.start_confidence),
+            endLat: n(r.end_lat),
+            endLng: n(r.end_lng),
+            endConfidence: confOk(r.end_confidence)
+          } as LocalMetroLineGeo;
+        })
+        .filter((m): m is LocalMetroLineGeo => m !== null)
+    : [];
+
   // 聚合可用周：基于 listings 的 crawl_date
   const weekEnds = new Set<string>();
   for (const l of listings) {
@@ -383,6 +415,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     wangqianDistrictWeekly,
     schoolPremiumDistricts,
     schoolPremiumCommunities,
+    metroLineGeos,
     availableWeeks
   };
 }

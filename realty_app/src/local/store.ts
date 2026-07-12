@@ -19,6 +19,7 @@ import type {
   LocalHospital,
   LocalListing,
   LocalMetroLine,
+  LocalMetroLineGeo,
   LocalPoi,
   LocalSchool,
   LocalSchoolPremiumCommunity,
@@ -232,6 +233,17 @@ export function getMetroLinesByDistrict(cityId: number, districtName: string): L
       m.cityId === cityId &&
       m.districts.some((d) => d === districtName)
   );
+}
+
+/**
+ * 地铁规划线坐标 (v0.15.0+) — 用于 map-view polyline
+ */
+export function getMetroLineGeos(): LocalMetroLineGeo[] {
+  return snapshot?.metroLineGeos ?? [];
+}
+
+export function getMetroLineGeosByCity(cityId: number): LocalMetroLineGeo[] {
+  return (snapshot?.metroLineGeos ?? []).filter((m) => m.cityId === cityId);
 }
 
 /**

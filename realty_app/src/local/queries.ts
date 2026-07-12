@@ -714,6 +714,61 @@ export async function getCityPois(params: {
   };
 }
 
+// ---------- 地铁规划 (v0.15.0+) ----------
+export interface MetroLineGeoItem {
+  line_id: number;
+  line_name: string;
+  city_id: number;
+  start_station: string;
+  end_station: string;
+  start_lat: number;
+  start_lng: number;
+  end_lat: number;
+  end_lng: number;
+  status: string;
+  open_year_expected: number | null;
+}
+
+export interface MetroLinesGeoResponse {
+  cityId: number;
+  total: number;
+  items: MetroLineGeoItem[];
+}
+
+/**
+ * 给定 cityId，返回该城市所有地铁规划线的坐标（用于 map-view polyline）。
+ * 只返回 start + end 都已有坐标的可画线。
+ */
+export async function getMetroLineGeos(params: {
+  cityId: number;
+}): Promise<MetroLinesGeoResponse> {
+  const geos = store.getMetroLineGeosByCity(params.cityId);
+  const lines = store.getMetroLinesByCity(params.cityId);
+  const lineMap = new Map(lines.map((l) => [l.lineId, l]));
+  const items: MetroLineGeoItem[] = [];
+  for (const g of geos) {
+    if (
+      g.startLat == null || g.startLng == null ||
+      g.endLat == null || g.endLng == null
+    ) continue;
+    const line = lineMap.get(g.lineId);
+    items.push({
+      line_id: g.lineId,
+      line_name: g.lineName,
+      city_id: g.cityId,
+      start_station: g.startStation,
+      end_station: g.endStation,
+      start_lat: g.startLat,
+      start_lng: g.startLng,
+      end_lat: g.endLat,
+      end_lng: g.endLng,
+      status: line?.status ?? "",
+      open_year_expected: line?.openYearExpected ?? null
+    });
+  }
+  return { cityId: params.cityId, total: items.length, items };
+}
+
 // ---------- 医院 (v0.6.0+) ----------
 export interface HospitalItem {
   hospital_id: number;

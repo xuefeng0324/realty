@@ -207,6 +207,24 @@ export interface LocalMetroLine {
 }
 
 /**
+ * 地铁规划线的站点坐标（v0.15.0）。
+ * 用于在 map-view 画 polyline（起点 → 终点直线连接）。
+ */
+export interface LocalMetroLineGeo {
+  lineId: number;
+  lineName: string;
+  cityId: number;
+  startStation: string;
+  endStation: string;
+  startLat: number | null;
+  startLng: number | null;
+  startConfidence: "high" | "medium" | "low" | "manual" | "missing";
+  endLat: number | null;
+  endLng: number | null;
+  endConfidence: "high" | "medium" | "low" | "manual" | "missing";
+}
+
+/**
  * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
  * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
  * 用于 dashboard 展示"区级近 N 周房价趋势"。
@@ -236,6 +254,7 @@ export interface DataSnapshot {
   hospitals: LocalHospital[];
   /** v0.7.0: 规划/在建地铁线路 */
   metroLines: LocalMetroLine[];
+  metroLineGeos: LocalMetroLineGeo[];
   /** v0.8.0: 板块级周维度价格序列 */
   districtTrends: LocalDistrictTrend[];
   /** v0.10.0: 板块级周维度网签热度 (深广政府网签) */

@@ -45,6 +45,9 @@ import schoolPremiumDistrictCSV from "../../static/seed/school_premium_district.
 // v0.11.0 小区级学区评分
 // @ts-ignore
 import schoolPremiumCommunityCSV from "../../static/seed/school_premium_community.csv?raw";
+// v0.15.0 地铁规划线坐标
+// @ts-ignore
+import metroPlanningGeoCSV from "../../static/seed/metro_planning_geo.csv?raw";
 
 let cached: DataSnapshot | null = null;
 
@@ -64,7 +67,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       districtTrendCSV: String(districtTrendCSV ?? ""),
       wangqianDistrictWeeklyCSV: String(wangqianDistrictWeeklyCSV ?? ""),
       schoolPremiumDistrictCSV: String(schoolPremiumDistrictCSV ?? ""),
-      schoolPremiumCommunityCSV: String(schoolPremiumCommunityCSV ?? "")
+      schoolPremiumCommunityCSV: String(schoolPremiumCommunityCSV ?? ""),
+      metroPlanningGeoCSV: String(metroPlanningGeoCSV ?? "")
     },
     "seed:public-derived"
   );

@@ -849,4 +849,63 @@ describe("build integrity", () => {
       expect(bad.length).toBe(0);
     });
   });
+
+  // ---------- v0.15.0 地铁规划 overlay ----------
+  describe("地铁规划 overlay v0.15.0", () => {
+    const geoPath = resolve(ROOT, "static/seed/metro_planning_geo.csv");
+
+    it("metro_planning_geo.csv 存在且 ≥ 20 行", () => {
+      if (!existsSync(geoPath)) return; // 可选,允许跳过
+      const rows = readCsv(geoPath);
+      expect(rows.length).toBeGreaterThanOrEqual(20);
+    });
+
+    it("queries.ts 提供 getMetroLineGeos 函数", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/local/queries.ts"),
+        "utf-8"
+      );
+      expect(content).toMatch(/export async function getMetroLineGeos/);
+      expect(content).toMatch(/MetroLineGeoItem/);
+    });
+
+    it("store.ts 提供 getMetroLineGeosByCity 函数", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/local/store.ts"),
+        "utf-8"
+      );
+      expect(content).toMatch(/export function getMetroLineGeosByCity/);
+    });
+
+    it("types.ts 增加 LocalMetroLineGeo 接口", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/local/types.ts"),
+        "utf-8"
+      );
+      expect(content).toMatch(/export interface LocalMetroLineGeo/);
+    });
+
+    it("map-view.vue 加 metro 模式 + polyline + metroPolylines", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/map-view/map-view.vue"),
+        "utf-8"
+      );
+      expect(content).toMatch(/metroPolylines/);
+      expect(content).toMatch(/polyline/);
+      expect(content).toMatch(/metroStatusColor/);
+      // MapMode 加 metro
+      expect(content).toMatch(/MapMode\s*=\s*"count"\s*\|\s*"price"\s*\|\s*"listings"\s*\|\s*"poi"\s*\|\s*"metro"/);
+    });
+
+    it("地铁规划: start + end 都 not missing 的行 >= 18", () => {
+      if (!existsSync(geoPath)) return;
+      const rows = readCsv(geoPath);
+      const drawable = rows.filter(
+        (r) =>
+          r.start_confidence !== "missing" &&
+          r.end_confidence !== "missing"
+      );
+      expect(drawable.length).toBeGreaterThanOrEqual(18);
+    });
+  });
 });

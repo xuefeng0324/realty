@@ -7,6 +7,7 @@
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
 | v0.14.0 | 2026-07-12 | dashboard 新增「学区评分 Top 小区」卡：按 avg_school_score 降序展示该城市里沾名校光最多的小区（金/银/铜牌 + 区 + 评分 + 学校数 + 中位单价）；广州 Top 1: 珠江帝景苑 (天河 86.0)，深圳 Top 1: 笋岗仓库综合楼 (罗湖 90.3) |
+| v0.15.0 | 2026-07-12 | map-view 新增「地铁规划」模式：21 条规划/在建地铁线 polyline overlay（绿=即将开通 / 橙=在建 / 灰=规划）；起点/终点 marker + 线路 info-card |
 | v0.13.0 | 2026-07-12 | map-view 第四种模式「POI overlay」：把 poi_seed.csv 的 5 类 POI (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园) 画到地图上 (每类最多 25 marker)；5 类 toggle 自由开关；POI info-card 显示名称 + 类型 + 距离 + 所属小区 |
 | v0.12.0 | 2026-07-12 | map-view 第三种模式「成交价热力」：圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵），半径仍按挂牌数；info-card 新增「价位」5 档标签（便宜/中低/中等/中高/昂贵，色码化）；mode 由 boolean → `MapMode = "count" \| "price" \| "listings"` |
 | v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |
@@ -677,6 +678,26 @@ gh auth setup-git
   - `tests/e2e/smoke_school_community.mjs`: 广州/深圳切换 + 截图
 - **验证**：198/198 单测过 (+5)；13/13 smoke 全绿
 - 详见 [changelog/2026-07-12-v0.14.0-学区评分小区榜.md](./changelog/2026-07-12-v0.14.0-学区评分小区榜.md)
+
+### v0.15.0 - 地铁规划 overlay (2026-07-12)
+- map-view 新增「地铁规划」模式 (count → price → listings → poi → metro)
+- **数据**：新增 `static/seed/metro_planning_geo.csv` (21 行)，含每条线的 start/end 坐标
+- **数据源**：`scripts/crawl_amap_metro.py` 用高德 `/v3/place/text` 拿 start_station / end_station 的 lat/lng
+- **补充**：missing 坐标由 `scripts/enrich_metro_geo_manual.py` 基于公开地理信息手填
+- **UI**：
+  - 5 模式轮换 (新增 metro)
+  - 每条线 2 个 marker (起/终点)，点击显示线路详情
+  - polyline 颜色按 status：绿(即将开通) / 橙(在建) / 灰(规划)
+  - info-card 显示：线路名 / status / 预计开通年 / 起讫站 / 站点数 / 长度
+- **数据层**：
+  - `LocalMetroLineGeo` 接口 + DataSnapshot.metroLineGeos
+  - `getMetroLineGeos({cityId})` / `MetroLineGeoItem` / `MetroLinesGeoResponse`
+  - 默认从 `metro_planning_geo.csv` 加载
+- **测试**
+  - `tests/buildIntegrity.test.ts` 新增 6 个测试
+  - `tests/e2e/smoke_metro_overlay.mjs` (新增)：5 模式轮换 + 深圳/广州切换 + 截图
+- **验证**：204/204 单测过 (+6)，type-check clean，12/12 smoke 全绿
+- 详见 [changelog/2026-07-12-v0.15.0-地铁规划overlay.md](./changelog/2026-07-12-v0.15.0-地铁规划overlay.md)
 
 ## License
 

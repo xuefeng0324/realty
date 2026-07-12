@@ -69,9 +69,9 @@ async function run() {
     }
 
     // 验证切换到挂牌点按钮存在
-    const toggleBtn = await page.locator("text=切到挂牌点").count();
+    const toggleBtn = await page.locator("text=切到成交价热力").count();
     if (toggleBtn === 0) {
-      throw new Error("未找到 '切到挂牌点' 按钮");
+      throw new Error("未找到 '切到成交价热力' 按钮");
     }
     console.log("[map] 切换按钮存在 ✓");
 

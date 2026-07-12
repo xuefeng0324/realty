@@ -142,7 +142,7 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | **trend-9.6** | **扩展 weeksBack** — cron 持续跑后展示"近 12 周" | 0h | 自动 | 现有 |
 | trend-9.7 | **接珠海住建局公示** | 4h | 🟡 中 | 调研 |
 | map-2 | **marker 聚合** — 1km 内多 marker 合并 | 4h | 🟡 中 | 自实现 |
-| map-6 | **地铁规划 overlay** — metro_planning.csv 画 polyline | 4h | 🟡 中 | 已有 metro_planning.csv |
+| map-6 | **地铁规划 overlay** — metro_planning.csv 画 polyline | 4h | 🟡 中 | 已有 metro_planning.csv ✅ v0.15.0 |
 | trend-11 | **学区评分小区榜** — school_premium_community.csv + 排序展示 | 2h | 🟡 中 | 已有 school_premium_community.csv |
 
 推荐 **map-7 成交价热力**（2h，🔴 高）或 **map-5 POI overlay**（4h，🔴 高）。
@@ -163,7 +163,7 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | **map-2** | **marker 聚合** — 1km 内多 marker 合并显示数字 | 4h | 🟡 中 | 自实现（uni-app 自带 initMarkerCluster 仅 App/小程序支持） |
 | map-3 | **区级填充** — 按区画多边形（用 circles/rectangles 模拟） | 2h | 🟡 中 | 已有 communities.csv + admin_districts.csv |
 | map-4 | **App 端高德 key 配置 + 自定义基座** | 4h | 🟡 中 | 需申请独立 App key |
-| map-6 | **地铁规划 overlay** — metro_planning.csv 画 polyline | 4h | 🟡 中 | 已有 metro_planning.csv |
+| map-6 | **地铁规划 overlay** — metro_planning.csv 画 polyline | 4h | 🟡 中 | 已有 metro_planning.csv ✅ v0.15.0 |
 | map-7 | **真实成交价热力** — listings 的 unit_price 聚合到社区中心点画热力 | 2h | 🔴 高 | 已有 district_trend.csv 可聚合 |
 | trend-6 | **学区溢价** — listings 的 school_ids 关联学区评分 | 2h | 🔴 高 | 已有 schools.csv + school_indicators.csv |
 | trend-9 | **板块网签热度榜** — daily_wangqian 已有 264 条 district 数据 | 1h | 🟡 中 | 已有 daily_wangqian.csv |
