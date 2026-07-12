@@ -384,6 +384,15 @@ gh auth setup-git
 - 本机验证仍走 `scripts/check.ps1`（含 E2E）
 - 详见 [changelog/2026-07-12-v0.3.0-CI接入.md](./changelog/2026-07-12-v0.3.0-CI接入.md)
 
+### v0.3.0 优化批次-5 (2026-07-12)
+
+**CI 自检：actionlint 守 workflow 语法**
+
+- `.github/workflows/realty-app-tests.yml` 加 `rhysd/actionlint@v1` 步骤
+- 触发位置：`setup-node` 之后、`npm ci` 之前（fail fast，秒级 lint 通过后再装依赖）
+- 默认 lint 所有 `.github/workflows/*.yml`，不仅 `realty-app-tests.yml`，连 `crawl-*` 也覆盖
+- 详见 [changelog/2026-07-12-v0.3.0-actionlint.md](./changelog/2026-07-12-v0.3.0-actionlint.md)
+
 ## License
 
 与主仓库一致（`LICENSE`）。

@@ -39,6 +39,13 @@ jobs:
           cache: npm
           cache-dependency-path: realty_app/package-lock.json
 
+      - name: lint workflows（actionlint）
+        uses: rhysd/actionlint@v1
+        with:
+          # 顺便把整个 .github/workflows 都 lint（包括 crawl-*），避免本 workflow
+          # 通过但其它 workflow 有语法错误的盲点
+          ignore-version-of-actions: false
+
       - name: 装依赖（npm ci）
         run: npm ci --no-audit --no-fund
 
