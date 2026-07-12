@@ -7,6 +7,9 @@
  *  2. src/manifest.json 字段类型合法（name / versionName / versionCode / vueVersion 必填）
  *  3. static/seed/ 下的 CSV 文件名与 README.md 中"远程 CSV"段落一致
  *     （防止改名后 README 文档与实际数据脱节，App 启动找不到文件）
+ *  4. package.json 与 manifest.json 的 version 对齐
+ *  5. CI 必装文件存在
+ *  6. 高德 POI 抓取数据完整性（v0.4.1）：communities_geo.csv + poi_seed.csv
  *
  * 为什么不放到 e2e：
  *  这是纯文件 / JSON 解析，不依赖 dev server，跑在 vitest node 环境下毫秒级。
@@ -18,12 +21,24 @@ import { resolve } from "node:path";
 
 const ROOT = resolve(__dirname, "..");
 
+function readCsv(p: string): Record<string, string>[] {
+  const raw = readFileSync(p, "utf8");
+  const lines = raw.split(/\r?\n/).filter((l) => l.length > 0);
+  const [header, ...rest] = lines;
+  const keys = header.split(",");
+  return rest.map((line) => {
+    const cells = line.split(",");
+    const row: Record<string, string> = {};
+    keys.forEach((k, i) => (row[k] = cells[i] ?? ""));
+    return row;
+  });
+}
+
 describe("build integrity", () => {
   describe("index.html", () => {
     const html = readFileSync(resolve(ROOT, "index.html"), "utf8");
 
     it("包含 <link rel=\"icon\"> 标签", () => {
-      // 容许 href 是 data:, 或真实文件 —— 但必须有 rel=icon 声明
       expect(html).toMatch(/<link[^>]+rel=["']icon["']/i);
     });
 
@@ -50,18 +65,15 @@ describe("build integrity", () => {
     });
 
     it("vueVersion 必须是 '3'", () => {
-      // vite.config.ts + tsconfig.json 都基于 Vue 3；如果降到 2 会编译失败
       expect(manifest.vueVersion).toBe("3");
     });
   });
 
   describe("static/seed CSV 文件清单", () => {
-    // 真实存在的文件
     const seedFiles = new Set(
       readdirSync(resolve(ROOT, "static/seed")).map((f) => f.toLowerCase())
     );
 
-    // README.md 中"下载 CSV（远程）"段落声明的 5 个文件
     const requiredFiles = [
       "cities.csv",
       "communities.csv",
@@ -90,29 +102,62 @@ describe("build integrity", () => {
       expect(pkg.scripts["test:coverage"]).toBeDefined();
     });
 
-    it("type-check 走 vue-tsc --noEmit（避免遗留的 tsc --noEmit）", () => {
+    it("type-check 走 vue-tsc --noEmit", () => {
       expect(pkg.scripts["type-check"]).toMatch(/vue-tsc/);
     });
 
     it("manifest.versionName 与 package.json.version 大版本对齐", () => {
       const pkgMajor = pkg.version.split(".")[0];
       const manifestMajor = manifest.versionName.split(".")[0];
-      // 容许 App manifest 比 package.json 滞后一个版本（先发 App 再发手机包是常见节奏），
-      // 但不应超前或完全无关
       expect(Number(manifestMajor)).toBeGreaterThanOrEqual(
         Number(pkgMajor) - 1
       );
     });
   });
 
+  describe("高德 POI 数据完整性（v0.4.1）", () => {
+    const geoPath = resolve(ROOT, "static/seed/communities_geo.csv");
+    const poiPath = resolve(ROOT, "static/seed/poi_seed.csv");
+
+    it("存在 communities_geo.csv（crawl_amap_geo.py 输出）", () => {
+      expect(existsSync(geoPath)).toBe(true);
+    });
+
+    it("存在 poi_seed.csv（crawl_amap_poi.py 输出）", () => {
+      expect(existsSync(poiPath)).toBe(true);
+    });
+
+    it("communities_geo.csv ≥ 23 行成功 geocode", () => {
+      if (!existsSync(geoPath)) return; // skip if earlier it failed
+      const rows = readCsv(geoPath);
+      const ok = rows.filter(
+        (r) => r.confidence === "high" || r.confidence === "medium"
+      ).length;
+      expect(ok).toBeGreaterThanOrEqual(23);
+    });
+
+    it("poi_seed.csv 行数 > 100（5 类 × 23 小区 × ~1+）", () => {
+      if (!existsSync(poiPath)) return;
+      const rows = readCsv(poiPath);
+      expect(rows.length).toBeGreaterThan(100);
+    });
+
+    it("poi_seed.csv community_id 必须存在于 communities.csv（无孤儿）", () => {
+      if (!existsSync(poiPath)) return;
+      const communities = readCsv(resolve(ROOT, "static/seed/communities.csv"));
+      const validIds = new Set(communities.map((r) => r.community_id));
+      const poiRows = readCsv(poiPath);
+      const orphan = poiRows.filter((r) => !validIds.has(r.community_id));
+      expect(orphan.length).toBe(0);
+    });
+  });
+
   describe("CI 必装文件", () => {
     it("存在 tests/e2e/smoke.mjs", () => {
-      // e2e workflow 引用了它，文件被删会让 CI 静默通过（无脚本可跑）
       expect(existsSync(resolve(ROOT, "tests/e2e/smoke.mjs"))).toBe(true);
     });
 
     it("存在 tests/expected.json", () => {
-      // rules.test.ts 隐式依赖此文件
       expect(existsSync(resolve(ROOT, "tests/expected.json"))).toBe(true);
     });
   });

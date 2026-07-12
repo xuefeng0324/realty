@@ -13,7 +13,7 @@
 |------|------|------|------|------|
 | 🔴 P0 | data-1 | 接入链家真 listings（xjkj123/Lianjia 地图 API） | 🚧 | ✅ API 可达（实测：HTTP 200, 70+ 卡片） |
 | 🔴 P0 | data-2 | 接入链家 chengjiao 成交数据 | ⚠️ | ❌ 本机被 captcha 拦（HTTP 200 但 6KB CAPTCHA 页）；需云函数/代理 IP 或换源（禧泰/CnOpenData） |
-| 🟡 P1 | data-3 | 接入高德 POI 配套距离 | 🚧 | ✅ API 可达（需 key） |
+| 🟡 P1 | data-3 | 接入高德 POI 配套距离 | 🚧 | ✅ API 可达 + Key 已提供（f22d0a9...a139）；周围/搜索/地理编码 3 接口实测 HTTP 200 |
 | 🟡 P1 | data-4 | 调研 opendata.sz.gov.cn 其它 70 个数据集 | ⏳ | — |
 | 🟡 P1 | data-5 | 接 cnstats 国家统计局月度宏观指标 | ⏳ | — |
 | 🟡 P1 | data-6 | 学校数据从 14 个扩到 100+ | ⏳ | — |
@@ -31,6 +31,16 @@
 | `sz.lianjia.com/chengjiao/` | 200 | 6KB "CAPTCHA" | ❌ 完全被拦 |
 | `sz.lianjia.com/xiaoqu/` | 200 | 148KB | ✅ 40 个小区卡片（可作为社区数据补源） |
 | `ajax.lianjia.com/map/search/ershoufang/` (xjkj123) | 404 | — | ❌ API 已下线 |
+
+### 高德 Web 服务 API（Key: f22d0a9...a139）
+
+| 接口 | HTTP | 状态 |
+|------|------|------|
+| `restapi.amap.com/v3/place/around` (周围搜索, 1km 餐饮) | 200 | ✅ 10 条 POI（华润城附近） |
+| `restapi.amap.com/v3/place/text` ("华润城") | 200 | ✅ 5 条 POI；`华润城润府` 经纬度 = `113.954898,22.546563` |
+| `restapi.amap.com/v3/geocode/geo` ("华润城润府" → 经纬度) | 200 | ✅ `广东省深圳市南山区华润城润府 @ 113.954898,22.546563` |
+
+Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 60 条 listings 各做 1-2 次地理编码。
 
 ---
 

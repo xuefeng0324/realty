@@ -6,6 +6,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v0.4.1 | 2026-07-12 | 接高德 POI：23 个 seed 小区经纬度 + 周边配套（地铁/学校/医院/商场/公园），新增 `crawl_amap_*.py` 与数据完整性单测 |
 | v0.4.0 | 2026-07-12 | 接链家在售 API 真 listings（60 条）入 seed；新增 `crawl_lianjia_listings.py` + `tests/e2e/smoke_listings.mjs` UI 验证 |
 | v0.3.1 | 2026-07-12 | CI 修复（actionlint 死引用）+ crawl workflow 缓存优化 + check.ps1 Node 预检 + build 完整性单测 |
 | v0.3.0 | 2026-07-12 | 移除示例数据 demoData，所有数据统一走政府公开种子；新增 Playwright E2E smoke 验证；修复 favicon 404 |
@@ -424,6 +425,18 @@ gh auth setup-git
 - **UI 验证**：新增 `tests/e2e/smoke_listings.mjs`，Playwright 打开 listing-detail 页检查真房源 title/价格/户型是否渲染，并截 `listing_detail_*.png`
 - **测试**：原 pipeline.test.ts 假设"latest weekEnd 有 ≥10 个 community"，新增 60 条 listings 后可能切换到新一周；改为扫描所有周找到首个有数据的周，向下兼容 fake 数据
 - 详见 [changelog/2026-07-12-v0.4.0-链家在售真数据接入.md](./changelog/2026-07-12-v0.4.0-链家在售真数据接入.md)
+
+### v0.4.1 (2026-07-12)
+
+**接入高德 POI 真数据：小区经纬度 + 周边配套**
+
+- **新增 2 套抓取脚本**：
+  - `scripts/crawl_amap_geo.py` — 小区 geocode + reverse_geocode → `communities_geo.csv`（23 行，21 high + 2 medium confidence）
+  - `scripts/crawl_amap_poi.py` — 周边 POI → `poi_seed.csv`（298 行 = 23 小区 × 5 类 × ~3 个最近）
+- **数据**：5 类 POI = 地铁/小学/医院/商场/公园；每类取最近 3 个；按 distance 排序
+- **新单测**：`tests/buildIntegrity.test.ts` 加 5 个用例，覆盖 `communities_geo.csv`/`poi_seed.csv` 文件存在 + geocode 覆盖率 + POI 孤儿检测
+- **配额**：23 小区 × 4-5 次 = 79-115 次/天，远低于 5000-30000 配额
+- 详见 [changelog/2026-07-12-v0.4.1-高德POI真数据接入.md](./changelog/2026-07-12-v0.4.1-高德POI真数据接入.md)
 
 ## License
 
