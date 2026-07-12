@@ -23,6 +23,7 @@ import type {
   LocalDistrictTrend,
   LocalDistrictIndex,
   LocalHospital,
+  LocalLifeConvenience,
   LocalListing,
   LocalLayoutDistribution,
   LocalListingSchoolPremium,
@@ -99,6 +100,8 @@ export interface SnapshotInputs {
   listingTagsCSV?: string;
   /** v0.29.0: 区级房价指数 (CSV) */
   districtIndexCSV?: string;
+  /** v0.31.0: 生活便利度 */
+  lifeConvenienceCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -109,6 +112,32 @@ function weekEndFromDate(iso: string): string {
 }
 
 const LAYOUT_DIMS = new Set(["bedrooms", "area_sqm", "orientation", "decorate"]);
+
+function parseLifeConvenience(csvText: string): LocalLifeConvenience[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.community_id);
+      if (cid == null) return null;
+      const num = (v: string | undefined) => {
+        if (v === undefined || v === "") return 0;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : 0;
+      };
+      return {
+        communityId: cid,
+        cityId: n(r.city_id) ?? 0,
+        districtName: s(r.district_name) ?? "",
+        communityName: s(r.community_name) ?? "",
+        mallNear: num(r.mall_near ?? undefined),
+        parkNear: num(r.park_near ?? undefined),
+        subwayNear: num(r.subway_near ?? undefined),
+        schoolNear: num(r.school_near ?? undefined),
+        hospitalNear: num(r.hospital_near ?? undefined),
+        score: num(r.score ?? undefined)
+      } as LocalLifeConvenience;
+    })
+    .filter((x): x is LocalLifeConvenience => x !== null);
+}
 
 function parseDistrictIndex(csvText: string): LocalDistrictIndex[] {
   return rowsToObjects<Record<string, string>>(parseCSV(csvText))
@@ -601,6 +630,11 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     ? parseDistrictIndex(inputs.districtIndexCSV)
     : [];
 
+  // v0.31.0 new-9: 生活便利度
+  const lifeConveniences: LocalLifeConvenience[] = inputs.lifeConvenienceCSV
+    ? parseLifeConvenience(inputs.lifeConvenienceCSV)
+    : [];
+
   // 聚合可用周：基于 listings 的 crawl_date
   const weekEnds = new Set<string>();
   for (const l of listings) {
@@ -636,6 +670,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     layoutDistributions,
     listingTags,
     districtIndices,
+    lifeConveniences,
     availableWeeks
   };
 }

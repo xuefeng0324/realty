@@ -73,6 +73,10 @@ import listingTagsCSV from "../../static/seed/listing_tags.csv?raw";
 // @ts-ignore
 import districtIndexCSV from "../../static/seed/district_index.csv?raw";
 
+// v0.31.0 生活便利度 (scripts/compute_life_convenience.py)
+// @ts-ignore
+import lifeConvenienceCSV from "../../static/seed/life_convenience.csv?raw";
+
 let cached: DataSnapshot | null = null;
 
 /** 拿默认快照。第一次解析后缓存。 */
@@ -99,7 +103,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       commuteCSV: String(commuteCSV ?? ""),
       layoutDistributionCSV: String(layoutDistributionCSV ?? ""),
       listingTagsCSV: String(listingTagsCSV ?? ""),
-      districtIndexCSV: String(districtIndexCSV ?? "")
+      districtIndexCSV: String(districtIndexCSV ?? ""),
+      lifeConvenienceCSV: String(lifeConvenienceCSV ?? "")
     },
     "seed:public-derived"
   );

@@ -21,6 +21,7 @@ import type {
   LocalDistrictIndex,
   LocalHospital,
   LocalLayoutDistribution,
+  LocalLifeConvenience,
   LocalListing,
   LocalListingSchoolPremium,
   LocalListingTag,
@@ -339,6 +340,17 @@ export function getDistrictIndices(): LocalDistrictIndex[] {
 
 export function getDistrictIndicesByCity(cityId: number): LocalDistrictIndex[] {
   return (snapshot?.districtIndices ?? []).filter((d) => d.cityId === cityId);
+}
+
+/**
+ * v0.31.0: 生活便利度 (全量 + 按城市过滤)
+ */
+export function getLifeConveniences(): LocalLifeConvenience[] {
+  return snapshot?.lifeConveniences ?? [];
+}
+
+export function getLifeConveniencesByCity(cityId: number): LocalLifeConvenience[] {
+  return (snapshot?.lifeConveniences ?? []).filter((l) => l.cityId === cityId);
 }
 
 /**

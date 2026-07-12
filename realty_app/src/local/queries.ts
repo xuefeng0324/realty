@@ -28,7 +28,7 @@ import type {
   SchoolFutureScoreResponse,
   CityItem
 } from "../api/contracts";
-import type { LocalLayoutDistribution, LocalListing, LocalListingTag, LocalDistrictIndex } from "./types";
+import type { LocalLayoutDistribution, LocalListing, LocalListingTag, LocalDistrictIndex, LocalLifeConvenience } from "./types";
 import {
   generateWeeklySnapshot,
   type SnapshotResult
@@ -1956,6 +1956,73 @@ export function getDistrictChangeRank(params: { cityId: number }): DistrictChang
   return {
     cityId: params.cityId,
     cityName: city.cityName,
+    items
+  };
+}
+
+/**
+ * v0.31.0: 生活便利度榜 (按综合分降序)
+ * 用于 dashboard "生活便利度" 卡片
+ */
+export interface LifeConvenienceItem {
+  communityId: number;
+  districtName: string;
+  communityName: string;
+  mallNear: number;
+  parkNear: number;
+  subwayNear: number;
+  schoolNear: number;
+  hospitalNear: number;
+  score: number;
+}
+
+export interface LifeConvenienceResponse {
+  cityId: number;
+  cityName: string;
+  avgScore: number;
+  maxScore: number;
+  /** 按 score 降序 */
+  items: LifeConvenienceItem[];
+}
+
+export function getLifeConvenienceRank(params: {
+  cityId: number;
+  topN?: number;
+  minScore?: number;
+}): LifeConvenienceResponse | null {
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const all = store.getLifeConveniencesByCity(params.cityId);
+  if (all.length === 0) return null;
+
+  const minScore = params.minScore ?? 0;
+  const topN = params.topN ?? 10;
+  const filtered = all.filter((l) => l.score >= minScore);
+
+  const items: LifeConvenienceItem[] = filtered
+    .slice()
+    .sort((a, b) => b.score - a.score)
+    .slice(0, topN)
+    .map((l) => ({
+      communityId: l.communityId,
+      districtName: l.districtName,
+      communityName: l.communityName,
+      mallNear: l.mallNear,
+      parkNear: l.parkNear,
+      subwayNear: l.subwayNear,
+      schoolNear: l.schoolNear,
+      hospitalNear: l.hospitalNear,
+      score: l.score
+    }));
+
+  const avg = Math.round((all.reduce((s, r) => s + r.score, 0) / all.length) * 10) / 10;
+  const max = all.reduce((m, r) => (r.score > m ? r.score : m), 0);
+
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    avgScore: avg,
+    maxScore: max,
     items
   };
 }

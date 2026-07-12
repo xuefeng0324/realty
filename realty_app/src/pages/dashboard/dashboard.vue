@@ -512,6 +512,58 @@
         </view>
       </view>
 
+      <!-- v0.31.0 new-9 生活便利度榜 (5 维: mall/park/subway/school/hospital) -->
+      <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">🧭 生活便利度 Top 小区 · {{ lifeConvenience.cityName }}</view>
+          <view class="muted">Top {{ lifeConvenience.items.length }}</view>
+        </view>
+        <view v-if="lifeConvenience.items.length === 0" class="empty">暂无数据</view>
+        <view class="lc-summary muted">
+          城市均分 {{ lifeConvenience.avgScore }} · 最高 {{ lifeConvenience.maxScore }}
+        </view>
+        <view
+          v-for="it in lifeConvenience.items"
+          :key="it.communityId"
+          class="lc-row"
+        >
+          <view class="lc-mid">
+            <view class="lc-name">{{ it.communityName }}</view>
+            <view class="lc-dist muted">{{ it.districtName }}</view>
+          </view>
+          <view class="lc-scores">
+            <view class="lc-dim">
+              <text class="lc-dim-label">M</text>
+              <text class="lc-dim-val">{{ it.mallNear }}</text>
+            </view>
+            <view class="lc-dim">
+              <text class="lc-dim-label">P</text>
+              <text class="lc-dim-val">{{ it.parkNear }}</text>
+            </view>
+            <view class="lc-dim">
+              <text class="lc-dim-label">S</text>
+              <text class="lc-dim-val">{{ it.subwayNear }}</text>
+            </view>
+            <view class="lc-dim">
+              <text class="lc-dim-label">X</text>
+              <text class="lc-dim-val">{{ it.schoolNear }}</text>
+            </view>
+            <view class="lc-dim">
+              <text class="lc-dim-label">Y</text>
+              <text class="lc-dim-val">{{ it.hospitalNear }}</text>
+            </view>
+          </view>
+          <view class="lc-right">
+            <text :class="['lc-score', lifeScoreClass(it.score)]">{{ it.score }}</text>
+            <view class="muted" style="font-size: 20rpx">/ 100</view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：poi_seed.csv → life_convenience.csv (compute_life_convenience.py)。
+          评分维度 M=商场 P=公园 S=地铁 X=学校 Y=医院。满分 100，按综合分降序。
+        </view>
+      </view>
+
       <!-- v0.11.0 学区溢价榜 -->
       <view v-if="schoolPremiumOverview && schoolPremiumOverview.items.length > 0" class="card">
         <view class="row-between">
@@ -863,7 +915,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -909,6 +961,7 @@ const tagCloud = ref<TagCloudResponse | null>(null);
 const tagCloudFilteredHint = ref<string>("");
 const districtIndex = ref<DistrictIndexResponse | null>(null);
 const districtChange = ref<DistrictChangeResponse | null>(null);
+const lifeConvenience = ref<LifeConvenienceResponse | null>(null);
 const schoolPremiumOverview = ref<SchoolPremiumOverview | null>(null);
 const schoolPremiumCommunityItems = ref<SchoolPremiumCommunityItem[]>([]);
 // v0.26.0 trend-11: 过滤 + 排序 controls
@@ -1239,6 +1292,16 @@ async function loadRankingAndDistrict() {
         console.warn("getDistrictChangeRank failed:", e);
         districtChange.value = null;
       }
+      // v0.31.0 new-9 生活便利度榜
+      try {
+        lifeConvenience.value = await getLifeConvenienceRank({
+          cityId: app.cityId,
+          topN: 8
+        });
+      } catch (e) {
+        console.warn("getLifeConvenienceRank failed:", e);
+        lifeConvenience.value = null;
+      }
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
         cityId: app.cityId,
@@ -1539,6 +1602,16 @@ function diChangeClass(v: number | null): string {
   if (v > 0.5) return "price-up";
   if (v < -0.5) return "price-down";
   return "muted";
+}
+
+/**
+ * v0.31.0: 生活便利度分档颜色
+ *   ≥80 高 (绿) / 60-79 中 (蓝) / <60 低 (灰)
+ */
+function lifeScoreClass(s: number): string {
+  if (s >= 80) return "lc-score-high";
+  if (s >= 60) return "lc-score-mid";
+  return "lc-score-low";
 }
 
 /** 把 weeklySeries 转成 sparkline 高度比例 (0-100) */
@@ -2610,6 +2683,81 @@ onShow(async () => {
   font-size: 32rpx;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+}
+
+/* v0.31.0 生活便利度榜 */
+.lc-summary {
+  font-size: 22rpx;
+  margin-bottom: 8rpx;
+}
+.lc-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 8rpx 0;
+  border-bottom: 1rpx solid #1f2937;
+}
+.lc-row:last-child {
+  border-bottom: none;
+}
+.lc-mid {
+  flex: 1;
+  min-width: 0;
+}
+.lc-name {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lc-dist {
+  font-size: 20rpx;
+}
+.lc-scores {
+  display: flex;
+  gap: 6rpx;
+  flex-wrap: nowrap;
+}
+.lc-dim {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #1e293b;
+  border-radius: 6rpx;
+  padding: 2rpx 6rpx;
+  min-width: 32rpx;
+}
+.lc-dim-label {
+  font-size: 18rpx;
+  color: #94a3b8;
+  font-weight: 600;
+}
+.lc-dim-val {
+  font-size: 22rpx;
+  color: #cbd5e1;
+  font-variant-numeric: tabular-nums;
+}
+.lc-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 60rpx;
+}
+.lc-score {
+  font-size: 32rpx;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.lc-score-high {
+  color: #22c55e;
+}
+.lc-score-mid {
+  color: #38bdf8;
+}
+.lc-score-low {
+  color: #94a3b8;
 }
 
 /* v0.10.0 网签热度榜 */

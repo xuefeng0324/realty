@@ -235,6 +235,17 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 R | trend-14 | dashboard 「🚀 区涨幅榜」卡 + 颜色编码 | ✅ v0.30.0 | 金牌前 3 名 |
 | 🟢 R | trend-14 | buildIntegrity +5 测试 + smoke_district_change E2E + commit v0.30.0 | ✅ v0.30.0 | 314/314 通过；23/23 smoke 全绿 |
 
+## S 段补充：生活便利度（v0.31.0）
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+| --- | --- | --- | --- | --- |
+| 🟡 S | new-9 | 调研 poi_seed.csv 5 类 + 综合打分设计 | ✅ v0.31.0 | 复用现有 POI 数据 |
+| 🟡 S | new-9 | compute_life_convenience.py + life_convenience.csv (52 行) | ✅ v0.31.0 | 满分 100, 5 维加权 |
+| 🟡 S | new-9 | LocalLifeConvenience + parseLifeConvenience + getLifeConveniences | ✅ v0.31.0 | 全套 store/query/types |
+| 🟡 S | new-9 | getLifeConvenienceRank (avgScore/maxScore/topN/minScore) | ✅ v0.31.0 | 支持过滤排序 |
+| 🟡 S | new-9 | dashboard 「🧭 生活便利度 Top 小区」卡 (5 维评分 + 颜色分档) | ✅ v0.31.0 | ≥80 绿 / 60-79 蓝 / <60 灰 |
+| 🟡 S | new-9 | buildIntegrity +8 测试 + smoke_life_convenience E2E + commit v0.31.0 | ✅ v0.31.0 | 322/322 通过；smoke 全绿 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

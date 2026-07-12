@@ -1740,4 +1740,64 @@ describe("build integrity", () => {
       expect(content).toMatch(/getDistrictChangeRank\(\{\s*cityId:\s*app\.cityId/);
     });
   });
+
+  // ────────────────────────────────────────────────────────────────────
+  // v0.31.0 new-9 生活便利度 (life_convenience.csv)
+  // ────────────────────────────────────────────────────────────────────
+  describe("v0.31.0 new-9 生活便利度", () => {
+    it("life_convenience.csv 存在且 >= 50 行", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/life_convenience.csv"));
+      expect(rows.length).toBeGreaterThanOrEqual(50);
+    });
+
+    it("life_convenience.csv 含 3 个 city_id", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/life_convenience.csv"));
+      const ids = new Set(rows.map((r) => r["city_id"]));
+      expect(ids.has("1")).toBe(true);
+      expect(ids.has("2")).toBe(true);
+      expect(ids.has("3")).toBe(true);
+    });
+
+    it("life_convenience.csv score 在 0-100 范围", () => {
+      const rows = readCsv(resolve(ROOT, "static/seed/life_convenience.csv"));
+      for (const r of rows) {
+        const s = Number(r["score"]);
+        expect(Number.isFinite(s)).toBe(true);
+        expect(s).toBeGreaterThanOrEqual(0);
+        expect(s).toBeLessThanOrEqual(100);
+      }
+    });
+
+    it("types.ts 定义 LocalLifeConvenience 接口", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(content).toMatch(/export interface LocalLifeConvenience/);
+      expect(content).toMatch(/lifeConveniences: LocalLifeConvenience\[\]/);
+    });
+
+    it("importer.ts 解析 lifeConvenienceCSV 输入", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(content).toMatch(/lifeConvenienceCSV\?: string/);
+      expect(content).toMatch(/parseLifeConvenience/);
+    });
+
+    it("queries.ts 增加 getLifeConvenienceRank 函数", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/export function getLifeConvenienceRank/);
+      expect(content).toMatch(/export interface LifeConvenienceResponse/);
+    });
+
+    it("dashboard.vue 渲染生活便利度卡片 + 5 维评分", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(content).toMatch(/lifeConvenience/);
+      expect(content).toMatch(/生活便利度|🧭/);
+      expect(content).toMatch(/getLifeConvenienceRank/);
+      expect(content).toMatch(/lifeScoreClass/);
+      expect(content).toMatch(/lc-row|lc-scores/);
+    });
+
+    it("dashboard.vue loadAll 调用 getLifeConvenienceRank", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(content).toMatch(/getLifeConvenienceRank\(\{\s*cityId:\s*app\.cityId/);
+    });
+  });
 });

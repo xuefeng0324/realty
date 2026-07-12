@@ -23,6 +23,7 @@
 | v0.28.0 | 2026-07-13 | dashboard 新增「🏷️ 房源标签云」卡 (5 档字号)：compute_listing_tags.py 派生 18 类标签 (户型/价格/朝向/装修/学区/地铁/楼龄/楼层/电梯/平台)；listing_tags.csv 7517 行；10 单测 + smoke_tagcloud E2E |
 | v0.29.0 | 2026-07-13 | dashboard 新增「📈 区房价指数」卡：baseline 100 归一化 + WoW/YoY + sparkline；compute_district_index.py 从 district_trend.csv 计算；266 行 / 12 区；9 单测 + smoke_district_index E2E |
 | v0.30.0 | 2026-07-13 | dashboard 新增「🚀 区涨幅榜 (近 4 周)」卡：复用 district_index.csv，每区最近 4 周累计变化；5 单测 + smoke_district_change E2E |
+| v0.31.0 | 2026-07-13 | dashboard 新增「🧭 生活便利度 Top 小区」卡：复用 poi_seed.csv 5 类 POI 加权打分 (满分 100, M商场/P公园/S地铁/X学校/Y医院)；52 行 / 3 城全覆盖；8 单测 + smoke_life_convenience E2E |
 | v0.13.0 | 2026-07-12 | map-view 第四种模式「POI overlay」：把 poi_seed.csv 的 5 类 POI (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园) 画到地图上 (每类最多 25 marker)；5 类 toggle 自由开关；POI info-card 显示名称 + 类型 + 距离 + 所属小区 |
 | v0.12.0 | 2026-07-12 | map-view 第三种模式「成交价热力」：圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵），半径仍按挂牌数；info-card 新增「价位」5 档标签（便宜/中低/中等/中高/昂贵，色码化）；mode 由 boolean → `MapMode = "count" \| "price" \| "listings"` |
 | v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |
@@ -947,6 +948,24 @@ dashboard 新增「🚀 区涨幅榜 (近 4 周) · {城市}」卡：
 
 验证：314/314 单测过 (+5), type-check clean, 23/23 smoke 全绿
 详见 [changelog/2026-07-13-v0.30.0-区涨幅榜.md](./changelog/2026-07-13-v0.30.0-区涨幅榜.md)
+
+### v0.31.0 - 生活便利度 (2026-07-13)
+
+dashboard 新增「🧭 生活便利度 Top 小区 · {城市}」卡：
+
+- 城市均分 + 最高分 summary
+- 每行展示小区名 / 区 / 5 维评分 (M/P/S/X/Y 缩写) / 总分 (0-100)
+- 颜色分档：≥80 高 (绿) / 60-79 中 (蓝) / <60 低 (灰)
+
+数据来源：`poi_seed.csv` → `compute_life_convenience.py` → `life_convenience.csv`
+
+统计：
+- 广州 avg=66.2 / max=85
+- 深圳 avg=71.1 / max=90 (数据最全)
+- 珠海 avg=59.4 / max=65
+
+验证：322/322 单测过 (+8), type-check clean, smoke_life_convenience 3 城市全绿 (含城市切换差异性)
+详见 [changelog/2026-07-13-v0.31.0-生活便利度.md](./changelog/2026-07-13-v0.31.0-生活便利度.md)
 
 ## License
 

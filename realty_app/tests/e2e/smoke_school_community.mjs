@@ -26,18 +26,18 @@ async function gotoDashboard(page, cityId) {
 }
 
 async function expectSchoolCommunityCard(page, label) {
-  const card = page.locator(".card-title:has-text('学区评分 Top')").first();
-  await card.waitFor({ timeout: 10000 });
+  const card = page.locator(".card", { has: page.locator(".card-title:has-text('学区评分 Top')") }).first();
+  await card.locator(".card-title:has-text('学区评分 Top')").waitFor({ timeout: 10000 });
   console.log(`[${label}] 学区评分 Top 小区卡 ✓`);
   // 至少 1 个小区行
-  const items = await page.locator(".sp-medal-mini").count();
+  const items = await card.locator(".sp-medal-mini").count();
   console.log(`[${label}] 小区数: ${items}`);
   if (items < 1) {
     throw new Error(`[${label}] 学区评分 Top 0 条`);
   }
-  // 取第一项
-  const firstName = await page.locator(".sp-medal-mini").first().locator("..").locator("..").locator(".community-name").first().textContent();
-  const firstScore = await page.locator(".sp-medal-mini").first().locator("..").locator("..").locator(".muted").first().textContent();
+  // 取第一项 (在卡片内)
+  const firstName = await card.locator(".sp-medal-mini").first().locator("..").locator("..").locator(".community-name").first().textContent();
+  const firstScore = await card.locator(".sp-medal-mini").first().locator("..").locator("..").locator(".muted").first().textContent();
   console.log(`[${label}] Top 1: ${firstName}`);
   console.log(`[${label}] score meta: ${firstScore}`);
   if (!firstScore || !/评分 \d+\.\d/.test(firstScore)) {
