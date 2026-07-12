@@ -26,7 +26,7 @@
           挂牌点 (v0.18.0 聚合)：每点 = 该小区 1 套挂牌 (单点)；多套聚合显示数字 (红气泡)，点击放大；点击单点 → 小区详情
         </text>
         <text v-else-if="mode === 'poi'">
-          POI overlay：5 类配套图标 (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园)
+          POI overlay (v0.22.0 聚合)：5 类配套图标 (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园)，同类按 grid 聚合；单点=该 POI，聚合=带数字气泡，点击聚合放大
         </text>
         <text v-else>
           地铁规划：21 条规划/在建线路（绿=即将开通 / 橙=在建 / 灰=规划）；按 status 着色
@@ -320,43 +320,101 @@ const priceLevelText = computed(() => {
 });
 
 // POI overlay markers: 每个 POI 一个 marker，按 category 着色
+// v0.22.0 map-3: POI marker 聚合
+// - 复用 cluster.ts (类内 cluster，避免不同类混合)
+// - 每类单独 cluster → 单点显示 emoji+name，聚合显示带数字气泡
+// - 高 zoom (>=15) 几乎不聚合 (cell ≈ 250m)
+// - tap: 单点 → info-card；聚合 → 放大到下一 zoom
 const poiMarkers = computed(() => {
   if (!app.cityId || mode.value !== "poi") return [];
   const all = getPoisByCity(app.cityId);
   const filtered = all.filter((p) => poiFilter.value.has(p.poiCategory));
-  // 每个 POI 类取最近 N 个，避免 marker 太多（每类 20 上限）
-  const byCat = new Map<PoiCat, typeof filtered>();
-  for (const cat of poiFilter.value) byCat.set(cat, []);
-  for (const p of filtered) {
-    const arr = byCat.get(p.poiCategory) ?? [];
-    if (arr.length < 25) arr.push(p);
-    byCat.set(p.poiCategory, arr);
-  }
+  if (filtered.length === 0) return [];
+  // 每类单独 cluster (避免 5 类 POI 混合成一颗大球)
   const out: any[] = [];
-  for (const [cat, list] of byCat.entries()) {
-    for (const p of list) {
-      const color = poiColor(cat);
-      out.push({
-        id: -1 * (p.communityId * 1000 + p.poiRank * 10 + catCode(cat)),
-        latitude: p.lat,
-        longitude: p.lng,
-        width: 24,
-        height: 24,
-        title: `${poiEmoji(cat)} ${p.poiName}`,
-        callout: {
-          content: `${poiEmoji(cat)} ${p.poiName}\n${poiLabel(cat)} · ${Math.round(p.distanceM)}m`,
-          color: "#ffffff",
-          bgColor: color,
-          padding: 4,
-          borderRadius: 4,
-          fontSize: 11,
-          display: "BYCLICK"
-        }
-      });
+  const cats: PoiCat[] = ["subway", "school", "hospital", "mall", "park"];
+  const syntheticIdBase = -1000000;
+  let syntheticIdCounter = 0;
+  for (const cat of cats) {
+    if (!poiFilter.value.has(cat)) continue;
+    const list = filtered.filter((p) => p.poiCategory === cat);
+    if (list.length === 0) continue;
+    const color = poiColor(cat);
+    // 用 cluster 算法
+    const inputs: ClusterInputPoint[] = list.map((p) => ({
+      id: -1 * (p.communityId * 1000 + p.poiRank * 10 + catCode(cat)),
+      latitude: p.lat,
+      longitude: p.lng,
+      payload: p
+    }));
+    const clusters = clusterMarkers(inputs, Math.round(mapScale.value));
+    for (const c of clusters) {
+      if (c.count === 1) {
+        const p = c.payload[0] as any;
+        out.push({
+          id: c.id,
+          latitude: c.latitude,
+          longitude: c.longitude,
+          width: 24,
+          height: 24,
+          iconPath: POI_MARKER_ICONS[cat],
+          title: `${poiEmoji(cat)} ${p.poiName}`,
+          callout: {
+            content: `${poiEmoji(cat)} ${p.poiName}\n${poiLabel(cat)} · ${Math.round(p.distanceM)}m`,
+            color: "#ffffff",
+            bgColor: color,
+            padding: 4,
+            borderRadius: 4,
+            fontSize: 11,
+            display: "BYCLICK"
+          }
+        });
+      } else {
+        // 聚合点: 大号彩色气泡 + 数字
+        const size = c.count >= 50 ? 44 : c.count >= 10 ? 38 : 32;
+        out.push({
+          id: syntheticIdBase - syntheticIdCounter++,
+          latitude: c.latitude,
+          longitude: c.longitude,
+          width: size,
+          height: size,
+          iconPath: makePoiClusterIcon(cat, c.count, color),
+          title: `${poiEmoji(cat)} ${poiLabel(cat)} · ${c.count} 个`,
+          callout: {
+            content: `${poiEmoji(cat)} ${poiLabel(cat)} 聚合 ${c.count} 个\n点击放大展开`,
+            color: "#ffffff",
+            bgColor: color,
+            padding: 4,
+            borderRadius: 4,
+            fontSize: 11,
+            display: "BYCLICK"
+          }
+        });
+      }
     }
   }
   return out;
 });
+
+// v0.22.0 map-3: POI 单点图标 (彩色 emoji + 类别色背景圆)
+const POI_MARKER_ICONS: Record<PoiCat, string> = {
+  subway: makePoiSingleIcon("🚇", "#0ea5e9"),
+  school: makePoiSingleIcon("🏫", "#22c55e"),
+  hospital: makePoiSingleIcon("🏥", "#dc2626"),
+  mall: makePoiSingleIcon("🛍", "#f97316"),
+  park: makePoiSingleIcon("🌳", "#16a34a")
+};
+
+function makePoiSingleIcon(emoji: string, color: string): string {
+  // SVG data URI: 圆形背景 + emoji
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="${color}" stroke="#ffffff" stroke-width="2"/><text x="16" y="22" text-anchor="middle" font-size="16">${emoji}</text></svg>`;
+  return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+}
+
+function makePoiClusterIcon(cat: PoiCat, count: number, color: string): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="${color}" fill-opacity="0.85" stroke="#ffffff" stroke-width="3"/><text x="22" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#ffffff">${count}</text></svg>`;
+  return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+}
 
 function catCode(cat: PoiCat): number {
   return { subway: 1, school: 2, hospital: 3, mall: 4, park: 5 }[cat];
@@ -673,7 +731,18 @@ function onMarkerTap(e: any) {
     return;
   }
   if (markerId < 0) {
-    // v0.18.0 cluster markers: 负 id + count > 1 → zoom in +1
+    // v0.22.0 POI cluster markers: syntheticIdBase = -1000000
+    if (markerId <= -1000000) {
+      const clusters = poiMarkers.value;
+      const clusterHit = clusters.find((c) => c.id === markerId);
+      if (clusterHit) {
+        mapScale.value = Math.min(17, Math.round(mapScale.value) + 1);
+        mapCenter.value = { lat: clusterHit.latitude, lng: clusterHit.longitude };
+        showToast(`放大到 zoom ${mapScale.value}`);
+        return;
+      }
+    }
+    // v0.18.0 listing cluster markers: 负 id + count > 1 → zoom in +1
     // 优先判断 cluster marker (callout 是 "N 套" 格式)
     const clusters = listingClusterMarkers.value;
     const clusterHit = clusters.find((c) => c.id === markerId);

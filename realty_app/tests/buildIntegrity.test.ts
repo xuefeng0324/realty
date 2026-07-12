@@ -1261,4 +1261,49 @@ describe("build integrity", () => {
       expect(content).toMatch(/priceColorRamp5\(tPrice\)/);
     });
   });
+
+  // --------------------------------------------------------------
+  // v0.22.0 map-3: POI marker 聚合
+  // --------------------------------------------------------------
+  describe("v0.22.0 POI marker 聚合", () => {
+    it("map-view.vue poiMarkers 用 clusterMarkers 复用 cluster.ts", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/map-view/map-view.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/clusterMarkers\(inputs, Math\.round\(mapScale\.value\)\)/);
+    });
+
+    it("map-view.vue POI 单点图标 makePoiSingleIcon (SVG data URI)", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/map-view/map-view.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/function makePoiSingleIcon/);
+    });
+
+    it("map-view.vue POI 聚合图标 makePoiClusterIcon (SVG data URI)", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/map-view/map-view.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/function makePoiClusterIcon/);
+    });
+
+    it("map-view.vue onMarkerTap 处理 POI cluster (syntheticIdBase = -1000000)", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/map-view/map-view.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/if \(markerId <= -1000000\)/);
+    });
+
+    it("map-view.vue POI 模式 legend 含 v0.22.0 聚合说明", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/map-view/map-view.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/v0\.22\.0 \u805a\u5408/);
+    });
+  });
 });

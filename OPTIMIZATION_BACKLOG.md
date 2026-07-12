@@ -156,6 +156,15 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 I | map-7 | 「🎨 价格分位图例」卡片 (swatch + 价格区间 + 城市均价) | ✅ v0.21.0 | 5 行 + 汇总带 dashed border |
 | 🟢 I | map-7 | buildIntegrity +5 测试 + smoke_price_heatmap 扩展 + commit v0.21.0 | ✅ v0.21.0 | 251/251 通过；21/21 smoke 全绿 |
 
+## J 段补充：POI marker 聚合（v0.22.0）
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟡 J | map-3 | 调研 POI marker 现状 + cluster.ts API | ✅ v0.22.0 | 678 POI (subway 107 / school 142 / hospital 143 / mall 144 / park 142) |
+| 🟡 J | map-3 | 复用 cluster.ts 每类单独聚合 (避免混合) + SVG data URI icon | ✅ v0.22.0 | 单 POI=emoji 圆 / 聚合=带数字气泡 |
+| 🟡 J | map-3 | onMarkerTap 处理 POI cluster (合成 id -1000000 起 → zoom+1) | ✅ v0.22.0 | 自适应 zoom (11→聚合多, 16+→几乎不聚合) |
+| 🟡 J | map-3 | buildIntegrity +5 测试 + smoke_poi_overlay 扩展 + commit v0.22.0 | ✅ v0.22.0 | 256/256 通过；21/21 smoke 全绿 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

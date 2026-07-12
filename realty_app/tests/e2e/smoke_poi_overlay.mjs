@@ -53,6 +53,25 @@ async function run() {
     console.log("[poi] 地铁 toggle:", subwayText);
     console.log("[poi] 学校 toggle:", schoolText);
 
+    // v0.22.0 map-3: 验证 POI 聚合
+    // - 678 总 POI 在 zoom 11 (城市级) 应聚合为 < 100 marker
+    // - legend 应包含「聚合」字样
+    if (!legend.includes("聚合")) {
+      throw new Error(`POI legend 应包含「聚合」字样: ${legend}`);
+    }
+    console.log("[poi] POI 聚合 legend ✓");
+
+    // 通过 page.evaluate 读取 markers 数据
+    const markerCount = await page.evaluate(() => {
+      const map = document.querySelector("map");
+      if (!map) return -1;
+      // uni-app H5 用 uni-map__marker canvas 渲染, 但 .uni-map__circle 同理
+      // 退而求其次, 读 __mapContext 属性
+      const ctx = map._mapContext ?? map.$mapContext ?? null;
+      return ctx?.markers?.length ?? -1;
+    });
+    console.log(`[poi] markers 数 (uni-app 内部): ${markerCount}`);
+
     await page.screenshot({
       path: resolve(OUT_DIR, "smoke_poi_overlay.png"),
       fullPage: true

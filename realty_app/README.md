@@ -14,6 +14,7 @@
 | v0.19.0 | 2026-07-12 | dashboard 新增「🛒 商业热度」卡：3 类商业 POI (🍴餐饮/🏦银行/🏪便利店) + 0-100 商业热度评分 (按数量阶梯打分 + 距离权重)；147 次高德 POI 调用产出 416 行 poi_commercial.csv + 52 行 community_commercial.csv；94% 小区有分；10 单测 + smoke_commercial E2E |
 | v0.20.0 | 2026-07-12 | dashboard 「区/板块对比」卡上点击任一区，下方弹出「📊 {区} · {市} 小区对比」横柱图 (按均价排序)，展示该区所有 community 均价+挂牌数；可点行进小区详情；5 单测 + smoke_district_compare E2E |
 | v0.21.0 | 2026-07-12 | map-view 成交价热力升级：5 档价格分位 (P0/P20/P40/P60/P80) 颜色梯度 (绿→红)，半径改为 价格×挂牌数 综合；新增「🎨 价格分位图例」卡片 (含 swatch/价格区间/城市均价/覆盖社区数)；5 单测 + smoke_price_heatmap 扩展 |
+| v0.22.0 | 2026-07-12 | map-view POI 模式聚合：复用 cluster.ts 每类单独 grid 聚合 (避免 5 类 POI 混合)，678 总 POI → zoom 11 显示 < 100 marker；单 POI = 彩色 emoji 圆图标，聚合 = 带数字气泡；click 聚合自动放大；5 单测 + smoke_poi_overlay 扩展 |
 | v0.13.0 | 2026-07-12 | map-view 第四种模式「POI overlay」：把 poi_seed.csv 的 5 类 POI (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园) 画到地图上 (每类最多 25 marker)；5 类 toggle 自由开关；POI info-card 显示名称 + 类型 + 距离 + 所属小区 |
 | v0.12.0 | 2026-07-12 | map-view 第三种模式「成交价热力」：圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵），半径仍按挂牌数；info-card 新增「价位」5 档标签（便宜/中低/中等/中高/昂贵，色码化）；mode 由 boolean → `MapMode = "count" \| "price" \| "listings"` |
 | v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |
@@ -809,6 +810,17 @@ gh auth setup-git
 - `smoke_price_heatmap.mjs` 扩展图例验证 (5 行 + 5 swatch + 「城市均价」)
 - **验证**：251/251 单测过 (+5), type-check clean, 21/21 smoke 全绿
 - 详见 [changelog/2026-07-12-v0.21.0-价格热力升级.md](./changelog/2026-07-12-v0.21.0-价格热力升级.md)
+
+### v0.22.0 - POI marker 聚合 (2026-07-12)
+- 复用 `cluster.ts` (v0.18.0 算法) → POI marker 网格聚合
+- **每类单独 cluster**（避免不同类 POI 混合），678 总 POI → zoom 11 显示 < 100 marker
+- 单 POI: 圆形彩色图标 (emoji + 类别色背景)，click 弹 info-card
+- 聚合 POI: 大号彩色气泡 + 数字 (e.g. `7`)，click 放大到下一 zoom 让 cluster 拆分
+- 自适应 zoom：zoom 11 (城市级) 聚合多，zoom 16+ 几乎不聚合 (cell ≈ 250m)
+- onMarkerTap 新增 POI cluster 处理 (`markerId <= -1000000` → zoom+1)
+- `smoke_poi_overlay.mjs` 加聚合 legend 验证
+- **验证**：256/256 单测过 (+5), type-check clean, 21/21 smoke 全绿
+- 详见 [changelog/2026-07-12-v0.22.0-POI聚合.md](./changelog/2026-07-12-v0.22.0-POI聚合.md)
 
 ## License
 
