@@ -56,14 +56,30 @@ describe("end-to-end seed snapshot queries", () => {
     resetSeedSnapshotCache();
     setSnapshot(buildSeedSnapshot());
     const periods = await getPeriods({ cityId: 2 });
-    const latest = periods.items[periods.items.length - 1];
-    const r = await getCommunityRanking({
-      cityId: 2, weekEnd: latest, metric: "avg_unit_price", top: 20, page: 1, pageSize: 20,
+    expect(periods.items.length).toBeGreaterThan(0);
+
+    // 找到一个**至少有 listings 的周**（未必是最新一周）。
+    // 解释：listings.csv 可能含跨多周数据；真实抓取（crawl_lianjia_listings.py）会
+    // 把今天抓到的 listings 落到今天所属的 weekEnd，如果只有新增那一天的数据
+    // 都集中在最新一周，那么回看几周可能为空。遍历找到第一个有数据的周。
+    const { getCommunityRanking: _gcr, getDistrictCompare: _gdc } = await import("../src/local/queries");
+    let activeWeek: string | null = null;
+    for (let i = periods.items.length - 1; i >= 0; i--) {
+      const w = periods.items[i];
+      const r = await _gcr({
+        cityId: 2, weekEnd: w, metric: "avg_unit_price", top: 5, page: 1, pageSize: 5,
+      });
+      if (r.data.length > 0) { activeWeek = w; break; }
+    }
+    expect(activeWeek).not.toBeNull();
+
+    const r = await _gcr({
+      cityId: 2, weekEnd: activeWeek!, metric: "avg_unit_price", top: 20, page: 1, pageSize: 20,
     });
-    console.log("[seed pipe] 深圳 ranking length =", r.data.length);
+    console.log("[seed pipe] 深圳 active week =", activeWeek, "ranking length =", r.data.length);
     expect(r.data.length).toBeGreaterThan(0);
 
-    const d = await getDistrictCompare({ cityId: 2, weekEnd: latest });
+    const d = await _gdc({ cityId: 2, weekEnd: activeWeek! });
     console.log("[seed pipe] 深圳 districts length =", d.items.length);
     expect(d.items.length).toBeGreaterThan(0);
   });
@@ -97,14 +113,24 @@ describe("end-to-end seed snapshot queries", () => {
   // 单城市：深圳
   it("seed snapshot: 深圳 (city_id=2) 应该有 listings", async () => {
     const periods = await getPeriods({ cityId: 2 });
-    const latest = periods.items[periods.items.length - 1];
+    expect(periods.items.length).toBeGreaterThan(0);
+    // 找到任意一个有 listings 的周（爬虫数据可能集中在最新一周）
+    let activeWeek: string | null = null;
+    for (let i = periods.items.length - 1; i >= 0; i--) {
+      const w = periods.items[i];
+      const probe = await getCommunityRanking({
+        cityId: 2, weekEnd: w, metric: "avg_unit_price", top: 1, page: 1, pageSize: 1,
+      });
+      if (probe.total > 0) { activeWeek = w; break; }
+    }
+    expect(activeWeek).not.toBeNull();
     const r = await getCommunityRanking({
-      cityId: 2, weekEnd: latest, metric: "avg_unit_price", top: 20, page: 1, pageSize: 20,
+      cityId: 2, weekEnd: activeWeek!, metric: "avg_unit_price", top: 20, page: 1, pageSize: 20,
     });
-    console.log("[seed pipe] 深圳 ranking length =", r.data.length);
+    console.log("[seed pipe] 深圳 active week =", activeWeek, "ranking length =", r.data.length);
     expect(r.data.length).toBeGreaterThan(0);
 
-    const d = await getDistrictCompare({ cityId: 2, weekEnd: latest });
+    const d = await getDistrictCompare({ cityId: 2, weekEnd: activeWeek! });
     console.log("[seed pipe] 深圳 districts length =", d.items.length);
     expect(d.items.length).toBeGreaterThan(0);
   });

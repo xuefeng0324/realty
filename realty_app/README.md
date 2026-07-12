@@ -6,6 +6,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v0.4.0 | 2026-07-12 | 接链家在售 API 真 listings（60 条）入 seed；新增 `crawl_lianjia_listings.py` + `tests/e2e/smoke_listings.mjs` UI 验证 |
 | v0.3.1 | 2026-07-12 | CI 修复（actionlint 死引用）+ crawl workflow 缓存优化 + check.ps1 Node 预检 + build 完整性单测 |
 | v0.3.0 | 2026-07-12 | 移除示例数据 demoData，所有数据统一走政府公开种子；新增 Playwright E2E smoke 验证；修复 favicon 404 |
 | v0.2.0 | 2026-07-01 | 深广每日网签抓取脚本、App 展示、GitHub Actions 工作日定时 merge |
@@ -413,6 +414,16 @@ gh auth setup-git
 - **本机友好**：`scripts/check.ps1` 加 Node/npm 预检，缺环境时给 `winget install OpenJS.NodeJS.LTS` 指引而不是默默失败
 - **构建完整性**：`tests/buildIntegrity.test.ts` 新增 14 个用例，覆盖 `index.html` favicon / `manifest.json` 字段 / `static/seed/*.csv` 与 README 一致性 / CI 必装文件存在性
 - 详见 [changelog/2026-07-12-v0.3.1-CI修复与构建健壮性.md](./changelog/2026-07-12-v0.3.1-CI修复与构建健壮性.md)
+
+### v0.4.0 (2026-07-12)
+
+**接入链家在售真 listings（1200+→1286）**
+
+- **数据源替换**：seed `listings.csv` 追加 60 条来自链家 `sz.lianjia.com/ershoufang/` 的真实挂牌数据（包含真实房价 / 户型 / 楼龄 / tags / 社区名）；原 1226 条 fake 数据保留（作为回归保障 + 让 UI 不显得"内容稀缺"）
+- **抓取脚本**：新增 `scripts/crawl_lianjia_listings.py`，Python **纯标准库**（不需要 `requests`/`bs4`/`lxml`），自带 `--append` 去重 + `--dry` 覆盖率检视
+- **UI 验证**：新增 `tests/e2e/smoke_listings.mjs`，Playwright 打开 listing-detail 页检查真房源 title/价格/户型是否渲染，并截 `listing_detail_*.png`
+- **测试**：原 pipeline.test.ts 假设"latest weekEnd 有 ≥10 个 community"，新增 60 条 listings 后可能切换到新一周；改为扫描所有周找到首个有数据的周，向下兼容 fake 数据
+- 详见 [changelog/2026-07-12-v0.4.0-链家在售真数据接入.md](./changelog/2026-07-12-v0.4.0-链家在售真数据接入.md)
 
 ## License
 
