@@ -9,6 +9,7 @@
 | v0.14.0 | 2026-07-12 | dashboard 新增「学区评分 Top 小区」卡：按 avg_school_score 降序展示该城市里沾名校光最多的小区（金/银/铜牌 + 区 + 评分 + 学校数 + 中位单价）；广州 Top 1: 珠江帝景苑 (天河 86.0)，深圳 Top 1: 笋岗仓库综合楼 (罗湖 90.3) |
 | v0.15.0 | 2026-07-12 | map-view 新增「地铁规划」模式：21 条规划/在建地铁线 polyline overlay（绿=即将开通 / 橙=在建 / 灰=规划）；起点/终点 marker + 线路 info-card |
 | v0.16.0 | 2026-07-12 | dashboard 新增「实时天气」卡：高德 weather API 拿 3 城实况 + 4 天预报；含天气 emoji / 湿度 / 风力 / 粗略 AQI 估算 |
+| v0.17.0 | 2026-07-12 | dashboard 新增「🏫 高学区评分房源」卡 (listing 维度)：每个 listing 拿到其 community 所在区的平均学区评分 + 板块溢价率；Top 10 高评分房源，金/银/铜牌分级，区溢价 price-up/down 色码；点击跳 listing 详情；1286 行 listing_school_premium.csv |
 | v0.13.0 | 2026-07-12 | map-view 第四种模式「POI overlay」：把 poi_seed.csv 的 5 类 POI (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园) 画到地图上 (每类最多 25 marker)；5 类 toggle 自由开关；POI info-card 显示名称 + 类型 + 距离 + 所属小区 |
 | v0.12.0 | 2026-07-12 | map-view 第三种模式「成交价热力」：圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵），半径仍按挂牌数；info-card 新增「价位」5 档标签（便宜/中低/中等/中高/昂贵，色码化）；mode 由 boolean → `MapMode = "count" \| "price" \| "listings"` |
 | v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |
@@ -722,6 +723,26 @@ gh auth setup-git
   - `tests/e2e/smoke_weather.mjs` (新增)：深圳 → 卡片 → 切广州 → 卡片更新
 - **验证**：211/211 单测过 (+7), type-check clean, 18/18 smoke 全绿
 - 详见 [changelog/2026-07-12-v0.16.0-实时天气.md](./changelog/2026-07-12-v0.16.0-实时天气.md)
+
+### v0.17.0 - Listing 学区溢价榜 (2026-07-12)
+
+- **背景**：之前 v0.11.0 学区溢价是 *区* 级别。本次新增 *listing* 级别 — 直接告诉用户哪些房源是学区房 + 高溢价。
+- **数据**：listings.csv (1286) + communities.csv (52, district_name) + schools.csv (58, district_name) + school_indicators.csv (58, latest_level_score_raw) → listing_school_premium.csv (1286 行)
+  - 通过 (city, district) 关联：每个 listing → community → district → 同区学校 avg_score
+  - 板块溢价率: (区中位单价 / 全市中位单价 - 1) * 100
+  - 90% (1159/1286) listing 有 school_score > 0；100% 有 premium_ratio
+- **数据层**：
+  - `LocalListingSchoolPremium` 接口（types.ts）
+  - `getListingSchoolPremia()` / `getListingSchoolPremiumByCity()` (store.ts)
+  - `getTopListingsBySchoolPremium({ cityId, minScore, limit })` (queries.ts, 排序 score desc → premium desc)
+  - importer 解析 `listing_school_premium.csv`
+  - settings.vue 拉 csv
+- **UI**：dashboard 新增 🏫 高学区评分房源 卡 (Top 10)，medal 按 score 分级 (≥90 金 / 85+ 银 / 80+ 铜)，区溢价 price-up/down 色码；点击跳 listing-detail
+- **测试**：
+  - 8 个新单测 (buildIntegrity)：csv 存在、行数 ≥ 1000、school_count+score 覆盖率 ≥ 80%、city_id 合法、types/store/queries/dashboard 接口
+  - 1 个新 E2E: `smoke_listing_premium.mjs` 深圳+广州各截图
+- **验证**：219/219 单测过 (+8), type-check clean, 20/20 smoke 全绿
+- 详见 [changelog/2026-07-12-v0.17.0-listing学区溢价.md](./changelog/2026-07-12-v0.17.0-listing学区溢价.md)
 
 ## License
 

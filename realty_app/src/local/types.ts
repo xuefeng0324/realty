@@ -260,6 +260,20 @@ export interface LocalWeatherForecastDay {
 }
 
 /**
+ * 单个 listing 的学区评分 + 溢价率（v0.17.0 trend-6）。
+ * 由 `scripts/compute_listing_school_premium.py` 生成。
+ */
+export interface LocalListingSchoolPremium {
+  listingId: number;
+  cityId: number;
+  districtName: string;
+  communityId: number;
+  schoolCount: number;
+  avgSchoolScore: number;
+  premiumRatioEst: number;
+}
+
+/**
  * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
  * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
  * 用于 dashboard 展示"区级近 N 周房价趋势"。
@@ -300,6 +314,8 @@ export interface DataSnapshot {
   schoolPremiumCommunities: LocalSchoolPremiumCommunity[];
   /** v0.16.0: 实时天气 + 4 天预报 (高德 weather API) */
   weather: LocalWeather[];
+  /** v0.17.0: listing 维度学区评分 + 溢价率 (scripts/compute_listing_school_premium.py) */
+  listingSchoolPremia: LocalListingSchoolPremium[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

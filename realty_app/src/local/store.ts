@@ -18,6 +18,7 @@ import type {
   LocalDistrictTrend,
   LocalHospital,
   LocalListing,
+  LocalListingSchoolPremium,
   LocalMetroLine,
   LocalMetroLineGeo,
   LocalPoi,
@@ -263,6 +264,17 @@ export function getWeatherByCity(cityId: number): {
     live: all.find((w) => w.reportType === "live") ?? null,
     forecast: all.find((w) => w.reportType === "forecast") ?? null
   };
+}
+
+/**
+ * Listing 维度学区评分 (v0.17.0+)
+ */
+export function getListingSchoolPremia(): LocalListingSchoolPremium[] {
+  return snapshot?.listingSchoolPremia ?? [];
+}
+
+export function getListingSchoolPremiumByCity(cityId: number): LocalListingSchoolPremium[] {
+  return (snapshot?.listingSchoolPremia ?? []).filter((p) => p.cityId === cityId);
 }
 
 /**

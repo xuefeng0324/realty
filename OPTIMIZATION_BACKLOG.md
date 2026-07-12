@@ -184,7 +184,7 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 
 | 编号 | 任务 | 工作量 | 收益 | 数据源 |
 |------|------|--------|------|--------|
-| trend-6 | **学区溢价** — listings 的 school_ids 关联学区评分 → 衍生"学区溢价率"(%) | 2h | 🔴 高 | 已有的 schools.csv + school_indicators.csv |
+| trend-6 | **学区溢价** — listings 的 school_ids 关联学区评分 → 衍生"学区溢价率"(%) | 2h | 🔴 高 | 已有的 schools.csv + school_indicators.csv ✅ **v0.17.0 (listing 维度 Top 10)** |
 | trend-7 | **议价空间** — chainjia detail 拿最近成交价 vs 当前挂牌价，量化议价空间 | 8h | 🔴 高 | 链家 detail（被 CAPTCHA 拦，需换源） |
 | trend-8 | **预测下一周均价** — 用 70 城指数 + listings 滞后 4 周做 ARIMA | 4h | 🟡 中 | 已有 stats70 + listings |
 | trend-9 | **板块网签热度榜** — daily_wangqian 的 district 维度已有 264 条，做"近 30 天网签热度 Top N" | 1h | 🟡 中 | 已有 daily_wangqian.csv |
@@ -193,4 +193,4 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | new-2 | **周边商业配套密度** — POI 已支持餐饮/银行/便利店,做"周边商业热度"评分 | 4h | 🟡 中 | 已有 poi_seed.csv (扩展品类) |
 | map-2 | **marker 聚合** — 1km 内多 marker 合并显示数字 | 4h | 🟡 中 | 自实现 |
 
-推荐 **trend-6 学区溢价** 或 **trend-9 网签热度榜**（数据现成，1-2h 出活）。
+推荐 **map-2 marker 聚合** 或 **new-2 周边商业配套密度**（基于已有 poi_seed.csv 扩展品类）。

@@ -434,7 +434,46 @@
           AQI 因高德 API 不提供 AQI 字段，此处按湿度+风力+温度粗略估算，仅供参考。
         </view>
       </view>
-    </view>
+
+      <!-- v0.17.0 listing 学区溢价榜（Top 高评分房源） -->
+      <view v-if="listingPremiumOverview && listingPremiumOverview.items.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">🏫 高学区评分房源 · {{ listingPremiumOverview.cityName }}</view>
+          <view class="muted">Top {{ listingPremiumOverview.items.length }} / 共 {{ listingPremiumOverview.total }}</view>
+        </view>
+        <view
+          v-for="item in listingPremiumOverview.items"
+          :key="item.listingId"
+          class="community-row tap-target"
+          role="button"
+          tabindex="0"
+          hover-class="row-active"
+          @click="goListing(item.listingId)"
+        >
+          <view class="community-rank">
+            <text class="sp-medal-mini" :class="lpScoreClass(item.avgSchoolScore)">
+              {{ item.avgSchoolScore.toFixed(0) }}
+            </text>
+          </view>
+          <view class="community-main">
+            <view class="community-name">{{ item.title || "—" }}</view>
+            <view class="muted">
+              {{ item.communityName || "—" }} · {{ item.areaSqm ? item.areaSqm.toFixed(0) + "㎡" : "—" }} ·
+              {{ item.schoolCount }} 所学校
+            </view>
+          </view>
+          <view class="community-sp-price">
+            <text :class="['sp-up', item.premiumRatioEst >= 0 ? 'price-up' : 'price-down']">
+              {{ item.premiumRatioEst >= 0 ? "+" : "" }}{{ item.premiumRatioEst.toFixed(1) }}%
+            </text>
+            <view class="muted" style="font-size: 20rpx">区溢价</view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：listings.csv + schools.csv (district_name) + school_indicators.csv (latest_level_score_raw)。
+          每个 listing 拿到其 community 所在区的平均学区评分；区中位单价/全市中位单价 = 板块溢价率。
+        </view>
+      </view>
 
     <!-- 内置 popup：城市/周期/来源/指标选择 -->
     <view v-if="sheet.open" class="sheet-mask" @click="closeSheet">
@@ -458,6 +497,7 @@
         <view class="sheet-cancel" @click="closeSheet">取消</view>
       </view>
     </view>
+    </view>
   </view>
 </template>
 
@@ -467,7 +507,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -506,6 +546,7 @@ const wangqianOverview = ref<WangqianOverviewItem | null>(null);
 const schoolPremiumOverview = ref<SchoolPremiumOverview | null>(null);
 const schoolPremiumCommunityItems = ref<SchoolPremiumCommunityItem[]>([]);
 const weatherResp = ref<WeatherResponse | null>(null);
+const listingPremiumOverview = ref<ListingSchoolPremiumOverview | null>(null);
 
 const errorMsg = ref<string>("");
 const loading = ref<boolean>(false);
@@ -793,6 +834,17 @@ async function loadRankingAndDistrict() {
     } catch (e) {
       console.warn("getWeather failed:", e);
     }
+
+    // v0.17.0 listing 学区溢价榜
+    try {
+      listingPremiumOverview.value = await getTopListingsBySchoolPremium({
+        cityId: app.cityId,
+        minScore: 70,
+        limit: 10
+      });
+    } catch (e) {
+      console.warn("getTopListingsBySchoolPremium failed:", e);
+    }
   } catch (e) {
     errorMsg.value = `加载失败：${toErrorMessage(e)}`;
   }
@@ -907,6 +959,21 @@ function spMedalClass(rank: number): string {
   if (rank === 2) return "medal-silver";
   if (rank === 3) return "medal-bronze";
   return "medal-flat-mini";
+}
+
+// v0.17.0 listing 学区评分等级 → medal class
+function lpScoreClass(score: number): string {
+  if (score >= 90) return "medal-gold";
+  if (score >= 85) return "medal-silver";
+  if (score >= 80) return "medal-bronze";
+  return "medal-flat-mini";
+}
+
+// v0.17.0 跳到 listing 详情
+function goListing(listingId: number) {
+  uni.navigateTo({
+    url: `/pages/listing-detail/listing-detail?id=${listingId}`
+  });
 }
 
 // v0.16.0 weather helpers

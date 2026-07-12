@@ -51,6 +51,9 @@ import metroPlanningGeoCSV from "../../static/seed/metro_planning_geo.csv?raw";
 // v0.16.0 实时天气 + 4 天预报 (高德 weather API)
 // @ts-ignore
 import weatherCSV from "../../static/seed/weather.csv?raw";
+// v0.17.0 listing 维度学区评分 + 溢价率
+// @ts-ignore
+import listingSchoolPremiumCSV from "../../static/seed/listing_school_premium.csv?raw";
 
 let cached: DataSnapshot | null = null;
 
@@ -72,7 +75,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       schoolPremiumDistrictCSV: String(schoolPremiumDistrictCSV ?? ""),
       schoolPremiumCommunityCSV: String(schoolPremiumCommunityCSV ?? ""),
       metroPlanningGeoCSV: String(metroPlanningGeoCSV ?? ""),
-      weatherCSV: String(weatherCSV ?? "")
+      weatherCSV: String(weatherCSV ?? ""),
+      listingSchoolPremiumCSV: String(listingSchoolPremiumCSV ?? "")
     },
     "seed:public-derived"
   );

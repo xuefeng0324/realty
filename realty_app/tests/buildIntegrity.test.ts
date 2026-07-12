@@ -1012,4 +1012,64 @@ describe("build integrity", () => {
       }
     });
   });
+
+  // --------------------------------------------------------------
+  // v0.17.0 trend-6: listing 学区溢价 (compute_listing_school_premium.py)
+  // --------------------------------------------------------------
+  describe("v0.17.0 listing 学区溢价", () => {
+    const premiumPath = resolve(ROOT, "static/seed/listing_school_premium.csv");
+
+    it("listing_school_premium.csv 存在", () => {
+      expect(existsSync(premiumPath)).toBe(true);
+    });
+
+    it("listing_school_premium.csv 行数 ≥ 1000 (覆盖大部分 listings)", () => {
+      if (!existsSync(premiumPath)) return;
+      const rows = readCsv(premiumPath);
+      expect(rows.length).toBeGreaterThanOrEqual(1000);
+    });
+
+    it(">= 80% 行有 school_count >= 1 且 avg_school_score > 0", () => {
+      if (!existsSync(premiumPath)) return;
+      const rows = readCsv(premiumPath);
+      const ok = rows.filter(
+        (r) =>
+          Number(r.school_count) >= 1 &&
+          Number(r.avg_school_score) > 0
+      ).length;
+      expect(ok / rows.length).toBeGreaterThanOrEqual(0.8);
+    });
+
+    it("city_id 必须是 1/2/3 (深圳/广州/珠海)", () => {
+      if (!existsSync(premiumPath)) return;
+      const rows = readCsv(premiumPath);
+      const cities = new Set(rows.map((r) => r.city_id));
+      for (const c of cities) {
+        expect(["1", "2", "3"]).toContain(c);
+      }
+    });
+
+    it("types.ts 增加 LocalListingSchoolPremium 接口", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(content).toMatch(/export interface LocalListingSchoolPremium/);
+    });
+
+    it("store.ts 增加 getListingSchoolPremia 函数", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(content).toMatch(/function getListingSchoolPremia/);
+    });
+
+    it("queries.ts 增加 getTopListingsBySchoolPremium 函数", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/getTopListingsBySchoolPremium/);
+    });
+
+    it("dashboard.vue 渲染『🏫 高学区评分房源』卡", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/dashboard/dashboard.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/高学区评分房源/);
+    });
+  });
 });

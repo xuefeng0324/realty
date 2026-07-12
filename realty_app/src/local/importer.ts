@@ -22,6 +22,7 @@ import type {
   LocalDistrictTrend,
   LocalHospital,
   LocalListing,
+  LocalListingSchoolPremium,
   LocalMetroLine,
   LocalMetroLineGeo,
   LocalPoi,
@@ -81,6 +82,8 @@ export interface SnapshotInputs {
   metroPlanningGeoCSV?: string;
   /** v0.16.0: 实时天气 + 4 天预报 (高德 weather API,可选) */
   weatherCSV?: string;
+  /** v0.17.0: listing 维度学区评分 + 溢价率 (可选) */
+  listingSchoolPremiumCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -416,6 +419,27 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
         .filter((m): m is LocalWeather => m !== null)
     : [];
 
+  // listing 维度学区评分 + 溢价率 (v0.17.0+): 可选
+  const listingSchoolPremia: LocalListingSchoolPremium[] = inputs.listingSchoolPremiumCSV
+    ? rowsToObjects<Record<string, string>>(parseCSV(inputs.listingSchoolPremiumCSV))
+        .map((r) => {
+          const lid = n(r.listing_id);
+          const cid = n(r.city_id);
+          const comId = n(r.community_id);
+          if (lid == null || cid == null || comId == null) return null;
+          return {
+            listingId: lid,
+            cityId: cid,
+            districtName: s(r.district_name) ?? "",
+            communityId: comId,
+            schoolCount: n(r.school_count) ?? 0,
+            avgSchoolScore: n(r.avg_school_score) ?? 0,
+            premiumRatioEst: n(r.premium_ratio_est) ?? 0
+          } as LocalListingSchoolPremium;
+        })
+        .filter((m): m is LocalListingSchoolPremium => m !== null)
+    : [];
+
   // 聚合可用周：基于 listings 的 crawl_date
   const weekEnds = new Set<string>();
   for (const l of listings) {
@@ -445,6 +469,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     schoolPremiumCommunities,
     metroLineGeos,
     weather,
+    listingSchoolPremia,
     availableWeeks
   };
 }
