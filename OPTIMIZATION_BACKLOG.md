@@ -105,6 +105,31 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 - 2026-07-12 19:55：E 完成 → v0.7.0（地铁规划 + UI 集成）
 - 2026-07-12 19:25：F 完成 → v0.8.0（板块级房价序列 + dashboard 卡片）
 - 2026-07-12 19:55：G 完成 → v0.9.0（地图找房：uni-app `<map>` + 高德 JS API + 热力图/挂牌点双模式）
+- 2026-07-12 20:18：trend-9 完成 → v0.10.0（网签热度榜：daily_wangqian 264 条 district → 66 行聚合）
+
+## trend-9 段补充：网签热度榜（v0.10.0）
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟡 trend-9.1 | 调研 daily_wangqian district 维度数据结构 | ✅ v0.10.0 | 264 行，22 区，2 周；广州只有新房，深圳有新房+二手 |
+| 🟡 trend-9.2 | build_wangqian_heatmap.py 生成近 N 周区级热度 | ✅ v0.10.0 | 66 行；标准库；BOM-safe (utf-8-sig) |
+| 🟡 trend-9.3 | local 层 + queries 加 wangqian 区级热度 | ✅ v0.10.0 | LocalWangqianDistrictWeekly + getWangqianHeatmap |
+| 🟡 trend-9.4 | UI dashboard 加近 30 天网签热度榜卡片 | ✅ v0.10.0 | 金银铜牌 + 柱状条；广州 fallback 新房 |
+| 🟡 trend-9.5 | buildIntegrity +8 测试 + smoke_wangqian_heatmap + commit v0.10.0 | ✅ v0.10.0 | 169/169 通过；8/8 smoke 全绿 |
+
+## 下一步候选（按"边际收益/工作量"排序）
+
+| 编号 | 任务 | 工作量 | 收益 | 数据源 |
+|------|------|--------|------|--------|
+| **trend-6** | **学区溢价** — listings 的 school_ids → 学区评分 → "学区溢价率" | 2h | 🔴 高 | 已有 schools.csv + school_indicators.csv |
+| **map-7** | **成交价热力** — district_trend.csv 聚合到社区中心画热力 | 2h | 🔴 高 | 已有 district_trend.csv + communities_geo.csv |
+| **map-5** | **POI overlay** — poi_seed.csv 画到地图（地铁/学校/医院/商场/公园） | 4h | 🔴 高 | 已有 poi_seed.csv (5 类) |
+| trend-9.6 | **扩展 weeksBack** — cron 持续跑后展示"近 12 周" | 0h | 自动 | 现有 |
+| trend-9.7 | **接珠海住建局公示** | 4h | 🟡 中 | 调研 |
+| map-2 | **marker 聚合** — 1km 内多 marker 合并 | 4h | 🟡 中 | 自实现 |
+| map-6 | **地铁规划 overlay** — metro_planning.csv 画 polyline | 4h | 🟡 中 | 已有 metro_planning.csv |
+
+推荐 **trend-6 学区溢价**（2h，🔴 高）或 **map-7 成交价热力**（2h，🔴 高）。
 
 ## G 段补充：地图找房（v0.9.0）
 

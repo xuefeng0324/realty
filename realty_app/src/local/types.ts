@@ -144,6 +144,23 @@ export interface LocalHospital {
  * 用于 listing/community 详情展示"未来周边地铁"，
  * 帮用户评估"地铁规划受益度"。
  */
+/**
+ * 板块级周维度网签热度（`scripts/build_wangqian_heatmap.py`）。
+ * 由 daily_wangqian.csv (granularity=district) 按 (城市/区/类别/周) 聚合，
+ * 用于 dashboard 展示"近 N 天网签热度榜"。
+ */
+export interface LocalWangqianDistrictWeekly {
+  city: string;            // "深圳" / "广州"
+  district: string;        // "南山区"
+  category: "新房" | "二手" | "其他";
+  weekEnd: string;         // YYYY-MM-DD (周日)
+  days: number;            // 该周实际有数据的天数 (3-7)
+  totalUnits: number;      // 累计成交套数
+  totalAreaSqm: number;    // 累计成交面积 (㎡)
+  avgDailyUnits: number;
+  avgDailyAreaSqm: number;
+}
+
 export interface LocalMetroLine {
   lineId: number;
   cityId: number;
@@ -193,6 +210,8 @@ export interface DataSnapshot {
   metroLines: LocalMetroLine[];
   /** v0.8.0: 板块级周维度价格序列 */
   districtTrends: LocalDistrictTrend[];
+  /** v0.10.0: 板块级周维度网签热度 (深广政府网签) */
+  wangqianDistrictWeekly: LocalWangqianDistrictWeekly[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

@@ -6,6 +6,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v0.10.0 | 2026-07-12 | 网签热度榜：daily_wangqian.csv (district 维度) → `wangqian_district_weekly.csv` (66 行 × 22 区)；dashboard 新增「近 4 周二手/新房网签热度榜」卡片（金银铜牌 + 柱状条）；广州 fallback 用新房榜（住建局不公示二手） |
 | v0.9.0 | 2026-07-12 | 地图找房：uni-app `<map>` + 高德 JS API（H5）；新页面 `pages/map-view/`；tabBar 加"地图"；双模式「热力图」(circles 200-1000m 半径/挂牌数着色) + 「挂牌点」(每套挂牌一个 marker)；manifest.json 配置高德 key `f22d0a9e...a139` |
 | v0.8.0 | 2026-07-12 | 板块级房价序列：按 (城市/区/周) 聚合 listings.csv 均值/中位数 → `district_trend.csv`（269 行，15 区 × 27 周）；dashboard 新增「区级近 8 周房价趋势」卡片（含柱状条 + 4 周环比变化率） |
 | v0.7.0 | 2026-07-12 | 地铁规划：手填 21 条线路（深圳五期 13 + 四期 2 + 广州三期调整 3 + 广州四期 1 + 珠海 2）→ `metro_planning.csv`；listing/community 新增"未来周边地铁"卡片（按状态/速度/站数排序，仅当现有最近地铁 ≥ 1km 显示） |
@@ -569,6 +570,31 @@ gh auth setup-git
   - `smoke_map.mjs`：验证 52 小区 / 1286 挂牌 + 3 城市按钮 + 截图
 - **验证**：161/161 单测过 (+7)；7/7 smoke 全绿
 - 详见 [changelog/2026-07-12-v0.9.0-地图找房.md](./changelog/2026-07-12-v0.9.0-地图找房.md)
+
+### v0.10.0 (2026-07-12) — 网签热度榜
+
+- **数据**
+  - 新增 `static/seed/wangqian_district_weekly.csv`：66 行
+    - schema：`city, district, category, week_end, days, total_units, total_area_sqm, avg_daily_units, avg_daily_area_sqm`
+    - 由 `scripts/build_wangqian_heatmap.py` 从 `daily_wangqian.csv` (264 条 district) 按 (城市/区/类别/周) 聚合
+    - 覆盖 22 区 × 2 周 × 3 类别 (广州 + 深圳)
+- **数据层**
+  - `types.ts`：新增 `LocalWangqianDistrictWeekly` 接口 + `DataSnapshot.wangqianDistrictWeekly`
+  - `importer.ts` / `seedSnapshot.ts`：解析并默认加载（含 category 归一化）
+  - `store.ts`：新增 `getWangqianDistrictWeekly()` + `getWangqianTopDistricts()`
+  - `queries.ts`：新增 `WangqianOverviewItem` + `getWangqianHeatmap()`
+  - `dataRefresher.ts`：远程刷新保留 wangqianDistrictWeekly
+  - `settings.vue`：csv-url 模式拉 `wangqian_district_weekly.csv`
+- **UI**
+  - dashboard 新增「**近 4 周二手网签热度榜**」卡片
+  - 金银铜牌 (rank 1/2/3) + 柱状条 (按 totalUnits 归一化)
+  - 每区显示套数 + 累计面积 (万㎡)
+  - 智能 fallback：广州只显示新房榜（住建局不公示二手）
+- **测试**
+  - `buildIntegrity.test.ts` +8 测试（含 BOM-safe CSV 解析）
+  - `smoke_wangqian_heatmap.mjs` Playwright：广州(10 区) + 深圳(10 区) 验证真实深圳区名
+- **验证**：169/169 单测过 (+8)；8/8 smoke 全绿
+- 详见 [changelog/2026-07-12-v0.10.0-网签热度榜.md](./changelog/2026-07-12-v0.10.0-网签热度榜.md)
 
 ## License
 

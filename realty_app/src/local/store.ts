@@ -21,7 +21,8 @@ import type {
   LocalMetroLine,
   LocalPoi,
   LocalSchool,
-  LocalStats70Row
+  LocalStats70Row,
+  LocalWangqianDistrictWeekly
 } from "./types";
 
 let snapshot: DataSnapshot | null = null;
@@ -238,6 +239,51 @@ export function getDistrictsByCity(cityId: number): string[] {
     if (t.cityId === cityId) set.add(t.districtName);
   }
   return [...set];
+}
+
+/**
+ * 板块级周维度网签热度 (v0.10.0+)
+ */
+export function getWangqianDistrictWeekly(): LocalWangqianDistrictWeekly[] {
+  return snapshot?.wangqianDistrictWeekly ?? [];
+}
+
+/**
+ * 给定 cityName (如 "深圳") 和 category ("新房"/"二手")，
+ * 返回按"近 N 周 totalUnits 求和"排序的区列表。
+ */
+export function getWangqianTopDistricts(params: {
+  cityName: string;
+  category?: "新房" | "二手";
+  limit?: number;
+  weeksBack?: number;
+}): Array<{ district: string; totalUnits: number; totalAreaSqm: number; weeks: number }> {
+  const { cityName, category, limit = 10, weeksBack = 4 } = params;
+  const rows = (snapshot?.wangqianDistrictWeekly ?? []).filter(
+    (r) => r.city === cityName && (category == null || r.category === category)
+  );
+  if (rows.length === 0) return [];
+  // 最近 N 周 (按 weekEnd 降序取前 N)
+  const sortedWeeks = [...new Set(rows.map((r) => r.weekEnd))].sort().reverse();
+  const recentWeeks = new Set(sortedWeeks.slice(0, weeksBack));
+  const agg = new Map<string, { units: number; area: number; weeks: Set<string> }>();
+  for (const r of rows) {
+    if (!recentWeeks.has(r.weekEnd)) continue;
+    const cur = agg.get(r.district) ?? { units: 0, area: 0, weeks: new Set() };
+    cur.units += r.totalUnits;
+    cur.area += r.totalAreaSqm;
+    cur.weeks.add(r.weekEnd);
+    agg.set(r.district, cur);
+  }
+  return [...agg.entries()]
+    .map(([district, v]) => ({
+      district,
+      totalUnits: v.units,
+      totalAreaSqm: v.area,
+      weeks: v.weeks.size
+    }))
+    .sort((a, b) => b.totalUnits - a.totalUnits)
+    .slice(0, limit);
 }
 
 export function getAvailableWeeks(cityId?: number): { weekStartDate: string; weekEndDate: string }[] {

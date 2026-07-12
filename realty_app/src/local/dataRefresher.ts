@@ -144,6 +144,7 @@ function mergeListingsIntoSnapshot(
     hospitals: existing?.hospitals ?? [],
     metroLines: existing?.metroLines ?? [],
     districtTrends: existing?.districtTrends ?? [],
+    wangqianDistrictWeekly: existing?.wangqianDistrictWeekly ?? [],
     availableWeeks
   };
 }

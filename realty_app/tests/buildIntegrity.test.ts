@@ -511,6 +511,85 @@ describe("build integrity", () => {
     });
   });
 
+  describe("网签热度榜完整性（v0.10.0）", () => {
+    const wqPath = resolve(ROOT, "static/seed/wangqian_district_weekly.csv");
+
+    it("存在 wangqian_district_weekly.csv（build_wangqian_heatmap.py 输出）", () => {
+      expect(existsSync(wqPath)).toBe(true);
+    });
+
+    it("wangqian_district_weekly.csv 行数 ≥ 30", () => {
+      if (!existsSync(wqPath)) return;
+      const rows = readCsv(wqPath);
+      expect(rows.length).toBeGreaterThanOrEqual(30);
+    });
+
+    it("wangqian_district_weekly.csv 至少覆盖 2 个城市", () => {
+      if (!existsSync(wqPath)) return;
+      const rows = readCsv(wqPath);
+      const cities = new Set(rows.map((r) => r.city));
+      expect(cities.size).toBeGreaterThanOrEqual(2);
+    });
+
+    it("wangqian_district_weekly.csv 至少 10 个区", () => {
+      if (!existsSync(wqPath)) return;
+      const rows = readCsv(wqPath);
+      const districts = new Set(rows.map((r) => r.district));
+      expect(districts.size).toBeGreaterThanOrEqual(10);
+    });
+
+    it("wangqian_district_weekly.csv 至少 2 个 category (新房 / 二手)", () => {
+      if (!existsSync(wqPath)) return;
+      const rows = readCsv(wqPath);
+      const cats = new Set(rows.map((r) => r.category));
+      expect(cats.size).toBeGreaterThanOrEqual(2);
+      expect(cats.has("新房")).toBe(true);
+      expect(cats.has("二手")).toBe(true);
+    });
+
+    it("wangqian_district_weekly.csv 关键字段非负（total_units >= 0, total_area_sqm >= 0）", () => {
+      if (!existsSync(wqPath)) return;
+      const rows = readCsv(wqPath);
+      const bad = rows.filter(
+        (r) =>
+          Number(r.total_units) < 0 ||
+          Number(r.total_area_sqm) < 0 ||
+          Number(r.days) <= 0
+      );
+      expect(bad.length).toBe(0);
+    });
+
+    it("wangqian_district_weekly.csv 至少 80% 行 total_units > 0（真实成交）", () => {
+      if (!existsSync(wqPath)) return;
+      const rows = readCsv(wqPath);
+      const withUnits = rows.filter((r) => Number(r.total_units) > 0);
+      const ratio = rows.length === 0 ? 0 : withUnits.length / rows.length;
+      expect(ratio).toBeGreaterThanOrEqual(0.8);
+    });
+
+    it("wangqian_district_weekly.csv 的 district 名与 admin_districts.csv 重合 ≥ 70%（带'区'后缀容忍）", () => {
+      const adminPath = resolve(ROOT, "static/seed/admin_districts.csv");
+      if (!existsSync(wqPath) || !existsSync(adminPath)) return;
+      const wqRows = readCsv(wqPath);
+      const admins = readCsv(adminPath);
+      // admin 用"南山区"，wangqian 用"南山"——容忍"区"后缀
+      const adminSet = new Set(admins.map((r) => r.district_name));
+      const adminStripped = new Set(
+        admins.map((r) => (r.district_name ?? "").replace(/区$/, ""))
+      );
+      const wqDistricts = new Set(wqRows.map((r) => r.district));
+      let matched = 0;
+      let total = 0;
+      for (const d of wqDistricts) {
+        if (!d) continue;
+        total += 1;
+        if (adminSet.has(d) || adminStripped.has(d)) matched += 1;
+      }
+      expect(total).toBeGreaterThan(0);
+      expect(matched / total).toBeGreaterThanOrEqual(0.7);
+    });
+  });
+
   describe("CI 必装文件", () => {
     it("存在 tests/e2e/smoke.mjs", () => {
       expect(existsSync(resolve(ROOT, "tests/e2e/smoke.mjs"))).toBe(true);

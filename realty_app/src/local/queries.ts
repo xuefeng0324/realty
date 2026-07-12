@@ -961,6 +961,61 @@ export async function getCityDistrictOverview(params: {
   return out;
 }
 
+// ---------- 网签热度榜 (v0.10.0+) ----------
+export interface WangqianDistrictItem {
+  district: string;
+  totalUnits: number;
+  totalAreaSqm: number;
+  weeks: number;
+  /** 排名 (1-based) */
+  rank: number;
+}
+
+export interface WangqianOverviewItem {
+  cityName: string;
+  cityId: number | null;
+  category: "新房" | "二手";
+  items: WangqianDistrictItem[];
+  /** 该城市+类别最近 N 周总成交套数 */
+  totalUnits: number;
+}
+
+/**
+ * 给定 cityId，返回该城市新房/二手 Top 10 区（按近 4 周总套数）。
+ * 用于 dashboard "网签热度榜" 卡片。
+ */
+export async function getWangqianHeatmap(params: {
+  cityId: number;
+  category?: "新房" | "二手";
+  weeksBack?: number;
+  limit?: number;
+}): Promise<WangqianOverviewItem | null> {
+  const { cityId, category = "二手", weeksBack = 4, limit = 10 } = params;
+  const city = store.getCityById(cityId);
+  if (!city) return null;
+  const rows = store.getWangqianTopDistricts({
+    cityName: city.cityName,
+    category,
+    weeksBack,
+    limit
+  });
+  if (rows.length === 0) return null;
+  const items: WangqianDistrictItem[] = rows.map((r, i) => ({
+    district: r.district,
+    totalUnits: r.totalUnits,
+    totalAreaSqm: r.totalAreaSqm,
+    weeks: r.weeks,
+    rank: i + 1
+  }));
+  return {
+    cityName: city.cityName,
+    cityId,
+    category,
+    items,
+    totalUnits: items.reduce((s, it) => s + it.totalUnits, 0)
+  };
+}
+
 // ---------- helpers ----------
 function avg(arr: number[]): number | null {
   if (arr.length === 0) return null;

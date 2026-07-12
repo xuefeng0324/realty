@@ -36,6 +36,9 @@ import metroPlanningCSV from "../../static/seed/metro_planning.csv?raw";
 // v0.8.0 板块级房价序列
 // @ts-ignore
 import districtTrendCSV from "../../static/seed/district_trend.csv?raw";
+// v0.10.0 板块级网签热度
+// @ts-ignore
+import wangqianDistrictWeeklyCSV from "../../static/seed/wangqian_district_weekly.csv?raw";
 
 let cached: DataSnapshot | null = null;
 
@@ -52,7 +55,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       poisCSV: String(poisCSV ?? ""),
       hospitalsCSV: String(hospitalsCSV ?? ""),
       metroPlanningCSV: String(metroPlanningCSV ?? ""),
-      districtTrendCSV: String(districtTrendCSV ?? "")
+      districtTrendCSV: String(districtTrendCSV ?? ""),
+      wangqianDistrictWeeklyCSV: String(wangqianDistrictWeeklyCSV ?? "")
     },
     "seed:public-derived"
   );

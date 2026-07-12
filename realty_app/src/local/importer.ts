@@ -25,7 +25,8 @@ import type {
   LocalMetroLine,
   LocalPoi,
   LocalSchool,
-  LocalSchoolIndicator
+  LocalSchoolIndicator,
+  LocalWangqianDistrictWeekly
 } from "./types";
 
 const POI_CATEGORIES = new Set(["subway", "school", "hospital", "mall", "park"]);
@@ -66,6 +67,8 @@ export interface SnapshotInputs {
   metroPlanningCSV?: string;
   /** v0.8.0: 板块级周维度价格序列 (可选，缺则装空数组) */
   districtTrendCSV?: string;
+  /** v0.10.0: 板块级周维度网签热度 (可选，缺则装空数组) */
+  wangqianDistrictWeeklyCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -249,6 +252,40 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
         .filter((m): m is LocalDistrictTrend => m !== null)
     : [];
 
+  // 板块级周维度网签热度 (v0.10.0+): 可选
+  const wangqianDistrictWeekly: LocalWangqianDistrictWeekly[] = inputs.wangqianDistrictWeeklyCSV
+    ? rowsToObjects<Record<string, string>>(parseCSV(inputs.wangqianDistrictWeeklyCSV))
+        .map((r) => {
+          const city = s(r.city);
+          const district = s(r.district);
+          const we = s(r.week_end);
+          const cat = s(r.category);
+          const days = n(r.days);
+          const units = n(r.total_units);
+          const area = n(r.total_area_sqm);
+          const avgU = n(r.avg_daily_units);
+          const avgA = n(r.avg_daily_area_sqm);
+          if (!city || !district || !we || !cat || days == null || units == null || area == null) {
+            return null;
+          }
+          // 标准化 category
+          const normCat: LocalWangqianDistrictWeekly["category"] =
+            cat === "新房" ? "新房" : cat === "二手" ? "二手" : "其他";
+          return {
+            city,
+            district,
+            category: normCat,
+            weekEnd: we,
+            days,
+            totalUnits: units,
+            totalAreaSqm: area,
+            avgDailyUnits: avgU ?? units / Math.max(1, days),
+            avgDailyAreaSqm: avgA ?? area / Math.max(1, days)
+          } as LocalWangqianDistrictWeekly;
+        })
+        .filter((m): m is LocalWangqianDistrictWeekly => m !== null)
+    : [];
+
   // 聚合可用周：基于 listings 的 crawl_date
   const weekEnds = new Set<string>();
   for (const l of listings) {
@@ -273,6 +310,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     hospitals,
     metroLines,
     districtTrends,
+    wangqianDistrictWeekly,
     availableWeeks
   };
 }

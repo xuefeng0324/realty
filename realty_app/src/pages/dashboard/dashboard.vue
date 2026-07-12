@@ -251,6 +251,36 @@
         </view>
       </view>
 
+      <!-- v0.10.0 近 4 周网签热度榜 -->
+      <view v-if="wangqianOverview && wangqianOverview.items.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">
+            近 4 周二手网签热度榜 · {{ wangqianOverview.cityName }}
+          </view>
+          <view class="muted" style="font-size: 22rpx">
+            累计 {{ wangqianOverview.totalUnits }} 套
+          </view>
+        </view>
+        <view v-for="it in wangqianOverview.items" :key="it.district" class="wq-row">
+          <text class="wq-rank" :class="rankClass(it.rank)">{{ it.rank }}</text>
+          <text class="wq-name">{{ it.district }}</text>
+          <view class="wq-track">
+            <view
+              class="wq-fill"
+              :style="{ width: wangqianPct(it) + '%' }"
+            ></view>
+          </view>
+          <text class="wq-units">
+            {{ it.totalUnits }} 套
+            <text class="muted" style="font-size: 20rpx">({{ formatWqArea(it.totalAreaSqm) }})</text>
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：深圳市/广州市住建局公示的每日网签，按周聚合；只看二手住宅。
+          网签活跃度反映板块热度，与挂牌价互补（挂牌 = 卖家意愿，网签 = 真实成交）。
+        </view>
+      </view>
+
       <!-- 小区排行 -->
       <view class="card">
         <view class="row-between">
@@ -311,7 +341,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, type DistrictTrendItem } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, type DistrictTrendItem, type WangqianOverviewItem } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -346,6 +376,7 @@ const ranking = ref<CommunityRankingItem[]>([]);
 const rankingTotal = ref<number>(0);
 const districtItems = ref<DistrictCompareItem[]>([]);
 const trendItems = ref<DistrictTrendItem[]>([]);
+const wangqianOverview = ref<WangqianOverviewItem | null>(null);
 
 const errorMsg = ref<string>("");
 const loading = ref<boolean>(false);
@@ -593,6 +624,27 @@ async function loadRankingAndDistrict() {
     // v0.8.0 区级近 N 周趋势
     if (app.cityId) {
       trendItems.value = await getCityDistrictOverview({ cityId: app.cityId });
+      // v0.10.0 网签热度榜：广州只有新房数据，深圳有新房+二手
+      const citiesRes = await getCities();
+      const city = citiesRes.items.find((c) => c.city_id === app.cityId);
+      const cityName = city?.city_name ?? "";
+      const preferredCat: "新房" | "二手" = cityName === "广州" ? "新房" : "二手";
+      let heat = await getWangqianHeatmap({
+        cityId: app.cityId,
+        category: preferredCat,
+        weeksBack: 4,
+        limit: 10
+      });
+      // 兜底：再试另一个 category
+      if (!heat || heat.items.length === 0) {
+        heat = await getWangqianHeatmap({
+          cityId: app.cityId,
+          category: preferredCat === "二手" ? "新房" : "二手",
+          weeksBack: 4,
+          limit: 10
+        });
+      }
+      wangqianOverview.value = heat;
     }
   } catch (e) {
     errorMsg.value = `加载失败：${toErrorMessage(e)}`;
@@ -656,6 +708,28 @@ function trendBarPct(it: DistrictTrendItem, p: { avg_unit_price: number }): numb
   if (maxV === minV) return 50;
   // normalize to 30-100%
   return 30 + ((p.avg_unit_price - minV) / (maxV - minV)) * 70;
+}
+
+// ----- v0.10.0 网签热度榜 -----
+function rankClass(rank: number): string {
+  if (rank === 1) return "wq-rank-gold";
+  if (rank === 2) return "wq-rank-silver";
+  if (rank === 3) return "wq-rank-bronze";
+  return "wq-rank-normal";
+}
+
+function wangqianMaxUnits(): number {
+  if (!wangqianOverview.value || wangqianOverview.value.items.length === 0) return 1;
+  return Math.max(1, ...wangqianOverview.value.items.map((i) => i.totalUnits));
+}
+
+function wangqianPct(it: { totalUnits: number }): number {
+  return (it.totalUnits / wangqianMaxUnits()) * 100;
+}
+
+function formatWqArea(sqm: number): string {
+  if (sqm >= 10000) return `${(sqm / 10000).toFixed(1)} 万㎡`;
+  return `${Math.round(sqm).toLocaleString()} ㎡`;
 }
 
 function formatBarValue(it: DistrictCompareItem): string {
@@ -1175,5 +1249,72 @@ onShow(async () => {
 .trend-axis {
   margin-top: 4rpx;
   text-align: center;
+}
+
+/* v0.10.0 网签热度榜 */
+.wq-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 8rpx 0;
+  border-bottom: 1rpx solid #1f2937;
+}
+.wq-row:last-child {
+  border-bottom: none;
+}
+.wq-rank {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  font-weight: 600;
+  background: #334155;
+  color: #cbd5e1;
+  flex-shrink: 0;
+}
+.wq-rank-gold {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #1f2937;
+}
+.wq-rank-silver {
+  background: linear-gradient(135deg, #e5e7eb 0%, #94a3b8 100%);
+  color: #1f2937;
+}
+.wq-rank-bronze {
+  background: linear-gradient(135deg, #d97706 0%, #92400e 100%);
+  color: #fffbeb;
+}
+.wq-rank-normal {
+  background: #1e293b;
+  color: #94a3b8;
+}
+.wq-name {
+  width: 140rpx;
+  font-size: 26rpx;
+  color: #f3f4f6;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.wq-track {
+  flex: 1;
+  height: 14rpx;
+  background: #1e293b;
+  border-radius: 4rpx;
+  overflow: hidden;
+}
+.wq-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8 0%, #0ea5e9 100%);
+  border-radius: 4rpx;
+}
+.wq-units {
+  width: 180rpx;
+  font-size: 24rpx;
+  color: #f3f4f6;
+  text-align: right;
+  flex-shrink: 0;
 }
 </style>
