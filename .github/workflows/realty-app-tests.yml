@@ -1,0 +1,72 @@
+name: realty_app tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "realty_app/**"
+      - ".github/workflows/realty_app-tests.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "realty_app/**"
+      - ".github/workflows/realty_app-tests.yml"
+  # 工作日 09:00 北京时间 = 01:00 UTC（与 crawl-daily-wangqian 错开 30 分钟）
+  schedule:
+    - cron: "0 1 * * 1-5"
+  workflow_dispatch:
+
+concurrency:
+  group: realty_app-tests
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: realty_app
+
+    steps:
+      - name: 拉代码
+        uses: actions/checkout@v4
+
+      - name: 设 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: realty_app/package-lock.json
+
+      - name: 装依赖（npm ci）
+        run: npm ci --no-audit --no-fund
+
+      - name: type-check
+        run: npm run type-check
+
+      - name: 跑单测（含 coverage）
+        run: npm run test:coverage
+
+      - name: 上传 coverage 报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: realty_app-coverage
+          path: realty_app/coverage
+          retention-days: 14
+
+      - name: 上传 E2E artifacts（如有）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: realty_app-e2e-artifacts
+          path: realty_app/tests/e2e/artifacts
+          retention-days: 7
+
+      - name: 汇总结果
+        if: always()
+        run: |
+          echo "===== 验证结果 ====="
+          echo "type-check / test / coverage 见上方 steps 输出"
+          echo "coverage 报告在 artifact realty_app-coverage 里"

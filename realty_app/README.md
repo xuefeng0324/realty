@@ -274,6 +274,7 @@ python scripts/crawl_daily_wangqian.py fetch --merge
 | 数据来源变更 | 同步更新 `DATA_SOURCES.md` |
 | 政府 CSV 变更 | 跑对应 `scripts/crawl_*.py`，一并提交 `static/*.csv` |
 | AI 任务结束汇报 | AI agent 改动代码后，按仓库根 [AGENTS.md](../AGENTS.md) 的 5 段模板汇报（修改文件 / 内容总结 / 优缺点 / 下一步 / 验证状态） |
+| CI 跑通 | push 到 main 或开 PR 后，`.github/workflows/realty-app-tests.yml` 自动跑 type-check + test + coverage；本机可用 `scripts/check.ps1` 预先验证 |
 
 ### Commit message 格式
 
@@ -371,6 +372,17 @@ gh auth setup-git
 - `vitest.config.ts` 更新注释，明确 `src/api` 与 `src/utils` 因有单测已纳入覆盖统计；`src/pages` / `src/store` / `src/main.ts` 仍排除（UI/全局）
 - 当前覆盖率：`src/api/http.ts` 66.01%（从 0% 起步）、`src/utils/errorMessage.ts` 85.71%
 - 详见 [changelog/2026-07-12-v0.3.0-catch迁移与http单测.md](./changelog/2026-07-12-v0.3.0-catch迁移与http单测.md)
+
+### v0.3.0 优化批次-4 (2026-07-12)
+
+**CI 接入：GitHub Actions 跑 type-check + 单测 + coverage**
+
+- 新增 `.github/workflows/realty-app-tests.yml`：ubuntu-latest + Node 20，触发器为 push/PR 到 main、工作日 09:00 北京时间（01:00 UTC）排程、手动 `workflow_dispatch`
+- 步骤：`npm ci` → `npm run type-check` → `npm run test:coverage` → 上传 coverage 报告（14 天）与 E2E artifacts（7 天）
+- 复用 `package-lock.json` 做依赖缓存（`actions/setup-node@v4` + `cache-dependency-path`）
+- E2E smoke 暂不入 CI（Linux runner 安装 Playwright Chromium 慢且脆），后续单独做
+- 本机验证仍走 `scripts/check.ps1`（含 E2E）
+- 详见 [changelog/2026-07-12-v0.3.0-CI接入.md](./changelog/2026-07-12-v0.3.0-CI接入.md)
 
 ## License
 
