@@ -339,6 +339,43 @@
           <view class="muted" style="font-size: 22rpx">置信 {{ coverageText(item.coverage_score) }}</view>
         </view>
       </view>
+
+      <!-- v0.14.0 学区评分 Top 小区 -->
+      <view v-if="schoolPremiumCommunityItems.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">学区评分 Top {{ schoolPremiumCommunityItems.length }} 小区</view>
+          <view class="muted">按区内学校 latest_level_score 加权</view>
+        </view>
+        <view v-if="schoolPremiumCommunityItems.length === 0" class="empty">暂无数据</view>
+        <view
+          v-for="item in schoolPremiumCommunityItems"
+          :key="item.communityId"
+          class="community-row tap-target"
+          role="button"
+          tabindex="0"
+          hover-class="row-active"
+          @click="goCommunity(item.communityId)"
+        >
+          <view class="community-rank">
+            <text :class="['sp-medal-mini', spMedalClass(item.rank)]">{{ item.rank }}</text>
+          </view>
+          <view class="community-main">
+            <view class="community-name">{{ item.communityName }}</view>
+            <view class="muted">
+              {{ item.districtName }} · 评分 {{ item.avgSchoolScore.toFixed(1) }} · {{ item.schoolCount }} 所学校
+            </view>
+          </view>
+          <view class="community-sp-price">
+            <text v-if="item.medianUnitPrice > 0" class="sp-up">¥{{ formatNum(item.medianUnitPrice) }}</text>
+            <text v-else class="muted">—</text>
+            <view class="muted" style="font-size: 20rpx">中位/㎡</view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：schools.csv (district_name) + school_indicators.csv (latest_level_score_raw)。
+          同一区内的学校评分聚合到该区所有小区，便于横向对比「住在哪个小区最沾名校光」。
+        </view>
+      </view>
     </view>
 
     <!-- 内置 popup：城市/周期/来源/指标选择 -->
@@ -372,7 +409,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -409,6 +446,7 @@ const districtItems = ref<DistrictCompareItem[]>([]);
 const trendItems = ref<DistrictTrendItem[]>([]);
 const wangqianOverview = ref<WangqianOverviewItem | null>(null);
 const schoolPremiumOverview = ref<SchoolPremiumOverview | null>(null);
+const schoolPremiumCommunityItems = ref<SchoolPremiumCommunityItem[]>([]);
 
 const errorMsg = ref<string>("");
 const loading = ref<boolean>(false);
@@ -682,6 +720,12 @@ async function loadRankingAndDistrict() {
         cityId: app.cityId,
         limit: 10
       });
+      // v0.14.0 学区评分 Top 小区
+      const spc = await getSchoolPremiumCommunityRank({
+        cityId: app.cityId,
+        limit: 10
+      });
+      schoolPremiumCommunityItems.value = spc?.items ?? [];
     }
   } catch (e) {
     errorMsg.value = `加载失败：${toErrorMessage(e)}`;
@@ -791,6 +835,12 @@ function medalClass(rank: number): string {
   if (rank === 2) return "medal-silver";
   if (rank === 3) return "medal-bronze";
   return "medal-flat";
+}
+function spMedalClass(rank: number): string {
+  if (rank === 1) return "medal-gold";
+  if (rank === 2) return "medal-silver";
+  if (rank === 3) return "medal-bronze";
+  return "medal-flat-mini";
 }
 
 function formatWqArea(sqm: number): string {
@@ -1355,6 +1405,32 @@ onShow(async () => {
 .medal-flat {
   background: #e2e8f0;
   color: #475569;
+}
+.medal-flat-mini {
+  background: #1e293b;
+  color: #94a3b8;
+}
+.sp-medal-mini {
+  display: inline-block;
+  width: 36rpx;
+  height: 36rpx;
+  line-height: 36rpx;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 22rpx;
+  text-align: center;
+  color: #fff;
+}
+.sp-up {
+  color: #0ea5e9;
+  font-weight: 600;
+  font-family: "Menlo", "Consolas", monospace;
+}
+.community-sp-price {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 .sp-mid {
   flex: 1;

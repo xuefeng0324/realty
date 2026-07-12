@@ -6,6 +6,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v0.14.0 | 2026-07-12 | dashboard 新增「学区评分 Top 小区」卡：按 avg_school_score 降序展示该城市里沾名校光最多的小区（金/银/铜牌 + 区 + 评分 + 学校数 + 中位单价）；广州 Top 1: 珠江帝景苑 (天河 86.0)，深圳 Top 1: 笋岗仓库综合楼 (罗湖 90.3) |
 | v0.13.0 | 2026-07-12 | map-view 第四种模式「POI overlay」：把 poi_seed.csv 的 5 类 POI (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园) 画到地图上 (每类最多 25 marker)；5 类 toggle 自由开关；POI info-card 显示名称 + 类型 + 距离 + 所属小区 |
 | v0.12.0 | 2026-07-12 | map-view 第三种模式「成交价热力」：圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵），半径仍按挂牌数；info-card 新增「价位」5 档标签（便宜/中低/中等/中高/昂贵，色码化）；mode 由 boolean → `MapMode = "count" \| "price" \| "listings"` |
 | v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |
@@ -656,6 +657,26 @@ gh auth setup-git
   - `tests/e2e/smoke_poi_overlay.mjs`: 4 模式切换 + 5 toggle + 截图
 - **验证**：193/193 单测过 (+6)；12/12 smoke 全绿
 - 详见 [changelog/2026-07-12-v0.13.0-POI-overlay.md](./changelog/2026-07-12-v0.13.0-POI-overlay.md)
+
+### v0.14.0 (2026-07-12) — 学区评分 Top 小区
+
+- **数据层**
+  - `src/local/store.ts`: `getSchoolPremiumCommunityRank({cityId, minListings, limit})`
+    - 过滤 `school_count >= 1, avg_school_score > 0, listing_count >= minListings`
+    - 排序：先 score 降序，并列按 median_unit_price 降序
+  - `src/local/queries.ts`: `getSchoolPremiumCommunityRank` → `SchoolPremiumCommunityOverview`
+- **UI**
+  - `src/pages/dashboard/dashboard.vue`: 新增「学区评分 Top N 小区」卡
+    - 金/银/铜牌 + 区名 + 学校评分 + 学校数 + 中位单价
+    - 点击小区行 → 跳 community 详情
+- **洞察**
+  - 广州 Top 1: **珠江帝景苑** (天河区, 评分 86.0, 3 所学校)
+  - 深圳 Top 1: **笋岗仓库综合楼** (罗湖区, 评分 90.3, 6 所学校)
+- **测试**
+  - `tests/buildIntegrity.test.ts` 新增 5 个测试
+  - `tests/e2e/smoke_school_community.mjs`: 广州/深圳切换 + 截图
+- **验证**：198/198 单测过 (+5)；13/13 smoke 全绿
+- 详见 [changelog/2026-07-12-v0.14.0-学区评分小区榜.md](./changelog/2026-07-12-v0.14.0-学区评分小区榜.md)
 
 ## License
 

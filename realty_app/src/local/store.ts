@@ -369,6 +369,53 @@ export function getCommunitySchoolScore(communityId: number): number {
   return c?.avgSchoolScore ?? 0;
 }
 
+/**
+ * 给定 cityId，按 avg_school_score 降序返回 Top 小区。
+ * 过滤 school_count >= 1, listing_count >= 1（避免空数据）。
+ * 用于 dashboard "学区评分 Top 小区" 卡片。
+ */
+export function getSchoolPremiumCommunityRank(params: {
+  cityId: number;
+  minListings?: number;
+  limit?: number;
+}): Array<{
+  communityId: number;
+  districtName: string;
+  communityName: string;
+  schoolCount: number;
+  avgSchoolScore: number;
+  listingCount: number;
+  medianUnitPrice: number;
+  rank: number;
+}> {
+  const { cityId, minListings = 1, limit = 10 } = params;
+  const rows = (snapshot?.schoolPremiumCommunities ?? []).filter(
+    (c) =>
+      c.cityId === cityId &&
+      c.schoolCount >= 1 &&
+      c.avgSchoolScore > 0 &&
+      c.listingCount >= minListings
+  );
+  return rows
+    .sort((a, b) => {
+      if (b.avgSchoolScore !== a.avgSchoolScore) {
+        return b.avgSchoolScore - a.avgSchoolScore;
+      }
+      return b.medianUnitPrice - a.medianUnitPrice;
+    })
+    .slice(0, limit)
+    .map((c, i) => ({
+      communityId: c.communityId,
+      districtName: c.districtName,
+      communityName: c.communityName,
+      schoolCount: c.schoolCount,
+      avgSchoolScore: c.avgSchoolScore,
+      listingCount: c.listingCount,
+      medianUnitPrice: c.medianUnitPrice,
+      rank: i + 1
+    }));
+}
+
 export function getAvailableWeeks(cityId?: number): { weekStartDate: string; weekEndDate: string }[] {
   if (!snapshot) return [];
   if (cityId == null) return snapshot.availableWeeks;

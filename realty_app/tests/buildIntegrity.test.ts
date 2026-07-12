@@ -802,4 +802,51 @@ describe("build integrity", () => {
       expect(rows.length).toBeGreaterThanOrEqual(500);
     });
   });
+
+  // ---------- v0.14.0 学区评分小区榜 ----------
+  describe("学区评分小区榜 v0.14.0", () => {
+    it("queries.ts 提供 getSchoolPremiumCommunityRank 函数", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/local/queries.ts"),
+        "utf-8"
+      );
+      expect(content).toMatch(/export async function getSchoolPremiumCommunityRank/);
+      expect(content).toMatch(/SchoolPremiumCommunityItem/);
+    });
+
+    it("store.ts 提供 getSchoolPremiumCommunityRank 函数", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/local/store.ts"),
+        "utf-8"
+      );
+      expect(content).toMatch(/export function getSchoolPremiumCommunityRank/);
+    });
+
+    it("dashboard.vue 含 '学区评分 Top' 卡", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/dashboard/dashboard.vue"),
+        "utf-8"
+      );
+      expect(content).toMatch(/学区评分 Top/);
+      expect(content).toMatch(/schoolPremiumCommunityItems/);
+    });
+
+    it("school_premium_community.csv 至少 50 行", () => {
+      const path = resolve(ROOT, "static/seed/school_premium_community.csv");
+      if (!existsSync(path)) return;
+      const rows = readCsv(path);
+      expect(rows.length).toBeGreaterThanOrEqual(50);
+    });
+
+    it("school_premium_community.csv 的 avg_school_score ∈ [0, 100]", () => {
+      const path = resolve(ROOT, "static/seed/school_premium_community.csv");
+      if (!existsSync(path)) return;
+      const rows = readCsv(path);
+      const bad = rows.filter((r) => {
+        const v = parseFloat(r.avg_school_score);
+        return !Number.isFinite(v) || v < 0 || v > 100;
+      });
+      expect(bad.length).toBe(0);
+    });
+  });
 });

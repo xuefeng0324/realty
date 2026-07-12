@@ -1113,6 +1113,48 @@ export async function getSchoolPremiumRank(params: {
   };
 }
 
+// ---------- 学区评分小区榜 (v0.14.0+) ----------
+export interface SchoolPremiumCommunityItem {
+  communityId: number;
+  districtName: string;
+  communityName: string;
+  schoolCount: number;
+  avgSchoolScore: number;
+  listingCount: number;
+  medianUnitPrice: number;
+  rank: number;
+}
+
+export interface SchoolPremiumCommunityOverview {
+  cityId: number;
+  cityName: string;
+  items: SchoolPremiumCommunityItem[];
+}
+
+/**
+ * 给定 cityId，按学区评分降序返回 Top 小区。
+ * 用于 dashboard "学区评分 Top 小区" 卡片。
+ */
+export async function getSchoolPremiumCommunityRank(params: {
+  cityId: number;
+  minListings?: number;
+  limit?: number;
+}): Promise<SchoolPremiumCommunityOverview | null> {
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const rows = store.getSchoolPremiumCommunityRank({
+    cityId: params.cityId,
+    minListings: params.minListings,
+    limit: params.limit
+  });
+  if (rows.length === 0) return null;
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    items: rows
+  };
+}
+
 // ---------- helpers ----------
 function avg(arr: number[]): number | null {
   if (arr.length === 0) return null;
