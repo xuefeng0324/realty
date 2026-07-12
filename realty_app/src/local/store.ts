@@ -170,6 +170,28 @@ export function getTopPoisByCategory(
 }
 
 /**
+ * 给定 cityId，返回该城市所有 POI（按 category + rank 排序）。
+ * 用于 map-view 的"POI overlay" 模式：把所有 POI 点画到地图上。
+ * 关联逻辑：poi_seed.csv 的 community_id → communities.csv 的 city_id。
+ */
+export function getPoisByCity(cityId: number): LocalPoi[] {
+  if (!snapshot) return [];
+  const cityCommunities = new Set(
+    (snapshot.communities ?? [])
+      .filter((c) => c.cityId === cityId)
+      .map((c) => c.communityId)
+  );
+  return (snapshot.pois ?? [])
+    .filter((p) => cityCommunities.has(p.communityId))
+    .sort((a, b) => {
+      if (a.poiCategory !== b.poiCategory) {
+        return a.poiCategory.localeCompare(b.poiCategory);
+      }
+      return a.poiRank - b.poiRank;
+    });
+}
+
+/**
  * 医院清单 (v0.6.0+)
  */
 export function getHospitals(): LocalHospital[] {

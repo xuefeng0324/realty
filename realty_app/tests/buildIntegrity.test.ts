@@ -746,4 +746,60 @@ describe("build integrity", () => {
       expect(content).toMatch(/class="input"/);
     });
   });
+
+  // ---------- v0.13.0 POI overlay ----------
+  describe("POI overlay v0.13.0", () => {
+    it("map-view.vue 含 POI 模式分支", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/map-view/map-view.vue"),
+        "utf-8"
+      );
+      expect(content).toMatch(/poiMarkers/);
+      expect(content).toMatch(/getPoisByCity/);
+    });
+
+    it("MapMode 包含 poi 类型", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/map-view/map-view.vue"),
+        "utf-8"
+      );
+      expect(content).toMatch(/"poi"/);
+    });
+
+    it("queries.ts 提供 getCityPois 函数", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/local/queries.ts"),
+        "utf-8"
+      );
+      expect(content).toMatch(/export async function getCityPois/);
+      expect(content).toMatch(/CityPoisResponse/);
+    });
+
+    it("store.ts 提供 getPoisByCity 函数", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/local/store.ts"),
+        "utf-8"
+      );
+      expect(content).toMatch(/export function getPoisByCity/);
+    });
+
+    it("poi_seed.csv 含 5 类 POI 数据", () => {
+      const poiPath = resolve(ROOT, "static/seed/poi_seed.csv");
+      if (!existsSync(poiPath)) return;
+      const rows = readCsv(poiPath);
+      const cats = new Set(rows.map((r) => r.poi_category));
+      expect(cats.has("subway")).toBe(true);
+      expect(cats.has("school")).toBe(true);
+      expect(cats.has("hospital")).toBe(true);
+      expect(cats.has("mall")).toBe(true);
+      expect(cats.has("park")).toBe(true);
+    });
+
+    it("POI 总数 ≥ 500 (5 类齐全)", () => {
+      const poiPath = resolve(ROOT, "static/seed/poi_seed.csv");
+      if (!existsSync(poiPath)) return;
+      const rows = readCsv(poiPath);
+      expect(rows.length).toBeGreaterThanOrEqual(500);
+    });
+  });
 });

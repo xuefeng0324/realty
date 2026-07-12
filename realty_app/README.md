@@ -6,6 +6,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v0.13.0 | 2026-07-12 | map-view 第四种模式「POI overlay」：把 poi_seed.csv 的 5 类 POI (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园) 画到地图上 (每类最多 25 marker)；5 类 toggle 自由开关；POI info-card 显示名称 + 类型 + 距离 + 所属小区 |
 | v0.12.0 | 2026-07-12 | map-view 第三种模式「成交价热力」：圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵），半径仍按挂牌数；info-card 新增「价位」5 档标签（便宜/中低/中等/中高/昂贵，色码化）；mode 由 boolean → `MapMode = "count" \| "price" \| "listings"` |
 | v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |
 | v0.10.0 | 2026-07-12 | 网签热度榜：daily_wangqian.csv (district 维度) → `wangqian_district_weekly.csv` (66 行 × 22 区)；dashboard 新增「近 4 周二手/新房网签热度榜」卡片（金银铜牌 + 柱状条）；广州 fallback 用新房榜（住建局不公示二手） |
@@ -637,6 +638,24 @@ gh auth setup-git
   - `tests/e2e/smoke_price_heatmap.mjs`（新增）：验证模式切换 + 截图
 - **验证**：184/184 单测过 (+5)；10/10 smoke 全绿
 - 详见 [changelog/2026-07-12-v0.12.0-成交价热力.md](./changelog/2026-07-12-v0.12.0-成交价热力.md)
+
+### v0.13.0 (2026-07-12) — POI overlay
+
+- **数据**
+  - `static/seed/poi_seed.csv` 现有 678 行 POI (5 类齐全)
+- **数据层**
+  - `src/local/store.ts`: `getPoisByCity(cityId)` — 关联 communities.csv cityId
+  - `src/local/queries.ts`: `getCityPois({cityId, category?})` → `CityPoisResponse`
+- **UI**
+  - `src/pages/map-view/map-view.vue`: 4 模式轮换 `count → price → listings → poi`
+  - POI 模式：5 类 toggle 按钮（带类别计数：🚇地铁 14 / 🏫学校 24 / 🏥医院 18 / 🛍商场 19 / 🌳公园 24）
+  - `poiMarkers` computed: 每类最多 25 个 marker，按 category 着色（蓝/绿/红/橙/深绿）
+  - POI info-card: 名称 + 类型 + 距离 + 所属小区 + 地址
+- **测试**
+  - `tests/buildIntegrity.test.ts` 新增 6 个 POI overlay 测试
+  - `tests/e2e/smoke_poi_overlay.mjs`: 4 模式切换 + 5 toggle + 截图
+- **验证**：193/193 单测过 (+6)；12/12 smoke 全绿
+- 详见 [changelog/2026-07-12-v0.13.0-POI-overlay.md](./changelog/2026-07-12-v0.13.0-POI-overlay.md)
 
 ## License
 

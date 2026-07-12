@@ -22,9 +22,24 @@
         <text v-else-if="mode === 'count'">
           挂牌数热力：圆点 = 挂牌数 (颜色: 红=多 / 蓝=少)
         </text>
-        <text v-else>
+        <text v-else-if="mode === 'listings'">
           挂牌点：每点 = 该小区 1 套挂牌；点击 → 小区详情
         </text>
+        <text v-else>
+          POI overlay：5 类配套图标 (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园)
+        </text>
+      </view>
+
+      <!-- v0.13.0 POI 模式下显示 5 类 toggle -->
+      <view v-if="mode === 'poi'" class="poi-toggles">
+        <view
+          v-for="cat in (['subway', 'school', 'hospital', 'mall', 'park'] as PoiCat[])"
+          :key="cat"
+          :class="['poi-toggle', poiFilter.has(cat) ? 'poi-toggle-on' : 'poi-toggle-off']"
+          @click="togglePoiCategory(cat)"
+        >
+          <text>{{ poiEmoji(cat) }} {{ poiLabel(cat) }} {{ poiCategoryCounts[cat] }}</text>
+        </view>
       </view>
     </view>
 
@@ -35,13 +50,37 @@
         :latitude="mapCenter.lat"
         :longitude="mapCenter.lng"
         :scale="mapScale"
-        :markers="mode === 'listings' ? listingMarkers : []"
-        :circles="mode === 'listings' ? [] : heatCircles"
+        :markers="mode === 'listings' ? listingMarkers : (mode === 'poi' ? poiMarkers : [])"
+        :circles="(mode === 'listings' || mode === 'poi') ? [] : heatCircles"
         :show-location="true"
         :enable-zoom="true"
         :enable-scroll="true"
         @markertap="onMarkerTap"
       ></map>
+    </view>
+
+    <!-- v0.13.0 POI info card -->
+    <view v-if="selectedPoi" class="info-card">
+      <view class="row-between">
+        <text class="info-name">
+          {{ poiEmoji(selectedPoi.poiCategory) }} {{ selectedPoi.poiName }}
+        </text>
+        <text class="info-close" @click="closePoiCard">✕</text>
+      </view>
+      <text class="info-line">
+        {{ poiLabel(selectedPoi.poiCategory) }} · {{ selectedPoi.poiType || "" }}
+      </text>
+      <view class="info-row">
+        <view class="info-stat">
+          <text class="info-stat-label">距离</text>
+          <text class="info-stat-value">{{ Math.round(selectedPoi.distanceM) }}m</text>
+        </view>
+        <view class="info-stat">
+          <text class="info-stat-label">所属小区</text>
+          <text class="info-stat-value">#{{ selectedPoi.communityId }}</text>
+        </view>
+      </view>
+      <text v-if="selectedPoi.address" class="info-line">{{ selectedPoi.address }}</text>
     </view>
 
     <!-- 选中 marker 浮层 -->
@@ -85,24 +124,56 @@ import { useAppStore } from "../../store/app";
 import {
   getCommunitiesByCity,
   getListingsByCity,
-  getCommunityById
+  getCommunityById,
+  getPoisByCity
 } from "../../local/store";
-import { getCities } from "../../local/store";
+import { getCities, getPoisByCommunity } from "../../local/store";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { showToast } from "../../utils/format";
 
 const app = useAppStore();
 const errorMsg = ref<string>("");
-/** v0.12.0 三种模式: count=挂牌数热力, price=成交价热力, listings=挂牌点 */
-type MapMode = "count" | "price" | "listings";
+/** v0.12.0 三种模式: count=挂牌数热力, price=成交价热力, listings=挂牌点
+ *  v0.13.0 加 poi 模式: 5 类 POI marker overlay
+ */
+type MapMode = "count" | "price" | "listings" | "poi";
+type PoiCat = "subway" | "school" | "hospital" | "mall" | "park";
 const mode = ref<MapMode>("count");
+const poiFilter = ref<Set<PoiCat>>(new Set(["subway", "school", "hospital", "mall", "park"]));
 const selectedCommunityId = ref<number | null>(null);
+const selectedPoi = ref<{ poiName: string; poiCategory: PoiCat; poiType: string | null; distanceM: number; address: string | null; communityId: number } | null>(null);
 
 const modeLabel = computed(() => {
   if (mode.value === "count") return "切到成交价热力";
   if (mode.value === "price") return "切到挂牌点";
+  if (mode.value === "listings") return "切到 POI";
   return "切到挂牌数热力";
 });
+
+function togglePoiCategory(cat: PoiCat) {
+  const next = new Set(poiFilter.value);
+  if (next.has(cat)) next.delete(cat);
+  else next.add(cat);
+  poiFilter.value = next;
+}
+
+function poiLabel(cat: PoiCat): string {
+  return { subway: "地铁", school: "学校", hospital: "医院", mall: "商场", park: "公园" }[cat];
+}
+
+function poiColor(cat: PoiCat): string {
+  return {
+    subway: "#0ea5e9",
+    school: "#22c55e",
+    hospital: "#dc2626",
+    mall: "#f59e0b",
+    park: "#16a34a"
+  }[cat];
+}
+
+function poiEmoji(cat: PoiCat): string {
+  return { subway: "🚇", school: "🏫", hospital: "🏥", mall: "🛍", park: "🌳" }[cat];
+}
 
 interface CommunityMarker {
   communityId: number;
@@ -166,6 +237,58 @@ const priceLevelText = computed(() => {
     high: "昂贵"
   };
   return map[selectedCommunity.value?.priceLevel ?? ""] ?? "";
+});
+
+// POI overlay markers: 每个 POI 一个 marker，按 category 着色
+const poiMarkers = computed(() => {
+  if (!app.cityId || mode.value !== "poi") return [];
+  const all = getPoisByCity(app.cityId);
+  const filtered = all.filter((p) => poiFilter.value.has(p.poiCategory));
+  // 每个 POI 类取最近 N 个，避免 marker 太多（每类 20 上限）
+  const byCat = new Map<PoiCat, typeof filtered>();
+  for (const cat of poiFilter.value) byCat.set(cat, []);
+  for (const p of filtered) {
+    const arr = byCat.get(p.poiCategory) ?? [];
+    if (arr.length < 25) arr.push(p);
+    byCat.set(p.poiCategory, arr);
+  }
+  const out: any[] = [];
+  for (const [cat, list] of byCat.entries()) {
+    for (const p of list) {
+      const color = poiColor(cat);
+      out.push({
+        id: -1 * (p.communityId * 1000 + p.poiRank * 10 + catCode(cat)),
+        latitude: p.lat,
+        longitude: p.lng,
+        width: 24,
+        height: 24,
+        title: `${poiEmoji(cat)} ${p.poiName}`,
+        callout: {
+          content: `${poiEmoji(cat)} ${p.poiName}\n${poiLabel(cat)} · ${Math.round(p.distanceM)}m`,
+          color: "#ffffff",
+          bgColor: color,
+          padding: 4,
+          borderRadius: 4,
+          fontSize: 11,
+          display: "BYCLICK"
+        }
+      });
+    }
+  }
+  return out;
+});
+
+function catCode(cat: PoiCat): number {
+  return { subway: 1, school: 2, hospital: 3, mall: 4, park: 5 }[cat];
+}
+
+// poiSeed 总体统计（5 类各多少）
+const poiCategoryCounts = computed(() => {
+  if (!app.cityId) return { subway: 0, school: 0, hospital: 0, mall: 0, park: 0 };
+  const all = getPoisByCity(app.cityId);
+  const out: Record<PoiCat, number> = { subway: 0, school: 0, hospital: 0, mall: 0, park: 0 };
+  for (const p of all) out[p.poiCategory] += 1;
+  return out;
 });
 
 // listings 模式下：每个 listing 一个 marker (限 200 / 城市避免卡)
@@ -281,6 +404,34 @@ function onMarkerTap(e: any) {
   const detail = e?.detail ?? {};
   const markerId = detail.markerId ?? detail.id;
   if (markerId == null) return;
+  if (markerId < 0) {
+    // POI marker: 反解 id → communityId + poiRank + category
+    const absId = -markerId;
+    const cats: PoiCat[] = ["subway", "school", "hospital", "mall", "park"];
+    for (const cat of cats) {
+      const cc = catCode(cat);
+      // 找包含该 (communityId, poiRank, cc) 的 POI
+      const candidates = getPoisByCity(app.cityId).filter(
+        (p) => p.poiCategory === cat
+      );
+      const match = candidates.find(
+        (p) => absId === p.communityId * 1000 + p.poiRank * 10 + cc
+      );
+      if (match) {
+        selectedPoi.value = {
+          poiName: match.poiName,
+          poiCategory: match.poiCategory,
+          poiType: match.poiType,
+          distanceM: match.distanceM,
+          address: match.address,
+          communityId: match.communityId
+        };
+        selectedCommunityId.value = match.communityId;
+        return;
+      }
+    }
+    return;
+  }
   // listingMarkers 用 listingId 作 id, 需要找到其 communityId
   const listing = getListingsByCity(app.cityId).find((l) => l.listingId === markerId);
   if (listing) {
@@ -292,21 +443,30 @@ function onMarkerTap(e: any) {
 }
 
 function toggleType() {
-  // count → price → listings → count
+  // count → price → listings → poi → count
   if (mode.value === "count") {
     mode.value = "price";
     showToast("成交价热力（绿=便宜/红=贵）");
   } else if (mode.value === "price") {
     mode.value = "listings";
     showToast("挂牌点模式");
+  } else if (mode.value === "listings") {
+    mode.value = "poi";
+    selectedPoi.value = null;
+    showToast("POI 模式（5 类配套图标）");
   } else {
     mode.value = "count";
     showToast("挂牌数热力（红=多/蓝=少）");
   }
 }
 
+function closePoiCard() {
+  selectedPoi.value = null;
+}
+
 function zoomToCity(cityId: number) {
   app.setCityId(cityId);
+  selectedPoi.value = null;
   const city = getCities().find((c) => c.cityId === cityId);
   if (!city) return;
   // 用城市中心点 (硬编码)
@@ -505,5 +665,29 @@ onMounted(() => {
 .price-high {
   background: rgba(220, 38, 38, 0.3);
   color: #fca5a5 !important;
+}
+/* v0.13.0 POI toggles */
+.poi-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-top: 8rpx;
+}
+.poi-toggle {
+  padding: 4rpx 14rpx;
+  border-radius: 16rpx;
+  font-size: 22rpx;
+  border: 1rpx solid transparent;
+  cursor: pointer;
+}
+.poi-toggle-on {
+  background: rgba(14, 165, 233, 0.2);
+  border-color: #0ea5e9;
+  color: #f0f9ff;
+}
+.poi-toggle-off {
+  background: rgba(148, 163, 184, 0.1);
+  border-color: #475569;
+  color: #94a3b8;
 }
 </style>

@@ -655,6 +655,65 @@ export async function getCommunityPois(params: { communityId: number }): Promise
   };
 }
 
+// ---------- 城市 POI (v0.13.0+ map-view POI overlay) ----------
+export interface CityPoiItem {
+  communityId: number;
+  poiCategory: PoiCategory;
+  poiRank: number;
+  poiName: string;
+  poiType: string | null;
+  distanceM: number;
+  lat: number;
+  lng: number;
+  address: string | null;
+}
+
+export interface CityPoisResponse {
+  cityId: number;
+  total: number;
+  items: CityPoiItem[];
+  /** 各 category 数量 */
+  counts: Record<PoiCategory, number>;
+}
+
+/**
+ * 给定 cityId，返回该城市所有 POI（按 category + rank 排序）。
+ * 用于 map-view 的"POI overlay"模式。
+ */
+export async function getCityPois(params: {
+  cityId: number;
+  category?: PoiCategory;
+}): Promise<CityPoisResponse> {
+  let rows = store.getPoisByCity(params.cityId);
+  if (params.category) {
+    rows = rows.filter((p) => p.poiCategory === params.category);
+  }
+  const counts: Record<PoiCategory, number> = {
+    subway: 0,
+    school: 0,
+    hospital: 0,
+    mall: 0,
+    park: 0
+  };
+  for (const r of rows) counts[r.poiCategory] += 1;
+  return {
+    cityId: params.cityId,
+    total: rows.length,
+    counts,
+    items: rows.map((p) => ({
+      communityId: p.communityId,
+      poiCategory: p.poiCategory,
+      poiRank: p.poiRank,
+      poiName: p.poiName,
+      poiType: p.poiType,
+      distanceM: p.distanceM,
+      lat: p.lat,
+      lng: p.lng,
+      address: p.address
+    }))
+  };
+}
+
 // ---------- 医院 (v0.6.0+) ----------
 export interface HospitalItem {
   hospital_id: number;
