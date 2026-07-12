@@ -139,6 +139,28 @@ export interface LocalHospital {
   keyFlag: boolean | null;
 }
 
+/**
+ * 规划/在建地铁线路（`scripts/seed_metro_planning.py`）。
+ * 用于 listing/community 详情展示"未来周边地铁"，
+ * 帮用户评估"地铁规划受益度"。
+ */
+export interface LocalMetroLine {
+  lineId: number;
+  cityId: number;
+  lineName: string;
+  phase: string | null;
+  status: "规划" | "在建" | "即将开通" | null;
+  lengthKm: number | null;
+  stationCount: number | null;
+  startStation: string | null;
+  endStation: string | null;
+  maxSpeedKmh: number | null;
+  openYearExpected: number | null;
+  /** 用 `;` 分隔的区名列表（与 LocalCommunity.districtName 匹配） */
+  districts: string[];
+  notes: string | null;
+}
+
 export interface DataSnapshot {
   importedAt: string;
   source: string;
@@ -151,6 +173,8 @@ export interface DataSnapshot {
   pois: LocalPoi[];
   /** v0.6.0: 医院清单 */
   hospitals: LocalHospital[];
+  /** v0.7.0: 规划/在建地铁线路 */
+  metroLines: LocalMetroLine[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

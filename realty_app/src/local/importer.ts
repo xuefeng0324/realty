@@ -21,6 +21,7 @@ import type {
   LocalCommunity,
   LocalHospital,
   LocalListing,
+  LocalMetroLine,
   LocalPoi,
   LocalSchool,
   LocalSchoolIndicator
@@ -28,6 +29,7 @@ import type {
 
 const POI_CATEGORIES = new Set(["subway", "school", "hospital", "mall", "park"]);
 const HOSPITAL_LEVELS = new Set(["三甲", "三级", "二甲", "二级", "其他"]);
+const METRO_STATUSES = new Set(["规划", "在建", "即将开通"]);
 
 function n(v: string | undefined): number | null {
   if (v == null) return null;
@@ -59,6 +61,8 @@ export interface SnapshotInputs {
   poisCSV?: string;
   /** v0.6.0: 医院清单 (可选，缺则装空数组) */
   hospitalsCSV?: string;
+  /** v0.7.0: 规划/在建地铁线路 (可选，缺则装空数组) */
+  metroPlanningCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -185,6 +189,37 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
         .filter((h): h is LocalHospital => h !== null)
     : [];
 
+  // 地铁规划 (v0.7.0+): 可选
+  const metroLines: LocalMetroLine[] = inputs.metroPlanningCSV
+    ? rowsToObjects<Record<string, string>>(parseCSV(inputs.metroPlanningCSV))
+        .map((r) => {
+          const lid = n(r.line_id);
+          const cid = n(r.city_id);
+          if (lid == null || cid == null) return null;
+          const st = s(r.status);
+          const districts = (s(r.districts) ?? "")
+            .split(";")
+            .map((x) => x.trim())
+            .filter(Boolean);
+          return {
+            lineId: lid,
+            cityId: cid,
+            lineName: s(r.line_name) ?? "",
+            phase: s(r.phase),
+            status: st && METRO_STATUSES.has(st) ? (st as LocalMetroLine["status"]) : null,
+            lengthKm: n(r.length_km),
+            stationCount: n(r.station_count),
+            startStation: s(r.start_station),
+            endStation: s(r.end_station),
+            maxSpeedKmh: n(r.max_speed_kmh),
+            openYearExpected: n(r.open_year_expected),
+            districts,
+            notes: s(r.notes)
+          } as LocalMetroLine;
+        })
+        .filter((m): m is LocalMetroLine => m !== null)
+    : [];
+
   // 聚合可用周：基于 listings 的 crawl_date
   const weekEnds = new Set<string>();
   for (const l of listings) {
@@ -207,6 +242,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     listings,
     pois,
     hospitals,
+    metroLines,
     availableWeeks
   };
 }

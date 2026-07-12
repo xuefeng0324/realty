@@ -115,6 +115,33 @@
         </view>
       </view>
 
+      <!-- 未来周边地铁 (v0.7.0+) -->
+      <view v-if="showMetroCard" class="card">
+        <view class="card-title">
+          🚧 未来周边地铁（{{ metroPlanning.length }} 条规划/在建）
+          <text v-if="nearestSubwayM != null" class="muted" style="font-size: 22rpx">现有最近 {{ formatDistance(nearestSubwayM) }}</text>
+        </view>
+        <view
+          v-for="m in metroPlanning"
+          :key="m.line_id"
+          class="metro-row"
+        >
+          <view class="metro-main">
+            <view class="metro-head">
+              <text class="metro-name">{{ m.line_name }}</text>
+              <text v-if="m.status" class="metro-status" :class="'st-' + m.status">{{ m.status }}</text>
+              <text v-if="m.open_year_expected" class="muted" style="font-size: 22rpx">预计 {{ m.open_year_expected }} 开通</text>
+            </view>
+            <view class="muted metro-detail">
+              <text v-if="m.start_station && m.end_station">{{ m.start_station }} ↔ {{ m.end_station }}</text>
+              <text v-if="m.station_count"> · {{ m.station_count }} 站</text>
+              <text v-if="m.length_km"> · {{ m.length_km }}km</text>
+              <text v-if="m.max_speed_kmh && m.max_speed_kmh >= 100"> · 最高 {{ m.max_speed_kmh }}km/h 快线</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
       <!-- 优/缺点 Top 标签 -->
       <view v-if="tags" class="card">
         <view class="card-title">优点 Top {{ tags.advantages.length }}</view>
@@ -188,9 +215,10 @@ import {
   getTopTags,
   filterListings,
   getCommunityPois,
-  getCommunityHospitals
+  getCommunityHospitals,
+  getCommunityMetroPlanning
 } from "../../local/queries";
-import type { PoiCategory, PoiItem, HospitalItem } from "../../local/queries";
+import type { PoiCategory, PoiItem, HospitalItem, MetroLineItem } from "../../local/queries";
 import type {
   ListingItem,
   PriceTrendItem,
@@ -217,6 +245,9 @@ const listings = ref<ListingItem[]>([]);
 const listingsTotal = ref<number>(0);
 const pois = ref<PoiItem[]>([]);
 const hospitals = ref<HospitalItem[]>([]);
+const metroPlanning = ref<MetroLineItem[]>([]);
+const nearestSubwayM = ref<number | null>(null);
+const showMetroCard = computed(() => (nearestSubwayM.value == null || nearestSubwayM.value >= 1000) && metroPlanning.value.length > 0);
 
 const POI_GROUPS: PoiCategory[] = ["subway", "school", "hospital", "mall", "park"];
 
@@ -325,6 +356,14 @@ async function loadAll() {
     hospitals.value = h.items;
   } catch {
     hospitals.value = [];
+  }
+  // 未来周边地铁 (v0.7.0+)
+  try {
+    const m = await getCommunityMetroPlanning({ communityId: communityId.value });
+    metroPlanning.value = m.items;
+    nearestSubwayM.value = m.nearest_existing_subway_m;
+  } catch {
+    metroPlanning.value = [];
   }
 }
 
@@ -573,6 +612,48 @@ onMounted(() => {
   background: #1e3a8a;
   padding: 2rpx 6rpx;
   border-radius: 4rpx;
+}
+
+/* 未来地铁 (v0.7.0) */
+.metro-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+  padding: 10rpx 0;
+  border-bottom: 1rpx solid #1f2937;
+}
+.metro-row:last-child {
+  border-bottom: none;
+}
+.metro-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  min-width: 0;
+}
+.metro-head {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex-wrap: wrap;
+}
+.metro-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #f3f4f6;
+}
+.metro-status {
+  padding: 2rpx 8rpx;
+  border-radius: 6rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+.metro-status.st-在建 { background: #d97706; color: #fff; }
+.metro-status.st-即将开通 { background: #16a34a; color: #fff; }
+.metro-status.st-规划 { background: #6b7280; color: #fff; }
+.metro-detail {
+  font-size: 22rpx;
 }
 
 .listing-main {

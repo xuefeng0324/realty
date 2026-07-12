@@ -332,6 +332,62 @@ describe("build integrity", () => {
     });
   });
 
+  describe("地铁规划完整性（v0.7.0）", () => {
+    const metroPath = resolve(ROOT, "static/seed/metro_planning.csv");
+
+    it("存在 metro_planning.csv（seed_metro_planning.py 输出）", () => {
+      expect(existsSync(metroPath)).toBe(true);
+    });
+
+    it("metro_planning.csv 行数 ≥ 20（深广珠规划+在建）", () => {
+      if (!existsSync(metroPath)) return;
+      const rows = readCsv(metroPath);
+      expect(rows.length).toBeGreaterThanOrEqual(20);
+    });
+
+    it("metro_planning.csv 至少 13 条深圳五期（line 1-13）", () => {
+      if (!existsSync(metroPath)) return;
+      const rows = readCsv(metroPath);
+      const szLines = rows.filter((r) => r.city_id === "2");
+      expect(szLines.length).toBeGreaterThanOrEqual(13);
+    });
+
+    it("metro_planning.csv 至少 3 条广州（city_id=1）", () => {
+      if (!existsSync(metroPath)) return;
+      const rows = readCsv(metroPath);
+      const gz = rows.filter((r) => r.city_id === "1");
+      expect(gz.length).toBeGreaterThanOrEqual(3);
+    });
+
+    it("深圳五期每条线都有 length_km > 0 且 station_count >= 0", () => {
+      if (!existsSync(metroPath)) return;
+      const rows = readCsv(metroPath);
+      const szPhase5 = rows.filter((r) => r.phase === "深圳五期");
+      const bad = szPhase5.filter(
+        (r) => Number(r.length_km) <= 0 || Number(r.station_count) < 0
+      );
+      expect(bad.length).toBe(0);
+    });
+
+    it("每条线路 status ∈ {规划, 在建, 即将开通}", () => {
+      if (!existsSync(metroPath)) return;
+      const rows = readCsv(metroPath);
+      const allowed = new Set(["规划", "在建", "即将开通"]);
+      const bad = rows.filter((r) => !allowed.has(r.status));
+      expect(bad.length).toBe(0);
+    });
+
+    it("至少 5 条线 open_year_expected ∈ 2026-2028（短期可见的）", () => {
+      if (!existsSync(metroPath)) return;
+      const rows = readCsv(metroPath);
+      const soon = rows.filter((r) => {
+        const y = Number(r.open_year_expected);
+        return y >= 2026 && y <= 2028;
+      });
+      expect(soon.length).toBeGreaterThanOrEqual(5);
+    });
+  });
+
   describe("CI 必装文件", () => {
     it("存在 tests/e2e/smoke.mjs", () => {
       expect(existsSync(resolve(ROOT, "tests/e2e/smoke.mjs"))).toBe(true);

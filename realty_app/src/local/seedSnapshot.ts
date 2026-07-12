@@ -30,6 +30,9 @@ import poisCSV from "../../static/seed/poi_seed.csv?raw";
 // v0.6.0 医院清单
 // @ts-ignore
 import hospitalsCSV from "../../static/seed/hospitals.csv?raw";
+// v0.7.0 地铁规划
+// @ts-ignore
+import metroPlanningCSV from "../../static/seed/metro_planning.csv?raw";
 
 let cached: DataSnapshot | null = null;
 
@@ -44,7 +47,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       schoolIndicatorsCSV: String(schoolIndicatorsCSV ?? ""),
       listingsCSV: String(listingsCSV ?? ""),
       poisCSV: String(poisCSV ?? ""),
-      hospitalsCSV: String(hospitalsCSV ?? "")
+      hospitalsCSV: String(hospitalsCSV ?? ""),
+      metroPlanningCSV: String(metroPlanningCSV ?? "")
     },
     "seed:public-derived"
   );

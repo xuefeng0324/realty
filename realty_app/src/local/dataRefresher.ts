@@ -142,6 +142,7 @@ function mergeListingsIntoSnapshot(
     listings: remoteListings,
     pois: existing?.pois ?? [],
     hospitals: existing?.hospitals ?? [],
+    metroLines: existing?.metroLines ?? [],
     availableWeeks
   };
 }

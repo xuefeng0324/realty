@@ -803,6 +803,83 @@ export async function getCommunityHospitals(
   };
 }
 
+// ---------- 地铁规划 (v0.7.0+) ----------
+export interface MetroLineItem {
+  line_id: number;
+  line_name: string;
+  phase: string | null;
+  status: "规划" | "在建" | "即将开通" | null;
+  length_km: number | null;
+  station_count: number | null;
+  start_station: string | null;
+  end_station: string | null;
+  max_speed_kmh: number | null;
+  open_year_expected: number | null;
+  districts: string[];
+  /** 排序分：高/快线 + 即将开通的优先级高 */
+  score: number;
+  notes: string | null;
+}
+
+export interface CommunityMetroPlanningResponse {
+  community_id: number;
+  /** 现有最近地铁距离（米）。来自 poi_seed.csv subway 类；用于"该小区是否有地铁规划价值"判断 */
+  nearest_existing_subway_m: number | null;
+  items: MetroLineItem[];
+}
+
+/**
+ * 取得某小区所在城市的"规划/在建地铁线路"。
+ * 匹配规则：按 `district` 模糊匹配（小区 district ∈ 线路 districts 列表）。
+ *
+ * 排序分：
+ *   - 即将开通 +20
+ *   - 在建 +10
+ *   - 最高速 ≥ 100km/h（快线）+5
+ *   - ≥ 18 站（线网骨干）+3
+ */
+export async function getCommunityMetroPlanning(
+  params: { communityId: number; limit?: number }
+): Promise<CommunityMetroPlanningResponse> {
+  const community = store.getCommunityById(params.communityId);
+  if (!community) {
+    return { community_id: params.communityId, nearest_existing_subway_m: null, items: [] };
+  }
+  const pois = store.getPoisByCommunity(params.communityId);
+  const nearestSubway =
+    pois.filter((p) => p.poiCategory === "subway").sort((a, b) => a.distanceM - b.distanceM)[0] ?? null;
+
+  const lines = store.getMetroLinesByDistrict(community.cityId, community.districtName ?? "");
+  const items: MetroLineItem[] = lines.map((l) => {
+    let score = 0;
+    if (l.status === "即将开通") score += 20;
+    else if (l.status === "在建") score += 10;
+    if ((l.maxSpeedKmh ?? 0) >= 100) score += 5;
+    if ((l.stationCount ?? 0) >= 18) score += 3;
+    return {
+      line_id: l.lineId,
+      line_name: l.lineName,
+      phase: l.phase,
+      status: l.status,
+      length_km: l.lengthKm,
+      station_count: l.stationCount,
+      start_station: l.startStation,
+      end_station: l.endStation,
+      max_speed_kmh: l.maxSpeedKmh,
+      open_year_expected: l.openYearExpected,
+      districts: l.districts,
+      score,
+      notes: l.notes
+    };
+  });
+  items.sort((a, b) => b.score - a.score);
+  return {
+    community_id: params.communityId,
+    nearest_existing_subway_m: nearestSubway?.distanceM ?? null,
+    items: items.slice(0, params.limit ?? 8)
+  };
+}
+
 // ---------- helpers ----------
 function avg(arr: number[]): number | null {
   if (arr.length === 0) return null;

@@ -6,6 +6,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v0.7.0 | 2026-07-12 | 地铁规划：手填 21 条线路（深圳五期 13 + 四期 2 + 广州三期调整 3 + 广州四期 1 + 珠海 2）→ `metro_planning.csv`；listing/community 新增"未来周边地铁"卡片（按状态/速度/站数排序，仅当现有最近地铁 ≥ 1km 显示） |
 | v0.6.0 | 2026-07-12 | 医院清单：手填深广珠 50 家三甲+二甲 → `hospitals.csv`；新增 `seed_hospitals.py` / `crawl_amap_hospital.py`（高德 POI 校验）；`crawl_amap_poi.py` hospital 半径 1500→3000m；listing/community 页新增 "周边医院" 卡片（等级/类型/区） |
 | v0.5.0 | 2026-07-12 | Option A 政府开放数据：拉 `modood/Administrative-divisions-of-China` 得 23 条官方区名做 `admin_districts.csv`；`schools.csv` 14→58 条；新增 `import_admin_divisions.py` / `validate_districts.py` / `seed_schools.py` |
 | v0.4.3 | 2026-07-12 | 把 v0.4.1 POI 真数据集成到 listing-detail + community 页（5 类周边配套卡片） |
@@ -503,6 +504,29 @@ gh auth setup-git
   - `wjw.sz.gov.cn` appkey 申请 — 流程长
 - **验证**：140/140 单测过（+9 buildIntegrity）；type-check clean；smoke_hospital / smoke_poi / smoke_enrich / smoke_admin 全绿
 - 详见 [changelog/2026-07-12-v0.6.0-医院清单.md](./changelog/2026-07-12-v0.6.0-医院清单.md)
+
+### v0.7.0 (2026-07-12) — 地铁规划 + UI 集成
+
+- **数据**
+  - 新增 `static/seed/metro_planning.csv`：**21 条**线路
+  - 深圳五期 13 条（15/17/18/19/20二期/21/22/25/27/29/32/10东延/11北延）
+  - 深圳四期 2 条（13 北延/6 支线二期，预计 2026 开通）
+  - 广州三期调整 3 条（8 北延/8 东延/24 号线）+ 广州四期 1 条（16 号线一期）
+  - 珠海规划 2 条（珠肇高铁/南珠城际）
+- **脚本**
+  - `scripts/seed_metro_planning.py` — 手填 21 条
+- **代码**
+  - `LocalMetroLine` / `getCommunityMetroPlanning`（按状态/速度/站数打分排序）
+  - listing/community 新增"未来周边地铁"卡片（**仅当现有最近地铁 ≥ 1km 时显示**）
+  - 状态色码：在建=橙 / 即将开通=绿 / 规划=灰
+- **测试**
+  - `tests/buildIntegrity.test.ts` +7 用例（地铁规划完整性）
+  - `tests/e2e/smoke_metro.mjs`（新）— community 24 显示 15/11北延
+- **不做**
+  - 站点级经纬度（公开数据没规范）— 按区粗粒度匹配
+  - 规划线路高德 POI 二次验证（建成才有）
+- **验证**：147/147 单测过（+7 buildIntegrity）；type-check clean；smoke_metro / smoke_hospital / smoke_poi / smoke_enrich 全绿
+- 详见 [changelog/2026-07-12-v0.7.0-地铁规划.md](./changelog/2026-07-12-v0.7.0-地铁规划.md)
 
 ## License
 

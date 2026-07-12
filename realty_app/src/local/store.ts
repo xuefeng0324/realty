@@ -17,6 +17,7 @@ import type {
   LocalDailyWangqianRow,
   LocalHospital,
   LocalListing,
+  LocalMetroLine,
   LocalPoi,
   LocalSchool,
   LocalStats70Row
@@ -182,6 +183,28 @@ export function getHospitalById(hospitalId: number): LocalHospital | undefined {
 export function getHospitalsByDistrict(cityId: number, districtName: string): LocalHospital[] {
   return (snapshot?.hospitals ?? []).filter(
     (h) => h.cityId === cityId && h.districtName === districtName
+  );
+}
+
+/**
+ * 地铁规划 (v0.7.0+)
+ */
+export function getMetroLines(): LocalMetroLine[] {
+  return snapshot?.metroLines ?? [];
+}
+
+export function getMetroLinesByCity(cityId: number): LocalMetroLine[] {
+  return (snapshot?.metroLines ?? []).filter((m) => m.cityId === cityId);
+}
+
+/**
+ * 给定城市 + 区，匹配在该区规划的地铁线路（在建/即将开通）
+ */
+export function getMetroLinesByDistrict(cityId: number, districtName: string): LocalMetroLine[] {
+  return (snapshot?.metroLines ?? []).filter(
+    (m) =>
+      m.cityId === cityId &&
+      m.districts.some((d) => d === districtName)
   );
 }
 

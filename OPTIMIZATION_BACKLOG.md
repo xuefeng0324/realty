@@ -37,6 +37,11 @@
 | 🟡 D | hosp-4 | local 层 + queries 加 LocalHospital / getCommunityHospitals | ✅ v0.6.0 | 5km + 同区兜底 |
 | 🟡 D | hosp-5 | UI listing/community 加"周边医院"卡片（等级色码） | ✅ v0.6.0 | 5 类色码（三甲=红 / 三级=橙 / 二甲=黄 / 二级=绿） |
 | 🟡 D | hosp-6 | buildIntegrity + smoke_hospital + commit v0.6.0 | ✅ v0.6.0 | 140/140 通过 |
+| 🟡 E | metro-1 | 调研深广珠地铁规划公示数据源 | ✅ v0.7.0 | 21 条线路；深圳五期 13 + 广州调整 3 + 广州 16 + 珠海 2 |
+| 🟡 E | metro-2 | 写 seed_metro_planning.py + metro_planning.csv | ✅ v0.7.0 | 21 条，字段完整 |
+| 🟡 E | metro-3 | local 层加 LocalMetroLine + getCommunityMetroPlanning（按状态/速度/站数打分排序） | ✅ v0.7.0 | 5km + 同区兜底；仅当现有最近地铁 ≥ 1km 显示 |
+| 🟡 E | metro-4 | UI 加"未来周边地铁"卡片到 listing-detail + community（在建=橙/即将开通=绿/规划=灰） | ✅ v0.7.0 |  |
+| 🟡 E | metro-5 | buildIntegrity + smoke_metro + commit v0.7.0 | ✅ v0.7.0 | 147/147 通过 |
 | 🟡 B | ui-poi-1 | ~~listing-detail.vue 集成 POI 卡片~~ | ✅ v0.4.3 | 5 类齐全（地铁/学校/医院/商场/公园）+ 距离 |
 | 🟡 B | ui-poi-2 | ~~community.vue 集成 POI 完整清单~~ | ✅ v0.4.3 | 跟 listing 平行，列表 + 最近距离 |
 | 🟡 B | ui-poi-3 | ~~跑单测 + Playwright 验证 + commit v0.5.1~~ | ✅ v0.4.3 | smoke_poi 验证 listing 1227 + community 24 |
@@ -97,3 +102,4 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 - 2026-07-12 17:45：B 完成 → v0.4.3（POI 集成 UI）
 - 2026-07-12 18:48：A 完成 → v0.5.0（行政标准化 + 学校扩充）
 - 2026-07-12 19:20：D 完成 → v0.6.0（医院清单 + UI 集成）
+- 2026-07-12 19:55：E 完成 → v0.7.0（地铁规划 + UI 集成）
