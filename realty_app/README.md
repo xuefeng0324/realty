@@ -6,6 +6,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v0.9.0 | 2026-07-12 | 地图找房：uni-app `<map>` + 高德 JS API（H5）；新页面 `pages/map-view/`；tabBar 加"地图"；双模式「热力图」(circles 200-1000m 半径/挂牌数着色) + 「挂牌点」(每套挂牌一个 marker)；manifest.json 配置高德 key `f22d0a9e...a139` |
 | v0.8.0 | 2026-07-12 | 板块级房价序列：按 (城市/区/周) 聚合 listings.csv 均值/中位数 → `district_trend.csv`（269 行，15 区 × 27 周）；dashboard 新增「区级近 8 周房价趋势」卡片（含柱状条 + 4 周环比变化率） |
 | v0.7.0 | 2026-07-12 | 地铁规划：手填 21 条线路（深圳五期 13 + 四期 2 + 广州三期调整 3 + 广州四期 1 + 珠海 2）→ `metro_planning.csv`；listing/community 新增"未来周边地铁"卡片（按状态/速度/站数排序，仅当现有最近地铁 ≥ 1km 显示） |
 | v0.6.0 | 2026-07-12 | 医院清单：手填深广珠 50 家三甲+二甲 → `hospitals.csv`；新增 `seed_hospitals.py` / `crawl_amap_hospital.py`（高德 POI 校验）；`crawl_amap_poi.py` hospital 半径 1500→3000m；listing/community 页新增 "周边医院" 卡片（等级/类型/区） |
@@ -552,6 +553,22 @@ gh auth setup-git
   - `smoke_district_trend.mjs` Playwright：广州(4 区) + 深圳(9 区) 截图
 - **验证**：154/154 单测过 (+7 v0.8.0)；type-check clean；6/6 smoke 全绿
 - 详见 [changelog/2026-07-12-v0.8.0-板块级房价序列.md](./changelog/2026-07-12-v0.8.0-板块级房价序列.md)
+
+### v0.9.0 (2026-07-12) — 地图找房
+
+- **新页面**：`pages/map-view/map-view.vue` + tabBar "地图"
+- **配置**：`manifest.json` 的 `h5.sdkConfigs.maps.amap.key` 配高德 Web Services key
+- **功能**
+  - **热力图模式**：`circles` 按挂牌数着色（红=多 / 蓝=少），半径 200-1000m
+  - **挂牌点模式**：每套挂牌一个 marker（限 200/城市）
+  - 城市切换：深圳 / 广州 / 珠海（一键 zoom）
+  - marker tap → 底部 info-card → 跳小区详情页
+- **数据**：复用 `communities_geo.csv` (52 个小区有 lat/lng) + `listings.csv` (1286 套)
+- **测试**
+  - `buildIntegrity.test.ts` +7 测试
+  - `smoke_map.mjs`：验证 52 小区 / 1286 挂牌 + 3 城市按钮 + 截图
+- **验证**：161/161 单测过 (+7)；7/7 smoke 全绿
+- 详见 [changelog/2026-07-12-v0.9.0-地图找房.md](./changelog/2026-07-12-v0.9.0-地图找房.md)
 
 ## License
 

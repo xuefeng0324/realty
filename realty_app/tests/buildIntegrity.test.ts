@@ -453,6 +453,64 @@ describe("build integrity", () => {
     });
   });
 
+  describe("地图页面完整性（v0.9.0）", () => {
+    const mapViewPath = resolve(ROOT, "src/pages/map-view/map-view.vue");
+    const geoCsv = resolve(ROOT, "static/seed/communities_geo.csv");
+    const manifestPath = resolve(ROOT, "src/manifest.json");
+
+    it("存在 map-view.vue", () => {
+      expect(existsSync(mapViewPath)).toBe(true);
+    });
+
+    it("map-view.vue 包含 <map> 组件", () => {
+      if (!existsSync(mapViewPath)) return;
+      const text = readFileSync(mapViewPath, "utf8");
+      expect(text).toMatch(/<map\b/);
+    });
+
+    it("map-view.vue 引用 communities_geo.csv", () => {
+      if (!existsSync(mapViewPath)) return;
+      const text = readFileSync(mapViewPath, "utf8");
+      expect(text).toMatch(/communities_geo/);
+    });
+
+    it("map-view.vue 有 markers + circles 双模式（热力图 / 挂牌点）", () => {
+      if (!existsSync(mapViewPath)) return;
+      const text = readFileSync(mapViewPath, "utf8");
+      expect(text).toMatch(/listingMarkers|heatCircles/);
+    });
+
+    it("manifest.json 配置了高德地图 key（H5 平台）", () => {
+      if (!existsSync(manifestPath)) return;
+      const text = readFileSync(manifestPath, "utf8");
+      expect(text).toMatch(/"amap"/);
+      expect(text).toMatch(/"key"/);
+    });
+
+    it("communities_geo.csv 至少 50 行", () => {
+      if (!existsSync(geoCsv)) return;
+      const rows = readCsv(geoCsv);
+      expect(rows.length).toBeGreaterThanOrEqual(50);
+    });
+
+    it("communities_geo.csv 至少 90% 行 lat/lng 有效（深圳/广州/珠海范围内）", () => {
+      if (!existsSync(geoCsv)) return;
+      const rows = readCsv(geoCsv);
+      const valid = rows.filter((r) => {
+        const lat = Number(r.lat);
+        const lng = Number(r.lng);
+        if (Number.isNaN(lat) || Number.isNaN(lng)) return false;
+        if (lat < 20 || lat > 24) return false;
+        if (lng < 112 || lng > 115) return false;
+        return true;
+      });
+      const ratio = rows.length === 0 ? 0 : valid.length / rows.length;
+      expect(ratio).toBeGreaterThanOrEqual(0.9);
+      // 至少 47 行有效（覆盖 50×0.9）
+      expect(valid.length).toBeGreaterThanOrEqual(47);
+    });
+  });
+
   describe("CI 必装文件", () => {
     it("存在 tests/e2e/smoke.mjs", () => {
       expect(existsSync(resolve(ROOT, "tests/e2e/smoke.mjs"))).toBe(true);

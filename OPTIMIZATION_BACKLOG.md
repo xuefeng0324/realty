@@ -104,6 +104,30 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 - 2026-07-12 19:20：D 完成 → v0.6.0（医院清单 + UI 集成）
 - 2026-07-12 19:55：E 完成 → v0.7.0（地铁规划 + UI 集成）
 - 2026-07-12 19:25：F 完成 → v0.8.0（板块级房价序列 + dashboard 卡片）
+- 2026-07-12 19:55：G 完成 → v0.9.0（地图找房：uni-app `<map>` + 高德 JS API + 热力图/挂牌点双模式）
+
+## G 段补充：地图找房（v0.9.0）
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟡 G | map-1 | 调研开源项目高德地图集成方案 | ✅ v0.9.0 | uni-app `<map>` + 高德 JS API（H5），复用现成 key |
+| 🟡 G | map-2 | UI 加地图页面 + tabBar "地图" | ✅ v0.9.0 | 双模式（热力图 / 挂牌点）；3 城市切换；marker tap → info-card → 跳详情 |
+| 🟡 G | map-3 | buildIntegrity +7 测试 + smoke_map + commit v0.9.0 | ✅ v0.9.0 | 161/161 通过；7/7 smoke 全绿 |
+
+## 下一步候选（按"边际收益/工作量"排序）
+
+| 编号 | 任务 | 工作量 | 收益 | 数据源 |
+|------|------|--------|------|--------|
+| **map-5** | **周边 POI overlay** — 把 poi_seed.csv 画到地图（地铁/学校/医院/商场/公园图标） | 4h | 🔴 高 | 已有 poi_seed.csv (5 类) |
+| **map-2** | **marker 聚合** — 1km 内多 marker 合并显示数字 | 4h | 🟡 中 | 自实现（uni-app 自带 initMarkerCluster 仅 App/小程序支持） |
+| map-3 | **区级填充** — 按区画多边形（用 circles/rectangles 模拟） | 2h | 🟡 中 | 已有 communities.csv + admin_districts.csv |
+| map-4 | **App 端高德 key 配置 + 自定义基座** | 4h | 🟡 中 | 需申请独立 App key |
+| map-6 | **地铁规划 overlay** — metro_planning.csv 画 polyline | 4h | 🟡 中 | 已有 metro_planning.csv |
+| map-7 | **真实成交价热力** — listings 的 unit_price 聚合到社区中心点画热力 | 2h | 🔴 高 | 已有 district_trend.csv 可聚合 |
+| trend-6 | **学区溢价** — listings 的 school_ids 关联学区评分 | 2h | 🔴 高 | 已有 schools.csv + school_indicators.csv |
+| trend-9 | **板块网签热度榜** — daily_wangqian 已有 264 条 district 数据 | 1h | 🟡 中 | 已有 daily_wangqian.csv |
+
+推荐 **map-5 POI overlay** 或 **trend-6 学区溢价**（数据现成，1-4h 出活，收益高）。
 
 ## F 段补充：板块级房价序列（v0.8.0）
 

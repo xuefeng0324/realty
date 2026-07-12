@@ -2,8 +2,8 @@
   "name": "Realty App",
   "appid": "",
   "description": "Realty Analytics 手机端 App",
-"versionName": "0.8.0",
-		"versionCode": "9",
+"versionName": "0.9.0",
+		"versionCode": "10",
   "transformPx": false,
   "app-plus": {
     "usingComponents": true,
@@ -25,6 +25,15 @@
       },
       "ios": {},
       "sdkConfigs": {}
+    }
+  },
+  "h5": {
+    "sdkConfigs": {
+      "maps": {
+        "amap": {
+          "key": "f22d0a9e25abc8512dbdbe37ac3ba139"
+        }
+      }
     }
   },
   "quickapp": {},
