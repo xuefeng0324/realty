@@ -6,6 +6,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v0.3.1 | 2026-07-12 | CI 修复（actionlint 死引用）+ crawl workflow 缓存优化 + check.ps1 Node 预检 + build 完整性单测 |
 | v0.3.0 | 2026-07-12 | 移除示例数据 demoData，所有数据统一走政府公开种子；新增 Playwright E2E smoke 验证；修复 favicon 404 |
 | v0.2.0 | 2026-07-01 | 深广每日网签抓取脚本、App 展示、GitHub Actions 工作日定时 merge |
 | v0.1.0 | 2026-06 | 纯本地 App、70 城指数、政府公开种子 listings、评分规则 JS 移植 |
@@ -402,6 +403,16 @@ gh auth setup-git
 - 视觉回归软失败：`visual-diff.mjs` 在 baseline 缺失或更新时会 fail，但用 `continue-on-error: true` 不阻塞 PR 合并，让维护者意识到需要本地更新 baseline
 - 失败诊断：smoke 失败时自动打印 `smoke.json` 内容、dist 大小、serve 进程状态
 - 详见 [changelog/2026-07-12-v0.3.0-E2E-CI.md](./changelog/2026-07-12-v0.3.0-E2E-CI.md)
+
+### v0.3.1 (2026-07-12)
+
+**CI 修复 + 构建健壮性**
+
+- **修 CI 阻塞**：`.github/workflows/realty-app-tests.yml` 把 `uses: rhysd/actionlint@v1`（死引用：rhysd/actionlint 仓库不是 GitHub Action）改为官方推荐的 `download-actionlint.bash` 脚本拉二进制
+- **CI 加速**：`crawl-daily-wangqian.yml` / `crawl-weekly.yml` 给 `setup-python` 加 `cache-dependency-path`，cache 命中时跳过 `pip install`
+- **本机友好**：`scripts/check.ps1` 加 Node/npm 预检，缺环境时给 `winget install OpenJS.NodeJS.LTS` 指引而不是默默失败
+- **构建完整性**：`tests/buildIntegrity.test.ts` 新增 14 个用例，覆盖 `index.html` favicon / `manifest.json` 字段 / `static/seed/*.csv` 与 README 一致性 / CI 必装文件存在性
+- 详见 [changelog/2026-07-12-v0.3.1-CI修复与构建健壮性.md](./changelog/2026-07-12-v0.3.1-CI修复与构建健壮性.md)
 
 ## License
 

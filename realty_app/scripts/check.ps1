@@ -1,4 +1,4 @@
-# check.ps1 — 一键跑 type-check + unit test + E2E smoke
+﻿# check.ps1 — 一键跑 type-check + unit test + E2E smoke
 #
 # 用法：
 #   powershell -File scripts/check.ps1
@@ -27,6 +27,29 @@ $exitCode = 0
 
 Set-Location (Join-Path $PSScriptRoot "..")
 Write-Host "[realty_app] working dir: $(Get-Location)" -ForegroundColor Cyan
+
+# 0. 环境预检：避免缺 Node 时后面的 npm 报一堆看不懂的错
+Write-Host ""
+Write-Host "[CHECK] pre-check (node/npm) ..." -ForegroundColor Cyan
+$nodeMissing = $false
+if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+  Write-Host "  FAIL: 未找到 node" -ForegroundColor Red
+  Write-Host "    安装指引：winget install OpenJS.NodeJS.LTS" -ForegroundColor Yellow
+  Write-Host "    或从 https://nodejs.org/ 下载 LTS 版" -ForegroundColor Yellow
+  $nodeMissing = $true
+}
+if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
+  Write-Host "  FAIL: 未找到 npm" -ForegroundColor Red
+  Write-Host "    npm 通常随 Node 一起安装；如确认 Node 已装但 npm 缺失，重装 Node 即可" -ForegroundColor Yellow
+  $nodeMissing = $true
+}
+if (-not $nodeMissing) {
+  $nodeVer = (& node -v).Trim()
+  $npmVer = (& npm -v).Trim()
+  Write-Host "  PASS (node=$nodeVer, npm=$npmVer)" -ForegroundColor Green
+} else {
+  exit 1
+}
 
 # 1. type-check
 Write-Host ""

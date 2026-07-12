@@ -26,6 +26,8 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
+          # 没 requirements.txt 时 setup-python 默认扫所有 .py 也能命中
+          cache-dependency-path: realty_app/scripts/crawl_anjuke.py
 
       - name: 装依赖
         run: |
