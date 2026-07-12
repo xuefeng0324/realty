@@ -12,12 +12,15 @@
         <button class="btn" size="mini" @click="zoomToCity(1)">广州</button>
         <button class="btn" size="mini" @click="zoomToCity(3)">珠海</button>
         <button class="btn" size="mini" @click="toggleType">
-          {{ showHeatmap ? "切到挂牌点" : "切到热力图" }}
+          {{ modeLabel }}
         </button>
       </view>
       <view class="muted legend">
-        <text v-if="showHeatmap">
-          热力图：圆点 = 挂牌数 (颜色: 红=多 / 蓝=少)
+        <text v-if="mode === 'price'">
+          成交价热力：圆点颜色 = 挂牌均价 (绿=便宜 → 红=贵)，半径 = 挂牌数
+        </text>
+        <text v-else-if="mode === 'count'">
+          挂牌数热力：圆点 = 挂牌数 (颜色: 红=多 / 蓝=少)
         </text>
         <text v-else>
           挂牌点：每点 = 该小区 1 套挂牌；点击 → 小区详情
@@ -32,8 +35,8 @@
         :latitude="mapCenter.lat"
         :longitude="mapCenter.lng"
         :scale="mapScale"
-        :markers="showHeatmap ? [] : listingMarkers"
-        :circles="showHeatmap ? heatCircles : []"
+        :markers="mode === 'listings' ? listingMarkers : []"
+        :circles="mode === 'listings' ? [] : heatCircles"
         :show-location="true"
         :enable-zoom="true"
         :enable-scroll="true"
@@ -63,6 +66,12 @@
               : "—" }} 元/㎡
           </text>
         </view>
+        <view v-if="selectedCommunity.priceLevel" class="info-stat">
+          <text class="info-stat-label">价位</text>
+          <text :class="['info-stat-value', 'price-tag', priceLevelClass]">
+            {{ priceLevelText }}
+          </text>
+        </view>
       </view>
       <button class="btn" size="mini" @click="goCommunity">查看小区详情 →</button>
     </view>
@@ -84,8 +93,16 @@ import { showToast } from "../../utils/format";
 
 const app = useAppStore();
 const errorMsg = ref<string>("");
-const showHeatmap = ref<boolean>(true);
+/** v0.12.0 三种模式: count=挂牌数热力, price=成交价热力, listings=挂牌点 */
+type MapMode = "count" | "price" | "listings";
+const mode = ref<MapMode>("count");
 const selectedCommunityId = ref<number | null>(null);
+
+const modeLabel = computed(() => {
+  if (mode.value === "count") return "切到成交价热力";
+  if (mode.value === "price") return "切到挂牌点";
+  return "切到挂牌数热力";
+});
 
 interface CommunityMarker {
   communityId: number;
@@ -115,9 +132,40 @@ function formatCoord(lat: number | null | undefined, lng: number | null | undefi
   return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
 }
 
-const selectedCommunity = computed<CommunityMarker | null>(() => {
+const selectedCommunity = computed<(CommunityMarker & { priceLevel?: string }) | null>(() => {
   if (selectedCommunityId.value == null) return null;
-  return communityMarkers.value.find((c) => c.communityId === selectedCommunityId.value) ?? null;
+  const c = communityMarkers.value.find((x) => x.communityId === selectedCommunityId.value);
+  if (!c) return null;
+  // 计算价格档（基于当前城市的 max/min）
+  const priced = communityMarkers.value
+    .filter((x) => x.cityId === c.cityId && x.avgUnitPrice != null && x.avgUnitPrice > 0)
+    .map((x) => x.avgUnitPrice!) as number[];
+  if (priced.length === 0 || c.avgUnitPrice == null) return c;
+  const min = Math.min(...priced);
+  const max = Math.max(...priced);
+  if (max <= min) return c;
+  const t = (c.avgUnitPrice - min) / (max - min);
+  if (t < 0.2) return { ...c, priceLevel: "low" };
+  if (t < 0.4) return { ...c, priceLevel: "mid_low" };
+  if (t < 0.6) return { ...c, priceLevel: "mid" };
+  if (t < 0.8) return { ...c, priceLevel: "mid_high" };
+  return { ...c, priceLevel: "high" };
+});
+
+const priceLevelClass = computed(() => {
+  if (!selectedCommunity.value?.priceLevel) return "";
+  return `price-${selectedCommunity.value.priceLevel}`;
+});
+
+const priceLevelText = computed(() => {
+  const map: Record<string, string> = {
+    low: "便宜",
+    mid_low: "中低",
+    mid: "中等",
+    mid_high: "中高",
+    high: "昂贵"
+  };
+  return map[selectedCommunity.value?.priceLevel ?? ""] ?? "";
 });
 
 // listings 模式下：每个 listing 一个 marker (限 200 / 城市避免卡)
@@ -165,16 +213,32 @@ const listingMarkers = computed(() => {
 });
 
 // 热力图：用 uni-app map 的 circles 模拟 (无独立热力图层)
-// 按 listing 数分级 → 半径 (m) + 颜色
+// v0.12.0 支持两种热力：挂牌数(count) 或 成交价(price)
 const heatCircles = computed(() => {
-  if (!app.cityId) return [];
+  if (!app.cityId || mode.value === "listings") return [];
   const cm = communityMarkers.value.filter((c) => c.cityId === app.cityId);
   if (cm.length === 0) return [];
   const maxCount = Math.max(1, ...cm.map((c) => c.listingCount));
+  // 价格模式: 仅对有均价的社区画 + 计算价格的 min/max
+  const priced = cm.filter((c) => c.avgUnitPrice != null && c.avgUnitPrice > 0);
+  const minPrice = priced.length > 0 ? Math.min(...priced.map((c) => c.avgUnitPrice!)) : 0;
+  const maxPrice = priced.length > 0 ? Math.max(...priced.map((c) => c.avgUnitPrice!)) : 0;
   return cm.map((c) => {
-    const t = c.listingCount / maxCount; // 0..1
-    const radius = 200 + Math.round(t * 800); // 200-1000m
-    const fillColor = colorRamp(t); // "#RRGGBB"
+    const tCount = c.listingCount / maxCount; // 0..1
+    const radius = 200 + Math.round(tCount * 800); // 200-1000m
+    let fillColor: string;
+    if (mode.value === "price") {
+      // 价格: 绿 (便宜) → 黄 → 红 (贵)
+      if (c.avgUnitPrice == null || c.avgUnitPrice <= 0 || maxPrice <= minPrice) {
+        fillColor = "#94a3b8"; // 没数据/单一价: 灰
+      } else {
+        const tPrice = (c.avgUnitPrice - minPrice) / (maxPrice - minPrice); // 0..1
+        fillColor = priceColorRamp(tPrice);
+      }
+    } else {
+      // count: 蓝 → 红 (数量)
+      fillColor = colorRamp(tCount);
+    }
     return {
       longitude: c.lng,
       latitude: c.lat,
@@ -185,6 +249,25 @@ const heatCircles = computed(() => {
     };
   });
 });
+
+function priceColorRamp(t: number): string {
+  // t=0 绿 (便宜) → t=0.5 黄 → t=1 红 (贵)
+  let r: number, g: number, b: number;
+  if (t < 0.5) {
+    // 绿 (#22c55e = 34,199,94) → 黄 (#fbbf24 = 251,191,36)
+    const k = t / 0.5;
+    r = Math.round(34 + k * (251 - 34));
+    g = Math.round(199 + k * (191 - 199));
+    b = Math.round(94 + k * (36 - 94));
+  } else {
+    // 黄 → 红 (#dc2626 = 220,38,38)
+    const k = (t - 0.5) / 0.5;
+    r = Math.round(251 + k * (220 - 251));
+    g = Math.round(191 + k * (38 - 191));
+    b = Math.round(36 + k * (38 - 36));
+  }
+  return `rgb(${r},${g},${b})`;
+}
 
 function colorRamp(t: number): string {
   // t=0 (蓝) → t=1 (红)
@@ -209,8 +292,17 @@ function onMarkerTap(e: any) {
 }
 
 function toggleType() {
-  showHeatmap.value = !showHeatmap.value;
-  showToast(showHeatmap.value ? "切换到热力图" : "切换到挂牌点");
+  // count → price → listings → count
+  if (mode.value === "count") {
+    mode.value = "price";
+    showToast("成交价热力（绿=便宜/红=贵）");
+  } else if (mode.value === "price") {
+    mode.value = "listings";
+    showToast("挂牌点模式");
+  } else {
+    mode.value = "count";
+    showToast("挂牌数热力（红=多/蓝=少）");
+  }
 }
 
 function zoomToCity(cityId: number) {
@@ -387,5 +479,31 @@ onMounted(() => {
   color: #f3f4f6;
   font-size: 30rpx;
   font-weight: 600;
+}
+.price-tag {
+  padding: 4rpx 12rpx;
+  border-radius: 6rpx;
+  font-size: 24rpx !important;
+  font-weight: 500 !important;
+}
+.price-low {
+  background: rgba(34, 197, 94, 0.25);
+  color: #4ade80 !important;
+}
+.price-mid_low {
+  background: rgba(132, 204, 22, 0.25);
+  color: #a3e635 !important;
+}
+.price-mid {
+  background: rgba(234, 179, 8, 0.25);
+  color: #fbbf24 !important;
+}
+.price-mid_high {
+  background: rgba(249, 115, 22, 0.25);
+  color: #fb923c !important;
+}
+.price-high {
+  background: rgba(220, 38, 38, 0.3);
+  color: #fca5a5 !important;
 }
 </style>

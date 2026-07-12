@@ -6,6 +6,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v0.12.0 | 2026-07-12 | map-view 第三种模式「成交价热力」：圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵），半径仍按挂牌数；info-card 新增「价位」5 档标签（便宜/中低/中等/中高/昂贵，色码化）；mode 由 boolean → `MapMode = "count" \| "price" \| "listings"` |
 | v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |
 | v0.10.0 | 2026-07-12 | 网签热度榜：daily_wangqian.csv (district 维度) → `wangqian_district_weekly.csv` (66 行 × 22 区)；dashboard 新增「近 4 周二手/新房网签热度榜」卡片（金银铜牌 + 柱状条）；广州 fallback 用新房榜（住建局不公示二手） |
 | v0.9.0 | 2026-07-12 | 地图找房：uni-app `<map>` + 高德 JS API（H5）；新页面 `pages/map-view/`；tabBar 加"地图"；双模式「热力图」(circles 200-1000m 半径/挂牌数着色) + 「挂牌点」(每套挂牌一个 marker)；manifest.json 配置高德 key `f22d0a9e...a139` |
@@ -620,6 +621,22 @@ gh auth setup-git
   - `tests/e2e/smoke_school_premium.mjs`: 广州/深圳 切换 + 截图
 - **验证**：179/179 单测过 (+10)；9/9 smoke 全绿
 - 详见 [changelog/2026-07-12-v0.11.0-学区溢价榜.md](./changelog/2026-07-12-v0.11.0-学区溢价榜.md)
+
+### v0.12.0 (2026-07-12) — 成交价热力
+
+- **UI**
+  - `src/pages/map-view/map-view.vue`: map-view 第三种模式「成交价热力」
+    - 圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵）
+    - 半径仍按挂牌数（200-1000m）
+  - mode 由 `boolean` → `MapMode = "count" | "price" | "listings"`
+  - 三模式轮换：count（挂牌数蓝→红）→ price（成交价绿→红）→ listings（挂牌点）
+  - info-card 新增「价位」5 档标签：便宜/中低/中等/中高/昂贵（色码化）
+  - legend 文案随 mode 切换
+- **测试**
+  - `tests/buildIntegrity.test.ts` 新增 5 个测试（map-view 存在、含 MapMode、含 priceColorRamp、5 档 CSS 类、geo CSV 行数）
+  - `tests/e2e/smoke_price_heatmap.mjs`（新增）：验证模式切换 + 截图
+- **验证**：184/184 单测过 (+5)；10/10 smoke 全绿
+- 详见 [changelog/2026-07-12-v0.12.0-成交价热力.md](./changelog/2026-07-12-v0.12.0-成交价热力.md)
 
 ## License
 

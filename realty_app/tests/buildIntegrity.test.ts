@@ -673,4 +673,48 @@ describe("build integrity", () => {
       expect(existsSync(resolve(ROOT, "tests/expected.json"))).toBe(true);
     });
   });
+
+  // ---------- v0.12.0 地图成交价热力 ----------
+  describe("地图成交价热力 v0.12.0", () => {
+    it("map-view.vue 存在", () => {
+      expect(existsSync(resolve(ROOT, "src/pages/map-view/map-view.vue"))).toBe(true);
+    });
+
+    it("map-view.vue 含 'priceColorRamp' (成交价热力色阶函数)", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/map-view/map-view.vue"),
+        "utf-8"
+      );
+      expect(content).toMatch(/priceColorRamp/);
+      expect(content).toMatch(/成交价热力/);
+    });
+
+    it("map-view.vue 含 MapMode = count | price | listings", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/map-view/map-view.vue"),
+        "utf-8"
+      );
+      expect(content).toMatch(/MapMode/);
+      expect(content).toMatch(/"count"/);
+      expect(content).toMatch(/"price"/);
+      expect(content).toMatch(/"listings"/);
+    });
+
+    it("map-view.vue 包含 5 档 priceLevel CSS 类 (low/mid_low/mid/mid_high/high)", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/map-view/map-view.vue"),
+        "utf-8"
+      );
+      for (const cls of ["price-low", "price-mid_low", "price-mid", "price-mid_high", "price-high"]) {
+        expect(content).toMatch(new RegExp(cls));
+      }
+    });
+
+    it("communities_geo.csv 有 ≥ 50 行 (成交价热力数据基础)", () => {
+      const geoPath = resolve(ROOT, "static/seed/communities_geo.csv");
+      if (!existsSync(geoPath)) return;
+      const rows = readCsv(geoPath);
+      expect(rows.length).toBeGreaterThanOrEqual(50);
+    });
+  });
 });
