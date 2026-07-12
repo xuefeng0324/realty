@@ -281,6 +281,37 @@
         </view>
       </view>
 
+      <!-- v0.11.0 学区溢价榜 -->
+      <view v-if="schoolPremiumOverview && schoolPremiumOverview.items.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">学区溢价榜 · {{ schoolPremiumOverview.cityName }}</view>
+          <view class="muted">Top {{ schoolPremiumOverview.items.length }}</view>
+        </view>
+        <view v-for="it in schoolPremiumOverview.items" :key="it.districtName" class="sp-row">
+          <view class="sp-rank">
+            <text :class="['sp-medal', medalClass(it.rank)]">{{ medalText(it.rank) }}</text>
+          </view>
+          <view class="sp-mid">
+            <view class="sp-district">{{ it.districtName }}</view>
+            <view class="sp-meta">
+              <text>评分 {{ it.avgSchoolScore.toFixed(1) }}</text>
+              <text class="muted"> · {{ it.schoolCount }} 所名校</text>
+              <text class="muted"> · {{ it.listingCount }} 套</text>
+            </view>
+          </view>
+          <view class="sp-right">
+            <view :class="['sp-premium', premiumClass(it.premiumRatio)]">
+              {{ formatPremium(it.premiumRatio) }}
+            </view>
+            <view class="muted" style="font-size: 20rpx">¥{{ formatNum(it.medianUnitPrice) }}/㎡</view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：学校评分由 latest_level_score_raw 加权；溢价 = (该区中位单价 / 全市中位单价 - 1)。
+          已过滤 listings &lt; 10 套的小样本区。名校聚集区通常呈现正溢价。
+        </view>
+      </view>
+
       <!-- 小区排行 -->
       <view class="card">
         <view class="row-between">
@@ -341,7 +372,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, type DistrictTrendItem, type WangqianOverviewItem } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -377,6 +408,7 @@ const rankingTotal = ref<number>(0);
 const districtItems = ref<DistrictCompareItem[]>([]);
 const trendItems = ref<DistrictTrendItem[]>([]);
 const wangqianOverview = ref<WangqianOverviewItem | null>(null);
+const schoolPremiumOverview = ref<SchoolPremiumOverview | null>(null);
 
 const errorMsg = ref<string>("");
 const loading = ref<boolean>(false);
@@ -645,6 +677,11 @@ async function loadRankingAndDistrict() {
         });
       }
       wangqianOverview.value = heat;
+      // v0.11.0 学区溢价榜
+      schoolPremiumOverview.value = await getSchoolPremiumRank({
+        cityId: app.cityId,
+        limit: 10
+      });
     }
   } catch (e) {
     errorMsg.value = `加载失败：${toErrorMessage(e)}`;
@@ -725,6 +762,35 @@ function wangqianMaxUnits(): number {
 
 function wangqianPct(it: { totalUnits: number }): number {
   return (it.totalUnits / wangqianMaxUnits()) * 100;
+}
+
+// ----- v0.11.0 学区溢价榜 -----
+function formatNum(n: number): string {
+  return n.toLocaleString("zh-CN");
+}
+function formatPremium(r: number): string {
+  const pct = (r * 100).toFixed(1);
+  if (r > 0) return `+${pct}%`;
+  if (r < 0) return `${pct}%`;
+  return "0%";
+}
+function premiumClass(r: number): string {
+  if (r >= 0.15) return "sp-pos-strong";
+  if (r > 0) return "sp-pos";
+  if (r > -0.1) return "sp-flat";
+  return "sp-neg";
+}
+function medalText(rank: number): string {
+  if (rank === 1) return "1";
+  if (rank === 2) return "2";
+  if (rank === 3) return "3";
+  return String(rank);
+}
+function medalClass(rank: number): string {
+  if (rank === 1) return "medal-gold";
+  if (rank === 2) return "medal-silver";
+  if (rank === 3) return "medal-bronze";
+  return "medal-flat";
 }
 
 function formatWqArea(sqm: number): string {
@@ -1250,6 +1316,71 @@ onShow(async () => {
   margin-top: 4rpx;
   text-align: center;
 }
+
+/* v0.11.0 学区溢价榜 */
+.sp-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid #f1f5f9;
+}
+.sp-row:last-of-type {
+  border-bottom: none;
+}
+.sp-rank {
+  width: 56rpx;
+  text-align: center;
+}
+.sp-medal {
+  display: inline-block;
+  width: 40rpx;
+  height: 40rpx;
+  line-height: 40rpx;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 22rpx;
+  text-align: center;
+  color: #fff;
+}
+.medal-gold {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+}
+.medal-silver {
+  background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+}
+.medal-bronze {
+  background: linear-gradient(135deg, #d97706, #b45309);
+}
+.medal-flat {
+  background: #e2e8f0;
+  color: #475569;
+}
+.sp-mid {
+  flex: 1;
+}
+.sp-district {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #0f172a;
+}
+.sp-meta {
+  font-size: 22rpx;
+  color: #475569;
+  margin-top: 4rpx;
+}
+.sp-right {
+  text-align: right;
+}
+.sp-premium {
+  font-size: 26rpx;
+  font-weight: 700;
+  font-family: "Menlo", "Consolas", monospace;
+}
+.sp-pos-strong { color: #16a34a; }
+.sp-pos { color: #22c55e; }
+.sp-flat { color: #64748b; }
+.sp-neg { color: #dc2626; }
 
 /* v0.10.0 网签热度榜 */
 .wq-row {

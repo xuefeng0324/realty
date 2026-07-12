@@ -298,7 +298,9 @@ async function loadFromCsvUrl(base: string) {
       hospitalsCSV: await fetchText("hospitals.csv").catch(() => ""),
       metroPlanningCSV: await fetchText("metro_planning.csv").catch(() => ""),
       districtTrendCSV: await fetchText("district_trend.csv").catch(() => ""),
-      wangqianDistrictWeeklyCSV: await fetchText("wangqian_district_weekly.csv").catch(() => "")
+      wangqianDistrictWeeklyCSV: await fetchText("wangqian_district_weekly.csv").catch(() => ""),
+      schoolPremiumDistrictCSV: await fetchText("school_premium_district.csv").catch(() => ""),
+      schoolPremiumCommunityCSV: await fetchText("school_premium_community.csv").catch(() => "")
     },
     "csv-url:" + root
   );

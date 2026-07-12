@@ -106,6 +106,7 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 - 2026-07-12 19:25：F 完成 → v0.8.0（板块级房价序列 + dashboard 卡片）
 - 2026-07-12 19:55：G 完成 → v0.9.0（地图找房：uni-app `<map>` + 高德 JS API + 热力图/挂牌点双模式）
 - 2026-07-12 20:18：trend-9 完成 → v0.10.0（网签热度榜：daily_wangqian 264 条 district → 66 行聚合）
+- 2026-07-12 21:30：trend-6 完成 → v0.11.0（学区溢价榜：schools.csv + district_name + compute_school_premium.py；广州天河 +27.3% / 深圳南山 +23.2%）
 
 ## trend-9 段补充：网签热度榜（v0.10.0）
 
@@ -117,19 +118,34 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟡 trend-9.4 | UI dashboard 加近 30 天网签热度榜卡片 | ✅ v0.10.0 | 金银铜牌 + 柱状条；广州 fallback 新房 |
 | 🟡 trend-9.5 | buildIntegrity +8 测试 + smoke_wangqian_heatmap + commit v0.10.0 | ✅ v0.10.0 | 169/169 通过；8/8 smoke 全绿 |
 
+## trend-6 段：学区溢价榜（v0.11.0）
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟡 trend-6.1 | schools.csv 加 district_name 列（58 条手填） | ✅ v0.11.0 | `enrich_school_districts.py` |
+| 🟡 trend-6.2 | compute_school_premium.py：listings + schools + indicators → premium | ✅ v0.11.0 | 16 行 district + 52 行 community |
+| 🟡 trend-6.3 | local 层 + queries 加 SchoolPremium + getSchoolPremiumRank | ✅ v0.11.0 | 过滤 listing < 10 |
+| 🟡 trend-6.4 | UI dashboard 「学区溢价榜」卡片（金银铜牌 + 评分 + 溢价% + 中位单价） | ✅ v0.11.0 | 4 类色码 |
+| 🟡 trend-6.5 | buildIntegrity +10 测试 + smoke_school_premium + commit v0.11.0 | ✅ v0.11.0 | 179/179 通过；9/9 smoke 全绿 |
+
+**洞察**（listing ≥ 10 过滤后）：
+- 广州 Top 1: **天河区 +27.3%**（评分 86.0，111 套）
+- 深圳 Top 1: **南山区 +23.2%**（评分 86.3，177 套）
+- 珠海 Top 1: **香洲区 +14.2%**（评分 81.9，153 套）
+
 ## 下一步候选（按"边际收益/工作量"排序）
 
 | 编号 | 任务 | 工作量 | 收益 | 数据源 |
 |------|------|--------|------|--------|
-| **trend-6** | **学区溢价** — listings 的 school_ids → 学区评分 → "学区溢价率" | 2h | 🔴 高 | 已有 schools.csv + school_indicators.csv |
 | **map-7** | **成交价热力** — district_trend.csv 聚合到社区中心画热力 | 2h | 🔴 高 | 已有 district_trend.csv + communities_geo.csv |
 | **map-5** | **POI overlay** — poi_seed.csv 画到地图（地铁/学校/医院/商场/公园） | 4h | 🔴 高 | 已有 poi_seed.csv (5 类) |
-| trend-9.6 | **扩展 weeksBack** — cron 持续跑后展示"近 12 周" | 0h | 自动 | 现有 |
+| **trend-9.6** | **扩展 weeksBack** — cron 持续跑后展示"近 12 周" | 0h | 自动 | 现有 |
 | trend-9.7 | **接珠海住建局公示** | 4h | 🟡 中 | 调研 |
 | map-2 | **marker 聚合** — 1km 内多 marker 合并 | 4h | 🟡 中 | 自实现 |
 | map-6 | **地铁规划 overlay** — metro_planning.csv 画 polyline | 4h | 🟡 中 | 已有 metro_planning.csv |
+| trend-11 | **学区评分小区榜** — school_premium_community.csv + 排序展示 | 2h | 🟡 中 | 已有 school_premium_community.csv |
 
-推荐 **trend-6 学区溢价**（2h，🔴 高）或 **map-7 成交价热力**（2h，🔴 高）。
+推荐 **map-7 成交价热力**（2h，🔴 高）或 **map-5 POI overlay**（4h，🔴 高）。
 
 ## G 段补充：地图找房（v0.9.0）
 

@@ -145,6 +145,8 @@ function mergeListingsIntoSnapshot(
     metroLines: existing?.metroLines ?? [],
     districtTrends: existing?.districtTrends ?? [],
     wangqianDistrictWeekly: existing?.wangqianDistrictWeekly ?? [],
+    schoolPremiumDistricts: existing?.schoolPremiumDistricts ?? [],
+    schoolPremiumCommunities: existing?.schoolPremiumCommunities ?? [],
     availableWeeks
   };
 }

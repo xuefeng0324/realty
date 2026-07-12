@@ -6,6 +6,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |
 | v0.10.0 | 2026-07-12 | 网签热度榜：daily_wangqian.csv (district 维度) → `wangqian_district_weekly.csv` (66 行 × 22 区)；dashboard 新增「近 4 周二手/新房网签热度榜」卡片（金银铜牌 + 柱状条）；广州 fallback 用新房榜（住建局不公示二手） |
 | v0.9.0 | 2026-07-12 | 地图找房：uni-app `<map>` + 高德 JS API（H5）；新页面 `pages/map-view/`；tabBar 加"地图"；双模式「热力图」(circles 200-1000m 半径/挂牌数着色) + 「挂牌点」(每套挂牌一个 marker)；manifest.json 配置高德 key `f22d0a9e...a139` |
 | v0.8.0 | 2026-07-12 | 板块级房价序列：按 (城市/区/周) 聚合 listings.csv 均值/中位数 → `district_trend.csv`（269 行，15 区 × 27 周）；dashboard 新增「区级近 8 周房价趋势」卡片（含柱状条 + 4 周环比变化率） |
@@ -595,6 +596,30 @@ gh auth setup-git
   - `smoke_wangqian_heatmap.mjs` Playwright：广州(10 区) + 深圳(10 区) 验证真实深圳区名
 - **验证**：169/169 单测过 (+8)；8/8 smoke 全绿
 - 详见 [changelog/2026-07-12-v0.10.0-网签热度榜.md](./changelog/2026-07-12-v0.10.0-网签热度榜.md)
+
+### v0.11.0 (2026-07-12) — 学区溢价榜
+
+- **数据**
+  - `schools.csv` 新增 `district_name` 列（58 条手填）
+  - 新增 `static/seed/school_premium_district.csv`（16 行）+ `school_premium_community.csv`（52 行）
+  - 由 `scripts/compute_school_premium.py` 从 `listings.csv` + `schools.csv` + `school_indicators.csv` 聚合
+- **数据层**
+  - `src/local/types.ts`: `LocalSchoolPremiumDistrict` / `LocalSchoolPremiumCommunity`
+  - `src/local/store.ts`: `getSchoolPremiumDistricts` / `getSchoolPremiumRank` / `getCommunitySchoolScore`
+  - `src/local/queries.ts`: `getSchoolPremiumRank(cityId)` → `SchoolPremiumOverview`
+- **UI**
+  - `src/pages/dashboard/dashboard.vue`: 新增「学区溢价榜」卡片
+    - 按 `premium_ratio` 降序展示 Top 区
+    - 金/银/铜牌 + 学校评分 + 溢价% + 中位单价
+- **洞察**（listing ≥ 10 过滤后）
+  - 广州 Top 1: **天河区 +27.3%** (评分 86.0, 111 套)
+  - 深圳 Top 1: **南山区 +23.2%** (评分 86.3, 177 套)
+  - 珠海 Top 1: **香洲区 +14.2%** (评分 81.9, 153 套)
+- **测试**
+  - `tests/buildIntegrity.test.ts` 新增 10 个学区溢价测试
+  - `tests/e2e/smoke_school_premium.mjs`: 广州/深圳 切换 + 截图
+- **验证**：179/179 单测过 (+10)；9/9 smoke 全绿
+- 详见 [changelog/2026-07-12-v0.11.0-学区溢价榜.md](./changelog/2026-07-12-v0.11.0-学区溢价榜.md)
 
 ## License
 

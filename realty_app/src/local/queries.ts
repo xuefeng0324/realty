@@ -1016,6 +1016,44 @@ export async function getWangqianHeatmap(params: {
   };
 }
 
+// ---------- 学区溢价榜 (v0.11.0+) ----------
+export interface SchoolPremiumItem {
+  districtName: string;
+  avgSchoolScore: number;
+  schoolCount: number;
+  listingCount: number;
+  medianUnitPrice: number;
+  /** (区均价 / 全市均价 - 1), e.g. 0.27 = +27% */
+  premiumRatio: number;
+  rank: number;
+}
+
+export interface SchoolPremiumOverview {
+  cityId: number;
+  cityName: string;
+  items: SchoolPremiumItem[];
+}
+
+/**
+ * 给定 cityId，返回该城市各区按学区溢价降序的 Top 榜。
+ * 过滤 listing_count >= 10（避免小样本误导）。
+ */
+export async function getSchoolPremiumRank(params: {
+  cityId: number;
+  limit?: number;
+}): Promise<SchoolPremiumOverview | null> {
+  const { limit = 10 } = params;
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const rows = store.getSchoolPremiumRank({ cityId: params.cityId, limit });
+  if (rows.length === 0) return null;
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    items: rows
+  };
+}
+
 // ---------- helpers ----------
 function avg(arr: number[]): number | null {
   if (arr.length === 0) return null;

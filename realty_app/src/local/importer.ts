@@ -26,6 +26,8 @@ import type {
   LocalPoi,
   LocalSchool,
   LocalSchoolIndicator,
+  LocalSchoolPremiumCommunity,
+  LocalSchoolPremiumDistrict,
   LocalWangqianDistrictWeekly
 } from "./types";
 
@@ -69,6 +71,10 @@ export interface SnapshotInputs {
   districtTrendCSV?: string;
   /** v0.10.0: 板块级周维度网签热度 (可选，缺则装空数组) */
   wangqianDistrictWeeklyCSV?: string;
+  /** v0.11.0: 板块级学区溢价 (可选) */
+  schoolPremiumDistrictCSV?: string;
+  /** v0.11.0: 小区级学区评分 (可选) */
+  schoolPremiumCommunityCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -286,6 +292,70 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
         .filter((m): m is LocalWangqianDistrictWeekly => m !== null)
     : [];
 
+  // 板块级学区溢价 (v0.11.0+): 可选
+  const schoolPremiumDistricts: LocalSchoolPremiumDistrict[] = inputs.schoolPremiumDistrictCSV
+    ? rowsToObjects<Record<string, string>>(parseCSV(inputs.schoolPremiumDistrictCSV))
+        .map((r) => {
+          const cid = n(r.city_id);
+          const sc = n(r.school_count);
+          const avg = n(r.avg_school_score);
+          const lc = n(r.listing_count);
+          const mp = n(r.median_unit_price);
+          const cmp = n(r.city_median_unit_price);
+          const pr = n(r.premium_ratio);
+          const dn = s(r.district_name);
+          if (
+            cid == null || sc == null || lc == null ||
+            mp == null || cmp == null || pr == null || !dn
+          ) {
+            return null;
+          }
+          return {
+            cityId: cid,
+            districtName: dn,
+            schoolCount: sc,
+            avgSchoolScore: avg ?? 0,
+            listingCount: lc,
+            medianUnitPrice: mp,
+            cityMedianUnitPrice: cmp,
+            premiumRatio: pr
+          } as LocalSchoolPremiumDistrict;
+        })
+        .filter((m): m is LocalSchoolPremiumDistrict => m !== null)
+    : [];
+
+  // 小区级学区评分 (v0.11.0+): 可选
+  const schoolPremiumCommunities: LocalSchoolPremiumCommunity[] = inputs.schoolPremiumCommunityCSV
+    ? rowsToObjects<Record<string, string>>(parseCSV(inputs.schoolPremiumCommunityCSV))
+        .map((r) => {
+          const cid = n(r.community_id);
+          const cityId = n(r.city_id);
+          const sc = n(r.school_count);
+          const avg = n(r.avg_school_score);
+          const lc = n(r.listing_count);
+          const mp = n(r.median_unit_price);
+          const dn = s(r.district_name);
+          const cn = s(r.community_name);
+          if (
+            cid == null || cityId == null || sc == null ||
+            lc == null || mp == null || !dn || !cn
+          ) {
+            return null;
+          }
+          return {
+            communityId: cid,
+            cityId,
+            districtName: dn,
+            communityName: cn,
+            schoolCount: sc,
+            avgSchoolScore: avg ?? 0,
+            listingCount: lc,
+            medianUnitPrice: mp
+          } as LocalSchoolPremiumCommunity;
+        })
+        .filter((m): m is LocalSchoolPremiumCommunity => m !== null)
+    : [];
+
   // 聚合可用周：基于 listings 的 crawl_date
   const weekEnds = new Set<string>();
   for (const l of listings) {
@@ -311,6 +381,8 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     metroLines,
     districtTrends,
     wangqianDistrictWeekly,
+    schoolPremiumDistricts,
+    schoolPremiumCommunities,
     availableWeeks
   };
 }

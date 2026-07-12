@@ -39,6 +39,12 @@ import districtTrendCSV from "../../static/seed/district_trend.csv?raw";
 // v0.10.0 板块级网签热度
 // @ts-ignore
 import wangqianDistrictWeeklyCSV from "../../static/seed/wangqian_district_weekly.csv?raw";
+// v0.11.0 板块级学区溢价
+// @ts-ignore
+import schoolPremiumDistrictCSV from "../../static/seed/school_premium_district.csv?raw";
+// v0.11.0 小区级学区评分
+// @ts-ignore
+import schoolPremiumCommunityCSV from "../../static/seed/school_premium_community.csv?raw";
 
 let cached: DataSnapshot | null = null;
 
@@ -56,7 +62,9 @@ export function buildSeedSnapshot(): DataSnapshot {
       hospitalsCSV: String(hospitalsCSV ?? ""),
       metroPlanningCSV: String(metroPlanningCSV ?? ""),
       districtTrendCSV: String(districtTrendCSV ?? ""),
-      wangqianDistrictWeeklyCSV: String(wangqianDistrictWeeklyCSV ?? "")
+      wangqianDistrictWeeklyCSV: String(wangqianDistrictWeeklyCSV ?? ""),
+      schoolPremiumDistrictCSV: String(schoolPremiumDistrictCSV ?? ""),
+      schoolPremiumCommunityCSV: String(schoolPremiumCommunityCSV ?? "")
     },
     "seed:public-derived"
   );

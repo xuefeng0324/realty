@@ -21,6 +21,8 @@ import type {
   LocalMetroLine,
   LocalPoi,
   LocalSchool,
+  LocalSchoolPremiumCommunity,
+  LocalSchoolPremiumDistrict,
   LocalStats70Row,
   LocalWangqianDistrictWeekly
 } from "./types";
@@ -284,6 +286,65 @@ export function getWangqianTopDistricts(params: {
     }))
     .sort((a, b) => b.totalUnits - a.totalUnits)
     .slice(0, limit);
+}
+
+/**
+ * 板块级学区溢价 (v0.11.0+)
+ */
+export function getSchoolPremiumDistricts(): LocalSchoolPremiumDistrict[] {
+  return snapshot?.schoolPremiumDistricts ?? [];
+}
+
+/**
+ * 给定 cityId，返回该城市各区按 premium_ratio 降序的学区溢价榜。
+ * 过滤 school_count >= 1, listing_count >= 10 (避免样本不足)。
+ */
+export function getSchoolPremiumRank(params: {
+  cityId: number;
+  minListings?: number;
+  limit?: number;
+}): Array<{
+  districtName: string;
+  avgSchoolScore: number;
+  schoolCount: number;
+  listingCount: number;
+  medianUnitPrice: number;
+  premiumRatio: number;
+  rank: number;
+}> {
+  const { cityId, minListings = 10, limit = 10 } = params;
+  const rows = (snapshot?.schoolPremiumDistricts ?? []).filter(
+    (r) => r.cityId === cityId && r.listingCount >= minListings
+  );
+  return rows
+    .sort((a, b) => b.premiumRatio - a.premiumRatio)
+    .slice(0, limit)
+    .map((r, i) => ({
+      districtName: r.districtName,
+      avgSchoolScore: r.avgSchoolScore,
+      schoolCount: r.schoolCount,
+      listingCount: r.listingCount,
+      medianUnitPrice: r.medianUnitPrice,
+      premiumRatio: r.premiumRatio,
+      rank: i + 1
+    }));
+}
+
+/**
+ * 小区级学区评分 (v0.11.0+)
+ */
+export function getSchoolPremiumCommunities(): LocalSchoolPremiumCommunity[] {
+  return snapshot?.schoolPremiumCommunities ?? [];
+}
+
+/**
+ * 给定 communityId 拿学校评分
+ */
+export function getCommunitySchoolScore(communityId: number): number {
+  const c = (snapshot?.schoolPremiumCommunities ?? []).find(
+    (x) => x.communityId === communityId
+  );
+  return c?.avgSchoolScore ?? 0;
 }
 
 export function getAvailableWeeks(cityId?: number): { weekStartDate: string; weekEndDate: string }[] {

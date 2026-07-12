@@ -590,6 +590,80 @@ describe("build integrity", () => {
     });
   });
 
+  // ---------- v0.11.0 学区溢价 ----------
+  describe("学区溢价板块 v0.11.0", () => {
+    const premiumDistPath = resolve(ROOT, "static/seed/school_premium_district.csv");
+    const premiumComPath = resolve(ROOT, "static/seed/school_premium_community.csv");
+
+    it("school_premium_district.csv 存在", () => {
+      expect(existsSync(premiumDistPath)).toBe(true);
+    });
+
+    it("school_premium_district.csv 至少 10 行 (3 城)", () => {
+      if (!existsSync(premiumDistPath)) return;
+      const rows = readCsv(premiumDistPath);
+      expect(rows.length).toBeGreaterThanOrEqual(10);
+    });
+
+    it("premium_ratio 是合法的有限数", () => {
+      if (!existsSync(premiumDistPath)) return;
+      const rows = readCsv(premiumDistPath);
+      const bad = rows.filter((r) => {
+        const v = parseFloat(r.premium_ratio);
+        return !Number.isFinite(v);
+      });
+      expect(bad.length).toBe(0);
+    });
+
+    it("city_id 覆盖 1 (广州)、2 (深圳)、3 (珠海)", () => {
+      if (!existsSync(premiumDistPath)) return;
+      const rows = readCsv(premiumDistPath);
+      const cities = new Set(rows.map((r) => r.city_id));
+      expect(cities.has("1")).toBe(true);
+      expect(cities.has("2")).toBe(true);
+      expect(cities.has("3")).toBe(true);
+    });
+
+    it("school_count > 0 的区至少 10 个", () => {
+      if (!existsSync(premiumDistPath)) return;
+      const rows = readCsv(premiumDistPath);
+      const withSchools = rows.filter((r) => parseInt(r.school_count) > 0);
+      expect(withSchools.length).toBeGreaterThanOrEqual(10);
+    });
+
+    it("listing_count > 0 的区至少 8 个 (避免全 0)", () => {
+      if (!existsSync(premiumDistPath)) return;
+      const rows = readCsv(premiumDistPath);
+      const withListings = rows.filter((r) => parseInt(r.listing_count) > 0);
+      expect(withListings.length).toBeGreaterThanOrEqual(8);
+    });
+
+    it("school_premium_community.csv 存在", () => {
+      expect(existsSync(premiumComPath)).toBe(true);
+    });
+
+    it("school_premium_community.csv 行数 = communities.csv 行数", () => {
+      if (!existsSync(premiumComPath)) return;
+      const commPath = resolve(ROOT, "static/seed/communities.csv");
+      if (!existsSync(commPath)) return;
+      const rows = readCsv(premiumComPath);
+      const commRows = readCsv(commPath);
+      expect(rows.length).toBe(commRows.length);
+    });
+
+    it("schools.csv 有 district_name 列且至少 80% 已填", () => {
+      const schoolsPath = resolve(ROOT, "static/seed/schools.csv");
+      if (!existsSync(schoolsPath)) return;
+      const rows = readCsv(schoolsPath);
+      const filled = rows.filter((r) => (r.district_name || "").trim()).length;
+      expect(filled / rows.length).toBeGreaterThanOrEqual(0.8);
+    });
+
+    it("scripts/compute_school_premium.py 存在", () => {
+      expect(existsSync(resolve(ROOT, "scripts/compute_school_premium.py"))).toBe(true);
+    });
+  });
+
   describe("CI 必装文件", () => {
     it("存在 tests/e2e/smoke.mjs", () => {
       expect(existsSync(resolve(ROOT, "tests/e2e/smoke.mjs"))).toBe(true);

@@ -161,6 +161,34 @@ export interface LocalWangqianDistrictWeekly {
   avgDailyAreaSqm: number;
 }
 
+/**
+ * 板块级学区溢价（`scripts/compute_school_premium.py`）。
+ * 由 listings + schools + school_indicators 聚合得到。
+ * 用于 dashboard "学区溢价榜" 卡片。
+ */
+export interface LocalSchoolPremiumDistrict {
+  cityId: number;
+  districtName: string;
+  schoolCount: number;
+  avgSchoolScore: number;
+  listingCount: number;
+  medianUnitPrice: number;
+  cityMedianUnitPrice: number;
+  /** (区均价 / 全市均价 - 1), e.g. 0.27 = +27% */
+  premiumRatio: number;
+}
+
+export interface LocalSchoolPremiumCommunity {
+  communityId: number;
+  cityId: number;
+  districtName: string;
+  communityName: string;
+  schoolCount: number;
+  avgSchoolScore: number;
+  listingCount: number;
+  medianUnitPrice: number;
+}
+
 export interface LocalMetroLine {
   lineId: number;
   cityId: number;
@@ -212,6 +240,10 @@ export interface DataSnapshot {
   districtTrends: LocalDistrictTrend[];
   /** v0.10.0: 板块级周维度网签热度 (深广政府网签) */
   wangqianDistrictWeekly: LocalWangqianDistrictWeekly[];
+  /** v0.11.0: 板块级学区溢价 (按区聚合) */
+  schoolPremiumDistricts: LocalSchoolPremiumDistrict[];
+  /** v0.11.0: 小区级学区评分 (按小区聚合) */
+  schoolPremiumCommunities: LocalSchoolPremiumCommunity[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }
