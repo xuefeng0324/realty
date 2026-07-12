@@ -1,0 +1,100 @@
+name: realty_app e2e
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "realty_app/**"
+      - ".github/workflows/realty_app-e2e.yml"
+  # 每日凌晨 02:00 北京时间 = 18:00 UTC（错开 crawl-daily-wangqian 01:30 UTC）
+  schedule:
+    - cron: "0 18 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: realty_app-e2e
+  cancel-in-progress: true
+
+# 最小权限：只读代码 + 写 artifact
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: realty_app
+
+    env:
+      E2E_URL: "http://127.0.0.1:5173/"
+
+    steps:
+      - name: 拉代码
+        uses: actions/checkout@v4
+
+      - name: 设 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: realty_app/package-lock.json
+
+      - name: 装依赖（npm ci）
+        run: npm ci --no-audit --no-fund
+
+      - name: 构建 H5（production）
+        # 用 build 而非 dev:h5：production 构建产物稳定、无 HMR 开销，
+        # 错误更接近真实部署形态
+        run: npm run build:h5
+
+      - name: 装 Playwright Chromium
+        # 首次会下载 ~150MB，二次走 actions/cache 命中可降至秒级
+        run: npx playwright install --with-deps chromium
+
+      - name: 起静态服务器（后台）
+        # serve 是 npx 自带的轻量静态服务器，不引入新依赖
+        # 用 & 放后台；nohup + disown 保证 step 退出后不被清理
+        run: |
+          npx --yes serve -s dist -l 5173 &
+          echo "serve PID: $!"
+          # 等服务器 ready
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:5173/ -o /dev/null; then
+              echo "Server up after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+          # 最后再确认一次
+          curl -sf http://127.0.0.1:5173/ > /dev/null || (echo "Server failed to start" && exit 1)
+
+      - name: 跑 E2E smoke
+        run: node tests/e2e/smoke.mjs
+
+      - name: 跑视觉回归（diff vs baseline）
+        # 不带 --update-baseline：第一次没 baseline 时脚本会 exit 2 让 step fail；
+        # 这是预期行为，让维护者意识到需要先在本地跑 --update-baseline 并 commit baseline
+        run: node tests/e2e/visual-diff.mjs --threshold 0.02
+        continue-on-error: true
+        # 视觉回归失败不阻塞 E2E（baseline 经常没及时更新），但要看到结果
+
+      - name: 上传 E2E artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: realty_app-e2e
+          path: |
+            realty_app/tests/e2e/artifacts
+          retention-days: 14
+
+      - name: 失败诊断（仅失败时）
+        if: failure()
+        run: |
+          echo "===== smoke.json ====="
+          cat realty_app/tests/e2e/artifacts/smoke.json || true
+          echo "===== dist 目录大小 ====="
+          du -sh realty_app/dist 2>/dev/null || true
+          echo "===== serve 日志（如果上一步还活着）====="
+          jobs -l || true

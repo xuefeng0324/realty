@@ -393,6 +393,16 @@ gh auth setup-git
 - 默认 lint 所有 `.github/workflows/*.yml`，不仅 `realty-app-tests.yml`，连 `crawl-*` 也覆盖
 - 详见 [changelog/2026-07-12-v0.3.0-actionlint.md](./changelog/2026-07-12-v0.3.0-actionlint.md)
 
+### v0.3.0 优化批次-6 (2026-07-12)
+
+**E2E CI 化：Playwright smoke 走 GitHub Actions**
+
+- 新增 `.github/workflows/realty-app-e2e.yml`：独立 workflow，不跑每个 push，只在 PR 到 main、每日凌晨 02:00 北京时间排程、手动 `workflow_dispatch` 触发
+- 步骤：`npm ci` → `npm run build:h5`（production 构建） → `npx playwright install --with-deps chromium` → 起 `serve` 静态服务器（端口 5173）→ 跑 `smoke.mjs` → 跑 `visual-diff.mjs`（软失败不阻塞）→ 上传 artifacts
+- 视觉回归软失败：`visual-diff.mjs` 在 baseline 缺失或更新时会 fail，但用 `continue-on-error: true` 不阻塞 PR 合并，让维护者意识到需要本地更新 baseline
+- 失败诊断：smoke 失败时自动打印 `smoke.json` 内容、dist 大小、serve 进程状态
+- 详见 [changelog/2026-07-12-v0.3.0-E2E-CI.md](./changelog/2026-07-12-v0.3.0-E2E-CI.md)
+
 ## License
 
 与主仓库一致（`LICENSE`）。
