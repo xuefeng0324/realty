@@ -15,6 +15,7 @@
 | v0.20.0 | 2026-07-12 | dashboard 「区/板块对比」卡上点击任一区，下方弹出「📊 {区} · {市} 小区对比」横柱图 (按均价排序)，展示该区所有 community 均价+挂牌数；可点行进小区详情；5 单测 + smoke_district_compare E2E |
 | v0.21.0 | 2026-07-12 | map-view 成交价热力升级：5 档价格分位 (P0/P20/P40/P60/P80) 颜色梯度 (绿→红)，半径改为 价格×挂牌数 综合；新增「🎨 价格分位图例」卡片 (含 swatch/价格区间/城市均价/覆盖社区数)；5 单测 + smoke_price_heatmap 扩展 |
 | v0.22.0 | 2026-07-12 | map-view POI 模式聚合：复用 cluster.ts 每类单独 grid 聚合 (避免 5 类 POI 混合)，678 总 POI → zoom 11 显示 < 100 marker；单 POI = 彩色 emoji 圆图标，聚合 = 带数字气泡；click 聚合自动放大；5 单测 + smoke_poi_overlay 扩展 |
+| v0.23.0 | 2026-07-12 | dashboard 新增「🔥 全品类区级网签热度榜」卡，3 tab 切换 (新房/二手/全部)，Top 10 + 横柱 + 套/天；数据源 wangqian_district_weekly.csv (66 行)；5 单测 + smoke_district_wangqian_rank E2E |
 | v0.13.0 | 2026-07-12 | map-view 第四种模式「POI overlay」：把 poi_seed.csv 的 5 类 POI (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园) 画到地图上 (每类最多 25 marker)；5 类 toggle 自由开关；POI info-card 显示名称 + 类型 + 距离 + 所属小区 |
 | v0.12.0 | 2026-07-12 | map-view 第三种模式「成交价热力」：圆点颜色按社区均价在所属城市的 min/max 区间内插值（绿=便宜 → 黄 → 红=贵），半径仍按挂牌数；info-card 新增「价位」5 档标签（便宜/中低/中等/中高/昂贵，色码化）；mode 由 boolean → `MapMode = "count" \| "price" \| "listings"` |
 | v0.11.0 | 2026-07-12 | 学区溢价榜：`schools.csv` 新增 `district_name`（58 条手填）；`compute_school_premium.py` 聚合 listings + school_indicators → `school_premium_district.csv` (16 行) + `school_premium_community.csv` (52 行)；dashboard 新增「学区溢价榜」卡片（Top 区排名 + 金银铜牌 + 评分 + 溢价% + 中位单价）；天河 +27.3%、南山 +23.2% |
@@ -821,6 +822,16 @@ gh auth setup-git
 - `smoke_poi_overlay.mjs` 加聚合 legend 验证
 - **验证**：256/256 单测过 (+5), type-check clean, 21/21 smoke 全绿
 - 详见 [changelog/2026-07-12-v0.22.0-POI聚合.md](./changelog/2026-07-12-v0.22.0-POI聚合.md)
+
+### v0.23.0 - 全品类区级网签热度榜 (2026-07-12)
+- dashboard 新增「🔥 全品类区级网签热度榜」卡，3 tab 切换：**新房 / 二手 / 全部**
+- 列字段：区名 + 累计套数 + 面积 + 套/天
+- 显示 Top 10，总数 = totalDistricts
+- 数据源：wangqian_district_weekly.csv (深圳 44 / 广州 22 行)
+- 新 query: `getDistrictWangqianRank({ cityId, category, weeksBack, limit })`
+- 新 E2E: `tests/e2e/smoke_district_wangqian_rank.mjs` (默认 tab + 切 3 tab + 行数)
+- **验证**：261/261 单测过 (+5), type-check clean, 22/22 smoke 全绿
+- 详见 [changelog/2026-07-12-v0.23.0-全品类区级网签热度榜.md](./changelog/2026-07-12-v0.23.0-全品类区级网签热度榜.md)
 
 ## License
 

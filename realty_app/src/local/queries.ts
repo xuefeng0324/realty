@@ -1311,6 +1311,73 @@ export async function getWangqianHeatmap(params: {
   };
 }
 
+// ---------- v0.23.0 trend-9: 区级网签热度榜 (全品类可切换) ----------
+export interface DistrictWangqianRankItem {
+  rank: number;
+  district: string;
+  totalUnits: number;
+  totalAreaSqm: number;
+  weeks: number;
+  avgDailyUnits: number;
+  avgUnitAreaSqm: number | null; // 套均面积 (avg = totalArea / totalUnits)
+}
+
+export interface DistrictWangqianRankResponse {
+  cityId: number;
+  cityName: string;
+  category: "新房" | "二手" | "全部";
+  weeksBack: number;
+  totalUnits: number;
+  totalAreaSqm: number;
+  totalDistricts: number;
+  items: DistrictWangqianRankItem[];
+}
+
+/**
+ * 给定 cityId，返回该城市按区聚合的网签热度榜 (跨 category 或限定 category)。
+ * "全部" = 新房+二手 一起聚合。
+ */
+export async function getDistrictWangqianRank(params: {
+  cityId: number;
+  category?: "新房" | "二手" | "全部";
+  weeksBack?: number;
+  limit?: number;
+}): Promise<DistrictWangqianRankResponse | null> {
+  const { cityId, category = "全部", weeksBack = 4, limit = 15 } = params;
+  const city = store.getCityById(cityId);
+  if (!city) return null;
+  const cat = category === "全部" ? undefined : category;
+  const rows = store.getWangqianTopDistricts({
+    cityName: city.cityName,
+    category: cat,
+    limit: 999, // 不限 district 数
+    weeksBack
+  });
+  if (rows.length === 0) return null;
+  // 套均面积 = totalAreaSqm / totalUnits
+  const items: DistrictWangqianRankItem[] = rows.map((r, i) => ({
+    rank: i + 1,
+    district: r.district,
+    totalUnits: r.totalUnits,
+    totalAreaSqm: r.totalAreaSqm,
+    weeks: r.weeks,
+    avgDailyUnits: r.weeks > 0 ? r.totalUnits / (r.weeks * 7) : 0,
+    avgUnitAreaSqm: r.totalUnits > 0 ? r.totalAreaSqm / r.totalUnits : null
+  }));
+  const totalUnits = items.reduce((s, it) => s + it.totalUnits, 0);
+  const totalAreaSqm = items.reduce((s, it) => s + it.totalAreaSqm, 0);
+  return {
+    cityId,
+    cityName: city.cityName,
+    category,
+    weeksBack,
+    totalUnits,
+    totalAreaSqm,
+    totalDistricts: items.length,
+    items: items.slice(0, limit)
+  };
+}
+
 // ---------- 学区溢价榜 (v0.11.0+) ----------
 export interface SchoolPremiumItem {
   districtName: string;

@@ -1306,4 +1306,43 @@ describe("build integrity", () => {
       expect(content).toMatch(/v0\.22\.0 \u805a\u5408/);
     });
   });
+
+  // --------------------------------------------------------------
+  // v0.23.0 trend-9: 全品类区级网签热度榜
+  // --------------------------------------------------------------
+  describe("v0.23.0 全品类区级网签热度榜", () => {
+    it("queries.ts 增加 getDistrictWangqianRank 函数", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/getDistrictWangqianRank/);
+    });
+
+    it("queries.ts 导出 DistrictWangqianRankResponse 接口", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/export interface DistrictWangqianRankResponse/);
+    });
+
+    it("dashboard.vue 含 wqRankCat ref (新房/二手/全部)", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/dashboard/dashboard.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/wqRankCat = ref/);
+    });
+
+    it("dashboard.vue 渲染「🔥 全品类区级网签热度榜」卡", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/dashboard/dashboard.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/全品类区级网签热度榜/);
+    });
+
+    it("dashboard.vue setWqRankCat 切换 cat", () => {
+      const content = readFileSync(
+        resolve(ROOT, "src/pages/dashboard/dashboard.vue"),
+        "utf8"
+      );
+      expect(content).toMatch(/setWqRankCat\(cat\)/);
+    });
+  });
 });

@@ -165,6 +165,14 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟡 J | map-3 | onMarkerTap 处理 POI cluster (合成 id -1000000 起 → zoom+1) | ✅ v0.22.0 | 自适应 zoom (11→聚合多, 16+→几乎不聚合) |
 | 🟡 J | map-3 | buildIntegrity +5 测试 + smoke_poi_overlay 扩展 + commit v0.22.0 | ✅ v0.22.0 | 256/256 通过；21/21 smoke 全绿 |
 
+## K 段补充：全品类区级网签热度榜（v0.23.0）
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟡 K | trend-9 | 调研 wangqian_district_weekly.csv 字段 + 现有 dashboard 热度榜 | ✅ v0.23.0 | 66 行 (深圳 44 / 广州 22, 新房 44 / 二手 22) |
+| 🟡 K | trend-9 | `getDistrictWangqianRank({ cityId, category, weeksBack, limit })` + tab 切换 + UI 集成 | ✅ v0.23.0 | 3 tab: 新房/二手/全部 |
+| 🟡 K | trend-9 | buildIntegrity +5 测试 + smoke_district_wangqian_rank E2E + commit v0.23.0 | ✅ v0.23.0 | 261/261 通过；22/22 smoke 全绿 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

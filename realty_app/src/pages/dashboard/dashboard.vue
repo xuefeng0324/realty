@@ -281,6 +281,56 @@
         </view>
       </view>
 
+      <!-- v0.23.0 trend-9: 全品类区级网签热度榜 (新房/二手/全部 tab 切换) -->
+      <view v-if="districtWangqianRank && districtWangqianRank.items.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">
+            🔥 全品类区级网签热度榜 · {{ districtWangqianRank.cityName }}
+          </view>
+          <view class="muted" style="font-size: 22rpx">
+            累计 {{ districtWangqianRank.totalUnits }} 套 · {{ districtWangqianRank.totalDistricts }} 区
+          </view>
+        </view>
+        <!-- tab 切换: 新房 / 二手 / 全部 -->
+        <view class="wq-cat-tabs">
+          <view
+            v-for="cat in (['新房', '二手', '全部'] as const)"
+            :key="cat"
+            :class="['wq-cat-tab', wqRankCat === cat ? 'wq-cat-tab-on' : 'wq-cat-tab-off']"
+            @click="setWqRankCat(cat)"
+          >
+            {{ cat }}
+          </view>
+        </view>
+        <view
+          v-for="it in districtWangqianRank.items.slice(0, 10)"
+          :key="it.district"
+          class="wq-row"
+        >
+          <text class="wq-rank" :class="rankClass(it.rank)">{{ it.rank }}</text>
+          <text class="wq-name">{{ it.district }}</text>
+          <view class="wq-track">
+            <view
+              class="wq-fill"
+              :style="{ width: wqRankPct(it) + '%' }"
+            ></view>
+          </view>
+          <text class="wq-units">
+            {{ it.totalUnits }} 套
+            <text class="muted" style="font-size: 20rpx">
+              ({{ formatWqArea(it.totalAreaSqm) }} · {{ Math.round(it.avgDailyUnits * 10) / 10 }}套/天)
+            </text>
+          </text>
+        </view>
+        <view v-if="districtWangqianRank.items.length > 10" class="muted" style="margin-top: 4rpx; font-size: 22rpx">
+          共 {{ districtWangqianRank.totalDistricts }} 个区有网签数据，显示 Top 10
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：{{ districtWangqianRank.weeksBack }} 周内 {{ districtWangqianRank.cityName }} 住建局网签，按区聚合。
+          「全部」= 新房+二手合并；切 tab 实时刷新。
+        </view>
+      </view>
+
       <!-- v0.11.0 学区溢价榜 -->
       <view v-if="schoolPremiumOverview && schoolPremiumOverview.items.length > 0" class="card">
         <view class="row-between">
@@ -588,7 +638,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -624,6 +674,9 @@ const rankingTotal = ref<number>(0);
 const districtItems = ref<DistrictCompareItem[]>([]);
 const trendItems = ref<DistrictTrendItem[]>([]);
 const wangqianOverview = ref<WangqianOverviewItem | null>(null);
+// v0.23.0 trend-9: 全品类区级网签热度榜 (tab 切换)
+const districtWangqianRank = ref<DistrictWangqianRankResponse | null>(null);
+const wqRankCat = ref<"新房" | "二手" | "全部">("全部");
 const schoolPremiumOverview = ref<SchoolPremiumOverview | null>(null);
 const schoolPremiumCommunityItems = ref<SchoolPremiumCommunityItem[]>([]);
 const weatherResp = ref<WeatherResponse | null>(null);
@@ -900,6 +953,8 @@ async function loadRankingAndDistrict() {
         });
       }
       wangqianOverview.value = heat;
+      // v0.23.0 trend-9: 全品类区级网签热度榜
+      await loadDistrictWangqianRank();
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
         cityId: app.cityId,
@@ -1019,6 +1074,36 @@ function wangqianMaxUnits(): number {
 
 function wangqianPct(it: { totalUnits: number }): number {
   return (it.totalUnits / wangqianMaxUnits()) * 100;
+}
+
+// ----- v0.23.0 trend-9 全品类区级网签热度榜 -----
+function wqRankPct(it: { totalUnits: number }): number {
+  if (!districtWangqianRank.value || districtWangqianRank.value.items.length === 0) return 0;
+  const max = Math.max(1, ...districtWangqianRank.value.items.map((i) => i.totalUnits));
+  return (it.totalUnits / max) * 100;
+}
+
+async function setWqRankCat(cat: "新房" | "二手" | "全部") {
+  wqRankCat.value = cat;
+  await loadDistrictWangqianRank();
+}
+
+async function loadDistrictWangqianRank() {
+  if (!app.cityId) {
+    districtWangqianRank.value = null;
+    return;
+  }
+  try {
+    districtWangqianRank.value = await getDistrictWangqianRank({
+      cityId: app.cityId,
+      category: wqRankCat.value,
+      weeksBack: 4,
+      limit: 15
+    });
+  } catch (e) {
+    console.warn("getDistrictWangqianRank failed:", e);
+    districtWangqianRank.value = null;
+  }
 }
 
 // ----- v0.11.0 学区溢价榜 -----
@@ -1875,6 +1960,28 @@ onShow(async () => {
 .sp-pos { color: #22c55e; }
 .sp-flat { color: #64748b; }
 .sp-neg { color: #dc2626; }
+
+/* v0.23.0 trend-9 全品类网签榜 tabs */
+.wq-cat-tabs {
+  display: flex;
+  gap: 8rpx;
+  margin: 8rpx 0;
+}
+.wq-cat-tab {
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid #475569;
+}
+.wq-cat-tab-on {
+  background: #0ea5e9;
+  color: #ffffff;
+  border-color: #0ea5e9;
+}
+.wq-cat-tab-off {
+  background: transparent;
+  color: #cbd5e1;
+}
 
 /* v0.10.0 网签热度榜 */
 .wq-row {
