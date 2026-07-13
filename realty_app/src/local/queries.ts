@@ -2493,3 +2493,59 @@ export function getFeaturePremiumRanking(params: {
     bottomPremium
   };
 }
+
+/**
+ * v0.40.0 trend-20: 标签组合热度榜
+ * listing_tags.csv → (tag_a, tag_b) pair 频率, 跨 listing 出现次数
+ */
+export interface TagCombinationItem {
+  cityId: number;
+  cityName: string;
+  tagA: string;
+  tagB: string;
+  count: number;
+  share: number;
+  avgUnitPrice: number | null;
+}
+
+export interface TagCombinationResponse {
+  cityId: number;
+  cityName: string;
+  totalCount: number;
+  topN: TagCombinationItem[];
+}
+
+export function getTagCombinationRanking(params: {
+  cityId: number;
+  topN?: number;
+  minCount?: number;
+}): TagCombinationResponse | null {
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const all = store.getTagCombinationsByCity(params.cityId);
+  if (all.length === 0) return null;
+
+  const minCount = params.minCount ?? 5;
+  const topN = params.topN ?? 12;
+
+  const filtered = all
+    .filter((c) => c.count >= minCount)
+    .sort((a, b) => b.count - a.count);
+
+  const items: TagCombinationItem[] = filtered.slice(0, topN).map((c) => ({
+    cityId: c.cityId,
+    cityName: c.cityName,
+    tagA: c.tagA,
+    tagB: c.tagB,
+    count: c.count,
+    share: c.share,
+    avgUnitPrice: c.avgUnitPrice
+  }));
+
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    totalCount: filtered.length,
+    topN: items
+  };
+}

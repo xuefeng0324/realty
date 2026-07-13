@@ -90,6 +90,7 @@ import metroWalkCSV from "../../static/seed/metro_walk.csv?raw";
 import metroBenefitCSV from "../../static/seed/metro_benefit.csv?raw";
 import districtMetaCSV from "../../static/seed/district_meta.csv?raw";
 import featurePremiumCSV from "../../static/seed/feature_premium.csv?raw";
+import tagCombinationCSV from "../../static/seed/tag_combination.csv?raw";
 
 let cached: DataSnapshot | null = null;
 
@@ -123,7 +124,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       metroWalkCSV: String(metroWalkCSV ?? ""),
       metroBenefitCSV: String(metroBenefitCSV ?? ""),
       districtMetaCSV: String(districtMetaCSV ?? ""),
-      featurePremiumCSV: String(featurePremiumCSV ?? "")
+      featurePremiumCSV: String(featurePremiumCSV ?? ""),
+      tagCombinationCSV: String(tagCombinationCSV ?? "")
     },
     "seed:public-derived"
   );

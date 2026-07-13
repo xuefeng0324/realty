@@ -475,6 +475,20 @@ export interface LocalFeaturePremium {
 }
 
 /**
+ * v0.40.0: 标签组合热度 (scripts/compute_tag_combination.py)
+ * listing_tags.csv → 2-combination (pair) 频率 + 中位价
+ */
+export interface LocalTagCombination {
+  cityId: number;
+  cityName: string;
+  tagA: string;
+  tagB: string;
+  count: number;
+  share: number;
+  avgUnitPrice: number | null;
+}
+
+/**
  * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
  * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
  * 用于 dashboard 展示"区级近 N 周房价趋势"。
@@ -539,6 +553,8 @@ export interface DataSnapshot {
   districtMeta: LocalDistrictMeta[];
   /** v0.39.0: 特征画像溢价 (scripts/compute_feature_premium.py) */
   featurePremia: LocalFeaturePremium[];
+  /** v0.40.0: 标签组合热度 (scripts/compute_tag_combination.py) */
+  tagCombinations: LocalTagCombination[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

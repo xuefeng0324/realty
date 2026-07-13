@@ -797,6 +797,43 @@
         </view>
       </view>
 
+      <!-- v0.40.0 trend-20 标签组合热度 (最常一起出现的 2 标签) -->
+      <view v-if="tagCombination && tagCombination.topN.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">🏷️ 标签组合热度 · {{ tagCombination.cityName }}</view>
+          <view class="muted">top {{ tagCombination.topN.length }} · 共 {{ tagCombination.totalCount }} 对</view>
+        </view>
+        <view
+          v-for="(it, idx) in tagCombination.topN"
+          :key="idx"
+          class="tc-row"
+        >
+          <view class="tc-rank">{{ idx + 1 }}</view>
+          <view class="tc-mid">
+            <view class="tc-pair">
+              <text class="tc-tag">{{ it.tagA }}</text>
+              <text class="tc-plus">+</text>
+              <text class="tc-tag">{{ it.tagB }}</text>
+            </view>
+            <view class="tc-meta muted">
+              出现 {{ it.count }} 套 · 占比 {{ (it.share * 100).toFixed(1) }}% · 中位单价
+              <text v-if="it.avgUnitPrice" class="tc-price">{{ Math.round(it.avgUnitPrice / 1000) }}k 元/㎡</text>
+              <text v-else>—</text>
+            </view>
+          </view>
+          <view class="tc-bar-wrap">
+            <view
+              class="tc-bar"
+              :style="{ width: tcBarWidth(it.count, tagCombination.topN[0].count) + '%' }"
+            />
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：listing_tags.csv (7518 行) → scripts/compute_tag_combination.py。<br>
+          公式：对每个 listing 取 4-7 个 tag, C(2) 算 2-组合, count ≥ 5 才入榜。
+        </view>
+      </view>
+
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
       <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card">
         <view class="row-between">
@@ -1206,7 +1243,8 @@ import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
 import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, getMetroWalkRanking, getMetroBenefitRanking, getDistrictMetaRanking,
-  getFeaturePremiumRanking, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse } from "../../local/queries";
+  getFeaturePremiumRanking,
+  getTagCombinationRanking, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -1260,6 +1298,8 @@ const metroWalk = ref<MetroWalkResponse | null>(null);
 const metroBenefit = ref<MetroBenefitResponse | null>(null);
 // v0.39.0 trend-19: 特征画像溢价
 const featurePremium = ref<FeaturePremiumResponse | null>(null);
+// v0.40.0 trend-20: 标签组合热度
+const tagCombination = ref<TagCombinationResponse | null>(null);
 // v0.38.0 trend-18: 区情画像
 const districtMeta = ref<DistrictMetaResponse | null>(null);
 const districtMetaSortBy = ref<"default" | "price" | "school" | "mom" | "listing">("price");
@@ -1407,6 +1447,25 @@ function fpBarClass(v: number): string {
 function fpBarWidth(v: number): number {
   const abs = Math.min(Math.abs(v), 30);
   return Math.max(5, (abs / 30) * 100);
+}
+
+// v0.40.0 trend-20: 标签组合热度
+async function reloadTagCombination() {
+  try {
+    tagCombination.value = await getTagCombinationRanking({
+      cityId: app.cityId,
+      topN: 12,
+      minCount: 5
+    });
+  } catch (e) {
+    console.warn("getTagCombinationRanking failed:", e);
+    tagCombination.value = null;
+  }
+}
+
+function tcBarWidth(v: number, max: number): number {
+  if (max <= 0) return 5;
+  return Math.max(5, (v / max) * 100);
 }
 function mbBandClass(score: number) {
   if (score >= 75) return "mb-tag-green";
@@ -1788,6 +1847,8 @@ async function loadRankingAndDistrict() {
       await reloadDistrictMeta();
       // v0.39.0 trend-19 特征画像溢价
       await reloadFeaturePremium();
+      // v0.40.0 trend-20 标签组合热度
+      await reloadTagCombination();
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
         cityId: app.cityId,
@@ -3794,5 +3855,76 @@ onShow(async () => {
 }
 .fp-pct-flat {
   color: #64748b;
+}
+
+/* v0.40.0 trend-20: 标签组合 */
+.tc-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  padding: 10rpx 0;
+  border-bottom: 1rpx solid #f1f5f9;
+}
+.tc-row:last-child {
+  border-bottom: none;
+}
+.tc-rank {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.tc-mid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  min-width: 0;
+}
+.tc-pair {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  flex-wrap: wrap;
+}
+.tc-tag {
+  background: #ede9fe;
+  color: #6d28d9;
+  padding: 2rpx 10rpx;
+  border-radius: 6rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+}
+.tc-plus {
+  color: #94a3b8;
+  font-size: 22rpx;
+  margin: 0 2rpx;
+}
+.tc-meta {
+  font-size: 22rpx;
+}
+.tc-price {
+  color: #0f172a;
+  font-weight: 600;
+}
+.tc-bar-wrap {
+  width: 120rpx;
+  height: 10rpx;
+  background: #e2e8f0;
+  border-radius: 6rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.tc-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #a78bfa 0%, #7c3aed 100%);
+  border-radius: 6rpx;
 }
 </style>

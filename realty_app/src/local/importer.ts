@@ -34,6 +34,7 @@ import type {
   LocalMetroBenefit,
   LocalDistrictMeta,
   LocalFeaturePremium,
+  LocalTagCombination,
   LocalMetroWalk,
   LocalPoi,
   LocalSchool,
@@ -117,6 +118,8 @@ export interface SnapshotInputs {
   districtMetaCSV?: string;
   /** v0.39.0: 特征画像溢价 */
   featurePremiumCSV?: string;
+  /** v0.40.0: 标签组合热度 */
+  tagCombinationCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -276,6 +279,34 @@ function parseFeaturePremium(csvText: string): LocalFeaturePremium[] {
       } as LocalFeaturePremium;
     })
     .filter((x): x is LocalFeaturePremium => x !== null);
+}
+
+function parseTagCombination(csvText: string): LocalTagCombination[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.city_id);
+      if (cid == null) return null;
+      const num = (v: string | undefined) => {
+        if (v === undefined || v === "") return 0;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : 0;
+      };
+      const numOrNull = (v: string | undefined): number | null => {
+        if (v === undefined || v === "") return null;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : null;
+      };
+      return {
+        cityId: cid,
+        cityName: s(r.city_name) ?? "",
+        tagA: s(r.tag_a) ?? "",
+        tagB: s(r.tag_b) ?? "",
+        count: num(r.count ?? undefined),
+        share: num(r.share ?? undefined),
+        avgUnitPrice: numOrNull(r.avg_unit_price ?? undefined)
+      } as LocalTagCombination;
+    })
+    .filter((x): x is LocalTagCombination => x !== null);
 }
 
 function parseLifeConvenience(csvText: string): LocalLifeConvenience[] {
@@ -861,6 +892,9 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
       : [],
     featurePremia: inputs.featurePremiumCSV
       ? parseFeaturePremium(inputs.featurePremiumCSV)
+      : [],
+    tagCombinations: inputs.tagCombinationCSV
+      ? parseTagCombination(inputs.tagCombinationCSV)
       : [],
     availableWeeks
   };

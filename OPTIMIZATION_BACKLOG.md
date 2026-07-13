@@ -356,6 +356,20 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 AA | trend-19 | dashboard 特征画像溢价卡 + 4 dim + bar | ✅ v0.39.0 | 红蓝灰 ±1% |
 | 🟢 AA | trend-19 | smoke_feature_premium.mjs E2E + screenshots | ✅ v0.39.0 | 广州/深圳各截一张 |
 
+## AB 段补充：标签组合热度 (v0.40.0)
+
+- listing_tags.csv (7518 行) → 对每个 listing C(2) 算 pair 频率 + 中位价
+- 324 行 tag_combination.csv
+- dashboard 新卡「🏷️ 标签组合热度」+ top 12 + 紫 bar + tag pill
+- 376/376 单测 + smoke_tag_combination E2E (广州/深圳 top 1 = "名校区+朝南")
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 AB | trend-20 | compute_tag_combination.py 写 324 行 | ✅ v0.40.0 | C(n, 2) 频率 |
+| 🟢 AB | trend-20 | types + parseTagCombination + store + queries | ✅ v0.40.0 | 6 单测 |
+| 🟢 AB | trend-20 | dashboard 标签组合卡 + tag pair + bar | ✅ v0.40.0 | 紫渐变 |
+| 🟢 AB | trend-20 | smoke_tag_combination.mjs E2E + screenshots | ✅ v0.40.0 | 广州/深圳各截一张 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

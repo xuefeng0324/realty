@@ -2315,4 +2315,105 @@ describe("build integrity", () => {
       }
     });
   });
+
+  // v0.40.0 trend-20: 标签组合热度
+  describe("v0.40.0 trend-20 标签组合热度", () => {
+    it("tag_combination.csv 存在 + 有列 + city_name 正确", () => {
+      const csv = readFileSync(resolve(ROOT, "static/seed/tag_combination.csv"), "utf8");
+      expect(csv).toMatch(/^(\ufeff)?city_id,city_name,tag_a,tag_b/);
+      const lines = csv.trim().split(/\r?\n/);
+      expect(lines.length).toBeGreaterThan(50);
+      // 验证 city_name 是中文
+      expect(csv).toMatch(/,广州,/);
+      expect(csv).toMatch(/,深圳,/);
+      expect(csv).toMatch(/,珠海,/);
+    });
+
+    it("compute_tag_combination.py + types/parser/store/queries 都实现", () => {
+      const script = readFileSync(resolve(ROOT, "scripts/compute_tag_combination.py"), "utf8");
+      expect(script).toMatch(/listing_tags\.csv/);
+      expect(script).toMatch(/combinations/);
+      expect(script).toMatch(/tag_combination\.csv/);
+
+      const types = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(types).toMatch(/LocalTagCombination/);
+      expect(types).toMatch(/tagCombinations:\s*LocalTagCombination\[\]/);
+
+      const importer = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(importer).toMatch(/function parseTagCombination/);
+      expect(importer).toMatch(/tagCombinationCSV/);
+
+      const store = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(store).toMatch(/getTagCombinations\(/);
+      expect(store).toMatch(/getTagCombinationsByCity\(/);
+
+      const queries = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(queries).toMatch(/export function getTagCombinationRanking/);
+      expect(queries).toMatch(/TagCombinationItem/);
+    });
+
+    it("seedSnapshot.ts + dataRefresher.ts + settings.vue 都接入 tag_combination", () => {
+      const seed = readFileSync(resolve(ROOT, "src/local/seedSnapshot.ts"), "utf8");
+      expect(seed).toMatch(/import tagCombinationCSV/);
+      expect(seed).toMatch(/tagCombinationCSV:/);
+
+      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
+      expect(ref).toMatch(/tagCombinations:/);
+
+      const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
+      expect(settings).toMatch(/tag_combination\.csv/);
+      expect(settings).toMatch(/tagCombinationCSV:/);
+    });
+
+    it("dashboard.vue 标签组合卡 + tag pair 渲染", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/标签组合热度/);
+      expect(dash).toMatch(/tagCombination/);
+      expect(dash).toMatch(/reloadTagCombination/);
+      expect(dash).toMatch(/tc-row/);
+      expect(dash).toMatch(/tc-tag/);
+      expect(dash).toMatch(/tc-bar/);
+      expect(dash).toMatch(/tcBarWidth/);
+    });
+
+    it("getTagCombinationRanking 数据正确 + count 降序", async () => {
+      const { setSnapshot } = await import("../src/local/store");
+      const { buildSeedSnapshot, resetSeedSnapshotCache } = await import("../src/local/seedSnapshot");
+      resetSeedSnapshotCache();
+      setSnapshot(buildSeedSnapshot());
+      const { getTagCombinationRanking } = await import("../src/local/queries");
+      const resp = getTagCombinationRanking({ cityId: 2, topN: 12, minCount: 5 });
+      expect(resp).toBeTruthy();
+      // 深圳应该有数据
+      expect(resp!.totalCount).toBeGreaterThan(20);
+      expect(resp!.topN.length).toBeGreaterThan(0);
+      // 验证 topN 按 count 降序
+      for (let i = 1; i < resp!.topN.length; i++) {
+        expect(resp!.topN[i - 1].count).toBeGreaterThanOrEqual(resp!.topN[i].count);
+      }
+      // 验证 tagA < tagB (lexical order, sorted)
+      for (const it of resp!.topN) {
+        expect(it.tagA).toBeTruthy();
+        expect(it.tagB).toBeTruthy();
+        expect(it.tagA).not.toBe(it.tagB);
+      }
+    });
+
+    it("getTagCombinationRanking 过滤 minCount 有效", async () => {
+      const { setSnapshot } = await import("../src/local/store");
+      const { buildSeedSnapshot, resetSeedSnapshotCache } = await import("../src/local/seedSnapshot");
+      resetSeedSnapshotCache();
+      setSnapshot(buildSeedSnapshot());
+      const { getTagCombinationRanking } = await import("../src/local/queries");
+      const respAll = getTagCombinationRanking({ cityId: 2, topN: 200, minCount: 3 });
+      const respHigh = getTagCombinationRanking({ cityId: 2, topN: 200, minCount: 100 });
+      expect(respAll).toBeTruthy();
+      expect(respHigh).toBeTruthy();
+      // minCount=100 应该过滤掉大部分
+      expect(respHigh!.topN.length).toBeLessThan(respAll!.topN.length);
+      for (const it of respHigh!.topN) {
+        expect(it.count).toBeGreaterThanOrEqual(100);
+      }
+    });
+  });
 });
