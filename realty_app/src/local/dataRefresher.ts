@@ -167,6 +167,8 @@ function mergeListingsIntoSnapshot(
     orientationFloor: existing?.orientationFloor ?? [],
     decorateAge: existing?.decorateAge ?? [],
     communityScatter: existing?.communityScatter ?? [],
+    districtPolygon: existing?.districtPolygon ?? [],
+    communityGeo: existing?.communityGeo ?? [],
     availableWeeks
   };
 }

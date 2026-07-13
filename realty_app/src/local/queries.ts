@@ -28,7 +28,7 @@ import type {
   SchoolFutureScoreResponse,
   CityItem
 } from "../api/contracts";
-import type { LocalLayoutDistribution, LocalListing, LocalListingTag, LocalDistrictIndex, LocalLifeConvenience, LocalCommunityScore } from "./types";
+import type { LocalLayoutDistribution, LocalListing, LocalListingTag, LocalDistrictIndex, LocalLifeConvenience, LocalCommunityScore, LocalDistrictPolygon } from "./types";
 import {
   generateWeeklySnapshot,
   type SnapshotResult
@@ -3066,5 +3066,80 @@ export function getCommunityScatter(params: { cityId: number }): CommunityScatte
     xMax: Math.max(...allUps),
     yMin: Math.min(...allTps),
     yMax: Math.max(...allTps)
+  };
+}
+
+/**
+ * v0.46.0 map-11: 地图 - 行政区边界多边形 + 社区 marker
+ * 输出每个城市的: distric boundaries + community points (lng/lat)
+ *  + 视图 bbox (适配 SVG viewBox)
+ */
+export interface DistrictMapResponse {
+  cityId: number;
+  cityName: string;
+  /** 行政区多边形 (cities 范围内) */
+  districts: LocalDistrictPolygon[];
+  /** 社区 marker (lng/lat) */
+  markers: Array<{
+    communityId: number;
+    communityName: string;
+    district: string;
+    lat: number;
+    lng: number;
+  }>;
+  /** viewBox 用: { minLng, minLat, maxLng, maxLat } */
+  bbox: { minLng: number; minLat: number; maxLng: number; maxLat: number };
+}
+
+export function getDistrictMap(cityId: number): DistrictMapResponse | null {
+  const city = store.getCityById(cityId);
+  if (!city) return null;
+  const districts = store.getDistrictPolygonByCity(cityId);
+  const markers = store.getCommunityGeoByCity(cityId);
+  if (districts.length === 0 && markers.length === 0) return null;
+
+  // 计算 bbox
+  let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
+  for (const d of districts) {
+    if (d.centerLng && d.centerLat) {
+      minLng = Math.min(minLng, d.centerLng);
+      maxLng = Math.max(maxLng, d.centerLng);
+      minLat = Math.min(minLat, d.centerLat);
+      maxLat = Math.max(maxLat, d.centerLat);
+    }
+    for (const ring of d.polygons) {
+      for (const [lng, lat] of ring) {
+        if (lng < minLng) minLng = lng;
+        if (lng > maxLng) maxLng = lng;
+        if (lat < minLat) minLat = lat;
+        if (lat > maxLat) maxLat = lat;
+      }
+    }
+  }
+  for (const m of markers) {
+    if (m.lng < minLng) minLng = m.lng;
+    if (m.lng > maxLng) maxLng = m.lng;
+    if (m.lat < minLat) minLat = m.lat;
+    if (m.lat > maxLat) maxLat = m.lat;
+  }
+  // padding 5%
+  const padLng = (maxLng - minLng) * 0.05;
+  const padLat = (maxLat - minLat) * 0.05;
+  minLng -= padLng;
+  maxLng += padLng;
+  minLat -= padLat;
+  maxLat += padLat;
+
+  return {
+    cityId,
+    cityName: city.cityName,
+    districts,
+    markers,
+    bbox: {
+      minLng,
+      minLat,
+      maxLng,
+      maxLat
+    }
   };
 }

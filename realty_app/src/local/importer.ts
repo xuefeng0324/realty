@@ -40,6 +40,7 @@ import type {
   LocalOrientationFloor,
   LocalDecorateAge,
   LocalCommunityScatter,
+  LocalDistrictPolygon,
   LocalMetroWalk,
   LocalPoi,
   LocalSchool,
@@ -135,6 +136,10 @@ export interface SnapshotInputs {
   decorateAgeCSV?: string;
   /** v0.45.0: 社区 散点 */
   communityScatterCSV?: string;
+  /** v0.46.0: 行政区边界 */
+  districtPolygonCSV?: string;
+  /** v0.46.0: 社区 lng/lat */
+  communityGeoCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -457,6 +462,81 @@ function parseCommunityScatter(csvText: string): LocalCommunityScatter[] {
     .filter((x): x is LocalCommunityScatter => x !== null);
 }
 
+function parseDistrictPolygon(
+  csvText: string,
+  cityCodes: Map<number, string>
+): LocalDistrictPolygon[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const code = s(r.district_code);
+      const name = s(r.district_name);
+      if (!code || !name) return null;
+      const num = (v: string | undefined): number => {
+        if (v === undefined || v === "") return 0;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : 0;
+      };
+      const lng = num(r.center_lng);
+      const lat = num(r.center_lat);
+      let polygons: Array<Array<[number, number]>> = [];
+      try {
+        const raw = r.polygons_json ?? "[]";
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          for (const ring of parsed) {
+            if (!Array.isArray(ring)) continue;
+            const pts: Array<[number, number]> = [];
+            for (const pt of ring) {
+              if (Array.isArray(pt) && pt.length >= 2) {
+                pts.push([Number(pt[0]), Number(pt[1])]);
+              }
+            }
+            if (pts.length >= 3) polygons.push(pts);
+          }
+        }
+      } catch {
+        polygons = [];
+      }
+      let cityId = 0;
+      for (const [cid, ccode] of cityCodes) {
+        if (code.startsWith(ccode.slice(0, 4))) {
+          cityId = cid;
+          break;
+        }
+      }
+      return {
+        cityId,
+        districtCode: code,
+        districtName: name,
+        centerLng: lng,
+        centerLat: lat,
+        polygons,
+        polylineCount: polygons.length
+      } as LocalDistrictPolygon;
+    })
+    .filter((x): x is LocalDistrictPolygon => x !== null);
+}
+
+function parseCommunityGeo(csvText: string): DataSnapshot["communityGeo"] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.city_id);
+      const commId = n(r.community_id);
+      const lat = n(r.lat);
+      const lng = n(r.lng);
+      if (cid == null || commId == null || lat == null || lng == null) return null;
+      return {
+        communityId: commId,
+        cityId: cid,
+        communityName: s(r.community_name) ?? "",
+        district: s(r.district) ?? "",
+        lat,
+        lng
+      };
+    })
+    .filter((x): x is DataSnapshot["communityGeo"][number] => x !== null);
+}
+
 function parseLifeConvenience(csvText: string): LocalLifeConvenience[] {
   return rowsToObjects<Record<string, string>>(parseCSV(csvText))
     .map((r) => {
@@ -567,6 +647,8 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     cityCode: s(r.city_code) ?? "",
     cityName: s(r.city_name) ?? ""
   }));
+  const cityCodes = new Map<number, string>();
+  for (const c of cities) cityCodes.set(c.cityId, c.cityCode);
 
   const communityRows = rowsToObjects<Record<string, string>>(parseCSV(inputs.communitiesCSV));
   const communities: LocalCommunity[] = communityRows.map((r) => ({
@@ -1059,6 +1141,10 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     communityScatter: inputs.communityScatterCSV
       ? parseCommunityScatter(inputs.communityScatterCSV)
       : [],
+    districtPolygon: inputs.districtPolygonCSV
+      ? parseDistrictPolygon(inputs.districtPolygonCSV, cityCodes)
+      : [],
+    communityGeo: inputs.communityGeoCSV ? parseCommunityGeo(inputs.communityGeoCSV) : [],
     availableWeeks
   };
 }

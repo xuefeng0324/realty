@@ -421,6 +421,15 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 AC | trend-25 | dashboard **inline SVG 散点图** + 4 quadrant 列表 | ✅ v0.45.0 | 660×360 + 虚线十字 + 圆点 |
 | 🟢 AC | trend-25 | smoke_scatter.mjs E2E + screenshots | ✅ v0.45.0 | 广州 8 圆 / 深圳 11 圆 |
 
+## J 段: map-11 行政区域地图 (v0.46.0)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 AC | map-11 | crawl_district_polygon.py 拉 24 区 polygon (5474 pts) | ✅ v0.46.0 | 高德 /v3/config/district |
+| 🟢 AC | map-11 | types/parser/store/queries 全栈 (communityGeo + districtPolygon) | ✅ v0.46.0 | 6 单测 |
+| 🟢 AC | map-11 | dashboard **inline SVG 地图** (district path + 区 label + 社区 marker) | ✅ v0.46.0 | fill-rule: evenodd 处理洞 |
+| 🟢 AC | map-11 | smoke_map.mjs E2E + screenshots | ✅ v0.46.0 | 深圳 10 district + 8 markers |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

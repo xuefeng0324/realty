@@ -574,6 +574,23 @@ export interface LocalCommunityScatter {
 }
 
 /**
+ * v0.46.0: 行政区边界多边形 (scripts/crawl_district_polygon.py)
+ * per district: lng/lat center + 多边形 ring 数组 (含洞)
+ * polygons: array of rings, 每个 ring 是 [lng, lat] 点数组
+ */
+export interface LocalDistrictPolygon {
+  cityId: number;
+  districtCode: string;
+  districtName: string;
+  centerLng: number;
+  centerLat: number;
+  /** 多边形 rings, 第一个是外环, 后续是内环 (洞) */
+  polygons: Array<Array<[number, number]>>;
+  /** 多边形 ring 数量 (含洞) */
+  polylineCount: number;
+}
+
+/**
  * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
  * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
  * 用于 dashboard 展示"区级近 N 周房价趋势"。
@@ -650,6 +667,17 @@ export interface DataSnapshot {
   decorateAge: LocalDecorateAge[];
   /** v0.45.0: 社区 总价 × 单价 散点 (scripts/compute_community_scatter.py) */
   communityScatter: LocalCommunityScatter[];
+  /** v0.46.0: 行政区 边界多边形 (scripts/crawl_district_polygon.py) */
+  districtPolygon: LocalDistrictPolygon[];
+  /** v0.46.0: 社区 lng/lat (用于 marker) */
+  communityGeo: Array<{
+    communityId: number;
+    cityId: number;
+    communityName: string;
+    district: string;
+    lat: number;
+    lng: number;
+  }>;
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

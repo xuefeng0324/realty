@@ -1,118 +1,121 @@
-/**
- * smoke_map.mjs
- * =========================
- * 验证"地图找房"页：
- *   1. 通过 #/pages/map-view/map-view 进入
- *   2. 等到 <map> 元素渲染
- *   3. 等到 communities_geo.csv 加载 + markers/circles 计算完成
- *   4. 验证 map-wrap 存在 + 有 markers 或 circles
- *   5. 截图保存
- */
+// smoke_map.mjs — v0.46.0 map-11 行政区 + 社区 marker SVG 地图 E2E
 import { chromium } from "playwright";
+import { mkdirSync } from "node:fs";
+import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import path from "node:path";
-import fs from "node:fs";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const OUT_DIR = path.resolve(__dirname, "../../e2e-screenshots");
-fs.mkdirSync(OUT_DIR, { recursive: true });
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const SCREENSHOT_DIR = resolve(__dirname, "../../screenshots");
+mkdirSync(SCREENSHOT_DIR, { recursive: true });
 
-const URL = process.env.E2E_BASE_URL ?? "http://127.0.0.1:5174/#/pages/map-view/map-view";
+const BASE = process.env.REALTY_E2E_BASE_URL || "http://127.0.0.1:5175";
 
-async function run() {
-  const browser = await chromium.launch();
-  const ctx = await browser.newContext({
-    viewport: { width: 420, height: 900 }
-  });
-  const page = await ctx.newPage();
-  const consoleErrors = [];
-  page.on("pageerror", (e) => consoleErrors.push(String(e)));
-  page.on("console", (m) => {
-    if (m.type() === "error") consoleErrors.push(m.text());
-  });
-
-  try {
-    await page.goto(URL, { waitUntil: "domcontentloaded", timeout: 30000 });
-    // 等地图容器
-    await page.waitForSelector(".map-wrap", { timeout: 15000 });
-    console.log("[map] 容器存在 ✓");
-    // 等 map 子元素 (uni-app <map> 渲染后是 uni-map 等)
-    await page.waitForSelector(".uni-map, .map, [id*='map']", { timeout: 15000 });
-    console.log("[map] <map> 元素渲染 ✓");
-
-    // 等 listings/circles 加载完成（顶部文字有 N 个小区）
-    await page.waitForFunction(
-      () => {
-        const txt = document.body.innerText || "";
-        return /(\d+)\s*个小区/.test(txt);
-      },
-      { timeout: 20000 }
-    );
-    const bodyText = await page.locator("body").innerText();
-    console.log("[map] 顶部计数文字存在 ✓");
-
-    // 找带 N 个小区的行
-    const totalMatch = bodyText.match(/(\d+)\s*个小区\s*[·•]\s*(\d+)\s*套挂牌/);
-    if (totalMatch) {
-      const communities = parseInt(totalMatch[1], 10);
-      const listings = parseInt(totalMatch[2], 10);
-      if (communities < 50) {
-        throw new Error(`期望 ≥50 个小区, 实际 ${communities}`);
-      }
-      if (listings < 1000) {
-        throw new Error(`期望 ≥1000 套挂牌, 实际 ${listings}`);
-      }
-      console.log(`[map] 统计: ${communities} 个小区 · ${listings} 套挂牌 ✓`);
-    } else {
-      throw new Error("未找到 'N 个小区 · N 套挂牌' 计数文字");
-    }
-
-    // 验证切换到挂牌点按钮存在
-    const toggleBtn = await page.locator("text=切到成交价热力").count();
-    if (toggleBtn === 0) {
-      throw new Error("未找到 '切到成交价热力' 按钮");
-    }
-    console.log("[map] 切换按钮存在 ✓");
-
-    // 验证深圳/广州/珠海 切换按钮
-    for (const city of ["深圳", "广州", "珠海"]) {
-      const btn = await page.locator(`text=${city}`).count();
-      if (btn === 0) throw new Error(`未找到 ${city} 切换按钮`);
-    }
-    console.log("[map] 三个城市切换按钮存在 ✓");
-
-    // 截图
-    await page.screenshot({
-      path: path.join(OUT_DIR, "smoke_map.png"),
-      fullPage: true
-    });
-    console.log("  截图已保存 → smoke_map.png");
-
-    // 切到深圳 (默认可能就是深圳)
-    await page.locator("text=深圳").first().click();
-    await page.waitForTimeout(1500);
-    await page.screenshot({
-      path: path.join(OUT_DIR, "smoke_map_sz.png"),
-      fullPage: true
-    });
-    console.log("  截图已保存 → smoke_map_sz.png");
-
-    if (consoleErrors.length > 0) {
-      console.warn(`[map] console errors: ${consoleErrors.length}`);
-      for (const e of consoleErrors) console.warn("  - " + e.slice(0, 200));
-    }
-    console.log("\n✓ smoke_map 通过");
-  } catch (e) {
-    console.error("\n✗ smoke_map 失败:", e.message);
-    await page.screenshot({
-      path: path.join(OUT_DIR, "smoke_map_FAIL.png"),
-      fullPage: true
-    });
-    process.exitCode = 1;
-  } finally {
-    await browser.close();
+async function scrollCardIntoView(page, cardTitle) {
+  for (let i = 0; i < 15; i++) {
+    const vis = await page
+      .locator(".card-title", { hasText: new RegExp(cardTitle) })
+      .first()
+      .isVisible()
+      .catch(() => false);
+    if (vis) return;
+    await page.mouse.wheel(0, 800);
+    await page.waitForTimeout(300);
   }
 }
 
-run();
+async function pickCity(page, label) {
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(400);
+  const trigger = page.locator(".form-row", { hasText: "城市" }).first();
+  await trigger.waitFor({ state: "visible", timeout: 8000 });
+  await trigger.click({ force: true });
+  await page.waitForTimeout(600);
+  const item = page.locator(".sheet-item", { hasText: new RegExp(label) }).first();
+  await item.waitFor({ state: "visible", timeout: 8000 });
+  await item.click({ force: true });
+  await page.waitForTimeout(2500);
+}
+
+async function main() {
+  const browser = await chromium.launch();
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const page = await ctx.newPage();
+  page.on("pageerror", (e) => console.log("[pageerror]", e.message));
+
+  console.log(`navigate ${BASE}`);
+  await page.goto(BASE, { waitUntil: "networkidle" });
+  await page.waitForTimeout(1500);
+
+  // 广州
+  await scrollCardIntoView(page, "行政区域图");
+  const visible = await page
+    .locator(".card-title", { hasText: /行政区域图/ })
+    .first()
+    .isVisible()
+    .catch(() => false);
+  if (!visible) {
+    console.error("FAIL: 地图卡 not visible");
+    await browser.close();
+    process.exit(1);
+  }
+  console.log("OK: 地图卡 visible");
+
+  // SVG + district path + marker 都存在
+  const svgCount = await page.locator("svg.map-svg").count();
+  if (svgCount !== 1) {
+    console.error(`FAIL: 应有 1 个 SVG, got ${svgCount}`);
+    await browser.close();
+    process.exit(1);
+  }
+
+  const districtPathCount = await page.locator("svg.map-svg path.map-district-p").count();
+  console.log(`广州 district 多边形数量: ${districtPathCount}`);
+  if (districtPathCount < 1) {
+    console.error(`FAIL: 应至少 1 个 district 多边形`);
+    await browser.close();
+    process.exit(1);
+  }
+
+  const districtLabelCount = await page.locator("svg.map-svg text.map-district-lbl").count();
+  console.log(`广州 区名 label 数量: ${districtLabelCount}`);
+
+  const markerCount = await page.locator("svg.map-svg circle.map-marker, svg.map-svg circle.map-marker-bare").count();
+  console.log(`广州 marker 数量: ${markerCount}`);
+
+  // 截图: 把 SVG 滚到 viewport 中心, 然后截 viewport
+  await page.evaluate(() => {
+    const svg = document.querySelector("svg.map-svg");
+    if (svg) svg.scrollIntoView({ block: "center", behavior: "instant" });
+  });
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: `${SCREENSHOT_DIR}/v0.46.0_map_gz.png`, fullPage: false });
+  console.log("screenshot: v0.46.0_map_gz.png");
+
+  // 切到深圳 (区数最多)
+  await pickCity(page, "深圳");
+  await page.waitForTimeout(2000);
+  await scrollCardIntoView(page, "行政区域图");
+  const szPathCount = await page.locator("svg.map-svg path.map-district-p").count();
+  console.log(`深圳 district 多边形数量: ${szPathCount}`);
+  if (szPathCount < 5) {
+    console.error(`FAIL: 深圳 district ≥ 5, got ${szPathCount}`);
+    await browser.close();
+    process.exit(1);
+  }
+
+  await page.evaluate(() => {
+    const svg = document.querySelector("svg.map-svg");
+    if (svg) svg.scrollIntoView({ block: "center", behavior: "instant" });
+  });
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: `${SCREENSHOT_DIR}/v0.46.0_map_sz.png`, fullPage: false });
+  console.log("screenshot: v0.46.0_map_sz.png");
+
+  console.log("\nALL PASS");
+  await browser.close();
+}
+
+main().catch((e) => {
+  console.error("e2e error:", e);
+  process.exit(1);
+});

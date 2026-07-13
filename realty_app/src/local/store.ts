@@ -32,6 +32,7 @@ import type {
   LocalOrientationFloor,
   LocalDecorateAge,
   LocalCommunityScatter,
+  LocalDistrictPolygon,
   LocalMetroWalk,
   LocalListing,
   LocalListingSchoolPremium,
@@ -472,6 +473,22 @@ export function getCommunityScatter(): LocalCommunityScatter[] {
 
 export function getCommunityScatterByCity(cityId: number): LocalCommunityScatter[] {
   return (snapshot?.communityScatter ?? []).filter((c) => c.cityId === cityId);
+}
+
+export function getDistrictPolygon(): LocalDistrictPolygon[] {
+  return snapshot?.districtPolygon ?? [];
+}
+
+export function getDistrictPolygonByCity(cityId: number): LocalDistrictPolygon[] {
+  return (snapshot?.districtPolygon ?? []).filter((d) => d.cityId === cityId);
+}
+
+export function getCommunityGeo() {
+  return snapshot?.communityGeo ?? [];
+}
+
+export function getCommunityGeoByCity(cityId: number) {
+  return (snapshot?.communityGeo ?? []).filter((g) => g.cityId === cityId);
 }
 
 /**

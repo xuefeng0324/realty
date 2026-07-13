@@ -1189,6 +1189,77 @@
         </view>
       </view>
 
+      <!-- v0.46.0 map-11 行政区 + 社区 marker 地图 -->
+      <view v-if="districtMap && districtMap.districts.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">🗺️ 行政区域图 · {{ districtMap.cityName }}</view>
+          <view class="muted">{{ districtMap.districts.length }} 区 · {{ districtMap.markers.length }} 社区</view>
+        </view>
+        <view class="map-wrap">
+          <svg
+            :viewBox="`0 0 ${MAP_W} ${MAP_H}`"
+            class="map-svg"
+            xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <!-- 行政区多边形 (fill-rule:evenodd 自动处理洞) -->
+            <g class="map-districts">
+              <path
+                v-for="d in districtMap.districts"
+                :key="'d_' + d.districtCode"
+                :d="districtAllPath(d.polygons, districtMap.bbox.minLng, districtMap.bbox.maxLng, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
+                :class="['map-district-p']"
+                :data-name="d.districtName"
+                fill-rule="evenodd"
+              />
+              <!-- 区名 label (center) -->
+              <text
+                v-for="d in districtMap.districts"
+                :key="'lbl_' + d.districtCode"
+                :x="mapX(d.centerLng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
+                :y="mapY(d.centerLat, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
+                text-anchor="middle"
+                dominant-baseline="middle"
+                class="map-district-lbl"
+              >{{ d.districtName }}</text>
+            </g>
+            <!-- 社区 marker (圆点 + 名字) -->
+            <g v-if="districtMap.markers.length <= 30">
+              <g
+                v-for="m in districtMap.markers"
+                :key="'m_' + m.communityId"
+              >
+                <circle
+                  :cx="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
+                  :cy="mapY(m.lat, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
+                  r="5"
+                  class="map-marker"
+                />
+                <text
+                  :x="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng) + 7"
+                  :y="mapY(m.lat, districtMap.bbox.minLat, districtMap.bbox.maxLat) + 3"
+                  class="map-marker-lbl"
+                >{{ m.communityName }}</text>
+              </g>
+            </g>
+            <g v-else>
+              <circle
+                v-for="m in districtMap.markers"
+                :key="'mb_' + m.communityId"
+                :cx="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
+                :cy="mapY(m.lat, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
+                r="3"
+                class="map-marker-bare"
+              />
+            </g>
+          </svg>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：高德 /v3/config/district (行政区边界) + communities_geo.csv (社区经纬度)<br>
+          v0.46.0 区名 = 直辖市区 + 行政区; 社区 marker = 圆点 + 名字 (≤30 社区时显示, 超过则简化为点)
+        </view>
+      </view>
+
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
       <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card">
         <view class="row-between">
@@ -1604,7 +1675,8 @@ import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWa
   getBedroomAreaDistribution,
   getOrientationFloorMatrix,
   getDecorateAgeMatrix,
-  getCommunityScatter, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type BedroomAreaResponse, type OrientationFloorResponse, type DecorateAgeResponse, type CommunityScatterResponse } from "../../local/queries";
+  getCommunityScatter,
+  getDistrictMap, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type BedroomAreaResponse, type OrientationFloorResponse, type DecorateAgeResponse, type CommunityScatterResponse, type DistrictMapResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -1670,6 +1742,8 @@ const orientationFloor = ref<OrientationFloorResponse | null>(null);
 const decorateAge = ref<DecorateAgeResponse | null>(null);
 // v0.45.0 trend-25: 总价 × 单价 双轴散点
 const scatter = ref<CommunityScatterResponse | null>(null);
+// v0.46.0 map-11: 行政区 + 社区 marker 地图
+const districtMap = ref<DistrictMapResponse | null>(null);
 // v0.38.0 trend-18: 区情画像
 const districtMeta = ref<DistrictMetaResponse | null>(null);
 const districtMetaSortBy = ref<"default" | "price" | "school" | "mom" | "listing">("price");
@@ -2023,6 +2097,54 @@ const scatterAxisTicks = computed(() => {
   }
   return { xs, ys };
 });
+
+// v0.46.0 map-11: 行政区 + 社区 marker 地图
+async function reloadDistrictMap() {
+  try {
+    districtMap.value = await getDistrictMap(app.cityId);
+  } catch (e) {
+    console.warn("getDistrictMap failed:", e);
+    districtMap.value = null;
+  }
+}
+
+const MAP_W = 660;
+const MAP_H = 480;
+
+/** lng/lat -> SVG x/y (flip lat because SVG y grows downward) */
+function mapX(lng: number, minLng: number, maxLng: number): number {
+  const range = Math.max(maxLng - minLng, 0.001);
+  const innerW = MAP_W - 40;
+  return 20 + ((lng - minLng) / range) * innerW;
+}
+
+function mapY(lat: number, minLat: number, maxLat: number): number {
+  const range = Math.max(maxLat - minLat, 0.001);
+  const innerH = MAP_H - 40;
+  return 20 + innerH - ((lat - minLat) / range) * innerH;
+}
+
+/** ring -> SVG path */
+function ringToPath(ring: Array<[number, number]>, minLng: number, maxLng: number, minLat: number, maxLat: number): string {
+  if (ring.length === 0) return "";
+  let d = "";
+  for (let i = 0; i < ring.length; i++) {
+    const [lng, lat] = ring[i];
+    const x = mapX(lng, minLng, maxLng);
+    const y = mapY(lat, minLat, maxLat);
+    d += (i === 0 ? "M" : "L") + x.toFixed(1) + "," + y.toFixed(1);
+  }
+  return d + "Z";
+}
+
+/** district 多边形渲染 (用 fill-rule:evenodd 自动处理洞) */
+function districtAllPath(districtPolygons: Array<Array<[number, number]>>, minLng: number, maxLng: number, minLat: number, maxLat: number): string {
+  let d = "";
+  for (const ring of districtPolygons) {
+    d += ringToPath(ring, minLng, maxLng, minLat, maxLat);
+  }
+  return d;
+}
 function mbBandClass(score: number) {
   if (score >= 75) return "mb-tag-green";
   if (score >= 40) return "mb-tag-orange";
@@ -2415,6 +2537,8 @@ async function loadRankingAndDistrict() {
       await reloadDecorateAge();
       // v0.45.0 trend-25 总价 × 单价 散点
       await reloadScatter();
+      // v0.46.0 map-11 行政区 + 社区 marker
+      await reloadDistrictMap();
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
         cityId: app.cityId,
@@ -4876,5 +5000,58 @@ onShow(async () => {
   font-size: 22rpx;
   width: 90rpx;
   text-align: right;
+}
+
+/* v0.46.0 map-11: 行政区 + 社区 marker 地图 */
+.map-wrap {
+  width: 100%;
+  margin-top: 12rpx;
+  background: #f1f5f9;
+  border-radius: 8rpx;
+  padding: 8rpx;
+  overflow: hidden;
+}
+.map-svg {
+  width: 100%;
+  height: auto;
+  max-height: 60vh;
+  display: block;
+  background: #f1f5f9;
+  border-radius: 4rpx;
+}
+.map-district-p {
+  fill: rgba(186, 230, 253, 0.55);
+  stroke: #1e40af;
+  stroke-width: 1.5;
+  stroke-opacity: 0.85;
+  stroke-linejoin: round;
+  transition: fill 0.2s;
+}
+.map-district-p:hover {
+  fill: rgba(254, 215, 170, 0.7);
+}
+.map-district-lbl {
+  font-size: 14px;
+  font-weight: 600;
+  fill: #1e3a8a;
+  pointer-events: none;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.9);
+}
+.map-marker {
+  fill: #dc2626;
+  stroke: white;
+  stroke-width: 1.5;
+  fill-opacity: 0.85;
+}
+.map-marker-bare {
+  fill: #dc2626;
+  fill-opacity: 0.7;
+}
+.map-marker-lbl {
+  font-size: 11px;
+  font-weight: 500;
+  fill: #991b1b;
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.9);
+  pointer-events: none;
 }
 </style>

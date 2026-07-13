@@ -2891,4 +2891,100 @@ describe("build integrity", () => {
       expect(resp!.points.length).toBeGreaterThanOrEqual(5);
     });
   });
+
+  // v0.46.0 map-11: 行政区 + 社区 marker
+  describe("v0.46.0 map-11 行政区 + 社区 marker 地图", () => {
+    it("district_polygon.csv 存在 + 有 polygons_json", () => {
+      const csv = readFileSync(resolve(ROOT, "static/seed/district_polygon.csv"), "utf8");
+      expect(csv).toMatch(/^(\ufeff)?district_code,district_name/);
+      const lines = csv.trim().split(/\r?\n/);
+      expect(lines.length).toBeGreaterThan(20);
+      expect(csv).toMatch(/polygons_json/);
+    });
+
+    it("communities_geo.csv 存在 + 有 lat/lng", () => {
+      const csv = readFileSync(resolve(ROOT, "static/seed/communities_geo.csv"), "utf8");
+      expect(csv).toMatch(/^(\ufeff)?community_id,city_id,community_name,lat,lng/);
+      const lines = csv.trim().split(/\r?\n/);
+      expect(lines.length).toBeGreaterThan(20);
+    });
+
+    it("crawl_district_polygon.py + types/parser/store/queries 实现", () => {
+      const script = readFileSync(resolve(ROOT, "scripts/crawl_district_polygon.py"), "utf8");
+      expect(script).toMatch(/district_polygon\.csv/);
+      expect(script).toMatch(/config\/district/);
+
+      const types = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(types).toMatch(/LocalDistrictPolygon/);
+      expect(types).toMatch(/districtPolygon:\s*LocalDistrictPolygon\[\]/);
+      expect(types).toMatch(/polygons:\s*Array<Array<\[number/);
+
+      const importer = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(importer).toMatch(/function parseDistrictPolygon/);
+      expect(importer).toMatch(/function parseCommunityGeo/);
+      expect(importer).toMatch(/districtPolygonCSV/);
+      expect(importer).toMatch(/communityGeoCSV/);
+
+      const store = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(store).toMatch(/getDistrictPolygon\(/);
+      expect(store).toMatch(/getDistrictPolygonByCity\(/);
+      expect(store).toMatch(/getCommunityGeoByCity\(/);
+
+      const queries = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(queries).toMatch(/export function getDistrictMap/);
+      expect(queries).toMatch(/DistrictMapResponse/);
+      expect(queries).toMatch(/bbox/);
+    });
+
+    it("seedSnapshot.ts + dataRefresher.ts + settings.vue 接入", () => {
+      const seed = readFileSync(resolve(ROOT, "src/local/seedSnapshot.ts"), "utf8");
+      expect(seed).toMatch(/import districtPolygonCSV/);
+      expect(seed).toMatch(/import communityGeoCSV/);
+      expect(seed).toMatch(/districtPolygonCSV:/);
+      expect(seed).toMatch(/communityGeoCSV:/);
+
+      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
+      expect(ref).toMatch(/districtPolygon:/);
+      expect(ref).toMatch(/communityGeo:/);
+
+      const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
+      expect(settings).toMatch(/district_polygon\.csv/);
+      expect(settings).toMatch(/communities_geo\.csv/);
+    });
+
+    it("dashboard.vue 地图卡 + SVG + 多边形 + marker + label", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/行政区域图/);
+      expect(dash).toMatch(/districtMap/);
+      expect(dash).toMatch(/reloadDistrictMap/);
+      expect(dash).toMatch(/map-svg/);
+      expect(dash).toMatch(/mapDistrictClass|map-district-p/);
+      expect(dash).toMatch(/map-marker/);
+      expect(dash).toMatch(/mapX|mapY/);
+      expect(dash).toMatch(/districtAllPath|ringToPath/);
+      expect(dash).toMatch(/fill-rule="evenodd"/);
+    });
+
+    it("getDistrictMap 返回 bbox + 多边形 + markers", async () => {
+      const { setSnapshot } = await import("../src/local/store");
+      const { buildSeedSnapshot, resetSeedSnapshotCache } = await import("../src/local/seedSnapshot");
+      resetSeedSnapshotCache();
+      setSnapshot(buildSeedSnapshot());
+      const { getDistrictMap } = await import("../src/local/queries");
+      const resp = getDistrictMap(2); // 深圳
+      expect(resp).toBeTruthy();
+      expect(resp!.districts.length).toBeGreaterThanOrEqual(5);
+      expect(resp!.markers.length).toBeGreaterThan(0);
+      // bbox valid
+      expect(resp!.bbox.maxLng).toBeGreaterThan(resp!.bbox.minLng);
+      expect(resp!.bbox.maxLat).toBeGreaterThan(resp!.bbox.minLat);
+      // 至少 80% district 有 polyline (大鹏新区属于边界区,可能无 polyline)
+      let withPoly = 0;
+      for (const d of resp!.districts) {
+        if (d.polygons.length > 0 && d.polygons[0].length >= 3) withPoly++;
+      }
+      const ratio = withPoly / resp!.districts.length;
+      expect(ratio).toBeGreaterThanOrEqual(0.8);
+    });
+  });
 });

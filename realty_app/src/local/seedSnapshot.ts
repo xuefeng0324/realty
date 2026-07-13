@@ -96,6 +96,8 @@ import bedroomAreaCSV from "../../static/seed/bedroom_area.csv?raw";
 import orientationFloorCSV from "../../static/seed/orientation_floor.csv?raw";
 import decorateAgeCSV from "../../static/seed/decorate_age.csv?raw";
 import communityScatterCSV from "../../static/seed/community_scatter.csv?raw";
+import districtPolygonCSV from "../../static/seed/district_polygon.csv?raw";
+import communityGeoCSV from "../../static/seed/communities_geo.csv?raw";
 
 let cached: DataSnapshot | null = null;
 
@@ -135,7 +137,9 @@ export function buildSeedSnapshot(): DataSnapshot {
       bedroomAreaCSV: String(bedroomAreaCSV ?? ""),
       orientationFloorCSV: String(orientationFloorCSV ?? ""),
       decorateAgeCSV: String(decorateAgeCSV ?? ""),
-      communityScatterCSV: String(communityScatterCSV ?? "")
+      communityScatterCSV: String(communityScatterCSV ?? ""),
+      districtPolygonCSV: String(districtPolygonCSV ?? ""),
+      communityGeoCSV: String(communityGeoCSV ?? "")
     },
     "seed:public-derived"
   );
