@@ -488,6 +488,17 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 AC | map-12 | 非 marker 模式: marker 隐藏, 区中心显示聚合值 | ✅ v0.52.0 | `map-district-val` |
 | 🟢 AC | map-12 | buildIntegrity +4 测试 + E2E (5 模式都验证) | ✅ v0.52.0 | 435/435 通过 + 6 screenshots |
 
+## Q 段: macro-1 LPR + 房贷利率 (v0.53.0)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 AC | macro-1 | 数据源: PBOC 公开公告 LPR 1Y/5Y (2019-08 → 2026-06) | ✅ v0.53.0 | 手工录入 83 月, 主流媒体复核 |
+| 🟢 AC | macro-1 | `scripts/compute_lpr_history.py` 生成 lpr_history.csv | ✅ v0.53.0 | 6 列: month/lpr_1y/lpr_5y/mortgage_first/mortgage_second/source |
+| 🟢 AC | macro-1 | `LocalLprRow` types + DataSnapshot.lprHistory | ✅ v0.53.0 | 全链路接入 |
+| 🟢 AC | macro-1 | `parseLprHistory` / `getLprHistory` / `getLprOverview` | ✅ v0.53.0 | 含 cumDrop / yoyDrop / series / latest |
+| 🟢 AC | macro-1 | dashboard 「💰 LPR + 房贷利率」卡片 (4 KPI + 累计 + sparkline) | ✅ v0.53.0 | 5Y LPR 近 36 月 SVG sparkline |
+| 🟢 AC | macro-1 | buildIntegrity +4 测试 + E2E 验证 (3.00/3.50/3.20/3.85) | ✅ v0.53.0 | 439/439 通过 + 2 screenshots |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

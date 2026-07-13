@@ -1427,6 +1427,83 @@
         </view>
       </view>
 
+      <!-- v0.53.0 macro-1 LPR + 房贷利率 -->
+      <view v-if="lpr && lpr.total > 0" class="card" data-tab="all,price">
+        <view class="row-between">
+          <view class="card-title">💰 LPR + 房贷利率 · 全国</view>
+          <view class="muted">{{ lpr.total }} 月历史 · 最新 {{ lpr.latest?.month }}</view>
+        </view>
+
+        <!-- 当前利率 KPI -->
+        <view class="lpr-kpi">
+          <view class="lpr-kpi-cell">
+            <view class="lpr-kpi-label">1Y LPR</view>
+            <view class="lpr-kpi-val">{{ lpr.latest?.lpr1y.toFixed(2) }}<text class="lpr-kpi-unit">%</text></view>
+          </view>
+          <view class="lpr-kpi-cell lpr-kpi-cell--5y">
+            <view class="lpr-kpi-label">5Y+ LPR</view>
+            <view class="lpr-kpi-val">{{ lpr.latest?.lpr5y.toFixed(2) }}<text class="lpr-kpi-unit">%</text></view>
+          </view>
+          <view class="lpr-kpi-cell">
+            <view class="lpr-kpi-label">首套房贷</view>
+            <view class="lpr-kpi-val lpr-kpi-val--down">{{ lpr.latest?.mortgageFirst.toFixed(2) }}<text class="lpr-kpi-unit">%</text></view>
+          </view>
+          <view class="lpr-kpi-cell">
+            <view class="lpr-kpi-label">二套房贷</view>
+            <view class="lpr-kpi-val">{{ lpr.latest?.mortgageSecond.toFixed(2) }}<text class="lpr-kpi-unit">%</text></view>
+          </view>
+        </view>
+
+        <!-- 累计下调 -->
+        <view class="lpr-drop-row">
+          <view class="lpr-drop-cell">
+            <text class="lpr-drop-label">自 2019-08 累计下调</text>
+            <text class="lpr-drop-val lpr-drop-val--down">5Y: -{{ lpr.cumDrop5y }} pp</text>
+            <text class="lpr-drop-val lpr-drop-val--down">1Y: -{{ lpr.cumDrop1y }} pp</text>
+          </view>
+          <view class="lpr-drop-cell">
+            <text class="lpr-drop-label">近 12 月</text>
+            <text class="lpr-drop-val" :class="lpr.yoyDrop5y < 0 ? 'lpr-drop-val--down' : 'lpr-drop-val--up'">5Y: {{ lpr.yoyDrop5y > 0 ? '+' : '' }}{{ lpr.yoyDrop5y }} pp</text>
+            <text class="lpr-drop-val" :class="lpr.yoyDrop1y < 0 ? 'lpr-drop-val--down' : 'lpr-drop-val--up'">1Y: {{ lpr.yoyDrop1y > 0 ? '+' : '' }}{{ lpr.yoyDrop1y }} pp</text>
+          </view>
+        </view>
+
+        <!-- 5Y LPR sparkline (SVG) -->
+        <view class="lpr-chart-title">📉 5Y+ LPR 走势 (近 36 月)</view>
+        <view class="lpr-chart-wrap">
+          <svg :viewBox="`0 0 ${LPR_W} ${LPR_H}`" class="lpr-chart" preserveAspectRatio="none">
+            <path
+              v-if="lprSpark5y.path"
+              :d="lprSpark5y.path"
+              fill="none"
+              stroke="#ef4444"
+              stroke-width="2"
+              stroke-linejoin="round"
+            />
+            <circle
+              v-if="lprSpark5y.last"
+              :cx="lprSpark5y.last.x"
+              :cy="lprSpark5y.last.y"
+              r="3"
+              fill="#ef4444"
+            >
+              <title>{{ lpr.latest?.month }} 5Y LPR = {{ lpr.latest?.lpr5y }}%</title>
+            </circle>
+            <!-- Y 轴 labels -->
+            <text v-for="(lbl, i) in lprSpark5y.yLabels" :key="'y_' + i" :x="4" :y="lbl.y + 4" class="lpr-chart-ylbl">{{ lbl.text }}</text>
+            <!-- X 轴 labels (首/末/月数) -->
+            <text :x="4" :y="LPR_H - 4" class="lpr-chart-xlbl">{{ lpr.series[Math.max(0, lpr.series.length - 36)].month }}</text>
+            <text :x="LPR_W - 4" :y="LPR_H - 4" text-anchor="end" class="lpr-chart-xlbl">{{ lpr.latest?.month }}</text>
+          </svg>
+        </view>
+
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：央行 PBOC 公开公告 (lpr_history.csv · 83 月 · {{ lpr.series[0].month }} → {{ lpr.latest?.month }})。
+          首套房贷 = 5Y LPR + 加点 (-30bp), 二套 = 5Y LPR + 35bp (一线城市普遍加点)。
+          房贷利率直接影响月供：100w 贷 30 年等额本息，每 25bp 约影响月供 ¥150。
+        </view>
+      </view>
+
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
       <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card" data-tab="all,transit">
         <view class="row-between">
@@ -1847,7 +1924,9 @@ import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWa
   getCommunityScatter,
   getDistrictMap,
   getSchoolDimensions,
+  getLprOverview,
   type SchoolDimResponse,
+  type LprResponse,
   type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type BedroomAreaResponse, type OrientationFloorResponse, type DecorateAgeResponse, type CommunityScatterResponse, type DistrictMapResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
@@ -1919,6 +1998,8 @@ const scatter = ref<CommunityScatterResponse | null>(null);
 const districtMap = ref<DistrictMapResponse | null>(null);
 // v0.47.0 school-4: 学区指标细分
 const schoolDims = ref<SchoolDimResponse | null>(null);
+// v0.53.0 macro-1: LPR + 房贷利率
+const lpr = ref<LprResponse | null>(null);
 // v0.38.0 trend-18: 区情画像
 const districtMeta = ref<DistrictMetaResponse | null>(null);
 const districtMetaSortBy = ref<"default" | "price" | "school" | "mom" | "listing">("price");
@@ -2290,6 +2371,16 @@ async function reloadSchoolDims() {
   } catch (e) {
     console.warn("getSchoolDimensions failed:", e);
     schoolDims.value = null;
+  }
+}
+
+// v0.53.0 macro-1
+async function reloadLpr() {
+  try {
+    lpr.value = await getLprOverview();
+  } catch (e) {
+    console.warn("getLprOverview failed:", e);
+    lpr.value = null;
   }
 }
 
@@ -2762,6 +2853,8 @@ async function loadRankingAndDistrict() {
       await reloadDistrictMap();
       // v0.47.0 school-4 学区指标细分
       await reloadSchoolDims();
+      // v0.53.0 macro-1 LPR + 房贷利率
+      await reloadLpr();
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
         cityId: app.cityId,
@@ -3130,6 +3223,39 @@ const mapModeMax = computed(() => {
 const mapModeGradient = computed(() => {
   if (mapMode.value === "metro") return "linear-gradient(to right, #86efac, #fef08a, #fca5a5, #ef4444)";
   return "linear-gradient(to right, #bae6fd, #86efac, #fde047, #f97316, #ef4444)";
+});
+
+// v0.53.0 macro-1: LPR sparkline (近 36 月 5Y LPR)
+const LPR_W = 600;
+const LPR_H = 90;
+const lprSpark5y = computed<{ path: string; last: { x: number; y: number } | null; yLabels: Array<{ y: number; text: string }> }>(() => {
+  if (!lpr.value || lpr.value.series.length === 0) {
+    return { path: "", last: null, yLabels: [] };
+  }
+  const data = lpr.value.series.slice(-36);
+  const vals = data.map((d) => d.lpr5y);
+  const min = Math.min(...vals);
+  const max = Math.max(...vals);
+  const range = Math.max(0.01, max - min);
+  const pad = 6;
+  const innerW = LPR_W - pad * 2;
+  const innerH = LPR_H - pad * 2;
+  const stepX = data.length > 1 ? innerW / (data.length - 1) : innerW;
+  const points = data.map((d, i) => {
+    const x = pad + i * stepX;
+    const y = pad + (1 - (d.lpr5y - min) / range) * innerH;
+    return { x, y };
+  });
+  let path = "";
+  for (let i = 0; i < points.length; i++) {
+    path += (i === 0 ? "M" : "L") + points[i].x.toFixed(1) + "," + points[i].y.toFixed(1) + " ";
+  }
+  const yLabels: Array<{ y: number; text: string }> = [];
+  for (let i = 0; i < 3; i++) {
+    const v = min + (range * (2 - i)) / 2;
+    yLabels.push({ y: pad + (i * innerH) / 2, text: v.toFixed(2) });
+  }
+  return { path, last: points[points.length - 1] ?? null, yLabels };
 });
 
 // v0.19.0 商业热度评分色码 (>=80 高分 price-up / 50-80 中 muted / <50 低 price-down)
@@ -5465,6 +5591,98 @@ onShow(async () => {
   stroke: rgba(255, 255, 255, 0.85);
   stroke-width: 3;
   stroke-linejoin: round;
+}
+
+/* v0.53.0 macro-1 LPR 卡片样式 */
+.lpr-kpi {
+  display: flex;
+  gap: 8rpx;
+  margin: 12rpx 0;
+}
+.lpr-kpi-cell {
+  flex: 1;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border-radius: 10rpx;
+  padding: 14rpx 10rpx;
+  text-align: center;
+  border: 1rpx solid #fcd34d;
+}
+.lpr-kpi-cell--5y {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  border-color: #f87171;
+}
+.lpr-kpi-label {
+  font-size: 20rpx;
+  color: #78350f;
+  margin-bottom: 4rpx;
+}
+.lpr-kpi-val {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1e293b;
+  font-variant-numeric: tabular-nums;
+}
+.lpr-kpi-val--down {
+  color: #15803d;
+}
+.lpr-kpi-unit {
+  font-size: 20rpx;
+  font-weight: 500;
+  margin-left: 2rpx;
+}
+.lpr-drop-row {
+  display: flex;
+  gap: 12rpx;
+  margin: 8rpx 0 12rpx;
+}
+.lpr-drop-cell {
+  flex: 1;
+  background: #f8fafc;
+  border-radius: 8rpx;
+  padding: 10rpx 12rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.lpr-drop-label {
+  font-size: 20rpx;
+  color: #64748b;
+}
+.lpr-drop-val {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #334155;
+  font-variant-numeric: tabular-nums;
+}
+.lpr-drop-val--down {
+  color: #16a34a;
+}
+.lpr-drop-val--up {
+  color: #dc2626;
+}
+.lpr-chart-title {
+  font-size: 24rpx;
+  color: #334155;
+  font-weight: 600;
+  margin: 8rpx 0 4rpx;
+}
+.lpr-chart-wrap {
+  background: #fafafa;
+  border-radius: 8rpx;
+  padding: 4rpx;
+}
+.lpr-chart {
+  display: block;
+  width: 100%;
+  height: 140rpx;
+}
+.lpr-chart-ylbl {
+  font-size: 9px;
+  fill: #94a3b8;
+}
+.lpr-chart-xlbl {
+  font-size: 9px;
+  fill: #94a3b8;
 }
 /* v0.52.0 map-12: 模式叠加时禁用默认 fill, 使用 :fill 属性 */
 .map-district-p--mode {

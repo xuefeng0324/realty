@@ -323,7 +323,8 @@ async function loadFromCsvUrl(base: string) {
       communityScatterCSV: await fetchText("community_scatter.csv").catch(() => ""),
       districtPolygonCSV: await fetchText("district_polygon.csv").catch(() => ""),
       communityGeoCSV: await fetchText("communities_geo.csv").catch(() => ""),
-      schoolDimensionsCSV: await fetchText("school_dimensions.csv").catch(() => "")
+      schoolDimensionsCSV: await fetchText("school_dimensions.csv").catch(() => ""),
+      lprHistoryCSV: await fetchText("lpr_history.csv").catch(() => "")
     },
     "csv-url:" + root
   );

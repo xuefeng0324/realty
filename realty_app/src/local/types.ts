@@ -52,6 +52,22 @@ export interface LocalSchoolDimension {
   compositeScore: number;
 }
 
+/** v0.53.0 macro-1: LPR + 房贷利率月度历史 */
+export interface LocalLprRow {
+  /** 月份 YYYY-MM */
+  month: string;
+  /** 1 年期 LPR (%) */
+  lpr1y: number;
+  /** 5 年期以上 LPR (%) */
+  lpr5y: number;
+  /** 首套房贷利率 (%, 一线城市 lpr5y + bp_first) */
+  mortgageFirst: number;
+  /** 二套房贷利率 (%) */
+  mortgageSecond: number;
+  /** 数据来源备注 */
+  source: string;
+}
+
 export interface LocalListing {
   listingId: number;
   cityId: number;
@@ -696,6 +712,8 @@ export interface DataSnapshot {
   }>;
   /** v0.47.0: 学区指标细分 (5 维) (scripts/compute_school_dimensions.py) */
   schoolDimensions: LocalSchoolDimension[];
+  /** v0.53.0 macro-1: LPR + 房贷利率历史 (scripts/compute_lpr_history.py) */
+  lprHistory: LocalLprRow[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

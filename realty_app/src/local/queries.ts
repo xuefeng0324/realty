@@ -3215,3 +3215,67 @@ export function getSchoolDimensions(cityId: number, minSchools = 1): SchoolDimRe
     topByTrend: sortBy(rows, "trendDelta").slice(0, 10)
   };
 }
+
+/**
+ * v0.53.0 macro-1: LPR + 房贷利率历史响应
+ */
+export interface LprResponse {
+  cityName: string;
+  total: number;
+  /** 全量月度 (升序) */
+  series: Array<{
+    month: string;
+    lpr1y: number;
+    lpr5y: number;
+    mortgageFirst: number;
+    mortgageSecond: number;
+  }>;
+  /** 当前 (最近一月) */
+  latest: {
+    month: string;
+    lpr1y: number;
+    lpr5y: number;
+    mortgageFirst: number;
+    mortgageSecond: number;
+  } | null;
+  /** 较 2019-08 改革时累计下调 (pp) */
+  cumDrop1y: number;
+  cumDrop5y: number;
+  /** 近 12 月下行幅度 (pp) */
+  yoyDrop1y: number;
+  yoyDrop5y: number;
+}
+
+export function getLprOverview(): LprResponse | null {
+  const rows = store.getLprHistory();
+  if (rows.length === 0) return null;
+  const sorted = rows.slice().sort((a, b) => a.month.localeCompare(b.month));
+  const first = sorted[0];
+  const last = sorted[sorted.length - 1];
+  // 12 个月前
+  const lastIdx = sorted.length - 1;
+  const yoyIdx = Math.max(0, lastIdx - 11);
+  const yoy = sorted[yoyIdx];
+  return {
+    cityName: "全国",
+    total: sorted.length,
+    series: sorted.map((r) => ({
+      month: r.month,
+      lpr1y: r.lpr1y,
+      lpr5y: r.lpr5y,
+      mortgageFirst: r.mortgageFirst,
+      mortgageSecond: r.mortgageSecond
+    })),
+    latest: {
+      month: last.month,
+      lpr1y: last.lpr1y,
+      lpr5y: last.lpr5y,
+      mortgageFirst: last.mortgageFirst,
+      mortgageSecond: last.mortgageSecond
+    },
+    cumDrop1y: +(first.lpr1y - last.lpr1y).toFixed(2),
+    cumDrop5y: +(first.lpr5y - last.lpr5y).toFixed(2),
+    yoyDrop1y: +(yoy.lpr1y - last.lpr1y).toFixed(2),
+    yoyDrop5y: +(yoy.lpr5y - last.lpr5y).toFixed(2)
+  };
+}

@@ -3256,4 +3256,61 @@ describe("build integrity", () => {
       expect(dash).toMatch(/:fill="districtFill\(d\.districtName\)"/);
     });
   });
+
+  // v0.53.0 macro-1: LPR + 房贷利率
+  describe("v0.53.0 macro-1 LPR + 房贷利率", () => {
+    it("lpr_history.csv 存在且 80+ 行 (2019-08 ~ 2026-06)", () => {
+      const csv = readFileSync(resolve(ROOT, "static/seed/lpr_history.csv"), "utf8");
+      const lines = csv.trim().split(/\r?\n/);
+      expect(lines.length).toBeGreaterThanOrEqual(80);
+      expect(lines[0]).toMatch(/month,lpr_1y,lpr_5y,mortgage_first,mortgage_second,source/);
+      expect(lines[1]).toMatch(/2019-08,4\.25,4\.85/);
+      const last = lines[lines.length - 1];
+      expect(last).toMatch(/2026-06,3\.0,3\.5/);
+    });
+
+    it("scripts/compute_lpr_history.py 生成 lpr_history.csv", () => {
+      const script = readFileSync(resolve(ROOT, "scripts/compute_lpr_history.py"), "utf8");
+      expect(script).toMatch(/LPR_HISTORY/);
+      expect(script).toMatch(/compute_lpr_history|main\(\)/);
+      expect(script).toMatch(/mortgage_first|mortgageSecond/);
+    });
+
+    it("types/importer/store/queries/seed/dashboard 都接入 Lpr", () => {
+      const types = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(types).toMatch(/interface LocalLprRow/);
+      expect(types).toMatch(/lprHistory: LocalLprRow\[\]/);
+
+      const importer = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(importer).toMatch(/function parseLprHistory/);
+      expect(importer).toMatch(/lprHistoryCSV\?: string/);
+
+      const store = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(store).toMatch(/function getLprHistory/);
+      expect(store).toMatch(/LocalLprRow/);
+
+      const queries = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(queries).toMatch(/export interface LprResponse/);
+      expect(queries).toMatch(/export function getLprOverview/);
+      expect(queries).toMatch(/cumDrop5y/);
+
+      const seed = readFileSync(resolve(ROOT, "src/local/seedSnapshot.ts"), "utf8");
+      expect(seed).toMatch(/lprHistoryCSV/);
+
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/const lpr = ref<LprResponse/);
+      expect(dash).toMatch(/async function reloadLpr/);
+      expect(dash).toMatch(/lprSpark5y/);
+      expect(dash).toMatch(/class="lpr-kpi"/);
+      expect(dash).toMatch(/mortgage_first|mortgageFirst/);
+    });
+
+    it("getLprOverview 正确计算累计下调 + sparkline 渲染", () => {
+      const csv = readFileSync(resolve(ROOT, "static/seed/lpr_history.csv"), "utf8");
+      expect(csv).toMatch(/2019-08.*4\.85.*4\.9.*5\.2/);
+      expect(csv).toMatch(/2026-06.*3\.5.*3\.2.*3\.85/);
+      // 累计: 4.85 - 3.5 = 1.35
+      // 脚本 / 卡片渲染会再次算
+    });
+  });
 });

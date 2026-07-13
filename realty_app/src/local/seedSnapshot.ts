@@ -99,6 +99,7 @@ import communityScatterCSV from "../../static/seed/community_scatter.csv?raw";
 import districtPolygonCSV from "../../static/seed/district_polygon.csv?raw";
 import communityGeoCSV from "../../static/seed/communities_geo.csv?raw";
 import schoolDimensionsCSV from "../../static/seed/school_dimensions.csv?raw";
+import lprHistoryCSV from "../../static/seed/lpr_history.csv?raw";
 
 let cached: DataSnapshot | null = null;
 
@@ -141,7 +142,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       communityScatterCSV: String(communityScatterCSV ?? ""),
       districtPolygonCSV: String(districtPolygonCSV ?? ""),
       communityGeoCSV: String(communityGeoCSV ?? ""),
-      schoolDimensionsCSV: String(schoolDimensionsCSV ?? "")
+      schoolDimensionsCSV: String(schoolDimensionsCSV ?? ""),
+      lprHistoryCSV: String(lprHistoryCSV ?? "")
     },
     "seed:public-derived"
   );

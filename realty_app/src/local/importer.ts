@@ -49,6 +49,7 @@ import type {
   LocalSchoolPremiumDistrict,
   LocalWangqianDistrictWeekly,
   LocalWeather,
+  LocalLprRow,
   LocalCommute,
   LocalSchoolDimension
 } from "./types";
@@ -143,6 +144,8 @@ export interface SnapshotInputs {
   communityGeoCSV?: string;
   /** v0.47.0: 学区指标细分 */
   schoolDimensionsCSV?: string;
+  /** v0.53.0: LPR 历史 */
+  lprHistoryCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -567,6 +570,28 @@ function parseSchoolDimensions(csvText: string): LocalSchoolDimension[] {
       };
     })
     .filter((x): x is LocalSchoolDimension => x !== null);
+}
+
+/** v0.53.0 macro-1: 解析 LPR 历史 CSV */
+function parseLprHistory(csvText: string): LocalLprRow[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      if (!r.month) return null;
+      const num = (v: string | undefined) => {
+        if (v === undefined || v === "") return 0;
+        const x = Number(v);
+        return isFinite(x) ? x : 0;
+      };
+      return {
+        month: r.month,
+        lpr1y: num(r.lpr_1y),
+        lpr5y: num(r.lpr_5y),
+        mortgageFirst: num(r.mortgage_first),
+        mortgageSecond: num(r.mortgage_second),
+        source: r.source || "PBOC"
+      };
+    })
+    .filter((x): x is LocalLprRow => x !== null);
 }
 
 function parseLifeConvenience(csvText: string): LocalLifeConvenience[] {
@@ -1180,6 +1205,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     schoolDimensions: inputs.schoolDimensionsCSV
       ? parseSchoolDimensions(inputs.schoolDimensionsCSV)
       : [],
+    lprHistory: inputs.lprHistoryCSV ? parseLprHistory(inputs.lprHistoryCSV) : [],
     availableWeeks
   };
 }

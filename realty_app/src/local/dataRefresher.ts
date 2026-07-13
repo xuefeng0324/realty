@@ -170,6 +170,7 @@ function mergeListingsIntoSnapshot(
     districtPolygon: existing?.districtPolygon ?? [],
     communityGeo: existing?.communityGeo ?? [],
     schoolDimensions: existing?.schoolDimensions ?? [],
+    lprHistory: existing?.lprHistory ?? [],
     availableWeeks
   };
 }

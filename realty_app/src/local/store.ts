@@ -34,6 +34,7 @@ import type {
   LocalCommunityScatter,
   LocalDistrictPolygon,
   LocalSchoolDimension,
+  LocalLprRow,
   LocalMetroWalk,
   LocalListing,
   LocalListingSchoolPremium,
@@ -500,6 +501,11 @@ export function getSchoolDimensions(): LocalSchoolDimension[] {
 /** v0.47.0: 学区指标细分 (按城市) */
 export function getSchoolDimensionsByCity(cityId: number): LocalSchoolDimension[] {
   return (snapshot?.schoolDimensions ?? []).filter((d) => d.cityId === cityId);
+}
+
+/** v0.53.0 macro-1: LPR + 房贷利率历史 */
+export function getLprHistory(): LocalLprRow[] {
+  return snapshot?.lprHistory ?? [];
 }
 
 /**
