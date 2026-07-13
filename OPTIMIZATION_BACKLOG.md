@@ -342,6 +342,20 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 Z | trend-18 | dashboard 区情画像卡 + 6 chip + CSS | ✅ v0.38.0 | 5 排序 + 1 隐藏 |
 | 🟢 Z | trend-18 | smoke_district_meta.mjs E2E + screenshots | ✅ v0.38.0 | 广州/深圳各截一张 |
 
+## AA 段补充：特征画像溢价 (v0.39.0)
+
+- 用 listings.csv 直接算 premium% = (桶均价 ÷ 城市均价 − 1) × 100
+- 4 维度：户型/面积/朝向/装修；54 行 feature_premium.csv
+- dashboard 新卡「💎 特征画像溢价」+ 4 dim block + 红↑/蓝↓/灰平 ±1% 分色
+- 370/370 单测 + smoke_feature_premium E2E (广州 12 行 / 深圳 4 dim)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 AA | trend-19 | compute_feature_premium.py 写 54 行 | ✅ v0.39.0 | bucket_median / city_median - 1 |
+| 🟢 AA | trend-19 | types + parseFeaturePremium + store + queries | ✅ v0.39.0 | 6 单测 |
+| 🟢 AA | trend-19 | dashboard 特征画像溢价卡 + 4 dim + bar | ✅ v0.39.0 | 红蓝灰 ±1% |
+| 🟢 AA | trend-19 | smoke_feature_premium.mjs E2E + screenshots | ✅ v0.39.0 | 广州/深圳各截一张 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

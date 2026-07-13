@@ -459,6 +459,22 @@ export interface LocalDistrictMeta {
 }
 
 /**
+ * v0.39.0: 特征画像溢价 (scripts/compute_feature_premium.py)
+ * 每 (city, dimension, bucket) 算 (bucket median / city median - 1) * 100
+ */
+export interface LocalFeaturePremium {
+  cityId: number;
+  cityName: string;
+  dimension: "bedrooms" | "area_sqm" | "orientation" | "decorate";
+  bucket: string;
+  count: number;
+  share: number;
+  medianUnitPrice: number;
+  cityMedianUnitPrice: number;
+  premiumPct: number;
+}
+
+/**
  * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
  * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
  * 用于 dashboard 展示"区级近 N 周房价趋势"。
@@ -521,6 +537,8 @@ export interface DataSnapshot {
   metroBenefits: LocalMetroBenefit[];
   /** v0.38.0: 区情画像 (scripts/compute_district_metadata.py) */
   districtMeta: LocalDistrictMeta[];
+  /** v0.39.0: 特征画像溢价 (scripts/compute_feature_premium.py) */
+  featurePremia: LocalFeaturePremium[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

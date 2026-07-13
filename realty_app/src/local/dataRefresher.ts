@@ -160,6 +160,7 @@ function mergeListingsIntoSnapshot(
     metroWalks: existing?.metroWalks ?? [],
     metroBenefits: existing?.metroBenefits ?? [],
     districtMeta: existing?.districtMeta ?? [],
+    featurePremia: existing?.featurePremia ?? [],
     availableWeeks
   };
 }

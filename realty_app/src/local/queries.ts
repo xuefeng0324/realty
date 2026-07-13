@@ -2362,3 +2362,134 @@ export function getDistrictMetaRanking(params: {
     items
   };
 }
+
+/**
+ * v0.39.0 trend-19: 特征画像溢价榜
+ * 按 (dimension, bucket) 排序, 展示溢价最高/最低的 bucket
+ */
+export interface FeaturePremiumItem {
+  cityId: number;
+  cityName: string;
+  dimension: "bedrooms" | "area_sqm" | "orientation" | "decorate";
+  bucket: string;
+  count: number;
+  share: number;
+  medianUnitPrice: number;
+  cityMedianUnitPrice: number;
+  premiumPct: number;
+}
+
+export interface FeaturePremiumResponse {
+  cityId: number;
+  cityName: string;
+  totalCount: number;
+  /** 维度: bedrooms/area_sqm/orientation/decorate */
+  dimensions: {
+    dimension: string;
+    count: number;
+    /** 维度内最大溢价 */
+    maxPremium: number;
+    /** 维度内最小溢价 */
+    minPremium: number;
+    items: FeaturePremiumItem[];
+  }[];
+  /** 整体最贵 top N */
+  topPremium: FeaturePremiumItem[];
+  /** 整体最便宜 top N */
+  bottomPremium: FeaturePremiumItem[];
+}
+
+export function getFeaturePremiumRanking(params: {
+  cityId: number;
+  /** 过滤维度 (空=全部) */
+  dimensions?: Array<"bedrooms" | "area_sqm" | "orientation" | "decorate">;
+  /** 隐藏小样本 (count < N) */
+  minCount?: number;
+  /** top N 极值数 */
+  topN?: number;
+}): FeaturePremiumResponse | null {
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const all = store.getFeaturePremiaByCity(params.cityId);
+  if (all.length === 0) return null;
+
+  const minCount = params.minCount ?? 5;
+  const topN = params.topN ?? 10;
+  const dimFilter = params.dimensions && params.dimensions.length > 0
+    ? new Set(params.dimensions)
+    : null;
+
+  // 过滤 + 排序
+  const filtered = all
+    .filter((f) => f.count >= minCount)
+    .filter((f) => !dimFilter || dimFilter.has(f.dimension));
+
+  // 按维度分组
+  const byDim: Map<string, FeaturePremiumItem[]> = new Map();
+  for (const f of filtered) {
+    const it: FeaturePremiumItem = {
+      cityId: f.cityId,
+      cityName: f.cityName,
+      dimension: f.dimension,
+      bucket: f.bucket,
+      count: f.count,
+      share: f.share,
+      medianUnitPrice: f.medianUnitPrice,
+      cityMedianUnitPrice: f.cityMedianUnitPrice,
+      premiumPct: f.premiumPct
+    };
+    if (!byDim.has(f.dimension)) byDim.set(f.dimension, []);
+    byDim.get(f.dimension)!.push(it);
+  }
+  // 每组按 premiumPct 降序
+  for (const arr of byDim.values()) {
+    arr.sort((a, b) => b.premiumPct - a.premiumPct);
+  }
+
+  const dimensions = [...byDim.entries()].map(([dim, items]) => ({
+    dimension: dim,
+    count: items.length,
+    maxPremium: items.length > 0 ? items[0].premiumPct : 0,
+    minPremium: items.length > 0 ? items[items.length - 1].premiumPct : 0,
+    items
+  }));
+
+  // 整体 top / bottom
+  const sortedAll = [...filtered].sort((a, b) => b.premiumPct - a.premiumPct);
+  const topPremium = sortedAll
+    .slice(0, topN)
+    .map((f) => ({
+      cityId: f.cityId,
+      cityName: f.cityName,
+      dimension: f.dimension,
+      bucket: f.bucket,
+      count: f.count,
+      share: f.share,
+      medianUnitPrice: f.medianUnitPrice,
+      cityMedianUnitPrice: f.cityMedianUnitPrice,
+      premiumPct: f.premiumPct
+    }));
+  const bottomPremium = sortedAll
+    .slice(-topN)
+    .reverse()
+    .map((f) => ({
+      cityId: f.cityId,
+      cityName: f.cityName,
+      dimension: f.dimension,
+      bucket: f.bucket,
+      count: f.count,
+      share: f.share,
+      medianUnitPrice: f.medianUnitPrice,
+      cityMedianUnitPrice: f.cityMedianUnitPrice,
+      premiumPct: f.premiumPct
+    }));
+
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    totalCount: filtered.length,
+    dimensions,
+    topPremium,
+    bottomPremium
+  };
+}

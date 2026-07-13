@@ -756,6 +756,47 @@
         </view>
       </view>
 
+      <!-- v0.39.0 trend-19 特征画像溢价 (户型/面积/朝向/装修 哪类更贵/更便宜) -->
+      <view v-if="featurePremium && featurePremium.totalCount > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">💎 特征画像溢价 · {{ featurePremium.cityName }}</view>
+          <view class="muted">基线 = 城市中位单价 · {{ featurePremium.totalCount }} 桶 · minCount ≥ 5</view>
+        </view>
+        <view class="fp-dim-row">
+          <view
+            v-for="d in featurePremium.dimensions"
+            :key="d.dimension"
+            class="fp-dim-block"
+          >
+            <view class="fp-dim-head">
+              <text class="fp-dim-name">{{ fpDimLabel(d.dimension) }}</text>
+              <text class="muted">{{ d.count }} 桶</text>
+            </view>
+            <view
+              v-for="it in d.items.slice(0, 3)"
+              :key="d.dimension + '_' + it.bucket"
+              class="fp-row"
+            >
+              <view class="fp-bucket">{{ it.bucket }}</view>
+              <view class="fp-bar-wrap">
+                <view
+                  class="fp-bar"
+                  :class="fpBarClass(it.premiumPct)"
+                  :style="{ width: fpBarWidth(it.premiumPct) + '%' }"
+                />
+              </view>
+              <view :class="['fp-pct', fpPctClass(it.premiumPct)]">
+                {{ it.premiumPct >= 0 ? '+' : '' }}{{ it.premiumPct.toFixed(1) }}%
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：listings.csv (中位单价) + cities.csv → scripts/compute_feature_premium.py。<br>
+          公式：premium% = (bucket 桶中位单价 ÷ 城市中位单价 − 1) × 100。
+        </view>
+      </view>
+
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
       <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card">
         <view class="row-between">
@@ -1164,7 +1205,8 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, getMetroWalkRanking, getMetroBenefitRanking, getDistrictMetaRanking, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, getMetroWalkRanking, getMetroBenefitRanking, getDistrictMetaRanking,
+  getFeaturePremiumRanking, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -1216,6 +1258,8 @@ const communityScore = ref<CommunityScoreResponse | null>(null);
 const metroWalk = ref<MetroWalkResponse | null>(null);
 // v0.36.0 map-10: 地铁规划受益
 const metroBenefit = ref<MetroBenefitResponse | null>(null);
+// v0.39.0 trend-19: 特征画像溢价
+const featurePremium = ref<FeaturePremiumResponse | null>(null);
 // v0.38.0 trend-18: 区情画像
 const districtMeta = ref<DistrictMetaResponse | null>(null);
 const districtMetaSortBy = ref<"default" | "price" | "school" | "mom" | "listing">("price");
@@ -1320,6 +1364,49 @@ function momClass(v: number | null): string {
   if (v >= 5) return "dm-mom-up";
   if (v <= -5) return "dm-mom-down";
   return "dm-mom-flat";
+}
+
+// v0.39.0 trend-19: 特征画像溢价
+async function reloadFeaturePremium() {
+  try {
+    featurePremium.value = await getFeaturePremiumRanking({
+      cityId: app.cityId,
+      minCount: 5,
+      topN: 10
+    });
+  } catch (e) {
+    console.warn("getFeaturePremiumRanking failed:", e);
+    featurePremium.value = null;
+  }
+}
+
+const FP_DIM_LABEL: Record<string, string> = {
+  bedrooms: "户型",
+  area_sqm: "面积",
+  orientation: "朝向",
+  decorate: "装修"
+};
+
+function fpDimLabel(d: string): string {
+  return FP_DIM_LABEL[d] ?? d;
+}
+
+function fpPctClass(v: number): string {
+  if (v >= 1) return "fp-pct-up";
+  if (v <= -1) return "fp-pct-down";
+  return "fp-pct-flat";
+}
+
+function fpBarClass(v: number): string {
+  if (v >= 1) return "fp-bar-up";
+  if (v <= -1) return "fp-bar-down";
+  return "fp-bar-flat";
+}
+
+/** Bar width 50% = 0%, 最高 100% = ±30% (clamp) */
+function fpBarWidth(v: number): number {
+  const abs = Math.min(Math.abs(v), 30);
+  return Math.max(5, (abs / 30) * 100);
 }
 function mbBandClass(score: number) {
   if (score >= 75) return "mb-tag-green";
@@ -1699,6 +1786,8 @@ async function loadRankingAndDistrict() {
       }
       // v0.38.0 trend-18 区情画像
       await reloadDistrictMeta();
+      // v0.39.0 trend-19 特征画像溢价
+      await reloadFeaturePremium();
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
         cityId: app.cityId,
@@ -3629,5 +3718,81 @@ onShow(async () => {
 .dm-mom-flat {
   color: #64748b;
   background: #f1f5f9;
+}
+
+/* v0.39.0 trend-19: 特征画像溢价 */
+.fp-dim-row {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  margin-top: 12rpx;
+}
+.fp-dim-block {
+  background: #f8fafc;
+  border-radius: 12rpx;
+  padding: 14rpx 16rpx;
+}
+.fp-dim-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+  font-size: 26rpx;
+}
+.fp-dim-name {
+  font-weight: 600;
+  color: #0f172a;
+}
+.fp-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 4rpx 0;
+  font-size: 24rpx;
+}
+.fp-bucket {
+  width: 130rpx;
+  color: #475569;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fp-bar-wrap {
+  flex: 1;
+  height: 14rpx;
+  background: #e2e8f0;
+  border-radius: 8rpx;
+  overflow: hidden;
+}
+.fp-bar {
+  height: 100%;
+  border-radius: 8rpx;
+  transition: width 0.3s;
+}
+.fp-bar-up {
+  background: linear-gradient(90deg, #fb923c 0%, #dc2626 100%);
+}
+.fp-bar-down {
+  background: linear-gradient(90deg, #38bdf8 0%, #2563eb 100%);
+}
+.fp-bar-flat {
+  background: #cbd5e1;
+}
+.fp-pct {
+  width: 100rpx;
+  text-align: right;
+  font-weight: 600;
+  font-size: 24rpx;
+  flex-shrink: 0;
+}
+.fp-pct-up {
+  color: #dc2626;
+}
+.fp-pct-down {
+  color: #2563eb;
+}
+.fp-pct-flat {
+  color: #64748b;
 }
 </style>

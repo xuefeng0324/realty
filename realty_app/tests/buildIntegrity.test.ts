@@ -2204,4 +2204,115 @@ describe("build integrity", () => {
       }
     });
   });
+
+  // v0.39.0 trend-19: 特征画像溢价
+  describe("v0.39.0 trend-19 特征画像溢价", () => {
+    it("feature_premium.csv 存在 + 有列 + city_name 正确", () => {
+      const csv = readFileSync(resolve(ROOT, "static/seed/feature_premium.csv"), "utf8");
+      expect(csv).toMatch(/^(\ufeff)?city_id,city_name,dimension,bucket/);
+      const lines = csv.trim().split(/\r?\n/);
+      expect(lines.length).toBeGreaterThan(20);
+      // 验证 city_name 不是 id (e.g. "广州")
+      expect(csv).toMatch(/,广州,/);
+      expect(csv).toMatch(/,深圳,/);
+      expect(csv).toMatch(/,珠海,/);
+      // 排除"未知"桶
+      const data = lines.slice(1);
+      for (const l of data) {
+        const cols = l.split(",");
+        expect(cols[3]).not.toBe("未知");
+      }
+    });
+
+    it("compute_feature_premium.py + types/parser/store/queries 都实现", () => {
+      const script = readFileSync(resolve(ROOT, "scripts/compute_feature_premium.py"), "utf8");
+      expect(script).toMatch(/city_median_unit_price/);
+      expect(script).toMatch(/feature_premium\.csv/);
+
+      const types = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(types).toMatch(/LocalFeaturePremium/);
+      expect(types).toMatch(/featurePremia:\s*LocalFeaturePremium\[\]/);
+
+      const importer = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(importer).toMatch(/function parseFeaturePremium/);
+      expect(importer).toMatch(/featurePremiumCSV/);
+
+      const store = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(store).toMatch(/getFeaturePremia\(/);
+      expect(store).toMatch(/getFeaturePremiaByCity\(/);
+
+      const queries = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(queries).toMatch(/export function getFeaturePremiumRanking/);
+      expect(queries).toMatch(/FeaturePremiumItem/);
+    });
+
+    it("seedSnapshot.ts + dataRefresher.ts + settings.vue 都接入 feature_premium", () => {
+      const seed = readFileSync(resolve(ROOT, "src/local/seedSnapshot.ts"), "utf8");
+      expect(seed).toMatch(/import featurePremiumCSV/);
+      expect(seed).toMatch(/featurePremiumCSV:/);
+
+      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
+      expect(ref).toMatch(/featurePremia:/);
+
+      const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
+      expect(settings).toMatch(/feature_premium\.csv/);
+      expect(settings).toMatch(/featurePremiumCSV:/);
+    });
+
+    it("dashboard.vue 特征画像溢价卡 + 4 dim blocks + bar + percent", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/特征画像溢价/);
+      expect(dash).toMatch(/featurePremium/);
+      expect(dash).toMatch(/reloadFeaturePremium/);
+      expect(dash).toMatch(/fp-dim-block/);
+      expect(dash).toMatch(/fp-bar/);
+      expect(dash).toMatch(/fp-pct/);
+      expect(dash).toMatch(/fpBarClass/);
+      expect(dash).toMatch(/fpPctClass/);
+      expect(dash).toMatch(/FP_DIM_LABEL/);
+    });
+
+    it("getFeaturePremiumRanking 数据正确 + top/bottom 排序", async () => {
+      const { setSnapshot } = await import("../src/local/store");
+      const { buildSeedSnapshot, resetSeedSnapshotCache } = await import("../src/local/seedSnapshot");
+      resetSeedSnapshotCache();
+      setSnapshot(buildSeedSnapshot());
+      const { getFeaturePremiumRanking } = await import("../src/local/queries");
+      const resp = getFeaturePremiumRanking({ cityId: 2, minCount: 5, topN: 10 });
+      expect(resp).toBeTruthy();
+      // 深圳 (cityId=2) 至少有 bedrooms/orientation/decorate/area_sqm 4 维
+      expect(resp!.dimensions.length).toBe(4);
+      // top 应按 premium 降序
+      for (let i = 1; i < resp!.topPremium.length; i++) {
+        expect(resp!.topPremium[i - 1].premiumPct).toBeGreaterThanOrEqual(
+          resp!.topPremium[i].premiumPct
+        );
+      }
+      // bottom 应按 premium 升序
+      for (let i = 1; i < resp!.bottomPremium.length; i++) {
+        expect(resp!.bottomPremium[i - 1].premiumPct).toBeLessThanOrEqual(
+          resp!.bottomPremium[i].premiumPct
+        );
+      }
+    });
+
+    it("getFeaturePremiumRanking 维度过滤只返回指定维度", async () => {
+      const { setSnapshot } = await import("../src/local/store");
+      const { buildSeedSnapshot, resetSeedSnapshotCache } = await import("../src/local/seedSnapshot");
+      resetSeedSnapshotCache();
+      setSnapshot(buildSeedSnapshot());
+      const { getFeaturePremiumRanking } = await import("../src/local/queries");
+      const resp = getFeaturePremiumRanking({
+        cityId: 2,
+        dimensions: ["bedrooms", "orientation"],
+        minCount: 5
+      });
+      expect(resp).toBeTruthy();
+      // 应该只 2 个维度
+      expect(resp!.dimensions.length).toBe(2);
+      for (const d of resp!.dimensions) {
+        expect(["bedrooms", "orientation"]).toContain(d.dimension);
+      }
+    });
+  });
 });

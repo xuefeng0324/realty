@@ -33,6 +33,7 @@ import type {
   LocalMetroLineGeo,
   LocalMetroBenefit,
   LocalDistrictMeta,
+  LocalFeaturePremium,
   LocalMetroWalk,
   LocalPoi,
   LocalSchool,
@@ -114,6 +115,8 @@ export interface SnapshotInputs {
   metroBenefitCSV?: string;
   /** v0.38.0: 区情画像 */
   districtMetaCSV?: string;
+  /** v0.39.0: 特征画像溢价 */
+  featurePremiumCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -247,6 +250,32 @@ function parseDistrictMeta(csvText: string): LocalDistrictMeta[] {
       };
     })
     .filter((x): x is LocalDistrictMeta => x !== null);
+}
+
+function parseFeaturePremium(csvText: string): LocalFeaturePremium[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.city_id);
+      if (cid == null) return null;
+      const num = (v: string | undefined) => {
+        if (v === undefined || v === "") return 0;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : 0;
+      };
+      return {
+        cityId: cid,
+        cityName: s(r.city_name) ?? "",
+        dimension: (s(r.dimension) ?? "bedrooms") as
+          "bedrooms" | "area_sqm" | "orientation" | "decorate",
+        bucket: s(r.bucket) ?? "",
+        count: num(r.count ?? undefined),
+        share: num(r.share ?? undefined),
+        medianUnitPrice: num(r.median_unit_price ?? undefined),
+        cityMedianUnitPrice: num(r.city_median_unit_price ?? undefined),
+        premiumPct: num(r.premium_pct ?? undefined)
+      } as LocalFeaturePremium;
+    })
+    .filter((x): x is LocalFeaturePremium => x !== null);
 }
 
 function parseLifeConvenience(csvText: string): LocalLifeConvenience[] {
@@ -829,6 +858,9 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     metroBenefits,
     districtMeta: inputs.districtMetaCSV
       ? parseDistrictMeta(inputs.districtMetaCSV)
+      : [],
+    featurePremia: inputs.featurePremiumCSV
+      ? parseFeaturePremium(inputs.featurePremiumCSV)
       : [],
     availableWeeks
   };
