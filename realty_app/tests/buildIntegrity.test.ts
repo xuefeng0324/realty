@@ -3158,4 +3158,39 @@ describe("build integrity", () => {
       expect(css).toMatch(/\.topnav-p-btn/);
     });
   });
+
+  // v0.50.0 drill-1: 小区 drill-down 跳转详情
+  describe("v0.50.0 drill-1 小区 drill-down", () => {
+    it("dashboard.vue: scatter 卡 quadrant row + SVG 圆点 可点击 → goCommunity", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      // quadrant row 整体点击
+      expect(dash).toMatch(/class="scatter-row tap-row"[\s\S]{0,200}@click="goCommunity\(p\.communityId\)"/);
+      // SVG 圆点 @click (允许 1000 字符任意空白)
+      expect(dash).toMatch(/class="scatter-pt"[\s\S]{0,1000}@click="goCommunity\(p\.communityId\)"/);
+    });
+
+    it("dashboard.vue: 行政区图 marker (≤30 + 30+) 可点击 → goCommunity", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      // 命名 group 版本 (≤30 marker)
+      expect(dash).toMatch(/class="map-marker-g tap-row"[\s\S]{0,200}@click="goCommunity\(m\.communityId\)"/);
+      // bare 版本 (>30 marker)
+      expect(dash).toMatch(/class="map-marker-bare tap-row"[\s\S]{0,1000}@click="goCommunity\(m\.communityId\)"/);
+    });
+
+    it("goCommunity 已实现 (uni.navigateTo)", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      const m = dash.match(/function goCommunity\([^)]*\)\s*\{[\s\S]*?\n\}/);
+      expect(m).toBeTruthy();
+      expect(m![0]).toMatch(/uni\.navigateTo/);
+      expect(m![0]).toMatch(/\/pages\/community\/community/);
+    });
+
+    it("dashboard.vue: drill-down hover CSS (scatter-pt + map-marker-g)", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/\.scatter-pt\s*\{[\s\S]*cursor: pointer/);
+      expect(dash).toMatch(/\.map-marker-g\s*\{[\s\S]*cursor: pointer/);
+      expect(dash).toMatch(/\.scatter-pt:hover/);
+      expect(dash).toMatch(/\.map-marker-g:hover/);
+    });
+  });
 });

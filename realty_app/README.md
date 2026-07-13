@@ -43,6 +43,7 @@
 | v0.47.0 | 2026-07-13 | dashboard 新增「🏫 学区 5 维评分」卡：每个城市 school_indicators.csv 的 5 列原始指标 (评级/集团/区域均衡/趋势/集团校) 各算百分位 + 综合分；综合 Top 5 横向 + 4 维度 Top 3 2x2 grid；广州 广东实验中学 76.4 / 深圳 罗湖外语 73.9 (trend -1.62) / 珠海 北师大附中 trend +5.96 (最强涨幅); 416/416 单测 + smoke_school_dims E2E |
 | v0.48.0 | 2026-07-14 | dashboard 顶部 5 Tab 切换：📊全部(34) / 💰价格画像(15) / 🏫学区配套(4) / 🚇通勤地铁(5) / 🗺️地图视图(2); `data-tab` 属性 + CSS `body[data-dash-tab]` 切换，紫蓝渐变 active 样式; 按用户购买决策场景分而非数据维度; 420/420 单测 + 5 screenshots (深圳为例) |
 | v0.49.0 | 2026-07-14 | dashboard 顶部 sticky 周次切换条 (黑底): `第 N / 总周` + ‹上一周 / 下一周› 按钮; `position:sticky top:0` 滚到底部仍可见; 边界禁用; 深圳 26 周, 点 3 次上一周 → 第 22 周; 424/424 单测 + 3 screenshots |
+| v0.50.0 | 2026-07-14 | dashboard 小区 drill-down: 散点 quadrant row + SVG 圆点 + 行政区图 marker (g + bare circle) 都加 `@click=goCommunity`; 散点 row hover 浅色, SVG 圆点 hover 黄色描边, map marker hover 红色; 复用现有 goCommunity → uni.navigateTo community?id=; 深圳 实测点珠江帝景苑 → 跳社区详情 (6 套在售); 428/428 单测 + 2 screenshots |
 | v0.35.0 | 2026-07-13 | 地铁步行通勤：🚶 metro_walk.csv (37 行，AMAP_API 4 + ESTIMATED 30 + 5 skip)；3 色分档 (绿 ≤5 / 橙 ≤10 / 红 >10min)；quota 友好 fallback 启发式；深圳 振华路42号 0min 居首 |
 | v0.36.0 | 2026-07-13 | 地铁规划受益：🚇 metro_benefit.csv (49 行 × 21 规划线路)；结合 距离分 × status 权重 (在建×1.2 / 即将开通×1.5)；深圳 top1 中海天钻/星河智荟 72 分 → 在建 17/21 号线一期；广州 保利天悦 90 → 8 号线东延 |
 | v0.37.0 | 2026-07-13 | 5 维小区指标：listing 列表每行底部加 位置/房屋/楼龄/配套/性价比 5 列迷你进度条；community 详情页加 🧭生活 + 🎓学区 + 🚌通勤 + 🚶步行地铁 + 🚇规划地铁 5 格卡；京基100 = 81/100/100/90/0；top1 listing 五维 80/74/95/100/85 |

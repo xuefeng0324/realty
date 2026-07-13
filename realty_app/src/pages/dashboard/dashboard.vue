@@ -1201,7 +1201,11 @@
               fill-opacity="0.55"
               stroke="white"
               stroke-width="1.5"
-            />
+              class="scatter-pt"
+              :data-community-id="p.communityId"
+              :data-name="p.communityName"
+              @click="goCommunity(p.communityId)"
+            ><title>{{ p.communityName }} · {{ p.quadrant }}</title></circle>
           </svg>
         </view>
         <view v-for="q in ['豪宅板块', '学区刚需', '改善低密', '价值洼地']" :key="'q_' + q" class="scatter-q-section">
@@ -1212,11 +1216,13 @@
           <view
             v-for="(p, i) in (scatter.byQuadrant[q] || []).slice(0, 3)"
             :key="'qrow_' + q + '_' + i"
-            class="scatter-row"
+            class="scatter-row tap-row"
+            hover-class="tap-row--active"
+            @click="goCommunity(p.communityId)"
           >
             <text class="scatter-rank">#{{ i + 1 }}</text>
             <text class="scatter-name">{{ p.communityName }}</text>
-            <text class="scatter-meta">{{ p.areaCohort }} {{ Math.round(p.medianArea) }}㎡</text>
+            <text class="scatter-meta">{{ p.areaCohort }} {{ Math.round(p.medianArea) }}㎡ ›</text>
             <text class="scatter-up">{{ Math.round(p.medianUnitPrice / 1000) }}k</text>
             <text class="scatter-tp">{{ Math.round(p.medianTotalPrice10w) }}万</text>
           </view>
@@ -1266,6 +1272,8 @@
               <g
                 v-for="m in districtMap.markers"
                 :key="'m_' + m.communityId"
+                class="map-marker-g tap-row"
+                @click="goCommunity(m.communityId)"
               >
                 <circle
                   :cx="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
@@ -1287,8 +1295,11 @@
                 :cx="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
                 :cy="mapY(m.lat, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
                 r="3"
-                class="map-marker-bare"
-              />
+                class="map-marker-bare tap-row"
+                :data-community-id="m.communityId"
+                :data-name="m.communityName"
+                @click="goCommunity(m.communityId)"
+              ><title>{{ m.communityName }}</title></circle>
             </g>
           </svg>
         </view>
@@ -5348,6 +5359,34 @@ onShow(async () => {
 }
 .sd-neg {
   color: #dc2626;
+}
+
+/* v0.50.0 drill-1: 小区 drill-down */
+.scatter-row.tap-row {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.scatter-pt {
+  cursor: pointer;
+  transition: fill-opacity 0.15s, r 0.1s;
+}
+.scatter-pt:hover {
+  fill-opacity: 0.95;
+  stroke: #fde047;
+  stroke-width: 2.5;
+}
+.map-marker-g {
+  cursor: pointer;
+}
+.map-marker-g:hover .map-marker {
+  fill: #ef4444;
+  r: 7;
+}
+.map-marker-bare.tap-row {
+  cursor: pointer;
+}
+.map-marker-bare.tap-row:hover {
+  fill: #ef4444;
 }
 
 /* v0.49.0 topnav-1: 周次切换 sticky bar */

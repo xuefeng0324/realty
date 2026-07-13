@@ -456,6 +456,15 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 AC | topnav-1 | stepPeriod + currentPeriodIdx + 边界禁用 | ✅ v0.49.0 | ‹上一周 / 下一周› |
 | 🟢 AC | topnav-1 | smoke_topnav_period.mjs E2E + screenshots | ✅ v0.49.0 | 深圳 26 周: 26→25→22→24 + sticky |
 
+## N 段: drill-1 小区 drill-down (v0.50.0)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 AC | drill-1 | scatter quadrant row + 末尾 › 点击跳详情 | ✅ v0.50.0 | 复用 goCommunity |
+| 🟢 AC | drill-1 | scatter SVG 圆点 click + hover 黄边 | ✅ v0.50.0 | 原生 `<title>` 提示 |
+| 🟢 AC | drill-1 | map marker g (≤30) + bare (>30) click + 红色 hover | ✅ v0.50.0 | 整 g 点击 |
+| 🟢 AC | drill-1 | smoke_drill_down.mjs E2E + screenshots | ✅ v0.50.0 | 3 入口都验证 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |
