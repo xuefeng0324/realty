@@ -627,7 +627,9 @@
         <view
           v-for="it in communityScore.items"
           :key="it.communityId"
-          class="cs-row"
+          class="cs-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(it.communityId)"
         >
           <view class="cs-rank">
             <text :class="['cs-medal', csMedalClass(it.rankCity)]">{{ csMedalText(it.rankCity) }}</text>
@@ -677,7 +679,9 @@
         <view
           v-for="it in metroWalk.items"
           :key="it.communityId"
-          class="mw-row"
+          class="mw-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(it.communityId)"
         >
           <view class="mw-rank">
             <text :class="['mw-min', mwBandClass(it.walkMinutes)]">{{ it.walkMinutes.toFixed(0) }}min</text>
@@ -709,7 +713,9 @@
         <view
           v-for="it in metroBenefit.items"
           :key="it.communityId"
-          class="mb-row"
+          class="mb-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(it.communityId)"
         >
           <view class="mb-rank">
             <text :class="['mb-tag', mbBandClass(it.benefitScore)]">{{ it.benefitScore }}</text>
@@ -883,7 +889,9 @@
         <view
           v-for="it in listingFreshness.mostFresh"
           :key="'fresh_' + it.communityId"
-          class="lf-row"
+          class="lf-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(it.communityId)"
         >
           <view class="lf-left">
             <view class="lf-name">{{ it.communityName }}</view>
@@ -912,7 +920,9 @@
         <view
           v-for="it in listingFreshness.mostStale"
           :key="'stale_' + it.communityId"
-          class="lf-row"
+          class="lf-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(it.communityId)"
         >
           <view class="lf-left">
             <view class="lf-name">{{ it.communityName }}</view>
@@ -1399,7 +1409,9 @@
         <view
           v-for="it in lifeConvenience.items"
           :key="it.communityId"
-          class="lc-row"
+          class="lc-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(it.communityId)"
         >
           <view class="lc-mid">
             <view class="lc-name">{{ it.communityName }}</view>

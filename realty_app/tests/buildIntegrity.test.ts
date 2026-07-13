@@ -3193,4 +3193,33 @@ describe("build integrity", () => {
       expect(dash).toMatch(/\.map-marker-g:hover/);
     });
   });
+
+  // v0.51.0 drill-2: 批量给 ranking 行加 drill-down
+  describe("v0.51.0 drill-2 批量 ranking 行可点击", () => {
+    it("dashboard.vue: 4 张 ranking 卡都有 tap-row + goCommunity", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      // metroWalk / metroBenefit / lifeConvenience / communityScore / freshness
+      expect(dash).toMatch(/class="mw-row tap-row"[\s\S]{0,200}@click="goCommunity\(it\.communityId\)"/);
+      expect(dash).toMatch(/class="mb-row tap-row"[\s\S]{0,200}@click="goCommunity\(it\.communityId\)"/);
+      expect(dash).toMatch(/class="lc-row tap-row"[\s\S]{0,200}@click="goCommunity\(it\.communityId\)"/);
+      expect(dash).toMatch(/class="cs-row tap-row"[\s\S]{0,200}@click="goCommunity\(it\.communityId\)"/);
+      expect(dash).toMatch(/class="lf-row tap-row"[\s\S]{0,200}@click="goCommunity\(it\.communityId\)"/);
+    });
+
+    it("dashboard.vue: 6 个 ranking 行 tap-row, 至少 4 个 drill-down", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      const drillMatches = (dash.match(/@click="goCommunity\(/g) || []).length;
+      expect(drillMatches).toBeGreaterThanOrEqual(4);
+      // goCommunity 本身没被算进 listing
+      expect(drillMatches).toBeGreaterThan(5);
+    });
+
+    it("goListing 已实现 (uni.navigateTo listing-detail)", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      const m = dash.match(/function goListing\([^)]*\)\s*\{[\s\S]*?\n\}/);
+      expect(m).toBeTruthy();
+      expect(m![0]).toMatch(/uni\.navigateTo/);
+      expect(m![0]).toMatch(/\/pages\/listing-detail\/listing-detail/);
+    });
+  });
 });

@@ -465,6 +465,17 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 AC | drill-1 | map marker g (≤30) + bare (>30) click + 红色 hover | ✅ v0.50.0 | 整 g 点击 |
 | 🟢 AC | drill-1 | smoke_drill_down.mjs E2E + screenshots | ✅ v0.50.0 | 3 入口都验证 |
 
+## O 段: drill-2 批量 ranking 行 drill-down (v0.51.0)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 AC | drill-2 | 通勤榜 `.mw-row` 加 tap-row + goCommunity | ✅ v0.51.0 | 5 行 → 跳 community?id= |
+| 🟢 AC | drill-2 | 地铁规划受益 `.mb-row` 加 tap-row + goCommunity | ✅ v0.51.0 | 8 行 |
+| 🟢 AC | drill-2 | 生活配套评分 `.lc-row` 加 tap-row + goCommunity | ✅ v0.51.0 | 8 行 |
+| 🟢 AC | drill-2 | 小区综合评分 `.cs-row` 加 tap-row + goCommunity | ✅ v0.51.0 | 8 行 |
+| 🟢 AC | drill-2 | 房源新鲜度 `.lf-row` 加 tap-row + goCommunity | ✅ v0.51.0 | 16 行 (新挂牌+滞销) |
+| 🟢 AC | drill-2 | buildIntegrity +3 测试 + E2E 验证 (6 行跳转全部命中) | ✅ v0.51.0 | 431/431 通过 + 6 screenshots |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |
