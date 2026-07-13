@@ -28,6 +28,7 @@ import type {
   LocalFeaturePremium,
   LocalTagCombination,
   LocalListingFreshness,
+  LocalBedroomArea,
   LocalMetroWalk,
   LocalListing,
   LocalListingSchoolPremium,
@@ -436,6 +437,14 @@ export function getListingFreshness(): LocalListingFreshness[] {
 
 export function getListingFreshnessByCity(cityId: number): LocalListingFreshness[] {
   return (snapshot?.listingFreshness ?? []).filter((f) => f.cityId === cityId);
+}
+
+export function getBedroomArea(): LocalBedroomArea[] {
+  return snapshot?.bedroomArea ?? [];
+}
+
+export function getBedroomAreaByCity(cityId: number): LocalBedroomArea[] {
+  return (snapshot?.bedroomArea ?? []).filter((b) => b.cityId === cityId);
 }
 
 /**

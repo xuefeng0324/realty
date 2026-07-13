@@ -36,6 +36,7 @@ import type {
   LocalFeaturePremium,
   LocalTagCombination,
   LocalListingFreshness,
+  LocalBedroomArea,
   LocalMetroWalk,
   LocalPoi,
   LocalSchool,
@@ -123,6 +124,8 @@ export interface SnapshotInputs {
   tagCombinationCSV?: string;
   /** v0.41.0: 房源新鲜度 */
   listingFreshnessCSV?: string;
+  /** v0.42.0: 户型 × 面积 联合分布 */
+  bedroomAreaCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -343,6 +346,30 @@ function parseListingFreshness(csvText: string): LocalListingFreshness[] {
       } as LocalListingFreshness;
     })
     .filter((x): x is LocalListingFreshness => x !== null);
+}
+
+function parseBedroomArea(csvText: string): LocalBedroomArea[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.city_id);
+      const bed = n(r.bedrooms);
+      if (cid == null || bed == null) return null;
+      const num = (v: string | undefined) => {
+        if (v === undefined || v === "") return 0;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : 0;
+      };
+      return {
+        cityId: cid,
+        cityName: s(r.city_name) ?? "",
+        bedrooms: bed,
+        areaBucket: s(r.area_bucket) ?? "",
+        count: num(r.count ?? undefined),
+        share: num(r.share ?? undefined),
+        medianUnitPrice: num(r.median_unit_price ?? undefined)
+      } as LocalBedroomArea;
+    })
+    .filter((x): x is LocalBedroomArea => x !== null);
 }
 
 function parseLifeConvenience(csvText: string): LocalLifeConvenience[] {
@@ -934,6 +961,9 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
       : [],
     listingFreshness: inputs.listingFreshnessCSV
       ? parseListingFreshness(inputs.listingFreshnessCSV)
+      : [],
+    bedroomArea: inputs.bedroomAreaCSV
+      ? parseBedroomArea(inputs.bedroomAreaCSV)
       : [],
     availableWeeks
   };

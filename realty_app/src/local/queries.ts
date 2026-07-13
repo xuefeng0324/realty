@@ -2627,3 +2627,100 @@ export function getListingFreshnessRanking(params: {
     mostStale: sortedByStale.map(toItem)
   };
 }
+
+/**
+ * v0.42.0 trend-22: 户型 × 面积 联合分布热图
+ * 5 bedrooms × 6 area_buckets = 30 单元热图
+ */
+export interface BedroomAreaCell {
+  bedrooms: number;
+  areaBucket: string;
+  count: number;
+  share: number;
+  medianUnitPrice: number;
+}
+
+export interface BedroomAreaResponse {
+  cityId: number;
+  cityName: string;
+  totalCount: number;
+  /** 维度: bedrooms = [1, 2, 3, 4, 5] */
+  bedrooms: number[];
+  /** 维度: area buckets = ["<50", "50-80", "80-110", "110-150", "150-200", "200+"] */
+  areaBuckets: string[];
+  /** 2D: [bedroomIndex][bucketIndex] = cell */
+  grid: BedroomAreaCell[][];
+  /** top 5 最热门 (cell) */
+  topCells: BedroomAreaCell[];
+}
+
+const AREA_BUCKETS_ORDERED = ["<50", "50-80", "80-110", "110-150", "150-200", "200+"];
+
+export function getBedroomAreaDistribution(params: {
+  cityId: number;
+  minCount?: number;
+}): BedroomAreaResponse | null {
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const all = store.getBedroomAreaByCity(params.cityId);
+  if (all.length === 0) return null;
+
+  const minCount = params.minCount ?? 3;
+
+  const filtered = all.filter((b) => b.count >= minCount);
+
+  // 提取 bedroom 集合
+  const bedroomSet = new Set<number>();
+  for (const b of filtered) bedroomSet.add(b.bedrooms);
+  const bedrooms = [...bedroomSet].sort((a, b) => a - b);
+  const areaBuckets = AREA_BUCKETS_ORDERED.filter((ab) =>
+    filtered.some((b) => b.areaBucket === ab)
+  );
+
+  // 建 2D 索引
+  const idxMap = new Map<string, BedroomAreaCell>();
+  for (const b of filtered) {
+    idxMap.set(`${b.bedrooms}|${b.areaBucket}`, {
+      bedrooms: b.bedrooms,
+      areaBucket: b.areaBucket,
+      count: b.count,
+      share: b.share,
+      medianUnitPrice: b.medianUnitPrice
+    });
+  }
+
+  const grid: BedroomAreaCell[][] = bedrooms.map((bed) =>
+    areaBuckets.map((ab) => {
+      const cell = idxMap.get(`${bed}|${ab}`);
+      return cell ?? {
+        bedrooms: bed,
+        areaBucket: ab,
+        count: 0,
+        share: 0,
+        medianUnitPrice: 0
+      };
+    })
+  );
+
+  // top 5 热门
+  const topCells = [...filtered]
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5)
+    .map((b) => ({
+      bedrooms: b.bedrooms,
+      areaBucket: b.areaBucket,
+      count: b.count,
+      share: b.share,
+      medianUnitPrice: b.medianUnitPrice
+    }));
+
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    totalCount: filtered.reduce((s, b) => s + b.count, 0),
+    bedrooms,
+    areaBuckets,
+    grid,
+    topCells
+  };
+}

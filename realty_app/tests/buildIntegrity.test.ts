@@ -2500,4 +2500,87 @@ describe("build integrity", () => {
       }
     });
   });
+
+  // v0.42.0 trend-22: 户型 × 面积 联合分布
+  describe("v0.42.0 trend-22 户型 × 面积 联合分布", () => {
+    it("bedroom_area.csv 存在 + 有列 + city_name 正确", () => {
+      const csv = readFileSync(resolve(ROOT, "static/seed/bedroom_area.csv"), "utf8");
+      expect(csv).toMatch(/^(\ufeff)?city_id,city_name,bedrooms/);
+      const lines = csv.trim().split(/\r?\n/);
+      expect(lines.length).toBeGreaterThan(15);
+      expect(csv).toMatch(/,广州,/);
+      expect(csv).toMatch(/,深圳,/);
+      expect(csv).toMatch(/,珠海,/);
+    });
+
+    it("compute_bedroom_area.py + types/parser/store/queries 都实现", () => {
+      const script = readFileSync(resolve(ROOT, "scripts/compute_bedroom_area.py"), "utf8");
+      expect(script).toMatch(/bucket_area/);
+      expect(script).toMatch(/bedroom_area\.csv/);
+
+      const types = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(types).toMatch(/LocalBedroomArea/);
+      expect(types).toMatch(/bedroomArea:\s*LocalBedroomArea\[\]/);
+
+      const importer = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(importer).toMatch(/function parseBedroomArea/);
+      expect(importer).toMatch(/bedroomAreaCSV/);
+
+      const store = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(store).toMatch(/getBedroomArea\(/);
+      expect(store).toMatch(/getBedroomAreaByCity\(/);
+
+      const queries = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(queries).toMatch(/export function getBedroomAreaDistribution/);
+      expect(queries).toMatch(/BedroomAreaCell/);
+    });
+
+    it("seedSnapshot.ts + dataRefresher.ts + settings.vue 都接入", () => {
+      const seed = readFileSync(resolve(ROOT, "src/local/seedSnapshot.ts"), "utf8");
+      expect(seed).toMatch(/import bedroomAreaCSV/);
+      expect(seed).toMatch(/bedroomAreaCSV:/);
+
+      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
+      expect(ref).toMatch(/bedroomArea:/);
+
+      const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
+      expect(settings).toMatch(/bedroom_area\.csv/);
+      expect(settings).toMatch(/bedroomAreaCSV:/);
+    });
+
+    it("dashboard.vue 热图卡 + 5 bedrooms × 6 buckets", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/户型 × 面积 分布/);
+      expect(dash).toMatch(/bedroomArea/);
+      expect(dash).toMatch(/reloadBedroomArea/);
+      expect(dash).toMatch(/ba-heatmap/);
+      expect(dash).toMatch(/ba-cell/);
+      expect(dash).toMatch(/baCellOpacity/);
+      expect(dash).toMatch(/baMaxCount/);
+    });
+
+    it("getBedroomAreaDistribution 数据正确 + grid 完整", async () => {
+      const { setSnapshot } = await import("../src/local/store");
+      const { buildSeedSnapshot, resetSeedSnapshotCache } = await import("../src/local/seedSnapshot");
+      resetSeedSnapshotCache();
+      setSnapshot(buildSeedSnapshot());
+      const { getBedroomAreaDistribution } = await import("../src/local/queries");
+      const resp = getBedroomAreaDistribution({ cityId: 2, minCount: 3 });
+      expect(resp).toBeTruthy();
+      // 深圳应该有数据
+      expect(resp!.bedrooms.length).toBeGreaterThan(2);
+      expect(resp!.areaBuckets.length).toBeGreaterThan(3);
+      // grid 维度
+      expect(resp!.grid.length).toBe(resp!.bedrooms.length);
+      for (let i = 0; i < resp!.grid.length; i++) {
+        expect(resp!.grid[i].length).toBe(resp!.areaBuckets.length);
+      }
+      // top 5 排序: count 降序
+      for (let i = 1; i < resp!.topCells.length; i++) {
+        expect(resp!.topCells[i - 1].count).toBeGreaterThanOrEqual(
+          resp!.topCells[i].count
+        );
+      }
+    });
+  });
 });

@@ -902,6 +902,46 @@
         </view>
       </view>
 
+      <!-- v0.42.0 trend-22 户型 × 面积 联合热图 -->
+      <view v-if="bedroomArea && bedroomArea.bedrooms.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">📐 户型 × 面积 分布 · {{ bedroomArea.cityName }}</view>
+          <view class="muted">minCount ≥ 3 · 共 {{ bedroomArea.totalCount }} 套</view>
+        </view>
+        <view class="ba-heatmap">
+          <view class="ba-row ba-header">
+            <view class="ba-corner"></view>
+            <view
+              v-for="ab in bedroomArea.areaBuckets"
+              :key="'h_' + ab"
+              class="ba-col-h"
+            >{{ ab }}</view>
+          </view>
+          <view
+            v-for="(bed, bedIdx) in bedroomArea.bedrooms"
+            :key="'r_' + bed"
+            class="ba-row"
+          >
+            <view class="ba-row-h">{{ bed }}室</view>
+            <view
+              v-for="(cell, cIdx) in bedroomArea.grid[bedIdx]"
+              :key="'c_' + bed + '_' + cIdx"
+              :class="['ba-cell', cell.count > 0 ? 'ba-cell-on' : 'ba-cell-off']"
+              :style="{ opacity: baCellOpacity(cell.count, baMaxCount) }"
+            >
+              <text class="ba-cell-n">{{ baCellLabel(cell.count) }}</text>
+              <text v-if="cell.count > 0" class="ba-cell-p">
+                {{ Math.round(cell.medianUnitPrice / 1000) }}k
+              </text>
+            </view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：listings.csv (bedrooms + area_sqm) → scripts/compute_bedroom_area.py。<br>
+          显示：上=套数 / 下=中位单价(千元/㎡)，颜色深浅=热度。
+        </view>
+      </view>
+
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
       <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card">
         <view class="row-between">
@@ -1313,7 +1353,8 @@ import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "
 import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, getMetroWalkRanking, getMetroBenefitRanking, getDistrictMetaRanking,
   getFeaturePremiumRanking,
   getTagCombinationRanking,
-  getListingFreshnessRanking, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse } from "../../local/queries";
+  getListingFreshnessRanking,
+  getBedroomAreaDistribution, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type BedroomAreaResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -1371,6 +1412,8 @@ const featurePremium = ref<FeaturePremiumResponse | null>(null);
 const tagCombination = ref<TagCombinationResponse | null>(null);
 // v0.41.0 trend-21: 房源新鲜度
 const listingFreshness = ref<ListingFreshnessResponse | null>(null);
+// v0.42.0 trend-22: 户型 × 面积 联合分布
+const bedroomArea = ref<BedroomAreaResponse | null>(null);
 // v0.38.0 trend-18: 区情画像
 const districtMeta = ref<DistrictMetaResponse | null>(null);
 const districtMetaSortBy = ref<"default" | "price" | "school" | "mom" | "listing">("price");
@@ -1558,6 +1601,43 @@ function lfFreshClass(v: number): string {
   if (v >= 15) return "lf-fresh-mid";
   return "lf-fresh-down";
 }
+
+// v0.42.0 trend-22: 户型 × 面积 联合分布
+async function reloadBedroomArea() {
+  try {
+    bedroomArea.value = await getBedroomAreaDistribution({
+      cityId: app.cityId,
+      minCount: 3
+    });
+  } catch (e) {
+    console.warn("getBedroomAreaDistribution failed:", e);
+    bedroomArea.value = null;
+  }
+}
+
+const BA_BEDROOMS = [1, 2, 3, 4, 5];
+
+/** 热图 cell 颜色深浅 = count 占比 */
+function baCellOpacity(c: number, max: number): number {
+  if (max <= 0 || c === 0) return 0;
+  return Math.max(0.15, c / max);
+}
+
+function baCellLabel(c: number): string {
+  if (c === 0) return "—";
+  return c.toString();
+}
+
+const baMaxCount = computed(() => {
+  if (!bedroomArea.value || bedroomArea.value.bedrooms.length === 0) return 0;
+  let m = 0;
+  for (const row of bedroomArea.value.grid) {
+    for (const c of row) {
+      if (c.count > m) m = c.count;
+    }
+  }
+  return m;
+});
 function mbBandClass(score: number) {
   if (score >= 75) return "mb-tag-green";
   if (score >= 40) return "mb-tag-orange";
@@ -1942,6 +2022,8 @@ async function loadRankingAndDistrict() {
       await reloadTagCombination();
       // v0.41.0 trend-21 房源新鲜度
       await reloadListingFreshness();
+      // v0.42.0 trend-22 户型 × 面积
+      await reloadBedroomArea();
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
         cityId: app.cityId,
@@ -4099,5 +4181,75 @@ onShow(async () => {
 .lf-fresh-down {
   background: #fee2e2;
   color: #dc2626;
+}
+
+/* v0.42.0 trend-22: 户型 × 面积 热图 */
+.ba-heatmap {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  margin-top: 12rpx;
+  font-size: 22rpx;
+}
+.ba-row {
+  display: flex;
+  gap: 4rpx;
+  align-items: center;
+}
+.ba-header {
+  font-size: 22rpx;
+  color: #64748b;
+  margin-bottom: 4rpx;
+}
+.ba-corner,
+.ba-col-h,
+.ba-row-h {
+  padding: 6rpx 8rpx;
+  text-align: center;
+  flex-shrink: 0;
+}
+.ba-corner {
+  width: 80rpx;
+}
+.ba-col-h {
+  flex: 1;
+  font-size: 22rpx;
+  color: #475569;
+}
+.ba-row-h {
+  width: 80rpx;
+  text-align: right;
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 24rpx;
+}
+.ba-cell {
+  flex: 1;
+  min-height: 80rpx;
+  border-radius: 8rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6rpx 4rpx;
+  text-align: center;
+}
+.ba-cell-on {
+  background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
+  color: #fff;
+}
+.ba-cell-off {
+  background: #f1f5f9;
+  color: #cbd5e1;
+}
+.ba-cell-n {
+  font-size: 26rpx;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.ba-cell-p {
+  font-size: 20rpx;
+  opacity: 0.9;
+  margin-top: 2rpx;
 }
 </style>

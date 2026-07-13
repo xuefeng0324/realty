@@ -507,6 +507,20 @@ export interface LocalListingFreshness {
 }
 
 /**
+ * v0.42.0: 户型 × 面积 联合分布 (scripts/compute_bedroom_area.py)
+ * per (city, bedrooms, area_bucket): count + share + median_unit_price
+ */
+export interface LocalBedroomArea {
+  cityId: number;
+  cityName: string;
+  bedrooms: number;
+  areaBucket: string;
+  count: number;
+  share: number;
+  medianUnitPrice: number;
+}
+
+/**
  * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
  * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
  * 用于 dashboard 展示"区级近 N 周房价趋势"。
@@ -575,6 +589,8 @@ export interface DataSnapshot {
   tagCombinations: LocalTagCombination[];
   /** v0.41.0: 房源新鲜度 (scripts/compute_listing_freshness.py) */
   listingFreshness: LocalListingFreshness[];
+  /** v0.42.0: 户型 × 面积 联合分布 (scripts/compute_bedroom_area.py) */
+  bedroomArea: LocalBedroomArea[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

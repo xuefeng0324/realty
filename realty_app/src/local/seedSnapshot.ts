@@ -92,6 +92,7 @@ import districtMetaCSV from "../../static/seed/district_meta.csv?raw";
 import featurePremiumCSV from "../../static/seed/feature_premium.csv?raw";
 import tagCombinationCSV from "../../static/seed/tag_combination.csv?raw";
 import listingFreshnessCSV from "../../static/seed/listing_freshness.csv?raw";
+import bedroomAreaCSV from "../../static/seed/bedroom_area.csv?raw";
 
 let cached: DataSnapshot | null = null;
 
@@ -127,7 +128,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       districtMetaCSV: String(districtMetaCSV ?? ""),
       featurePremiumCSV: String(featurePremiumCSV ?? ""),
       tagCombinationCSV: String(tagCombinationCSV ?? ""),
-      listingFreshnessCSV: String(listingFreshnessCSV ?? "")
+      listingFreshnessCSV: String(listingFreshnessCSV ?? ""),
+      bedroomAreaCSV: String(bedroomAreaCSV ?? "")
     },
     "seed:public-derived"
   );

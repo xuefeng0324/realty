@@ -385,6 +385,15 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 AC | trend-21 | dashboard 房源新鲜度卡 + 双 section + score 圆 | ✅ v0.41.0 | 绿/黄/红 |
 | 🟢 AC | trend-21 | smoke_listing_freshness.mjs E2E + screenshots | ✅ v0.41.0 | 广州/深圳各截一张 |
 
+## I 段：trend-22 户型 × 面积 联合分布 (v0.42.0)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 AC | trend-22 | compute_bedroom_area.py 写 29 行 | ✅ v0.42.0 | 5 户型 × 6 面积 = 30 max |
+| 🟢 AC | trend-22 | types + parse + store + queries (2D grid) | ✅ v0.42.0 | 5 单测 |
+| 🟢 AC | trend-22 | dashboard 热图卡 + cell 颜色深度 + 中位价 | ✅ v0.42.0 | 蓝渐变 |
+| 🟢 AC | trend-22 | smoke_bedroom_area.mjs E2E + screenshots | ✅ v0.42.0 | 广州 9 cells 深圳 11 cells |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |
