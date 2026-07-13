@@ -476,6 +476,18 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 AC | drill-2 | 房源新鲜度 `.lf-row` 加 tap-row + goCommunity | ✅ v0.51.0 | 16 行 (新挂牌+滞销) |
 | 🟢 AC | drill-2 | buildIntegrity +3 测试 + E2E 验证 (6 行跳转全部命中) | ✅ v0.51.0 | 431/431 通过 + 6 screenshots |
 
+## P 段: map-12 地图 5 模式切换 (v0.52.0)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 AC | map-12 | `MAP_MODES` 5 模式定义 + `mapMode` ref | ✅ v0.52.0 | marker/count/price/school/metro |
+| 🟢 AC | map-12 | 5 个 map-mode-tab + click 切换 + 紫渐变激活态 | ✅ v0.52.0 | 复用 dash-tab 样式思路 |
+| 🟢 AC | map-12 | `mapDistrictStats` computed 聚合 4 指标到 districtName | ✅ v0.52.0 | listings + lsp + metroWalk |
+| 🟢 AC | map-12 | `districtFill` 5 档色阶 + metro 反转 | ✅ v0.52.0 | 浅蓝→红 / 绿→红 |
+| 🟢 AC | map-12 | legend 动态 min/max + 标题 | ✅ v0.52.0 | gradient bar |
+| 🟢 AC | map-12 | 非 marker 模式: marker 隐藏, 区中心显示聚合值 | ✅ v0.52.0 | `map-district-val` |
+| 🟢 AC | map-12 | buildIntegrity +4 测试 + E2E (5 模式都验证) | ✅ v0.52.0 | 435/435 通过 + 6 screenshots |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

@@ -3222,4 +3222,38 @@ describe("build integrity", () => {
       expect(m![0]).toMatch(/\/pages\/listing-detail\/listing-detail/);
     });
   });
+
+  // v0.52.0 map-12: 地图模式切换 UI
+  describe("v0.52.0 map-12 地图模式切换", () => {
+    it("dashboard.vue: MAP_MODES 含 5 模式 (marker/count/price/school/metro)", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/MAP_MODES[\s\S]{0,200}marker[\s\S]{0,500}count[\s\S]{0,500}price[\s\S]{0,500}school[\s\S]{0,500}metro/);
+      expect(dash).toMatch(/mapMode = ref<MapModeKey>\("marker"\)/);
+    });
+
+    it("dashboard.vue: 5 个 map-mode-tab + click 切换 mapMode", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/class="map-mode-tabs"/);
+      expect(dash).toMatch(/v-for="m in MAP_MODES"/);
+      expect(dash).toMatch(/@click="mapMode = m\.key"/);
+      expect(dash).toMatch(/map-mode-tab--active/);
+    });
+
+    it("dashboard.vue: 地图模式切换逻辑 (districtFill / districtStatLabel / mapStatRange)", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/function districtFill\(/);
+      expect(dash).toMatch(/function districtStatLabel\(/);
+      expect(dash).toMatch(/const mapStatRange = computed/);
+      expect(dash).toMatch(/mapDistrictStats = computed/);
+    });
+
+    it("dashboard.vue: 非 marker 模式隐藏 markers, 显示 district fill + val", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/v-if="mapMode === 'marker' && districtMap\.markers\.length <= 30"/);
+      expect(dash).toMatch(/v-else-if="mapMode === 'marker'"/);
+      expect(dash).toMatch(/v-else>/);
+      expect(dash).toMatch(/map-district-val/);
+      expect(dash).toMatch(/:fill="districtFill\(d\.districtName\)"/);
+    });
+  });
 });

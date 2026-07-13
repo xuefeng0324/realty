@@ -1,0 +1,29 @@
+[debug] [vite] connecting...
+[debug] [vite] connected.
+[warning] [vue-router]: importing from 'vue-router/dist/vue-router.esm-bundler.js' is deprecated. Use 'vue-router' directly.
+[log] [realty_app] dev: loading eruda console
+[log] [realty_app] seed loaded: 1286 listings
+[log] [realty_app] stats_70 loaded: 34300
+[log] [realty_app] daily_wangqian loaded: 540
+[log] [realty_app] launched, snapshot loaded: true
+[log] [realty_app] shown
+[log] [realty_app] daily_wangqian remote updated: 540
+map-mode-tab count = 5
+labels = ["📍社区","🔢小区数","💰均价","🏫学区","🚇地铁"]
+clicked 小区 active=map-mode-tab map-mode-tab--active
+  legend: 小区挂牌数 (越高越红): [46 - 168]
+  district values visible: 11
+clicked 小区数 active=map-mode-tab map-mode-tab--active
+  legend: 小区挂牌数 (越高越红): [46 - 168]
+  district values visible: 11
+clicked 均价 active=map-mode-tab map-mode-tab--active
+  legend: 区均价 元/㎡ (越高越红): [33,401 - 69,457]
+  district values visible: 11
+clicked 学区 active=map-mode-tab map-mode-tab--active
+  legend: 区学区评分 (越高越红): [82.6 - 86]
+  district values visible: 11
+clicked 地铁 active=map-mode-tab map-mode-tab--active
+  legend: 地铁步行分钟 (越低越好, 越绿越好): [4 - 12]
+  district values visible: 11
+shenzhen price mode captured
+marker count back in marker mode = 0

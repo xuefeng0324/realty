@@ -1249,6 +1249,24 @@
           <view class="card-title">🗺️ 行政区域图 · {{ districtMap.cityName }}</view>
           <view class="muted">{{ districtMap.districts.length }} 区 · {{ districtMap.markers.length }} 社区</view>
         </view>
+        <!-- v0.52.0 map-12: 地图模式切换 (marker / count / price / school / metro) -->
+        <view class="map-mode-tabs">
+          <view
+            v-for="m in MAP_MODES"
+            :key="m.key"
+            :class="['map-mode-tab', { 'map-mode-tab--active': mapMode === m.key }]"
+            @click="mapMode = m.key"
+          >
+            <text class="map-mode-icon">{{ m.icon }}</text>
+            <text class="map-mode-label">{{ m.label }}</text>
+          </view>
+        </view>
+        <view v-if="mapMode !== 'marker'" class="map-legend">
+          <text class="map-legend-title">{{ mapModeTitle }}:</text>
+          <view class="map-legend-bar" :style="{ background: mapModeGradient }"></view>
+          <text class="map-legend-min">{{ mapModeMin }}</text>
+          <text class="map-legend-max">{{ mapModeMax }}</text>
+        </view>
         <view class="map-wrap">
           <svg
             :viewBox="`0 0 ${MAP_W} ${MAP_H}`"
@@ -1262,8 +1280,9 @@
                 v-for="d in districtMap.districts"
                 :key="'d_' + d.districtCode"
                 :d="districtAllPath(d.polygons, districtMap.bbox.minLng, districtMap.bbox.maxLng, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
-                :class="['map-district-p']"
+                :class="['map-district-p', { 'map-district-p--mode': mapMode !== 'marker' }]"
                 :data-name="d.districtName"
+                :fill="districtFill(d.districtName)"
                 fill-rule="evenodd"
               />
               <!-- 区名 label (center) -->
@@ -1277,8 +1296,8 @@
                 class="map-district-lbl"
               >{{ d.districtName }}</text>
             </g>
-            <!-- 社区 marker (圆点 + 名字) -->
-            <g v-if="districtMap.markers.length <= 30">
+            <!-- 社区 marker (圆点 + 名字) — v0.52.0 map-12 仅 marker 模式显示 -->
+            <g v-if="mapMode === 'marker' && districtMap.markers.length <= 30">
               <g
                 v-for="m in districtMap.markers"
                 :key="'m_' + m.communityId"
@@ -1298,7 +1317,7 @@
                 >{{ m.communityName }}</text>
               </g>
             </g>
-            <g v-else>
+            <g v-else-if="mapMode === 'marker'">
               <circle
                 v-for="m in districtMap.markers"
                 :key="'mb_' + m.communityId"
@@ -1310,6 +1329,18 @@
                 :data-name="m.communityName"
                 @click="goCommunity(m.communityId)"
               ><title>{{ m.communityName }}</title></circle>
+            </g>
+            <!-- 非 marker 模式: 显示该区聚合值 -->
+            <g v-else>
+              <text
+                v-for="d in districtMap.districts"
+                :key="'v_' + d.districtCode"
+                :x="mapX(d.centerLng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
+                :y="mapY(d.centerLat, districtMap.bbox.minLat, districtMap.bbox.maxLat) + 18"
+                text-anchor="middle"
+                dominant-baseline="middle"
+                class="map-district-val"
+              >{{ districtStatLabel(d.districtName) }}</text>
             </g>
           </svg>
         </view>
@@ -1828,6 +1859,7 @@ import {
   type CityDailySnapshot
 } from "../../local/dailyWangqian";
 import { hasStats70, hasDailyWangqian } from "../../local/store";
+import * as store from "../../local/store";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -2964,6 +2996,141 @@ function goListing(listingId: number) {
     url: `/pages/listing-detail/listing-detail?id=${listingId}`
   });
 }
+
+// v0.52.0 map-12: 地图模式切换
+type MapModeKey = "marker" | "count" | "price" | "school" | "metro";
+const MAP_MODES: { key: MapModeKey; icon: string; label: string }[] = [
+  { key: "marker", icon: "📍", label: "社区" },
+  { key: "count", icon: "🔢", label: "小区数" },
+  { key: "price", icon: "💰", label: "均价" },
+  { key: "school", icon: "🏫", label: "学区" },
+  { key: "metro", icon: "🚇", label: "地铁" }
+];
+const mapMode = ref<MapModeKey>("marker");
+
+// 计算每个区的 4 项聚合指标: count / price / school / metro
+const mapDistrictStats = computed<Record<string, { count: number; avgPrice: number; avgSchool: number; avgMetroMin: number }>>(() => {
+  if (!districtMap.value) return {};
+  const stats: Record<string, { count: number; sumPrice: number; sumSchool: number; sumMetro: number; cntPrice: number; cntSchool: number; cntMetro: number }> = {};
+  // 1. count + price: 用 listings 聚合
+  const listings = store.getListingsByCity(app.cityId).filter((l) => l.unitPrice && l.unitPrice > 0);
+  for (const l of listings) {
+    const m: { district: string } | undefined = districtMap.value.markers.find((x) => x.communityId === l.communityId);
+    if (!m) continue;
+    const d = m.district;
+    if (!stats[d]) stats[d] = { count: 0, sumPrice: 0, sumSchool: 0, sumMetro: 0, cntPrice: 0, cntSchool: 0, cntMetro: 0 };
+    stats[d].count += 1;
+    stats[d].sumPrice += l.unitPrice!;
+    stats[d].cntPrice += 1;
+  }
+  // 2. school: 用 listingSchoolPremium.csv 含 avgSchoolScore by community -> district
+  const lsp = store.getListingSchoolPremiumByCity(app.cityId);
+  for (const x of lsp) {
+    const m: { district: string } | undefined = districtMap.value.markers.find((mm) => mm.communityId === x.communityId);
+    if (!m) continue;
+    const d = m.district;
+    if (!stats[d]) stats[d] = { count: 0, sumPrice: 0, sumSchool: 0, sumMetro: 0, cntPrice: 0, cntSchool: 0, cntMetro: 0 };
+    stats[d].sumSchool += x.avgSchoolScore;
+    stats[d].cntSchool += 1;
+  }
+  // 3. metro: 用 metroWalk.items (含 walkMinutes)
+  if (metroWalk.value && metroWalk.value.items.length > 0) {
+    for (const it of metroWalk.value.items) {
+      const m: { district: string } | undefined = districtMap.value.markers.find((mm) => mm.communityId === it.communityId);
+      if (!m) continue;
+      const d = m.district;
+      if (!stats[d]) stats[d] = { count: 0, sumPrice: 0, sumSchool: 0, sumMetro: 0, cntPrice: 0, cntSchool: 0, cntMetro: 0 };
+      if (it.walkMinutes != null) {
+        stats[d].sumMetro += it.walkMinutes;
+        stats[d].cntMetro += 1;
+      }
+    }
+  }
+  // 输出
+  const out: Record<string, { count: number; avgPrice: number; avgSchool: number; avgMetroMin: number }> = {};
+  for (const k of Object.keys(stats)) {
+    const s = stats[k];
+    out[k] = {
+      count: s.count,
+      avgPrice: s.cntPrice > 0 ? Math.round(s.sumPrice / s.cntPrice) : 0,
+      avgSchool: s.cntSchool > 0 ? +(s.sumSchool / s.cntSchool).toFixed(1) : 0,
+      avgMetroMin: s.cntMetro > 0 ? Math.round(s.sumMetro / s.cntMetro) : 0
+    };
+  }
+  return out;
+});
+
+function districtStatLabel(name: string): string {
+  const s = mapDistrictStats.value[name];
+  if (!s) return "";
+  if (mapMode.value === "count") return s.count + " 套";
+  if (mapMode.value === "price") return s.avgPrice > 0 ? s.avgPrice + "" : "—";
+  if (mapMode.value === "school") return s.avgSchool > 0 ? s.avgSchool.toFixed(1) : "—";
+  if (mapMode.value === "metro") return s.avgMetroMin > 0 ? s.avgMetroMin + "'" : "—";
+  return "";
+}
+
+// 全局 min/max (供颜色梯度用)
+const mapStatRange = computed<{ min: number; max: number }>(() => {
+  const list = Object.values(mapDistrictStats.value);
+  if (list.length === 0) return { min: 0, max: 1 };
+  if (mapMode.value === "count") {
+    return { min: Math.min(...list.map((s) => s.count)), max: Math.max(...list.map((s) => s.count)) };
+  }
+  if (mapMode.value === "price") {
+    const vs = list.map((s) => s.avgPrice).filter((v) => v > 0);
+    return { min: Math.min(...vs), max: Math.max(...vs) };
+  }
+  if (mapMode.value === "school") {
+    const vs = list.map((s) => s.avgSchool).filter((v) => v > 0);
+    return { min: Math.min(...vs), max: Math.max(...vs) };
+  }
+  if (mapMode.value === "metro") {
+    const vs = list.map((s) => s.avgMetroMin).filter((v) => v > 0);
+    return { min: Math.min(...vs), max: Math.max(...vs) };
+  }
+  return { min: 0, max: 1 };
+});
+
+function districtFill(name: string): string {
+  if (mapMode.value === "marker") return "#f1f5f9"; // 浅灰
+  const s = mapDistrictStats.value[name];
+  if (!s) return "#f1f5f9";
+  const r = mapStatRange.value;
+  let v = 0;
+  if (mapMode.value === "count") v = s.count;
+  else if (mapMode.value === "price") v = s.avgPrice;
+  else if (mapMode.value === "school") v = s.avgSchool;
+  else if (mapMode.value === "metro") v = s.avgMetroMin > 0 ? s.avgMetroMin : r.min;
+  if (r.max === r.min) return "#bae6fd";
+  const t = (v - r.min) / (r.max - r.min);
+  // 颜色梯度: count/price/school: 绿→黄→红 (越高越深); metro: 红→黄→绿 (越低越好, 反转)
+  const colors = mapMode.value === "metro"
+    ? ["#86efac", "#fef08a", "#fca5a5", "#ef4444"] // low → high
+    : ["#bae6fd", "#86efac", "#fde047", "#f97316", "#ef4444"]; // low → high
+  const idx = Math.min(colors.length - 1, Math.floor(t * colors.length));
+  return colors[Math.max(0, idx)];
+}
+
+const mapModeTitle = computed(() => {
+  if (mapMode.value === "count") return "小区挂牌数 (越高越红)";
+  if (mapMode.value === "price") return "区均价 元/㎡ (越高越红)";
+  if (mapMode.value === "school") return "区学区评分 (越高越红)";
+  if (mapMode.value === "metro") return "地铁步行分钟 (越低越好, 越绿越好)";
+  return "";
+});
+const mapModeMin = computed(() => {
+  const r = mapStatRange.value;
+  return mapMode.value === "price" ? r.min.toLocaleString() : String(r.min);
+});
+const mapModeMax = computed(() => {
+  const r = mapStatRange.value;
+  return mapMode.value === "price" ? r.max.toLocaleString() : String(r.max);
+});
+const mapModeGradient = computed(() => {
+  if (mapMode.value === "metro") return "linear-gradient(to right, #86efac, #fef08a, #fca5a5, #ef4444)";
+  return "linear-gradient(to right, #bae6fd, #86efac, #fde047, #f97316, #ef4444)";
+});
 
 // v0.19.0 商业热度评分色码 (>=80 高分 price-up / 50-80 中 muted / <50 低 price-down)
 // 注：复用现有价格色码 — price-up 红 = 高商业热度, price-down 绿 = 低
@@ -5228,6 +5395,80 @@ onShow(async () => {
   stroke-opacity: 0.85;
   stroke-linejoin: round;
   transition: fill 0.2s;
+}
+
+/* v0.52.0 map-12: 地图模式 tab + legend */
+.map-mode-tabs {
+  display: flex;
+  gap: 8rpx;
+  margin: 8rpx 0;
+  flex-wrap: wrap;
+}
+.map-mode-tab {
+  flex: 1;
+  min-width: 100rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4rpx;
+  padding: 8rpx 12rpx;
+  border-radius: 8rpx;
+  background: #f1f5f9;
+  font-size: 22rpx;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.map-mode-tab:hover {
+  background: #e2e8f0;
+}
+.map-mode-tab--active {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  font-weight: 600;
+}
+.map-mode-icon {
+  font-size: 22rpx;
+}
+.map-mode-label {
+  font-size: 22rpx;
+}
+.map-legend {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin: 4rpx 0 8rpx;
+  font-size: 20rpx;
+  color: #475569;
+}
+.map-legend-title {
+  white-space: nowrap;
+  font-size: 20rpx;
+}
+.map-legend-bar {
+  flex: 1;
+  height: 14rpx;
+  border-radius: 4rpx;
+  min-width: 80rpx;
+}
+.map-legend-min, .map-legend-max {
+  font-size: 20rpx;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: #334155;
+}
+.map-district-val {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #1e293b;
+  paint-order: stroke;
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+/* v0.52.0 map-12: 模式叠加时禁用默认 fill, 使用 :fill 属性 */
+.map-district-p--mode {
+  fill-opacity: 0.85;
 }
 .map-district-p:hover {
   fill: rgba(254, 215, 170, 0.7);
