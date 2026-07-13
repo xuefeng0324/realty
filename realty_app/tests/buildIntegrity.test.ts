@@ -2583,4 +2583,110 @@ describe("build integrity", () => {
       }
     });
   });
+
+  // v0.43.0 trend-23: 朝向 × 楼层 溢价
+  describe("v0.43.0 trend-23 朝向 × 楼层 溢价", () => {
+    it("orientation_floor.csv 存在 + 有列 + city_name 正确", () => {
+      const csv = readFileSync(resolve(ROOT, "static/seed/orientation_floor.csv"), "utf8");
+      expect(csv).toMatch(/^(\ufeff)?city_id,city_name,orientation,floor_bucket/);
+      const lines = csv.trim().split(/\r?\n/);
+      expect(lines.length).toBeGreaterThan(40);
+      expect(csv).toMatch(/,广州,/);
+      expect(csv).toMatch(/,深圳,/);
+      expect(csv).toMatch(/,珠海,/);
+      // 每行有 premium_pct 列
+      expect(csv).toMatch(/premium_pct/);
+    });
+
+    it("compute_orientation_floor.py + types/parser/store/queries 都实现", () => {
+      const script = readFileSync(resolve(ROOT, "scripts/compute_orientation_floor.py"), "utf8");
+      expect(script).toMatch(/premium_pct/);
+      expect(script).toMatch(/orientation_floor\.csv/);
+
+      const types = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(types).toMatch(/LocalOrientationFloor/);
+      expect(types).toMatch(/orientationFloor:\s*LocalOrientationFloor\[\]/);
+      expect(types).toMatch(/premiumPct:/);
+
+      const importer = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(importer).toMatch(/function parseOrientationFloor/);
+      expect(importer).toMatch(/orientationFloorCSV/);
+
+      const store = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(store).toMatch(/getOrientationFloor\(/);
+      expect(store).toMatch(/getOrientationFloorByCity\(/);
+
+      const queries = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(queries).toMatch(/export function getOrientationFloorMatrix/);
+      expect(queries).toMatch(/OrientationFloorCell/);
+      expect(queries).toMatch(/topPremium/);
+      expect(queries).toMatch(/topDiscount/);
+    });
+
+    it("seedSnapshot.ts + dataRefresher.ts + settings.vue 都接入", () => {
+      const seed = readFileSync(resolve(ROOT, "src/local/seedSnapshot.ts"), "utf8");
+      expect(seed).toMatch(/import orientationFloorCSV/);
+      expect(seed).toMatch(/orientationFloorCSV:/);
+
+      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
+      expect(ref).toMatch(/orientationFloor:/);
+
+      const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
+      expect(settings).toMatch(/orientation_floor\.csv/);
+      expect(settings).toMatch(/orientationFloorCSV:/);
+    });
+
+    it("dashboard.vue 溢价卡 + 折价卡 + 矩阵 + 颜色编码", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/朝向 × 楼层 溢价/);
+      expect(dash).toMatch(/orientationFloor/);
+      expect(dash).toMatch(/reloadOrientationFloor/);
+      expect(dash).toMatch(/of-row-up/);
+      expect(dash).toMatch(/of-row-down/);
+      expect(dash).toMatch(/of-matrix/);
+      expect(dash).toMatch(/of-mcell/);
+      expect(dash).toMatch(/ofCellClass/);
+      expect(dash).toMatch(/of-cell-up/);
+      expect(dash).toMatch(/of-cell-down/);
+    });
+
+    it("getOrientationFloorMatrix 数据正确 + 溢价/折价排序", async () => {
+      const { setSnapshot } = await import("../src/local/store");
+      const { buildSeedSnapshot, resetSeedSnapshotCache } = await import("../src/local/seedSnapshot");
+      resetSeedSnapshotCache();
+      setSnapshot(buildSeedSnapshot());
+      const { getOrientationFloorMatrix } = await import("../src/local/queries");
+      const resp = getOrientationFloorMatrix({ cityId: 2, minCount: 5 });
+      expect(resp).toBeTruthy();
+      // 深圳应至少有 4 orientations × 3 floor_buckets = 12 cells
+      expect(resp!.orientations.length).toBeGreaterThanOrEqual(4);
+      expect(resp!.floorBuckets.length).toBeGreaterThanOrEqual(3);
+      expect(resp!.grid.length).toBe(resp!.orientations.length);
+      // topPremium 降序
+      for (let i = 1; i < resp!.topPremium.length; i++) {
+        expect(resp!.topPremium[i - 1].premiumPct).toBeGreaterThanOrEqual(
+          resp!.topPremium[i].premiumPct
+        );
+      }
+      // topDiscount 升序 (折价最大在第 1)
+      for (let i = 1; i < resp!.topDiscount.length; i++) {
+        expect(resp!.topDiscount[i - 1].premiumPct).toBeLessThanOrEqual(
+          resp!.topDiscount[i].premiumPct
+        );
+      }
+    });
+
+    it("珠海应有大折价 cell (珠海 朝南/高楼层 +20%, 南北通透/低楼层应 < -30%)", async () => {
+      const { setSnapshot } = await import("../src/local/store");
+      const { buildSeedSnapshot, resetSeedSnapshotCache } = await import("../src/local/seedSnapshot");
+      resetSeedSnapshotCache();
+      setSnapshot(buildSeedSnapshot());
+      const { getOrientationFloorMatrix } = await import("../src/local/queries");
+      const resp = getOrientationFloorMatrix({ cityId: 3, minCount: 5 });
+      expect(resp).toBeTruthy();
+      // 珠海 折价头牌 < -30%
+      const worst = resp!.topDiscount[0];
+      expect(worst.premiumPct).toBeLessThan(-30);
+    });
+  });
 });

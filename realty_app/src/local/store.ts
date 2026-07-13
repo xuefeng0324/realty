@@ -29,6 +29,7 @@ import type {
   LocalTagCombination,
   LocalListingFreshness,
   LocalBedroomArea,
+  LocalOrientationFloor,
   LocalMetroWalk,
   LocalListing,
   LocalListingSchoolPremium,
@@ -445,6 +446,14 @@ export function getBedroomArea(): LocalBedroomArea[] {
 
 export function getBedroomAreaByCity(cityId: number): LocalBedroomArea[] {
   return (snapshot?.bedroomArea ?? []).filter((b) => b.cityId === cityId);
+}
+
+export function getOrientationFloor(): LocalOrientationFloor[] {
+  return snapshot?.orientationFloor ?? [];
+}
+
+export function getOrientationFloorByCity(cityId: number): LocalOrientationFloor[] {
+  return (snapshot?.orientationFloor ?? []).filter((o) => o.cityId === cityId);
 }
 
 /**

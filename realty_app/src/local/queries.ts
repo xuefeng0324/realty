@@ -2724,3 +2724,124 @@ export function getBedroomAreaDistribution(params: {
     topCells
   };
 }
+
+/**
+ * v0.43.0 trend-23: 朝向 × 楼层 溢价分析
+ * 找到 "东南/中楼层" 比全市中位贵 20%, "朝北低楼层" 折价 15% 类似规律
+ */
+export interface OrientationFloorCell {
+  orientation: string;
+  floorBucket: string;
+  count: number;
+  share: number;
+  medianUnitPrice: number;
+  premiumPct: number;
+}
+
+export interface OrientationFloorResponse {
+  cityId: number;
+  cityName: string;
+  totalCount: number;
+  /** dimensions */
+  orientations: string[];
+  floorBuckets: string[];
+  /** 2D: orientations × floorBuckets */
+  grid: OrientationFloorCell[][];
+  /** 溢价 top 5 (降序) */
+  topPremium: OrientationFloorCell[];
+  /** 折价 top 5 (升序) */
+  topDiscount: OrientationFloorCell[];
+  /** 全城中位单价 */
+  cityMedian: number;
+}
+
+const OF_ORIENTATIONS_ORDER = ["东南", "南", "南北通透", "东", "西", "南北", "北"];
+const OF_FLOOR_ORDER = ["低楼层", "中楼层", "高楼层", "顶层"];
+
+export function getOrientationFloorMatrix(params: {
+  cityId: number;
+  minCount?: number;
+}): OrientationFloorResponse | null {
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const all = store.getOrientationFloorByCity(params.cityId);
+  if (all.length === 0) return null;
+
+  const minCount = params.minCount ?? 5;
+  const filtered = all.filter((r) => r.count >= minCount);
+
+  const orientations = OF_ORIENTATIONS_ORDER.filter((o) =>
+    filtered.some((r) => r.orientation === o)
+  );
+  const floorBuckets = OF_FLOOR_ORDER.filter((f) =>
+    filtered.some((r) => r.floorBucket === f)
+  );
+
+  // 全城中位
+  const cityMedian = (() => {
+    const pp: number[] = [];
+    for (const r of filtered) {
+      for (let i = 0; i < r.count; i++) pp.push(r.medianUnitPrice);
+    }
+    if (pp.length === 0) return 0;
+    pp.sort((a, b) => a - b);
+    const mid = Math.floor(pp.length / 2);
+    return pp.length % 2 === 0 ? (pp[mid - 1] + pp[mid]) / 2 : pp[mid];
+  })();
+
+  const idxMap = new Map<string, OrientationFloorCell>();
+  for (const r of filtered) {
+    idxMap.set(`${r.orientation}|${r.floorBucket}`, {
+      orientation: r.orientation,
+      floorBucket: r.floorBucket,
+      count: r.count,
+      share: r.share,
+      medianUnitPrice: r.medianUnitPrice,
+      premiumPct: r.premiumPct
+    });
+  }
+
+  const grid: OrientationFloorCell[][] = orientations.map((o) =>
+    floorBuckets.map((f) => {
+      const cell = idxMap.get(`${o}|${f}`);
+      return cell ?? {
+        orientation: o,
+        floorBucket: f,
+        count: 0,
+        share: 0,
+        medianUnitPrice: 0,
+        premiumPct: 0
+      };
+    })
+  );
+
+  const sortedAll = [...filtered].sort((a, b) => a.premiumPct - b.premiumPct);
+  const topDiscount = sortedAll.slice(0, 5).map((r) => ({
+    orientation: r.orientation,
+    floorBucket: r.floorBucket,
+    count: r.count,
+    share: r.share,
+    medianUnitPrice: r.medianUnitPrice,
+    premiumPct: r.premiumPct
+  }));
+  const topPremium = [...sortedAll].reverse().slice(0, 5).map((r) => ({
+    orientation: r.orientation,
+    floorBucket: r.floorBucket,
+    count: r.count,
+    share: r.share,
+    medianUnitPrice: r.medianUnitPrice,
+    premiumPct: r.premiumPct
+  }));
+
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    totalCount: filtered.reduce((s, r) => s + r.count, 0),
+    orientations,
+    floorBuckets,
+    grid,
+    topPremium,
+    topDiscount,
+    cityMedian
+  };
+}

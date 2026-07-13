@@ -36,6 +36,7 @@
 | v0.40.0 | 2026-07-13 | dashboard 新增「🏷️ 标签组合热度」卡：listing_tags.csv (7518 行) → C(2) 算 pair 频率 + 中位价；top 12 pair (紫 bar + tag pill)；324 行 tag_combination.csv；广州/深圳 top 1 都是 "名校区+朝南"；376/376 单测 + smoke_tag_combination E2E |
 | v0.41.0 | 2026-07-13 | dashboard 新增「📅 房源新鲜度」卡：双 section (新挂牌/滞销)，23 行 listing_freshness.csv，公式 freshness = (近4周×1 + 近2周×2)÷总数×100；min_listings=5；381/381 单测 + smoke_listing_freshness E2E |
 | v0.42.0 | 2026-07-13 | dashboard 新增「📐 户型 × 面积 分布」卡：2D 热图 (5户型 × 6 面积桶)，颜色深度=count，cell 上=套数/下=中位价；29 行 bedroom_area.csv；3 城都验证 3室 80-110㎡ 是主流；386/386 单测 + smoke_bedroom_area E2E |
+| v0.43.0 | 2026-07-13 | dashboard 新增「🧭 朝向 × 楼层 溢价」卡：2D 矩阵 (7 朝向 × 4 楼层 = 28 cells)，颜色按 premium_pct (vs 全城中位)：绿=溢价 ≥3%、红=折价 ≤-3%；3 城市 48 cells；珠海 南北通透/低楼层 -42.7% (市场最大折价桶); 392/392 单测 + smoke_orientation_floor E2E |
 | v0.35.0 | 2026-07-13 | 地铁步行通勤：🚶 metro_walk.csv (37 行，AMAP_API 4 + ESTIMATED 30 + 5 skip)；3 色分档 (绿 ≤5 / 橙 ≤10 / 红 >10min)；quota 友好 fallback 启发式；深圳 振华路42号 0min 居首 |
 | v0.36.0 | 2026-07-13 | 地铁规划受益：🚇 metro_benefit.csv (49 行 × 21 规划线路)；结合 距离分 × status 权重 (在建×1.2 / 即将开通×1.5)；深圳 top1 中海天钻/星河智荟 72 分 → 在建 17/21 号线一期；广州 保利天悦 90 → 8 号线东延 |
 | v0.37.0 | 2026-07-13 | 5 维小区指标：listing 列表每行底部加 位置/房屋/楼龄/配套/性价比 5 列迷你进度条；community 详情页加 🧭生活 + 🎓学区 + 🚌通勤 + 🚶步行地铁 + 🚇规划地铁 5 格卡；京基100 = 81/100/100/90/0；top1 listing 五维 80/74/95/100/85 |

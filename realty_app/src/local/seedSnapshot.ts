@@ -93,6 +93,7 @@ import featurePremiumCSV from "../../static/seed/feature_premium.csv?raw";
 import tagCombinationCSV from "../../static/seed/tag_combination.csv?raw";
 import listingFreshnessCSV from "../../static/seed/listing_freshness.csv?raw";
 import bedroomAreaCSV from "../../static/seed/bedroom_area.csv?raw";
+import orientationFloorCSV from "../../static/seed/orientation_floor.csv?raw";
 
 let cached: DataSnapshot | null = null;
 
@@ -129,7 +130,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       featurePremiumCSV: String(featurePremiumCSV ?? ""),
       tagCombinationCSV: String(tagCombinationCSV ?? ""),
       listingFreshnessCSV: String(listingFreshnessCSV ?? ""),
-      bedroomAreaCSV: String(bedroomAreaCSV ?? "")
+      bedroomAreaCSV: String(bedroomAreaCSV ?? ""),
+      orientationFloorCSV: String(orientationFloorCSV ?? "")
     },
     "seed:public-derived"
   );

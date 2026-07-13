@@ -164,6 +164,7 @@ function mergeListingsIntoSnapshot(
     tagCombinations: existing?.tagCombinations ?? [],
     listingFreshness: existing?.listingFreshness ?? [],
     bedroomArea: existing?.bedroomArea ?? [],
+    orientationFloor: existing?.orientationFloor ?? [],
     availableWeeks
   };
 }

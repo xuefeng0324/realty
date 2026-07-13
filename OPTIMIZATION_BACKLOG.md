@@ -394,6 +394,15 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 AC | trend-22 | dashboard 热图卡 + cell 颜色深度 + 中位价 | ✅ v0.42.0 | 蓝渐变 |
 | 🟢 AC | trend-22 | smoke_bedroom_area.mjs E2E + screenshots | ✅ v0.42.0 | 广州 9 cells 深圳 11 cells |
 
+## I 段补 1：trend-23 朝向 × 楼层 溢价分析 (v0.43.0)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 AC | trend-23 | compute_orientation_floor.py 写 48 行 | ✅ v0.43.0 | 3 城 × 16 cells |
+| 🟢 AC | trend-23 | types + parse + store + queries (矩阵 + 双榜) | ✅ v0.43.0 | 6 单测 |
+| 🟢 AC | trend-23 | dashboard 溢价卡 + 折价卡 + 7×4 矩阵 + 5 级颜色 | ✅ v0.43.0 | 绿/红/黄 |
+| 🟢 AC | trend-23 | smoke_orientation_floor.mjs E2E + screenshots | ✅ v0.43.0 | 珠海 -42.7% |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

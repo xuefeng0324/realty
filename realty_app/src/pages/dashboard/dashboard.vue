@@ -942,6 +942,69 @@
         </view>
       </view>
 
+      <!-- v0.43.0 trend-23 朝向 × 楼层 溢价矩阵 -->
+      <view v-if="orientationFloor && orientationFloor.orientations.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">🧭 朝向 × 楼层 溢价 · {{ orientationFloor.cityName }}</view>
+          <view class="muted">vs 全城中位 {{ Math.round(orientationFloor.cityMedian) }} 元/㎡ · minCount ≥ 5</view>
+        </view>
+        <view class="of-section-title">📈 溢价 Top 5</view>
+        <view
+          v-for="(p, idx) in orientationFloor.topPremium"
+          :key="'p_' + idx + '_' + p.orientation + p.floorBucket"
+          class="of-row of-row-up"
+        >
+          <text class="of-rank">#{{ idx + 1 }}</text>
+          <text class="of-key">{{ p.orientation }} · {{ p.floorBucket }}</text>
+          <text class="of-pct">+{{ p.premiumPct }}%</text>
+          <text class="of-px">{{ Math.round(p.medianUnitPrice) }} 元</text>
+          <text class="of-n">×{{ p.count }}</text>
+        </view>
+        <view class="of-section-title">📉 折价 Top 5</view>
+        <view
+          v-for="(p, idx) in orientationFloor.topDiscount"
+          :key="'d_' + idx + '_' + p.orientation + p.floorBucket"
+          class="of-row of-row-down"
+        >
+          <text class="of-rank">#{{ idx + 1 }}</text>
+          <text class="of-key">{{ p.orientation }} · {{ p.floorBucket }}</text>
+          <text class="of-pct">{{ p.premiumPct }}%</text>
+          <text class="of-px">{{ Math.round(p.medianUnitPrice) }} 元</text>
+          <text class="of-n">×{{ p.count }}</text>
+        </view>
+        <view class="of-section-title">🟦 矩阵 (行=朝向 · 列=楼层 · 颜色=溢价%)</view>
+        <view class="of-matrix">
+          <view class="of-mrow of-mheader">
+            <view class="of-mcorner">朝向\楼层</view>
+            <view
+              v-for="fb in orientationFloor.floorBuckets"
+              :key="'h_' + fb"
+              class="of-mcol-h"
+            >{{ fb }}</view>
+          </view>
+          <view
+            v-for="(o, oIdx) in orientationFloor.orientations"
+            :key="'r_' + o"
+            class="of-mrow"
+          >
+            <view class="of-mrow-h">{{ o }}</view>
+            <view
+              v-for="(cell, cIdx) in orientationFloor.grid[oIdx]"
+              :key="'c_' + o + '_' + cIdx"
+              :class="['of-mcell', ofCellClass(cell)]"
+            >
+              <text class="of-mcell-n">{{ ofCellLabel(cell) }}</text>
+              <text v-if="cell.count > 0" class="of-mcell-p">{{ ofCellPctLabel(cell) }}</text>
+            </view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：listings.csv (orientation + floor_number) → scripts/compute_orientation_floor.py。<br>
+          公式：premium_pct = (cell_median - city_median) ÷ city_median × 100<br>
+          颜色：绿=溢价 ≥3%, 红=折价 ≤-3%, 灰=中性
+        </view>
+      </view>
+
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
       <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card">
         <view class="row-between">
@@ -1354,7 +1417,8 @@ import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWa
   getFeaturePremiumRanking,
   getTagCombinationRanking,
   getListingFreshnessRanking,
-  getBedroomAreaDistribution, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type BedroomAreaResponse } from "../../local/queries";
+  getBedroomAreaDistribution,
+  getOrientationFloorMatrix, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type BedroomAreaResponse, type OrientationFloorResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -1414,6 +1478,8 @@ const tagCombination = ref<TagCombinationResponse | null>(null);
 const listingFreshness = ref<ListingFreshnessResponse | null>(null);
 // v0.42.0 trend-22: 户型 × 面积 联合分布
 const bedroomArea = ref<BedroomAreaResponse | null>(null);
+// v0.43.0 trend-23: 朝向 × 楼层 溢价分析
+const orientationFloor = ref<OrientationFloorResponse | null>(null);
 // v0.38.0 trend-18: 区情画像
 const districtMeta = ref<DistrictMetaResponse | null>(null);
 const districtMetaSortBy = ref<"default" | "price" | "school" | "mom" | "listing">("price");
@@ -1638,6 +1704,48 @@ const baMaxCount = computed(() => {
   }
   return m;
 });
+
+// v0.43.0 trend-23: 朝向 × 楼层 溢价分析
+async function reloadOrientationFloor() {
+  try {
+    orientationFloor.value = await getOrientationFloorMatrix({
+      cityId: app.cityId,
+      minCount: 5
+    });
+  } catch (e) {
+    console.warn("getOrientationFloorMatrix failed:", e);
+    orientationFloor.value = null;
+  }
+}
+
+/** 朝向 × 楼层 矩阵 cell 显示: 上=套数, 下=溢价 % */
+function ofCellLabel(cell: { count: number; premiumPct: number }): string {
+  if (cell.count === 0) return "—";
+  return cell.count.toString();
+}
+
+function ofCellPctLabel(cell: { count: number; premiumPct: number }): string {
+  if (cell.count === 0) return "";
+  const p = cell.premiumPct;
+  const sign = p > 0 ? "+" : "";
+  return `${sign}${p}%`;
+}
+
+/** cell 颜色: 越正 越绿, 越负 越红 */
+function ofCellClass(cell: { count: number; premiumPct: number }): string {
+  if (cell.count === 0) return "of-cell-off";
+  const p = cell.premiumPct;
+  if (p >= 10) return "of-cell-up-strong";
+  if (p >= 3) return "of-cell-up";
+  if (p <= -10) return "of-cell-down-strong";
+  if (p <= -3) return "of-cell-down";
+  return "of-cell-flat";
+}
+
+function ofPremiumLabel(pct: number): string {
+  const sign = pct > 0 ? "+" : "";
+  return `${sign}${pct}%`;
+}
 function mbBandClass(score: number) {
   if (score >= 75) return "mb-tag-green";
   if (score >= 40) return "mb-tag-orange";
@@ -2024,6 +2132,8 @@ async function loadRankingAndDistrict() {
       await reloadListingFreshness();
       // v0.42.0 trend-22 户型 × 面积
       await reloadBedroomArea();
+      // v0.43.0 trend-23 朝向 × 楼层
+      await reloadOrientationFloor();
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
         cityId: app.cityId,
@@ -4251,5 +4361,139 @@ onShow(async () => {
   font-size: 20rpx;
   opacity: 0.9;
   margin-top: 2rpx;
+}
+
+/* v0.43.0 trend-23: 朝向 × 楼层 溢价分析 */
+.of-section-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #0f172a;
+  margin-top: 18rpx;
+  margin-bottom: 8rpx;
+}
+.of-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 8rpx 12rpx;
+  border-radius: 6rpx;
+  font-size: 22rpx;
+  margin-bottom: 4rpx;
+}
+.of-row-up {
+  background: #ecfdf5;
+  border-left: 4rpx solid #10b981;
+}
+.of-row-down {
+  background: #fef2f2;
+  border-left: 4rpx solid #ef4444;
+}
+.of-rank {
+  font-weight: 700;
+  color: #475569;
+  width: 40rpx;
+}
+.of-key {
+  flex: 1;
+  color: #0f172a;
+  font-weight: 500;
+}
+.of-pct {
+  font-weight: 700;
+  font-size: 26rpx;
+}
+.of-row-up .of-pct { color: #059669; }
+.of-row-down .of-pct { color: #dc2626; }
+.of-px {
+  color: #64748b;
+  font-size: 20rpx;
+  width: 110rpx;
+  text-align: right;
+}
+.of-n {
+  color: #94a3b8;
+  font-size: 20rpx;
+  width: 60rpx;
+  text-align: right;
+}
+.of-matrix {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+}
+.of-mrow {
+  display: flex;
+  gap: 3rpx;
+  align-items: center;
+  margin-bottom: 3rpx;
+}
+.of-mheader {
+  margin-bottom: 4rpx;
+}
+.of-mcorner,
+.of-mcol-h,
+.of-mrow-h,
+.of-mcell {
+  padding: 6rpx 4rpx;
+  text-align: center;
+  flex-shrink: 0;
+}
+.of-mcorner,
+.of-mcol-h {
+  font-size: 20rpx;
+  color: #64748b;
+}
+.of-mcorner {
+  width: 90rpx;
+}
+.of-mcol-h {
+  flex: 1;
+}
+.of-mrow-h {
+  width: 90rpx;
+  text-align: right;
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 22rpx;
+}
+.of-mcell {
+  flex: 1;
+  min-height: 70rpx;
+  border-radius: 6rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.of-cell-off {
+  background: #f1f5f9;
+  color: #cbd5e1;
+}
+.of-cell-up-strong {
+  background: #059669;
+  color: #fff;
+}
+.of-cell-up {
+  background: #6ee7b7;
+  color: #064e3b;
+}
+.of-cell-flat {
+  background: #fef3c7;
+  color: #78350f;
+}
+.of-cell-down {
+  background: #fca5a5;
+  color: #7f1d1d;
+}
+.of-cell-down-strong {
+  background: #dc2626;
+  color: #fff;
+}
+.of-mcell-n {
+  font-size: 22rpx;
+  font-weight: 700;
+}
+.of-mcell-p {
+  font-size: 18rpx;
+  opacity: 0.9;
 }
 </style>
