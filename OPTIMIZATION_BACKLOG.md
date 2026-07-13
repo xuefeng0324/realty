@@ -328,6 +328,20 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 Y | trend-17 | community cm-grid 5 卡 + CM_DEFS + cmBand | ✅ v0.37.0 | 计算通勤/步行换算 |
 | 🟢 Y | trend-17 | buildIntegrity +5 测试 + smoke_community_metrics + smoke_listing_minidim E2E | ✅ v0.37.0 | 356/356 通过；双 smoke 全绿 |
 
+## Z 段补充：区情画像 (v0.38.0)
+
+- join `admin_districts.csv` + `district_index.csv` + `school_premium_district.csv` + `listings.csv` → 24 行画像
+- 14 列: 区码 (440305) / 小区数 / 挂牌数 / 楼龄中位 / 均价 / 指数 / mom% / yoy% / 学区评分 / 溢价率% / 校数
+- dashboard 新卡「📋 区情画像」+ 5 排序 chip + 1 隐藏空区 chip
+- 364/364 单测 + smoke_district_meta E2E (广州 11 行 / 深圳 10 行 + 10 个 4403xx 区码)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 Z | trend-18 | compute_district_metadata.py 写 24 行 | ✅ v0.38.0 | join 4 类 csv |
+| 🟢 Z | trend-18 | types + parseDistrictMeta + store + queries (sort/hide) | ✅ v0.38.0 | 7 单测 |
+| 🟢 Z | trend-18 | dashboard 区情画像卡 + 6 chip + CSS | ✅ v0.38.0 | 5 排序 + 1 隐藏 |
+| 🟢 Z | trend-18 | smoke_district_meta.mjs E2E + screenshots | ✅ v0.38.0 | 广州/深圳各截一张 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

@@ -2097,4 +2097,111 @@ describe("build integrity", () => {
       expect(content).toMatch(/explain_preview:\s*\{\s*overall_score:\s*s\.overallScore,\s*dimension_scores:\s*s\.dimensionScores\s*\}/);
     });
   });
+
+  // v0.38.0 trend-18: 区情画像
+  describe("v0.38.0 trend-18 区情画像", () => {
+    it("district_meta.csv 存在 + 有列 + 不空", () => {
+      const csv = readFileSync(resolve(ROOT, "static/seed/district_meta.csv"), "utf8");
+      // 允许 BOM
+      expect(csv).toMatch(/^(\ufeff)?city_id,district_name,admin_code/);
+      const lines = csv.trim().split(/\r?\n/);
+      expect(lines.length).toBeGreaterThan(10);
+      // 至少 1 行 24 行政区数据
+      const data = lines.slice(1);
+      expect(data.length).toBeGreaterThanOrEqual(20);
+    });
+
+    it("district_meta.csv 每行都有 admin_code (6 位)", () => {
+      const csv = readFileSync(resolve(ROOT, "static/seed/district_meta.csv"), "utf8");
+      const lines = csv.trim().split(/\r?\n/).slice(1);
+      let withCode = 0;
+      for (const l of lines) {
+        const cols = l.split(",");
+        if (cols[2] && /^\d{6}$/.test(cols[2])) withCode++;
+      }
+      // 至少 80% 有 6 位区码
+      expect(withCode).toBeGreaterThanOrEqual(lines.length * 0.8);
+    });
+
+    it("compute_district_metadata.py 脚本 + parseDistrictMeta 都已实现", () => {
+      const script = readFileSync(resolve(ROOT, "scripts/compute_district_metadata.py"), "utf8");
+      expect(script).toMatch(/admin_districts\.csv/);
+      expect(script).toMatch(/school_premium_district\.csv/);
+      expect(script).toMatch(/district_meta\.csv/);
+
+      const importer = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(importer).toMatch(/function parseDistrictMeta/);
+      expect(importer).toMatch(/districtMetaCSV/);
+    });
+
+    it("types.ts + store.ts + queries.ts 都导出 district_meta 相关 API", () => {
+      const types = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(types).toMatch(/LocalDistrictMeta/);
+      expect(types).toMatch(/districtMeta:\s*LocalDistrictMeta\[\]/);
+
+      const store = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(store).toMatch(/getDistrictMeta\(/);
+      expect(store).toMatch(/getDistrictMetaByCity\(/);
+
+      const queries = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(queries).toMatch(/export function getDistrictMetaRanking/);
+      expect(queries).toMatch(/DistrictMetaItem/);
+    });
+
+    it("seedSnapshot.ts + dataRefresher.ts + settings.vue 都接入了 district_meta", () => {
+      const seed = readFileSync(resolve(ROOT, "src/local/seedSnapshot.ts"), "utf8");
+      expect(seed).toMatch(/import districtMetaCSV/);
+      expect(seed).toMatch(/districtMetaCSV:/);
+
+      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
+      expect(ref).toMatch(/districtMeta:/);
+
+      const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
+      expect(settings).toMatch(/district_meta\.csv/);
+      expect(settings).toMatch(/districtMetaCSV:/);
+    });
+
+    it("dashboard.vue 区情画像卡 + sort chips + 排序/隐藏切换", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/区情画像/);
+      expect(dash).toMatch(/districtMetaSortBy/);
+      expect(dash).toMatch(/setDmSort/);
+      expect(dash).toMatch(/toggleDmHideEmpty/);
+      expect(dash).toMatch(/reloadDistrictMeta/);
+      expect(dash).toMatch(/dm-chip/);
+      expect(dash).toMatch(/dm-row/);
+      expect(dash).toMatch(/dm-mom-up|dm-mom-down|dm-mom-flat/);
+    });
+
+    it("getDistrictMetaRanking 数据正确 (深圳有 10 区，admin_code 全有)", async () => {
+      const { setSnapshot } = await import("../src/local/store");
+      const { buildSeedSnapshot, resetSeedSnapshotCache } = await import("../src/local/seedSnapshot");
+      resetSeedSnapshotCache();
+      setSnapshot(buildSeedSnapshot());
+      const { getDistrictMetaRanking } = await import("../src/local/queries");
+      const resp = getDistrictMetaRanking({ cityId: 2, sortBy: "default" });
+      expect(resp).toBeTruthy();
+      expect(resp!.items.length).toBeGreaterThanOrEqual(8);
+      // 至少 80% 区有 6 位 adminCode
+      const withCode = resp!.items.filter((d) => /^\d{6}$/.test(d.adminCode)).length;
+      expect(withCode).toBeGreaterThanOrEqual(resp!.items.length * 0.8);
+    });
+
+    it("getDistrictMetaRanking 排序: sortBy=price 应按 medianUnitPrice 降序", async () => {
+      const { setSnapshot } = await import("../src/local/store");
+      const { buildSeedSnapshot, resetSeedSnapshotCache } = await import("../src/local/seedSnapshot");
+      resetSeedSnapshotCache();
+      setSnapshot(buildSeedSnapshot());
+      const { getDistrictMetaRanking } = await import("../src/local/queries");
+      const resp = getDistrictMetaRanking({ cityId: 2, sortBy: "price" });
+      expect(resp).toBeTruthy();
+      const prices = resp!.items.map((d) => d.medianUnitPrice ?? -1);
+      // 验证单调性
+      for (let i = 1; i < prices.length; i++) {
+        if (prices[i] >= 0 && prices[i - 1] >= 0) {
+          expect(prices[i - 1]).toBeGreaterThanOrEqual(prices[i]);
+        }
+      }
+    });
+  });
 });

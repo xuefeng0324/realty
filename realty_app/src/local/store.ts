@@ -24,6 +24,7 @@ import type {
   LocalLifeConvenience,
   LocalCommunityScore,
   LocalMetroBenefit,
+  LocalDistrictMeta,
   LocalMetroWalk,
   LocalListing,
   LocalListingSchoolPremium,
@@ -400,6 +401,14 @@ export function getMetroBenefits(): LocalMetroBenefit[] {
 
 export function getMetroBenefitsByCity(cityId: number): LocalMetroBenefit[] {
   return (snapshot?.metroBenefits ?? []).filter((m) => m.cityId === cityId);
+}
+
+export function getDistrictMeta(): LocalDistrictMeta[] {
+  return snapshot?.districtMeta ?? [];
+}
+
+export function getDistrictMetaByCity(cityId: number): LocalDistrictMeta[] {
+  return (snapshot?.districtMeta ?? []).filter((d) => d.cityId === cityId);
 }
 
 /**

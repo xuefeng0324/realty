@@ -312,7 +312,8 @@ async function loadFromCsvUrl(base: string) {
       lifeConvenienceCSV: await fetchText("life_convenience.csv").catch(() => ""),
       communityScoreCSV: await fetchText("community_score.csv").catch(() => ""),
       metroWalkCSV: await fetchText("metro_walk.csv").catch(() => ""),
-      metroBenefitCSV: await fetchText("metro_benefit.csv").catch(() => "")
+      metroBenefitCSV: await fetchText("metro_benefit.csv").catch(() => ""),
+      districtMetaCSV: await fetchText("district_meta.csv").catch(() => "")
     },
     "csv-url:" + root
   );

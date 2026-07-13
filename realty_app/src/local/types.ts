@@ -438,6 +438,27 @@ export interface LocalMetroBenefit {
 }
 
 /**
+ * v0.38.0: 区情画像 (scripts/compute_district_metadata.py)
+ * join 4 类 csv, 每 (city, district) 一行画像
+ */
+export interface LocalDistrictMeta {
+  cityId: number;
+  districtName: string;
+  adminCode: string;
+  areaCode: string;
+  communityCount: number;
+  listingCount: number;
+  medianBuildYear: number | null;
+  medianUnitPrice: number | null;
+  indexValue: number | null;
+  momChangePct: number | null;
+  yoyChangePct: number | null;
+  avgSchoolScore: number | null;
+  premiumRatioPct: number | null;
+  schoolCount: number;
+}
+
+/**
  * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
  * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
  * 用于 dashboard 展示"区级近 N 周房价趋势"。
@@ -498,6 +519,8 @@ export interface DataSnapshot {
   metroWalks: LocalMetroWalk[];
   /** v0.36.0: 地铁规划受益 (scripts/compute_metro_benefit.py) */
   metroBenefits: LocalMetroBenefit[];
+  /** v0.38.0: 区情画像 (scripts/compute_district_metadata.py) */
+  districtMeta: LocalDistrictMeta[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

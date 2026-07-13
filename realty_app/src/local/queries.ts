@@ -2267,3 +2267,98 @@ export function getMetroBenefitRanking(params: {
     items
   };
 }
+
+/**
+ * v0.38.0 trend-18: 区情画像 (District Meta)
+ * join admin_districts + district_index + school_premium_district + listings
+ */
+export interface DistrictMetaItem {
+  cityId: number;
+  districtName: string;
+  adminCode: string;
+  areaCode: string;
+  communityCount: number;
+  listingCount: number;
+  medianBuildYear: number | null;
+  medianUnitPrice: number | null;
+  indexValue: number | null;
+  momChangePct: number | null;
+  yoyChangePct: number | null;
+  avgSchoolScore: number | null;
+  premiumRatioPct: number | null;
+  schoolCount: number;
+}
+
+export interface DistrictMetaResponse {
+  cityId: number;
+  cityName: string;
+  totalCount: number;
+  /** 有均价数据的区数 */
+  withPrice: number;
+  /** 有学区数据的区数 */
+  withSchool: number;
+  items: DistrictMetaItem[];
+}
+
+export function getDistrictMetaRanking(params: {
+  cityId: number;
+  /** 按字段排序: "price" | "school" | "mom" | "listing" | "default" */
+  sortBy?: "price" | "school" | "mom" | "listing" | "default";
+  /** 隐藏无数据的区 */
+  hideEmpty?: boolean;
+}): DistrictMetaResponse | null {
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const all = store.getDistrictMetaByCity(params.cityId);
+  if (all.length === 0) return null;
+
+  const sortBy = params.sortBy ?? "default";
+  let items: DistrictMetaItem[] = all
+    .map((d) => ({
+      cityId: d.cityId,
+      districtName: d.districtName,
+      adminCode: d.adminCode,
+      areaCode: d.areaCode,
+      communityCount: d.communityCount,
+      listingCount: d.listingCount,
+      medianBuildYear: d.medianBuildYear,
+      medianUnitPrice: d.medianUnitPrice,
+      indexValue: d.indexValue,
+      momChangePct: d.momChangePct,
+      yoyChangePct: d.yoyChangePct,
+      avgSchoolScore: d.avgSchoolScore,
+      premiumRatioPct: d.premiumRatioPct,
+      schoolCount: d.schoolCount
+    }));
+
+  if (params.hideEmpty) {
+    items = items.filter(
+      (d) => d.listingCount > 0 || d.avgSchoolScore !== null
+    );
+  }
+
+  if (sortBy === "price") {
+    items.sort((a, b) => (b.medianUnitPrice ?? -1) - (a.medianUnitPrice ?? -1));
+  } else if (sortBy === "school") {
+    items.sort((a, b) => (b.avgSchoolScore ?? -1) - (a.avgSchoolScore ?? -1));
+  } else if (sortBy === "mom") {
+    items.sort((a, b) => (b.momChangePct ?? -999) - (a.momChangePct ?? -999));
+  } else if (sortBy === "listing") {
+    items.sort((a, b) => b.listingCount - a.listingCount);
+  } else {
+    // default: by adminCode
+    items.sort((a, b) => (a.adminCode || "z").localeCompare(b.adminCode || "z"));
+  }
+
+  const withPrice = items.filter((d) => d.medianUnitPrice !== null).length;
+  const withSchool = items.filter((d) => d.avgSchoolScore !== null).length;
+
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    totalCount: items.length,
+    withPrice,
+    withSchool,
+    items
+  };
+}

@@ -32,6 +32,7 @@ import type {
   LocalMetroLine,
   LocalMetroLineGeo,
   LocalMetroBenefit,
+  LocalDistrictMeta,
   LocalMetroWalk,
   LocalPoi,
   LocalSchool,
@@ -111,6 +112,8 @@ export interface SnapshotInputs {
   metroWalkCSV?: string;
   /** v0.36.0: 地铁规划受益 */
   metroBenefitCSV?: string;
+  /** v0.38.0: 区情画像 */
+  districtMetaCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -209,6 +212,41 @@ function parseMetroWalk(csvText: string): LocalMetroWalk[] {
       } as LocalMetroWalk;
     })
     .filter((x): x is LocalMetroWalk => x !== null);
+}
+
+function parseDistrictMeta(csvText: string): LocalDistrictMeta[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.city_id);
+      if (cid == null) return null;
+      const num = (v: string | undefined) => {
+        if (v === undefined || v === "") return 0;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : 0;
+      };
+      const numOrNull = (v: string | undefined): number | null => {
+        if (v === undefined || v === "") return null;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : null;
+      };
+      return {
+        cityId: cid,
+        districtName: s(r.district_name) ?? "",
+        adminCode: s(r.admin_code) ?? "",
+        areaCode: s(r.area_code) ?? "",
+        communityCount: num(r.community_count ?? undefined),
+        listingCount: num(r.listing_count ?? undefined),
+        medianBuildYear: numOrNull(r.median_build_year ?? undefined),
+        medianUnitPrice: numOrNull(r.median_unit_price ?? undefined),
+        indexValue: numOrNull(r.index_value ?? undefined),
+        momChangePct: numOrNull(r.mom_change_pct ?? undefined),
+        yoyChangePct: numOrNull(r.yoy_change_pct ?? undefined),
+        avgSchoolScore: numOrNull(r.avg_school_score ?? undefined),
+        premiumRatioPct: numOrNull(r.premium_ratio_pct ?? undefined),
+        schoolCount: num(r.school_count ?? undefined)
+      };
+    })
+    .filter((x): x is LocalDistrictMeta => x !== null);
 }
 
 function parseLifeConvenience(csvText: string): LocalLifeConvenience[] {
@@ -789,6 +827,9 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     communityScores,
     metroWalks,
     metroBenefits,
+    districtMeta: inputs.districtMetaCSV
+      ? parseDistrictMeta(inputs.districtMetaCSV)
+      : [],
     availableWeeks
   };
 }

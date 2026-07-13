@@ -693,6 +693,69 @@
         </view>
       </view>
 
+      <!-- v0.38.0 trend-18 区情画像 (行政区代码 + 房价指数 + 学区评分 + 挂牌量 + 楼龄) -->
+      <view v-if="districtMeta && districtMeta.items.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">📋 区情画像 · {{ districtMeta.cityName }}</view>
+          <view class="muted">{{ districtMeta.items.length }} 区 · {{ districtMeta.withPrice }} 有均价 · {{ districtMeta.withSchool }} 有学区</view>
+        </view>
+        <view class="dm-chips">
+          <view
+            v-for="s in [
+              { key: 'price', label: '按均价' },
+              { key: 'school', label: '按学区' },
+              { key: 'mom', label: '按月环比' },
+              { key: 'listing', label: '按挂牌' },
+              { key: 'default', label: '按区码' }
+            ]"
+            :key="s.key"
+            :class="['dm-chip', districtMetaSortBy === s.key ? 'dm-chip-on' : '']"
+            @click="setDmSort(s.key as any)"
+          >{{ s.label }}</view>
+          <view
+            :class="['dm-chip', districtMetaHideEmpty ? 'dm-chip-on' : '']"
+            @click="toggleDmHideEmpty()"
+          >仅显示有数据</view>
+        </view>
+        <view
+          v-for="d in districtMeta.items"
+          :key="d.districtName"
+          class="dm-row"
+        >
+          <view class="dm-left">
+            <view class="dm-name">{{ d.districtName }}</view>
+            <view class="muted" style="font-size: 22rpx">区码 {{ d.adminCode || '—' }} · 片区代码 {{ d.areaCode || '—' }}</view>
+          </view>
+          <view class="dm-mid">
+            <view class="dm-line">
+              <text class="dm-k">挂牌</text>
+              <text class="dm-v">{{ d.listingCount }}</text>
+              <text class="dm-sub muted">{{ d.communityCount }} 小区</text>
+            </view>
+            <view class="dm-line">
+              <text class="dm-k">均价</text>
+              <text class="dm-v">{{ d.medianUnitPrice ? (d.medianUnitPrice / 10000).toFixed(1) + 'w' : '—' }}</text>
+              <text :class="['dm-mom', momClass(d.momChangePct)]">
+                {{ d.momChangePct != null ? (d.momChangePct >= 0 ? '+' : '') + d.momChangePct + '%' : '—' }}
+              </text>
+            </view>
+            <view class="dm-line">
+              <text class="dm-k">学区</text>
+              <text class="dm-v">{{ d.avgSchoolScore != null ? d.avgSchoolScore : '—' }}</text>
+              <text class="dm-sub muted">{{ d.schoolCount }} 校</text>
+            </view>
+            <view class="dm-line">
+              <text class="dm-k">楼龄</text>
+              <text class="dm-v">{{ d.medianBuildYear ?? '—' }}</text>
+              <text class="dm-sub muted">{{ d.medianBuildYear ? (2026 - d.medianBuildYear) + '年' : '' }}</text>
+            </view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：admin_districts.csv + district_index.csv + school_premium_district.csv + listings.csv → scripts/compute_district_metadata.py。
+        </view>
+      </view>
+
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
       <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card">
         <view class="row-between">
@@ -1101,7 +1164,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, getMetroWalkRanking, getMetroBenefitRanking, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse } from "../../local/queries";
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, getMetroWalkRanking, getMetroBenefitRanking, getDistrictMetaRanking, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -1153,6 +1216,10 @@ const communityScore = ref<CommunityScoreResponse | null>(null);
 const metroWalk = ref<MetroWalkResponse | null>(null);
 // v0.36.0 map-10: 地铁规划受益
 const metroBenefit = ref<MetroBenefitResponse | null>(null);
+// v0.38.0 trend-18: 区情画像
+const districtMeta = ref<DistrictMetaResponse | null>(null);
+const districtMetaSortBy = ref<"default" | "price" | "school" | "mom" | "listing">("price");
+const districtMetaHideEmpty = ref(false);
 // v0.34.0 trend-16: 综合评分权重自定义
 const csWeights = ref<{ life: number; school: number; commute: number }>({ life: 50, school: 30, commute: 20 });
 const csPresets: { key: string; label: string; weights: { life: number; school: number; commute: number } }[] = [
@@ -1222,6 +1289,37 @@ async function reloadMetroBenefit() {
   } catch (e) {
     console.warn("getMetroBenefitRanking failed:", e);
   }
+}
+
+// v0.38.0 trend-18: 区情画像
+async function reloadDistrictMeta() {
+  try {
+    districtMeta.value = await getDistrictMetaRanking({
+      cityId: app.cityId,
+      sortBy: districtMetaSortBy.value,
+      hideEmpty: districtMetaHideEmpty.value
+    });
+  } catch (e) {
+    console.warn("getDistrictMetaRanking failed:", e);
+    districtMeta.value = null;
+  }
+}
+
+async function setDmSort(s: "default" | "price" | "school" | "mom" | "listing") {
+  districtMetaSortBy.value = s;
+  await reloadDistrictMeta();
+}
+
+async function toggleDmHideEmpty() {
+  districtMetaHideEmpty.value = !districtMetaHideEmpty.value;
+  await reloadDistrictMeta();
+}
+
+function momClass(v: number | null): string {
+  if (v == null) return "";
+  if (v >= 5) return "dm-mom-up";
+  if (v <= -5) return "dm-mom-down";
+  return "dm-mom-flat";
 }
 function mbBandClass(score: number) {
   if (score >= 75) return "mb-tag-green";
@@ -1599,6 +1697,8 @@ async function loadRankingAndDistrict() {
         console.warn("getMetroBenefitRanking failed:", e);
         metroBenefit.value = null;
       }
+      // v0.38.0 trend-18 区情画像
+      await reloadDistrictMeta();
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
         cityId: app.cityId,
@@ -3444,5 +3544,90 @@ onShow(async () => {
   color: #f3f4f6;
   text-align: right;
   flex-shrink: 0;
+}
+
+/* v0.38.0 trend-18: 区情画像 */
+.dm-chips {
+  display: flex;
+  gap: 12rpx;
+  flex-wrap: wrap;
+  margin: 12rpx 0 18rpx;
+}
+.dm-chip {
+  padding: 6rpx 18rpx;
+  border-radius: 999rpx;
+  background: #e5e7eb;
+  color: #374151;
+  font-size: 24rpx;
+  transition: all 0.15s;
+}
+.dm-chip-on {
+  background: #0ea5e9;
+  color: #fff;
+}
+.dm-row {
+  display: flex;
+  gap: 16rpx;
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid #f1f5f9;
+  align-items: center;
+}
+.dm-row:last-child {
+  border-bottom: none;
+}
+.dm-left {
+  flex: 0 0 180rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.dm-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #0f172a;
+}
+.dm-mid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  font-size: 24rpx;
+}
+.dm-line {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+.dm-k {
+  width: 80rpx;
+  color: #94a3b8;
+  font-size: 22rpx;
+}
+.dm-v {
+  font-weight: 600;
+  color: #0f172a;
+  min-width: 70rpx;
+}
+.dm-sub {
+  font-size: 22rpx;
+  color: #94a3b8;
+}
+.dm-mom {
+  font-size: 22rpx;
+  padding: 2rpx 8rpx;
+  border-radius: 6rpx;
+  margin-left: 4rpx;
+}
+.dm-mom-up {
+  color: #dc2626;
+  background: #fef2f2;
+}
+.dm-mom-down {
+  color: #16a34a;
+  background: #f0fdf4;
+}
+.dm-mom-flat {
+  color: #64748b;
+  background: #f1f5f9;
 }
 </style>
