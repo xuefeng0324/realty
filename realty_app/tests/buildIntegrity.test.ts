@@ -3123,4 +3123,39 @@ describe("build integrity", () => {
       expect(dash).toMatch(/watch\(activeTab/);
     });
   });
+
+  // v0.49.0 topnav-1: 周期 sticky 切换
+  describe("v0.49.0 topnav-1 周期 sticky 顶栏", () => {
+    it("dashboard.vue: 含 topnav-period + stepPeriod + currentPeriodIdx", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/topnav-period/);
+      expect(dash).toMatch(/stepPeriod/);
+      expect(dash).toMatch(/currentPeriodIdx/);
+      expect(dash).toMatch(/上一周/);
+      expect(dash).toMatch(/下一周/);
+    });
+
+    it("dashboard.vue: 边界禁用 (cur<=0 / cur>=len)", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/topnav-p-btn--disabled/);
+      expect(dash).toMatch(/currentPeriodIdx <= 0/);
+      expect(dash).toMatch(/currentPeriodIdx >= periods\.length - 1/);
+    });
+
+    it("dashboard.vue: 切周期调用 app.setWeekEnd + loadRankingAndDistrict", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      const m = dash.match(/function stepPeriod[\s\S]*?\n\}/);
+      expect(m).toBeTruthy();
+      expect(m![0]).toMatch(/app\.setWeekEnd/);
+      expect(m![0]).toMatch(/loadRankingAndDistrict/);
+    });
+
+    it("dashboard.vue: sticky 顶栏 CSS (position sticky + top)", () => {
+      const css = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(css).toMatch(/\.topnav-period\s*\{[\s\S]*position: sticky/);
+      expect(css).toMatch(/\.topnav-period\s*\{[\s\S]*top: 0/);
+      expect(css).toMatch(/\.topnav-p-num/);
+      expect(css).toMatch(/\.topnav-p-btn/);
+    });
+  });
 });

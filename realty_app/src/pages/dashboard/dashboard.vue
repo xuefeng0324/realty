@@ -174,6 +174,30 @@
 
       <view v-if="errorMsg" class="error">{{ errorMsg }}</view>
 
+      <!-- v0.49.0 topnav-1: 周期切换 sticky 顶栏 -->
+      <view v-if="app.weekEnd && periods.length > 1" class="topnav-period">
+        <view class="topnav-p-week">
+          📅 第 <text class="topnav-p-num">{{ currentPeriodIdx + 1 }}</text>
+          / {{ periods.length }} 周 · {{ app.weekEnd }}
+        </view>
+        <view class="topnav-p-btns">
+          <button
+            class="topnav-p-btn tap-row"
+            :class="{ 'topnav-p-btn--disabled': currentPeriodIdx <= 0 }"
+            hover-class="tap-row--active"
+            :disabled="currentPeriodIdx <= 0"
+            @click="stepPeriod(-1)"
+          >‹ 上一周</button>
+          <button
+            class="topnav-p-btn tap-row"
+            :class="{ 'topnav-p-btn--disabled': currentPeriodIdx >= periods.length - 1 }"
+            hover-class="tap-row--active"
+            :disabled="currentPeriodIdx >= periods.length - 1"
+            @click="stepPeriod(1)"
+          >下一周 ›</button>
+        </view>
+      </view>
+
       <!-- v0.48.0 dashboard-tabs: 顶部 tab 切换 -->
       <view class="dash-tabs">
         <view
@@ -2289,6 +2313,24 @@ const DASHBOARD_TABS: Array<{ key: DashTabKey; icon: string; label: string }> = 
   { key: "transit", icon: "🚇", label: "通勤地铁" },
   { key: "map", icon: "🗺️", label: "地图视图" }
 ];
+
+// v0.49.0 topnav-1: 周期切换 helper
+const currentPeriodIdx = computed(() => {
+  if (!app.weekEnd || periods.value.length === 0) return -1;
+  return periods.value.indexOf(app.weekEnd);
+});
+function stepPeriod(delta: number) {
+  const list = periods.value;
+  if (list.length === 0) return;
+  const cur = currentPeriodIdx.value;
+  const next = cur + delta;
+  if (next < 0 || next >= list.length) return;
+  const target = list[next];
+  if (!target || target === app.weekEnd) return;
+  app.setWeekEnd(target);
+  loadRankingAndDistrict();
+  showToast(`已切到 ${target}`);
+}
 
 // 房源来自安居客「每周快照」，最新周期是上一个完整周（周日结束），并非当天。
 // 这里给一句说明，避免用户误以为"周期结束日没更新到今天"是 bug。
@@ -5306,6 +5348,61 @@ onShow(async () => {
 }
 .sd-neg {
   color: #dc2626;
+}
+
+/* v0.49.0 topnav-1: 周次切换 sticky bar */
+.topnav-period {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  padding: 16rpx 24rpx 12rpx;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  color: #fff;
+  border-radius: 16rpx;
+  margin: 8rpx 0 0;
+  box-shadow: 0 4rpx 16rpx rgba(15, 23, 42, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topnav-p-week {
+  font-size: 28rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+  color: #f1f5f9;
+}
+.topnav-p-num {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #fbbf24;
+  font-family: "SF Mono", Consolas, monospace;
+}
+.topnav-p-btns {
+  display: flex;
+  gap: 12rpx;
+}
+.topnav-p-btn {
+  flex: 1;
+  padding: 10rpx 0;
+  border-radius: 10rpx;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 600;
+  text-align: center;
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  transition: background 0.15s, transform 0.1s;
+}
+.topnav-p-btn:active {
+  background: rgba(99, 102, 241, 0.35);
+  transform: scale(0.97);
+}
+.topnav-p-btn--disabled {
+  opacity: 0.35;
+  pointer-events: none;
 }
 
 /* v0.48.0 dashboard-tabs */

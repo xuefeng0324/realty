@@ -448,6 +448,14 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 AC | dash-1 | applyTabClass + watch(activeTab) + setAttribute | ✅ v0.48.0 | H5 only |
 | 🟢 AC | dash-1 | smoke_dashboard_tabs.mjs: 5 截图 + 卡片数验证 (深圳 34/15/4/5/2) | ✅ v0.48.0 | 420/420 单测 |
 
+## M 段: topnav-1 周期 sticky 切换 (v0.49.0)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 AC | topnav-1 | dashboard 顶部 sticky 周次切换条 (黑底渐变) | ✅ v0.49.0 | 📅 第 N/总 周 · 日期 |
+| 🟢 AC | topnav-1 | stepPeriod + currentPeriodIdx + 边界禁用 | ✅ v0.49.0 | ‹上一周 / 下一周› |
+| 🟢 AC | topnav-1 | smoke_topnav_period.mjs E2E + screenshots | ✅ v0.49.0 | 深圳 26 周: 26→25→22→24 + sticky |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |
