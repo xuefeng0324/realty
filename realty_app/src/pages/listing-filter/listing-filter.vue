@@ -131,6 +131,27 @@
                 {{ d.label }}
               </text>
             </view>
+            <!-- v0.37.0 trend-17: 5 维度迷你评分条 (位置/房屋/楼龄/配套/性价比) -->
+            <view
+              v-if="it.explain_preview?.dimension_scores"
+              class="minidim-row"
+            >
+              <view
+                v-for="d in MINI_DIM_DEFS"
+                :key="d.key"
+                class="minidim-cell"
+              >
+                <text class="minidim-label">{{ d.label }}</text>
+                <view class="minidim-track">
+                  <view
+                    class="minidim-fill"
+                    :class="minidimBandClass(it.explain_preview.dimension_scores[d.key] ?? 0)"
+                    :style="{ width: (it.explain_preview.dimension_scores[d.key] ?? 0) + '%' }"
+                  />
+                </view>
+                <text class="minidim-val">{{ Math.round(it.explain_preview.dimension_scores[d.key] ?? 0) }}</text>
+              </view>
+            </view>
           </view>
           <view class="score-pill" :class="scoreClass(it.quality_score)">
             {{ it.quality_score.toFixed(1) }}
@@ -202,6 +223,20 @@ const sourceIndex = computed(() => {
 
 const listingTypeLabels = ["全部", "在售", "成交"];
 const listingTypeIndex = ref(0);
+
+// v0.37.0 trend-17: 5 维度迷你评分条
+const MINI_DIM_DEFS = [
+  { key: "location_score", label: "位置" },
+  { key: "house_quality_score", label: "房屋" },
+  { key: "building_age_score", label: "楼龄" },
+  { key: "amenity_score", label: "配套" },
+  { key: "price_value_score", label: "性价比" }
+];
+function minidimBandClass(v: number) {
+  if (v >= 75) return "minidim-fill-green";
+  if (v >= 50) return "minidim-fill-orange";
+  return "minidim-fill-red";
+}
 
 const decorateOptions = ["不限", "精装", "简装", "毛坯"];
 const decorateIndex = ref(0);
@@ -645,3 +680,51 @@ onMounted(async () => {
   gap: 8rpx;
 }
 </style>
+/* v0.37.0 trend-17: 5 维度迷你评分条 */
+.minidim-row {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 10rpx;
+  align-items: center;
+}
+.minidim-cell {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+}
+.minidim-label {
+  font-size: 18rpx;
+  color: #94a3b8;
+  font-weight: 500;
+}
+.minidim-track {
+  width: 100%;
+  height: 6rpx;
+  background: #1f2937;
+  border-radius: 4rpx;
+  overflow: hidden;
+}
+.minidim-fill {
+  height: 100%;
+  border-radius: 4rpx;
+  font-variant-numeric: tabular-nums;
+  transition: width 0.3s ease;
+}
+.minidim-fill-green {
+  background: linear-gradient(90deg, #22c55e, #10b981);
+}
+.minidim-fill-orange {
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+}
+.minidim-fill-red {
+  background: linear-gradient(90deg, #f87171, #ef4444);
+}
+.minidim-val {
+  font-size: 20rpx;
+  font-weight: 700;
+  color: #e2e8f0;
+  font-variant-numeric: tabular-nums;
+}

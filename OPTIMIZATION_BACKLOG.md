@@ -314,6 +314,20 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 X | map-10 | dashboard 🚇 受益 Top 卡 + 3 色分档 + 3 色 status 徽章 | ✅ v0.36.0 | 414×896 截图验证 |
 | 🟢 X | map-10 | buildIntegrity +7 测试 + smoke_metro_benefit E2E + commit v0.36.0 | ✅ v0.36.0 | 351/351 通过；smoke 全绿 |
 
+## Y 段补充：5 维小区指标 (v0.37.0)
+
+- listing 列表每行底部 5 列迷你评分条 (位置/房屋/楼龄/配套/性价比)
+- community 详情顶部 5 格卡 (🧭生活/🎓学区/🚌通勤/🚶步行地铁/🚇规划地铁)
+- 用 5 个已有 csv 数据组合，无新数据源
+- 数据：京基100 = 81/100/100/90/0
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+| --- | --- | --- | --- | --- |
+| 🟢 Y | trend-17 | store +3 per-id helper (life/walk/benefit) | ✅ v0.37.0 | 复用已有 csv |
+| 🟢 Y | trend-17 | listing 列表 minidim-row + 5 列 cell + 3 色分档 | ✅ v0.37.0 | 用 explain_preview.dimension_scores |
+| 🟢 Y | trend-17 | community cm-grid 5 卡 + CM_DEFS + cmBand | ✅ v0.37.0 | 计算通勤/步行换算 |
+| 🟢 Y | trend-17 | buildIntegrity +5 测试 + smoke_community_metrics + smoke_listing_minidim E2E | ✅ v0.37.0 | 356/356 通过；双 smoke 全绿 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

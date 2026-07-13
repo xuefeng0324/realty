@@ -2047,4 +2047,54 @@ describe("build integrity", () => {
       expect(content).toMatch(/mb-st-plan/);
     });
   });
+
+  // ────────────────────────────────────────────────────────────────────
+  // v0.37.0 trend-17: 5 维小区指标 (filter 列表 + community 详情)
+  // ────────────────────────────────────────────────────────────────────
+  describe("v0.37.0 trend-17 5 维小区指标", () => {
+    it("store.ts 提供 3 个 per-id 查找 (life / walk / benefit)", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(content).toMatch(/getLifeConvenienceByCommunity/);
+      expect(content).toMatch(/getMetroWalkByCommunity/);
+      expect(content).toMatch(/getMetroBenefitByCommunity/);
+    });
+
+    it("listing-filter.vue 列出 5 个维度键 (位置/房屋/楼龄/配套/性价比)", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/listing-filter/listing-filter.vue"), "utf8");
+      expect(content).toMatch(/MINI_DIM_DEFS/);
+      expect(content).toMatch(/location_score/);
+      expect(content).toMatch(/house_quality_score/);
+      expect(content).toMatch(/building_age_score/);
+      expect(content).toMatch(/amenity_score/);
+      expect(content).toMatch(/price_value_score/);
+      expect(content).toMatch(/minidim-row/);
+    });
+
+    it("listing-filter.vue 用 explain_preview.dimension_scores 渲染迷你条", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/listing-filter/listing-filter.vue"), "utf8");
+      expect(content).toMatch(/it\.explain_preview\?\.dimension_scores/);
+      expect(content).toMatch(/minidim-fill-green/);
+      expect(content).toMatch(/minidim-fill-orange/);
+      expect(content).toMatch(/minidim-fill-red/);
+    });
+
+    it("community.vue 5 维小区指标卡 (CM_DEFS + cmBand + 5 列 grid)", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/community/community.vue"), "utf8");
+      expect(content).toMatch(/5 维小区指标/);
+      expect(content).toMatch(/CM_DEFS/);
+      expect(content).toMatch(/cm-grid/);
+      expect(content).toMatch(/cmBand/);
+      expect(content).toMatch(/cmScore/);
+      expect(content).toMatch(/getLifeConvenienceByCommunity/);
+      expect(content).toMatch(/getCommuteByCommunity/);
+      expect(content).toMatch(/getMetroWalkByCommunity/);
+      expect(content).toMatch(/getMetroBenefitByCommunity/);
+      expect(content).toMatch(/getCommunitySchoolScore/);
+    });
+
+    it("queries.ts toListingItem 已注入 explain_preview (无需新增)", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(content).toMatch(/explain_preview:\s*\{\s*overall_score:\s*s\.overallScore,\s*dimension_scores:\s*s\.dimensionScores\s*\}/);
+    });
+  });
 });

@@ -8,6 +8,38 @@
         <view class="muted">小区 ID: {{ communityId }}</view>
       </view>
 
+      <!-- v0.37.0 trend-17: 5 维小区指标卡 (生活/学区/通勤/步行地铁/规划地铁) -->
+      <view v-if="cmScore && (cmScore.hasLife || cmScore.hasSchool || cmScore.hasCommute || cmScore.hasWalkMetro || cmScore.hasFutureMetro)" class="card">
+        <view class="card-title">🏅 5 维小区指标</view>
+        <view class="cm-grid">
+          <view
+            v-for="d in CM_DEFS"
+            :key="d.key"
+            class="cm-cell"
+          >
+            <view class="cm-cell-head">
+              <text class="cm-icon">{{ d.icon }}</text>
+              <text class="cm-label">{{ d.label }}</text>
+            </view>
+            <view class="cm-track">
+              <view
+                class="cm-fill"
+                :class="cmBand(cmScore[d.key])"
+                :style="{ width: cmScore[d.key] + '%' }"
+              />
+            </view>
+            <view class="cm-foot">
+              <text class="cm-val">{{ cmScore[d.key] }}</text>
+              <text class="cm-meta muted">{{ cmMeta(d.key) }}</text>
+            </view>
+          </view>
+        </view>
+        <view class="muted" style="font-size: 22rpx; margin-top: 12rpx">
+          数据源：life_convenience.csv / school_premium_community.csv / commute.csv / metro_walk.csv / metro_benefit.csv。
+          通勤分 = (transit_minutes - 30) × (50/30) 反向；步行分 = 10min=100 / 30min=0。
+        </view>
+      </view>
+
       <!-- 价格趋势 -->
       <view class="card">
         <view class="row-between">
@@ -233,6 +265,13 @@ import {
   scoreClass,
   dimensionLabelCN
 } from "../../utils/format";
+import {
+  getLifeConvenienceByCommunity,
+  getCommuteByCommunity,
+  getMetroBenefitByCommunity,
+  getMetroWalkByCommunity,
+  getCommunitySchoolScore
+} from "../../local/store";
 import type { QualitySummaryBin } from "../../api/contracts";
 
 const communityId = ref<number>(0);
@@ -248,6 +287,50 @@ const hospitals = ref<HospitalItem[]>([]);
 const metroPlanning = ref<MetroLineItem[]>([]);
 const nearestSubwayM = ref<number | null>(null);
 const showMetroCard = computed(() => (nearestSubwayM.value == null || nearestSubwayM.value >= 1000) && metroPlanning.value.length > 0);
+
+// v0.37.0 trend-17: 5 维小区指标卡
+const cmScore = ref<{
+  life: number;
+  school: number;
+  commute: number;
+  walkMetro: number;
+  futureMetro: number;
+  hasLife: boolean;
+  hasSchool: boolean;
+  hasCommute: boolean;
+  hasWalkMetro: boolean;
+  hasFutureMetro: boolean;
+} | null>(null);
+
+const CM_DEFS = [
+  { key: "life", icon: "🧭", label: "生活" },
+  { key: "school", icon: "🎓", label: "学区" },
+  { key: "commute", icon: "🚌", label: "通勤" },
+  { key: "walkMetro", icon: "🚶", label: "步行地铁" },
+  { key: "futureMetro", icon: "🚇", label: "规划地铁" }
+] as const;
+
+function cmBand(v: number) {
+  if (v >= 75) return "cm-fill-green";
+  if (v >= 50) return "cm-fill-orange";
+  return "cm-fill-red";
+}
+
+function cmMeta(key: "life" | "school" | "commute" | "walkMetro" | "futureMetro"): string {
+  if (!cmScore.value) return "";
+  switch (key) {
+    case "life":
+      return cmScore.value.hasLife ? "life" : "—";
+    case "school":
+      return cmScore.value.hasSchool ? "school" : "—";
+    case "commute":
+      return cmScore.value.hasCommute ? "transit" : "—";
+    case "walkMetro":
+      return cmScore.value.hasWalkMetro ? "walk" : "—";
+    case "futureMetro":
+      return cmScore.value.hasFutureMetro ? "future" : "—";
+  }
+}
 
 const POI_GROUPS: PoiCategory[] = ["subway", "school", "hospital", "mall", "park"];
 
@@ -365,6 +448,43 @@ async function loadAll() {
   } catch {
     metroPlanning.value = [];
   }
+  // v0.37.0 trend-17: 5 维小区指标 (除 school 外都从 snapshot 直接拿)
+  computeCmScore();
+}
+
+function commuteWalkScore(min: number | null | undefined): number {
+  // walk minutes → 0-100 (10min=100, 30=0)
+  if (min == null || !Number.isFinite(min)) return 0;
+  if (min <= 5) return 100;
+  if (min >= 30) return 0;
+  return Math.round(100 - (min - 5) * (100 / 25));
+}
+
+function computeCmScore() {
+  const cid = communityId.value;
+  if (!cid) {
+    cmScore.value = null;
+    return;
+  }
+  const life = getLifeConvenienceByCommunity(cid);
+  const walks = getMetroWalkByCommunity(cid);
+  const benefits = getMetroBenefitByCommunity(cid);
+  const commute = getCommuteByCommunity(cid);
+
+  cmScore.value = {
+    life: life?.score100 ?? 0,
+    school: Math.round(getCommunitySchoolScore(cid)),
+    commute: commute?.transitMinutes != null
+      ? Math.max(0, Math.round(100 - (commute.transitMinutes - 30) * (50 / 30)))
+      : 0,
+    walkMetro: commuteWalkScore(walks?.walkMinutes),
+    futureMetro: benefits?.benefitScore ?? 0,
+    hasLife: !!life,
+    hasSchool: getCommunitySchoolScore(cid) > 0,
+    hasCommute: commute?.transitMinutes != null,
+    hasWalkMetro: !!walks,
+    hasFutureMetro: !!benefits
+  };
 }
 
 async function loadListings(_weekEnd: string) {
@@ -671,3 +791,68 @@ onMounted(() => {
   -webkit-box-orient: vertical;
 }
 </style>
+/* v0.37.0 trend-17: 5 维小区指标 */
+.cm-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14rpx;
+  margin-top: 8rpx;
+}
+.cm-cell {
+  background: #0b1220;
+  border: 1rpx solid #1f2937;
+  border-radius: 10rpx;
+  padding: 12rpx 10rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+.cm-cell-head {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+.cm-icon {
+  font-size: 24rpx;
+}
+.cm-label {
+  font-size: 22rpx;
+  color: #cbd5e1;
+  font-weight: 600;
+}
+.cm-track {
+  width: 100%;
+  height: 8rpx;
+  background: #1f2937;
+  border-radius: 4rpx;
+  overflow: hidden;
+}
+.cm-fill {
+  height: 100%;
+  border-radius: 4rpx;
+  font-variant-numeric: tabular-nums;
+  transition: width 0.3s ease;
+}
+.cm-fill-green {
+  background: linear-gradient(90deg, #22c55e, #10b981);
+}
+.cm-fill-orange {
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+}
+.cm-fill-red {
+  background: linear-gradient(90deg, #f87171, #ef4444);
+}
+.cm-foot {
+  display: flex;
+  align-items: baseline;
+  gap: 6rpx;
+}
+.cm-val {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #e2e8f0;
+  font-variant-numeric: tabular-nums;
+}
+.cm-meta {
+  font-size: 18rpx;
+}

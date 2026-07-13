@@ -312,6 +312,19 @@ export function getCommuteByCommunity(communityId: number): LocalCommute | null 
   return (snapshot?.commutes ?? []).find((c) => c.communityId === communityId) ?? null;
 }
 
+// v0.37.0 trend-17: 单小区生活/步行地铁/规划地铁查找
+export function getLifeConvenienceByCommunity(communityId: number): LocalLifeConvenience | null {
+  return (snapshot?.lifeConveniences ?? []).find((l) => l.communityId === communityId) ?? null;
+}
+
+export function getMetroWalkByCommunity(communityId: number): LocalMetroWalk | null {
+  return (snapshot?.metroWalks ?? []).find((m) => m.communityId === communityId) ?? null;
+}
+
+export function getMetroBenefitByCommunity(communityId: number): LocalMetroBenefit | null {
+  return (snapshot?.metroBenefits ?? []).find((m) => m.communityId === communityId) ?? null;
+}
+
 /**
  * v0.25.0: 户型/面积/朝向/装修分布 (全量 + 按城市过滤)
  */
