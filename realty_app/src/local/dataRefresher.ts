@@ -162,6 +162,7 @@ function mergeListingsIntoSnapshot(
     districtMeta: existing?.districtMeta ?? [],
     featurePremia: existing?.featurePremia ?? [],
     tagCombinations: existing?.tagCombinations ?? [],
+    listingFreshness: existing?.listingFreshness ?? [],
     availableWeeks
   };
 }

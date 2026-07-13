@@ -834,6 +834,74 @@
         </view>
       </view>
 
+      <!-- v0.41.0 trend-21 房源新鲜度 (新挂牌多 + 滞销) -->
+      <view v-if="listingFreshness && listingFreshness.totalCount > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">📅 房源新鲜度 · {{ listingFreshness.cityName }}</view>
+          <view class="muted">活跃 top {{ listingFreshness.mostFresh.length }} · 滞销 top {{ listingFreshness.mostStale.length }}</view>
+        </view>
+
+        <view class="lf-section-title">🆕 新挂牌最多 (近 2 周)</view>
+        <view
+          v-for="it in listingFreshness.mostFresh"
+          :key="'fresh_' + it.communityId"
+          class="lf-row"
+        >
+          <view class="lf-left">
+            <view class="lf-name">{{ it.communityName }}</view>
+            <view class="muted" style="font-size: 22rpx">{{ it.districtName }} · 总 {{ it.totalListings }} 套 · 中位 {{ it.medianAgeDays ?? '?' }} 天</view>
+          </view>
+          <view class="lf-mid">
+            <view class="lf-line">
+              <text class="lf-k">近 2 周</text>
+              <text :class="['lf-v', lfFreshClass(it.new2wCount * 5)]">{{ it.new2wCount }}</text>
+            </view>
+            <view class="lf-line">
+              <text class="lf-k">近 4 周</text>
+              <text class="lf-v">{{ it.recent4wCount }}</text>
+            </view>
+            <view class="lf-line">
+              <text class="lf-k">滞销</text>
+              <text class="lf-v muted">{{ it.staleCount }}</text>
+            </view>
+          </view>
+          <view :class="['lf-score', lfFreshClass(it.freshnessScore)]">
+            {{ it.freshnessScore.toFixed(0) }}
+          </view>
+        </view>
+
+        <view class="lf-section-title">😴 滞销最久 (中位在挂天数)</view>
+        <view
+          v-for="it in listingFreshness.mostStale"
+          :key="'stale_' + it.communityId"
+          class="lf-row"
+        >
+          <view class="lf-left">
+            <view class="lf-name">{{ it.communityName }}</view>
+            <view class="muted" style="font-size: 22rpx">{{ it.districtName }} · 总 {{ it.totalListings }} 套</view>
+          </view>
+          <view class="lf-mid">
+            <view class="lf-line">
+              <text class="lf-k">中位</text>
+              <text class="lf-v">{{ it.medianAgeDays ?? '—' }} 天</text>
+            </view>
+            <view class="lf-line">
+              <text class="lf-k">滞销</text>
+              <text class="lf-v">{{ it.staleCount }}</text>
+            </view>
+            <view class="lf-line">
+              <text class="lf-k">活跃度</text>
+              <text :class="['lf-v', lfFreshClass(it.freshnessScore)]">{{ it.freshnessScore.toFixed(0) }}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：listings.csv (crawl_date) → scripts/compute_listing_freshness.py。<br>
+          公式：freshness = (近 4 周 × 1 + 近 2 周 × 2) ÷ 总数 × 100，min_listings=5。
+        </view>
+      </view>
+
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
       <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card">
         <view class="row-between">
@@ -1244,7 +1312,8 @@ import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
 import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, getMetroWalkRanking, getMetroBenefitRanking, getDistrictMetaRanking,
   getFeaturePremiumRanking,
-  getTagCombinationRanking, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse } from "../../local/queries";
+  getTagCombinationRanking,
+  getListingFreshnessRanking, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -1300,6 +1369,8 @@ const metroBenefit = ref<MetroBenefitResponse | null>(null);
 const featurePremium = ref<FeaturePremiumResponse | null>(null);
 // v0.40.0 trend-20: 标签组合热度
 const tagCombination = ref<TagCombinationResponse | null>(null);
+// v0.41.0 trend-21: 房源新鲜度
+const listingFreshness = ref<ListingFreshnessResponse | null>(null);
 // v0.38.0 trend-18: 区情画像
 const districtMeta = ref<DistrictMetaResponse | null>(null);
 const districtMetaSortBy = ref<"default" | "price" | "school" | "mom" | "listing">("price");
@@ -1466,6 +1537,26 @@ async function reloadTagCombination() {
 function tcBarWidth(v: number, max: number): number {
   if (max <= 0) return 5;
   return Math.max(5, (v / max) * 100);
+}
+
+// v0.41.0 trend-21: 房源新鲜度
+async function reloadListingFreshness() {
+  try {
+    listingFreshness.value = await getListingFreshnessRanking({
+      cityId: app.cityId,
+      topN: 8,
+      minListings: 5
+    });
+  } catch (e) {
+    console.warn("getListingFreshnessRanking failed:", e);
+    listingFreshness.value = null;
+  }
+}
+
+function lfFreshClass(v: number): string {
+  if (v >= 30) return "lf-fresh-up";
+  if (v >= 15) return "lf-fresh-mid";
+  return "lf-fresh-down";
 }
 function mbBandClass(score: number) {
   if (score >= 75) return "mb-tag-green";
@@ -1849,6 +1940,8 @@ async function loadRankingAndDistrict() {
       await reloadFeaturePremium();
       // v0.40.0 trend-20 标签组合热度
       await reloadTagCombination();
+      // v0.41.0 trend-21 房源新鲜度
+      await reloadListingFreshness();
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
         cityId: app.cityId,
@@ -3926,5 +4019,85 @@ onShow(async () => {
   height: 100%;
   background: linear-gradient(90deg, #a78bfa 0%, #7c3aed 100%);
   border-radius: 6rpx;
+}
+
+/* v0.41.0 trend-21: 房源新鲜度 */
+.lf-section-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 16rpx 0 8rpx;
+  padding-left: 6rpx;
+  border-left: 6rpx solid #0ea5e9;
+}
+.lf-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  padding: 10rpx 0;
+  border-bottom: 1rpx solid #f1f5f9;
+}
+.lf-row:last-child {
+  border-bottom: none;
+}
+.lf-left {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+.lf-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lf-mid {
+  display: flex;
+  gap: 18rpx;
+  font-size: 22rpx;
+  flex-shrink: 0;
+}
+.lf-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rpx;
+  min-width: 70rpx;
+}
+.lf-k {
+  font-size: 20rpx;
+  color: #94a3b8;
+}
+.lf-v {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #0f172a;
+}
+.lf-score {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.lf-fresh-up {
+  background: #dcfce7;
+  color: #16a34a;
+}
+.lf-fresh-mid {
+  background: #fef3c7;
+  color: #d97706;
+}
+.lf-fresh-down {
+  background: #fee2e2;
+  color: #dc2626;
 }
 </style>

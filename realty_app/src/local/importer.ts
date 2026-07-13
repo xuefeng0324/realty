@@ -35,6 +35,7 @@ import type {
   LocalDistrictMeta,
   LocalFeaturePremium,
   LocalTagCombination,
+  LocalListingFreshness,
   LocalMetroWalk,
   LocalPoi,
   LocalSchool,
@@ -120,6 +121,8 @@ export interface SnapshotInputs {
   featurePremiumCSV?: string;
   /** v0.40.0: 标签组合热度 */
   tagCombinationCSV?: string;
+  /** v0.41.0: 房源新鲜度 */
+  listingFreshnessCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -307,6 +310,39 @@ function parseTagCombination(csvText: string): LocalTagCombination[] {
       } as LocalTagCombination;
     })
     .filter((x): x is LocalTagCombination => x !== null);
+}
+
+function parseListingFreshness(csvText: string): LocalListingFreshness[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.city_id);
+      const commId = n(r.community_id);
+      if (cid == null || commId == null) return null;
+      const num = (v: string | undefined) => {
+        if (v === undefined || v === "") return 0;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : 0;
+      };
+      const numOrNull = (v: string | undefined): number | null => {
+        if (v === undefined || v === "") return null;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : null;
+      };
+      return {
+        cityId: cid,
+        cityName: s(r.city_name) ?? "",
+        communityId: commId,
+        communityName: s(r.community_name) ?? "",
+        districtName: s(r.district_name) ?? "",
+        totalListings: num(r.total_listings ?? undefined),
+        recent4wCount: num(r.recent_4w_count ?? undefined),
+        new2wCount: num(r.new_2w_count ?? undefined),
+        staleCount: num(r.stale_count ?? undefined),
+        freshnessScore: num(r.freshness_score ?? undefined),
+        medianAgeDays: numOrNull(r.median_age_days ?? undefined)
+      } as LocalListingFreshness;
+    })
+    .filter((x): x is LocalListingFreshness => x !== null);
 }
 
 function parseLifeConvenience(csvText: string): LocalLifeConvenience[] {
@@ -895,6 +931,9 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
       : [],
     tagCombinations: inputs.tagCombinationCSV
       ? parseTagCombination(inputs.tagCombinationCSV)
+      : [],
+    listingFreshness: inputs.listingFreshnessCSV
+      ? parseListingFreshness(inputs.listingFreshnessCSV)
       : [],
     availableWeeks
   };

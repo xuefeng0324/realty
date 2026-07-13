@@ -27,6 +27,7 @@ import type {
   LocalDistrictMeta,
   LocalFeaturePremium,
   LocalTagCombination,
+  LocalListingFreshness,
   LocalMetroWalk,
   LocalListing,
   LocalListingSchoolPremium,
@@ -427,6 +428,14 @@ export function getTagCombinations(): LocalTagCombination[] {
 
 export function getTagCombinationsByCity(cityId: number): LocalTagCombination[] {
   return (snapshot?.tagCombinations ?? []).filter((c) => c.cityId === cityId);
+}
+
+export function getListingFreshness(): LocalListingFreshness[] {
+  return snapshot?.listingFreshness ?? [];
+}
+
+export function getListingFreshnessByCity(cityId: number): LocalListingFreshness[] {
+  return (snapshot?.listingFreshness ?? []).filter((f) => f.cityId === cityId);
 }
 
 /**

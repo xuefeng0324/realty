@@ -2549,3 +2549,81 @@ export function getTagCombinationRanking(params: {
     topN: items
   };
 }
+
+/**
+ * v0.41.0 trend-21: 房源新鲜度榜
+ * 找"近期新挂牌多"的小区 + 滞销小区 (stale)
+ */
+export interface ListingFreshnessItem {
+  cityId: number;
+  cityName: string;
+  communityId: number;
+  communityName: string;
+  districtName: string;
+  totalListings: number;
+  recent4wCount: number;
+  new2wCount: number;
+  staleCount: number;
+  freshnessScore: number;
+  medianAgeDays: number | null;
+}
+
+export interface ListingFreshnessResponse {
+  cityId: number;
+  cityName: string;
+  totalCount: number;
+  /** 活跃榜 (新挂牌最多) */
+  mostFresh: ListingFreshnessItem[];
+  /** 滞销榜 (久未更新) */
+  mostStale: ListingFreshnessItem[];
+}
+
+export function getListingFreshnessRanking(params: {
+  cityId: number;
+  topN?: number;
+  minListings?: number;
+}): ListingFreshnessResponse | null {
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const all = store.getListingFreshnessByCity(params.cityId);
+  if (all.length === 0) return null;
+
+  const minListings = params.minListings ?? 5;
+  const topN = params.topN ?? 10;
+
+  // 已过滤过 min=5; 再按 minListings 二次过滤
+  const filtered = all.filter((f) => f.totalListings >= minListings);
+
+  // 活跃榜: 按 freshnessScore 降序, 然后 new2w 降序
+  const sortedByFresh = [...filtered]
+    .sort((a, b) => b.freshnessScore - a.freshnessScore || b.new2wCount - a.new2wCount)
+    .slice(0, topN);
+
+  // 滞销榜: 按 medianAgeDays 降序 (越久未更新)
+  const sortedByStale = [...filtered]
+    .filter((f) => f.medianAgeDays != null)
+    .sort((a, b) => (b.medianAgeDays ?? 0) - (a.medianAgeDays ?? 0))
+    .slice(0, topN);
+
+  const toItem = (f: typeof filtered[number]): ListingFreshnessItem => ({
+    cityId: f.cityId,
+    cityName: f.cityName,
+    communityId: f.communityId,
+    communityName: f.communityName,
+    districtName: f.districtName,
+    totalListings: f.totalListings,
+    recent4wCount: f.recent4wCount,
+    new2wCount: f.new2wCount,
+    staleCount: f.staleCount,
+    freshnessScore: f.freshnessScore,
+    medianAgeDays: f.medianAgeDays
+  });
+
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    totalCount: filtered.length,
+    mostFresh: sortedByFresh.map(toItem),
+    mostStale: sortedByStale.map(toItem)
+  };
+}

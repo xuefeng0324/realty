@@ -370,6 +370,21 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 AB | trend-20 | dashboard 标签组合卡 + tag pair + bar | ✅ v0.40.0 | 紫渐变 |
 | 🟢 AB | trend-20 | smoke_tag_combination.mjs E2E + screenshots | ✅ v0.40.0 | 广州/深圳各截一张 |
 
+## AC 段补充：房源新鲜度 (v0.41.0)
+
+- listings.csv (crawl_date) → per (city, community) freshness_score
+- 公式: (近 4 周 × 1 + 近 2 周 × 2) ÷ 总数 × 100，min_listings=5
+- 23 行 listing_freshness.csv
+- dashboard 新卡「📅 房源新鲜度」+ 🆕 新挂牌 / 😴 滞销 双 section + 8+8 行
+- 381/381 单测 + smoke_listing_freshness E2E
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 AC | trend-21 | compute_listing_freshness.py 写 23 行 | ✅ v0.41.0 | crawl_date 分桶 |
+| 🟢 AC | trend-21 | types + parse + store + queries (双榜) | ✅ v0.41.0 | 5 单测 |
+| 🟢 AC | trend-21 | dashboard 房源新鲜度卡 + 双 section + score 圆 | ✅ v0.41.0 | 绿/黄/红 |
+| 🟢 AC | trend-21 | smoke_listing_freshness.mjs E2E + screenshots | ✅ v0.41.0 | 广州/深圳各截一张 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

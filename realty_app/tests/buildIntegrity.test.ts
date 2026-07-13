@@ -2416,4 +2416,88 @@ describe("build integrity", () => {
       }
     });
   });
+
+  // v0.41.0 trend-21: 房源新鲜度
+  describe("v0.41.0 trend-21 房源新鲜度", () => {
+    it("listing_freshness.csv 存在 + 有列 + city_name 正确", () => {
+      const csv = readFileSync(resolve(ROOT, "static/seed/listing_freshness.csv"), "utf8");
+      expect(csv).toMatch(/^(\ufeff)?city_id,city_name,community_id/);
+      const lines = csv.trim().split(/\r?\n/);
+      expect(lines.length).toBeGreaterThan(20);
+      expect(csv).toMatch(/,广州,/);
+      expect(csv).toMatch(/,深圳,/);
+      expect(csv).toMatch(/,珠海,/);
+    });
+
+    it("compute_listing_freshness.py + types/parser/store/queries 都实现", () => {
+      const script = readFileSync(resolve(ROOT, "scripts/compute_listing_freshness.py"), "utf8");
+      expect(script).toMatch(/listings\.csv/);
+      expect(script).toMatch(/crawl_date/);
+      expect(script).toMatch(/freshness_score/);
+      expect(script).toMatch(/listing_freshness\.csv/);
+
+      const types = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(types).toMatch(/LocalListingFreshness/);
+      expect(types).toMatch(/listingFreshness:\s*LocalListingFreshness\[\]/);
+
+      const importer = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(importer).toMatch(/function parseListingFreshness/);
+      expect(importer).toMatch(/listingFreshnessCSV/);
+
+      const store = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(store).toMatch(/getListingFreshness\(/);
+      expect(store).toMatch(/getListingFreshnessByCity\(/);
+
+      const queries = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(queries).toMatch(/export function getListingFreshnessRanking/);
+      expect(queries).toMatch(/ListingFreshnessItem/);
+    });
+
+    it("seedSnapshot.ts + dataRefresher.ts + settings.vue 都接入", () => {
+      const seed = readFileSync(resolve(ROOT, "src/local/seedSnapshot.ts"), "utf8");
+      expect(seed).toMatch(/import listingFreshnessCSV/);
+      expect(seed).toMatch(/listingFreshnessCSV:/);
+
+      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
+      expect(ref).toMatch(/listingFreshness:/);
+
+      const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
+      expect(settings).toMatch(/listing_freshness\.csv/);
+      expect(settings).toMatch(/listingFreshnessCSV:/);
+    });
+
+    it("dashboard.vue 房源新鲜度卡 + 双 section (活跃/滞销)", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/房源新鲜度/);
+      expect(dash).toMatch(/listingFreshness/);
+      expect(dash).toMatch(/reloadListingFreshness/);
+      expect(dash).toMatch(/lf-row/);
+      expect(dash).toMatch(/lf-section-title/);
+      expect(dash).toMatch(/lf-fresh-up|lf-fresh-mid|lf-fresh-down/);
+    });
+
+    it("getListingFreshnessRanking 数据正确 + 活跃/滞销 两榜", async () => {
+      const { setSnapshot } = await import("../src/local/store");
+      const { buildSeedSnapshot, resetSeedSnapshotCache } = await import("../src/local/seedSnapshot");
+      resetSeedSnapshotCache();
+      setSnapshot(buildSeedSnapshot());
+      const { getListingFreshnessRanking } = await import("../src/local/queries");
+      const resp = getListingFreshnessRanking({ cityId: 2, topN: 8, minListings: 5 });
+      expect(resp).toBeTruthy();
+      expect(resp!.mostFresh.length).toBeGreaterThan(0);
+      expect(resp!.mostStale.length).toBeGreaterThan(0);
+      // 验证 mostFresh 按 freshnessScore 降序
+      for (let i = 1; i < resp!.mostFresh.length; i++) {
+        expect(resp!.mostFresh[i - 1].freshnessScore).toBeGreaterThanOrEqual(
+          resp!.mostFresh[i].freshnessScore
+        );
+      }
+      // 验证 mostStale 按 medianAgeDays 降序
+      for (let i = 1; i < resp!.mostStale.length; i++) {
+        expect(resp!.mostStale[i - 1].medianAgeDays ?? 0).toBeGreaterThanOrEqual(
+          resp!.mostStale[i].medianAgeDays ?? 0
+        );
+      }
+    });
+  });
 });
