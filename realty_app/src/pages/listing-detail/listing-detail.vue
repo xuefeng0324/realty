@@ -1,6 +1,16 @@
 <template>
   <view class="page">
     <view class="container">
+      <!-- v0.54.0 detail-1: 顶部快捷导航 (返回 + 同区其他小区 + 小区详情) -->
+      <view class="quicknav">
+        <view class="qn-btn" @click="goBack">← 返回</view>
+        <view class="qn-btn" @click="goDashboard">📊 仪表盘</view>
+        <view class="qn-btn" @click="goCommunity">🏘️ 小区详情</view>
+        <view v-if="sameCommunityListings.length > 0" class="qn-btn qn-btn--primary">
+          🔁 同小区其他 ({{ sameCommunityListings.length }})
+        </view>
+      </view>
+
       <view v-if="errorMsg" class="error">{{ errorMsg }}</view>
 
       <view v-if="data" class="card">
@@ -68,6 +78,37 @@
             <view class="dim-fill" :style="{ width: (data.score.dimension_scores_json[d] || 0) + '%' }"></view>
           </view>
           <view class="dim-value">{{ (data.score.dimension_scores_json[d] || 0).toFixed(1) }}</view>
+        </view>
+      </view>
+
+      <!-- v0.54.0 detail-1: 同小区其他在售 -->
+      <view v-if="sameCommunityListings.length > 0" class="card">
+        <view class="card-title">🔁 同小区其他在售 · {{ sameCommunityName }}</view>
+        <view class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
+          横向对比: 共 {{ sameCommunityAll.length }} 套在售, 显示其他 {{ sameCommunityListings.length }} 套
+          (已按单价降序)
+        </view>
+        <view
+          v-for="l in sameCommunityListings"
+          :key="l.listingId"
+          class="sibling-row tap-row"
+          hover-class="tap-row--active"
+          @click="goListing(l.listingId)"
+        >
+          <view class="sibling-mid">
+            <view class="sibling-title">{{ l.title }}</view>
+            <view class="sibling-meta muted">
+              {{ l.bedrooms }}室{{ l.bathrooms }}卫 · {{ formatArea(l.areaSqm) }} · {{ l.orientation || '-' }}
+              · {{ l.decorateType || '-' }}
+            </view>
+          </view>
+          <view class="sibling-price">
+            <view class="sibling-total">{{ formatPrice(l.totalPrice10k) }}</view>
+            <view class="sibling-unit muted">{{ formatUnitPrice(l.unitPrice) }}</view>
+          </view>
+        </view>
+        <view class="muted" style="font-size: 22rpx; margin-top: 8rpx">
+          💡 横向对比能更清楚看到不同户型 / 楼层 / 朝向的差价 — 通常同小区同户型差价在 ±5-10% 内属正常议价空间。
         </view>
       </view>
 
@@ -219,11 +260,27 @@ import {
   scoreClass,
   showToast
 } from "../../utils/format";
+import { getListingsByCommunity, getCommunityById } from "../../local/store";
 
 const listingId = ref<number>(0);
 const data = ref<ListingDetailResponse | null>(null);
 const errorMsg = ref<string>("");
 const explainOpen = ref(false);
+
+// v0.54.0 detail-1: 同小区其他 listings
+const sameCommunityAll = ref<ReturnType<typeof getListingsByCommunity>>([]);
+const sameCommunityListings = computed(() => {
+  return sameCommunityAll.value
+    .filter((l) => l.listingId !== listingId.value)
+    .filter((l) => l.unitPrice && l.unitPrice > 0)
+    .sort((a, b) => (b.unitPrice ?? 0) - (a.unitPrice ?? 0))
+    .slice(0, 10);
+});
+const sameCommunityName = computed(() => {
+  if (!data.value) return "";
+  const c = getCommunityById(data.value.listing.community_id);
+  return c?.communityName ?? "";
+});
 const pois = ref<PoiItem[]>([]);
 const hospitals = ref<HospitalItem[]>([]);
 const metroPlanning = ref<MetroLineItem[]>([]);
@@ -317,6 +374,24 @@ function goCommunity() {
   }
 }
 
+// v0.54.0 detail-1: 顶部快捷导航
+function goBack() {
+  const pages = getCurrentPages?.() ?? [];
+  if (pages.length > 1) {
+    uni.navigateBack({ delta: 1 });
+  } else {
+    uni.switchTab({ url: "/pages/dashboard/dashboard" });
+  }
+}
+
+function goDashboard() {
+  uni.switchTab({ url: "/pages/dashboard/dashboard" });
+}
+
+function goListing(id: number) {
+  uni.redirectTo({ url: `/pages/listing-detail/listing-detail?id=${id}` });
+}
+
 function toggleExplain() {
   explainOpen.value = !explainOpen.value;
 }
@@ -333,6 +408,8 @@ onMounted(async () => {
   try {
     data.value = await getListingDetail(listingId.value);
     if (data.value?.listing.community_id) {
+      // v0.54.0 detail-1: 同小区其他 listings
+      sameCommunityAll.value = getListingsByCommunity(data.value.listing.community_id);
       try {
         const r = await getCommunityPois({
           communityId: data.value.listing.community_id
@@ -367,6 +444,87 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
+/* v0.54.0 detail-1: 顶部快捷导航 */
+.quicknav {
+  display: flex;
+  gap: 12rpx;
+  margin: 8rpx 0 16rpx;
+  flex-wrap: wrap;
+}
+.qn-btn {
+  flex: 1;
+  min-width: 140rpx;
+  padding: 14rpx 18rpx;
+  border-radius: 10rpx;
+  background: #f1f5f9;
+  font-size: 24rpx;
+  color: #334155;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.qn-btn:hover {
+  background: #e2e8f0;
+}
+.qn-btn--primary {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  font-weight: 600;
+}
+.qn-btn--primary:hover {
+  filter: brightness(1.08);
+}
+
+/* 同小区其他在售 */
+.sibling-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 14rpx 12rpx;
+  border-bottom: 1rpx solid #f1f5f9;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.sibling-row:last-child {
+  border-bottom: none;
+}
+.sibling-row.tap-row--active {
+  background: rgba(99, 102, 241, 0.08);
+}
+.sibling-mid {
+  flex: 1;
+  min-width: 0;
+}
+.sibling-title {
+  font-size: 26rpx;
+  color: #1e293b;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sibling-meta {
+  font-size: 22rpx;
+  margin-top: 4rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sibling-price {
+  text-align: right;
+  flex-shrink: 0;
+}
+.sibling-total {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #dc2626;
+  font-variant-numeric: tabular-nums;
+}
+.sibling-unit {
+  font-size: 20rpx;
+  margin-top: 2rpx;
+}
+
 .price-row {
   display: flex;
   align-items: baseline;

@@ -3313,4 +3313,41 @@ describe("build integrity", () => {
       // 脚本 / 卡片渲染会再次算
     });
   });
+
+  // v0.54.0 detail-1: listing 详情页 UX 优化
+  describe("v0.54.0 detail-1 listing 详情页 UX", () => {
+    it("listing-detail.vue: 顶部 quicknav 4 按钮 (返回/仪表盘/小区详情/同小区其他)", () => {
+      const f = readFileSync(resolve(ROOT, "src/pages/listing-detail/listing-detail.vue"), "utf8");
+      expect(f).toMatch(/class="quicknav"/);
+      expect(f).toMatch(/@click="goBack"/);
+      expect(f).toMatch(/@click="goDashboard"/);
+      expect(f).toMatch(/@click="goCommunity"/);
+      expect(f).toMatch(/同小区其他/);
+    });
+
+    it("listing-detail.vue: 同小区其他在售卡 + goListing + sibling-row tap-row", () => {
+      const f = readFileSync(resolve(ROOT, "src/pages/listing-detail/listing-detail.vue"), "utf8");
+      expect(f).toMatch(/class="card-title">🔁 同小区其他在售/);
+      expect(f).toMatch(/sameCommunityListings/);
+      expect(f).toMatch(/v-for="l in sameCommunityListings"/);
+      expect(f).toMatch(/class="sibling-row tap-row"/);
+      expect(f).toMatch(/@click="goListing\(l\.listingId\)"/);
+      expect(f).toMatch(/function goListing/);
+      expect(f).toMatch(/getListingsByCommunity/);
+    });
+
+    it("listing-detail.vue: goBack 智能回退 + goDashboard switchTab", () => {
+      const f = readFileSync(resolve(ROOT, "src/pages/listing-detail/listing-detail.vue"), "utf8");
+      expect(f).toMatch(/function goBack\(\)[\s\S]*?navigateBack[\s\S]*?switchTab/);
+      expect(f).toMatch(/function goDashboard\(\)[\s\S]*?\/pages\/dashboard\/dashboard/);
+    });
+
+    it("listing-detail.vue: sameCommunityListings computed 按单价排序 + slice(0,10)", () => {
+      const f = readFileSync(resolve(ROOT, "src/pages/listing-detail/listing-detail.vue"), "utf8");
+      expect(f).toMatch(/sort\(\(a, b\) => \(b\.unitPrice/);
+      expect(f).toMatch(/\.slice\(0, 10\)/);
+      expect(f).toMatch(/sameCommunityName/);
+      expect(f).toMatch(/getCommunityById/);
+    });
+  });
 });

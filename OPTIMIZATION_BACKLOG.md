@@ -499,6 +499,16 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 AC | macro-1 | dashboard 「💰 LPR + 房贷利率」卡片 (4 KPI + 累计 + sparkline) | ✅ v0.53.0 | 5Y LPR 近 36 月 SVG sparkline |
 | 🟢 AC | macro-1 | buildIntegrity +4 测试 + E2E 验证 (3.00/3.50/3.20/3.85) | ✅ v0.53.0 | 439/439 通过 + 2 screenshots |
 
+## R 段: detail-1 listing 详情页 UX (v0.54.0)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 AC | detail-1 | 顶部 quicknav 4 按钮 (返回/仪表盘/小区详情/同小区其他) | ✅ v0.54.0 | qn-btn + qn-btn--primary |
+| 🟢 AC | detail-1 | 同小区其他在售卡 (getListingsByCommunity + 按单价降序 Top 10) | ✅ v0.54.0 | tap-row → redirectTo listing-detail |
+| 🟢 AC | detail-1 | goBack 智能回退 (navigateBack → switchTab dashboard fallback) | ✅ v0.54.0 | getCurrentPages 检测 |
+| 🟢 AC | detail-1 | goDashboard switchTab + goListing redirectTo | ✅ v0.54.0 | 新增 2 个导航函数 |
+| 🟢 AC | detail-1 | buildIntegrity +4 测试 + E2E (4 按钮 + 10 sibling + 跳转验证) | ✅ v0.54.0 | 443/443 通过 + 3 screenshots |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |
