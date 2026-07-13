@@ -537,6 +537,22 @@ export interface LocalOrientationFloor {
 }
 
 /**
+ * v0.44.0: 装修 × 楼龄 溢价分析 (scripts/compute_decorate_age.py)
+ * per (city, decorate, age_bucket): count + share + median_unit_price + premium_pct vs city median
+ */
+export interface LocalDecorateAge {
+  cityId: number;
+  cityName: string;
+  decorate: string;
+  ageBucket: string;
+  count: number;
+  share: number;
+  medianUnitPrice: number;
+  /** 正 = 溢价 % (此组合 vs 全城中位), 负 = 折价 % */
+  premiumPct: number;
+}
+
+/**
  * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
  * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
  * 用于 dashboard 展示"区级近 N 周房价趋势"。
@@ -609,6 +625,8 @@ export interface DataSnapshot {
   bedroomArea: LocalBedroomArea[];
   /** v0.43.0: 朝向 × 楼层 溢价分析 (scripts/compute_orientation_floor.py) */
   orientationFloor: LocalOrientationFloor[];
+  /** v0.44.0: 装修 × 楼龄 溢价分析 (scripts/compute_decorate_age.py) */
+  decorateAge: LocalDecorateAge[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

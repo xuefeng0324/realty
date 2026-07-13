@@ -165,6 +165,7 @@ function mergeListingsIntoSnapshot(
     listingFreshness: existing?.listingFreshness ?? [],
     bedroomArea: existing?.bedroomArea ?? [],
     orientationFloor: existing?.orientationFloor ?? [],
+    decorateAge: existing?.decorateAge ?? [],
     availableWeeks
   };
 }

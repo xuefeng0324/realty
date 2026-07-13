@@ -38,6 +38,7 @@ import type {
   LocalListingFreshness,
   LocalBedroomArea,
   LocalOrientationFloor,
+  LocalDecorateAge,
   LocalMetroWalk,
   LocalPoi,
   LocalSchool,
@@ -129,6 +130,8 @@ export interface SnapshotInputs {
   bedroomAreaCSV?: string;
   /** v0.43.0: 朝向 × 楼层 溢价分析 */
   orientationFloorCSV?: string;
+  /** v0.44.0: 装修 × 楼龄 溢价分析 */
+  decorateAgeCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -397,6 +400,30 @@ function parseOrientationFloor(csvText: string): LocalOrientationFloor[] {
       } as LocalOrientationFloor;
     })
     .filter((x): x is LocalOrientationFloor => x !== null);
+}
+
+function parseDecorateAge(csvText: string): LocalDecorateAge[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.city_id);
+      if (cid == null) return null;
+      const num = (v: string | undefined) => {
+        if (v === undefined || v === "") return 0;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : 0;
+      };
+      return {
+        cityId: cid,
+        cityName: s(r.city_name) ?? "",
+        decorate: s(r.decorate) ?? "",
+        ageBucket: s(r.age_bucket) ?? "",
+        count: num(r.count ?? undefined),
+        share: num(r.share ?? undefined),
+        medianUnitPrice: num(r.median_unit_price ?? undefined),
+        premiumPct: num(r.premium_pct ?? undefined)
+      } as LocalDecorateAge;
+    })
+    .filter((x): x is LocalDecorateAge => x !== null);
 }
 
 function parseLifeConvenience(csvText: string): LocalLifeConvenience[] {
@@ -994,6 +1021,9 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
       : [],
     orientationFloor: inputs.orientationFloorCSV
       ? parseOrientationFloor(inputs.orientationFloorCSV)
+      : [],
+    decorateAge: inputs.decorateAgeCSV
+      ? parseDecorateAge(inputs.decorateAgeCSV)
       : [],
     availableWeeks
   };

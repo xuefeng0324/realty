@@ -2689,4 +2689,104 @@ describe("build integrity", () => {
       expect(worst.premiumPct).toBeLessThan(-30);
     });
   });
+
+  // v0.44.0 trend-24: 装修 × 楼龄 溢价
+  describe("v0.44.0 trend-24 装修 × 楼龄 溢价", () => {
+    it("decorate_age.csv 存在 + 有列 + city_name 正确", () => {
+      const csv = readFileSync(resolve(ROOT, "static/seed/decorate_age.csv"), "utf8");
+      expect(csv).toMatch(/^(\ufeff)?city_id,city_name,decorate,age_bucket/);
+      const lines = csv.trim().split(/\r?\n/);
+      expect(lines.length).toBeGreaterThan(40);
+      expect(csv).toMatch(/,广州,/);
+      expect(csv).toMatch(/,深圳,/);
+      expect(csv).toMatch(/,珠海,/);
+      expect(csv).toMatch(/premium_pct/);
+    });
+
+    it("compute_decorate_age.py + types/parser/store/queries 都实现", () => {
+      const script = readFileSync(resolve(ROOT, "scripts/compute_decorate_age.py"), "utf8");
+      expect(script).toMatch(/premium_pct/);
+      expect(script).toMatch(/decorate_age\.csv/);
+      expect(script).toMatch(/age_bucket/);
+
+      const types = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(types).toMatch(/LocalDecorateAge/);
+      expect(types).toMatch(/decorateAge:\s*LocalDecorateAge\[\]/);
+      expect(types).toMatch(/ageBucket:/);
+
+      const importer = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(importer).toMatch(/function parseDecorateAge/);
+      expect(importer).toMatch(/decorateAgeCSV/);
+
+      const store = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(store).toMatch(/getDecorateAge\(/);
+      expect(store).toMatch(/getDecorateAgeByCity\(/);
+
+      const queries = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(queries).toMatch(/export function getDecorateAgeMatrix/);
+      expect(queries).toMatch(/DecorateAgeCell/);
+      expect(queries).toMatch(/haoZhuangByAge/);
+      expect(queries).toMatch(/maoPoByAge/);
+    });
+
+    it("seedSnapshot.ts + dataRefresher.ts + settings.vue 都接入", () => {
+      const seed = readFileSync(resolve(ROOT, "src/local/seedSnapshot.ts"), "utf8");
+      expect(seed).toMatch(/import decorateAgeCSV/);
+      expect(seed).toMatch(/decorateAgeCSV:/);
+
+      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
+      expect(ref).toMatch(/decorateAge:/);
+
+      const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
+      expect(settings).toMatch(/decorate_age\.csv/);
+      expect(settings).toMatch(/decorateAgeCSV:/);
+    });
+
+    it("dashboard.vue 装修卡 + 折价卡 + 矩阵 + da-cell 颜色", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/装修 × 楼龄 溢价/);
+      expect(dash).toMatch(/decorateAge/);
+      expect(dash).toMatch(/reloadDecorateAge/);
+      expect(dash).toMatch(/daCellClass/);
+      expect(dash).toMatch(/da-cell-up-strong/);
+      expect(dash).toMatch(/da-cell-down-strong/);
+    });
+
+    it("getDecorateAgeMatrix 数据正确 + 矩阵完整 + haoZhuang/maoPo 提取", async () => {
+      const { setSnapshot } = await import("../src/local/store");
+      const { buildSeedSnapshot, resetSeedSnapshotCache } = await import("../src/local/seedSnapshot");
+      resetSeedSnapshotCache();
+      setSnapshot(buildSeedSnapshot());
+      const { getDecorateAgeMatrix } = await import("../src/local/queries");
+      const resp = getDecorateAgeMatrix({ cityId: 2, minCount: 5 });
+      expect(resp).toBeTruthy();
+      expect(resp!.decorates.length).toBeGreaterThanOrEqual(3);
+      expect(resp!.ageBuckets.length).toBeGreaterThanOrEqual(3);
+      expect(resp!.grid.length).toBe(resp!.decorates.length);
+      // 豪装 应该有数据
+      expect(resp!.haoZhuangByAge.length).toBeGreaterThan(0);
+      // 毛坯 应该有数据
+      expect(resp!.maoPoByAge.length).toBeGreaterThan(0);
+      // topPremium 降序
+      for (let i = 1; i < resp!.topPremium.length; i++) {
+        expect(resp!.topPremium[i - 1].premiumPct).toBeGreaterThanOrEqual(
+          resp!.topPremium[i].premiumPct
+        );
+      }
+    });
+
+    it("珠海应有大折价装修格 (普装/2010-2014 ≈ -41%, 全城最大)", async () => {
+      const { setSnapshot } = await import("../src/local/store");
+      const { buildSeedSnapshot, resetSeedSnapshotCache } = await import("../src/local/seedSnapshot");
+      resetSeedSnapshotCache();
+      setSnapshot(buildSeedSnapshot());
+      const { getDecorateAgeMatrix } = await import("../src/local/queries");
+      const resp = getDecorateAgeMatrix({ cityId: 3, minCount: 5 });
+      expect(resp).toBeTruthy();
+      const worst = resp!.topDiscount[0];
+      expect(worst.premiumPct).toBeLessThanOrEqual(-30);
+      expect(worst.decorate).toBeTruthy();
+      expect(worst.ageBucket).toBeTruthy();
+    });
+  });
 });

@@ -1005,6 +1005,69 @@
         </view>
       </view>
 
+      <!-- v0.44.0 trend-24 装修 × 楼龄 溢价矩阵 -->
+      <view v-if="decorateAge && decorateAge.decorates.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">🛋️ 装修 × 楼龄 溢价 · {{ decorateAge.cityName }}</view>
+          <view class="muted">vs 全城中位 {{ Math.round(decorateAge.cityMedian) }} 元/㎡ · minCount ≥ 5</view>
+        </view>
+        <view class="of-section-title">📈 溢价 Top 5</view>
+        <view
+          v-for="(p, idx) in decorateAge.topPremium"
+          :key="'dp_' + idx + '_' + p.decorate + p.ageBucket"
+          class="of-row of-row-up"
+        >
+          <text class="of-rank">#{{ idx + 1 }}</text>
+          <text class="of-key">{{ p.decorate }} · {{ p.ageBucket }}</text>
+          <text class="of-pct">+{{ p.premiumPct }}%</text>
+          <text class="of-px">{{ Math.round(p.medianUnitPrice) }} 元</text>
+          <text class="of-n">×{{ p.count }}</text>
+        </view>
+        <view class="of-section-title">📉 折价 Top 5</view>
+        <view
+          v-for="(p, idx) in decorateAge.topDiscount"
+          :key="'dd_' + idx + '_' + p.decorate + p.ageBucket"
+          class="of-row of-row-down"
+        >
+          <text class="of-rank">#{{ idx + 1 }}</text>
+          <text class="of-key">{{ p.decorate }} · {{ p.ageBucket }}</text>
+          <text class="of-pct">{{ p.premiumPct }}%</text>
+          <text class="of-px">{{ Math.round(p.medianUnitPrice) }} 元</text>
+          <text class="of-n">×{{ p.count }}</text>
+        </view>
+        <view class="of-section-title">🟦 矩阵 (行=装修 · 列=楼龄 · 颜色=溢价%)</view>
+        <view class="of-matrix">
+          <view class="of-mrow of-mheader">
+            <view class="of-mcorner">装修\楼龄</view>
+            <view
+              v-for="ab in decorateAge.ageBuckets"
+              :key="'h_' + ab"
+              class="of-mcol-h"
+            >{{ ab }}</view>
+          </view>
+          <view
+            v-for="(d, dIdx) in decorateAge.decorates"
+            :key="'r_' + d"
+            class="of-mrow"
+          >
+            <view class="of-mrow-h">{{ d }}</view>
+            <view
+              v-for="(cell, cIdx) in decorateAge.grid[dIdx]"
+              :key="'c_' + d + '_' + cIdx"
+              :class="['of-mcell', daCellClass(cell)]"
+            >
+              <text class="of-mcell-n">{{ daCellLabel(cell) }}</text>
+              <text v-if="cell.count > 0" class="of-mcell-p">{{ daCellPctLabel(cell) }}</text>
+            </view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：listings.csv (decorate_type + build_year) → scripts/compute_decorate_age.py。<br>
+          楼龄段：≤1999/2000-2004/2005-2009/2010-2014/2015-2019/2020+<br>
+          颜色：深绿=溢价 ≥10%, 浅绿=≥3%, 深红=折价 ≤-10%, 浅红=≤-3%
+        </view>
+      </view>
+
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
       <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card">
         <view class="row-between">
@@ -1418,7 +1481,8 @@ import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWa
   getTagCombinationRanking,
   getListingFreshnessRanking,
   getBedroomAreaDistribution,
-  getOrientationFloorMatrix, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type BedroomAreaResponse, type OrientationFloorResponse } from "../../local/queries";
+  getOrientationFloorMatrix,
+  getDecorateAgeMatrix, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type BedroomAreaResponse, type OrientationFloorResponse, type DecorateAgeResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -1480,6 +1544,8 @@ const listingFreshness = ref<ListingFreshnessResponse | null>(null);
 const bedroomArea = ref<BedroomAreaResponse | null>(null);
 // v0.43.0 trend-23: 朝向 × 楼层 溢价分析
 const orientationFloor = ref<OrientationFloorResponse | null>(null);
+// v0.44.0 trend-24: 装修 × 楼龄 溢价分析
+const decorateAge = ref<DecorateAgeResponse | null>(null);
 // v0.38.0 trend-18: 区情画像
 const districtMeta = ref<DistrictMetaResponse | null>(null);
 const districtMetaSortBy = ref<"default" | "price" | "school" | "mom" | "listing">("price");
@@ -1745,6 +1811,41 @@ function ofCellClass(cell: { count: number; premiumPct: number }): string {
 function ofPremiumLabel(pct: number): string {
   const sign = pct > 0 ? "+" : "";
   return `${sign}${pct}%`;
+}
+
+// v0.44.0 trend-24: 装修 × 楼龄
+async function reloadDecorateAge() {
+  try {
+    decorateAge.value = await getDecorateAgeMatrix({
+      cityId: app.cityId,
+      minCount: 5
+    });
+  } catch (e) {
+    console.warn("getDecorateAgeMatrix failed:", e);
+    decorateAge.value = null;
+  }
+}
+
+function daCellClass(cell: { count: number; premiumPct: number }): string {
+  if (cell.count === 0) return "da-cell-off";
+  const p = cell.premiumPct;
+  if (p >= 10) return "da-cell-up-strong";
+  if (p >= 3) return "da-cell-up";
+  if (p <= -10) return "da-cell-down-strong";
+  if (p <= -3) return "da-cell-down";
+  return "da-cell-flat";
+}
+
+function daCellLabel(cell: { count: number; premiumPct: number }): string {
+  if (cell.count === 0) return "—";
+  return cell.count.toString();
+}
+
+function daCellPctLabel(cell: { count: number; premiumPct: number }): string {
+  if (cell.count === 0) return "";
+  const p = cell.premiumPct;
+  const sign = p > 0 ? "+" : "";
+  return `${sign}${p}%`;
 }
 function mbBandClass(score: number) {
   if (score >= 75) return "mb-tag-green";
@@ -2134,6 +2235,8 @@ async function loadRankingAndDistrict() {
       await reloadBedroomArea();
       // v0.43.0 trend-23 朝向 × 楼层
       await reloadOrientationFloor();
+      // v0.44.0 trend-24 装修 × 楼龄
+      await reloadDecorateAge();
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
         cityId: app.cityId,
@@ -4496,4 +4599,15 @@ onShow(async () => {
   font-size: 18rpx;
   opacity: 0.9;
 }
+
+/* v0.44.0 trend-24: 装修 × 楼龄 - 复用 of-* 的颜色逻辑, 这里只定义 da-* 别名 */
+.da-cell-off {
+  background: #f1f5f9;
+  color: #cbd5e1;
+}
+.da-cell-up-strong { background: #059669; color: #fff; }
+.da-cell-up { background: #6ee7b7; color: #064e3b; }
+.da-cell-flat { background: #fef3c7; color: #78350f; }
+.da-cell-down { background: #fca5a5; color: #7f1d1d; }
+.da-cell-down-strong { background: #dc2626; color: #fff; }
 </style>

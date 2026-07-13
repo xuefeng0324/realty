@@ -2845,3 +2845,135 @@ export function getOrientationFloorMatrix(params: {
     cityMedian
   };
 }
+
+/**
+ * v0.44.0 trend-24: 装修 × 楼龄 溢价分析
+ * 4 装修 × 6 楼龄段 = 24 cells, 找 "豪装次新房" 这种最贵的 + "毛坯老破小" 折价
+ */
+export interface DecorateAgeCell {
+  decorate: string;
+  ageBucket: string;
+  count: number;
+  share: number;
+  medianUnitPrice: number;
+  premiumPct: number;
+}
+
+export interface DecorateAgeResponse {
+  cityId: number;
+  cityName: string;
+  totalCount: number;
+  decorates: string[];
+  ageBuckets: string[];
+  /** 矩阵: decorates × ageBuckets (core API: rows=decorates, cols=age) */
+  grid: DecorateAgeCell[][];
+  /** "豪装 × 楼龄" 行 (4 age values) — 看楼龄对豪装的影响 */
+  haoZhuangByAge: DecorateAgeCell[];
+  /** "毛坯 × 楼龄" 行 — 看楼龄对毛坯的影响 */
+  maoPoByAge: DecorateAgeCell[];
+  /** 溢价 top 5 */
+  topPremium: DecorateAgeCell[];
+  /** 折价 top 5 */
+  topDiscount: DecorateAgeCell[];
+  cityMedian: number;
+}
+
+const DA_DECORATES = ["豪装", "精装", "普装", "毛坯"];
+const DA_AGES = ["≤1999", "2000-2004", "2005-2009", "2010-2014", "2015-2019", "2020+"];
+
+export function getDecorateAgeMatrix(params: {
+  cityId: number;
+  minCount?: number;
+}): DecorateAgeResponse | null {
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const all = store.getDecorateAgeByCity(params.cityId);
+  if (all.length === 0) return null;
+
+  const minCount = params.minCount ?? 5;
+  const filtered = all.filter((r) => r.count >= minCount);
+
+  const decorates = DA_DECORATES.filter((d) =>
+    filtered.some((r) => r.decorate === d)
+  );
+  const ageBuckets = DA_AGES.filter((a) =>
+    filtered.some((r) => r.ageBucket === a)
+  );
+
+  // 全城中位 (按 count 加权平均的简化: 直接拿所有 cell median 的平均)
+  const cityMedian = (() => {
+    const pp: number[] = [];
+    for (const r of filtered) {
+      for (let i = 0; i < r.count; i++) pp.push(r.medianUnitPrice);
+    }
+    if (pp.length === 0) return 0;
+    pp.sort((a, b) => a - b);
+    const mid = Math.floor(pp.length / 2);
+    return pp.length % 2 === 0 ? (pp[mid - 1] + pp[mid]) / 2 : pp[mid];
+  })();
+
+  const idxMap = new Map<string, DecorateAgeCell>();
+  for (const r of filtered) {
+    idxMap.set(`${r.decorate}|${r.ageBucket}`, {
+      decorate: r.decorate,
+      ageBucket: r.ageBucket,
+      count: r.count,
+      share: r.share,
+      medianUnitPrice: r.medianUnitPrice,
+      premiumPct: r.premiumPct
+    });
+  }
+
+  const grid: DecorateAgeCell[][] = decorates.map((d) =>
+    ageBuckets.map((a) => {
+      const cell = idxMap.get(`${d}|${a}`);
+      return cell ?? {
+        decorate: d,
+        ageBucket: a,
+        count: 0,
+        share: 0,
+        medianUnitPrice: 0,
+        premiumPct: 0
+      };
+    })
+  );
+
+  const sortedAll = [...filtered].sort((a, b) => a.premiumPct - b.premiumPct);
+  const topDiscount = sortedAll.slice(0, 5).map((r) => ({
+    decorate: r.decorate,
+    ageBucket: r.ageBucket,
+    count: r.count,
+    share: r.share,
+    medianUnitPrice: r.medianUnitPrice,
+    premiumPct: r.premiumPct
+  }));
+  const topPremium = [...sortedAll].reverse().slice(0, 5).map((r) => ({
+    decorate: r.decorate,
+    ageBucket: r.ageBucket,
+    count: r.count,
+    share: r.share,
+    medianUnitPrice: r.medianUnitPrice,
+    premiumPct: r.premiumPct
+  }));
+
+  const haoZhuangByAge = ageBuckets
+    .map((a) => idxMap.get(`豪装|${a}`))
+    .filter((c): c is DecorateAgeCell => c !== undefined);
+  const maoPoByAge = ageBuckets
+    .map((a) => idxMap.get(`毛坯|${a}`))
+    .filter((c): c is DecorateAgeCell => c !== undefined);
+
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    totalCount: filtered.reduce((s, r) => s + r.count, 0),
+    decorates,
+    ageBuckets,
+    grid,
+    haoZhuangByAge,
+    maoPoByAge,
+    topPremium,
+    topDiscount,
+    cityMedian
+  };
+}

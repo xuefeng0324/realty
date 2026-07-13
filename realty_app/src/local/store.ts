@@ -30,6 +30,7 @@ import type {
   LocalListingFreshness,
   LocalBedroomArea,
   LocalOrientationFloor,
+  LocalDecorateAge,
   LocalMetroWalk,
   LocalListing,
   LocalListingSchoolPremium,
@@ -454,6 +455,14 @@ export function getOrientationFloor(): LocalOrientationFloor[] {
 
 export function getOrientationFloorByCity(cityId: number): LocalOrientationFloor[] {
   return (snapshot?.orientationFloor ?? []).filter((o) => o.cityId === cityId);
+}
+
+export function getDecorateAge(): LocalDecorateAge[] {
+  return snapshot?.decorateAge ?? [];
+}
+
+export function getDecorateAgeByCity(cityId: number): LocalDecorateAge[] {
+  return (snapshot?.decorateAge ?? []).filter((d) => d.cityId === cityId);
 }
 
 /**
