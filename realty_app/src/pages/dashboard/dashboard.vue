@@ -160,7 +160,7 @@
         <text> · 数据量: 城市 {{ runtime.data_counts.cities }} / 小区 {{ runtime.data_counts.communities }} / 房源 {{ runtime.data_counts.listings }}</text>
       </view>
 
-      <view v-if="coverage" class="card">
+      <view v-if="coverage" class="card" data-tab="all">
         <view class="card-title">数据覆盖</view>
         <view class="muted">
           来源：{{ coverage.source_used || "全部" }} ·
@@ -174,8 +174,22 @@
 
       <view v-if="errorMsg" class="error">{{ errorMsg }}</view>
 
+      <!-- v0.48.0 dashboard-tabs: 顶部 tab 切换 -->
+      <view class="dash-tabs">
+        <view
+          v-for="t in DASHBOARD_TABS"
+          :key="t.key"
+          :class="['dash-tab', { 'dash-tab--active': activeTab === t.key }]"
+          @click="activeTab = t.key"
+          :data-tab="t.key"
+        >
+          <text class="dash-tab-icon">{{ t.icon }}</text>
+          <text class="dash-tab-label">{{ t.label }}</text>
+        </view>
+      </view>
+
       <!-- 区/板块对比 -->
-      <view class="card">
+      <view class="card" data-tab="all,price">
         <view class="row-between">
           <view class="card-title">区/板块对比</view>
           <view class="muted">{{ app.metric === "listing_count" ? "挂牌数" : "均价(元/㎡)" }}</view>
@@ -252,7 +266,7 @@
       </view>
 
       <!-- v0.10.0 近 4 周网签热度榜 -->
-      <view v-if="wangqianOverview && wangqianOverview.items.length > 0" class="card">
+      <view v-if="wangqianOverview && wangqianOverview.items.length > 0" class="card" data-tab="all,price">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">
             近 4 周二手网签热度榜 · {{ wangqianOverview.cityName }}
@@ -282,7 +296,7 @@
       </view>
 
       <!-- v0.23.0 trend-9: 全品类区级网签热度榜 (新房/二手/全部 tab 切换) -->
-      <view v-if="districtWangqianRank && districtWangqianRank.items.length > 0" class="card">
+      <view v-if="districtWangqianRank && districtWangqianRank.items.length > 0" class="card" data-tab="all,price">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">
             🔥 全品类区级网签热度榜 · {{ districtWangqianRank.cityName }}
@@ -332,7 +346,7 @@
       </view>
 
       <!-- v0.24.0 new-5: 通勤时长榜 (community → 城市 CBD 公交通勤) -->
-      <view v-if="commuteRanking && commuteRanking.fastest.length > 0" class="card">
+      <view v-if="commuteRanking && commuteRanking.fastest.length > 0" class="card" data-tab="all,transit">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">
             🚇 通勤时长榜 · {{ commuteRanking.cityName }} → {{ commuteRanking.cbdName }}
@@ -373,7 +387,7 @@
       </view>
 
       <!-- v0.25.0 户型/面积/朝向/装修分布 -->
-      <view v-if="layoutDistribution && layoutDistribution.totalListings > 0" class="card">
+      <view v-if="layoutDistribution && layoutDistribution.totalListings > 0" class="card" data-tab="all,price">
         <view class="row-between">
           <view class="card-title">🏠 户型分布 · {{ layoutDistribution.cityName }}</view>
           <view class="muted">共 {{ layoutDistribution.totalListings }} 套</view>
@@ -405,7 +419,7 @@
       </view>
 
       <!-- v0.28.0 new-6 房源 tags 标签云 -->
-      <view v-if="tagCloud && tagCloud.tags.length > 0" class="card">
+      <view v-if="tagCloud && tagCloud.tags.length > 0" class="card" data-tab="all,school">
         <view class="row-between">
           <view class="card-title">🏷️ 房源标签云 · {{ tagCloud.cityName }}</view>
           <view class="muted">{{ tagCloud.tags.length }} 个标签 / {{ tagCloud.totalTags }} 次命中</view>
@@ -430,7 +444,7 @@
       </view>
 
       <!-- v0.29.0 trend-13 区房价指数 -->
-      <view v-if="districtIndex && districtIndex.items.length > 0" class="card">
+      <view v-if="districtIndex && districtIndex.items.length > 0" class="card" data-tab="all,price">
         <view class="row-between">
           <view class="card-title">📈 区房价指数 · {{ districtIndex.cityName }}</view>
           <view class="muted">基准 100 = 各区最早周中位价</view>
@@ -475,7 +489,7 @@
       </view>
 
       <!-- v0.30.0 trend-14 区涨幅榜 (4 周累计) -->
-      <view v-if="districtChange && districtChange.items.length > 0" class="card">
+      <view v-if="districtChange && districtChange.items.length > 0" class="card" data-tab="all,price">
         <view class="row-between">
           <view class="card-title">🚀 区涨幅榜 (近 4 周) · {{ districtChange.cityName }}</view>
           <view class="muted">Top {{ districtChange.items.length }}</view>
@@ -513,7 +527,7 @@
       </view>
 
       <!-- v0.33.0 trend-15 小区综合评分榜 (生活+学区+通勤 加权) -->
-      <view v-if="communityScore && communityScore.items.length > 0" class="card">
+      <view v-if="communityScore && communityScore.items.length > 0" class="card" data-tab="all,price">
         <view class="row-between">
           <view class="card-title">🏅 小区综合评分 Top 小区 · {{ communityScore.cityName }}</view>
           <view class="muted">Top {{ communityScore.items.length }}</view>
@@ -627,7 +641,7 @@
       </view>
 
       <!-- v0.35.0 map-9 地铁步行通勤榜 (community → 最近地铁站, 步行时长) -->
-      <view v-if="metroWalk && metroWalk.items.length > 0" class="card">
+      <view v-if="metroWalk && metroWalk.items.length > 0" class="card" data-tab="all,transit">
         <view class="row-between">
           <view class="card-title">🚶 地铁步行通勤 Top · {{ metroWalk.cityName }}</view>
           <view class="muted">Top {{ metroWalk.items.length }}</view>
@@ -660,7 +674,7 @@
       </view>
 
       <!-- v0.36.0 map-10 地铁规划受益榜 (规划/在建线路 + 距离 → 受益分) -->
-      <view v-if="metroBenefit && metroBenefit.items.length > 0" class="card">
+      <view v-if="metroBenefit && metroBenefit.items.length > 0" class="card" data-tab="all,transit">
         <view class="row-between">
           <view class="card-title">🚇 地铁规划受益 Top · {{ metroBenefit.cityName }}</view>
           <view class="muted">Top {{ metroBenefit.items.length }}</view>
@@ -694,7 +708,7 @@
       </view>
 
       <!-- v0.38.0 trend-18 区情画像 (行政区代码 + 房价指数 + 学区评分 + 挂牌量 + 楼龄) -->
-      <view v-if="districtMeta && districtMeta.items.length > 0" class="card">
+      <view v-if="districtMeta && districtMeta.items.length > 0" class="card" data-tab="all,school">
         <view class="row-between">
           <view class="card-title">📋 区情画像 · {{ districtMeta.cityName }}</view>
           <view class="muted">{{ districtMeta.items.length }} 区 · {{ districtMeta.withPrice }} 有均价 · {{ districtMeta.withSchool }} 有学区</view>
@@ -757,7 +771,7 @@
       </view>
 
       <!-- v0.39.0 trend-19 特征画像溢价 (户型/面积/朝向/装修 哪类更贵/更便宜) -->
-      <view v-if="featurePremium && featurePremium.totalCount > 0" class="card">
+      <view v-if="featurePremium && featurePremium.totalCount > 0" class="card" data-tab="all,price">
         <view class="row-between">
           <view class="card-title">💎 特征画像溢价 · {{ featurePremium.cityName }}</view>
           <view class="muted">基线 = 城市中位单价 · {{ featurePremium.totalCount }} 桶 · minCount ≥ 5</view>
@@ -798,7 +812,7 @@
       </view>
 
       <!-- v0.40.0 trend-20 标签组合热度 (最常一起出现的 2 标签) -->
-      <view v-if="tagCombination && tagCombination.topN.length > 0" class="card">
+      <view v-if="tagCombination && tagCombination.topN.length > 0" class="card" data-tab="all,price">
         <view class="row-between">
           <view class="card-title">🏷️ 标签组合热度 · {{ tagCombination.cityName }}</view>
           <view class="muted">top {{ tagCombination.topN.length }} · 共 {{ tagCombination.totalCount }} 对</view>
@@ -835,7 +849,7 @@
       </view>
 
       <!-- v0.41.0 trend-21 房源新鲜度 (新挂牌多 + 滞销) -->
-      <view v-if="listingFreshness && listingFreshness.totalCount > 0" class="card">
+      <view v-if="listingFreshness && listingFreshness.totalCount > 0" class="card" data-tab="all,price">
         <view class="row-between">
           <view class="card-title">📅 房源新鲜度 · {{ listingFreshness.cityName }}</view>
           <view class="muted">活跃 top {{ listingFreshness.mostFresh.length }} · 滞销 top {{ listingFreshness.mostStale.length }}</view>
@@ -903,7 +917,7 @@
       </view>
 
       <!-- v0.42.0 trend-22 户型 × 面积 联合热图 -->
-      <view v-if="bedroomArea && bedroomArea.bedrooms.length > 0" class="card">
+      <view v-if="bedroomArea && bedroomArea.bedrooms.length > 0" class="card" data-tab="all,price">
         <view class="row-between">
           <view class="card-title">📐 户型 × 面积 分布 · {{ bedroomArea.cityName }}</view>
           <view class="muted">minCount ≥ 3 · 共 {{ bedroomArea.totalCount }} 套</view>
@@ -943,7 +957,7 @@
       </view>
 
       <!-- v0.43.0 trend-23 朝向 × 楼层 溢价矩阵 -->
-      <view v-if="orientationFloor && orientationFloor.orientations.length > 0" class="card">
+      <view v-if="orientationFloor && orientationFloor.orientations.length > 0" class="card" data-tab="all,price">
         <view class="row-between">
           <view class="card-title">🧭 朝向 × 楼层 溢价 · {{ orientationFloor.cityName }}</view>
           <view class="muted">vs 全城中位 {{ Math.round(orientationFloor.cityMedian) }} 元/㎡ · minCount ≥ 5</view>
@@ -1006,7 +1020,7 @@
       </view>
 
       <!-- v0.44.0 trend-24 装修 × 楼龄 溢价矩阵 -->
-      <view v-if="decorateAge && decorateAge.decorates.length > 0" class="card">
+      <view v-if="decorateAge && decorateAge.decorates.length > 0" class="card" data-tab="all,price">
         <view class="row-between">
           <view class="card-title">🛋️ 装修 × 楼龄 溢价 · {{ decorateAge.cityName }}</view>
           <view class="muted">vs 全城中位 {{ Math.round(decorateAge.cityMedian) }} 元/㎡ · minCount ≥ 5</view>
@@ -1069,7 +1083,7 @@
       </view>
 
       <!-- v0.45.0 trend-25 社区 总价 × 单价 双轴散点 -->
-      <view v-if="scatter && scatter.points.length > 0" class="card">
+      <view v-if="scatter && scatter.points.length > 0" class="card" data-tab="all,price,map">
         <view class="row-between">
           <view class="card-title">💹 社区 总价 × 单价 散点 · {{ scatter.cityName }}</view>
           <view class="muted">共 {{ scatter.points.length }} 社区 (≥3 套)</view>
@@ -1190,7 +1204,7 @@
       </view>
 
       <!-- v0.46.0 map-11 行政区 + 社区 marker 地图 -->
-      <view v-if="districtMap && districtMap.districts.length > 0" class="card">
+      <view v-if="districtMap && districtMap.districts.length > 0" class="card" data-tab="all,map">
         <view class="row-between">
           <view class="card-title">🗺️ 行政区域图 · {{ districtMap.cityName }}</view>
           <view class="muted">{{ districtMap.districts.length }} 区 · {{ districtMap.markers.length }} 社区</view>
@@ -1261,7 +1275,7 @@
       </view>
 
       <!-- v0.47.0 school-4 学区指标加权细分 -->
-      <view v-if="schoolDims && schoolDims.total > 0" class="card">
+      <view v-if="schoolDims && schoolDims.total > 0" class="card" data-tab="all,school">
         <view class="row-between">
           <view class="card-title">🏫 学区 5 维评分 · {{ schoolDims.cityName }}</view>
           <view class="muted">{{ schoolDims.total }} 校</view>
@@ -1338,7 +1352,7 @@
       </view>
 
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
-      <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card">
+      <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card" data-tab="all,transit">
         <view class="row-between">
           <view class="card-title">🧭 生活便利度 Top 小区 · {{ lifeConvenience.cityName }}</view>
           <view class="muted">Top {{ lifeConvenience.items.length }}</view>
@@ -1395,7 +1409,7 @@
       </view>
 
       <!-- v0.11.0 学区溢价榜 -->
-      <view v-if="schoolPremiumOverview && schoolPremiumOverview.items.length > 0" class="card">
+      <view v-if="schoolPremiumOverview && schoolPremiumOverview.items.length > 0" class="card" data-tab="all,school">
         <view class="row-between">
           <view class="card-title">学区溢价榜 · {{ schoolPremiumOverview.cityName }}</view>
           <view class="muted">Top {{ schoolPremiumOverview.items.length }}</view>
@@ -1593,7 +1607,7 @@
       </view>
 
       <!-- v0.17.0 listing 学区溢价榜（Top 高评分房源） -->
-      <view v-if="listingPremiumOverview && listingPremiumOverview.items.length > 0" class="card">
+      <view v-if="listingPremiumOverview && listingPremiumOverview.items.length > 0" class="card" data-tab="all,price">
         <view class="row-between">
           <view class="card-title">🏫 高学区评分房源 · {{ listingPremiumOverview.cityName }}</view>
           <view class="muted">Top {{ listingPremiumOverview.items.length }} / 共 {{ listingPremiumOverview.total }}</view>
@@ -1633,7 +1647,7 @@
       </view>
 
       <!-- v0.19.0 商业热度榜 (小区维度) -->
-      <view v-if="commercialResp && commercialResp.items.length > 0" class="card">
+      <view v-if="commercialResp && commercialResp.items.length > 0" class="card" data-tab="all,transit">
         <view class="row-between">
           <view class="card-title">🛒 商业热度 Top {{ commercialResp.items.length }} · {{ commercialResp.cityName }}</view>
           <view class="muted">共 {{ commercialResp.total }} 个小区上榜</view>
@@ -1673,7 +1687,7 @@
       </view>
 
       <!-- v0.20.0 trend-8: 同区多小区对比 (点区/板块对比 区名后展示) -->
-      <view v-if="districtCompareResp && districtCompareResp.items.length > 0" class="card">
+      <view v-if="districtCompareResp && districtCompareResp.items.length > 0" class="card" data-tab="all,school">
         <view class="row-between">
           <view class="card-title">📊 {{ districtCompareResp.districtName }} · {{ districtCompareResp.cityName }} 小区对比</view>
           <view class="muted tap-target" @click="closeDistrictCompare">✕ 关闭</view>
@@ -2265,8 +2279,19 @@ const districtCompareResp = ref<DistrictCommunityCompareResponse | null>(null);
 const errorMsg = ref<string>("");
 const loading = ref<boolean>(false);
 
+// v0.48.0 dashboard-tabs: 顶部 tab 切换
+type DashTabKey = "all" | "price" | "school" | "transit" | "map";
+const activeTab = ref<DashTabKey>("all");
+const DASHBOARD_TABS: Array<{ key: DashTabKey; icon: string; label: string }> = [
+  { key: "all", icon: "📊", label: "全部" },
+  { key: "price", icon: "💰", label: "价格画像" },
+  { key: "school", icon: "🏫", label: "学区配套" },
+  { key: "transit", icon: "🚇", label: "通勤地铁" },
+  { key: "map", icon: "🗺️", label: "地图视图" }
+];
+
 // 房源来自安居客「每周快照」，最新周期是上一个完整周（周日结束），并非当天。
-// 这里给一句说明，避免用户误以为“周期结束日没更新到今天”是 bug。
+// 这里给一句说明，避免用户误以为"周期结束日没更新到今天"是 bug。
 const periodHint = computed(() => {
   const list = periods.value;
   if (list.length === 0) return "";
@@ -3167,7 +3192,18 @@ function formatWangqianArea(v: number | null): string {
   return `${Math.round(v)} ㎡`;
 }
 
+// v0.48.0 dashboard-tabs: H5 only — apply active tab via body attribute
+function applyTabClass() {
+  if (typeof document === "undefined") return;
+  const k = activeTab.value;
+  document.body.setAttribute("data-dash-tab", k);
+}
+watch(activeTab, () => {
+  applyTabClass();
+});
+
 onMounted(async () => {
+  applyTabClass();
   const res = await getCities();
   cities.value = res.items || [];
   if (cities.value.length > 0) {
@@ -5270,5 +5306,60 @@ onShow(async () => {
 }
 .sd-neg {
   color: #dc2626;
+}
+
+/* v0.48.0 dashboard-tabs */
+.dash-tabs {
+  display: flex;
+  gap: 8rpx;
+  padding: 8rpx 12rpx;
+  background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+  border-radius: 16rpx;
+  margin: 8rpx 0 16rpx;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.dash-tabs::-webkit-scrollbar { display: none; }
+.dash-tab {
+  flex: 1 0 auto;
+  min-width: 140rpx;
+  padding: 12rpx 16rpx;
+  border-radius: 12rpx;
+  background: #f1f5f9;
+  font-size: 26rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.dash-tab--active {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #fff;
+  transform: scale(1.03);
+  box-shadow: 0 4rpx 12rpx rgba(99, 102, 241, 0.25);
+}
+.dash-tab-icon {
+  font-size: 32rpx;
+  line-height: 1;
+}
+.dash-tab-label {
+  font-size: 24rpx;
+  font-weight: 600;
+}
+.dash-tab-count {
+  font-size: 20rpx;
+  opacity: 0.7;
+}
+</style>
+
+<!-- v0.48.0 dashboard-tabs: 全局 (非 scoped) for body[data-dash-tab] 选择器 -->
+<style lang="scss">
+body[data-dash-tab="price"] .card:not([data-tab*="price"]),
+body[data-dash-tab="school"] .card:not([data-tab*="school"]),
+body[data-dash-tab="transit"] .card:not([data-tab*="transit"]),
+body[data-dash-tab="map"] .card:not([data-tab*="map"]) {
+  display: none !important;
 }
 </style>

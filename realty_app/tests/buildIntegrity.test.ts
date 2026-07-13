@@ -3078,4 +3078,49 @@ describe("build integrity", () => {
       expect(resp!.topByTrend[0].trendDelta).toBeGreaterThan(0);
     });
   });
+
+  // v0.48.0 dashboard-tabs: 顶部 tab 分类切换
+  describe("v0.48.0 dashboard-tabs Tab 分类", () => {
+    it("dashboard.vue: 含 5 个 tab (all/price/school/transit/map)", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/DASHBOARD_TABS/);
+      expect(dash).toMatch(/activeTab = ref<DashTabKey>\("all"\)/);
+      expect(dash).toMatch(/activeTab = t\.key/);
+      // 5 tab labels
+      expect(dash).toMatch(/"全部"/);
+      expect(dash).toMatch(/"价格画像"/);
+      expect(dash).toMatch(/"学区配套"/);
+      expect(dash).toMatch(/"通勤地铁"/);
+      expect(dash).toMatch(/"地图视图"/);
+    });
+
+    it("dashboard.vue: 至少 25 个 card 有 data-tab 属性", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      // 至少 24 张数据卡 + 1 张 tab 按钮 = 25
+      const matches = dash.match(/data-tab=/g) || [];
+      expect(matches.length).toBeGreaterThanOrEqual(25);
+      // 4 个 tab 维度都要出现
+      expect(dash).toMatch(/data-tab="all,price"/);
+      expect(dash).toMatch(/data-tab="all,school"/);
+      expect(dash).toMatch(/data-tab="all,transit"/);
+      expect(dash).toMatch(/data-tab="all,map"/);
+      // 至少 1 个 map-only
+      expect(dash).toMatch(/data-tab="all,map"/);
+    });
+
+    it("dashboard.vue: 全局 style 用 body[data-dash-tab] 隐藏卡片", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/body\[data-dash-tab="price"\] \.card:not\(\[data-tab\*="price"\]\)/);
+      expect(dash).toMatch(/body\[data-dash-tab="school"\]/);
+      expect(dash).toMatch(/body\[data-dash-tab="transit"\]/);
+      expect(dash).toMatch(/body\[data-dash-tab="map"\]/);
+    });
+
+    it("dashboard.vue: applyTabClass + watch 联动", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/applyTabClass/);
+      expect(dash).toMatch(/document\.body\.setAttribute\("data-dash-tab"/);
+      expect(dash).toMatch(/watch\(activeTab/);
+    });
+  });
 });

@@ -439,6 +439,15 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 AC | school-4 | dashboard 「🏫 学区 5 维评分」卡 (综合 Top 5 + 4 维 Top 3) | ✅ v0.47.0 | 2x2 grid + 进度条 |
 | 🟢 AC | school-4 | smoke_school_dims.mjs E2E + screenshots | ✅ v0.47.0 | 3 城 36 行 |
 
+## L 段: dashboard-tabs Tab 分类 (v0.48.0)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 AC | dash-1 | 5 tab (全部/价格画像/学区配套/通勤地铁/地图视图) + data-tab 属性 + body[data-dash-tab] CSS 隐藏 | ✅ v0.48.0 | 26 卡声明 |
+| 🟢 AC | dash-1 | 紫蓝渐变 tab 样式 + scale(1.03) active + overflow-x auto | ✅ v0.48.0 | 140rpx/tap |
+| 🟢 AC | dash-1 | applyTabClass + watch(activeTab) + setAttribute | ✅ v0.48.0 | H5 only |
+| 🟢 AC | dash-1 | smoke_dashboard_tabs.mjs: 5 截图 + 卡片数验证 (深圳 34/15/4/5/2) | ✅ v0.48.0 | 420/420 单测 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |
