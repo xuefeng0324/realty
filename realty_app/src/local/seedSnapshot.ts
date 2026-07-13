@@ -98,6 +98,7 @@ import decorateAgeCSV from "../../static/seed/decorate_age.csv?raw";
 import communityScatterCSV from "../../static/seed/community_scatter.csv?raw";
 import districtPolygonCSV from "../../static/seed/district_polygon.csv?raw";
 import communityGeoCSV from "../../static/seed/communities_geo.csv?raw";
+import schoolDimensionsCSV from "../../static/seed/school_dimensions.csv?raw";
 
 let cached: DataSnapshot | null = null;
 
@@ -139,7 +140,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       decorateAgeCSV: String(decorateAgeCSV ?? ""),
       communityScatterCSV: String(communityScatterCSV ?? ""),
       districtPolygonCSV: String(districtPolygonCSV ?? ""),
-      communityGeoCSV: String(communityGeoCSV ?? "")
+      communityGeoCSV: String(communityGeoCSV ?? ""),
+      schoolDimensionsCSV: String(schoolDimensionsCSV ?? "")
     },
     "seed:public-derived"
   );

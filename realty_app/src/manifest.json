@@ -2,8 +2,8 @@
   "name": "Realty App",
   "appid": "",
   "description": "Realty Analytics 手机端 App",
-"versionName": "0.46.0",
-		"versionCode": "48",
+"versionName": "0.47.0",
+		"versionCode": "49",
   "transformPx": false,
   "app-plus": {
     "usingComponents": true,

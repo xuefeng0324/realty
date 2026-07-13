@@ -3143,3 +3143,75 @@ export function getDistrictMap(cityId: number): DistrictMapResponse | null {
     }
   };
 }
+
+/* ============================
+ * v0.47.0 school-4: 学区指标加权细分
+ * ============================ */
+
+export interface SchoolDimRow {
+  schoolId: number;
+  schoolName: string;
+  districtName: string;
+  schoolType: string;
+  levelScore: number;
+  isGroup: number;
+  groupStrength: number;
+  districtBalance: number;
+  trendDelta: number;
+  compositeScore: number;
+}
+
+export interface SchoolDimResponse {
+  cityId: number;
+  cityName: string;
+  total: number;
+  /** 综合 top10 (按 composite_score 降序) */
+  topOverall: SchoolDimRow[];
+  /** 评级 top (按 levelScore 降序) */
+  topByLevel: SchoolDimRow[];
+  /** 集团校最强 top (isGroup=1, 按 groupStrength 降序) */
+  topByGroup: SchoolDimRow[];
+  /** 区域教育均衡 top (district_balance 降序) */
+  topByDistrict: SchoolDimRow[];
+  /** 涨幅 top (trendDelta 降序, 上升趋势) */
+  topByTrend: SchoolDimRow[];
+}
+
+export function getSchoolDimensions(cityId: number, minSchools = 1): SchoolDimResponse | null {
+  const city = store.getCityById(cityId);
+  if (!city) return null;
+  const all = store.getSchoolDimensionsByCity(cityId);
+  if (all.length < minSchools) return null;
+
+  const sortBy = (arr: SchoolDimRow[], key: keyof SchoolDimRow, desc = true): SchoolDimRow[] => {
+    return [...arr].sort((a, b) => {
+      const va = Number(a[key]);
+      const vb = Number(b[key]);
+      return desc ? vb - va : va - vb;
+    });
+  };
+
+  const rows: SchoolDimRow[] = all.map((d) => ({
+    schoolId: d.schoolId,
+    schoolName: d.schoolName,
+    districtName: d.districtName,
+    schoolType: d.schoolType,
+    levelScore: d.levelScore,
+    isGroup: d.isGroup,
+    groupStrength: d.groupStrength,
+    districtBalance: d.districtBalance,
+    trendDelta: d.trendDelta,
+    compositeScore: d.compositeScore
+  }));
+
+  return {
+    cityId,
+    cityName: city.cityName,
+    total: rows.length,
+    topOverall: sortBy(rows, "compositeScore").slice(0, 10),
+    topByLevel: sortBy(rows, "levelScore").slice(0, 10),
+    topByGroup: sortBy(rows.filter((r) => r.isGroup === 1), "groupStrength").slice(0, 10),
+    topByDistrict: sortBy(rows, "districtBalance").slice(0, 10),
+    topByTrend: sortBy(rows, "trendDelta").slice(0, 10)
+  };
+}

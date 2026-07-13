@@ -49,7 +49,8 @@ import type {
   LocalSchoolPremiumDistrict,
   LocalWangqianDistrictWeekly,
   LocalWeather,
-  LocalCommute
+  LocalCommute,
+  LocalSchoolDimension
 } from "./types";
 
 const POI_CATEGORIES = new Set(["subway", "school", "hospital", "mall", "park"]);
@@ -140,6 +141,8 @@ export interface SnapshotInputs {
   districtPolygonCSV?: string;
   /** v0.46.0: 社区 lng/lat */
   communityGeoCSV?: string;
+  /** v0.47.0: 学区指标细分 */
+  schoolDimensionsCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -535,6 +538,35 @@ function parseCommunityGeo(csvText: string): DataSnapshot["communityGeo"] {
       };
     })
     .filter((x): x is DataSnapshot["communityGeo"][number] => x !== null);
+}
+
+function parseSchoolDimensions(csvText: string): LocalSchoolDimension[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.city_id);
+      const sid = n(r.school_id);
+      if (cid == null || sid == null) return null;
+      const num = (v: string | undefined) => {
+        if (v === undefined || v === "") return 0;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : 0;
+      };
+      return {
+        cityId: cid,
+        cityName: s(r.city_name) ?? "",
+        schoolId: sid,
+        schoolName: s(r.school_name) ?? "",
+        districtName: s(r.district_name) ?? "",
+        schoolType: s(r.school_type) ?? "",
+        levelScore: num(r.level_score),
+        isGroup: num(r.is_group),
+        groupStrength: num(r.group_strength),
+        districtBalance: num(r.district_balance),
+        trendDelta: num(r.trend_delta),
+        compositeScore: num(r.composite_score)
+      };
+    })
+    .filter((x): x is LocalSchoolDimension => x !== null);
 }
 
 function parseLifeConvenience(csvText: string): LocalLifeConvenience[] {
@@ -1145,6 +1177,9 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
       ? parseDistrictPolygon(inputs.districtPolygonCSV, cityCodes)
       : [],
     communityGeo: inputs.communityGeoCSV ? parseCommunityGeo(inputs.communityGeoCSV) : [],
+    schoolDimensions: inputs.schoolDimensionsCSV
+      ? parseSchoolDimensions(inputs.schoolDimensionsCSV)
+      : [],
     availableWeeks
   };
 }

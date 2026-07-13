@@ -2987,4 +2987,95 @@ describe("build integrity", () => {
       expect(ratio).toBeGreaterThanOrEqual(0.8);
     });
   });
+
+  // v0.47.0 school-4: 学区指标加权细分
+  describe("v0.47.0 school-4 学区指标加权细分", () => {
+    it("school_dimensions.csv 存在 + 有 12 列", () => {
+      const csv = readFileSync(resolve(ROOT, "static/seed/school_dimensions.csv"), "utf8");
+      expect(csv).toMatch(/^(\ufeff)?city_id,city_name,school_id/);
+      expect(csv).toMatch(/composite_score/);
+      expect(csv).toMatch(/trend_delta/);
+      expect(csv).toMatch(/district_balance/);
+      const lines = csv.trim().split(/\r?\n/);
+      expect(lines.length).toBeGreaterThan(50);
+      // header 12 列
+      const header = lines[0].split(",");
+      expect(header.length).toBe(12);
+    });
+
+    it("compute_school_dimensions.py + 5 维全部输出", () => {
+      const script = readFileSync(resolve(ROOT, "scripts/compute_school_dimensions.py"), "utf8");
+      expect(script).toMatch(/school_dimensions\.csv/);
+      expect(script).toMatch(/latest_level_score_raw/);
+      expect(script).toMatch(/group_school_strength_raw/);
+      expect(script).toMatch(/district_balance_level_raw/);
+      expect(script).toMatch(/trend_delta_raw/);
+      expect(script).toMatch(/composite_score/);
+      expect(script).toMatch(/DEFAULT_WEIGHTS/);
+    });
+
+    it("types/parser/store/queries 实现", () => {
+      const types = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(types).toMatch(/LocalSchoolDimension/);
+      expect(types).toMatch(/compositeScore:/);
+
+      const importer = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(importer).toMatch(/function parseSchoolDimensions/);
+      expect(importer).toMatch(/schoolDimensionsCSV/);
+
+      const store = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(store).toMatch(/getSchoolDimensions\(/);
+      expect(store).toMatch(/getSchoolDimensionsByCity\(/);
+
+      const queries = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(queries).toMatch(/export function getSchoolDimensions/);
+      expect(queries).toMatch(/SchoolDimResponse/);
+      expect(queries).toMatch(/topOverall|topByLevel|topByGroup|topByDistrict|topByTrend/);
+    });
+
+    it("seedSnapshot + dataRefresher + settings.vue 接入", () => {
+      const seed = readFileSync(resolve(ROOT, "src/local/seedSnapshot.ts"), "utf8");
+      expect(seed).toMatch(/import schoolDimensionsCSV/);
+      expect(seed).toMatch(/schoolDimensionsCSV:/);
+
+      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
+      expect(ref).toMatch(/schoolDimensions:/);
+
+      const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
+      expect(settings).toMatch(/school_dimensions\.csv/);
+    });
+
+    it("dashboard.vue: 学区指标卡 + reloadSchoolDims + schoolDimsColor", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/学区 5 维评分/);
+      expect(dash).toMatch(/schoolDims/);
+      expect(dash).toMatch(/reloadSchoolDims/);
+      expect(dash).toMatch(/schoolDimsColor/);
+      expect(dash).toMatch(/compositeScore/);
+      expect(dash).toMatch(/topOverall/);
+    });
+
+    it("getSchoolDimensions 综合/4 维度 Top 正确", async () => {
+      const { setSnapshot } = await import("../src/local/store");
+      const { buildSeedSnapshot, resetSeedSnapshotCache } = await import("../src/local/seedSnapshot");
+      resetSeedSnapshotCache();
+      setSnapshot(buildSeedSnapshot());
+      const { getSchoolDimensions } = await import("../src/local/queries");
+      const resp = getSchoolDimensions(2); // 深圳
+      expect(resp).toBeTruthy();
+      expect(resp!.total).toBeGreaterThan(10);
+      // 5 列各返回 Top 10
+      expect(resp!.topOverall.length).toBeGreaterThan(0);
+      expect(resp!.topByLevel.length).toBeGreaterThan(0);
+      expect(resp!.topByGroup.length).toBeGreaterThan(0);
+      expect(resp!.topByDistrict.length).toBeGreaterThan(0);
+      expect(resp!.topByTrend.length).toBeGreaterThan(0);
+      // 综合 top 一定是 compositeScore 最高
+      expect(resp!.topOverall[0].compositeScore).toBeGreaterThanOrEqual(
+        resp!.topOverall[resp!.topOverall.length - 1].compositeScore
+      );
+      // 涨幅最大 > 0
+      expect(resp!.topByTrend[0].trendDelta).toBeGreaterThan(0);
+    });
+  });
 });

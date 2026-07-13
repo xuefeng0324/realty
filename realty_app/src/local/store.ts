@@ -33,6 +33,7 @@ import type {
   LocalDecorateAge,
   LocalCommunityScatter,
   LocalDistrictPolygon,
+  LocalSchoolDimension,
   LocalMetroWalk,
   LocalListing,
   LocalListingSchoolPremium,
@@ -489,6 +490,16 @@ export function getCommunityGeo() {
 
 export function getCommunityGeoByCity(cityId: number) {
   return (snapshot?.communityGeo ?? []).filter((g) => g.cityId === cityId);
+}
+
+/** v0.47.0: 学区指标细分 (全量) */
+export function getSchoolDimensions(): LocalSchoolDimension[] {
+  return snapshot?.schoolDimensions ?? [];
+}
+
+/** v0.47.0: 学区指标细分 (按城市) */
+export function getSchoolDimensionsByCity(cityId: number): LocalSchoolDimension[] {
+  return (snapshot?.schoolDimensions ?? []).filter((d) => d.cityId === cityId);
 }
 
 /**

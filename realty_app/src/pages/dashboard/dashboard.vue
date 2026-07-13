@@ -1260,6 +1260,83 @@
         </view>
       </view>
 
+      <!-- v0.47.0 school-4 学区指标加权细分 -->
+      <view v-if="schoolDims && schoolDims.total > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">🏫 学区 5 维评分 · {{ schoolDims.cityName }}</view>
+          <view class="muted">{{ schoolDims.total }} 校</view>
+        </view>
+        <view class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
+          综合 = 评级(40%) + 集团实力(20%) + 区域均衡(15%) + 趋势(10%) + 是否集团(5%)
+        </view>
+
+        <!-- 综合 Top 5 (横向 grid) -->
+        <view class="sd-block">
+          <view class="sd-block-title">🏆 综合 Top 5</view>
+          <view class="sd-ovr">
+            <view v-for="(row, i) in schoolDims.topOverall.slice(0, 5)" :key="'so_' + row.schoolId" class="sd-ovr-row">
+              <view class="sd-rank">{{ i + 1 }}</view>
+              <view class="sd-info">
+                <view class="sd-name">{{ row.schoolName }}</view>
+                <view class="sd-meta muted">{{ row.districtName }} · {{ row.schoolType }}</view>
+              </view>
+              <view class="sd-score-wrap">
+                <view class="sd-score-bar">
+                  <view class="sd-score-fill" :style="{ width: row.compositeScore + '%', background: schoolDimsColor(row.compositeScore) }"></view>
+                </view>
+                <view class="sd-score-num">{{ row.compositeScore.toFixed(0) }}</view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 各维度最强 (2x2 grid) -->
+        <view class="sd-block">
+          <view class="sd-block-title">📊 各维度最强 Top 3</view>
+          <view class="sd-grid">
+            <view class="sd-cell">
+              <view class="sd-cell-h">📈 评级 levelScore</view>
+              <view v-for="(r, i) in schoolDims.topByLevel.slice(0, 3)" :key="'lvl_' + r.schoolId" class="sd-row">
+                <text class="sd-rank-sm">{{ i + 1 }}</text>
+                <text class="sd-name-sm">{{ r.schoolName.slice(0, 14) }}</text>
+                <text class="sd-val">{{ r.levelScore.toFixed(1) }}</text>
+              </view>
+            </view>
+            <view class="sd-cell">
+              <view class="sd-cell-h">🏢 集团校实力</view>
+              <view v-for="(r, i) in schoolDims.topByGroup.slice(0, 3)" :key="'grp_' + r.schoolId" class="sd-row">
+                <text class="sd-rank-sm">{{ i + 1 }}</text>
+                <text class="sd-name-sm">{{ r.schoolName.slice(0, 14) }}</text>
+                <text class="sd-val">{{ r.groupStrength.toFixed(1) }}</text>
+              </view>
+              <view v-if="schoolDims.topByGroup.length === 0" class="muted" style="font-size: 22rpx">该城市暂无集团校</view>
+            </view>
+            <view class="sd-cell">
+              <view class="sd-cell-h">⚖️ 区域均衡</view>
+              <view v-for="(r, i) in schoolDims.topByDistrict.slice(0, 3)" :key="'dst_' + r.schoolId" class="sd-row">
+                <text class="sd-rank-sm">{{ i + 1 }}</text>
+                <text class="sd-name-sm">{{ r.schoolName.slice(0, 14) }}</text>
+                <text class="sd-val">{{ r.districtBalance.toFixed(1) }}</text>
+              </view>
+            </view>
+            <view class="sd-cell">
+              <view class="sd-cell-h">🚀 涨幅 (trend)</view>
+              <view v-for="(r, i) in schoolDims.topByTrend.slice(0, 3)" :key="'trd_' + r.schoolId" class="sd-row">
+                <text class="sd-rank-sm">{{ i + 1 }}</text>
+                <text class="sd-name-sm">{{ r.schoolName.slice(0, 14) }}</text>
+                <text :class="['sd-val', r.trendDelta > 0 ? 'sd-pos' : r.trendDelta < 0 ? 'sd-neg' : '']">
+                  {{ r.trendDelta > 0 ? '+' : '' }}{{ r.trendDelta.toFixed(2) }}
+                </text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：school_indicators.csv (5 原始指标列) → 城市内百分位排名 → 综合分 0-100
+        </view>
+      </view>
+
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
       <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card">
         <view class="row-between">
@@ -1676,7 +1753,10 @@ import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWa
   getOrientationFloorMatrix,
   getDecorateAgeMatrix,
   getCommunityScatter,
-  getDistrictMap, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type BedroomAreaResponse, type OrientationFloorResponse, type DecorateAgeResponse, type CommunityScatterResponse, type DistrictMapResponse } from "../../local/queries";
+  getDistrictMap,
+  getSchoolDimensions,
+  type SchoolDimResponse,
+  type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type BedroomAreaResponse, type OrientationFloorResponse, type DecorateAgeResponse, type CommunityScatterResponse, type DistrictMapResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -1744,6 +1824,8 @@ const decorateAge = ref<DecorateAgeResponse | null>(null);
 const scatter = ref<CommunityScatterResponse | null>(null);
 // v0.46.0 map-11: 行政区 + 社区 marker 地图
 const districtMap = ref<DistrictMapResponse | null>(null);
+// v0.47.0 school-4: 学区指标细分
+const schoolDims = ref<SchoolDimResponse | null>(null);
 // v0.38.0 trend-18: 区情画像
 const districtMeta = ref<DistrictMetaResponse | null>(null);
 const districtMetaSortBy = ref<"default" | "price" | "school" | "mom" | "listing">("price");
@@ -2106,6 +2188,23 @@ async function reloadDistrictMap() {
     console.warn("getDistrictMap failed:", e);
     districtMap.value = null;
   }
+}
+
+// v0.47.0 school-4: 学区指标细分
+async function reloadSchoolDims() {
+  try {
+    schoolDims.value = await getSchoolDimensions(app.cityId);
+  } catch (e) {
+    console.warn("getSchoolDimensions failed:", e);
+    schoolDims.value = null;
+  }
+}
+
+function schoolDimsColor(score: number): string {
+  if (score >= 70) return "#34d399";
+  if (score >= 50) return "#60a5fa";
+  if (score >= 30) return "#fbbf24";
+  return "#f87171";
 }
 
 const MAP_W = 660;
@@ -2539,6 +2638,8 @@ async function loadRankingAndDistrict() {
       await reloadScatter();
       // v0.46.0 map-11 行政区 + 社区 marker
       await reloadDistrictMap();
+      // v0.47.0 school-4 学区指标细分
+      await reloadSchoolDims();
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
         cityId: app.cityId,
@@ -5053,5 +5154,121 @@ onShow(async () => {
   fill: #991b1b;
   text-shadow: 0 0 3px rgba(255, 255, 255, 0.9);
   pointer-events: none;
+}
+
+/* v0.47.0 school-4: 学区指标 */
+.sd-block {
+  margin-bottom: 16rpx;
+}
+.sd-block-title {
+  font-weight: 600;
+  font-size: 26rpx;
+  margin: 12rpx 0 8rpx;
+  color: #1e293b;
+}
+.sd-ovr {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+.sd-ovr-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 10rpx 12rpx;
+  background: #f8fafc;
+  border-radius: 8rpx;
+}
+.sd-rank {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #6366f1;
+  min-width: 28rpx;
+  text-align: center;
+}
+.sd-info {
+  flex: 1;
+  min-width: 0;
+}
+.sd-name {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sd-meta {
+  font-size: 20rpx;
+  margin-top: 2rpx;
+}
+.sd-score-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 110rpx;
+}
+.sd-score-bar {
+  width: 100rpx;
+  height: 8rpx;
+  background: #e2e8f0;
+  border-radius: 4rpx;
+  overflow: hidden;
+  margin-bottom: 4rpx;
+}
+.sd-score-fill {
+  height: 100%;
+  border-radius: 4rpx;
+}
+.sd-score-num {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #1e293b;
+}
+.sd-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12rpx;
+}
+.sd-cell {
+  background: #f8fafc;
+  border-radius: 8rpx;
+  padding: 12rpx;
+}
+.sd-cell-h {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 6rpx;
+}
+.sd-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 22rpx;
+  line-height: 1.7;
+}
+.sd-rank-sm {
+  font-weight: 700;
+  color: #6366f1;
+  width: 18rpx;
+  text-align: center;
+}
+.sd-name-sm {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sd-val {
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 22rpx;
+}
+.sd-pos {
+  color: #16a34a;
+}
+.sd-neg {
+  color: #dc2626;
 }
 </style>

@@ -36,6 +36,22 @@ export interface LocalSchoolIndicator {
   trendDeltaRaw: number | null;
 }
 
+/** v0.47.0 school-4 学区指标加权细分 */
+export interface LocalSchoolDimension {
+  cityId: number;
+  cityName: string;
+  schoolId: number;
+  schoolName: string;
+  districtName: string;
+  schoolType: string;
+  levelScore: number;
+  isGroup: number;
+  groupStrength: number;
+  districtBalance: number;
+  trendDelta: number;
+  compositeScore: number;
+}
+
 export interface LocalListing {
   listingId: number;
   cityId: number;
@@ -678,6 +694,8 @@ export interface DataSnapshot {
     lat: number;
     lng: number;
   }>;
+  /** v0.47.0: 学区指标细分 (5 维) (scripts/compute_school_dimensions.py) */
+  schoolDimensions: LocalSchoolDimension[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }
