@@ -430,6 +430,15 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 AC | map-11 | dashboard **inline SVG 地图** (district path + 区 label + 社区 marker) | ✅ v0.46.0 | fill-rule: evenodd 处理洞 |
 | 🟢 AC | map-11 | smoke_map.mjs E2E + screenshots | ✅ v0.46.0 | 深圳 10 district + 8 markers |
 
+## K 段: school-4 学区指标加权细分 (v0.47.0)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 AC | school-4 | compute_school_dimensions.py 5 维百分位 + 综合 0-100 | ✅ v0.47.0 | 58 校 (3 城 × 20/24/14) |
+| 🟢 AC | school-4 | types/parser/store/queries 全栈 (schoolDimensions[]) | ✅ v0.47.0 | 6 单测 |
+| 🟢 AC | school-4 | dashboard 「🏫 学区 5 维评分」卡 (综合 Top 5 + 4 维 Top 3) | ✅ v0.47.0 | 2x2 grid + 进度条 |
+| 🟢 AC | school-4 | smoke_school_dims.mjs E2E + screenshots | ✅ v0.47.0 | 3 城 36 行 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |
