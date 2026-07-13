@@ -2977,3 +2977,94 @@ export function getDecorateAgeMatrix(params: {
     cityMedian
   };
 }
+
+/**
+ * v0.45.0 trend-25: 总价 × 单价 双轴散点 (per community)
+ * 输出每个社区的散点坐标 + 4 象限分类
+ *   - "豪宅板块" (高单+高总)
+ *   - "学区刚需" (高单+低总)
+ *   - "改善低密" (低单+高总)
+ *   - "价值洼地" (低单+低总)
+ */
+export interface CommunityScatterPoint {
+  communityId: number;
+  communityName: string;
+  districtName: string;
+  count: number;
+  medianUnitPrice: number;
+  medianTotalPrice10w: number;
+  medianArea: number;
+  areaCohort: string;
+  quadrant: string;
+}
+
+export interface CommunityScatterResponse {
+  cityId: number;
+  cityName: string;
+  totalCount: number;
+  /** 所有散点 (per community) */
+  points: CommunityScatterPoint[];
+  /** 按 quadrant 分组 (用于 UI 分桶显示) */
+  byQuadrant: Record<string, CommunityScatterPoint[]>;
+  /** 城市中位单价 (用于坐标轴标尺) */
+  cityMedianUnit: number;
+  cityMedianTotal: number;
+  /** X 轴极值 */
+  xMin: number;
+  xMax: number;
+  /** Y 轴极值 */
+  yMin: number;
+  yMax: number;
+}
+
+const QUADRANT_ORDER = ["豪宅板块", "学区刚需", "改善低密", "价值洼地"];
+
+export function getCommunityScatter(params: { cityId: number }): CommunityScatterResponse | null {
+  const city = store.getCityById(params.cityId);
+  if (!city) return null;
+  const all = store.getCommunityScatterByCity(params.cityId);
+  if (all.length === 0) return null;
+
+  const points: CommunityScatterPoint[] = all.map((c) => ({
+    communityId: c.communityId,
+    communityName: c.communityName,
+    districtName: c.districtName,
+    count: c.count,
+    medianUnitPrice: c.medianUnitPrice,
+    medianTotalPrice10w: c.medianTotalPrice10w,
+    medianArea: c.medianArea,
+    areaCohort: c.areaCohort,
+    quadrant: c.quadrant
+  }));
+
+  // 按 quadrant 分组
+  const byQuadrant: Record<string, CommunityScatterPoint[]> = {};
+  for (const q of QUADRANT_ORDER) byQuadrant[q] = [];
+  for (const p of points) {
+    if (!byQuadrant[p.quadrant]) byQuadrant[p.quadrant] = [];
+    byQuadrant[p.quadrant].push(p);
+  }
+  // 每个 quadrant 内 按 median_unit_price 降序
+  for (const q of QUADRANT_ORDER) byQuadrant[q].sort((a, b) => b.medianUnitPrice - a.medianUnitPrice);
+
+  // 城市坐标 (用所有 listings 重算不可行, 直接从 points 推算中位)
+  const allUps = points.map((p) => p.medianUnitPrice).sort((a, b) => a - b);
+  const allTps = points.map((p) => p.medianTotalPrice10w).sort((a, b) => a - b);
+  const mid = Math.floor(allUps.length / 2);
+  const cityMedianUnit = allUps.length % 2 === 0 ? (allUps[mid - 1] + allUps[mid]) / 2 : allUps[mid];
+  const cityMedianTotal = allTps.length % 2 === 0 ? (allTps[mid - 1] + allTps[mid]) / 2 : allTps[mid];
+
+  return {
+    cityId: params.cityId,
+    cityName: city.cityName,
+    totalCount: points.reduce((s, p) => s + p.count, 0),
+    points,
+    byQuadrant,
+    cityMedianUnit,
+    cityMedianTotal,
+    xMin: Math.min(...allUps),
+    xMax: Math.max(...allUps),
+    yMin: Math.min(...allTps),
+    yMax: Math.max(...allTps)
+  };
+}

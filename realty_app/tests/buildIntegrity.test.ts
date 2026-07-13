@@ -2789,4 +2789,106 @@ describe("build integrity", () => {
       expect(worst.ageBucket).toBeTruthy();
     });
   });
+
+  // v0.45.0 trend-25: 社区 散点
+  describe("v0.45.0 trend-25 社区 总价 × 单价 散点", () => {
+    it("community_scatter.csv 存在 + 有列 + city_name 正确", () => {
+      const csv = readFileSync(resolve(ROOT, "static/seed/community_scatter.csv"), "utf8");
+      expect(csv).toMatch(/^(\ufeff)?city_id,city_name,community_id,community_name/);
+      const lines = csv.trim().split(/\r?\n/);
+      expect(lines.length).toBeGreaterThan(20);  // at least 21 rows
+      expect(csv).toMatch(/,广州,/);
+      expect(csv).toMatch(/,深圳,/);
+      expect(csv).toMatch(/,珠海,/);
+      expect(csv).toMatch(/quadrant/);
+    });
+
+    it("compute_community_scatter.py + types/parser/store/queries 都实现", () => {
+      const script = readFileSync(resolve(ROOT, "scripts/compute_community_scatter.py"), "utf8");
+      expect(script).toMatch(/quadrant/);
+      expect(script).toMatch(/community_scatter\.csv/);
+      expect(script).toMatch(/area_cohort/);
+
+      const types = readFileSync(resolve(ROOT, "src/local/types.ts"), "utf8");
+      expect(types).toMatch(/LocalCommunityScatter/);
+      expect(types).toMatch(/communityScatter:\s*LocalCommunityScatter\[\]/);
+      expect(types).toMatch(/quadrant:/);
+
+      const importer = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
+      expect(importer).toMatch(/function parseCommunityScatter/);
+      expect(importer).toMatch(/communityScatterCSV/);
+
+      const store = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
+      expect(store).toMatch(/getCommunityScatter\(/);
+      expect(store).toMatch(/getCommunityScatterByCity\(/);
+
+      const queries = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
+      expect(queries).toMatch(/export function getCommunityScatter/);
+      expect(queries).toMatch(/byQuadrant/);
+      expect(queries).toMatch(/cityMedianUnit/);
+      expect(queries).toMatch(/cityMedianTotal/);
+    });
+
+    it("seedSnapshot.ts + dataRefresher.ts + settings.vue 都接入", () => {
+      const seed = readFileSync(resolve(ROOT, "src/local/seedSnapshot.ts"), "utf8");
+      expect(seed).toMatch(/import communityScatterCSV/);
+      expect(seed).toMatch(/communityScatterCSV:/);
+
+      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
+      expect(ref).toMatch(/communityScatter:/);
+
+      const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
+      expect(settings).toMatch(/community_scatter\.csv/);
+      expect(settings).toMatch(/communityScatterCSV:/);
+    });
+
+    it("dashboard.vue 散点卡 + SVG + 4 quadrant 分桶", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/总价 × 单价 散点/);
+      expect(dash).toMatch(/scatter/);
+      expect(dash).toMatch(/reloadScatter/);
+      expect(dash).toMatch(/scatter-svg/);
+      expect(dash).toMatch(/scatterX/);
+      expect(dash).toMatch(/scatterY/);
+      expect(dash).toMatch(/scatterColor/);
+      expect(dash).toMatch(/豪宅板块/);
+      expect(dash).toMatch(/学区刚需/);
+      expect(dash).toMatch(/改善低密/);
+      expect(dash).toMatch(/价值洼地/);
+      expect(dash).toMatch(/circle/);
+    });
+
+    it("getCommunityScatter 数据正确 + 4 quadrant 都有数据", async () => {
+      const { setSnapshot } = await import("../src/local/store");
+      const { buildSeedSnapshot, resetSeedSnapshotCache } = await import("../src/local/seedSnapshot");
+      resetSeedSnapshotCache();
+      setSnapshot(buildSeedSnapshot());
+      const { getCommunityScatter } = await import("../src/local/queries");
+      const resp = getCommunityScatter({ cityId: 2 });
+      expect(resp).toBeTruthy();
+      expect(resp!.points.length).toBeGreaterThan(5);
+      expect(resp!.cityMedianUnit).toBeGreaterThan(0);
+      expect(resp!.cityMedianTotal).toBeGreaterThan(0);
+      // 4 quadrant 至少存在 2 个
+      let nonEmpty = 0;
+      for (const q of ["豪宅板块", "学区刚需", "改善低密", "价值洼地"]) {
+        if (resp!.byQuadrant[q]?.length > 0) nonEmpty++;
+      }
+      expect(nonEmpty).toBeGreaterThanOrEqual(2);
+      // x range valid
+      expect(resp!.xMax).toBeGreaterThan(resp!.xMin);
+      expect(resp!.yMax).toBeGreaterThan(resp!.yMin);
+    });
+
+    it("深圳 应至少有 5 个社区散点 (主测试城)", async () => {
+      const { setSnapshot } = await import("../src/local/store");
+      const { buildSeedSnapshot, resetSeedSnapshotCache } = await import("../src/local/seedSnapshot");
+      resetSeedSnapshotCache();
+      setSnapshot(buildSeedSnapshot());
+      const { getCommunityScatter } = await import("../src/local/queries");
+      const resp = getCommunityScatter({ cityId: 2 });
+      expect(resp).toBeTruthy();
+      expect(resp!.points.length).toBeGreaterThanOrEqual(5);
+    });
+  });
 });

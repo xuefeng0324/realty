@@ -553,6 +553,27 @@ export interface LocalDecorateAge {
 }
 
 /**
+ * v0.45.0: 社区 总价 × 单价 双轴散点 (scripts/compute_community_scatter.py)
+ * per (city, community): median_unit_price, median_total_price_10w, median_area, area_cohort, quadrant
+ * quadrant: "豪宅板块" / "学区刚需" / "改善低密" / "价值洼地"
+ */
+export interface LocalCommunityScatter {
+  cityId: number;
+  cityName: string;
+  communityId: number;
+  communityName: string;
+  districtName: string;
+  count: number;
+  medianUnitPrice: number;
+  medianTotalPrice10w: number;
+  medianArea: number;
+  /** 面积段: "小户型(<60)" / "改善(60-110)" / "大户型(>110)" */
+  areaCohort: string;
+  /** 象限: by city_median_unit & city_median_total */
+  quadrant: string;
+}
+
+/**
  * 板块级周维度价格序列（`scripts/compute_district_trend.py`）。
  * 由 listings.csv 按 (city_id, district_name, week_end) 聚合，
  * 用于 dashboard 展示"区级近 N 周房价趋势"。
@@ -627,6 +648,8 @@ export interface DataSnapshot {
   orientationFloor: LocalOrientationFloor[];
   /** v0.44.0: 装修 × 楼龄 溢价分析 (scripts/compute_decorate_age.py) */
   decorateAge: LocalDecorateAge[];
+  /** v0.45.0: 社区 总价 × 单价 散点 (scripts/compute_community_scatter.py) */
+  communityScatter: LocalCommunityScatter[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

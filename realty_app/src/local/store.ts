@@ -31,6 +31,7 @@ import type {
   LocalBedroomArea,
   LocalOrientationFloor,
   LocalDecorateAge,
+  LocalCommunityScatter,
   LocalMetroWalk,
   LocalListing,
   LocalListingSchoolPremium,
@@ -463,6 +464,14 @@ export function getDecorateAge(): LocalDecorateAge[] {
 
 export function getDecorateAgeByCity(cityId: number): LocalDecorateAge[] {
   return (snapshot?.decorateAge ?? []).filter((d) => d.cityId === cityId);
+}
+
+export function getCommunityScatter(): LocalCommunityScatter[] {
+  return snapshot?.communityScatter ?? [];
+}
+
+export function getCommunityScatterByCity(cityId: number): LocalCommunityScatter[] {
+  return (snapshot?.communityScatter ?? []).filter((c) => c.cityId === cityId);
 }
 
 /**

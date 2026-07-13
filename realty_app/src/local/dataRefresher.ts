@@ -166,6 +166,7 @@ function mergeListingsIntoSnapshot(
     bedroomArea: existing?.bedroomArea ?? [],
     orientationFloor: existing?.orientationFloor ?? [],
     decorateAge: existing?.decorateAge ?? [],
+    communityScatter: existing?.communityScatter ?? [],
     availableWeeks
   };
 }

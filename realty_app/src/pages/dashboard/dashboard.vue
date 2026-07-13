@@ -1068,6 +1068,127 @@
         </view>
       </view>
 
+      <!-- v0.45.0 trend-25 社区 总价 × 单价 双轴散点 -->
+      <view v-if="scatter && scatter.points.length > 0" class="card">
+        <view class="row-between">
+          <view class="card-title">💹 社区 总价 × 单价 散点 · {{ scatter.cityName }}</view>
+          <view class="muted">共 {{ scatter.points.length }} 社区 (≥3 套)</view>
+        </view>
+        <view class="scatter-legend">
+          <view class="scatter-leg-item">
+            <view class="scatter-leg-dot" style="background:#dc2626"></view>
+            <text>豪宅板块 ({{ scatter.byQuadrant["豪宅板块"]?.length || 0 }})</text>
+          </view>
+          <view class="scatter-leg-item">
+            <view class="scatter-leg-dot" style="background:#059669"></view>
+            <text>学区刚需 ({{ scatter.byQuadrant["学区刚需"]?.length || 0 }})</text>
+          </view>
+          <view class="scatter-leg-item">
+            <view class="scatter-leg-dot" style="background:#2563eb"></view>
+            <text>改善低密 ({{ scatter.byQuadrant["改善低密"]?.length || 0 }})</text>
+          </view>
+          <view class="scatter-leg-item">
+            <view class="scatter-leg-dot" style="background:#9333ea"></view>
+            <text>价值洼地 ({{ scatter.byQuadrant["价值洼地"]?.length || 0 }})</text>
+          </view>
+        </view>
+        <view class="scatter-wrap">
+          <svg :viewBox="`0 0 ${SCATTER_W} ${SCATTER_H}`" class="scatter-svg" xmlns="http://www.w3.org/2000/svg">
+            <!-- 中位十字线 -->
+            <line
+              :x1="scatterX(scatter.cityMedianUnit, scatter.xMin, scatter.xMax)"
+              :y1="SCATTER_MARGIN.top"
+              :x2="scatterX(scatter.cityMedianUnit, scatter.xMin, scatter.xMax)"
+              :y2="SCATTER_H - SCATTER_MARGIN.bottom"
+              stroke="#94a3b8"
+              stroke-width="1"
+              stroke-dasharray="4,3"
+            />
+            <line
+              :x1="SCATTER_MARGIN.left"
+              :y1="scatterY(scatter.cityMedianTotal, scatter.yMin, scatter.yMax)"
+              :x2="SCATTER_W - SCATTER_MARGIN.right"
+              :y2="scatterY(scatter.cityMedianTotal, scatter.yMin, scatter.yMax)"
+              stroke="#94a3b8"
+              stroke-width="1"
+              stroke-dasharray="4,3"
+            />
+            <!-- X axis ticks -->
+            <g v-if="scatterAxisTicks">
+              <text
+                v-for="(tx, i) in scatterAxisTicks.xs"
+                :key="'xt_' + i"
+                :x="scatterX(tx, scatter.xMin, scatter.xMax)"
+                :y="SCATTER_H - SCATTER_MARGIN.bottom + 18"
+                text-anchor="middle"
+                font-size="11"
+                fill="#64748b"
+              >{{ Math.round(tx / 1000) }}k</text>
+              <text
+                v-for="(ty, i) in scatterAxisTicks.ys"
+                :key="'yt_' + i"
+                :x="SCATTER_MARGIN.left - 8"
+                :y="scatterY(ty, scatter.yMin, scatter.yMax) + 4"
+                text-anchor="end"
+                font-size="11"
+                fill="#64748b"
+              >{{ Math.round(ty) }}</text>
+            </g>
+            <!-- Axes labels -->
+            <text
+              :x="SCATTER_W / 2"
+              :y="SCATTER_H - 8"
+              text-anchor="middle"
+              font-size="13"
+              fill="#0f172a"
+              font-weight="600"
+            >单价 元/㎡</text>
+            <text
+              :x="14"
+              :y="SCATTER_H / 2"
+              text-anchor="middle"
+              font-size="13"
+              fill="#0f172a"
+              font-weight="600"
+              :transform="`rotate(-90, 14, ${SCATTER_H / 2})`"
+            >总价 万</text>
+            <!-- Points -->
+            <circle
+              v-for="p in scatter.points"
+              :key="'pt_' + p.communityId"
+              :cx="scatterX(p.medianUnitPrice, scatter.xMin, scatter.xMax)"
+              :cy="scatterY(p.medianTotalPrice10w, scatter.yMin, scatter.yMax)"
+              :r="Math.max(6, Math.min(14, p.count / 2))"
+              :fill="scatterColor(p.quadrant)"
+              fill-opacity="0.55"
+              stroke="white"
+              stroke-width="1.5"
+            />
+          </svg>
+        </view>
+        <view v-for="q in ['豪宅板块', '学区刚需', '改善低密', '价值洼地']" :key="'q_' + q" class="scatter-q-section">
+          <view class="scatter-q-title">
+            <view class="scatter-q-dot" :style="{ background: scatterColor(q) }"></view>
+            <text>{{ q }} ({{ scatter.byQuadrant[q]?.length || 0 }})</text>
+          </view>
+          <view
+            v-for="(p, i) in (scatter.byQuadrant[q] || []).slice(0, 3)"
+            :key="'qrow_' + q + '_' + i"
+            class="scatter-row"
+          >
+            <text class="scatter-rank">#{{ i + 1 }}</text>
+            <text class="scatter-name">{{ p.communityName }}</text>
+            <text class="scatter-meta">{{ p.areaCohort }} {{ Math.round(p.medianArea) }}㎡</text>
+            <text class="scatter-up">{{ Math.round(p.medianUnitPrice / 1000) }}k</text>
+            <text class="scatter-tp">{{ Math.round(p.medianTotalPrice10w) }}万</text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：listings.csv (community median) → scripts/compute_community_scatter.py。<br>
+          X=单价 元/㎡, Y=总价 万元; 虚线=城市中位, 4 象限: 豪宅板块 / 学区刚需 / 改善低密 / 价值洼地
+        </view>
+      </view>
+
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
       <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card">
         <view class="row-between">
@@ -1482,7 +1603,8 @@ import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWa
   getListingFreshnessRanking,
   getBedroomAreaDistribution,
   getOrientationFloorMatrix,
-  getDecorateAgeMatrix, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type BedroomAreaResponse, type OrientationFloorResponse, type DecorateAgeResponse } from "../../local/queries";
+  getDecorateAgeMatrix,
+  getCommunityScatter, type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type BedroomAreaResponse, type OrientationFloorResponse, type DecorateAgeResponse, type CommunityScatterResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -1546,6 +1668,8 @@ const bedroomArea = ref<BedroomAreaResponse | null>(null);
 const orientationFloor = ref<OrientationFloorResponse | null>(null);
 // v0.44.0 trend-24: 装修 × 楼龄 溢价分析
 const decorateAge = ref<DecorateAgeResponse | null>(null);
+// v0.45.0 trend-25: 总价 × 单价 双轴散点
+const scatter = ref<CommunityScatterResponse | null>(null);
 // v0.38.0 trend-18: 区情画像
 const districtMeta = ref<DistrictMetaResponse | null>(null);
 const districtMetaSortBy = ref<"default" | "price" | "school" | "mom" | "listing">("price");
@@ -1847,6 +1971,58 @@ function daCellPctLabel(cell: { count: number; premiumPct: number }): string {
   const sign = p > 0 ? "+" : "";
   return `${sign}${p}%`;
 }
+
+// v0.45.0 trend-25: 总价 × 单价 散点
+const SCATTER_W = 660; // SVG width
+const SCATTER_H = 360; // SVG height
+const SCATTER_MARGIN = { top: 20, right: 16, bottom: 50, left: 70 };
+
+async function reloadScatter() {
+  try {
+    scatter.value = await getCommunityScatter({ cityId: app.cityId });
+  } catch (e) {
+    console.warn("getCommunityScatter failed:", e);
+    scatter.value = null;
+  }
+}
+
+/** 散点坐标 (基于 SVG viewBox 0..SCATTER_W, 0..SCATTER_H) */
+function scatterX(up: number, xMin: number, xMax: number): number {
+  const range = Math.max(xMax - xMin, 1);
+  const innerW = SCATTER_W - SCATTER_MARGIN.left - SCATTER_MARGIN.right;
+  return SCATTER_MARGIN.left + ((up - xMin) / range) * innerW;
+}
+function scatterY(tp: number, yMin: number, yMax: number): number {
+  const range = Math.max(yMax - yMin, 1);
+  const innerH = SCATTER_H - SCATTER_MARGIN.top - SCATTER_MARGIN.bottom;
+  return SCATTER_MARGIN.top + innerH - ((tp - yMin) / range) * innerH;
+}
+
+function scatterColor(q: string): string {
+  switch (q) {
+    case "豪宅板块": return "#dc2626";
+    case "学区刚需": return "#059669";
+    case "改善低密": return "#2563eb";
+    case "价值洼地": return "#9333ea";
+    default: return "#64748b";
+  }
+}
+
+const scatterAxisTicks = computed(() => {
+  if (!scatter.value) return null;
+  const xMin = scatter.value.xMin;
+  const xMax = scatter.value.xMax;
+  const yMin = scatter.value.yMin;
+  const yMax = scatter.value.yMax;
+  // 4 ticks each
+  const xs: number[] = [];
+  const ys: number[] = [];
+  for (let i = 0; i <= 3; i++) {
+    xs.push(xMin + (xMax - xMin) * (i / 3));
+    ys.push(yMin + (yMax - yMin) * (i / 3));
+  }
+  return { xs, ys };
+});
 function mbBandClass(score: number) {
   if (score >= 75) return "mb-tag-green";
   if (score >= 40) return "mb-tag-orange";
@@ -2237,6 +2413,8 @@ async function loadRankingAndDistrict() {
       await reloadOrientationFloor();
       // v0.44.0 trend-24 装修 × 楼龄
       await reloadDecorateAge();
+      // v0.45.0 trend-25 总价 × 单价 散点
+      await reloadScatter();
       // v0.11.0 学区溢价榜
       schoolPremiumOverview.value = await getSchoolPremiumRank({
         cityId: app.cityId,
@@ -4610,4 +4788,93 @@ onShow(async () => {
 .da-cell-flat { background: #fef3c7; color: #78350f; }
 .da-cell-down { background: #fca5a5; color: #7f1d1d; }
 .da-cell-down-strong { background: #dc2626; color: #fff; }
+
+/* v0.45.0 trend-25: 总价 × 单价 散点 SVG */
+.scatter-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  color: #475569;
+}
+.scatter-leg-item {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+.scatter-leg-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  display: inline-block;
+}
+.scatter-wrap {
+  width: 100%;
+  margin-top: 12rpx;
+  background: #fafafa;
+  border-radius: 8rpx;
+  padding: 8rpx;
+}
+.scatter-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.scatter-q-section {
+  margin-top: 18rpx;
+}
+.scatter-q-title {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 6rpx;
+}
+.scatter-q-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  display: inline-block;
+}
+.scatter-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 8rpx 12rpx;
+  font-size: 22rpx;
+  background: #f8fafc;
+  border-radius: 6rpx;
+  margin-bottom: 4rpx;
+}
+.scatter-rank {
+  font-weight: 700;
+  color: #475569;
+  width: 40rpx;
+}
+.scatter-name {
+  flex: 1;
+  color: #0f172a;
+}
+.scatter-meta {
+  color: #64748b;
+  font-size: 20rpx;
+  width: 160rpx;
+}
+.scatter-up {
+  color: #059669;
+  font-weight: 600;
+  font-size: 22rpx;
+  width: 90rpx;
+  text-align: right;
+}
+.scatter-tp {
+  color: #475569;
+  font-weight: 500;
+  font-size: 22rpx;
+  width: 90rpx;
+  text-align: right;
+}
 </style>

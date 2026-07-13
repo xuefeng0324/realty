@@ -412,6 +412,15 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 AC | trend-24 | dashboard 装修 × 楼龄卡 + 矩阵 + 颜色 | ✅ v0.44.0 | 4×6=24 cells max |
 | 🟢 AC | trend-24 | smoke_decorate_age.mjs E2E + screenshots | ✅ v0.44.0 | 珠海 -41.2% |
 
+## I 段补 3：trend-25 社区 总价 × 单价 散点 (v0.45.0)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 AC | trend-25 | compute_community_scatter.py 写 24 社区 (3 城) | ✅ v0.45.0 | 4 quadrant (城市中位分割) |
+| 🟢 AC | trend-25 | types + parse + store + queries | ✅ v0.45.0 | total 由 unit×area 计算 |
+| 🟢 AC | trend-25 | dashboard **inline SVG 散点图** + 4 quadrant 列表 | ✅ v0.45.0 | 660×360 + 虚线十字 + 圆点 |
+| 🟢 AC | trend-25 | smoke_scatter.mjs E2E + screenshots | ✅ v0.45.0 | 广州 8 圆 / 深圳 11 圆 |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

@@ -39,6 +39,7 @@ import type {
   LocalBedroomArea,
   LocalOrientationFloor,
   LocalDecorateAge,
+  LocalCommunityScatter,
   LocalMetroWalk,
   LocalPoi,
   LocalSchool,
@@ -132,6 +133,8 @@ export interface SnapshotInputs {
   orientationFloorCSV?: string;
   /** v0.44.0: 装修 × 楼龄 溢价分析 */
   decorateAgeCSV?: string;
+  /** v0.45.0: 社区 散点 */
+  communityScatterCSV?: string;
 }
 
 function weekEndFromDate(iso: string): string {
@@ -424,6 +427,34 @@ function parseDecorateAge(csvText: string): LocalDecorateAge[] {
       } as LocalDecorateAge;
     })
     .filter((x): x is LocalDecorateAge => x !== null);
+}
+
+function parseCommunityScatter(csvText: string): LocalCommunityScatter[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.city_id);
+      const commId = n(r.community_id);
+      if (cid == null || commId == null) return null;
+      const num = (v: string | undefined) => {
+        if (v === undefined || v === "") return 0;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : 0;
+      };
+      return {
+        cityId: cid,
+        cityName: s(r.city_name) ?? "",
+        communityId: commId,
+        communityName: s(r.community_name) ?? "",
+        districtName: s(r.district_name) ?? "",
+        count: num(r.count ?? undefined),
+        medianUnitPrice: num(r.median_unit_price ?? undefined),
+        medianTotalPrice10w: num(r.median_total_price_10w ?? undefined),
+        medianArea: num(r.median_area ?? undefined),
+        areaCohort: s(r.area_cohort) ?? "",
+        quadrant: s(r.quadrant) ?? ""
+      } as LocalCommunityScatter;
+    })
+    .filter((x): x is LocalCommunityScatter => x !== null);
 }
 
 function parseLifeConvenience(csvText: string): LocalLifeConvenience[] {
@@ -1024,6 +1055,9 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
       : [],
     decorateAge: inputs.decorateAgeCSV
       ? parseDecorateAge(inputs.decorateAgeCSV)
+      : [],
+    communityScatter: inputs.communityScatterCSV
+      ? parseCommunityScatter(inputs.communityScatterCSV)
       : [],
     availableWeeks
   };

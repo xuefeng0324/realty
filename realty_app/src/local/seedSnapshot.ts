@@ -95,6 +95,7 @@ import listingFreshnessCSV from "../../static/seed/listing_freshness.csv?raw";
 import bedroomAreaCSV from "../../static/seed/bedroom_area.csv?raw";
 import orientationFloorCSV from "../../static/seed/orientation_floor.csv?raw";
 import decorateAgeCSV from "../../static/seed/decorate_age.csv?raw";
+import communityScatterCSV from "../../static/seed/community_scatter.csv?raw";
 
 let cached: DataSnapshot | null = null;
 
@@ -133,7 +134,8 @@ export function buildSeedSnapshot(): DataSnapshot {
       listingFreshnessCSV: String(listingFreshnessCSV ?? ""),
       bedroomAreaCSV: String(bedroomAreaCSV ?? ""),
       orientationFloorCSV: String(orientationFloorCSV ?? ""),
-      decorateAgeCSV: String(decorateAgeCSV ?? "")
+      decorateAgeCSV: String(decorateAgeCSV ?? ""),
+      communityScatterCSV: String(communityScatterCSV ?? "")
     },
     "seed:public-derived"
   );
