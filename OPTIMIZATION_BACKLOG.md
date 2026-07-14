@@ -509,6 +509,17 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 AC | detail-1 | goDashboard switchTab + goListing redirectTo | ✅ v0.54.0 | 新增 2 个导航函数 |
 | 🟢 AC | detail-1 | buildIntegrity +4 测试 + E2E (4 按钮 + 10 sibling + 跳转验证) | ✅ v0.54.0 | 443/443 通过 + 3 screenshots |
 
+## S 段: hero-1 首页 hero 轮播 + 快捷入口 (v0.55.0)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 AC | hero-1 | 顶部大盘轮播 (6 张城市级快照卡) | ✅ v0.55.0 | 总挂牌/单价/总价/LPR/通勤/学区 |
+| 🟢 AC | hero-1 | scroll-view 横滑 + scroll-snap 对齐 + 5s 自动滚动 | ✅ v0.55.0 | onMounted startHeroAuto + onUnmounted stop |
+| 🟢 AC | hero-1 | 6 个圆点指示器, 激活拉长为胶囊 | ✅ v0.55.0 | hero-dot--active |
+| 🟢 AC | hero-1 | 8 个快捷入口图标网格 (4×2) + 3 类 action | ✅ v0.55.0 | tab/page/city |
+| 🟢 AC | hero-1 | 6 类数据源 (listingCount/medianUnitPrice/medianTotalPrice/lpr/commuteRanking/schoolDims) | ✅ v0.55.0 | 复用现有 query, 无新 CSV |
+| 🟢 AC | hero-1 | buildIntegrity +4 测试 + E2E (6 slides + 8 tiles + 跳转) | ✅ v0.55.0 | 447/447 通过 + 3 screenshots |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

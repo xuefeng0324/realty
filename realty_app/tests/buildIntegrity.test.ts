@@ -3350,4 +3350,48 @@ describe("build integrity", () => {
       expect(f).toMatch(/getCommunityById/);
     });
   });
+
+  // v0.55.0 hero-1: 顶部大盘轮播 + 快捷入口
+  describe("v0.55.0 hero-1 首页 hero 轮播 + quick 网格", () => {
+    it("dashboard.vue: hero-carousel + scroll-view + dots 渲染", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/class="hero-carousel"/);
+      expect(dash).toMatch(/<scroll-view[\s\S]{0,200}class="hero-scroll"/);
+      expect(dash).toMatch(/v-for="\(s, i\) in heroSlides"/);
+      expect(dash).toMatch(/class="hero-dots"/);
+      expect(dash).toMatch(/hero-dot--active/);
+    });
+
+    it("dashboard.vue: 6 卡片数据源 (总挂牌/均价/总价/LPR/通勤/学区)", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/const heroSlides = computed<HeroSlide\[\]>/);
+      expect(dash).toMatch(/总挂牌/);
+      expect(dash).toMatch(/全市中位单价/);
+      expect(dash).toMatch(/全市中位总价/);
+      expect(dash).toMatch(/5Y\+ LPR · 首套房贷/);
+      expect(dash).toMatch(/通勤 → /);
+      expect(dash).toMatch(/学区指标/);
+    });
+
+    it("dashboard.vue: quick-grid 8 个 tile + 3 类 action", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/class="quick-grid"/);
+      expect(dash).toMatch(/v-for="q in QUICK_SHORTCUTS"/);
+      expect(dash).toMatch(/QUICK_SHORTCUTS: QuickShortcut\[\]/);
+      expect(dash).toMatch(/function quickClick\(q: QuickShortcut\)/);
+      expect(dash).toMatch(/key: "city"/);
+      expect(dash).toMatch(/key: "settings"/);
+    });
+
+    it("dashboard.vue: hero 自动滚动 + listingCount/medianUnitPrice 聚合", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      expect(dash).toMatch(/function startHeroAuto/);
+      expect(dash).toMatch(/function stopHeroAuto/);
+      expect(dash).toMatch(/setInterval\(heroAdvance, 5000\)/);
+      expect(dash).toMatch(/const listingCount = computed/);
+      expect(dash).toMatch(/const medianUnitPrice = computed/);
+      expect(dash).toMatch(/const medianTotalPrice = computed/);
+      expect(dash).toMatch(/onUnmounted\(\(\) => \{[\s\S]{0,100}stopHeroAuto\(\)/);
+    });
+  });
 });

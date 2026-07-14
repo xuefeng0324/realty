@@ -212,6 +212,56 @@
         </view>
       </view>
 
+      <!-- v0.55.0 hero-1: 顶部大盘轮播 + 快捷入口图标网格 -->
+      <view class="hero-section" v-if="heroSlides.length > 0">
+        <view class="hero-carousel">
+          <scroll-view
+            class="hero-scroll"
+            scroll-x
+            :show-scrollbar="false"
+            :scroll-into-view="heroScrollIntoView"
+            @scroll="onHeroScroll"
+            @scrollend="onHeroScrollEnd"
+          >
+            <view
+              v-for="(s, i) in heroSlides"
+              :key="'hero_' + i"
+              :id="'hero_' + i"
+              :class="['hero-slide', 'hero-slide--' + s.tone]"
+              @click="heroClick(i)"
+            >
+              <view class="hero-slide-row">
+                <view class="hero-slide-icon">{{ s.icon }}</view>
+                <view class="hero-slide-mid">
+                  <view class="hero-slide-label">{{ s.label }}</view>
+                  <view class="hero-slide-val">{{ s.value }}<text v-if="s.unit" class="hero-slide-unit">{{ s.unit }}</text></view>
+                  <view class="hero-slide-sub muted">{{ s.sub }}</view>
+                </view>
+              </view>
+            </view>
+          </scroll-view>
+          <view class="hero-dots">
+            <view
+              v-for="(_, i) in heroSlides"
+              :key="'dot_' + i"
+              :class="['hero-dot', { 'hero-dot--active': heroIdx === i }]"
+              @click="heroIdx = i; heroScrollIntoView = 'hero_' + i"
+            ></view>
+          </view>
+        </view>
+        <view class="quick-grid">
+          <view
+            v-for="q in QUICK_SHORTCUTS"
+            :key="q.key"
+            class="quick-tile"
+            @click="quickClick(q)"
+          >
+            <view class="quick-tile-icon" :class="'quick-tile-icon--' + q.tone">{{ q.icon }}</view>
+            <view class="quick-tile-label">{{ q.label }}</view>
+          </view>
+        </view>
+      </view>
+
       <!-- 区/板块对比 -->
       <view class="card" data-tab="all,price">
         <view class="row-between">
@@ -1909,7 +1959,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
@@ -2452,6 +2502,191 @@ const loading = ref<boolean>(false);
 // v0.48.0 dashboard-tabs: 顶部 tab 切换
 type DashTabKey = "all" | "price" | "school" | "transit" | "map";
 const activeTab = ref<DashTabKey>("all");
+
+// v0.55.0 hero-1: 顶部大盘轮播 — 城市级聚合 (从 snapshot 实时计算)
+const listingCount = computed<number>(() => store.getListingsByCity(app.cityId).length);
+const communityCount = computed<number>(() => {
+  const seen = new Set<number>();
+  for (const l of store.getListingsByCity(app.cityId)) seen.add(l.communityId);
+  return seen.size;
+});
+const medianUnitPrice = computed<number>(() => {
+  const arr = store.getListingsByCity(app.cityId)
+    .map((l) => l.unitPrice)
+    .filter((v): v is number => typeof v === "number" && v > 0)
+    .sort((a, b) => a - b);
+  if (arr.length === 0) return 0;
+  const mid = Math.floor(arr.length / 2);
+  return arr.length % 2 === 0 ? Math.round((arr[mid - 1] + arr[mid]) / 2) : arr[mid];
+});
+const medianTotalPrice = computed<number>(() => {
+  const arr = store.getListingsByCity(app.cityId)
+    .map((l) => l.totalPrice10k)
+    .filter((v): v is number => typeof v === "number" && v > 0)
+    .sort((a, b) => a - b);
+  if (arr.length === 0) return 0;
+  const mid = Math.floor(arr.length / 2);
+  return arr.length % 2 === 0 ? Math.round((arr[mid - 1] + arr[mid]) / 2) : arr[mid];
+});
+
+// v0.55.0 hero-1: 顶部大盘轮播
+type HeroSlide = {
+  icon: string;
+  label: string;
+  value: string;
+  unit?: string;
+  sub: string;
+  tone: "blue" | "green" | "red" | "amber" | "violet" | "rose";
+  tab?: DashTabKey;
+};
+const heroIdx = ref(0);
+const heroScrollIntoView = ref<string>("");
+let heroTimer: number | null = null;
+const heroSlides = computed<HeroSlide[]>(() => {
+  const cityName = store.getCityById(app.cityId)?.cityName ?? app.cityId.toString();
+  const slides: HeroSlide[] = [];
+  // 1. 总挂牌
+  const totalListings = listingCount.value;
+  slides.push({
+    icon: "🏘️",
+    label: `${cityName} · 总挂牌`,
+    value: totalListings.toLocaleString(),
+    unit: "套",
+    sub: `${communityCount.value} 个小区在监控`,
+    tone: "blue",
+    tab: "all"
+  });
+  // 2. 平均单价
+  if (medianUnitPrice.value > 0) {
+    slides.push({
+      icon: "💰",
+      label: "全市中位单价",
+      value: medianUnitPrice.value.toLocaleString(),
+      unit: "元/㎡",
+      sub: `周 ${app.weekEnd || ""}`,
+      tone: "red",
+      tab: "price"
+    });
+  }
+  // 3. 平均总价
+  if (medianTotalPrice.value > 0) {
+    slides.push({
+      icon: "💵",
+      label: "全市中位总价",
+      value: medianTotalPrice.value.toString(),
+      unit: "万",
+      sub: `覆盖 ${listingCount.value} 套`,
+      tone: "amber",
+      tab: "price"
+    });
+  }
+  // 4. LPR
+  if (lpr.value?.latest) {
+    slides.push({
+      icon: "🏦",
+      label: "5Y+ LPR · 首套房贷",
+      value: lpr.value.latest.mortgageFirst.toFixed(2),
+      unit: "%",
+      sub: `5Y LPR ${lpr.value.latest.lpr5y.toFixed(2)}% · 累计 -${lpr.value.cumDrop5y}pp`,
+      tone: "violet",
+      tab: "price"
+    });
+  }
+  // 5. 平均通勤
+  if (commuteRanking.value && commuteRanking.value.cityAvgMinutes != null) {
+    const fastestMin = commuteRanking.value.fastest[0]?.transitMinutes ?? null;
+    slides.push({
+      icon: "🚇",
+      label: `通勤 → ${commuteRanking.value.cbdName}`,
+      value: commuteRanking.value.cityAvgMinutes.toFixed(0),
+      unit: "min",
+      sub: `最快 ${fastestMin != null ? fastestMin.toFixed(0) + "min" : "—"} · ${commuteRanking.value.totalCommunities} 小区`,
+      tone: "green",
+      tab: "transit"
+    });
+  }
+  // 6. 学区评分
+  if (schoolDims.value && schoolDims.value.total > 0) {
+    slides.push({
+      icon: "🏫",
+      label: `${cityName} · 学区指标`,
+      value: schoolDims.value.total.toString(),
+      unit: "校",
+      sub: "5 维评分加权排名",
+      tone: "rose",
+      tab: "school"
+    });
+  }
+  return slides;
+});
+
+function onHeroScroll(_e: any) {
+  // 不主动更新 heroIdx, 由 onHeroScrollEnd 决定
+}
+function onHeroScrollEnd(e: any) {
+  // e.detail.scrollLeft 当前 scrollLeft
+  const sl = e?.detail?.scrollLeft ?? 0;
+  // 每个 slide width = 88vw - 24rpx * 2 padding ≈ 估算 540 (uni-app scroll-view 横向)
+  // 简化: 用 ratio
+  const cardW = (heroSlides.value.length > 0 ? 1 : 0);
+  // 通过 scrollLeft 判断 — 每张卡片占 ~88vw - 24rpx ≈ 估算 540rpx ≈ 270px
+  const idx = Math.round(sl / 270);
+  if (idx !== heroIdx.value) heroIdx.value = Math.max(0, Math.min(idx, heroSlides.value.length - 1));
+}
+function heroClick(i: number) {
+  const s = heroSlides.value[i];
+  if (s?.tab) activeTab.value = s.tab;
+}
+function heroAdvance() {
+  if (heroSlides.value.length <= 1) return;
+  heroIdx.value = (heroIdx.value + 1) % heroSlides.value.length;
+  heroScrollIntoView.value = "hero_" + heroIdx.value;
+}
+function startHeroAuto() {
+  if (heroTimer != null) return;
+  heroTimer = setInterval(heroAdvance, 5000) as unknown as number;
+}
+function stopHeroAuto() {
+  if (heroTimer != null) {
+    clearInterval(heroTimer);
+    heroTimer = null;
+  }
+}
+
+// v0.55.0 hero-1: 快捷入口图标网格
+type QuickShortcut = {
+  key: string;
+  icon: string;
+  label: string;
+  tone: "blue" | "green" | "red" | "amber" | "violet" | "rose";
+  action: "tab" | "page" | "city";
+  target?: DashTabKey | string;
+};
+const QUICK_SHORTCUTS: QuickShortcut[] = [
+  { key: "price", icon: "💰", label: "价格画像", tone: "red", action: "tab", target: "price" },
+  { key: "school", icon: "🏫", label: "学区配套", tone: "amber", action: "tab", target: "school" },
+  { key: "transit", icon: "🚇", label: "通勤地铁", tone: "green", action: "tab", target: "transit" },
+  { key: "map", icon: "🗺️", label: "地图视图", tone: "blue", action: "tab", target: "map" },
+  { key: "city", icon: "🌆", label: "切换城市", tone: "violet", action: "city" },
+  { key: "period", icon: "📅", label: "切换周次", tone: "rose", action: "page", target: "period" },
+  { key: "settings", icon: "⚙️", label: "数据设置", tone: "blue", action: "page", target: "settings" },
+  { key: "ranking", icon: "📊", label: "小区榜单", tone: "green", action: "page", target: "ranking" }
+];
+function quickClick(q: QuickShortcut) {
+  if (q.action === "tab" && q.target) {
+    activeTab.value = q.target as DashTabKey;
+  } else if (q.action === "page" && q.target === "settings") {
+    uni.navigateTo({ url: "/pages/settings/settings" });
+  } else if (q.action === "page" && q.target === "period") {
+    // 滚动到顶部 (周期 sticky 已经固定, 滚动到位即可)
+    uni.pageScrollTo({ scrollTop: 0, duration: 200 });
+  } else if (q.action === "city") {
+    // 触发 city picker — 调用 app 上的方法 (如果有)
+    try {
+      (app as any).showCityPicker?.();
+    } catch {}
+  }
+}
 const DASHBOARD_TABS: Array<{ key: DashTabKey; icon: string; label: string }> = [
   { key: "all", icon: "📊", label: "全部" },
   { key: "price", icon: "💰", label: "价格画像" },
@@ -3572,6 +3807,12 @@ onMounted(async () => {
     errorMsg.value = "未获取到城市列表，请检查后端 /api/v1/cities";
   }
   await loadAll();
+  // v0.55.0 hero-1: 启动 hero 轮播自动切换
+  startHeroAuto();
+});
+
+onUnmounted(() => {
+  stopHeroAuto();
 });
 
 onPullDownRefresh(async () => {
@@ -5913,6 +6154,182 @@ onShow(async () => {
 .topnav-p-btn--disabled {
   opacity: 0.35;
   pointer-events: none;
+}
+
+/* v0.55.0 hero-1: 顶部大盘轮播 + 快捷入口 */
+.hero-section {
+  margin: 8rpx 0 16rpx;
+}
+.hero-carousel {
+  position: relative;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+.hero-scroll {
+  white-space: nowrap;
+  width: 100%;
+  scroll-snap-type: x mandatory;
+}
+.hero-scroll::-webkit-scrollbar {
+  display: none;
+}
+.hero-slide {
+  display: inline-block;
+  width: 88vw;
+  max-width: 620rpx;
+  height: 200rpx;
+  margin-right: 16rpx;
+  padding: 24rpx 28rpx;
+  border-radius: 16rpx;
+  scroll-snap-align: start;
+  cursor: pointer;
+  transition: transform 0.15s;
+  box-sizing: border-box;
+  vertical-align: top;
+}
+.hero-slide:active {
+  transform: scale(0.98);
+}
+.hero-slide--blue {
+  background: linear-gradient(135deg, #dbeafe, #93c5fd);
+  color: #1e3a8a;
+}
+.hero-slide--green {
+  background: linear-gradient(135deg, #d1fae5, #6ee7b7);
+  color: #064e3b;
+}
+.hero-slide--red {
+  background: linear-gradient(135deg, #fee2e2, #fca5a5);
+  color: #7f1d1d;
+}
+.hero-slide--amber {
+  background: linear-gradient(135deg, #fef3c7, #fcd34d);
+  color: #78350f;
+}
+.hero-slide--violet {
+  background: linear-gradient(135deg, #ede9fe, #c4b5fd);
+  color: #4c1d95;
+}
+.hero-slide--rose {
+  background: linear-gradient(135deg, #ffe4e6, #fda4af);
+  color: #881337;
+}
+.hero-slide-row {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+}
+.hero-slide-icon {
+  font-size: 60rpx;
+  flex-shrink: 0;
+}
+.hero-slide-mid {
+  flex: 1;
+  min-width: 0;
+}
+.hero-slide-label {
+  font-size: 24rpx;
+  opacity: 0.85;
+  font-weight: 500;
+}
+.hero-slide-val {
+  font-size: 44rpx;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  margin: 4rpx 0;
+  line-height: 1.1;
+}
+.hero-slide-unit {
+  font-size: 24rpx;
+  font-weight: 600;
+  margin-left: 4rpx;
+  opacity: 0.75;
+}
+.hero-slide-sub {
+  font-size: 20rpx;
+  opacity: 0.7;
+}
+.hero-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8rpx;
+  margin-top: 8rpx;
+}
+.hero-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.hero-dot--active {
+  width: 28rpx;
+  border-radius: 6rpx;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+}
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12rpx;
+  margin-top: 16rpx;
+  padding: 16rpx 12rpx;
+  background: #f8fafc;
+  border-radius: 12rpx;
+}
+.quick-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+  padding: 12rpx 4rpx;
+  border-radius: 10rpx;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.04);
+}
+.quick-tile:hover {
+  transform: translateY(-2rpx);
+  box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.08);
+}
+.quick-tile:active {
+  transform: translateY(0);
+}
+.quick-tile-icon {
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 36rpx;
+  font-weight: 600;
+}
+.quick-tile-icon--blue {
+  background: linear-gradient(135deg, #dbeafe, #93c5fd);
+}
+.quick-tile-icon--green {
+  background: linear-gradient(135deg, #d1fae5, #6ee7b7);
+}
+.quick-tile-icon--red {
+  background: linear-gradient(135deg, #fee2e2, #fca5a5);
+}
+.quick-tile-icon--amber {
+  background: linear-gradient(135deg, #fef3c7, #fcd34d);
+}
+.quick-tile-icon--violet {
+  background: linear-gradient(135deg, #ede9fe, #c4b5fd);
+}
+.quick-tile-icon--rose {
+  background: linear-gradient(135deg, #ffe4e6, #fda4af);
+}
+.quick-tile-label {
+  font-size: 22rpx;
+  color: #334155;
+  font-weight: 500;
 }
 
 /* v0.48.0 dashboard-tabs */
