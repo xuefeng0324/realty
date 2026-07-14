@@ -520,6 +520,16 @@ Key 限额：5000-30000 次/天（免费版），足够给 23 个 seed 小区 + 
 | 🟢 AC | hero-1 | 6 类数据源 (listingCount/medianUnitPrice/medianTotalPrice/lpr/commuteRanking/schoolDims) | ✅ v0.55.0 | 复用现有 query, 无新 CSV |
 | 🟢 AC | hero-1 | buildIntegrity +4 测试 + E2E (6 slides + 8 tiles + 跳转) | ✅ v0.55.0 | 447/447 通过 + 3 screenshots |
 
+## T 段: detail-2 community 详情页 UX (v0.56.0)
+
+| 等级 | 编号 | 任务 | 状态 | 备注 |
+|------|------|------|------|------|
+| 🟢 AC | detail-2 | 顶部 quicknav 4 按钮 (返回/仪表盘/地图/同区其他) | ✅ v0.56.0 | qn-btn + qn-btn--primary |
+| 🟢 AC | detail-2 | 同区其他小区卡 (getCommunitiesByCity + medianUnitPrice 排序 Top 10) | ✅ v0.56.0 | tap-row → redirectTo |
+| 🟢 AC | detail-2 | goBack 智能回退 + goDashboard/goMap switchTab + goCommunity redirectTo | ✅ v0.56.0 | 复用 v0.54 模式 |
+| 🟢 AC | detail-2 | currentDistrict 显示 + 楼龄 min/max 聚合 | ✅ v0.56.0 | 实时从 listings |
+| 🟢 AC | detail-2 | buildIntegrity +4 测试 + E2E (4 按钮 + 同区跳转验证) | ✅ v0.56.0 | 451/451 通过 + 3 screenshots |
+
 ## H 段补充：同区多小区对比（v0.20.0）
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |

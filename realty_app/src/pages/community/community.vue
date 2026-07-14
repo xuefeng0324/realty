@@ -1,11 +1,25 @@
 <template>
   <view class="page">
     <view class="container">
+      <!-- v0.56.0 detail-2: 顶部快捷导航 -->
+      <view class="quicknav">
+        <view class="qn-btn" @click="goBack">← 返回</view>
+        <view class="qn-btn" @click="goDashboard">📊 仪表盘</view>
+        <view class="qn-btn" @click="goMap">🗺️ 地图视图</view>
+        <view v-if="sameDistrictCommunities.length > 0" class="qn-btn qn-btn--primary">
+          🏘️ 同区其他 ({{ sameDistrictCommunities.length }})
+        </view>
+      </view>
+
       <view v-if="errorMsg" class="error">{{ errorMsg }}</view>
 
       <view v-if="communityName" class="card">
-        <view class="card-title">{{ communityName }}</view>
-        <view class="muted">小区 ID: {{ communityId }}</view>
+        <view class="row-between">
+          <view>
+            <view class="card-title">{{ communityName }}</view>
+            <view class="muted">小区 ID: {{ communityId }} · {{ currentDistrict }}</view>
+          </view>
+        </view>
       </view>
 
       <!-- v0.37.0 trend-17: 5 维小区指标卡 (生活/学区/通勤/步行地铁/规划地铁) -->
@@ -233,12 +247,43 @@
           <button class="btn btn-ghost" size="mini" @click="openFilter">高级筛选</button>
         </view>
       </view>
+
+      <!-- v0.56.0 detail-2: 同区其他小区 -->
+      <view v-if="sameDistrictCommunities.length > 0" class="card">
+        <view class="card-title">🏘️ 同区其他小区 · {{ currentDistrict }}</view>
+        <view class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
+          横向对比: 共 {{ sameDistrictAll.length }} 个小区, 显示其他 {{ sameDistrictCommunities.length }} 个
+          (已按平均单价降序)
+        </view>
+        <view
+          v-for="c in sameDistrictCommunities"
+          :key="c.communityId"
+          class="sibling-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(c.communityId)"
+        >
+          <view class="sibling-mid">
+            <view class="sibling-title">{{ c.communityName }}</view>
+            <view class="sibling-meta muted">
+              {{ c.listingCount }} 套在售 · 中位 {{ formatUnitPrice(c.medianUnitPrice) }} · 建 {{ c.buildYearMin }}-{{ c.buildYearMax }} 年
+            </view>
+          </view>
+          <view class="sibling-price">
+            <view class="sibling-total">{{ c.totalListings }}</view>
+            <view class="sibling-unit muted">套</view>
+          </view>
+        </view>
+        <view class="muted" style="font-size: 22rpx; margin-top: 8rpx">
+          💡 同区横向对比帮助理解板块均价: 楼龄 / 户型 / 物业差异通常解释 20-30% 单价差。
+        </view>
+      </view>
     </view>
   </view>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+import type { LocalCommunity } from "../../local/types";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { onLoad } from "@dcloudio/uni-app";
 import {
@@ -270,12 +315,63 @@ import {
   getCommuteByCommunity,
   getMetroBenefitByCommunity,
   getMetroWalkByCommunity,
-  getCommunitySchoolScore
+  getCommunitySchoolScore,
+  getCommunityById,
+  getCommunitiesByCity,
+  getListingsByCommunity
 } from "../../local/store";
 import type { QualitySummaryBin } from "../../api/contracts";
 
 const communityId = ref<number>(0);
 const communityName = ref<string>("");
+const currentDistrict = ref<string>("");
+
+// v0.56.0 detail-2: 同区其他小区 (从 snapshot 实时聚合)
+const currentCommunityObj = computed<LocalCommunity | undefined>(() =>
+  communityId.value ? getCommunityById(communityId.value) : undefined
+);
+interface SiblingCommunity {
+  communityId: number;
+  communityName: string;
+  listingCount: number;
+  medianUnitPrice: number;
+  buildYearMin: number | null;
+  buildYearMax: number | null;
+  totalListings: number;
+}
+const sameDistrictAll = computed<SiblingCommunity[]>(() => {
+  const cur = currentCommunityObj.value;
+  if (!cur) return [];
+  const cityId = cur.cityId;
+  const district = cur.districtName;
+  if (!district) return [];
+  const all = getCommunitiesByCity(cityId).filter(
+    (c) => c.districtName === district && c.communityId !== communityId.value
+  );
+  return all
+    .map((c) => {
+      const lcs = getListingsByCommunity(c.communityId);
+      const prices = lcs
+        .map((l) => l.unitPrice)
+        .filter((v): v is number => typeof v === "number" && v > 0)
+        .sort((a, b) => a - b);
+      const mid = prices.length > 0 ? prices[Math.floor(prices.length / 2)] : 0;
+      const years = lcs
+        .map((l) => l.buildYear)
+        .filter((v): v is number => typeof v === "number" && v > 1900);
+      return {
+        communityId: c.communityId,
+        communityName: c.communityName,
+        listingCount: lcs.length,
+        medianUnitPrice: mid,
+        buildYearMin: years.length > 0 ? Math.min(...years) : null,
+        buildYearMax: years.length > 0 ? Math.max(...years) : null,
+        totalListings: lcs.length
+      };
+    })
+    .sort((a, b) => b.medianUnitPrice - a.medianUnitPrice);
+});
+const sameDistrictCommunities = computed(() => sameDistrictAll.value.slice(0, 10));
 
 const trend = ref<PriceTrendItem[]>([]);
 const quality = ref<QualitySummaryResponse | null>(null);
@@ -419,6 +515,9 @@ async function loadAll() {
     ]);
     communityName.value = trendRes.community_name;
     trend.value = trendRes.data || [];
+    // v0.56.0 detail-2: 设置 district
+    const cur = currentCommunityObj.value;
+    if (cur?.districtName) currentDistrict.value = cur.districtName;
     quality.value = q;
     tags.value = t;
 
@@ -523,6 +622,28 @@ function goListing(id: number) {
   uni.navigateTo({ url: `/pages/listing-detail/listing-detail?id=${id}` });
 }
 
+function goCommunity(id: number) {
+  uni.redirectTo({ url: `/pages/community/community?id=${id}` });
+}
+
+// v0.56.0 detail-2: 顶部快捷导航
+function goBack() {
+  const pages = getCurrentPages?.() ?? [];
+  if (pages.length > 1) {
+    uni.navigateBack({ delta: 1 });
+  } else {
+    uni.switchTab({ url: "/pages/dashboard/dashboard" });
+  }
+}
+
+function goDashboard() {
+  uni.switchTab({ url: "/pages/dashboard/dashboard" });
+}
+
+function goMap() {
+  uni.switchTab({ url: "/pages/map-view/map-view" });
+}
+
 onLoad((q: any) => {
   communityId.value = Number(q?.id || q?.communityId || 0);
 });
@@ -533,6 +654,85 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+/* v0.56.0 detail-2: 顶部快捷导航 + 同区其他小区 */
+.quicknav {
+  display: flex;
+  gap: 12rpx;
+  margin: 8rpx 0 16rpx;
+  flex-wrap: wrap;
+}
+.qn-btn {
+  flex: 1;
+  min-width: 140rpx;
+  padding: 14rpx 18rpx;
+  border-radius: 10rpx;
+  background: #f1f5f9;
+  font-size: 24rpx;
+  color: #334155;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.qn-btn:hover {
+  background: #e2e8f0;
+}
+.qn-btn--primary {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  font-weight: 600;
+}
+.qn-btn--primary:hover {
+  filter: brightness(1.08);
+}
+.sibling-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 14rpx 12rpx;
+  border-bottom: 1rpx solid #f1f5f9;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.sibling-row:last-child {
+  border-bottom: none;
+}
+.sibling-row.tap-row--active {
+  background: rgba(99, 102, 241, 0.08);
+}
+.sibling-mid {
+  flex: 1;
+  min-width: 0;
+}
+.sibling-title {
+  font-size: 26rpx;
+  color: #1e293b;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sibling-meta {
+  font-size: 22rpx;
+  margin-top: 4rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sibling-price {
+  text-align: right;
+  flex-shrink: 0;
+}
+.sibling-total {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #dc2626;
+  font-variant-numeric: tabular-nums;
+}
+.sibling-unit {
+  font-size: 20rpx;
+  margin-top: 2rpx;
+}
+
 .chart-wrap {
   display: flex;
   flex-direction: column;

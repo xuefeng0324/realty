@@ -3394,4 +3394,43 @@ describe("build integrity", () => {
       expect(dash).toMatch(/onUnmounted\(\(\) => \{[\s\S]{0,100}stopHeroAuto\(\)/);
     });
   });
+
+  // v0.56.0 detail-2: community 详情页 UX
+  describe("v0.56.0 detail-2 community 详情页 UX", () => {
+    it("community.vue: 顶部 quicknav 4 按钮 (返回/仪表盘/地图/同区其他)", () => {
+      const f = readFileSync(resolve(ROOT, "src/pages/community/community.vue"), "utf8");
+      expect(f).toMatch(/class="quicknav"/);
+      expect(f).toMatch(/@click="goBack"/);
+      expect(f).toMatch(/@click="goDashboard"/);
+      expect(f).toMatch(/@click="goMap"/);
+      expect(f).toMatch(/同区其他/);
+    });
+
+    it("community.vue: 同区其他小区卡 + sibling-row tap-row + goCommunity", () => {
+      const f = readFileSync(resolve(ROOT, "src/pages/community/community.vue"), "utf8");
+      expect(f).toMatch(/class="card-title">🏘️ 同区其他小区/);
+      expect(f).toMatch(/sameDistrictCommunities/);
+      expect(f).toMatch(/v-for="c in sameDistrictCommunities"/);
+      expect(f).toMatch(/class="sibling-row tap-row"/);
+      expect(f).toMatch(/@click="goCommunity\(c\.communityId\)"/);
+      expect(f).toMatch(/function goCommunity/);
+      expect(f).toMatch(/getCommunitiesByCity/);
+      expect(f).toMatch(/getListingsByCommunity/);
+    });
+
+    it("community.vue: sameDistrictAll 按 medianUnitPrice 排序 + slice(0,10)", () => {
+      const f = readFileSync(resolve(ROOT, "src/pages/community/community.vue"), "utf8");
+      expect(f).toMatch(/sort\(\(a, b\) => b\.medianUnitPrice/);
+      expect(f).toMatch(/sameDistrictCommunities = computed\(\(\) => sameDistrictAll\.value\.slice\(0, 10\)\)/);
+      expect(f).toMatch(/currentDistrict/);
+    });
+
+    it("community.vue: goBack 智能回退 + goDashboard switchTab + goMap switchTab", () => {
+      const f = readFileSync(resolve(ROOT, "src/pages/community/community.vue"), "utf8");
+      expect(f).toMatch(/function goBack\(\)[\s\S]*?navigateBack[\s\S]*?switchTab/);
+      expect(f).toMatch(/function goDashboard\(\)[\s\S]*?\/pages\/dashboard\/dashboard/);
+      expect(f).toMatch(/function goMap\(\)[\s\S]*?\/pages\/map-view\/map-view/);
+      expect(f).toMatch(/uni\.redirectTo\(\{ url: `\/pages\/community/);
+    });
+  });
 });
