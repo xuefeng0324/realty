@@ -124,6 +124,25 @@ describe("stats70 parser", () => {
     expect(t[2].yoy).toBe(100.0);
   });
 
+  test("跨 9 月到 10 月时按真实月份排序而非字符串排序", () => {
+    const csv = [
+      "date,city,fixed_base,new_idx,second_idx",
+      "2025/9/1,广州,同比,99,98",
+      "2025/10/1,广州,同比,100,99",
+      "2025/11/1,广州,同比,101,100",
+      "2025/12/1,广州,同比,102,101",
+      "2026/1/1,广州,同比,103,102"
+    ].join("\n");
+    loadStats70FromCSV(csv);
+    expect(getCityTrend("广州", 4).map((row) => row.date)).toEqual([
+      "2025/10/1",
+      "2025/11/1",
+      "2025/12/1",
+      "2026/1/1"
+    ]);
+    expect(getLatestMonth()).toBe("2026/1/1");
+  });
+
   test("getCityTrend 支持环比", () => {
     const csv = [
       "date,city,fixed_base,new_idx,second_idx",

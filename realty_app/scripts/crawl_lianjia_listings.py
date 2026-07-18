@@ -232,6 +232,7 @@ def parse_card(block: str, city_id: int, listing_type: str) -> dict | None:
         "city_id": city_id,
         "title": title,
         "source": "链家在售",
+        "source_kind": "REAL",
         "source_listing_id": source_listing_id,
         "source_url": source_url,
         "total_price_10k": total_price_10k,
@@ -298,7 +299,7 @@ def update_communities_csv(new_rows: list[tuple[int, int, str, str]]):
 # ---------- 写 CSV ----------
 
 CSV_COLS = [
-    "listing_id", "city_id", "community_id", "title", "source",
+    "listing_id", "city_id", "community_id", "title", "source", "source_kind",
     "source_listing_id", "source_url", "total_price_10k", "unit_price",
     "area_sqm", "listing_type", "bedrooms", "bathrooms", "orientation",
     "floor_number", "has_elevator", "decorate_type", "build_year",

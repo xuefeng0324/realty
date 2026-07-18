@@ -59,7 +59,7 @@ jobs:
         # serve 是 npx 自带的轻量静态服务器，不引入新依赖
         # 用 & 放后台；nohup + disown 保证 step 退出后不被清理
         run: |
-          npx --yes serve -s dist -l 5173 &
+          npx --yes serve -s dist/build/h5 -l 5173 &
           echo "serve PID: $!"
           # 等服务器 ready
           for i in $(seq 1 30); do
@@ -73,18 +73,12 @@ jobs:
           curl -sf http://127.0.0.1:5173/ > /dev/null || (echo "Server failed to start" && exit 1)
 
       - name: 跑 E2E smoke
-        # 失败不阻塞：smoke 脚本对 console error / failed request 很敏感，
-        # 但每次新增 dashboard 卡 / 改 map-view 都可能引入新 warning；
-        # 让维护者从 artifacts/smoke.json 看到具体错误，按需修。
+        # console error / failed request / Vue 未挂载都应阻塞合并。
         run: node tests/e2e/smoke.mjs
-        continue-on-error: true
 
       - name: 跑视觉回归（diff vs baseline）
-        # 不带 --update-baseline：第一次没 baseline 时脚本会 exit 2 让 step fail；
-        # 这是预期行为，让维护者意识到需要先在本地跑 --update-baseline 并 commit baseline
+        # baseline 缺失、尺寸不一致或像素差异超阈值都应阻塞合并。
         run: node tests/e2e/visual-diff.mjs --threshold 0.02
-        continue-on-error: true
-        # 视觉回归失败不阻塞 E2E（baseline 经常没及时更新），但要看到结果
 
       - name: 上传 E2E artifacts
         if: always()

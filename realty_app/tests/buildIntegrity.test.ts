@@ -2153,12 +2153,11 @@ describe("build integrity", () => {
       expect(seed).toMatch(/import districtMetaCSV/);
       expect(seed).toMatch(/districtMetaCSV:/);
 
-      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
-      expect(ref).toMatch(/districtMeta:/);
+      const loader = readFileSync(resolve(ROOT, "src/local/snapshotLoader.ts"), "utf8");
+      expect(loader).toMatch(/districtMetaCSV/);
 
       const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
-      expect(settings).toMatch(/district_meta\.csv/);
-      expect(settings).toMatch(/districtMetaCSV:/);
+      expect(settings).toMatch(/loadSnapshotFromBase/);
     });
 
     it("dashboard.vue 区情画像卡 + sort chips + 排序/隐藏切换", () => {
@@ -2251,12 +2250,11 @@ describe("build integrity", () => {
       expect(seed).toMatch(/import featurePremiumCSV/);
       expect(seed).toMatch(/featurePremiumCSV:/);
 
-      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
-      expect(ref).toMatch(/featurePremia:/);
+      const loader = readFileSync(resolve(ROOT, "src/local/snapshotLoader.ts"), "utf8");
+      expect(loader).toMatch(/featurePremiumCSV/);
 
       const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
-      expect(settings).toMatch(/feature_premium\.csv/);
-      expect(settings).toMatch(/featurePremiumCSV:/);
+      expect(settings).toMatch(/loadSnapshotFromBase/);
     });
 
     it("dashboard.vue 特征画像溢价卡 + 4 dim blocks + bar + percent", () => {
@@ -2357,12 +2355,11 @@ describe("build integrity", () => {
       expect(seed).toMatch(/import tagCombinationCSV/);
       expect(seed).toMatch(/tagCombinationCSV:/);
 
-      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
-      expect(ref).toMatch(/tagCombinations:/);
+      const loader = readFileSync(resolve(ROOT, "src/local/snapshotLoader.ts"), "utf8");
+      expect(loader).toMatch(/tagCombinationCSV/);
 
       const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
-      expect(settings).toMatch(/tag_combination\.csv/);
-      expect(settings).toMatch(/tagCombinationCSV:/);
+      expect(settings).toMatch(/loadSnapshotFromBase/);
     });
 
     it("dashboard.vue 标签组合卡 + tag pair 渲染", () => {
@@ -2458,12 +2455,11 @@ describe("build integrity", () => {
       expect(seed).toMatch(/import listingFreshnessCSV/);
       expect(seed).toMatch(/listingFreshnessCSV:/);
 
-      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
-      expect(ref).toMatch(/listingFreshness:/);
+      const loader = readFileSync(resolve(ROOT, "src/local/snapshotLoader.ts"), "utf8");
+      expect(loader).toMatch(/listingFreshnessCSV/);
 
       const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
-      expect(settings).toMatch(/listing_freshness\.csv/);
-      expect(settings).toMatch(/listingFreshnessCSV:/);
+      expect(settings).toMatch(/loadSnapshotFromBase/);
     });
 
     it("dashboard.vue 房源新鲜度卡 + 双 section (活跃/滞销)", () => {
@@ -2540,12 +2536,11 @@ describe("build integrity", () => {
       expect(seed).toMatch(/import bedroomAreaCSV/);
       expect(seed).toMatch(/bedroomAreaCSV:/);
 
-      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
-      expect(ref).toMatch(/bedroomArea:/);
+      const loader = readFileSync(resolve(ROOT, "src/local/snapshotLoader.ts"), "utf8");
+      expect(loader).toMatch(/bedroomAreaCSV/);
 
       const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
-      expect(settings).toMatch(/bedroom_area\.csv/);
-      expect(settings).toMatch(/bedroomAreaCSV:/);
+      expect(settings).toMatch(/loadSnapshotFromBase/);
     });
 
     it("dashboard.vue 热图卡 + 5 bedrooms × 6 buckets", () => {
@@ -2628,12 +2623,11 @@ describe("build integrity", () => {
       expect(seed).toMatch(/import orientationFloorCSV/);
       expect(seed).toMatch(/orientationFloorCSV:/);
 
-      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
-      expect(ref).toMatch(/orientationFloor:/);
+      const loader = readFileSync(resolve(ROOT, "src/local/snapshotLoader.ts"), "utf8");
+      expect(loader).toMatch(/orientationFloorCSV/);
 
       const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
-      expect(settings).toMatch(/orientation_floor\.csv/);
-      expect(settings).toMatch(/orientationFloorCSV:/);
+      expect(settings).toMatch(/loadSnapshotFromBase/);
     });
 
     it("dashboard.vue 溢价卡 + 折价卡 + 矩阵 + 颜色编码", () => {
@@ -2734,12 +2728,11 @@ describe("build integrity", () => {
       expect(seed).toMatch(/import decorateAgeCSV/);
       expect(seed).toMatch(/decorateAgeCSV:/);
 
-      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
-      expect(ref).toMatch(/decorateAge:/);
+      const loader = readFileSync(resolve(ROOT, "src/local/snapshotLoader.ts"), "utf8");
+      expect(loader).toMatch(/decorateAgeCSV/);
 
       const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
-      expect(settings).toMatch(/decorate_age\.csv/);
-      expect(settings).toMatch(/decorateAgeCSV:/);
+      expect(settings).toMatch(/loadSnapshotFromBase/);
     });
 
     it("dashboard.vue 装修卡 + 折价卡 + 矩阵 + da-cell 颜色", () => {
@@ -2834,12 +2827,11 @@ describe("build integrity", () => {
       expect(seed).toMatch(/import communityScatterCSV/);
       expect(seed).toMatch(/communityScatterCSV:/);
 
-      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
-      expect(ref).toMatch(/communityScatter:/);
+      const loader = readFileSync(resolve(ROOT, "src/local/snapshotLoader.ts"), "utf8");
+      expect(loader).toMatch(/communityScatterCSV/);
 
       const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
-      expect(settings).toMatch(/community_scatter\.csv/);
-      expect(settings).toMatch(/communityScatterCSV:/);
+      expect(settings).toMatch(/loadSnapshotFromBase/);
     });
 
     it("dashboard.vue 散点卡 + SVG + 4 quadrant 分桶", () => {
@@ -2943,13 +2935,12 @@ describe("build integrity", () => {
       expect(seed).toMatch(/districtPolygonCSV:/);
       expect(seed).toMatch(/communityGeoCSV:/);
 
-      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
-      expect(ref).toMatch(/districtPolygon:/);
-      expect(ref).toMatch(/communityGeo:/);
+      const loader = readFileSync(resolve(ROOT, "src/local/snapshotLoader.ts"), "utf8");
+      expect(loader).toMatch(/districtPolygonCSV/);
+      expect(loader).toMatch(/communityGeoCSV/);
 
       const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
-      expect(settings).toMatch(/district_polygon\.csv/);
-      expect(settings).toMatch(/communities_geo\.csv/);
+      expect(settings).toMatch(/loadSnapshotFromBase/);
     });
 
     it("dashboard.vue 地图卡 + SVG + 多边形 + marker + label", () => {
@@ -3038,11 +3029,11 @@ describe("build integrity", () => {
       expect(seed).toMatch(/import schoolDimensionsCSV/);
       expect(seed).toMatch(/schoolDimensionsCSV:/);
 
-      const ref = readFileSync(resolve(ROOT, "src/local/dataRefresher.ts"), "utf8");
-      expect(ref).toMatch(/schoolDimensions:/);
+      const loader = readFileSync(resolve(ROOT, "src/local/snapshotLoader.ts"), "utf8");
+      expect(loader).toMatch(/schoolDimensionsCSV/);
 
       const settings = readFileSync(resolve(ROOT, "src/pages/settings/settings.vue"), "utf8");
-      expect(settings).toMatch(/school_dimensions\.csv/);
+      expect(settings).toMatch(/loadSnapshotFromBase/);
     });
 
     it("dashboard.vue: 学区指标卡 + reloadSchoolDims + schoolDimsColor", () => {
@@ -3081,13 +3072,13 @@ describe("build integrity", () => {
 
   // v0.48.0 dashboard-tabs: 顶部 tab 分类切换
   describe("v0.48.0 dashboard-tabs Tab 分类", () => {
-    it("dashboard.vue: 含 5 个 tab (all/price/school/transit/map)", () => {
+    it("dashboard.vue: 含 5 个 tab (overview/price/school/transit/map)", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
       expect(dash).toMatch(/DASHBOARD_TABS/);
-      expect(dash).toMatch(/activeTab = ref<DashTabKey>\("all"\)/);
+      expect(dash).toMatch(/activeTab = ref<DashTabKey>\("overview"\)/);
       expect(dash).toMatch(/activeTab = t\.key/);
       // 5 tab labels
-      expect(dash).toMatch(/"全部"/);
+      expect(dash).toMatch(/"概览"/);
       expect(dash).toMatch(/"价格画像"/);
       expect(dash).toMatch(/"学区配套"/);
       expect(dash).toMatch(/"通勤地铁"/);
@@ -3100,17 +3091,16 @@ describe("build integrity", () => {
       const matches = dash.match(/data-tab=/g) || [];
       expect(matches.length).toBeGreaterThanOrEqual(25);
       // 4 个 tab 维度都要出现
-      expect(dash).toMatch(/data-tab="all,price"/);
-      expect(dash).toMatch(/data-tab="all,school"/);
-      expect(dash).toMatch(/data-tab="all,transit"/);
-      expect(dash).toMatch(/data-tab="all,map"/);
-      // 至少 1 个 map-only
+      expect(dash).toMatch(/data-tab="overview,price"/);
+      expect(dash).toMatch(/data-tab="overview,school"/);
+      expect(dash).toMatch(/data-tab="overview,transit"/);
       expect(dash).toMatch(/data-tab="all,map"/);
     });
 
     it("dashboard.vue: 全局 style 用 body[data-dash-tab] 隐藏卡片", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/body\[data-dash-tab="price"\] \.card:not\(\[data-tab\*="price"\]\)/);
+      expect(dash).toMatch(/body\[data-dash-tab="price"\] \.card\[data-tab\]:not\(\[data-tab\*="price"\]\)/);
+      expect(dash).toMatch(/body\[data-dash-tab="overview"\]/);
       expect(dash).toMatch(/body\[data-dash-tab="school"\]/);
       expect(dash).toMatch(/body\[data-dash-tab="transit"\]/);
       expect(dash).toMatch(/body\[data-dash-tab="map"\]/);
@@ -3353,10 +3343,10 @@ describe("build integrity", () => {
 
   // v0.55.0 hero-1: 顶部大盘轮播 + 快捷入口
   describe("v0.55.0 hero-1 首页 hero 轮播 + quick 网格", () => {
-    it("dashboard.vue: hero-carousel + scroll-view + dots 渲染", () => {
+    it("dashboard.vue: hero-carousel + swiper + dots 渲染", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
       expect(dash).toMatch(/class="hero-carousel"/);
-      expect(dash).toMatch(/<scroll-view[\s\S]{0,200}class="hero-scroll"/);
+      expect(dash).toMatch(/<swiper[\s\S]{0,200}class="hero-scroll"/);
       expect(dash).toMatch(/v-for="\(s, i\) in heroSlides"/);
       expect(dash).toMatch(/class="hero-dots"/);
       expect(dash).toMatch(/hero-dot--active/);
@@ -3383,15 +3373,13 @@ describe("build integrity", () => {
       expect(dash).toMatch(/key: "settings"/);
     });
 
-    it("dashboard.vue: hero 自动滚动 + listingCount/medianUnitPrice 聚合", () => {
+    it("dashboard.vue: hero 用 swiper 自动滚动 + listingCount/medianUnitPrice 聚合", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/function startHeroAuto/);
-      expect(dash).toMatch(/function stopHeroAuto/);
-      expect(dash).toMatch(/setInterval\(heroAdvance, 5000\)/);
+      expect(dash).toMatch(/:interval="5000"/);
+      expect(dash).toMatch(/function onHeroChange/);
       expect(dash).toMatch(/const listingCount = computed/);
       expect(dash).toMatch(/const medianUnitPrice = computed/);
       expect(dash).toMatch(/const medianTotalPrice = computed/);
-      expect(dash).toMatch(/onUnmounted\(\(\) => \{[\s\S]{0,100}stopHeroAuto\(\)/);
     });
   });
 

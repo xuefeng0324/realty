@@ -26,8 +26,7 @@ import urllib.request
 from collections import defaultdict
 from pathlib import Path
 
-# 与现有 crawler 一致的 API key
-AMAP_KEY = os.environ.get("AMAP_KEY", "f22d0a9e25abc8512dbdbe37ac3ba139")
+AMAP_KEY = os.environ.get("AMAP_KEY", "")
 ROOT = Path(__file__).resolve().parents[1]
 SEED_DIR = ROOT / "static" / "seed"
 
@@ -186,6 +185,8 @@ def load_communities_with_geo():
 
 
 def main():
+    if not AMAP_KEY:
+        raise SystemExit("需要通过 AMAP_KEY 环境变量提供高德 Web Service Key")
     max_per_city = int(os.environ.get("COMMUTE_MAX_PER_CITY", "30"))
     sleep_sec = float(os.environ.get("COMMUTE_SLEEP", "0.3"))
 

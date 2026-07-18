@@ -183,7 +183,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
+import { SNAPSHOT_UPDATED_EVENT } from "../../config";
 import { onLoad } from "@dcloudio/uni-app";
 import { filterListings } from "../../local/queries";
 import { getCities, getPeriods, getSources } from "../../local/queries";
@@ -465,8 +466,19 @@ onLoad((q: any) => {
 });
 
 onMounted(async () => {
+  uni.$on(SNAPSHOT_UPDATED_EVENT, refreshSnapshotData);
   await loadMeta();
   await applyFilter();
+});
+
+async function refreshSnapshotData() {
+  cities.value = [];
+  await loadMeta();
+  await applyFilter();
+}
+
+onUnmounted(() => {
+  uni.$off(SNAPSHOT_UPDATED_EVENT, refreshSnapshotData);
 });
 </script>
 

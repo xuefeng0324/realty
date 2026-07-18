@@ -15,6 +15,7 @@
  */
 
 import { parseCSV, rowsToObjects } from "./csv";
+import { normalizeListingSourceKind } from "./listingSource";
 import type {
   DataSnapshot,
   LocalCity,
@@ -743,6 +744,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     communityId: n(r.community_id)!,
     title: s(r.title) ?? "",
     source: s(r.source),
+    sourceKind: normalizeListingSourceKind(r.source_kind, s(r.source)),
     sourceListingId: s(r.source_listing_id),
     sourceUrl: s(r.source_url),
     totalPrice10k: n(r.total_price_10k),

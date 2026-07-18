@@ -24,7 +24,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DISTRICTS = REPO_ROOT / "static" / "seed" / "admin_districts.csv"
 OUT = REPO_ROOT / "static" / "seed" / "district_polygon.csv"
 
-AMAP_KEY = os.environ.get("AMAP_KEY", "f22d0a9e25abc8512dbdbe37ac3ba139")
+AMAP_KEY = os.environ.get("AMAP_KEY", "")
 
 
 def fetch_district(adcode: str) -> dict | None:
@@ -75,6 +75,8 @@ def decode_polyline(polyline: str) -> list[tuple[float, float]]:
 
 
 def main():
+    if not AMAP_KEY:
+        raise SystemExit("需要通过 AMAP_KEY 环境变量提供高德 Web Service Key")
     # 收集要拉取的 (adcode, name) 去重
     targets: dict[str, str] = {}  # adcode -> name
     with open(DISTRICTS, encoding="utf-8-sig") as f:

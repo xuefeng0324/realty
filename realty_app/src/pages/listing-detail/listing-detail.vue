@@ -26,6 +26,16 @@
           <view class="muted">{{ formatUnitPrice(data.listing.unit_price) }}</view>
         </view>
 
+        <view class="source-trust-row">
+          <text class="source-trust" :class="'source-trust--' + data.listing.source_kind.toLowerCase()">
+            {{ sourceKindLabel }}
+          </text>
+          <text class="muted">{{ data.listing.source || "来源未注明" }}</text>
+        </view>
+        <view v-if="data.listing.source_kind === 'DERIVED'" class="derived-warning">
+          此房源为公开城市指标与市场参考价生成的分析样本，不代表真实逐套挂牌或成交记录。
+        </view>
+
         <view class="row-gap info-grid">
           <view class="info-cell">
             <text class="muted">面积</text>
@@ -62,7 +72,7 @@
         </view>
 
         <view class="row-gap" style="margin-top: 24rpx">
-          <button v-if="data.listing.source_url" class="btn" size="mini" @click="openSource">查看源链接</button>
+          <button v-if="data.listing.source_url" class="btn" size="mini" @click="openSource">{{ sourceLinkLabel }}</button>
           <button v-if="data.listing.source_url" class="btn btn-ghost" size="mini" @click="copyUrl">复制链接</button>
           <button class="btn btn-ghost" size="mini" @click="goCommunity">小区详情</button>
         </view>
@@ -261,11 +271,14 @@ import {
   showToast
 } from "../../utils/format";
 import { getListingsByCommunity, getCommunityById } from "../../local/store";
+import { listingSourceKindLabel } from "../../local/listingSource";
 
 const listingId = ref<number>(0);
 const data = ref<ListingDetailResponse | null>(null);
 const errorMsg = ref<string>("");
 const explainOpen = ref(false);
+const sourceKindLabel = computed(() => data.value ? listingSourceKindLabel(data.value.listing.source_kind) : "");
+const sourceLinkLabel = computed(() => data.value?.listing.source_kind === "DERIVED" ? "查看参考页面" : "查看源链接");
 
 // v0.54.0 detail-1: 同小区其他 listings
 const sameCommunityAll = ref<ReturnType<typeof getListingsByCommunity>>([]);
@@ -444,6 +457,31 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
+.source-trust-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 12rpx;
+}
+.source-trust {
+  padding: 4rpx 12rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+.source-trust--real { background: rgba(34, 197, 94, 0.18); color: #4ade80; }
+.source-trust--derived { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
+.source-trust--estimated,
+.source-trust--unknown { background: rgba(148, 163, 184, 0.18); color: #cbd5e1; }
+.derived-warning {
+  margin-top: 12rpx;
+  padding: 12rpx 16rpx;
+  border-radius: 10rpx;
+  background: rgba(245, 158, 11, 0.12);
+  color: #fde68a;
+  font-size: 22rpx;
+  line-height: 1.5;
+}
 /* v0.54.0 detail-1: 顶部快捷导航 */
 .quicknav {
   display: flex;

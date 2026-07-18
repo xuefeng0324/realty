@@ -24,6 +24,7 @@ import argparse
 import csv
 import json
 import math
+import os
 import sys
 import time
 import urllib.parse
@@ -104,10 +105,12 @@ def confidence_for(name: str, formatted: str, query: str) -> str:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry", action="store_true", help="试跑不写")
-    ap.add_argument("--key", default="f22d0a9e25abc8512dbdbe37ac3ba139", help="高德 API key")
+    ap.add_argument("--key", default=os.environ.get("AMAP_KEY", ""), help="高德 API key")
     args = ap.parse_args()
 
     api_key = args.key
+    if not api_key:
+        raise SystemExit("需要 --key 或 AMAP_KEY 环境变量")
     rows_in = []
     with open(SRC_CSV, encoding="utf-8-sig") as f:
         for r in csv.DictReader(f):

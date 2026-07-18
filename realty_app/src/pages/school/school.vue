@@ -59,7 +59,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
+import { SNAPSHOT_UPDATED_EVENT } from "../../config";
 import { getCities } from "../../local/queries";
 import { searchSchools } from "../../local/queries";
 import type { CityItem, SchoolItem } from "../../api/contracts";
@@ -116,12 +117,21 @@ function openSchool(id: number) {
   });
 }
 
-onMounted(async () => {
+async function loadCities() {
   const res = await getCities();
   cities.value = res.items || [];
   if (cities.value.length > 0 && !cities.value.some((c) => c.city_id === app.cityId)) {
     app.setCityId(cities.value[0].city_id);
   }
+}
+
+onMounted(async () => {
+  uni.$on(SNAPSHOT_UPDATED_EVENT, loadCities);
+  await loadCities();
+});
+
+onUnmounted(() => {
+  uni.$off(SNAPSHOT_UPDATED_EVENT, loadCities);
 });
 </script>
 

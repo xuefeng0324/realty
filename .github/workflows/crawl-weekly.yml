@@ -51,13 +51,19 @@ jobs:
           echo "===== crawl.log ====="
           cat crawl.log
 
+      - name: 重建房源派生数据并发布完整快照指纹
+        run: |
+          cd realty_app
+          python scripts/rebuild_listing_derivatives.py
+          python scripts/publish_csv.py
+
       - name: 提交 CSV
         run: |
           cd realty_app
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if ! git diff --quiet HEAD -- static/seed/listings.csv; then
-            git add static/seed/listings.csv static/seed/crawl_meta.json
+            git add static/seed/*.csv static/seed/crawl_meta.json
             git commit -m "data(anjuke): 刷新二手房挂牌 $(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
               || echo "no commit needed"
             git push

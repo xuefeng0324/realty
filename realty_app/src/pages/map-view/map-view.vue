@@ -167,7 +167,8 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { onMounted } from "vue";
+import { onMounted, onUnmounted } from "vue";
+import { SNAPSHOT_UPDATED_EVENT } from "../../config";
 import { useAppStore } from "../../store/app";
 import {
   getCommunitiesByCity,
@@ -945,7 +946,12 @@ function parseGeoCsv(text: string): Map<number, { lat: number; lng: number; dist
 }
 
 onMounted(() => {
+  uni.$on(SNAPSHOT_UPDATED_EVENT, loadCommunityMarkers);
   loadCommunityMarkers();
+});
+
+onUnmounted(() => {
+  uni.$off(SNAPSHOT_UPDATED_EVENT, loadCommunityMarkers);
 });
 </script>
 

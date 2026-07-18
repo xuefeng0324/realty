@@ -63,7 +63,7 @@ SLEEP_BETWEEN_REQS = 2.5     # 秒（mob 站经验值；快了吃 captcha）
 # 输出 schema（与 seed_real_data.py 完全一致）
 OUT_FIELDS = [
     "listing_id", "city_id", "community_id",
-    "title", "source", "source_listing_id", "source_url",
+    "title", "source", "source_kind", "source_listing_id", "source_url",
     "total_price_10k", "unit_price", "area_sqm",
     "listing_type",
     "bedrooms", "bathrooms",
@@ -191,6 +191,7 @@ def _parse_one(li: Any, city_id: int, listing_id: int, community_id: int) -> dic
             "community_id": community_id,
             "title": title or f"安居客挂牌 #{listing_id}",
             "source": f"{CITY_CONFIG[city_id]['name']}安居客",
+            "source_kind": "REAL",
             "source_listing_id": source_listing_id,
             "source_url": source_url,
             "total_price_10k": total_price_10k,

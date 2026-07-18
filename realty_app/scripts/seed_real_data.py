@@ -1,9 +1,9 @@
 """
-生成"用真实政府公开口径作种子"的 demo 数据
+生成“公开指标派生样本”数据
 =============================================
 
 为什么这个脚本存在：
-  - 房东在"纯 app"模式下不想用程序生成的假数据，想用真数据
+  - 纯 app 模式需要可重复的离线演示数据
   - 政府公开数据可获得性受限于：
       * 深圳官方 2019-04 以后不再公布单套均价/总额 → 只能拿套数/面积
       * 统计局每月 15 日才发布上一个月 70 城指数 → 数据有 1-2 月滞后
@@ -16,7 +16,7 @@
   schools.csv           深圳公开小学 + 广州 / 珠海各 2 个
   school_indicators.csv 这些学校的国家级 / 市级评估指标（基于公开数据）
   listings.csv          派生自 70 城指数 + 公开城市月度参考价
-                        → 单套级别，每条带真实 crawl_date 和 unit_price
+                        → 单套级别派生样本，不代表真实逐套成交
 
 数据完全派生自：
   - realty_app/static/stats_70.csv（已含国家统计局 70 城指数）
@@ -77,9 +77,9 @@ CITY_COMMUNITIES: dict[int, list[tuple[str, str, int]]] = {
 }
 
 CITY_SOURCE_NAMES = {
-    1: "广州市住建局公开成交",
-    2: "深圳住建局公开成交",
-    3: "珠海住建局公开成交",
+    1: "广州公开指标派生样本",
+    2: "深圳公开指标派生样本",
+    3: "珠海公开指标派生样本",
 }
 
 # 已知名单（深圳部分）
@@ -131,11 +131,11 @@ def read_stats_csv() -> dict[tuple[str, str, str], float]:
 
 
 def yoy_history_for_city(stats: dict, csv_name: str, last_n: int = 26) -> list[tuple[str, float]]:
-    seq = sorted(
+    seq = sorted([
         (d, v)
         for (d, c, fb), v in stats.items()
         if c == csv_name and fb == "同比"
-    )
+    ], key=lambda item: tuple(int(part) for part in item[0].replace("-", "/").split("/")))
     return seq[-last_n:]
 
 
@@ -239,6 +239,7 @@ def make_listings_csv() -> int:
                         lid, city_id, cid,
                         f"{community_name} {int(area)}㎡ {random.choice(['南向', '南北通透', '北向', '东南', '西向'])}",
                         CITY_SOURCE_NAMES[city_id],
+                        "DERIVED",
                         f"{csv_name}-LS-{lid:06d}",
                         _source_url_for_city(city_id, lid, community_name),
                         total_price_10k, unit_price, round(area, 1),
@@ -263,7 +264,7 @@ def make_listings_csv() -> int:
         w = csv.writer(f)
         w.writerow([
             "listing_id", "city_id", "community_id",
-            "title", "source", "source_listing_id",
+            "title", "source", "source_kind", "source_listing_id",
             "source_url",
             "total_price_10k", "unit_price", "area_sqm",
             "listing_type",

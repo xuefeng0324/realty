@@ -23,6 +23,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CSV_PATH = REPO_ROOT / "static" / "seed" / "listings.csv"
 META_PATH = REPO_ROOT / "static" / "seed" / "crawl_meta.json"
+SEED_DIR = REPO_ROOT / "static" / "seed"
+SCHEMA_VERSION = 2
 
 
 def _gh_remote_origin() -> str | None:
@@ -56,6 +58,25 @@ def _sha256(path: Path) -> str:
     return h.hexdigest()[:16]
 
 
+def _snapshot_sha256() -> str:
+    h = hashlib.sha256()
+    for path in sorted(SEED_DIR.glob("*.csv"), key=lambda p: p.name):
+        h.update(path.name.encode("utf-8"))
+        h.update(b"\0")
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(65536), b""):
+                h.update(chunk)
+    return h.hexdigest()[:16]
+
+
+def _row_counts() -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for path in sorted(SEED_DIR.glob("*.csv"), key=lambda p: p.name):
+        with open(path, "rb") as f:
+            counts[path.name] = max(0, sum(1 for _ in f) - 1)
+    return counts
+
+
 def main() -> None:
     if not CSV_PATH.exists():
         print(f"[publish_csv] {CSV_PATH} 不存在")
@@ -65,13 +86,18 @@ def main() -> None:
     meta_url = f"https://cdn.jsdelivr.net/gh/{repo}@main/realty_app/static/seed/crawl_meta.json"
     csv_sha = _sha256(CSV_PATH)
     row_count = sum(1 for _ in open(CSV_PATH, "rb")) - 1  # 去掉 header
+    row_counts = _row_counts()
     meta = {
         "csv_url": csv_url,
         "meta_url": meta_url,
         "sha256": csv_sha,
+        "snapshot_sha256": _snapshot_sha256(),
+        "schema_version": SCHEMA_VERSION,
         "row_count": row_count,
+        "file_count": len(row_counts),
+        "row_counts": row_counts,
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "source": "anjuke",
+        "source": "full-snapshot",
     }
     with open(META_PATH, "w", encoding="utf-8") as f:
         json.dump(meta, f, ensure_ascii=False, indent=2)

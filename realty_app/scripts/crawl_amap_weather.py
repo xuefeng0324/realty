@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import sys
 import time
 import urllib.parse
@@ -108,10 +109,12 @@ def parse_forecast(city: dict, data: dict) -> dict:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry", action="store_true")
-    ap.add_argument("--key", default="f22d0a9e25abc8512dbdbe37ac3ba139")
+    ap.add_argument("--key", default=os.environ.get("AMAP_KEY", ""))
     args = ap.parse_args()
 
     api_key = args.key
+    if not api_key:
+        raise SystemExit("需要 --key 或 AMAP_KEY 环境变量")
     rows: list[dict] = []
     for city in CITIES:
         print(f"fetching {city['city_name']} ({city['adcode']})...")

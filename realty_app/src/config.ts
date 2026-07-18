@@ -11,7 +11,7 @@
 export const DEFAULT_API_BASE_URL = "http://localhost:8000";
 
 export const APP_NAME = "Realty App";
-export const APP_VERSION = "0.1.0";
+export const APP_VERSION = "0.57.0";
 
 export const STORAGE_KEYS = {
   apiBaseUrl: "realty_app.apiBaseUrl",
@@ -20,5 +20,7 @@ export const STORAGE_KEYS = {
   source: "realty_app.source",
   metric: "realty_app.metric"
 };
+
+export const SNAPSHOT_UPDATED_EVENT = "realty:snapshot-updated";
 
 export const DEFAULT_PAGE_SIZE = 20;

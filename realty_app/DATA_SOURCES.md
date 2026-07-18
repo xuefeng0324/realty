@@ -1,6 +1,6 @@
-# Realty App — 政府宏观数据来源
+# Realty App — 数据来源与可信度分级
 
-本文档记录手机端 `realty_app` 使用的**政府公开宏观数据**来源、字段含义与更新方式。单套挂牌数据见 `src/local/importer.ts` 与 `scripts/crawl_anjuke.py`（安居客，CI 易被封）。
+本文档记录手机端 `realty_app` 的宏观数据、挂牌数据、派生样本和完整快照更新方式。所有单套房源必须通过 `source_kind` 明确区分真实挂牌与派生样本。
 
 ---
 
@@ -113,18 +113,44 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 
 ---
 
-## 3. 数据与 App 模块关系
+## 3. 房源数据与可信度分级
+
+`static/seed/listings.csv` 增加 `source_kind` 字段：
+
+| 值 | 含义 | 当前数据 |
+|---|---|---|
+| `REAL` | 从公开挂牌页面解析到的真实挂牌记录 | 链家在售 60 条；每周安居客刷新成功后也使用此等级 |
+| `DERIVED` | 用公开城市指数、市场参考价和固定随机种子生成的分析样本 | 内置包 1226 条；不代表真实逐套挂牌或成交 |
+| `ESTIMATED` | 距离、通勤等启发式估算数据 | 主要用于 `metro_walk.csv` 等配套指标 |
+| `UNKNOWN` | 历史或外部 CSV 未提供可信度等级 | UI 显示“来源未分级” |
+
+派生样本由 `scripts/seed_real_data.py` 生成。其小区名和城市级参考口径来自公开资料，但面积、户型、楼层、装修及单套价格扰动是程序生成值，不能标记为“住建局逐套成交”。详情页会显示黄色“派生样本”提示。
+
+### 3.1 完整快照更新
+
+远程刷新不再只替换 `listings.csv`。流程如下：
+
+1. `crawl_anjuke.py` 更新真实挂牌；
+2. `rebuild_listing_derivatives.py` 重建所有受房源影响的趋势、标签、评分和画像 CSV；
+3. `publish_csv.py` 为整个 `static/seed/*.csv` 生成 `snapshot_sha256`、schema 版本和逐文件行数；
+4. App 下载并验证整套快照，全部成功后才一次性替换内存数据。
+
+这样可以避免新 listings 混用旧的 `district_trend.csv`、`listing_tags.csv` 或 `community_score.csv`。
+
+---
+
+## 4. 数据与 App 模块关系
 
 ```
 stats_70.csv          → stats70.ts      → 70 城价格指数（月度）
 daily_wangqian.csv    → dailyWangqian.ts → 深广网签（日更）
-static/seed/listings.csv → seedSnapshot  → 单套挂牌（种子/远程刷新）
+static/seed/*.csv      → seedSnapshot / snapshotLoader → 完整业务快照
 ```
 
-三类数据**相互独立**，在 `App.vue` 启动时分别注入内存 store。
+宏观数据与业务快照相互独立，在 `App.vue` 启动时分别注入内存 store。
 
 ---
 
-## 4. 免责声明
+## 5. 免责声明
 
-政府数据以官网公布为准；脚本仅作技术聚合与学习用途，不构成投资建议。请遵守数据来源网站使用条款。
+政府数据以官网公布为准；真实挂牌以来源页面当时展示为准；`DERIVED` / `ESTIMATED` 数据仅用于产品演示和方法研究，不构成真实房源、成交记录或投资建议。请遵守数据来源网站使用条款。

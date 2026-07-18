@@ -68,12 +68,15 @@ export interface LocalLprRow {
   source: string;
 }
 
+export type ListingSourceKind = "REAL" | "DERIVED" | "ESTIMATED" | "UNKNOWN";
+
 export interface LocalListing {
   listingId: number;
   cityId: number;
   communityId: number;
   title: string;
   source: string | null;
+  sourceKind: ListingSourceKind;
   sourceListingId: string | null;
   sourceUrl: string | null;
   totalPrice10k: number | null;

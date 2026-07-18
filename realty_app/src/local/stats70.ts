@@ -21,6 +21,12 @@ import type { LocalStats70Row } from "./types";
 import { setStats70, getStats70, getStats70ByCity } from "./store";
 import { parseCSV, rowsToObjects } from "./csv";
 
+function dateSortKey(value: string): number {
+  const [year, month, day] = value.split(/[\/-]/).map(Number);
+  if (![year, month, day].every(Number.isFinite)) return 0;
+  return year * 10000 + month * 100 + day;
+}
+
 /**
  * 接受与 `crawl_stats_70.py` 完全相同的窄表 CSV 文本，解析为内部行数组。
  * 同时写入全局 store 缓存（无需重复 import）。
@@ -41,9 +47,10 @@ export function loadStats70FromCSV(text: string): LocalStats70Row[] {
     });
   }
 
-  // 按 date / city / fixed_base 排序，方便 "last" 取最后一行
+  // 月份允许 YYYY/M/D，不能直接按字符串排（10 月会被排到 2 月前面）。
   rows.sort((a, b) => {
-    if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+    const dateDiff = dateSortKey(a.date) - dateSortKey(b.date);
+    if (dateDiff !== 0) return dateDiff;
     if (a.city !== b.city) return a.city < b.city ? -1 : 1;
     return 0;
   });

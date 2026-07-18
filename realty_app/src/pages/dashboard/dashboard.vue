@@ -38,6 +38,9 @@
           <button class="btn" size="mini" @click="reload">刷新</button>
         </view>
         <text v-if="periodHint" class="muted period-hint">{{ periodHint }}</text>
+        <text class="muted period-hint">
+          数据构成：真实挂牌 {{ sourceKindSummary.real }} / 派生样本 {{ sourceKindSummary.derived }} / 其他 {{ sourceKindSummary.other }}；派生样本不代表逐套成交。
+        </text>
       </view>
 
       <!-- 全国 70 城指数（顶部第一张卡，入口也是 stats70 页） -->
@@ -160,7 +163,7 @@
         <text> · 数据量: 城市 {{ runtime.data_counts.cities }} / 小区 {{ runtime.data_counts.communities }} / 房源 {{ runtime.data_counts.listings }}</text>
       </view>
 
-      <view v-if="coverage" class="card" data-tab="all">
+      <view v-if="coverage" class="card" data-tab="overview">
         <view class="card-title">数据覆盖</view>
         <view class="muted">
           来源：{{ coverage.source_used || "全部" }} ·
@@ -215,37 +218,37 @@
       <!-- v0.55.0 hero-1: 顶部大盘轮播 + 快捷入口图标网格 -->
       <view class="hero-section" v-if="heroSlides.length > 0">
         <view class="hero-carousel">
-          <scroll-view
+          <swiper
             class="hero-scroll"
-            scroll-x
-            :show-scrollbar="false"
-            :scroll-into-view="heroScrollIntoView"
-            @scroll="onHeroScroll"
-            @scrollend="onHeroScrollEnd"
+            :current="heroIdx"
+            circular
+            autoplay
+            :interval="5000"
+            :duration="350"
+            @change="onHeroChange"
           >
-            <view
+            <swiper-item
               v-for="(s, i) in heroSlides"
               :key="'hero_' + i"
-              :id="'hero_' + i"
-              :class="['hero-slide', 'hero-slide--' + s.tone]"
-              @click="heroClick(i)"
             >
-              <view class="hero-slide-row">
-                <view class="hero-slide-icon">{{ s.icon }}</view>
-                <view class="hero-slide-mid">
-                  <view class="hero-slide-label">{{ s.label }}</view>
-                  <view class="hero-slide-val">{{ s.value }}<text v-if="s.unit" class="hero-slide-unit">{{ s.unit }}</text></view>
-                  <view class="hero-slide-sub muted">{{ s.sub }}</view>
+              <view :class="['hero-slide', 'hero-slide--' + s.tone]" @click="heroClick(i)">
+                <view class="hero-slide-row">
+                  <view class="hero-slide-icon">{{ s.icon }}</view>
+                  <view class="hero-slide-mid">
+                    <view class="hero-slide-label">{{ s.label }}</view>
+                    <view class="hero-slide-val">{{ s.value }}<text v-if="s.unit" class="hero-slide-unit">{{ s.unit }}</text></view>
+                    <view class="hero-slide-sub muted">{{ s.sub }}</view>
+                  </view>
                 </view>
               </view>
-            </view>
-          </scroll-view>
+            </swiper-item>
+          </swiper>
           <view class="hero-dots">
             <view
               v-for="(_, i) in heroSlides"
               :key="'dot_' + i"
               :class="['hero-dot', { 'hero-dot--active': heroIdx === i }]"
-              @click="heroIdx = i; heroScrollIntoView = 'hero_' + i"
+              @click="heroIdx = i"
             ></view>
           </view>
         </view>
@@ -263,7 +266,7 @@
       </view>
 
       <!-- 区/板块对比 -->
-      <view class="card" data-tab="all,price">
+      <view class="card" data-tab="overview,price">
         <view class="row-between">
           <view class="card-title">区/板块对比</view>
           <view class="muted">{{ app.metric === "listing_count" ? "挂牌数" : "均价(元/㎡)" }}</view>
@@ -370,7 +373,7 @@
       </view>
 
       <!-- v0.23.0 trend-9: 全品类区级网签热度榜 (新房/二手/全部 tab 切换) -->
-      <view v-if="districtWangqianRank && districtWangqianRank.items.length > 0" class="card" data-tab="all,price">
+      <view v-if="districtWangqianRank && districtWangqianRank.items.length > 0" class="card" data-tab="overview,price">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">
             🔥 全品类区级网签热度榜 · {{ districtWangqianRank.cityName }}
@@ -420,7 +423,7 @@
       </view>
 
       <!-- v0.24.0 new-5: 通勤时长榜 (community → 城市 CBD 公交通勤) -->
-      <view v-if="commuteRanking && commuteRanking.fastest.length > 0" class="card" data-tab="all,transit">
+      <view v-if="commuteRanking && commuteRanking.fastest.length > 0" class="card" data-tab="overview,transit">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">
             🚇 通勤时长榜 · {{ commuteRanking.cityName }} → {{ commuteRanking.cbdName }}
@@ -601,7 +604,7 @@
       </view>
 
       <!-- v0.33.0 trend-15 小区综合评分榜 (生活+学区+通勤 加权) -->
-      <view v-if="communityScore && communityScore.items.length > 0" class="card" data-tab="all,price">
+      <view v-if="communityScore && communityScore.items.length > 0" class="card" data-tab="overview,price">
         <view class="row-between">
           <view class="card-title">🏅 小区综合评分 Top 小区 · {{ communityScore.cityName }}</view>
           <view class="muted">Top {{ communityScore.items.length }}</view>
@@ -1401,7 +1404,7 @@
       </view>
 
       <!-- v0.47.0 school-4 学区指标加权细分 -->
-      <view v-if="schoolDims && schoolDims.total > 0" class="card" data-tab="all,school">
+      <view v-if="schoolDims && schoolDims.total > 0" class="card" data-tab="overview,school">
         <view class="row-between">
           <view class="card-title">🏫 学区 5 维评分 · {{ schoolDims.cityName }}</view>
           <view class="muted">{{ schoolDims.total }} 校</view>
@@ -1478,7 +1481,7 @@
       </view>
 
       <!-- v0.53.0 macro-1 LPR + 房贷利率 -->
-      <view v-if="lpr && lpr.total > 0" class="card" data-tab="all,price">
+      <view v-if="lpr && lpr.total > 0" class="card" data-tab="overview,price">
         <view class="row-between">
           <view class="card-title">💰 LPR + 房贷利率 · 全国</view>
           <view class="muted">{{ lpr.total }} 月历史 · 最新 {{ lpr.latest?.month }}</view>
@@ -1753,12 +1756,12 @@
         </view>
       </view>
 
-      <!-- v0.16.0 实时天气 + 4 天预报 -->
+      <!-- 天气快照 + 4 天预报 -->
       <view v-if="weatherResp && (weatherResp.live || weatherResp.forecast.length > 0)" class="card">
         <view class="row-between">
-          <view class="card-title">🌤️ {{ weatherResp.cityName }} 实时天气</view>
+          <view class="card-title">🌤️ {{ weatherResp.cityName }} 天气快照</view>
           <view class="muted">
-            {{ weatherResp.live?.report_time || "—" }}
+            {{ weatherResp.live?.report_time || "—" }} {{ weatherFreshLabel }}
           </view>
         </view>
         <view v-if="weatherResp.live" class="weather-live">
@@ -1779,7 +1782,7 @@
               <text class="weather-stat-value">{{ weatherResp.live.windpower }}级 {{ weatherResp.live.winddirection }}</text>
             </view>
             <view class="weather-stat">
-              <text class="weather-stat-label">🌫 AQI</text>
+              <text class="weather-stat-label">🌬 扩散条件</text>
               <text :class="['weather-stat-value', 'aqi-chip', aqiChipClass]">
                 {{ weatherResp.aqi_estimate?.label ?? "—" }}
               </text>
@@ -1807,7 +1810,7 @@
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：高德地图 /v3/weather/weatherInfo (实况 + 4 天预报)。
-          AQI 因高德 API 不提供 AQI 字段，此处按湿度+风力+温度粗略估算，仅供参考。
+          “扩散条件”按湿度、风力和温度粗略估算，不是空气质量指数。
         </view>
       </view>
 
@@ -2000,6 +2003,7 @@ import type {
   SourceStatItem
 } from "../../api/contracts";
 import { coverageText, formatUnitPrice, showToast, daysAgoFromToday } from "../../utils/format";
+import { SNAPSHOT_UPDATED_EVENT } from "../../config";
 
 const app = useAppStore();
 
@@ -2500,11 +2504,23 @@ const errorMsg = ref<string>("");
 const loading = ref<boolean>(false);
 
 // v0.48.0 dashboard-tabs: 顶部 tab 切换
-type DashTabKey = "all" | "price" | "school" | "transit" | "map";
-const activeTab = ref<DashTabKey>("all");
+type DashTabKey = "overview" | "price" | "school" | "transit" | "map";
+const activeTab = ref<DashTabKey>("overview");
 
 // v0.55.0 hero-1: 顶部大盘轮播 — 城市级聚合 (从 snapshot 实时计算)
 const listingCount = computed<number>(() => store.getListingsByCity(app.cityId).length);
+const sourceKindSummary = computed(() => {
+  const rows = store.getListingsByCity(app.cityId);
+  return rows.reduce(
+    (acc, row) => {
+      if (row.sourceKind === "REAL") acc.real++;
+      else if (row.sourceKind === "DERIVED") acc.derived++;
+      else acc.other++;
+      return acc;
+    },
+    { real: 0, derived: 0, other: 0 }
+  );
+});
 const communityCount = computed<number>(() => {
   const seen = new Set<number>();
   for (const l of store.getListingsByCity(app.cityId)) seen.add(l.communityId);
@@ -2540,8 +2556,6 @@ type HeroSlide = {
   tab?: DashTabKey;
 };
 const heroIdx = ref(0);
-const heroScrollIntoView = ref<string>("");
-let heroTimer: number | null = null;
 const heroSlides = computed<HeroSlide[]>(() => {
   const cityName = store.getCityById(app.cityId)?.cityName ?? app.cityId.toString();
   const slides: HeroSlide[] = [];
@@ -2554,7 +2568,7 @@ const heroSlides = computed<HeroSlide[]>(() => {
     unit: "套",
     sub: `${communityCount.value} 个小区在监控`,
     tone: "blue",
-    tab: "all"
+    tab: "overview"
   });
   // 2. 平均单价
   if (medianUnitPrice.value > 0) {
@@ -2620,39 +2634,14 @@ const heroSlides = computed<HeroSlide[]>(() => {
   return slides;
 });
 
-function onHeroScroll(_e: any) {
-  // 不主动更新 heroIdx, 由 onHeroScrollEnd 决定
-}
-function onHeroScrollEnd(e: any) {
-  // e.detail.scrollLeft 当前 scrollLeft
-  const sl = e?.detail?.scrollLeft ?? 0;
-  // 每个 slide width = 88vw - 24rpx * 2 padding ≈ 估算 540 (uni-app scroll-view 横向)
-  // 简化: 用 ratio
-  const cardW = (heroSlides.value.length > 0 ? 1 : 0);
-  // 通过 scrollLeft 判断 — 每张卡片占 ~88vw - 24rpx ≈ 估算 540rpx ≈ 270px
-  const idx = Math.round(sl / 270);
-  if (idx !== heroIdx.value) heroIdx.value = Math.max(0, Math.min(idx, heroSlides.value.length - 1));
+function onHeroChange(e: any) {
+  const idx = Number(e?.detail?.current ?? 0);
+  heroIdx.value = Math.max(0, Math.min(idx, heroSlides.value.length - 1));
 }
 function heroClick(i: number) {
   const s = heroSlides.value[i];
   if (s?.tab) activeTab.value = s.tab;
 }
-function heroAdvance() {
-  if (heroSlides.value.length <= 1) return;
-  heroIdx.value = (heroIdx.value + 1) % heroSlides.value.length;
-  heroScrollIntoView.value = "hero_" + heroIdx.value;
-}
-function startHeroAuto() {
-  if (heroTimer != null) return;
-  heroTimer = setInterval(heroAdvance, 5000) as unknown as number;
-}
-function stopHeroAuto() {
-  if (heroTimer != null) {
-    clearInterval(heroTimer);
-    heroTimer = null;
-  }
-}
-
 // v0.55.0 hero-1: 快捷入口图标网格
 type QuickShortcut = {
   key: string;
@@ -2670,7 +2659,7 @@ const QUICK_SHORTCUTS: QuickShortcut[] = [
   { key: "city", icon: "🌆", label: "切换城市", tone: "violet", action: "city" },
   { key: "period", icon: "📅", label: "切换周次", tone: "rose", action: "page", target: "period" },
   { key: "settings", icon: "⚙️", label: "数据设置", tone: "blue", action: "page", target: "settings" },
-  { key: "ranking", icon: "📊", label: "小区榜单", tone: "green", action: "page", target: "ranking" }
+  { key: "overview", icon: "📊", label: "返回概览", tone: "green", action: "tab", target: "overview" }
 ];
 function quickClick(q: QuickShortcut) {
   if (q.action === "tab" && q.target) {
@@ -2681,14 +2670,11 @@ function quickClick(q: QuickShortcut) {
     // 滚动到顶部 (周期 sticky 已经固定, 滚动到位即可)
     uni.pageScrollTo({ scrollTop: 0, duration: 200 });
   } else if (q.action === "city") {
-    // 触发 city picker — 调用 app 上的方法 (如果有)
-    try {
-      (app as any).showCityPicker?.();
-    } catch {}
+    pickCity();
   }
 }
 const DASHBOARD_TABS: Array<{ key: DashTabKey; icon: string; label: string }> = [
-  { key: "all", icon: "📊", label: "全部" },
+  { key: "overview", icon: "📊", label: "概览" },
   { key: "price", icon: "💰", label: "价格画像" },
   { key: "school", icon: "🏫", label: "学区配套" },
   { key: "transit", icon: "🚇", label: "通勤地铁" },
@@ -2713,13 +2699,12 @@ function stepPeriod(delta: number) {
   showToast(`已切到 ${target}`);
 }
 
-// 房源来自安居客「每周快照」，最新周期是上一个完整周（周日结束），并非当天。
-// 这里给一句说明，避免用户误以为"周期结束日没更新到今天"是 bug。
+// 房源按周聚合，来源可能是真实挂牌或公开指标派生样本。
 const periodHint = computed(() => {
   const list = periods.value;
   if (list.length === 0) return "";
   const latest = list[list.length - 1];
-  return `房源为安居客每周快照，最新周期 ${latest}（非当日）`;
+  return `房源快照最新周期 ${latest}（周维度，不代表当日实时挂牌）`;
 });
 
 // Picker 辅助
@@ -3635,6 +3620,13 @@ const aqiChipClass = computed(() => {
   return "aqi-mid";
 });
 
+const weatherFreshLabel = computed(() => {
+  const days = daysAgoFromToday(weatherResp.value?.live?.report_time);
+  if (days == null) return "";
+  if (days <= 0) return "· 今日";
+  return `· ${days} 天前${days > 2 ? "（已过期）" : ""}`;
+});
+
 function formatWqArea(sqm: number): string {
   if (sqm >= 10000) return `${(sqm / 10000).toFixed(1)} 万㎡`;
   return `${Math.round(sqm).toLocaleString()} ㎡`;
@@ -3796,6 +3788,7 @@ watch(activeTab, () => {
 });
 
 onMounted(async () => {
+  uni.$on(SNAPSHOT_UPDATED_EVENT, loadAll);
   applyTabClass();
   const res = await getCities();
   cities.value = res.items || [];
@@ -3807,12 +3800,11 @@ onMounted(async () => {
     errorMsg.value = "未获取到城市列表，请检查后端 /api/v1/cities";
   }
   await loadAll();
-  // v0.55.0 hero-1: 启动 hero 轮播自动切换
-  startHeroAuto();
 });
 
 onUnmounted(() => {
-  stopHeroAuto();
+  uni.$off(SNAPSHOT_UPDATED_EVENT, loadAll);
+  if (typeof document !== "undefined") document.body.removeAttribute("data-dash-tab");
 });
 
 onPullDownRefresh(async () => {
@@ -6166,22 +6158,14 @@ onShow(async () => {
   overflow: hidden;
 }
 .hero-scroll {
-  white-space: nowrap;
   width: 100%;
-  scroll-snap-type: x mandatory;
-}
-.hero-scroll::-webkit-scrollbar {
-  display: none;
+  height: 200rpx;
 }
 .hero-slide {
-  display: inline-block;
-  width: 88vw;
-  max-width: 620rpx;
+  width: 100%;
   height: 200rpx;
-  margin-right: 16rpx;
   padding: 24rpx 28rpx;
   border-radius: 16rpx;
-  scroll-snap-align: start;
   cursor: pointer;
   transition: transform 0.15s;
   box-sizing: border-box;
@@ -6380,10 +6364,11 @@ onShow(async () => {
 
 <!-- v0.48.0 dashboard-tabs: 全局 (非 scoped) for body[data-dash-tab] 选择器 -->
 <style lang="scss">
-body[data-dash-tab="price"] .card:not([data-tab*="price"]),
-body[data-dash-tab="school"] .card:not([data-tab*="school"]),
-body[data-dash-tab="transit"] .card:not([data-tab*="transit"]),
-body[data-dash-tab="map"] .card:not([data-tab*="map"]) {
+body[data-dash-tab="overview"] .card[data-tab]:not([data-tab*="overview"]),
+body[data-dash-tab="price"] .card[data-tab]:not([data-tab*="price"]),
+body[data-dash-tab="school"] .card[data-tab]:not([data-tab*="school"]),
+body[data-dash-tab="transit"] .card[data-tab]:not([data-tab*="transit"]),
+body[data-dash-tab="map"] .card[data-tab]:not([data-tab*="map"]) {
   display: none !important;
 }
 </style>

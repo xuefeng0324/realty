@@ -78,9 +78,9 @@ try {
   sharp = (await import('sharp')).default;
 } catch {
   console.warn('[visual-diff] sharp not installed; falling back to byte hash');
-  // Hash-based fallback: just report "changed" if bytes differ
+  // 缺少像素比较依赖时不能把变化当成通过，否则视觉回归会失去门禁作用。
   report.status = 'changed-no-sharp';
-  report.ratio = 1.0;
+  report.ratio = 1;
   writeFileSync(REPORT, JSON.stringify(report, null, 2));
   console.warn(`[visual-diff] bytes differ (${baseBytes.length} vs ${currBytes.length})`);
   console.warn('[visual-diff] install sharp for real pixel diff: npm i -D sharp');
@@ -104,7 +104,8 @@ if (
     `current ${currImg.info.width}x${currImg.info.height}@${currImg.info.channels}`
   );
   report.status = 'size-mismatch';
-  report.ratio = 1.0;
+  report.ratio = 1;
+  report.reason = 'size/channel mismatch';
   writeFileSync(REPORT, JSON.stringify(report, null, 2));
   process.exit(1);
 }

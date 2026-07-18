@@ -1,13 +1,11 @@
 /**
- * 应用默认启动时使用的"真数据快照"。
+ * 应用默认启动时使用的内置完整快照。
  *
  * 默认值（基于公开政策 & 国家统计局 70 城指数派生）从 `static/seed/` 加载。
  * 这一组 CSV 是 `scripts/seed_real_data.py` 跑出来的，
- * 包含 532 条 listings（来自 10 个南山/福田/龙岗/龙华 的公开楼盘），
- * 价格基于 70 城月度同比指数做时间序列波动。
+ * 包含真实挂牌与公开指标派生样本；两者通过 source_kind 明确区分。
  *
- * 用户首次启动会落到这里，而非程序生成的伪随机 demo 数据。
- * 后续切到"下载 CSV"或"HTTP 后端"模式会覆盖。
+ * 用户首次启动先加载这里；自定义 CSV 模式成功后再原子替换。
  */
 import { parseCSV, rowsToObjects } from "./csv";
 import { importSnapshot } from "./importer";
@@ -151,7 +149,7 @@ export function buildSeedSnapshot(): DataSnapshot {
   return snap;
 }
 
-/** 用于设置页中"重置到种子真数据"按钮。 */
+/** 用于设置页中“重置到内置快照”按钮。 */
 export function resetSeedSnapshotCache() {
   cached = null;
 }

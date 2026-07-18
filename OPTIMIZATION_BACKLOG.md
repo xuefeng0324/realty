@@ -17,7 +17,7 @@
 | 🟡 P1 | data-4 | 调研 opendata.sz.gov.cn 其它 70 个数据集 | ⏳ | — |
 | 🟡 P1 | data-5 | 接 cnstats 国家统计局月度宏观指标 | ⏳ | — |
 | 🟡 P1 | data-6 | 学校数据从 14 个扩到 100+ | ⏳ | — |
-| 🟢 P2 | data-7 | 数据 quality 单测 + schema 版本号 | ⏳ | — |
+| 🟢 P2 | data-7 | 数据 quality 单测 + schema 版本号 | ✅ v0.57.0 | source_kind + snapshot schema/hash/row-count 校验 |
 | 🟢 P2 | ui-1 | App 地图视图（用上 listings 经纬度） | ⏳ | 依赖 data-1 |
 | 🟢 P2 | ui-2 | 成交 vs 挂牌对比视图 | ⏳ | 依赖 data-2 |
 

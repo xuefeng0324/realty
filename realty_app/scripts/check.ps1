@@ -102,7 +102,7 @@ if (-not $SkipSmoke) {
     if ($LASTEXITCODE -eq 0) {
       $jsonPath = Join-Path (Get-Location) "tests/e2e/artifacts/smoke.json"
       if (Test-Path $jsonPath) {
-        $smoke = Get-Content $jsonPath -Raw | ConvertFrom-Json
+        $smoke = Get-Content $jsonPath -Raw -Encoding UTF8 | ConvertFrom-Json
         Write-Host "  PASS (interactive=$($smoke.interactiveCount), elements=$($smoke.elementCount), errors=$($smoke.consoleErrors.Count + $smoke.pageErrors.Count))" -ForegroundColor Green
       } else {
         Write-Host "  PASS" -ForegroundColor Green

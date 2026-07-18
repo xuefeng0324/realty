@@ -156,6 +156,7 @@ export interface ListingDetailResponse {
     community_id: number;
     title: string;
     source: string | null;
+    source_kind: "REAL" | "DERIVED" | "ESTIMATED" | "UNKNOWN";
     source_listing_id: string | null;
     source_url: string | null;
     total_price_10k: number | null;

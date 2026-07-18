@@ -13,13 +13,13 @@
         </view>
 
         <view class="row-gap" style="margin-top: 16rpx">
-          <button class="btn" size="mini" @click="resetToSeed">重置为政府公开种子</button>
+          <button class="btn" size="mini" @click="resetToSeed">重置为内置快照</button>
         </view>
       </view>
 
-      <!-- v3：从 jsDelivr 拉当周真数据 -->
+      <!-- 从 CDN 拉整套一致快照 -->
       <view class="card">
-        <view class="card-title">实时数据（安居客）</view>
+        <view class="card-title">远程完整快照</view>
         <view class="muted">
           <text v-if="lastRefresh.at">上次刷新：{{ lastRefresh.at }}</text>
           <text v-else>尚未刷新过，仍用 app 包内数据</text>
@@ -32,11 +32,11 @@
             {{ refreshing ? "刷新中…" : "刷新数据" }}
           </button>
           <button class="btn btn-ghost" size="mini" :disabled="!lastRefresh.sha" @click="restoreSeed">
-            回到种子包
+            回到内置快照
           </button>
         </view>
         <text class="muted" style="margin-top: 12rpx; font-size: 22rpx;">
-          数据源：GitHub Actions 每周抓 m.anjuke.com → jsDelivr CDN → 本 app
+          一次更新房源与全部衍生指标，避免新房源混用旧榜单。数据来自 GitHub Actions → CDN。
         </text>
       </view>
 
@@ -114,18 +114,8 @@
             </view>
           </view>
 
-          <view v-if="dataMode === 'http'" class="form-item" style="margin-top: 16rpx">
-            <text class="form-label">后端地址（http://host:port）</text>
-            <input
-              class="input"
-              type="text"
-              v-model="httpBaseUrl"
-              placeholder="例如 http://192.168.1.10:8000"
-            />
-          </view>
-
           <view v-if="dataMode === 'csv-url'" class="form-item" style="margin-top: 16rpx">
-            <text class="form-label">CSV 远程地址（5 个文件根 URL）</text>
+            <text class="form-label">完整 CSV 快照根地址</text>
             <input
               class="input"
               type="text"
@@ -133,7 +123,7 @@
               placeholder="例如 https://your-cdn.com/realty-data/"
             />
             <text class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-              需要 5 个文件：cities.csv / communities.csv / schools.csv / school_indicators.csv / listings.csv
+              5 个基础文件必需；其余榜单与地图 CSV 会同步加载。该模式会在下次启动时自动恢复。
             </text>
           </view>
 
@@ -147,9 +137,9 @@
       <view class="card">
         <view class="card-title">关于</view>
         <view class="muted">
-          Realty App v0.3.0 · 纯 app 模式（不依赖电脑后端）<br />
-          默认数据：政府公开种子（国家统计局 70 城指数 + 公开深圳/广州/珠海楼盘均价派生，1226 套房源）<br />
-          评分规则在手机上实时计算，与 backend Python 版 1:1 对应（42 个测试对照）
+          Realty App v{{ APP_VERSION }} · 纯本地快照模式<br />
+          默认数据：真实挂牌与公开指标派生样本并存，详情页会明确标注数据等级<br />
+          评分规则在手机上实时计算；当前自动化测试为 458 个用例
         </view>
       </view>
     </view>
@@ -158,13 +148,19 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { DEFAULT_API_BASE_URL, STORAGE_KEYS } from "../../config";
+import { APP_VERSION, SNAPSHOT_UPDATED_EVENT } from "../../config";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { setSnapshot, getSnapshot } from "../../local/store";
-import { importSnapshot } from "../../local/importer";
 import { buildSeedSnapshot, resetSeedSnapshotCache } from "../../local/seedSnapshot";
-import { getApiBaseUrl, setApiBaseUrl } from "../../api/http";
 import { showToast } from "../../utils/format";
+import { loadSnapshotFromBase } from "../../local/snapshotLoader";
+import {
+  CSV_BASE_URL_STORAGE_KEY,
+  DATA_MODE_STORAGE_KEY,
+  getStoredCsvBaseUrl,
+  getStoredDataMode,
+  type DataMode
+} from "../../local/dataMode";
 import {
   refreshFromRemote,
   getLastRefreshInfo,
@@ -186,15 +182,8 @@ function openGov(key: GovWebLinkKey) {
   openGovWeb(key);
 }
 
-type DataMode = "seed" | "csv-url" | "http";
-
-const dataMode = ref<DataMode>(
-  (uni.getStorageSync("realty_app.dataMode") as DataMode) ?? "seed"
-);
-const httpBaseUrl = ref<string>(getApiBaseUrl());
-const csvBaseUrl = ref<string>(
-  (uni.getStorageSync("realty_app.csvBaseUrl") as string) ?? ""
-);
+const dataMode = ref<DataMode>(getStoredDataMode());
+const csvBaseUrl = ref<string>(getStoredCsvBaseUrl());
 const advancedOpen = ref<boolean>(false);
 const refreshing = ref<boolean>(false);
 const lastRefresh = ref<{ sha?: string; at?: string }>(getLastRefreshInfo());
@@ -218,15 +207,8 @@ const counts = computed(() => {
   };
 });
 
-const dataModeLabels = ["政府公开种子", "下载 CSV（远程）", "HTTP 后端"];
-const dataModeIndex = computed(() =>
-  {
-    const v = dataMode.value;
-    if (v === "seed") return 0;
-    if (v === "csv-url") return 1;
-    return 2;
-  }
-);
+const dataModeLabels = ["内置完整快照", "自定义 CSV 快照"];
+const dataModeIndex = computed(() => dataMode.value === "csv-url" ? 1 : 0);
 const dataModeLabel = computed(() => dataModeLabels[dataModeIndex.value]);
 
 function onDataModeChange(e: any) {
@@ -240,9 +222,7 @@ function pickDataMode() {
     title: "数据源类型",
     success: (res: any) => {
       const idx = Number(res.tapIndex);
-      if (idx === 0) dataMode.value = "seed";
-      else if (idx === 1) dataMode.value = "csv-url";
-      else dataMode.value = "http";
+      dataMode.value = idx === 1 ? "csv-url" : "seed";
     },
     fail: () => {}
   });
@@ -256,24 +236,20 @@ async function save() {
   errorMsg.value = "";
   infoMsg.value = "";
   try {
-    if (dataMode.value === "http") {
-      const v = httpBaseUrl.value.trim();
-      if (!/^https?:\/\//i.test(v)) {
-        showToast("后端地址必须以 http(s):// 开头");
+    if (dataMode.value === "csv-url") {
+      if (!csvBaseUrl.value.trim()) {
+        showToast("请填写完整 CSV 快照地址");
         return;
       }
-      setApiBaseUrl(v.replace(/\/+$/, ""));
-      uni.setStorageSync(STORAGE_KEYS.apiBaseUrl, v);
-    }
-    if (dataMode.value === "csv-url" && csvBaseUrl.value) {
-      uni.setStorageSync("realty_app.csvBaseUrl", csvBaseUrl.value);
+      uni.setStorageSync(CSV_BASE_URL_STORAGE_KEY, csvBaseUrl.value.trim());
       await loadFromCsvUrl(csvBaseUrl.value);
     }
     if (dataMode.value === "seed") {
       resetSeedSnapshotCache();
       setSnapshot(buildSeedSnapshot());
+      uni.$emit(SNAPSHOT_UPDATED_EVENT);
     }
-    uni.setStorageSync("realty_app.dataMode", dataMode.value);
+    uni.setStorageSync(DATA_MODE_STORAGE_KEY, dataMode.value);
     showToast("已保存");
   } catch (e) {
     errorMsg.value = toErrorMessage(e);
@@ -281,54 +257,10 @@ async function save() {
 }
 
 async function loadFromCsvUrl(base: string) {
-  const root = base.replace(/\/+$/, "") + "/";
-  const fetchText = (path: string) =>
-    fetch(root + path).then((r) => {
-      if (!r.ok) throw new Error(`HTTP ${r.status} for ${path}`);
-      return r.text();
-    });
-  const snap = importSnapshot(
-    {
-      citiesCSV: await fetchText("cities.csv"),
-      communitiesCSV: await fetchText("communities.csv"),
-      schoolsCSV: await fetchText("schools.csv"),
-      schoolIndicatorsCSV: await fetchText("school_indicators.csv"),
-      listingsCSV: await fetchText("listings.csv"),
-      poisCSV: await fetchText("poi_seed.csv").catch(() => ""),
-      hospitalsCSV: await fetchText("hospitals.csv").catch(() => ""),
-      metroPlanningCSV: await fetchText("metro_planning.csv").catch(() => ""),
-      districtTrendCSV: await fetchText("district_trend.csv").catch(() => ""),
-      wangqianDistrictWeeklyCSV: await fetchText("wangqian_district_weekly.csv").catch(() => ""),
-      schoolPremiumDistrictCSV: await fetchText("school_premium_district.csv").catch(() => ""),
-      schoolPremiumCommunityCSV: await fetchText("school_premium_community.csv").catch(() => ""),
-      metroPlanningGeoCSV: await fetchText("metro_planning_geo.csv").catch(() => ""),
-      weatherCSV: await fetchText("weather.csv").catch(() => ""),
-      listingSchoolPremiumCSV: await fetchText("listing_school_premium.csv").catch(() => ""),
-      communityCommercialCSV: await fetchText("community_commercial.csv").catch(() => ""),
-      commuteCSV: await fetchText("commute.csv").catch(() => ""),
-      layoutDistributionCSV: await fetchText("layout_distribution.csv").catch(() => ""),
-      listingTagsCSV: await fetchText("listing_tags.csv").catch(() => ""),
-      districtIndexCSV: await fetchText("district_index.csv").catch(() => ""),
-      lifeConvenienceCSV: await fetchText("life_convenience.csv").catch(() => ""),
-      communityScoreCSV: await fetchText("community_score.csv").catch(() => ""),
-      metroWalkCSV: await fetchText("metro_walk.csv").catch(() => ""),
-      metroBenefitCSV: await fetchText("metro_benefit.csv").catch(() => ""),
-      districtMetaCSV: await fetchText("district_meta.csv").catch(() => ""),
-      featurePremiumCSV: await fetchText("feature_premium.csv").catch(() => ""),
-      tagCombinationCSV: await fetchText("tag_combination.csv").catch(() => ""),
-      listingFreshnessCSV: await fetchText("listing_freshness.csv").catch(() => ""),
-      bedroomAreaCSV: await fetchText("bedroom_area.csv").catch(() => ""),
-      orientationFloorCSV: await fetchText("orientation_floor.csv").catch(() => ""),
-      decorateAgeCSV: await fetchText("decorate_age.csv").catch(() => ""),
-      communityScatterCSV: await fetchText("community_scatter.csv").catch(() => ""),
-      districtPolygonCSV: await fetchText("district_polygon.csv").catch(() => ""),
-      communityGeoCSV: await fetchText("communities_geo.csv").catch(() => ""),
-      schoolDimensionsCSV: await fetchText("school_dimensions.csv").catch(() => ""),
-      lprHistoryCSV: await fetchText("lpr_history.csv").catch(() => "")
-    },
-    "csv-url:" + root
-  );
+  const root = base.trim().replace(/\/+$/, "");
+  const snap = await loadSnapshotFromBase(root, "csv-url:" + root);
   setSnapshot(snap);
+  uni.$emit(SNAPSHOT_UPDATED_EVENT);
   infoMsg.value = `已加载：${snap.listings.length} 套房源 / ${snap.communities.length} 个小区`;
 }
 
@@ -344,11 +276,6 @@ async function downloadNewCsv() {
     }
     return;
   }
-  if (dataMode.value === "http") {
-    infoMsg.value =
-      "HTTP 模式下数据由后端实时提供，无需手动下载。请打开 app 其他页面即可看到最新数据。";
-    return;
-  }
   if (dataMode.value === "seed") {
     await resetToSeed();
     return;
@@ -361,10 +288,11 @@ async function resetToSeed() {
   resetSeedSnapshotCache();
   const snap = buildSeedSnapshot();
   setSnapshot(snap);
+  uni.$emit(SNAPSHOT_UPDATED_EVENT);
   dataMode.value = "seed";
-  uni.setStorageSync("realty_app.dataMode", "seed");
-  infoMsg.value = `已加载政府公开种子：${snap.listings.length} 套房源 / ${snap.communities.length} 个小区`;
-  showToast("已重置为政府公开种子数据");
+  uni.setStorageSync(DATA_MODE_STORAGE_KEY, "seed");
+  infoMsg.value = `已加载内置完整快照：${snap.listings.length} 套房源 / ${snap.communities.length} 个小区`;
+  showToast("已重置为内置快照");
 }
 
 async function refreshFromCdn() {
@@ -376,6 +304,7 @@ async function refreshFromCdn() {
     const result = await refreshFromRemote();
     lastRefresh.value = getLastRefreshInfo();
     if (result.ok && result.changed) {
+      uni.$emit(SNAPSHOT_UPDATED_EVENT);
       const s = getSnapshot();
       infoMsg.value = `已更新 ${result.rowCount ?? s?.listings.length ?? 0} 套房源 · ${result.meta?.generated_at ?? ""}`;
       showToast("数据已更新");

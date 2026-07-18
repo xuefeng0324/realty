@@ -36,22 +36,23 @@ async function main() {
   const labels = await page.$$eval(".dash-tab", (nodes) => nodes.map((n) => n.textContent.trim()));
   console.log(`✓ tabs: ${labels.join(" | ")}`);
 
-  // 默认 all
+  // 默认概览
   const active1 = await page.locator(".dash-tab.dash-tab--active").first().textContent();
+  if (!active1.includes("概览")) throw new Error(`default tab should be 概览, got ${active1}`);
   console.log(`✓ default active: ${active1.trim()}`);
 
-  // 数量: all 多
-  const allVisible = await page.$$eval(".card", (nodes) => nodes.filter((n) => {
+  const overviewVisible = await page.$$eval(".card", (nodes) => nodes.filter((n) => {
     const s = window.getComputedStyle(n);
     return s.display !== "none" && n.offsetHeight > 0;
   }).length);
-  console.log(`✓ ALL 显示卡片数: ${allVisible}`);
+  console.log(`✓ 概览显示卡片数: ${overviewVisible}`);
+  if (overviewVisible > 15) throw new Error(`概览卡片仍过多: ${overviewVisible}`);
 
-  // 截图: ALL
+  // 截图: 概览
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(400);
-  await page.screenshot({ path: "tests/e2e/screenshots/v0.48.0_tabs_all.png", fullPage: false });
-  console.log(`📸 v0.48.0_tabs_all.png`);
+  await page.screenshot({ path: "tests/e2e/screenshots/v0.57.0_tabs_overview.png", fullPage: false });
+  console.log(`📸 v0.57.0_tabs_overview.png`);
 
   // 切换 price
   await page.locator(".dash-tab", { hasText: "价格画像" }).click();
@@ -61,7 +62,7 @@ async function main() {
     return s.display !== "none" && n.offsetHeight > 0;
   }).length);
   console.log(`✓ 价格画像 显示卡片: ${priceVisible}`);
-  if (priceVisible >= allVisible) throw new Error("price tab 没减少卡片");
+  if (priceVisible === overviewVisible) throw new Error("price tab 没切换卡片集合");
   await page.screenshot({ path: "tests/e2e/screenshots/v0.48.0_tabs_price.png", fullPage: false });
   console.log(`📸 v0.48.0_tabs_price.png`);
 
@@ -98,15 +99,15 @@ async function main() {
   await page.screenshot({ path: "tests/e2e/screenshots/v0.48.0_tabs_map.png", fullPage: false });
   console.log(`📸 v0.48.0_tabs_map.png`);
 
-  // 切回 ALL
-  await page.locator(".dash-tab", { hasText: "全部" }).click();
+  // 切回概览
+  await page.locator(".dash-tab", { hasText: "概览" }).click();
   await page.waitForTimeout(600);
-  const backAll = await page.$$eval(".card", (nodes) => nodes.filter((n) => {
+  const backOverview = await page.$$eval(".card", (nodes) => nodes.filter((n) => {
     const s = window.getComputedStyle(n);
     return s.display !== "none" && n.offsetHeight > 0;
   }).length);
-  if (backAll !== allVisible) console.warn(`重新 all 显示 ${backAll}, 与初 all (${allVisible}) 略有不同`);
-  console.log(`✓ 切回 ALL 卡片: ${backAll}`);
+  if (backOverview !== overviewVisible) console.warn(`重新概览显示 ${backOverview}, 与初始 (${overviewVisible}) 略有不同`);
+  console.log(`✓ 切回概览卡片: ${backOverview}`);
 
   await browser.close();
   console.log("ALL GREEN");

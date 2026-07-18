@@ -2,6 +2,9 @@
 import { onLaunch, onShow } from "@dcloudio/uni-app";
 import { setSnapshot, isLoaded, hasStats70, hasDailyWangqian } from "./local/store";
 import { buildSeedSnapshot } from "./local/seedSnapshot";
+import { loadSnapshotFromBase } from "./local/snapshotLoader";
+import { getStoredCsvBaseUrl, getStoredDataMode } from "./local/dataMode";
+import { SNAPSHOT_UPDATED_EVENT } from "./config";
 import { loadStats70FromCSV } from "./local/stats70";
 import { loadDailyWangqianFromCSV } from "./local/dailyWangqian";
 import {
@@ -28,6 +31,20 @@ onLaunch(() => {
       console.log("[realty_app] seed loaded:", snap.listings.length, "listings");
     } catch (e) {
       console.warn("[realty_app] seed load failed, falling back not applied yet", e);
+    }
+  }
+  // 自定义 CSV 模式会在每次启动时重新加载整套快照；先显示内置数据，
+  // 成功后再原子替换并通知已挂载页面刷新，失败则保留内置快照。
+  if (getStoredDataMode() === "csv-url") {
+    const base = getStoredCsvBaseUrl().replace(/\/+$/, "");
+    if (base) {
+      void loadSnapshotFromBase(base, `csv-url:${base}`)
+        .then((snap) => {
+          setSnapshot(snap);
+          uni.$emit(SNAPSHOT_UPDATED_EVENT);
+          console.log("[realty_app] custom snapshot loaded:", snap.listings.length, "listings");
+        })
+        .catch((e) => console.warn("[realty_app] custom snapshot load failed; using bundle", e));
     }
   }
   // 启动时加载国家统计局 70 城指数（直接内联 CSV，绕过网络）。
