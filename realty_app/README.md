@@ -51,6 +51,7 @@
 | v0.55.0 | 2026-07-15 | 首页 hero 改造: 顶部大盘轮播 (6 张城市级快照卡: 总挂牌/中位单价/中位总价/LPR/通勤/学区) + 8 个快捷入口图标网格 (4 tab + 城市 + 周次 + 设置 + 榜单) + 圆点指示器 + 5s 自动滚动; 借鉴 Airbnb/Beike 模式; 复用 listingCount/medianUnitPrice/medianTotalPrice/lpr/commuteRanking/schoolDims 6 类数据; 点击 hero 跳对应 tab; 447/447 单测 + 3 screenshots |
 | v0.56.0 | 2026-07-15 | community 详情页 UX (同 v0.54 detail-1 模式): 顶部 4 按钮 quicknav (←返回 / 📊仪表盘 / 🗺️地图视图 / 🏘️同区其他 N); 「🏘️ 同区其他小区」卡片 (按 districtName 聚合, 实时 medianUnitPrice 排序 Top 10, tap-row 跳转 redirectTo); 复用 getCommunitiesByCity + getListingsByCommunity; 451/451 单测 + 3 screenshots |
 | v0.57.0 | 2026-07-18 | 数据可信度与首页减负：listings 新增 REAL/DERIVED 分级并修正 1226 条派生样本来源；远程刷新升级为完整快照原子替换；修复 70 城月份排序；首页“全部”改为精简“概览”，hero 改用 swiper；恢复 smoke/视觉回归门禁；458/458 单测 |
+| v0.57.1 | 2026-07-21 | 修复 E2E 视觉基线与当前首页截图高度不一致导致的 CI 失败；明确 UI/数据展示结构变化后必须在同一构建产物上更新 `tests/e2e/artifacts/baseline.png`；保留 smoke 与 visual-diff 门禁 |
 | v0.35.0 | 2026-07-13 | 地铁步行通勤：🚶 metro_walk.csv (37 行，AMAP_API 4 + ESTIMATED 30 + 5 skip)；3 色分档 (绿 ≤5 / 橙 ≤10 / 红 >10min)；quota 友好 fallback 启发式；深圳 振华路42号 0min 居首 |
 | v0.36.0 | 2026-07-13 | 地铁规划受益：🚇 metro_benefit.csv (49 行 × 21 规划线路)；结合 距离分 × status 权重 (在建×1.2 / 即将开通×1.5)；深圳 top1 中海天钻/星河智荟 72 分 → 在建 17/21 号线一期；广州 保利天悦 90 → 8 号线东延 |
 | v0.37.0 | 2026-07-13 | 5 维小区指标：listing 列表每行底部加 位置/房屋/楼龄/配套/性价比 5 列迷你进度条；community 详情页加 🧭生活 + 🎓学区 + 🚌通勤 + 🚶步行地铁 + 🚇规划地铁 5 格卡；京基100 = 81/100/100/90/0；top1 listing 五维 80/74/95/100/85 |

@@ -78,6 +78,8 @@ jobs:
 
       - name: 跑视觉回归（diff vs baseline）
         # baseline 缺失、尺寸不一致或像素差异超阈值都应阻塞合并。
+        # 若 UI/数据展示结构导致截图高度变化，必须先在同一构建产物上更新
+        # realty_app/tests/e2e/artifacts/baseline.png，再提交基线。
         run: node tests/e2e/visual-diff.mjs --threshold 0.02
 
       - name: 上传 E2E artifacts
