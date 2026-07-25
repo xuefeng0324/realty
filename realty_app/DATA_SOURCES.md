@@ -182,10 +182,11 @@ admin_districts.csv          → adminDistrictRanking  → 行政区划（dashbo
 listing_school_premium.csv   → listingSchoolPremium  → 学区挂牌溢价分布（dashboard v1.121.16）
 school_dimensions.csv        → schoolDimensionRanking → 重点学校维度（dashboard v1.121.17）
 gz_new_house_inventory.csv   → gzNewHouseInventory    → 广州库存 + 日环比（dashboard v1.121.18）
-layout_distribution.csv      → layout / distribution → 挂牌结构占比 + 3室跨城（v1.121.18/19）
-metro_planning_geo.csv       → metroPlanningGeoAnalysis → 弯曲系数 + 端点覆盖率（v1.121.18/19）
+layout_distribution.csv      → layout / distribution → 挂牌结构占比 + 3室/精装跨城（v1.121.18–20）
+bedroom_area.csv             → distributionRanking   → 3室×面积跨城均价（v1.121.20）
+metro_planning_geo.csv       → metroPlanningGeoAnalysis → 弯曲 + 覆盖率 + 手工兜底（v1.121.18–20）
 lpr_history.csv              → lprHistoryAnalysis     → 利差 / 调息 / 同比 bp（v1.121.18/19）
-hospitals_geo.csv            → hospitalGeoAnalysis   → 坐标覆盖 + 全国覆盖率（v1.121.15/19）
+hospitals_geo.csv            → hospitalGeoAnalysis   → 坐标覆盖 + 重复 POI（v1.121.15/19/20）
 admin_districts.csv          → adminDistrictRanking  → 区划 + ×地铁交叉（v1.121.16/19）
 community_commercial.csv     → communityCommercial   → 分区均分 + 密度桶（v1.121.17/19）
 static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务快照

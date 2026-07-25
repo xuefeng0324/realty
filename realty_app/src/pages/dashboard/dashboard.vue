@@ -1745,6 +1745,14 @@
           {{ metroPlanGeoCoverage.completeEndpoints }}/{{ metroPlanGeoCoverage.totalEndpoints }}
           （{{ (metroPlanGeoCoverage.coverageRatio * 100).toFixed(0) }}%）
         </view>
+        <view v-if="metroManualFallback" class="muted" style="margin-top: 4rpx; font-size: 22rpx">
+          本市手工坐标兜底
+          {{ metroManualFallback.manualLines }}/{{ metroManualFallback.totalLines }}
+          （{{ (metroManualFallback.manualRatio * 100).toFixed(0) }}%）
+          <text v-if="metroMissingEndpoints.length">
+            · 缺端点 {{ metroMissingEndpoints.length }} 条
+          </text>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：metro_planning.csv + metro_planning_geo.csv。弯曲系数 ≥1.3 表示线路明显绕行。
         </view>
@@ -1802,8 +1810,54 @@
           <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
           <text class="ltk-count muted">{{ r.count }}</text>
         </view>
+        <view v-if="layoutDecorateCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城「精装」占比
+        </view>
+        <view
+          v-for="r in layoutDecorateCrossCity"
+          :key="'dec-' + r.cityId"
+          class="ltk-row"
+        >
+          <text class="ltk-tag" style="width: 100rpx">{{ r.cityName }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{ width: Math.min(100, (r.share / (layoutDecorateCrossCity[0]?.share || 0.01)) * 100) + '%' }"
+            />
+          </view>
+          <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
+          <text class="ltk-count muted">{{ r.count }}</text>
+        </view>
+        <view v-if="bedroomAreaCrossCityPrice.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城「3室 · 80-110㎡」中位单价
+        </view>
+        <view
+          v-for="r in bedroomAreaCrossCityPrice"
+          :key="'ba3-' + r.cityId"
+          class="ltk-row"
+        >
+          <text class="ltk-tag" style="width: 100rpx">{{ r.cityName }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{
+                width:
+                  Math.min(
+                    100,
+                    ((r.medianUnitPrice ?? 0) /
+                      (bedroomAreaCrossCityPrice[0]?.medianUnitPrice || 1)) *
+                      100
+                  ) + '%'
+              }"
+            />
+          </view>
+          <text class="ltk-share">
+            {{ r.medianUnitPrice != null ? Math.round(r.medianUnitPrice / 1000) + "k" : "—" }}
+          </text>
+          <text class="ltk-count muted">{{ r.count }}</text>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：layout_distribution.csv。与户型×面积矩阵卡互补（本卡看单维占比与跨城结构）。
+          数据源：layout_distribution.csv + bedroom_area.csv。与户型×面积矩阵卡互补（本卡看单维占比与跨城结构）。
         </view>
       </view>
 
@@ -2784,6 +2838,9 @@
           全国坐标覆盖
           {{ hospitalGeoCoverage.withCoords }}/{{ hospitalGeoCoverage.total }}
           （{{ (hospitalGeoCoverage.coverageRatio * 100).toFixed(0) }}%）
+          <text v-if="hospitalGeoDupCount > 0">
+            · 重复 amapPoi {{ hospitalGeoDupCount }} 组
+          </text>
         </view>
         <view v-if="hospitalGeoDistricts.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
           地址分区 Top
@@ -3474,6 +3531,7 @@ import {
   getHospitalGeoByCityNearestPair,
   getHospitalGeoByCityAddressDistrict,
   getHospitalGeoCoverageStats,
+  detectHospitalGeoDuplicateAmapPoi,
   type CityHospitalGeoSummary,
   type HospitalGeoHighConfidenceRatio,
   type HospitalGeoNearestPair,
@@ -3500,9 +3558,16 @@ import {
 import {
   getMetroPlanningGeoByCityCrossReference,
   getMetroPlanningGeoCoverageStats,
+  getMetroPlanningGeoManualFallbackRate,
+  getMetroPlanningGeoByCityMissingEndpoints,
   type CurvatureEntry,
-  type CoverageStats
+  type CoverageStats,
+  type ManualFallbackRate
 } from "../../local/metroPlanningGeoAnalysis";
+import {
+  getDistributionCrossCityLeaderboard,
+  type CrossCityBucketEntry
+} from "../../local/distributionRanking";
 import {
   summarizeListingTagsByCity,
   getCityTagSignature,
@@ -3608,6 +3673,9 @@ const hospitalGeoConfRatio = computed<HospitalGeoHighConfidenceRatio | null>(() 
   return getHospitalGeoByCityHighConfidenceRatio().find((x) => x.cityId === app.cityId) ?? null;
 });
 const hospitalGeoCoverage = computed<HospitalGeoCoverageStats>(() => getHospitalGeoCoverageStats());
+const hospitalGeoDupCount = computed(
+  () => detectHospitalGeoDuplicateAmapPoi().length
+);
 const hospitalGeoNearest = computed<HospitalGeoNearestPair[]>(() =>
   getHospitalGeoByCityNearestPair(app.cityId, 3)
 );
@@ -3763,6 +3831,12 @@ const metroCurvatureTop = computed<CurvatureEntry[]>(() =>
     .slice(0, 5)
 );
 const metroPlanGeoCoverage = computed<CoverageStats>(() => getMetroPlanningGeoCoverageStats());
+const metroManualFallback = computed<ManualFallbackRate | null>(() =>
+  getMetroPlanningGeoManualFallbackRate().find((x) => x.cityId === app.cityId) ?? null
+);
+const metroMissingEndpoints = computed(() =>
+  getMetroPlanningGeoByCityMissingEndpoints(app.cityId)
+);
 
 // v1.121.18 挂牌结构占比（layout_distribution）
 const layoutBedroomShare = computed<LocalLayoutDistribution[]>(() =>
@@ -3787,6 +3861,15 @@ const layoutThreeBedCrossCity = computed(() =>
     .getLayoutDistributions()
     .filter((x) => x.dimension === "bedrooms" && x.bucket === "3室")
     .sort((a, b) => b.share - a.share)
+);
+const layoutDecorateCrossCity = computed(() =>
+  store
+    .getLayoutDistributions()
+    .filter((x) => x.dimension === "decorate" && x.bucket === "精装")
+    .sort((a, b) => b.share - a.share)
+);
+const bedroomAreaCrossCityPrice = computed<CrossCityBucketEntry[]>(() =>
+  getDistributionCrossCityLeaderboard("3室", "80-110")
 );
 
 // v1.121.14 挂牌标签热度
