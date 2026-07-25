@@ -1,12 +1,12 @@
 {
   "versionName": "1.121.4",
   "versionCode": "125",
-  "publishedAt": "2026-07-25T13:11:05Z",
+  "publishedAt": "2026-07-25T13:12:51Z",
   "force": false,
-  "notes": "fix(realty_app): OTA 热更新验证与优化 (v1.121.4)\n\n关闭 SDK 版本弹窗；清单缓存戳；wgt gcore 优先；安装后可立即重启。设置页关于文案变为「热更新通道已开」。",
+  "notes": "fix(realty_app): OTA \u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316 (v1.121.4)\n\n2026-07-25-v1.109.0-\u793e\u533a\u603b\u4ef7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f: v1.109.0 \u2014 \u793e\u533a\u603b\u4ef7\u00d7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f\n2026-07-25-v1.110.0-\u89c4\u5212\u5730\u94c1\u6d3e\u751f: v1.110.0 \u2014 \u89c4\u5212\u5730\u94c1\u6d3e\u751f\n2026-07-25-v1.111.0-LPR\u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f: v1.111.0 \u2014 LPR \u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f\n",
   "wgt": {
     "url": "https://gcore.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/125/app.wgt",
-    "sha256": "b167de3dbb35c0552f178109ba34f928ef2bec41fa6500d569b819aa92f8d3c6"
+    "sha256": "12ef12ba9a5627755acf9dbc146e07ec20bc4ccda3959bddb0b59f155f5ce36e"
   },
   "ios": {
     "available": false,
