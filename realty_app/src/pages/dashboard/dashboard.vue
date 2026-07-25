@@ -1514,6 +1514,22 @@
             </text>
           </text>
         </view>
+        <view v-if="commuteCitySummaries.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          跨城通勤均分对照
+        </view>
+        <view
+          v-for="c in commuteCitySummaries"
+          :key="'ccs-' + c.cityId"
+          class="wq-row"
+        >
+          <text class="wq-name">{{ c.cityName }}</text>
+          <text class="wq-units">
+            均 {{ c.avgMinutes != null ? Math.round(c.avgMinutes) + " 分" : "—" }}
+            <text v-if="c.avgSpeedKmh != null" class="muted" style="font-size: 20rpx; margin-left: 4rpx">
+              · {{ c.avgSpeedKmh.toFixed(1) }} km/h · {{ c.communityCount }} 小区
+            </text>
+          </text>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：高德 /v3/direction/transit/integrated (公交通勤方案 1, 早 08:30)。
           深圳 → 福田CBD (30 小区, 38 次 API)；广州 → 珠江新城 (8 小区, 10 次 API)。
@@ -1875,6 +1891,45 @@
             <text class="cs-total">{{ it.schoolScore.toFixed(0) }}</text>
           </view>
         </view>
+        <view v-if="communityScoreTotalTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          派生总分 Top（固定权重 seed）
+        </view>
+        <view
+          v-for="(it, idx) in communityScoreTotalTop"
+          :key="'cstt-' + it.communityId"
+          class="cs-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(it.communityId)"
+        >
+          <view class="cs-rank">
+            <text class="cs-medal">{{ idx + 1 }}</text>
+          </view>
+          <view class="cs-mid">
+            <view class="cs-name">{{ it.communityName }}</view>
+            <view class="cs-dist muted">{{ it.districtName }}</view>
+          </view>
+          <view class="cs-right">
+            <text class="cs-total">{{ it.totalScore.toFixed(0) }}</text>
+          </view>
+        </view>
+        <view v-if="communityScoreCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城综合均分对照
+        </view>
+        <view
+          v-for="c in communityScoreCitySummaries"
+          :key="'cscs-' + c.cityId"
+          class="cs-row"
+        >
+          <view class="cs-mid">
+            <view class="cs-name">{{ cityNameForId(c.cityId) }}</view>
+            <view class="cs-dist muted">
+              {{ c.communityCount }} 小区 · 生活 {{ c.avgLifeScore.toFixed(0) }} · 学区 {{ c.avgSchoolScore.toFixed(0) }}
+            </view>
+          </view>
+          <view class="cs-right">
+            <text class="cs-total">{{ c.avgTotalScore.toFixed(0) }}</text>
+          </view>
+        </view>
         </template>
       </view>
 
@@ -2068,6 +2123,51 @@
           <text v-if="metroMissingEndpoints.length">
             · 缺端点 {{ metroMissingEndpoints.length }} 条
           </text>
+        </view>
+        <view v-if="metroGeoCitySummary" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          本市起终点置信 · 直距均 {{ metroGeoCitySummary.avgStraightLineKm.toFixed(1) }} km
+          · 最长 {{ metroGeoCitySummary.maxStraightLineKm.toFixed(1) }} km
+        </view>
+        <view v-if="metroGeoCitySummary" class="mp-year-row">
+          <view class="mp-year-chip">
+            <text class="mp-year-y">高</text>
+            <text class="mp-year-n muted">起 {{ metroGeoCitySummary.startConfidence.high }} / 终 {{ metroGeoCitySummary.endConfidence.high }}</text>
+          </view>
+          <view class="mp-year-chip">
+            <text class="mp-year-y">中</text>
+            <text class="mp-year-n muted">起 {{ metroGeoCitySummary.startConfidence.medium }} / 终 {{ metroGeoCitySummary.endConfidence.medium }}</text>
+          </view>
+          <view class="mp-year-chip">
+            <text class="mp-year-y">手</text>
+            <text class="mp-year-n muted">起 {{ metroGeoCitySummary.startConfidence.manual }} / 终 {{ metroGeoCitySummary.endConfidence.manual }}</text>
+          </view>
+        </view>
+        <view v-if="metroGeoConfNational.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          全国坐标置信分布
+        </view>
+        <view
+          v-for="c in metroGeoConfNational"
+          :key="'mgc-' + c.level"
+          class="mp-line-row"
+        >
+          <text class="mp-line-rank muted">{{ c.level }}</text>
+          <view class="mp-line-mid">
+            <text class="mp-line-name">{{ c.count }} 条 · {{ c.cityCount }} 城</text>
+            <text v-if="c.topLineNames.length" class="mp-line-meta muted">
+              例：{{ c.topLineNames.slice(0, 2).join("、") }}
+            </text>
+          </view>
+        </view>
+        <view v-if="metroGeoHighCrossCity.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          高置信线路跨城对照
+        </view>
+        <view
+          v-for="c in metroGeoHighCrossCity"
+          :key="'mgh-' + c.cityId"
+          class="mp-line-row"
+        >
+          <text class="mp-line-name">{{ cityNameForId(c.cityId) }}</text>
+          <text class="mp-line-km">{{ c.lineCount }} 条</text>
         </view>
         <view v-if="metroFastLines.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
           本市快线（≥100km/h）
@@ -2744,6 +2844,23 @@
               <text class="tc-tag">{{ p.otherTag }}</text>
             </view>
             <view class="tc-meta muted">{{ p.cities }} 城 · 合计 {{ p.totalCount }} 套</view>
+          </view>
+        </view>
+        <view v-if="tagComboCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城标签组合密度
+        </view>
+        <view
+          v-for="c in tagComboCitySummaries"
+          :key="'tccs-' + c.cityId"
+          class="tc-row"
+        >
+          <view class="tc-mid">
+            <view class="tc-pair">
+              <text class="tc-tag">{{ c.cityName }}</text>
+            </view>
+            <view class="tc-meta muted">
+              {{ c.combinationCount }} 对 · 均 share {{ (c.avgShare * 100).toFixed(1) }}% · 均 {{ c.avgCount.toFixed(0) }} 套
+            </view>
           </view>
         </view>
       </view>
@@ -3975,6 +4092,38 @@
             <text class="pc-kpi-label muted">均距 m</text>
           </view>
         </view>
+        <view v-if="poiCommercialCitySummaries.length" class="muted" style="margin: 4rpx 0 4rpx; font-size: 22rpx">
+          跨城 POI 密度对照
+        </view>
+        <view
+          v-for="c in poiCommercialCitySummaries"
+          :key="'pcs-' + c.cityId"
+          class="pc-row"
+        >
+          <text class="pc-rank muted">{{ cityNameForId(c.cityId) }}</text>
+          <view class="pc-mid">
+            <text class="pc-name">{{ c.totalPois }} POI · {{ c.communityCount }} 小区</text>
+            <text class="pc-meta muted">
+              餐{{ c.categoryDistribution.restaurant }} / 银{{ c.categoryDistribution.bank }} / 便{{ c.categoryDistribution.convenience }}
+              · 均 {{ Math.round(c.avgTopDistanceM) }} m
+            </text>
+          </view>
+        </view>
+        <view v-if="commercialNearestAcrossSample.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          样例小区最近生活 POI · {{ commercialNearestAcrossName }}
+        </view>
+        <view
+          v-for="(p, idx) in commercialNearestAcrossSample"
+          :key="'cna-' + p.communityId + p.poiCategory + idx"
+          class="pc-row"
+        >
+          <text class="pc-rank muted">{{ idx + 1 }}</text>
+          <view class="pc-mid">
+            <text class="pc-name">{{ categoryLabel(p.poiCategory) }} · {{ p.poiName }}</text>
+            <text class="pc-meta muted">{{ p.poiType || "—" }}</text>
+          </view>
+          <text class="pc-dist">{{ Math.round(p.distanceM) }} m</text>
+        </view>
         <view v-if="commercialBankCoverage" class="muted" style="margin: 4rpx 0 8rpx; font-size: 22rpx">
           银行覆盖小区
           {{ commercialBankCoverage.bankCoveredCommunities }}/{{ commercialBankCoverage.totalCommunities }}
@@ -4174,6 +4323,28 @@
         <view v-if="lifeConvenience.items.length === 0" class="empty">暂无数据</view>
         <view class="lc-summary muted">
           城市均分 {{ lifeConvenience.avgScore }} / 110 · 最高 {{ lifeConvenience.maxScore }} / 110
+        </view>
+        <view v-if="lifeCitySummary" class="muted" style="margin: 4rpx 0 8rpx; font-size: 22rpx">
+          派生均分 {{ lifeCitySummary.avgScore100.toFixed(0) }}
+          · 地铁近 {{ lifeCitySummary.avgSubwayNear.toFixed(1) }}
+          · 菜场近 {{ lifeCitySummary.avgMarketNear.toFixed(1) }}
+          <text v-if="lifeCitySummary.top"> · Top {{ lifeCitySummary.top.communityName }}</text>
+        </view>
+        <view v-if="lifeCitySummariesCross.length" class="muted" style="margin: 4rpx 0 4rpx; font-size: 22rpx">
+          跨城便利均分
+        </view>
+        <view
+          v-for="c in lifeCitySummariesCross"
+          :key="'lccs-' + c.cityId"
+          class="lc-row"
+        >
+          <view class="lc-mid">
+            <view class="lc-name">{{ cityNameForId(c.cityId) }}</view>
+            <view class="lc-dist muted">{{ c.communityCount }} 小区</view>
+          </view>
+          <view class="lc-right">
+            <text class="lc-score">{{ c.avgScore100.toFixed(0) }}</text>
+          </view>
         </view>
         <view
           v-for="it in lifeConvenience.items"
@@ -4512,6 +4683,25 @@
             <view class="muted">
               {{ it.districtName }} · 评分 {{ it.avgSchoolScore.toFixed(1) }} · {{ it.schoolCount }} 所
             </view>
+          </view>
+        </view>
+        <view v-if="schoolPremiumCommunityCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城学区小区均分
+        </view>
+        <view
+          v-for="c in schoolPremiumCommunityCitySummaries"
+          :key="'spccs-' + c.cityId"
+          class="community-row"
+        >
+          <view class="community-main">
+            <view class="community-name">{{ cityNameForId(c.cityId) }}</view>
+            <view class="muted">
+              {{ c.communityCount }} 小区 · {{ c.totalListings }} 套
+              <text v-if="c.topCommunity"> · Top {{ c.topCommunity.communityName }}</text>
+            </view>
+          </view>
+          <view class="community-sp-price">
+            <text class="sp-up">{{ c.avgSchoolScore.toFixed(1) }}</text>
           </view>
         </view>
         <view v-if="schoolPremiumTier" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
@@ -4999,11 +5189,14 @@ import {
   getPoiCommercialByCityRestaurantNearestByCommunity,
   getPoiCommercialByPoiTypeLeaderboard,
   summarizePoiCommercialByCategory,
+  summarizePoiCommercialByCity,
+  getPoiCommercialByCommunityNearestAcross,
   type WalkScore,
   type CommunityBankNearest,
   type CityBankCoverage,
   type PoiTypeLeaderboardEntry,
-  type CategoryPoiCommercialSummary
+  type CategoryPoiCommercialSummary,
+  type CityPoiCommercialSummary
 } from "../../local/poiCommercialRanking";
 import {
   summarizePoiMarketByCommunity,
@@ -5037,10 +5230,15 @@ import {
   getMetroPlanningGeoManualFallbackRate,
   getMetroPlanningGeoByCityMissingEndpoints,
   getMetroPlanningGeoByCityStraightLineTop,
+  summarizeMetroPlanningGeoByCity,
+  summarizeMetroPlanningGeoByConfidence,
+  getMetroPlanningGeoCrossCityByConfidence,
   type CurvatureEntry,
   type CoverageStats,
   type ManualFallbackRate,
-  type StraightLineTop
+  type StraightLineTop,
+  type CityMetroPlanningGeoSummary,
+  type ConfidenceLevelSummary
 } from "../../local/metroPlanningGeoAnalysis";
 import {
   getDistributionCrossCityLeaderboard,
@@ -5064,8 +5262,10 @@ import {
   getTagCombinationPremiumByCity,
   getTagCombinationPopularByCity,
   getTagCombinationCrossCityByTag,
+  summarizeTagCombinationByCity,
   type TagPairAggregate,
-  type TagCombinationByTag
+  type TagCombinationByTag,
+  type CityTagCombinationSummary
 } from "../../local/tagCombinationRanking";
 import {
   getLifeConveniencePareto,
@@ -5073,10 +5273,12 @@ import {
   getLifeConvenienceByDimensionCoverage,
   getLifeConvenienceByCityDistrict,
   getLifeConvenienceTopByScore,
+  summarizeLifeConvenienceByCity,
   type ParetoEntry,
   type DimensionImbalance,
   type DimensionCoverageEntry,
-  type DistrictLifeConvenienceSummary
+  type DistrictLifeConvenienceSummary,
+  type CityLifeConvenienceSummary
 } from "../../local/lifeConvenienceRanking";
 import {
   getCommunityScatterByCityTotalPriceExtremes,
@@ -5092,7 +5294,9 @@ import {
   getCommuteByCityFastestSlowestCompare,
   getCommuteSpeedLeaderboard,
   getCommuteFastestTopN,
-  type FastestSlowestCompare
+  summarizeCommuteByCity,
+  type FastestSlowestCompare,
+  type CityCommuteSummary
 } from "../../local/commuteRanking";
 import {
   getFreshestCommunityTopN,
@@ -5104,7 +5308,10 @@ import {
 import {
   getCommunityScorePareto,
   getCommunityScoreByCommuteFastest,
-  getCommunityScoreByDimensionTopN
+  getCommunityScoreByDimensionTopN,
+  getCommunityScoreByTotalTopN,
+  summarizeCommunityScoreByCity,
+  type CommunityScoreCitySummary
 } from "../../local/communityScoreRanking";
 import {
   summarizeListingTagsByCity,
@@ -5153,8 +5360,10 @@ import {
   getSchoolPremiumDistrictByCityTop,
   getSchoolPremiumDistrictCrossCityByDistrict,
   getSchoolPremiumCommunityTopByScore,
+  summarizeSchoolPremiumCommunityByCity,
   type ThreeTierConsistency,
-  type CrossCityDistrictEntry
+  type CrossCityDistrictEntry,
+  type CitySchoolPremiumCommunitySummary
 } from "../../local/schoolPremiumRanking";
 import {
   getCommunityCommercialByCityDistrict,
@@ -5181,7 +5390,7 @@ import {
   type CityOrientationFloorTopEntry,
   type CrossCityOrientationFloorEntry
 } from "../../local/orientationFloorRanking";
-import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict, LocalSchoolPremiumCommunity, LocalMetroLine, LocalCommunityScatter, LocalCommunityCommercial, LocalCommute, LocalLprRow, LocalLifeConvenience, LocalHospitalGeo } from "../../local/types";
+import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict, LocalSchoolPremiumCommunity, LocalMetroLine, LocalCommunityScatter, LocalCommunityCommercial, LocalCommute, LocalLprRow, LocalLifeConvenience, LocalHospitalGeo, LocalPoiCommercial } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -5227,6 +5436,9 @@ const commuteSpeedTop = computed(() =>
 );
 const commuteFastestTop = computed<LocalCommute[]>(() =>
   getCommuteFastestTopN(app.cityId, 5)
+);
+const commuteCitySummaries = computed<CityCommuteSummary[]>(() =>
+  summarizeCommuteByCity()
 );
 const layoutDistribution = ref<LayoutDistributionResponse | null>(null);
 const tagCloud = ref<TagCloudResponse | null>(null);
@@ -5373,6 +5585,18 @@ const commercialSevenElevenNear = computed<PoiTypeLeaderboardEntry[]>(() =>
 const commercialBankCoverage = computed<CityBankCoverage | null>(() =>
   getPoiCommercialByCityBankCoverage().find((x) => x.cityId === app.cityId) ?? null
 );
+const poiCommercialCitySummaries = computed<CityPoiCommercialSummary[]>(() =>
+  summarizePoiCommercialByCity()
+);
+const commercialNearestAcrossSample = computed<LocalPoiCommercial[]>(() => {
+  const id = commercialWalkTop.value[0]?.communityId;
+  if (id == null) return [];
+  return getPoiCommercialByCommunityNearestAcross(id, 5);
+});
+const commercialNearestAcrossName = computed(() => {
+  const id = commercialWalkTop.value[0]?.communityId;
+  return id != null ? communityDisplayName(id) : "";
+});
 const commercialCategoryStats = computed<CategoryPoiCommercialSummary[]>(() =>
   summarizePoiCommercialByCategory()
 );
@@ -5513,6 +5737,15 @@ const metroStraightLineTop = computed<StraightLineTop[]>(() =>
 );
 const metroManualFallback = computed<ManualFallbackRate | null>(() =>
   getMetroPlanningGeoManualFallbackRate().find((x) => x.cityId === app.cityId) ?? null
+);
+const metroGeoCitySummary = computed<CityMetroPlanningGeoSummary | null>(() =>
+  summarizeMetroPlanningGeoByCity().find((x) => x.cityId === app.cityId) ?? null
+);
+const metroGeoConfNational = computed<ConfidenceLevelSummary[]>(() =>
+  summarizeMetroPlanningGeoByConfidence()
+);
+const metroGeoHighCrossCity = computed<{ cityId: number; lineCount: number }[]>(() =>
+  getMetroPlanningGeoCrossCityByConfidence("high")
 );
 const metroMissingEndpoints = computed(() =>
   getMetroPlanningGeoByCityMissingEndpoints(app.cityId)
@@ -5686,6 +5919,9 @@ const tagComboPopularLocal = computed<LocalTagCombination[]>(() =>
 const tagComboMetroPartners = computed<TagCombinationByTag | null>(() =>
   getTagCombinationCrossCityByTag("地铁可达", 5)
 );
+const tagComboCitySummaries = computed<CityTagCombinationSummary[]>(() =>
+  summarizeTagCombinationByCity()
+);
 const scatterPriceExtremes = computed(() =>
   getCommunityScatterByCityTotalPriceExtremes(app.cityId, 3)
 );
@@ -5729,6 +5965,12 @@ const communityScoreLifeTop = computed<LocalCommunityScore[]>(() =>
 const communityScoreSchoolTop = computed<LocalCommunityScore[]>(() =>
   getCommunityScoreByDimensionTopN("school", app.cityId, 5)
 );
+const communityScoreTotalTop = computed<LocalCommunityScore[]>(() =>
+  getCommunityScoreByTotalTopN(app.cityId, 5)
+);
+const communityScoreCitySummaries = computed<CommunityScoreCitySummary[]>(() =>
+  summarizeCommunityScoreByCity()
+);
 const lifeConvenienceParetoSubway = computed<ParetoEntry[]>(() => {
   const ids = new Set(
     store.getCommunitiesByCity(app.cityId).map((c) => c.communityId)
@@ -5756,6 +5998,12 @@ const lifeDistrictTop = computed<DistrictLifeConvenienceSummary[]>(() =>
 );
 const lifeScoreTop = computed<LocalLifeConvenience[]>(() =>
   getLifeConvenienceTopByScore(app.cityId, 5)
+);
+const lifeCitySummary = computed<CityLifeConvenienceSummary | null>(() =>
+  summarizeLifeConvenienceByCity().find((x) => x.cityId === app.cityId) ?? null
+);
+const lifeCitySummariesCross = computed<CityLifeConvenienceSummary[]>(() =>
+  summarizeLifeConvenienceByCity()
 );
 // v0.46.0 map-11: 行政区 + 社区 marker 地图
 const districtMap = ref<DistrictMapResponse | null>(null);
@@ -7802,6 +8050,9 @@ const commercialCitySummary = computed<CityCommercialSummary[]>(() =>
 );
 const schoolPremiumCommunityDeriveTop = computed<LocalSchoolPremiumCommunity[]>(() =>
   getSchoolPremiumCommunityTopByScore(app.cityId, 5)
+);
+const schoolPremiumCommunityCitySummaries = computed<CitySchoolPremiumCommunitySummary[]>(() =>
+  summarizeSchoolPremiumCommunityByCity()
 );
 const decorateAgeDistBuckets = computed<DistributionRow[]>(() =>
   getDistributionByCityDimension(app.cityId, "精装").slice(0, 6)
