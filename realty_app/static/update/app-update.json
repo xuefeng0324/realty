@@ -1,12 +1,12 @@
 {
-  "versionName": "1.121.24",
-  "versionCode": "145",
-  "publishedAt": "2026-07-25T18:35:44Z",
+  "versionName": "1.121.25",
+  "versionCode": "146",
+  "publishedAt": "2026-07-25T18:39:36Z",
   "force": false,
-  "notes": "\ufefffeat(app): v1.121.24 \u5173\u952e\u8bcd\u671d\u5411\u5b66\u533a\u7f51\u7b7e\u6d3e\u751f\n\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n2026-07-25-v1.119.0-\u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730map-view: v1.119.0 \u00b7 \u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730 map-view\n",
+  "notes": "\ufefffeat(app): v1.121.25 \u6539\u5584\u5e15\u7d2f\u6258\u4e0e\u4fbf\u5229\u5e97\u4e2d\u533b\u5987\u5e7c\n\n2026-07-25-v1.103.0-\u5468\u8fb9\u5546\u4e1a\u70ed\u5ea6\u6d3e\u751f: v1.103.0 \u5468\u8fb9\u5546\u4e1a\u70ed\u5ea6\u6d3e\u751f\uff08\u4ec5\u6570\u636e\u5c42\uff09\n2026-07-25-v1.104.0-\u901a\u52e4\u4e0e\u5206\u5e03\u6d3e\u751f: v1.104.0 \u901a\u52e4\u65f6\u957f + \u901a\u7528\u5206\u5e03\u6d3e\u751f\uff08\u4ec5\u6570\u636e\u5c42\uff09\n2026-07-25-v1.105.0-\u751f\u6d3b\u4fbf\u5229\u5ea6\u6d3e\u751f: v1.105.0 \u751f\u6d3b\u4fbf\u5229\u5ea6\u6d3e\u751f\uff08\u4ec5\u6570\u636e\u5c42\uff09\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/145/app.wgt",
-    "sha256": "16dbea32e18634bed5bfdda1839749008da4447bc707f8503af3c62f461db600"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/146/app.wgt",
+    "sha256": "d37c97e27d0d1f4a7c2139a6653fe9e3ce59e5f77b2b15d0f177ca802bade5df"
   },
   "ios": {
     "available": false,
