@@ -1925,6 +1925,23 @@
           <text class="mp-year-y">{{ row.cityName }}</text>
           <text class="mp-year-n muted">{{ row.lines.join("、") }}</text>
         </view>
+        <view v-if="metroDistrictLines.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          「{{ metroDistrictFocus }}」覆盖线路
+        </view>
+        <view
+          v-for="(ln, idx) in metroDistrictLines"
+          :key="'mdl-' + ln.lineId"
+          class="mp-line-row"
+        >
+          <text class="mp-line-rank muted">{{ idx + 1 }}</text>
+          <view class="mp-line-mid">
+            <text class="mp-line-name">{{ ln.lineName }}</text>
+            <text class="mp-line-meta muted">{{ ln.status }} · {{ ln.stationCount ?? "—" }} 站</text>
+          </view>
+          <text class="mp-line-km">
+            {{ ln.lengthKm != null ? ln.lengthKm.toFixed(1) + " km" : "—" }}
+          </text>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：metro_planning.csv + metro_planning_geo.csv。弯曲系数 ≥1.3 表示线路明显绕行。
         </view>
@@ -2388,6 +2405,44 @@
                 · {{ Math.round(it.avgUnitPrice / 1000) }}k 元/㎡
               </text>
             </view>
+          </view>
+        </view>
+        <view v-if="tagComboPopularLocal.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          派生层最常见标签对
+        </view>
+        <view
+          v-for="(it, idx) in tagComboPopularLocal"
+          :key="'tpop-' + it.tagA + it.tagB"
+          class="tc-row"
+        >
+          <view class="tc-rank">{{ idx + 1 }}</view>
+          <view class="tc-mid">
+            <view class="tc-pair">
+              <text class="tc-tag">{{ it.tagA }}</text>
+              <text class="tc-plus">+</text>
+              <text class="tc-tag">{{ it.tagB }}</text>
+            </view>
+            <view class="tc-meta muted">
+              {{ it.count }} 套 · {{ (it.share * 100).toFixed(1) }}%
+            </view>
+          </view>
+        </view>
+        <view v-if="tagComboMetroPartners" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          「地铁可达」常搭配（跨城）
+        </view>
+        <view
+          v-for="(p, idx) in tagComboMetroPartners?.pairs ?? []"
+          :key="'tmp-' + p.otherTag"
+          class="tc-row"
+        >
+          <view class="tc-rank">{{ idx + 1 }}</view>
+          <view class="tc-mid">
+            <view class="tc-pair">
+              <text class="tc-tag">地铁可达</text>
+              <text class="tc-plus">+</text>
+              <text class="tc-tag">{{ p.otherTag }}</text>
+            </view>
+            <view class="tc-meta muted">{{ p.cities }} 城 · 合计 {{ p.totalCount }} 套</view>
           </view>
         </view>
       </view>
@@ -3511,6 +3566,23 @@
           </view>
           <text class="pc-dist">{{ Math.round(b.distanceM) }} m</text>
         </view>
+        <view v-if="commercialSevenElevenNear.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          最近 7-ELEVEn Top
+        </view>
+        <view
+          v-for="(b, idx) in commercialSevenElevenNear"
+          :key="'711-' + b.communityId"
+          class="pc-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(b.communityId)"
+        >
+          <text class="pc-rank muted">{{ idx + 1 }}</text>
+          <view class="pc-mid">
+            <text class="pc-name">{{ communityDisplayName(b.communityId) }}</text>
+            <text class="pc-meta muted">{{ b.poiName }}</text>
+          </view>
+          <text class="pc-dist">{{ Math.round(b.distanceM) }} m</text>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：poi_commercial.csv（餐饮 / 银行 / 便利店，每小区每类 Top3）。
         </view>
@@ -4257,9 +4329,11 @@ import {
   getPoiCommercialCrossCommunityByCategoryDistance,
   getPoiCommercialByCityBankCoverage,
   getPoiCommercialByCityConvenienceLeaderboard,
+  getPoiCommercialByPoiTypeLeaderboard,
   type WalkScore,
   type CommunityBankNearest,
-  type CityBankCoverage
+  type CityBankCoverage,
+  type PoiTypeLeaderboardEntry
 } from "../../local/poiCommercialRanking";
 import {
   summarizePoiMarketByCommunity,
@@ -4274,6 +4348,7 @@ import {
   getMetroPlanningByCityFastLines,
   getMetroPlanningByCityStatusVsStations,
   getMetroPlanningCrossCityByYear,
+  getMetroPlanningByDistrict,
   type CityMetroPlanningSummary,
   type OpenYearMetroPlanningSummary,
   type TopByMetric,
@@ -4302,7 +4377,10 @@ import {
 import {
   getTagCombinationCrossCityMostCommon,
   getTagCombinationPremiumByCity,
-  type TagPairAggregate
+  getTagCombinationPopularByCity,
+  getTagCombinationCrossCityByTag,
+  type TagPairAggregate,
+  type TagCombinationByTag
 } from "../../local/tagCombinationRanking";
 import {
   getLifeConveniencePareto,
@@ -4395,7 +4473,7 @@ import {
   type CityOrientationFloorTopEntry,
   type CrossCityOrientationFloorEntry
 } from "../../local/orientationFloorRanking";
-import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict } from "../../local/types";
+import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict, LocalMetroLine } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -4510,10 +4588,7 @@ function communityDisplayName(communityId: number): string {
 
 function communityIdsInCity(cityId: number): Set<number> {
   return new Set(
-    store
-      .getPoiCommercials()
-      .map((x) => x.communityId)
-      .filter((id) => store.getCommunityById(id)?.cityId === cityId)
+    store.getCommunitiesByCity(cityId).map((c) => c.communityId)
   );
 }
 
@@ -4550,6 +4625,11 @@ const commercialBankNear = computed<CommunityBankNearest[]>(() =>
 const commercialConvenienceNear = computed<CommunityBankNearest[]>(() =>
   getPoiCommercialByCityConvenienceLeaderboard(80)
     .filter((x) => store.getCommunityById(x.communityId)?.cityId === app.cityId)
+    .slice(0, 5)
+);
+const commercialSevenElevenNear = computed<PoiTypeLeaderboardEntry[]>(() =>
+  getPoiCommercialByPoiTypeLeaderboard("7-ELEVEn", 40)
+    .filter((x) => x.cityId === app.cityId)
     .slice(0, 5)
 );
 const commercialBankCoverage = computed<CityBankCoverage | null>(() =>
@@ -4684,6 +4764,16 @@ const metroCrossYear2028 = computed(() => {
     .filter((x) => x.lines.length > 0)
     .sort((a, b) => b.lines.length - a.lines.length);
 });
+const metroDistrictFocus = computed(() => {
+  const fromSchool = schoolPremiumDistrictTop.value[0]?.districtName;
+  if (fromSchool) return fromSchool;
+  return adminDistrictList.value[0]?.districtName ?? "";
+});
+const metroDistrictLines = computed<LocalMetroLine[]>(() => {
+  const name = metroDistrictFocus.value;
+  if (!name) return [];
+  return getMetroPlanningByDistrict(name, app.cityId).slice(0, 5);
+});
 
 // v1.121.18 挂牌结构占比（layout_distribution）
 const layoutBedroomShare = computed<LocalLayoutDistribution[]>(() =>
@@ -4788,6 +4878,12 @@ const tagComboCrossCity = computed<TagPairAggregate[]>(() =>
 );
 const tagComboPremiumLocal = computed<LocalTagCombination[]>(() =>
   getTagCombinationPremiumByCity(app.cityId, 5)
+);
+const tagComboPopularLocal = computed<LocalTagCombination[]>(() =>
+  getTagCombinationPopularByCity(app.cityId, 5)
+);
+const tagComboMetroPartners = computed<TagCombinationByTag | null>(() =>
+  getTagCombinationCrossCityByTag("地铁可达", 5)
 );
 const scatterPriceExtremes = computed(() =>
   getCommunityScatterByCityTotalPriceExtremes(app.cityId, 3)
