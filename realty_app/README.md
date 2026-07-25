@@ -117,6 +117,7 @@
 | v1.119.0 | 2026-07-25 | 地铁规划弯曲系数落地 map-view：复用 `metroPlanningGeoAnalysis.ts` 已有的 `getMetroPlanningGeoByCityCrossReference`，新增"🌀 弯曲系数 Top 5"卡（仅 metro 模式显示，按 actual/straight 比值降序，蓝底圆排名 + 黄色比值）；未新增单元测试（已有 13 个覆盖） |
 | v1.120.0 | 2026-07-25 | 修复 OTA「检查更新」：`appUpdate.ts` 去掉 App WebView 不存在的全局 `fetch`，改用 `uni.request` + 多 CDN 镜像回退（与 `remoteFetch` 同口径），并把清单里的 wgt URL 改写到命中镜像；顺带修设置页政府查询备注渲染成 `[object Object]` |
 | v1.121.0 | 2026-07-25 | 修复地图「地图加载失败」：地图层 `loadCommunityMarkers` 之前用 `fetch('/static/seed/communities_geo.csv')` 在 App WebView 报 `fetch is not a function`，改走 `store.getCommunityGeoByCity()` 内存查询，附赠 v1.120.0 OTA 修复可直接装到真机验证；CI 加 `build-apk` 可选 job（缺 DCloud secret 时 skip，不阻塞 wgt）；生成简约主题 SVG 图标 `app-icon.svg` + `splash-icon.svg` |
+| v1.121.1 | 2026-07-25 | 路径 C 落地：`apk-self-hosted.yml` 接入本机自托管 Runner 出整包 APK；缺 secret 时 skip 不阻塞；非签名 keystore 在 `realty-release.keystore`（不入 git） |
 | v0.93.1 | 2026-07-25 | 分区 12 周口径严格化：`getDistrict12WeekChangeRank` 默认 `minWeeks=13 + strictBase=true`，避免样本不足的区被错算入涨跌；新增 `summarizeChangeDistribution` 同时暴露"严格 ≥13 周"和"宽松 ≥2 周"两个口径供 UI 选择；dashboard 角标和脚注改为"严格 vs 兜底"二段式展示，让"涨 3 跌 7"对应的是真有 12 周样本的 10 个区而非全部 15 个区 |
 | v0.87.1 | 2026-07-25 | 测试覆盖率门槛 (45/40) + 排除 e2e 脚本；本仓库还按月份排序写到 daily_wangqian.csv 的 city 行 |
 | v0.35.0 | 2026-07-13 | 地铁步行通勤：🚶 metro_walk.csv (37 行，AMAP_API 4 + ESTIMATED 30 + 5 skip)；3 色分档 (绿 ≤5 / 橙 ≤10 / 红 >10min)；quota 友好 fallback 启发式；深圳 振华路42号 0min 居首 |

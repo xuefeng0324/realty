@@ -64,7 +64,16 @@ powershell -File realty_app/scripts/build_apk.ps1 -OutDir "$env:USERPROFILE\Down
 CI 时间：每次构建 25–40 分钟（含 `npm ci` + gradle 编译）。
 工程量：约 1 人天首次配置；后续只需触发 workflow。
 
-> 本路径暂不启用，等 OTA 跑通后视需要再说。
+### 落地步骤（v1.121.1）
+
+1. **机器装 Android SDK**（cmdline-tools + platform-30 + build-tools 34），设 `ANDROID_HOME`
+2. **注册 self-hosted runner**：`https://github.com/xuefeng0324/realty/settings/actions/runners/new`，labels 加 `realty-app`；装成 Windows 服务
+3. **生成 keystore**：用 HBuilderX 自带 `keytool.exe`，alias=realty，storepass=realty123（开发用，正式请改强密码）。base64 入 GH Secrets：
+   - `ANDROID_KEYSTORE_BASE64`、`ANDROID_KEYSTORE_PASS`、`ANDROID_KEY_ALIAS`、`ANDROID_KEY_PASS`
+4. **push main** → `apk-self-hosted.yml` 自动跑（缺 secret 时 skip，CI 仍绿）
+
+> 当前 workflow 文件：`.github/workflows/apk-self-hosted.yml`
+> 测试 keystore 路径：`C:\Users\Admin\realty-release.keystore`（不入 git）
 
 ## 当前 OTA 出包命令回顾
 

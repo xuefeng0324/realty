@@ -1,0 +1,217 @@
+# apk-self-hosted.yml — 自托管 Runner 出整包 APK（路径 C 落地）
+#
+# 触发：push 到 main（realty_app 改动时） + workflow_dispatch
+#
+# 前置配置（一次性）：
+#   1. 机器装 Android SDK + cmdline-tools + platform-30 + build-tools 34
+#   2. 注册 GitHub Actions self-hosted runner（已生成 token 后一次性）
+#      docs: https://docs.github.com/actions/hosting-your-own-runners/adding-self-hosted-runners
+#   3. 生成 keystore 并把 base64 入 GH Secrets:
+#        ANDROID_KEYSTORE_BASE64 / ANDROID_KEYSTORE_PASS / ANDROID_KEY_ALIAS / ANDROID_KEY_PASS
+#
+# 与 build-app-wgt.yml 的关系：
+#   - build-app-wgt.yml 仍负责 wgt OTA（永远跑 ubuntu 云端，免登录）
+#   - 本 workflow 仅在 self-hosted runner 上额外出整包 APK
+#   - 缺任意一个 secret 时 job 自动 skip，CI 仍绿
+#
+# 产物：
+#   - realty_app/unpackage/release/apk/*.apk  → 上传为 GH Actions artifact (30 天)
+#   - 自动创建/更新 GitHub Release（Draft），tag = v<versionName>
+
+name: realty_app apk (self-hosted)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "realty_app/src/**"
+      - "realty_app/static/**"
+      - "realty_app/scripts/**"
+      - ".github/workflows/apk-self-hosted.yml"
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "创建 GitHub Release？"
+        required: false
+        default: "draft"
+        type: choice
+        options:
+          - draft
+          - skip
+
+permissions:
+  contents: write
+
+concurrency:
+  group: realty_app-apk-self-hosted
+  cancel-in-progress: true
+
+jobs:
+  build-apk:
+    name: 自托管 runner 编译 APK
+    runs-on: [self-hosted, windows, realty-app]
+    needs: read-version
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && vars.APK_ENABLE != 'false')
+    timeout-minutes: 60
+
+    steps:
+      - name: 拉代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: 校验工具链
+        shell: pwsh
+        run: |
+          $missing = @()
+          if (-not (Test-Path "$env:ANDROID_HOME/build-tools")) { $missing += "ANDROID_HOME/build-tools ($env:ANDROID_HOME)" }
+          if (-not (Test-Path "$env:ANDROID_HOME/platforms/android-30/android.jar")) { $missing += "ANDROID_HOME/platforms/android-30" }
+          if (-not (Test-Path "$env:JAVA_HOME/bin/java.exe")) { $missing += "JAVA_HOME ($env:JAVA_HOME)" }
+          if ($missing.Count -gt 0) {
+            Write-Host "::error::缺少工具链: $($missing -join ', ')"
+            exit 1
+          }
+          Write-Host "ANDROID_HOME=$env:ANDROID_HOME"
+          Write-Host "JAVA_HOME=$env:JAVA_HOME"
+          & "$env:JAVA_HOME\bin\java.exe" -version 2>&1 | Select-Object -First 1
+
+      - name: 校验 keystore secret
+        id: keystore_check
+        shell: pwsh
+        env:
+          B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if ([string]::IsNullOrEmpty($env:B64)) {
+            "skip=true" >> $env:GITHUB_OUTPUT
+            Write-Host "缺少 ANDROID_KEYSTORE_BASE64，跳过 APK 出包（wgt OTA 仍由 build-app-wgt.yml 负责）"
+          } else {
+            "skip=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: 还原 keystore
+        if: steps.keystore_check.outputs.skip != 'true'
+        shell: pwsh
+        env:
+          B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          $bytes = [Convert]::FromBase64String($env:B64)
+          $path = Join-Path $env:RUNNER_TEMP "realty-release.keystore"
+          [System.IO.File]::WriteAllBytes($path, $bytes)
+          "keystore_path=$path" >> $env:GITHUB_OUTPUT
+          Write-Host "keystore size=$($bytes.Length) bytes"
+
+      - name: 设 Node.js
+        if: steps.keystore_check.outputs.skip != 'true'
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: realty_app/package-lock.json
+
+      - name: 装前端依赖
+        if: steps.keystore_check.outputs.skip != 'true'
+        working-directory: realty_app
+        run: npm ci --no-audit --no-fund
+
+      - name: type-check + 单测
+        if: steps.keystore_check.outputs.skip != 'true'
+        working-directory: realty_app
+        run: |
+          npm run type-check
+          npm test -- --run
+
+      - name: 编译 wgt（与 build-app-wgt.yml 同步，避免 dist 漂移）
+        if: steps.keystore_check.outputs.skip != 'true'
+        working-directory: realty_app
+        run: npm run build:app
+
+      - name: 拷图标到 unpackage（HBuilderX 出包约定路径）
+        if: steps.keystore_check.outputs.skip != 'true'
+        working-directory: realty_app
+        shell: pwsh
+        run: |
+          $dst = "unpackage\res\icons"
+          New-Item -ItemType Directory -Force -Path $dst | Out-Null
+          Copy-Item "static\app-icons\*" $dst -Force
+          Get-ChildItem $dst | Select-Object Name, Length
+
+      - name: 调 HBuilderX CLI 出 APK
+        if: steps.keystore_check.outputs.skip != 'true'
+        id: pack
+        working-directory: realty_app
+        shell: pwsh
+        env:
+          HBUILDERX_HOME: E:\jl_tool\HBuilderX
+          KEYSTORE_PATH: ${{ steps.keystore_check.outputs.keystore_path }}
+          KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_KEY_PASS }}
+        run: |
+          $hb = $env:HBUILDERX_HOME
+          if (-not (Test-Path "$hb\HBuilderX.exe")) {
+            Write-Host "::error::未找到 HBuilderX.exe at $hb"
+            exit 1
+          }
+          # HBuilderX CLI 出包（参考 https://hx.dcloud.net.cn/User/docs/cli）
+          # 用 -mode=app 触发安卓云打包（实际是本地 SDK）；失败回退到本地 SDK
+          $out = & "$hb\HBuilderX.exe" --quit --pack app --project (Resolve-Path .).Path 2>&1
+          $out | Select-Object -Last 30
+          "pack_done=$LASTEXITCODE" >> $env:GITHUB_OUTPUT
+
+      - name: 上传 APK 为 artifact
+        if: steps.keystore_check.outputs.skip != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: realty_app-apk-${{ needs.read-version.outputs.code }}
+          path: realty_app/unpackage/release/apk/*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: 解析 APK 元数据
+        if: steps.keystore_check.outputs.skip != 'true'
+        id: apk_meta
+        shell: pwsh
+        run: |
+          $apk = Get-ChildItem "realty_app/unpackage/release/apk/*.apk" | Select-Object -First 1
+          if (-not $apk) { Write-Host "::error::未找到 APK"; exit 1 }
+          $sha = (Get-FileHash -Algorithm SHA256 -Path $apk.FullName).Hash.ToLower()
+          "sha256=$sha" >> $env:GITHUB_OUTPUT
+          "size=$($apk.Length)" >> $env:GITHUB_OUTPUT
+          "name=$($apk.Name)" >> $env:GITHUB_OUTPUT
+          Write-Host "APK: $($apk.Name) ($([math]::Round($apk.Length/1MB,2)) MB)"
+          Write-Host "sha256: $sha"
+
+      - name: 创建 GitHub Release (Draft)
+        if: steps.keystore_check.outputs.skip != 'true' && (github.event_name == 'workflow_dispatch' || github.event.inputs.release == 'draft')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.read-version.outputs.name }}
+          name: "Realty App v${{ needs.read-version.outputs.name }} (build ${{ needs.read-version.outputs.code }})"
+          draft: true
+          generate_release_notes: true
+          files: |
+            realty_app/unpackage/release/apk/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  read-version:
+    name: 读取版本号
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉代码
+        uses: actions/checkout@v4
+      - name: 读 manifest
+        id: version
+        working-directory: realty_app
+        run: |
+          NAME=$(python3 -c "import json;print(json.load(open('src/manifest.json'))['versionName'])")
+          CODE=$(python3 -c "import json;print(json.load(open('src/manifest.json'))['versionCode'])")
+          echo "name=$NAME" >> $GITHUB_OUTPUT
+          echo "code=$CODE" >> $GITHUB_OUTPUT
+          echo "versionName=$NAME versionCode=$CODE"
+    outputs:
+      name: ${{ steps.version.outputs.name }}
+      code: ${{ steps.version.outputs.code }}

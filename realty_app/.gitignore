@@ -33,3 +33,8 @@ realty_app/.tmp-vite-*.log
 # coverage 报告（跑 test:coverage 产生的中间产物；CI 单独上传 artifact）
 coverage/
 realty_app/coverage/
+
+# v1.121.1 路径 C — 本机生成的签名 keystore（不入仓；base64 入 GH Secrets）
+realty-release.keystore
+*.b64
+docs/*.b64.example.txt
