@@ -51,6 +51,12 @@ FIELDS = [
     "completed_units",
     "completed_area_sqm",
     "rental_subsidy_households",
+    "public_rental_started_units",
+    "public_rental_completed_units",
+    "sale_type_started_units",
+    "sale_type_completed_units",
+    "protected_rental_started_units",
+    "protected_rental_completed_units",
     "source_org",
     "source_url",
     "attachment_url",
@@ -164,13 +170,26 @@ def parse_xls(data: bytes, title: str, source_url: str, attachment_url: str) -> 
 
     total = None
     subsidy = 0.0
+    cats: dict[str, tuple[int, int]] = {
+        "public_rental": (0, 0),
+        "sale_type": (0, 0),
+        "protected_rental": (0, 0),
+    }
     for r in range(sheet.nrows):
         label = str(sheet.cell_value(r, 0)).strip().replace(" ", "")
         if label.startswith("1-11总计") or label == "1-11总计":
             total = [_num(sheet.cell_value(r, c)) for c in range(1, 14)]
         if "发放租赁补贴" in label:
-            # 新开工列位置常放补贴户数
             subsidy = _num(sheet.cell_value(r, 8)) or _num(sheet.cell_value(r, 1))
+        # 分业态：取「小计/大类」行，避开项目明细
+        started = int(_num(sheet.cell_value(r, 8)))
+        completed = int(_num(sheet.cell_value(r, 12)))
+        if "公共租赁住房小计" in label or label.startswith("1、公共租赁住房"):
+            cats["public_rental"] = (started, completed)
+        elif label.startswith("8、配售型保障性住房") or label == "8、配售型保障性住房":
+            cats["sale_type"] = (started, completed)
+        elif label.startswith("10、保障性租赁住房") or label == "10、保障性租赁住房":
+            cats["protected_rental"] = (started, completed)
 
     if not total or len(total) < 13:
         print(f"WARN missing 1-11总计 in {attachment_url}", flush=True)
@@ -190,6 +209,12 @@ def parse_xls(data: bytes, title: str, source_url: str, attachment_url: str) -> 
         "completed_units": str(int(total[11])),
         "completed_area_sqm": f"{total[12]:.2f}".rstrip("0").rstrip("."),
         "rental_subsidy_households": str(int(subsidy)),
+        "public_rental_started_units": str(cats["public_rental"][0]),
+        "public_rental_completed_units": str(cats["public_rental"][1]),
+        "sale_type_started_units": str(cats["sale_type"][0]),
+        "sale_type_completed_units": str(cats["sale_type"][1]),
+        "protected_rental_started_units": str(cats["protected_rental"][0]),
+        "protected_rental_completed_units": str(cats["protected_rental"][1]),
         "source_org": "珠海市住房和城乡建设局",
         "source_url": source_url,
         "attachment_url": attachment_url,

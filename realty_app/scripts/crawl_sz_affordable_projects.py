@@ -72,6 +72,8 @@ FIELDS = [
     "category",
     "project_count",
     "total_units",
+    "build_units",  # 建设方式套数（筹集表）
+    "raise_units",  # 筹集方式套数（筹集表）
     "title",
     "source_org",
     "source_url",
@@ -189,16 +191,29 @@ def load_xlsx_rows(data: bytes) -> dict[int, dict[str, str]]:
         return rows
 
 
-def summarize_pdf(data: bytes) -> tuple[int, int]:
+def summarize_pdf(data: bytes) -> tuple[int, int, int, int]:
+    """Return (project_count, total_units, build_units, raise_units)."""
     text = pdf_text(data)
     hits = UNIT_RE.findall(text)
-    units = [int(n) for n, _ in hits if 1 <= int(n) <= 20000]
-    if len(units) < 3:
-        raise RuntimeError(f"PDF 套数命中过少: {len(units)}")
-    return len(units), sum(units)
+    build = 0
+    raise_u = 0
+    n = 0
+    for num, mode in hits:
+        v = int(num)
+        if not (1 <= v <= 20000):
+            continue
+        n += 1
+        if mode == "筹集":
+            raise_u += v
+        else:
+            # 建设，以及其它方式计入建设侧（基本建成表几乎全是建设）
+            build += v
+    if n < 3:
+        raise RuntimeError(f"PDF 套数命中过少: {n}")
+    return n, build + raise_u, build, raise_u
 
 
-def summarize_xlsx(data: bytes) -> tuple[int, int]:
+def summarize_xlsx(data: bytes) -> tuple[int, int, int, int]:
     rows = load_xlsx_rows(data)
     # find header col with 套
     header_row = None
@@ -234,7 +249,8 @@ def summarize_xlsx(data: bytes) -> tuple[int, int]:
         n += 1
     if n < 1:
         raise RuntimeError("xlsx 无有效套数")
-    return n, total
+    # xlsx 未拆建设/筹集时，全部记入 total，分项留空语义用 0/total
+    return n, total, total, 0
 
 
 def atomic_write(path: Path, rows: list[dict]) -> None:
@@ -276,9 +292,9 @@ def main() -> int:
         try:
             data = fetch_bytes(url)
             if url.lower().endswith(".pdf"):
-                n, units = summarize_pdf(data)
+                n, units, build_u, raise_u = summarize_pdf(data)
             else:
-                n, units = summarize_xlsx(data)
+                n, units, build_u, raise_u = summarize_xlsx(data)
             row = {
                 "city": "深圳",
                 "year": year,
@@ -286,12 +302,14 @@ def main() -> int:
                 "category": category,
                 "project_count": str(n),
                 "total_units": str(units),
+                "build_units": str(build_u),
+                "raise_units": str(raise_u),
                 "title": title,
                 "source_org": "深圳市住房和建设局",
                 "source_url": url,
             }
             best[key] = row
-            print(f"ok {year} {kind}/{category} n={n} units={units}", flush=True)
+            print(f"ok {year} {kind}/{category} n={n} units={units} build={build_u} raise={raise_u}", flush=True)
         except Exception as e:
             print(f"ERR {title}: {e}", flush=True)
 

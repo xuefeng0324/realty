@@ -1297,7 +1297,12 @@
           <view v-if="szAffordableRaised" class="gz-inventory-kpi">
             <text class="cell-label">建设筹集 · {{ szAffordableRaised.category }}</text>
             <text class="gz-inventory-value">{{ szAffordableRaised.totalUnits.toLocaleString() }} 套</text>
-            <text class="cell-sub muted">{{ szAffordableRaised.projectCount }} 个项目</text>
+            <text class="cell-sub muted">
+              {{ szAffordableRaised.projectCount }} 个项目
+              <text v-if="szAffordableRaised.raiseUnits > 0">
+                · 建设 {{ szAffordableRaised.buildUnits.toLocaleString() }} / 筹集 {{ szAffordableRaised.raiseUnits.toLocaleString() }}
+              </text>
+            </text>
           </view>
           <view v-if="szAffordableCompleted" class="gz-inventory-kpi">
             <text class="cell-label">基本建成 · {{ szAffordableCompleted.category }}</text>
@@ -1351,8 +1356,20 @@
           <text class="muted">租赁补贴</text>
           <text>{{ zhAffordable.rentalSubsidyHouseholds.toLocaleString() }} 户</text>
         </view>
+        <view class="gz-inventory-row" style="margin-top: 6rpx">
+          <text class="muted">其中保租房</text>
+          <text>开 {{ zhAffordable.protectedRentalStartedUnits.toLocaleString() }} / 竣 {{ zhAffordable.protectedRentalCompletedUnits.toLocaleString() }}</text>
+          <text class="muted">配售型</text>
+          <text>开 {{ zhAffordable.saleTypeStartedUnits.toLocaleString() }} / 竣 {{ zhAffordable.saleTypeCompletedUnits.toLocaleString() }}</text>
+        </view>
+        <view class="gz-inventory-row" style="margin-top: 4rpx">
+          <text class="muted">公租房</text>
+          <text>开 {{ zhAffordable.publicRentalStartedUnits.toLocaleString() }} / 竣 {{ zhAffordable.publicRentalCompletedUnits.toLocaleString() }}</text>
+          <text class="muted"></text>
+          <text class="muted" style="font-size: 20rpx">分业态为报表大类行</text>
+        </view>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
-          来源：珠海市住建局「保障性安居工程建设进展情况快报表」XLS；指标为当年 1 月至报告期末累计，非商品房成交量、非房价均价。环比仅同年相邻月展示。
+          来源：珠海市住建局「保障性安居工程建设进展情况快报表」XLS；指标为当年 1 月至报告期末累计，非商品房成交量、非房价均价。环比仅同年相邻月展示。合计行可能含租赁补贴户数，分业态以大类行为准。
         </view>
       </view>
 

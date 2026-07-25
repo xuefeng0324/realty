@@ -12,6 +12,10 @@ export interface SzAffordableProjectsRow {
   category: string;
   projectCount: number;
   totalUnits: number;
+  /** 建设方式套数（筹集表可拆；建成表通常全计入建设） */
+  buildUnits: number;
+  /** 筹集方式套数 */
+  raiseUnits: number;
   title: string;
   sourceOrg: string;
   sourceUrl: string;
@@ -32,6 +36,8 @@ function mapRow(row: Record<string, string>): SzAffordableProjectsRow | null {
     category: String(row.category ?? "").trim(),
     projectCount: n(row.project_count),
     totalUnits: n(row.total_units),
+    buildUnits: n(row.build_units),
+    raiseUnits: n(row.raise_units),
     title: String(row.title ?? "").trim(),
     sourceOrg: String(row.source_org ?? "").trim(),
     sourceUrl: String(row.source_url ?? "").trim()

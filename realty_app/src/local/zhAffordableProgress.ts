@@ -16,6 +16,12 @@ export interface ZhAffordableProgressRow {
   completedUnits: number;
   completedAreaSqm: number;
   rentalSubsidyHouseholds: number;
+  publicRentalStartedUnits: number;
+  publicRentalCompletedUnits: number;
+  saleTypeStartedUnits: number;
+  saleTypeCompletedUnits: number;
+  protectedRentalStartedUnits: number;
+  protectedRentalCompletedUnits: number;
   sourceOrg: string;
   sourceUrl: string;
   attachmentUrl: string;
@@ -40,6 +46,12 @@ function mapRow(row: Record<string, string>): ZhAffordableProgressRow {
     completedUnits: n(row.completed_units),
     completedAreaSqm: n(row.completed_area_sqm),
     rentalSubsidyHouseholds: n(row.rental_subsidy_households),
+    publicRentalStartedUnits: n(row.public_rental_started_units),
+    publicRentalCompletedUnits: n(row.public_rental_completed_units),
+    saleTypeStartedUnits: n(row.sale_type_started_units),
+    saleTypeCompletedUnits: n(row.sale_type_completed_units),
+    protectedRentalStartedUnits: n(row.protected_rental_started_units),
+    protectedRentalCompletedUnits: n(row.protected_rental_completed_units),
     sourceOrg: String(row.source_org ?? "").trim(),
     sourceUrl: String(row.source_url ?? "").trim(),
     attachmentUrl: String(row.attachment_url ?? "").trim()

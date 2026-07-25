@@ -23,24 +23,37 @@ describe("sz affordable projects", () => {
     expect(done!.kind).toBe("completed");
   });
 
+  it("筹集表可拆建设/筹集；2024 抽检量级", () => {
+    const raised = getLatestSzAffordableRaised();
+    expect(raised).not.toBeNull();
+    if (raised!.year === 2024) {
+      expect(raised!.totalUnits).toBe(54484);
+      expect(raised!.buildUnits).toBe(40873);
+      expect(raised!.raiseUnits).toBe(13611);
+      expect(raised!.buildUnits + raised!.raiseUnits).toBe(raised!.totalUnits);
+    }
+  });
+
   it("爬虫与仪表盘门禁", () => {
     const script = readFileSync(resolve(process.cwd(), "scripts/crawl_sz_affordable_projects.py"), "utf8");
     expect(script).toContain("zjj.sz.gov.cn");
     expect(script).toContain("pypdf");
     expect(script).toContain("_ensure_pil_stub");
-    expect(script).toContain("UNIT_RE");
+    expect(script).toContain("build_units");
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     expect(dash).toContain("data-sz-affordable-projects");
     expect(dash).toContain("getLatestSzAffordableRaised");
+    expect(dash).toContain("raiseUnits");
   });
 
   it("CSV 解析", () => {
     const rows = loadSzAffordableProjectsFromCSV(
       [
-        "city,year,kind,category,project_count,total_units,title,source_org,source_url",
-        "深圳,2099,raised,保障性住房,2,100,测试,深圳市住建局,https://zjj.sz.gov.cn/a.pdf"
+        "city,year,kind,category,project_count,total_units,build_units,raise_units,title,source_org,source_url",
+        "深圳,2099,raised,保障性住房,2,100,80,20,测试,深圳市住建局,https://zjj.sz.gov.cn/a.pdf"
       ].join("\n")
     );
     expect(rows[0]!.totalUnits).toBe(100);
+    expect(rows[0]!.raiseUnits).toBe(20);
   });
 });
