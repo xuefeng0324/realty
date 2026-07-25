@@ -122,6 +122,26 @@
               </text>
             </view>
           </view>
+          <view v-if="stats70RecentMonths.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+            可用月份（派生）· 最新 {{ stats70TrendLatestMonth || "—" }}
+          </view>
+          <view v-if="stats70RecentMonths.length" class="mp-year-row">
+            <view v-for="m in stats70RecentMonths" :key="'s70m-' + m" class="mp-year-chip">
+              <text class="mp-year-y">{{ m.replace(/\/1$/, "") }}</text>
+            </view>
+          </view>
+          <view v-if="stats70LatestCities.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+            三城最新月二手同比
+          </view>
+          <view
+            v-for="c in stats70LatestCities"
+            :key="'s70c-' + c.city"
+            class="rank-row"
+          >
+            <text class="rank-name">{{ c.city }}</text>
+            <text class="rank-meta muted">{{ c.date.replace(/\/1$/, "") }}</text>
+            <text :class="trendClass(c.secondYoY)">{{ formatIndex(c.secondYoY) }}</text>
+          </view>
         </view>
 
         <view class="stats70-foot muted">点击进入全国 70 城榜单 ›</view>
@@ -935,6 +955,18 @@
         >
           <text class="admin-code muted">{{ d.districtCode }}</text>
           <text class="admin-name">{{ cityNameForId(d.cityId) }} · {{ d.districtName }}</text>
+        </view>
+        <view v-if="adminSuffixShared.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          同末两位区号跨城对照
+        </view>
+        <view
+          v-for="s in adminSuffixShared"
+          :key="'asfx-' + s.suffix"
+          class="admin-dist-row"
+        >
+          <text class="admin-code muted">…{{ String(s.suffix).padStart(2, "0") }}</text>
+          <text class="admin-name">{{ s.cityNames.join(" / ") }}</text>
+          <text class="admin-type muted">{{ s.districtNames.slice(0, 2).join("、") }}</text>
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：admin_districts.csv × metro_planning.districts。交叉用于发现命名不一致。
@@ -2244,6 +2276,35 @@
         >
           <text class="mp-year-y">{{ s.status }}</text>
           <text class="mp-year-n muted">{{ s.lineCount }} 条 · {{ s.totalStations }} 站</text>
+        </view>
+        <view v-if="metroStatusNational.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          全国规划状态汇总
+        </view>
+        <view
+          v-for="s in metroStatusNational"
+          :key="'msn-' + s.status"
+          class="mp-year-chip"
+          style="margin-right: 8rpx; margin-bottom: 6rpx"
+        >
+          <text class="mp-year-y">{{ s.status }}</text>
+          <text class="mp-year-n muted">{{ s.lineCount }} 条 · {{ s.totalLengthKm.toFixed(0) }} km</text>
+        </view>
+        <view v-if="metroStartEndLines.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          本市起终点直距一览
+        </view>
+        <view
+          v-for="(g, idx) in metroStartEndLines"
+          :key="'mse-' + g.lineId"
+          class="mp-line-row"
+        >
+          <text class="mp-line-rank muted">{{ idx + 1 }}</text>
+          <view class="mp-line-mid">
+            <text class="mp-line-name">{{ metroLineName(g.lineId) }}</text>
+            <text class="mp-line-meta muted">{{ g.startStation }} → {{ g.endStation }}</text>
+          </view>
+          <text class="mp-line-km">
+            {{ g.straightLineM != null ? (g.straightLineM / 1000).toFixed(1) + " km" : "—" }}
+          </text>
         </view>
         <view v-if="metroCrossYear2028.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
           跨城 2028 预计开通线路
@@ -4270,6 +4331,23 @@
           </view>
           <text class="pc-dist">{{ Math.round(b.distanceM) }} m</text>
         </view>
+        <view v-if="commercialBankNearestCross.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城最近银行小区（派生）
+        </view>
+        <view
+          v-for="(b, idx) in commercialBankNearestCross"
+          :key="'bnx-' + b.communityId"
+          class="pc-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(b.communityId)"
+        >
+          <text class="pc-rank muted">{{ idx + 1 }}</text>
+          <view class="pc-mid">
+            <text class="pc-name">{{ cityNameForId(b.cityId) }} · {{ communityDisplayName(b.communityId) }}</text>
+            <text class="pc-meta muted">{{ b.poiName }}</text>
+          </view>
+          <text class="pc-dist">{{ Math.round(b.distanceM) }} m</text>
+        </view>
         <view v-if="commercialConvenienceNear.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           最近便利店 Top
         </view>
@@ -4946,6 +5024,21 @@
           <text class="lsp-meta muted">{{ c.districtName }} · {{ c.listingCount }} 套</text>
           <text class="lsp-pct">{{ c.avgPremiumPct >= 0 ? "+" : "" }}{{ c.avgPremiumPct.toFixed(1) }}%</text>
         </view>
+        <view v-if="lspCommunityByVolume.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          学区挂牌量 Top 小区（派生聚合）
+        </view>
+        <view
+          v-for="(c, idx) in lspCommunityByVolume"
+          :key="'lspv-' + c.communityId"
+          class="lsp-dist-item tap-target"
+          hover-class="row-active"
+          @click="goCommunity(c.communityId)"
+        >
+          <text class="lsp-rank muted">{{ idx + 1 }}</text>
+          <text class="lsp-dname">{{ communityDisplayName(c.communityId) }}</text>
+          <text class="lsp-meta muted">{{ c.districtName }} · 均溢价 {{ c.avgPremiumPct.toFixed(1) }}%</text>
+          <text class="lsp-pct">{{ c.listingCount }} 套</text>
+        </view>
         <view
           v-for="item in listingPremiumOverview.items"
           :key="item.listingId"
@@ -5213,8 +5306,11 @@ import {
   getStats70CityOver12MonthChange,
   getStats70CrossCityByMonthSpread,
   getStats70LatestMonth as getStats70LatestMonthTrend,
+  getStats70MonthOptions,
+  getStats70LatestByCity,
   type City12MonthPoint,
-  type MonthSpreadEntry
+  type MonthSpreadEntry,
+  type CityLatestIndex
 } from "../../local/stats70TrendAnalysis";
 import {
   getLprLatest,
@@ -5314,6 +5410,7 @@ import {
   summarizePoiCommercialByCity,
   getPoiCommercialByCommunityNearestAcross,
   getPoiCommercialByCommunityTopByCategory,
+  getPoiCommercialByCityBankNearestByCommunity,
   type WalkScore,
   type CommunityBankNearest,
   type CityBankCoverage,
@@ -5342,11 +5439,13 @@ import {
   getMetroPlanningByOpenYear,
   getMetroPlanningByStatus,
   summarizeMetroPlanningByPhase,
+  summarizeMetroPlanningByStatus,
   type CityMetroPlanningSummary,
   type OpenYearMetroPlanningSummary,
   type TopByMetric,
   type CityStatusStations,
-  type PhaseMetroPlanningSummary
+  type PhaseMetroPlanningSummary,
+  type StatusMetroPlanningSummary
 } from "../../local/metroPlanningRanking";
 import {
   getMetroPlanningGeoByCityCrossReference,
@@ -5358,6 +5457,7 @@ import {
   summarizeMetroPlanningGeoByConfidence,
   getMetroPlanningGeoCrossCityByConfidence,
   getMetroPlanningGeoByConfidence,
+  getMetroPlanningGeoByCityStartEnd,
   type CurvatureEntry,
   type CoverageStats,
   type ManualFallbackRate,
@@ -5449,6 +5549,7 @@ import {
 import {
   summarizeAdminDistrictByCity,
   summarizeAdminDistrictBySuffixType,
+  summarizeAdminDistrictBySuffix,
   getAdminDistrictByCityOrderedByCode,
   detectAdminDistrictCodeGaps,
   classifyAdminDistrictSuffix,
@@ -5459,13 +5560,15 @@ import {
   type CitySuffixTypeCount,
   type AdminDistrictCodeGap,
   type AdminDistrictSuffixType,
-  type AdminMetroCrossRef
+  type AdminMetroCrossRef,
+  type SuffixUsage
 } from "../../local/adminDistrictRanking";
 import {
   summarizeListingSchoolPremiumByCity,
   getListingSchoolPremiumDistribution,
   getListingSchoolPremiumByCityDistrict,
   getListingSchoolPremiumByCommunityLeaderboard,
+  aggregateListingSchoolPremiumByCommunity,
   type CitySchoolPremiumSummary,
   type PremiumBucket,
   type DistrictPremiumSummary,
@@ -5700,6 +5803,9 @@ const commercialBankNear = computed<CommunityBankNearest[]>(() =>
     .filter((x) => store.getCommunityById(x.communityId)?.cityId === app.cityId)
     .slice(0, 5)
 );
+const commercialBankNearestCross = computed<CommunityBankNearest[]>(() =>
+  getPoiCommercialByCityBankNearestByCommunity(8)
+);
 const commercialRestaurantNear = computed<CommunityBankNearest[]>(() =>
   getPoiCommercialByCityRestaurantNearestByCommunity(80)
     .filter((x) => store.getCommunityById(x.communityId)?.cityId === app.cityId)
@@ -5809,6 +5915,9 @@ const adminXinQuList = computed<LocalAdminDistrict[]>(() =>
 const adminHaiList = computed<LocalAdminDistrict[]>(() =>
   getAdminDistrictCrossCityByNameLike("海").slice(0, 8)
 );
+const adminSuffixShared = computed<SuffixUsage[]>(() =>
+  summarizeAdminDistrictBySuffix().filter((s) => s.cities.length > 1).slice(0, 8)
+);
 
 // v1.121.16 listing 学区溢价分布 / 分区
 const lspCitySummary = computed<CitySchoolPremiumSummary | null>(() => {
@@ -5822,6 +5931,11 @@ const lspDistrictTop = computed<DistrictPremiumSummary[]>(() =>
 );
 const lspCommunityTop = computed<CommunityPremiumAggregate[]>(() =>
   getListingSchoolPremiumByCommunityLeaderboard(app.cityId, 5)
+);
+const lspCommunityByVolume = computed<CommunityPremiumAggregate[]>(() =>
+  [...aggregateListingSchoolPremiumByCommunity(app.cityId)]
+    .sort((a, b) => b.listingCount - a.listingCount)
+    .slice(0, 5)
 );
 
 // v1.121.14 规划地铁线路概览
@@ -5898,6 +6012,12 @@ const metroFastLines = computed(() =>
 );
 const metroStatusStations = computed<CityStatusStations[]>(() =>
   getMetroPlanningByCityStatusVsStations().filter((x) => x.cityId === app.cityId)
+);
+const metroStatusNational = computed<StatusMetroPlanningSummary[]>(() =>
+  summarizeMetroPlanningByStatus()
+);
+const metroStartEndLines = computed(() =>
+  getMetroPlanningGeoByCityStartEnd(app.cityId).slice(0, 6)
 );
 const metroCrossYear2028 = computed(() => {
   const map = getMetroPlanningCrossCityByYear(2028);
@@ -8003,6 +8123,16 @@ const stats70MonthLabel = computed(() => {
   const parts = m.split("/");
   if (parts.length < 3) return m;
   return `${parts[0]}-${parts[1].padStart(2, "0")}`;
+});
+const stats70TrendLatestMonth = computed(() => getStats70LatestMonthTrend());
+const stats70RecentMonths = computed<string[]>(() =>
+  getStats70MonthOptions().slice(-6).reverse()
+);
+const stats70LatestCities = computed<CityLatestIndex[]>(() => {
+  if (!stats70Ready.value) return [];
+  return ["深圳", "广州", "珠海"]
+    .map((c) => getStats70LatestByCity(c))
+    .filter((x): x is CityLatestIndex => x != null);
 });
 
 // v0.91.0：70 城近 12 月同比趋势扩张 / 收缩派生
