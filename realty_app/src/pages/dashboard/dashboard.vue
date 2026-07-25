@@ -1180,19 +1180,28 @@
             </text>
           </view>
           <view v-if="gzAffordableTargetRaised && gzAffordableTargetRaised.targetUnits > 0" class="gz-inventory-kpi">
-            <text class="cell-label">筹集目标进度 · {{ gzAffordableTargetRaised.category.replace("保障性住房", "保障房") }}</text>
+            <text class="cell-label">
+              {{ gzAffordableTargetRaised.year }} 筹集目标 ·
+              {{ gzAffordableTargetRaised.category.replace("保障性住房", "保障房") }}
+            </text>
             <text class="gz-inventory-value">{{ gzAffordableTargetPct }}%</text>
             <text class="cell-sub muted">
               {{ gzAffordableTargetRaised.actualUnits.toLocaleString() }} /
-              {{ gzAffordableTargetRaised.targetUnits.toLocaleString() }} 套 · 截至
-              {{ gzAffordableTargetRaised.asOfMonth }} 月底
+              {{ gzAffordableTargetRaised.targetUnits.toLocaleString() }} 套
+              <template v-if="gzAffordableTargetRaised.asOfMonth > 0">
+                · 截至 {{ gzAffordableTargetRaised.asOfMonth }} 月底
+              </template>
+              <template v-else> · 年度计划</template>
             </text>
           </view>
           <view
             v-else-if="gzAffordableTargetCompleted && gzAffordableTargetCompleted.targetUnits > 0"
             class="gz-inventory-kpi"
           >
-            <text class="cell-label">竣工目标进度 · {{ gzAffordableTargetCompleted.category.replace("保障性住房", "保障房") }}</text>
+            <text class="cell-label">
+              {{ gzAffordableTargetCompleted.year }} 竣工目标 ·
+              {{ gzAffordableTargetCompleted.category.replace("保障性住房", "保障房") }}
+            </text>
             <text class="gz-inventory-value">{{ gzAffordableTargetCompletedPct }}%</text>
             <text class="cell-sub muted">
               {{ gzAffordableTargetCompleted.actualUnits.toLocaleString() }} /
@@ -1211,14 +1220,14 @@
           class="muted"
           style="margin-top: 8rpx; font-size: 21rpx"
         >
-          竣工目标进度 {{ gzAffordableTargetCompletedPct }}%（{{
+          {{ gzAffordableTargetCompleted.year }} 竣工目标进度 {{ gzAffordableTargetCompletedPct }}%（{{
             gzAffordableTargetCompleted.actualUnits.toLocaleString()
           }}
           / {{ gzAffordableTargetCompleted.targetUnits.toLocaleString() }} 套，截至
           {{ gzAffordableTargetCompleted.asOfMonth }} 月底任务量完成表）。
         </view>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
-          来源：广州市住建局保障性住房项目公开 XLS；已筹建/已竣工为项目清单合计；目标进度来自「任务量完成」表。均非商品房成交、非房价均价。
+          来源：广州市住建局保障性住房项目公开 XLS；已筹建/已竣工为项目清单合计；目标进度优先「任务量完成」，缺省回退「筹集建设计划」合计并对齐同年清单实际。均非商品房成交、非房价均价。
         </view>
       </view>
 
@@ -6107,6 +6116,7 @@ import {
 import {
   getLatestGzAffordableTargetRaised,
   getLatestGzAffordableTargetCompleted,
+  resolveTargetWithProjectsActual,
   progressPct,
   type GzAffordableTargetRow
 } from "../../local/gzAffordableTargets";
@@ -7293,11 +7303,19 @@ const gzAffordableCompleted = computed<GzAffordableProjectsRow | null>(() => {
 });
 const gzAffordableTargetRaised = computed<GzAffordableTargetRow | null>(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
-  return city === "广州" ? getLatestGzAffordableTargetRaised() : null;
+  if (city !== "广州") return null;
+  const preferYear = gzAffordableRaised.value?.year;
+  const raw = getLatestGzAffordableTargetRaised(preferYear);
+  return resolveTargetWithProjectsActual(
+    raw,
+    gzAffordableRaised.value?.totalUnits ?? 0,
+    gzAffordableRaised.value?.asOfMonth ?? 0
+  );
 });
 const gzAffordableTargetCompleted = computed<GzAffordableTargetRow | null>(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
-  return city === "广州" ? getLatestGzAffordableTargetCompleted() : null;
+  if (city !== "广州") return null;
+  return getLatestGzAffordableTargetCompleted(gzAffordableCompleted.value?.year);
 });
 const gzAffordableTargetPct = computed(() => progressPct(gzAffordableTargetRaised.value) ?? 0);
 const gzAffordableTargetCompletedPct = computed(() => progressPct(gzAffordableTargetCompleted.value) ?? 0);

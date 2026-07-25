@@ -66,27 +66,43 @@ export function getGzAffordableTargetRows(): GzAffordableTargetRow[] {
   return [...rows];
 }
 
-/** 优先有「目标套数」的筹集行（配售型），否则最新筹集实际 */
-export function getLatestGzAffordableTargetRaised(): GzAffordableTargetRow | null {
+/** 优先匹配 preferYear；再优先有目标的配售型筹集行 */
+export function getLatestGzAffordableTargetRaised(preferYear?: number): GzAffordableTargetRow | null {
   const raised = rows.filter((r) => r.metric === "raised");
+  const pool = preferYear && preferYear > 0 ? raised.filter((r) => r.year === preferYear) : raised;
+  const src = pool.length ? pool : raised;
   return (
-    raised.find((r) => r.targetUnits > 0 && r.category.includes("配售型")) ||
-    raised.find((r) => r.targetUnits > 0) ||
-    raised.find((r) => r.category.includes("配售型")) ||
-    raised[0] ||
+    src.find((r) => r.targetUnits > 0 && r.category.includes("配售型")) ||
+    src.find((r) => r.targetUnits > 0) ||
+    src.find((r) => r.category.includes("配售型")) ||
+    src[0] ||
     null
   );
 }
 
-export function getLatestGzAffordableTargetCompleted(): GzAffordableTargetRow | null {
+export function getLatestGzAffordableTargetCompleted(preferYear?: number): GzAffordableTargetRow | null {
   const done = rows.filter((r) => r.metric === "completed");
+  const pool = preferYear && preferYear > 0 ? done.filter((r) => r.year === preferYear) : done;
+  const src = pool.length ? pool : done;
   return (
-    done.find((r) => r.targetUnits > 0 && r.category.includes("配售型")) ||
-    done.find((r) => r.targetUnits > 0) ||
-    done.find((r) => r.category.includes("配售型")) ||
-    done[0] ||
+    src.find((r) => r.targetUnits > 0 && r.category.includes("配售型")) ||
+    src.find((r) => r.targetUnits > 0) ||
+    src.find((r) => r.category.includes("配售型")) ||
+    src[0] ||
     null
   );
+}
+
+/** 任务量完成表无实际时，用同年清单已筹建套数回填进度 */
+export function resolveTargetWithProjectsActual(
+  target: GzAffordableTargetRow | null,
+  actualUnits: number,
+  asOfMonth: number
+): GzAffordableTargetRow | null {
+  if (!target || target.targetUnits <= 0) return null;
+  if (target.actualUnits > 0) return target;
+  if (actualUnits <= 0) return target;
+  return { ...target, actualUnits, asOfMonth: asOfMonth || target.asOfMonth };
 }
 
 export function progressPct(row: GzAffordableTargetRow | null): number | null {

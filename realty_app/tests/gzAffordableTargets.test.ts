@@ -6,23 +6,29 @@ import {
   getLatestGzAffordableTargetCompleted,
   getLatestGzAffordableTargetRaised,
   loadGzAffordableTargetsFromCSV,
-  progressPct
+  progressPct,
+  resolveTargetWithProjectsActual
 } from "../src/local/gzAffordableTargets";
 
 describe("gz affordable targets", () => {
-  it("加载广州保障房任务量目标进度", () => {
+  it("加载广州保障房任务量/计划目标进度", () => {
     const rows = getGzAffordableTargetRows();
     expect(rows.length).toBeGreaterThanOrEqual(2);
     expect(rows.every((r) => r.city === "广州")).toBe(true);
-    const raised = getLatestGzAffordableTargetRaised();
-    expect(raised).not.toBeNull();
-    expect(raised!.metric).toBe("raised");
-    expect(raised!.year).toBe(2024);
-    expect(raised!.targetUnits).toBe(10000);
-    expect(raised!.actualUnits).toBe(8351);
-    expect(raised!.asOfMonth).toBe(10);
-    expect(progressPct(raised)).toBe(83.5);
-    const done = getLatestGzAffordableTargetCompleted();
+    const y2024 = getLatestGzAffordableTargetRaised(2024);
+    expect(y2024).not.toBeNull();
+    expect(y2024!.metric).toBe("raised");
+    expect(y2024!.targetUnits).toBe(10000);
+    expect(y2024!.actualUnits).toBe(8351);
+    expect(progressPct(y2024)).toBe(83.5);
+    const y2025 = getLatestGzAffordableTargetRaised(2025);
+    expect(y2025).not.toBeNull();
+    expect(y2025!.targetUnits).toBe(2448);
+    const filled = resolveTargetWithProjectsActual(y2025, 1378, 9);
+    expect(filled!.actualUnits).toBe(1378);
+    expect(filled!.asOfMonth).toBe(9);
+    expect(progressPct(filled)).toBe(56.3);
+    const done = getLatestGzAffordableTargetCompleted(2024);
     expect(done).not.toBeNull();
     expect(done!.targetUnits).toBe(4843);
     expect(done!.actualUnits).toBe(2811);
@@ -31,10 +37,12 @@ describe("gz affordable targets", () => {
   it("爬虫与仪表盘门禁", () => {
     const script = readFileSync(resolve(process.cwd(), "scripts/crawl_gz_affordable_targets.py"), "utf8");
     expect(script).toContain("任务量完成");
+    expect(script).toContain("筹集建设计划");
     expect(script).toContain("bzxzfxm");
     expect(script).toContain("xlrd");
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     expect(dash).toContain("getLatestGzAffordableTargetRaised");
+    expect(dash).toContain("resolveTargetWithProjectsActual");
     expect(dash).toContain("gzAffordableTargetRaised");
   });
 

@@ -86,6 +86,14 @@ def abs_url(href: str) -> str:
 
 
 def list_task_notices(max_pages: int = 2) -> list[tuple[str, str]]:
+    return list_notices_by_title(max_pages, predicate=lambda t: "任务量完成" in t)
+
+
+def list_plan_notices(max_pages: int = 2) -> list[tuple[str, str]]:
+    return list_notices_by_title(max_pages, predicate=lambda t: "筹集建设计划" in t)
+
+
+def list_notices_by_title(max_pages: int, predicate) -> list[tuple[str, str]]:
     urls = [LIST_URL]
     for i in range(2, max_pages + 1):
         urls.append(f"https://zfcj.gz.gov.cn/zjyw/zfbz/zwxx/bzxzfxm/index_{i}.html")
@@ -98,7 +106,7 @@ def list_task_notices(max_pages: int = 2) -> list[tuple[str, str]]:
             continue
         for m in re.finditer(r'href="([^"]+)"[^>]*title="([^"]+)"', html):
             title = unescape(m.group(2)).strip()
-            if "任务量完成" not in title:
+            if not predicate(title):
                 continue
             out.append((abs_url(m.group(1)), title))
     seen: set[str] = set()
@@ -250,6 +258,47 @@ def parse_task_xls(data: bytes, title: str, source_url: str, attachment_url: str
     return rows
 
 
+def parse_plan_xls(data: bytes, title: str, source_url: str, attachment_url: str) -> list[dict]:
+    """筹集建设计划：取合计行计划套数作年度目标（尚无任务量完成表时的回退）。"""
+    book = xlrd.open_workbook(file_contents=data)
+    sheet = book.sheet_by_index(0)
+    ym = YEAR_RE.search(title)
+    year = int(ym.group(1)) if ym else 0
+    if year < 2000:
+        return []
+    category = category_from_blob(title)
+    target = 0
+    for r in range(sheet.nrows):
+        label = str(sheet.cell_value(r, 0)).replace("\n", "").strip()
+        if "合计" not in label and "总计" not in label:
+            continue
+        for c in range(sheet.ncols - 1, -1, -1):
+            v = _num(sheet.cell_value(r, c))
+            if 1 <= v <= 200000:
+                target = int(v)
+                break
+        if target > 0:
+            break
+    if target <= 0:
+        return []
+    return [
+        {
+            "city": "广州",
+            "year": str(year),
+            "as_of_month": "0",  # 年度计划，非截至某月
+            "metric": "raised",
+            "category": category,
+            "target_units": str(target),
+            "actual_units": "0",
+            "actual_area_wan_sqm": "0",
+            "title": title,
+            "source_org": "广州市住房和城乡建设局",
+            "source_url": source_url,
+            "attachment_url": attachment_url,
+        }
+    ]
+
+
 def atomic_write(path: Path, rows: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(
@@ -273,6 +322,25 @@ def main() -> int:
     print(f"found {len(notices)} task notices", flush=True)
     best: dict[tuple[str, str, str], dict] = {}  # year,metric,category -> newest as_of
 
+    def consider(row: dict, *, allow_fill_target_only: bool = False) -> None:
+        key = (row["year"], row["metric"], row["category"])
+        prev = best.get(key)
+        if prev is None:
+            best[key] = row
+            return
+        if allow_fill_target_only:
+            # 计划表只补目标：不覆盖已有任务量完成实际
+            if int(prev.get("target_units") or 0) <= 0 and int(row.get("target_units") or 0) > 0:
+                prev["target_units"] = row["target_units"]
+                if not prev.get("attachment_url"):
+                    prev["attachment_url"] = row["attachment_url"]
+            return
+        if int(row["as_of_month"]) >= int(prev["as_of_month"]):
+            # 保留更完整的目标（若新表目标为空）
+            if int(row.get("target_units") or 0) <= 0 and int(prev.get("target_units") or 0) > 0:
+                row = {**row, "target_units": prev["target_units"]}
+            best[key] = row
+
     for url, title in notices:
         try:
             html = fetch_text(url)
@@ -282,10 +350,7 @@ def main() -> int:
                 continue
             data = fetch_bytes(xls)
             for row in parse_task_xls(data, title, url, xls):
-                key = (row["year"], row["metric"], row["category"])
-                prev = best.get(key)
-                if prev is None or int(row["as_of_month"]) >= int(prev["as_of_month"]):
-                    best[key] = row
+                consider(row)
                 print(
                     f"ok {row['year']}-{int(row['as_of_month']):02d} {row['metric']} "
                     f"target={row['target_units']} actual={row['actual_units']}",
@@ -293,6 +358,27 @@ def main() -> int:
                 )
         except Exception as e:
             print(f"ERR {title}: {e}", flush=True)
+
+    plans = list_plan_notices(args.list_pages)
+    print(f"found {len(plans)} plan notices", flush=True)
+    for url, title in plans:
+        try:
+            html = fetch_text(url)
+            xls = find_xls(html)
+            if not xls:
+                print(f"no xls plan: {title}", flush=True)
+                continue
+            data = fetch_bytes(xls)
+            for row in parse_plan_xls(data, title, url, xls):
+                consider(row, allow_fill_target_only=True)
+                if (row["year"], row["metric"], row["category"]) not in best:
+                    best[(row["year"], row["metric"], row["category"])] = row
+                print(
+                    f"plan {row['year']} {row['metric']} target={row['target_units']}",
+                    flush=True,
+                )
+        except Exception as e:
+            print(f"ERR plan {title}: {e}", flush=True)
 
     rows = list(best.values())
     if args.max > 0:
