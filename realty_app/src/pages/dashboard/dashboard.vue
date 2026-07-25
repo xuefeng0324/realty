@@ -273,8 +273,8 @@
             <text class="cell-value">{{ lprLatest.lpr1y.toFixed(2) }}%</text>
             <text class="cell-sub muted" v-if="lprDelta12m">
               12 月
-              <text :class="lprDelta12m.lpr1yDeltaBp > 0 ? 'trend-down' : lprDelta12m.lpr1yDeltaBp < 0 ? 'trend-up' : 'muted'">
-                {{ lprDelta12m.lpr1yDeltaBp > 0 ? '↓' : lprDelta12m.lpr1yDeltaBp < 0 ? '↑' : '·' }}
+              <text :class="rateDeltaClass(lprDelta12m.lpr1yDeltaBp)">
+                {{ rateDeltaArrow(lprDelta12m.lpr1yDeltaBp) }}
                 {{ Math.abs(lprDelta12m.lpr1yDeltaBp) }} bp
               </text>
             </text>
@@ -284,8 +284,8 @@
             <text class="cell-value">{{ lprLatest.lpr5y.toFixed(2) }}%</text>
             <text class="cell-sub muted" v-if="lprDelta12m">
               12 月
-              <text :class="lprDelta12m.lpr5yDeltaBp > 0 ? 'trend-down' : lprDelta12m.lpr5yDeltaBp < 0 ? 'trend-up' : 'muted'">
-                {{ lprDelta12m.lpr5yDeltaBp > 0 ? '↓' : lprDelta12m.lpr5yDeltaBp < 0 ? '↑' : '·' }}
+              <text :class="rateDeltaClass(lprDelta12m.lpr5yDeltaBp)">
+                {{ rateDeltaArrow(lprDelta12m.lpr5yDeltaBp) }}
                 {{ Math.abs(lprDelta12m.lpr5yDeltaBp) }} bp
               </text>
             </text>
@@ -295,8 +295,8 @@
             <text class="cell-value">{{ lprLatest.mortgageFirst.toFixed(2) }}%</text>
             <text class="cell-sub muted" v-if="lprDelta12m">
               12 月
-              <text :class="lprDelta12m.mortgageFirstDeltaBp > 0 ? 'trend-down' : lprDelta12m.mortgageFirstDeltaBp < 0 ? 'trend-up' : 'muted'">
-                {{ lprDelta12m.mortgageFirstDeltaBp > 0 ? '↓' : lprDelta12m.mortgageFirstDeltaBp < 0 ? '↑' : '·' }}
+              <text :class="rateDeltaClass(lprDelta12m.mortgageFirstDeltaBp)">
+                {{ rateDeltaArrow(lprDelta12m.mortgageFirstDeltaBp) }}
                 {{ Math.abs(lprDelta12m.mortgageFirstDeltaBp) }} bp
               </text>
             </text>
@@ -306,8 +306,8 @@
             <text class="cell-value">{{ lprLatest.mortgageSecond.toFixed(2) }}%</text>
             <text class="cell-sub muted" v-if="lprDelta12m">
               12 月
-              <text :class="lprDelta12m.mortgageSecondDeltaBp > 0 ? 'trend-down' : lprDelta12m.mortgageSecondDeltaBp < 0 ? 'trend-up' : 'muted'">
-                {{ lprDelta12m.mortgageSecondDeltaBp > 0 ? '↓' : lprDelta12m.mortgageSecondDeltaBp < 0 ? '↑' : '·' }}
+              <text :class="rateDeltaClass(lprDelta12m.mortgageSecondDeltaBp)">
+                {{ rateDeltaArrow(lprDelta12m.mortgageSecondDeltaBp) }}
                 {{ Math.abs(lprDelta12m.mortgageSecondDeltaBp) }} bp
               </text>
             </text>
@@ -357,7 +357,7 @@
         <view v-if="lprYoY && lprYoY.lpr5yDeltaBp != null" class="trend-summary" style="margin-top: 8rpx">
           <view class="trend-cell">
             <text class="cell-label">5Y 同比</text>
-            <text class="cell-value" :class="lprYoY.lpr5yDeltaBp <= 0 ? 'trend-up' : 'trend-down'">
+            <text class="cell-value" :class="rateDeltaClass(lprYoY.lpr5yDeltaBp)">
               {{ formatBp(lprYoY.lpr5yDeltaBp) }}
             </text>
             <text class="cell-sub muted">vs {{ lprYoY.yearAgo?.month ?? "去年同月" }}</text>
@@ -366,7 +366,7 @@
             <text class="cell-label">首套同比</text>
             <text
               class="cell-value"
-              :class="(lprYoY.mortgageFirstDeltaBp ?? 0) <= 0 ? 'trend-up' : 'trend-down'"
+              :class="rateDeltaClass(lprYoY.mortgageFirstDeltaBp ?? 0)"
             >
               {{ lprYoY.mortgageFirstDeltaBp != null ? formatBp(lprYoY.mortgageFirstDeltaBp) : "—" }}
             </text>
@@ -374,7 +374,7 @@
           </view>
           <view class="trend-cell">
             <text class="cell-label">1Y 同比</text>
-            <text class="cell-value" :class="(lprYoY.lpr1yDeltaBp ?? 0) <= 0 ? 'trend-up' : 'trend-down'">
+            <text class="cell-value" :class="rateDeltaClass(lprYoY.lpr1yDeltaBp ?? 0)">
               {{ lprYoY.lpr1yDeltaBp != null ? formatBp(lprYoY.lpr1yDeltaBp) : "—" }}
             </text>
             <text class="cell-sub muted">短端</text>
@@ -386,7 +386,7 @@
             <text class="cell-label">5Y vs 全期均</text>
             <text
               class="cell-value"
-              :class="lprVsAllTimeAvg.lpr5yDeltaBp <= 0 ? 'trend-up' : 'trend-down'"
+              :class="rateDeltaClass(lprVsAllTimeAvg.lpr5yDeltaBp)"
             >
               {{ formatBp(lprVsAllTimeAvg.lpr5yDeltaBp) }}
             </text>
@@ -396,7 +396,7 @@
             <text class="cell-label">首套 vs 全期均</text>
             <text
               class="cell-value"
-              :class="lprVsAllTimeAvg.mortgageFirstDeltaBp <= 0 ? 'trend-up' : 'trend-down'"
+              :class="rateDeltaClass(lprVsAllTimeAvg.mortgageFirstDeltaBp)"
             >
               {{ formatBp(lprVsAllTimeAvg.mortgageFirstDeltaBp) }}
             </text>
@@ -406,7 +406,7 @@
             <text class="cell-label">1Y vs 全期均</text>
             <text
               class="cell-value"
-              :class="lprVsAllTimeAvg.lpr1yDeltaBp <= 0 ? 'trend-up' : 'trend-down'"
+              :class="rateDeltaClass(lprVsAllTimeAvg.lpr1yDeltaBp)"
             >
               {{ formatBp(lprVsAllTimeAvg.lpr1yDeltaBp) }}
             </text>
@@ -1092,6 +1092,36 @@
         </button>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
           数据源：广州市住建局商品房销售统计。可售与未售为不同官方口径，不以单日签约直接推算去化周期。
+        </view>
+      </view>
+
+      <view v-if="szPlannedSupply" class="card" data-tab="overview,price" data-sz-planned-supply>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🏗️ 深圳计划入市</view>
+          <view class="muted" style="font-size: 22rpx">{{ formatSzSupplyPeriod(szPlannedSupply) }}</view>
+        </view>
+        <view class="gz-inventory-grid">
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">计划供应</text>
+            <text class="gz-inventory-value">{{ szPlannedSupply.totalUnits.toLocaleString() }} 套</text>
+            <text v-if="szSupplyQoQ" class="cell-sub" :class="invDeltaClass(szSupplyQoQ.unitsDelta)">
+              较上季 {{ formatInvDelta(szSupplyQoQ.unitsDelta) }}
+            </text>
+          </view>
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">供应面积</text>
+            <text class="gz-inventory-value">{{ formatSupplyArea(szPlannedSupply.totalAreaSqm) }}</text>
+            <text class="cell-sub muted">项目 {{ szPlannedSupply.projectCount }} 个</text>
+          </view>
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">其中住宅</text>
+            <text class="gz-inventory-value">{{ szPlannedSupply.residentialUnits.toLocaleString() }} 套</text>
+            <text class="cell-sub muted">{{ formatSupplyArea(szPlannedSupply.residentialAreaSqm) }}</text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          {{ szPlannedSupply.sourceOrg }} · 截至 {{ szPlannedSupply.asOfDate }} · {{ szPlannedSupply.publishDate }} 公示。
+          口径为「计划入市」供应，非成交、非可售库存。
         </view>
       </view>
 
@@ -5778,6 +5808,12 @@ import { coverageText, formatUnitPrice, showToast, daysAgoFromToday } from "../.
 import { SNAPSHOT_UPDATED_EVENT } from "../../config";
 import { getLatestNbsRealEstate, getNbsYoyTrend } from "../../local/nbsRealEstate";
 import { getGzInventoryOverview, getGzInventoryDayDelta } from "../../local/gzNewHouseInventory";
+import {
+  getLatestSzPlannedSupply,
+  getSzSupplyQoQDelta,
+  formatSzSupplyPeriod,
+  type SzPlannedSupplyRow
+} from "../../local/szPlannedSupply";
 import { assessGzInventoryFreshness } from "../../local/gzInventoryFreshness";
 import { getLatestProvidentFundRate, monthlyPayment } from "../../local/providentFund";
 
@@ -6911,6 +6947,16 @@ const gzInventoryDelta = computed(() => {
 const gzInventoryFresh = computed(() =>
   assessGzInventoryFreshness(gzInventory.value?.date ?? null)
 );
+
+const szPlannedSupply = computed<SzPlannedSupplyRow | null>(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "深圳" ? getLatestSzPlannedSupply() : null;
+});
+const szSupplyQoQ = computed(() => (szPlannedSupply.value ? getSzSupplyQoQDelta() : null));
+function formatSupplyArea(sqm: number): string {
+  if (sqm >= 10000) return `${(sqm / 10000).toFixed(1)} 万㎡`;
+  return `${sqm.toLocaleString()} ㎡`;
+}
 function formatInvDelta(v: number): string {
   if (v === 0) return "持平";
   return `${v > 0 ? "+" : ""}${v.toLocaleString()}`;
@@ -6919,6 +6965,17 @@ function invDeltaClass(v: number): string {
   if (v > 0) return "trend-up";
   if (v < 0) return "trend-down";
   return "muted";
+}
+/** 涨跌色：A 股惯例 涨红跌绿（利率升=红、降=绿） */
+function rateDeltaClass(v: number): string {
+  if (v > 0) return "trend-up";
+  if (v < 0) return "trend-down";
+  return "muted";
+}
+function rateDeltaArrow(v: number): string {
+  if (v > 0) return "↑";
+  if (v < 0) return "↓";
+  return "·";
 }
 const providentRate = computed(() => getLatestProvidentFundRate());
 
@@ -6932,6 +6989,7 @@ function formatMacroPct(v: number) {
   return `${v > 0 ? "+" : ""}${v.toFixed(1)}%`;
 }
 function macroTrendClass(v: number) {
+  // 与 trend-* / stats70-* 统一：涨红跌绿
   if (v > 0) return "stats70-up";
   if (v < 0) return "stats70-down";
   return "stats70-flat";
@@ -8362,10 +8420,11 @@ function formatPct(value: number | null): string {
   return fmtPct(value);
 }
 
-/** 用 cityId → 城市名（"深圳" / "广州" 等）。 */
+/** 用 cityId → 城市名（"深圳" / "广州" 等）。优先异步 cities，回退同步 store，避免首屏 city#id。 */
 function cityNameForId(cityId: number): string {
   const c = cities.value.find((x) => x.city_id === cityId);
-  return c?.city_name ?? `city#${cityId}`;
+  if (c?.city_name) return c.city_name;
+  return store.getCityById(cityId)?.cityName ?? `city#${cityId}`;
 }
 
 function metroLineName(lineId: number): string {
@@ -9597,11 +9656,11 @@ onShow(async () => {
 }
 
 .stats70-up {
-  color: #4ade80 !important;
+  color: #ef4444 !important;
 }
 
 .stats70-down {
-  color: #fca5a5 !important;
+  color: #22c55e !important;
 }
 
 .stats70-flat {
@@ -9614,7 +9673,11 @@ onShow(async () => {
 }
 
 .wangqian-up {
-  color: #4ade80 !important;
+  color: #ef4444 !important;
+}
+
+.wangqian-down {
+  color: #22c55e !important;
 }
 
 .wq-fresh {
@@ -10007,10 +10070,10 @@ onShow(async () => {
   flex-shrink: 0;
 }
 .wq-trend-up {
-  color: var(--color-on-success-soft);
+  color: #ef4444;
 }
 .wq-trend-down {
-  color: var(--color-on-danger-soft);
+  color: #22c55e;
 }
 .wq-trend-mult {
   font-weight: 700;

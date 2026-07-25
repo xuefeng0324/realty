@@ -191,9 +191,9 @@
 | 入口 | 总览宏观卡 |
 | 风险 | L |
 
-**期望**：数字来自对应 CSV；空则隐藏或空态；**NBS 多期销售面积同比可并列展示**（累计口径，非成交均价；≥5 期含 1—2…1—6）；广州库存卡显示新鲜度（>3 天滞后文案）；日更 CI merge 库存、月更 CI merge NBS。  
-**自动化**：unit `lprHistory` / `nbsRealEstate`（≥5 期） / `gzNewHouseInventory` / `gzInventoryFreshness`  
-**手工**：广州城总览库存卡日期旁见「截至…」；宏观卡见「1—2 · … · 1—6」同比串。
+**期望**：数字来自对应 CSV；空则隐藏或空态；**NBS 多期销售面积同比可并列展示**（累计口径，非成交均价；≥5 期含 1—2…1—6）；广州库存卡显示新鲜度（>3 天滞后文案）；日更 CI merge 库存、月更 CI merge NBS；**深圳城显示「计划入市」季度供应卡**（住建局公示正文，非成交价）；涨跌色统一 **涨红跌绿**（含 NBS / 网签 / LPR 方向）。  
+**自动化**：unit `lprHistory` / `nbsRealEstate`（≥5 期） / `gzNewHouseInventory` / `gzInventoryFreshness` / `adversarialColorCitySupply` / `szPlannedSupply`  
+**手工**：广州城总览库存卡；深圳城见计划入市 Q 卡；宏观卡同比串为红色上涨。
 
 ---
 
@@ -499,7 +499,7 @@
 | 2026-07-26 | F-DASH-11 | 广州库存日更 CI + 新鲜度；NBS 月更 merge | 1.121.49 | Phase E |
 | 2026-07-26 | F-DASH-08 / F-SCH-01 | 深圳教育事业概况接入 | 1.121.50 | 普通中小学口径 |
 | 2026-07-26 | F-DASH-08 / F-SCH-01 | 珠海基础教育学校数 XLSX 接入 | 1.121.51 | 在校生未公布不伪造 |
-| 2026-07-26 | F-DASH-08 / F-SCH-01 | 教育卡竞态/CSV/学年口径对抗修复 | 1.121.53 | adversarialEducationBugs |
+| 2026-07-26 | F-DASH-11 | 涨跌色统一 + cityName 回退 + 深圳计划入市 | 1.121.54 | 涨红跌绿；周更爬虫 |
 
 ---
 

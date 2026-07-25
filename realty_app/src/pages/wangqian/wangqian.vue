@@ -800,9 +800,9 @@ onLoad((opts?: Record<string, string>) => {
   border-top: 1rpx solid var(--color-soft);
 }
 .trend-up {
-  color: #4ade80;
+  color: #ef4444;
 }
 .trend-down {
-  color: #f87171;
+  color: #22c55e;
 }
 </style>
