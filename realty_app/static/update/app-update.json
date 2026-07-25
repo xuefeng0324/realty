@@ -1,12 +1,12 @@
 {
-  "versionName": "1.121.70",
-  "versionCode": "191",
-  "publishedAt": "2026-07-25T23:45:44Z",
+  "versionName": "1.121.71",
+  "versionCode": "192",
+  "publishedAt": "2026-07-25T23:51:51Z",
   "force": false,
-  "notes": "fix(ui): NBS\u591a\u671f\u5747\u4ef7\u4e0e\u68da\u6539\u811a\u6ce8 v1.121.70\n\n2026-07-25-v1.121.5-\u542f\u52a8\u9875\u4e0eOTA\u6839\u6cbb: v1.121.5 / v1.121.6 \u2014 \u542f\u52a8\u9875 + OTA \u6839\u6cbb\u4e0e\u9a8c\u8bc1\n2026-07-25-v1.121.7-\u623f\u6e90\u6253\u5f00\u8d1d\u58f3App: v1.121.7 \u2014 \u623f\u6e90\u8df3\u8d1d\u58f3 + \u79bb\u7ebf APK \u8865 zip4j\uff08\u4fee OTA 100% \u95ea\u9000\uff09\n2026-07-25-v1.121.8-\u79bb\u7ebfOTA\u81ea\u68c0\u52a0\u56fa: v1.121.8 \u2014 \u79bb\u7ebf\u5305 OTA \u81ea\u68c0\u52a0\u56fa\uff08zip4j + install-apk + \u5ba1\u8ba1\u811a\u672c\uff09\n",
+  "notes": "fix(ui): NBS\u53ef\u552e\u6708\u6570\u591a\u671f\u4e0e\u540c\u6bd4\u4e32 v1.121.71\n\n2026-07-25-v1.121.8-\u79bb\u7ebfOTA\u81ea\u68c0\u52a0\u56fa: v1.121.8 \u2014 \u79bb\u7ebf\u5305 OTA \u81ea\u68c0\u52a0\u56fa\uff08zip4j + install-apk + \u5ba1\u8ba1\u811a\u672c\uff09\n2026-07-25-v1.121.9-OTA\u9a8c\u8bc1130: v1.121.9 \u2014 OTA \u9a8c\u8bc1\u5305 130\n2026-07-25-v1.109.0-\u793e\u533a\u603b\u4ef7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f: v1.109.0 \u2014 \u793e\u533a\u603b\u4ef7\u00d7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/191/app.wgt",
-    "sha256": "270a01a37538806bebe2ef4d1202296517efcb7ae3691a98d80c91c0d7888100"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/192/app.wgt",
+    "sha256": "35a7e30aaa7e2b51dca07d3f08daa2379964a3a8cec784622a74284465a19f9b"
   },
   "ios": {
     "available": false,
