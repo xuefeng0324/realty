@@ -17,6 +17,7 @@ import { initializeTheme } from "./utils/theme";
 import {
   buildUpdatePrompt,
   checkAppUpdate,
+  createDownloadProgressUi,
   downloadAndInstallWgt,
   restartAppAfterUpdate,
   supportsAppUpdateRuntime
@@ -39,6 +40,7 @@ import nbsRealEstateRaw from "../static/nbs_real_estate.csv?raw";
 import gzNewHouseInventoryRaw from "../static/gz_new_house_inventory.csv?raw";
 
 let startupUpdateCheckStarted = false;
+let startupUpdatePromptOpen = false;
 
 async function checkUpdateOnLaunch() {
   if (startupUpdateCheckStarted || !supportsAppUpdateRuntime()) return;
@@ -46,8 +48,10 @@ async function checkUpdateOnLaunch() {
   try {
     const result = await checkAppUpdate({ ignoreSkipped: true });
     if (result.status !== "available" || !result.manifest) return;
+    if (startupUpdatePromptOpen) return;
     const manifest = result.manifest;
     const prompt = buildUpdatePrompt(manifest);
+    startupUpdatePromptOpen = true;
     uni.showModal({
       ...prompt,
       showCancel: !manifest.force,
@@ -62,14 +66,12 @@ async function checkUpdateOnLaunch() {
           });
           return;
         }
-        uni.showLoading({ title: "下载更新 0%", mask: true });
+        const progressUi = createDownloadProgressUi();
+        progressUi.start("下载更新 0%");
         let installed: Awaited<ReturnType<typeof downloadAndInstallWgt>>;
         try {
           installed = await downloadAndInstallWgt(url, (progress) => {
-            const title = progress.total > 0
-              ? `下载更新 ${Math.min(100, Math.floor(progress.downloaded / progress.total * 100))}%`
-              : `已下载 ${Math.floor(progress.downloaded / 1024)}KB`;
-            uni.showLoading({ title, mask: true });
+            progressUi.update(progress);
           });
         } catch (error) {
           installed = {
@@ -77,7 +79,7 @@ async function checkUpdateOnLaunch() {
             reason: error instanceof Error ? error.message : "下载或安装更新时发生未知错误"
           };
         } finally {
-          uni.hideLoading();
+          progressUi.close();
         }
         if (!installed.ok) {
           uni.showModal({
@@ -87,17 +89,23 @@ async function checkUpdateOnLaunch() {
           });
           return;
         }
-        uni.showModal({
-          title: "更新已安装",
-          content: "热更新资源已经安装完成，立即重启后生效。",
-          confirmText: "立即重启",
-          cancelText: "稍后",
-          success: (restartChoice) => {
-            if (restartChoice.confirm && !restartAppAfterUpdate()) {
-              uni.showToast({ title: "请手动重启 App", icon: "none", duration: 2500 });
+        // 等 loading 完全关掉再弹结果，避免原生层抢焦点闪烁
+        setTimeout(() => {
+          uni.showModal({
+            title: "更新已安装",
+            content: "热更新资源已经安装完成，立即重启后生效。",
+            confirmText: "立即重启",
+            cancelText: "稍后",
+            success: (restartChoice) => {
+              if (restartChoice.confirm && !restartAppAfterUpdate()) {
+                uni.showToast({ title: "请手动重启 App", icon: "none", duration: 2500 });
+              }
             }
-          }
-        });
+          });
+        }, 200);
+      },
+      complete: () => {
+        startupUpdatePromptOpen = false;
       }
     });
   } catch (error) {
@@ -108,7 +116,10 @@ async function checkUpdateOnLaunch() {
 
 onLaunch(() => {
   initializeTheme();
-  void checkUpdateOnLaunch();
+  // 避开开屏/首屏抢焦点：过早 showModal 在部分机型会被系统关掉再弹，看起来像闪烁
+  setTimeout(() => {
+    void checkUpdateOnLaunch();
+  }, 1200);
   // 启动时加载种子"真数据"快照（来自国家统计局 70 城指数 + 公开政策派生）
   // 替代原本的内置随机 demo。
   if (!isLoaded()) {

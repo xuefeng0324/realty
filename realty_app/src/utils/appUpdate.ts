@@ -262,6 +262,114 @@ export interface InstallProgress {
   total: number;
 }
 
+export function formatDownloadProgressTitle(p: InstallProgress): string {
+  if (p.total > 0) {
+    const pct = Math.min(100, Math.floor((p.downloaded / p.total) * 100));
+    return `下载更新 ${pct}%`;
+  }
+  return `已下载 ${Math.floor(p.downloaded / 1024)}KB`;
+}
+
+/**
+ * 节流进度回调：有总量时仅在整数百分比变化时触发；无总量时按文案 + 时间间隔。
+ * 避免 App 端高频 showLoading / setTitle 把原生弹层反复销毁重建（闪烁）。
+ */
+export function createThrottledProgressHandler(
+  onEmit: (title: string, progress: InstallProgress) => void,
+  options: { minIntervalMs?: number } = {}
+): (p: InstallProgress) => void {
+  const minIntervalMs = options.minIntervalMs ?? 400;
+  let lastTitle = "";
+  let lastPct = -1;
+  let lastAt = 0;
+  return (p: InstallProgress) => {
+    const title = formatDownloadProgressTitle(p);
+    const now = Date.now();
+    if (p.total > 0) {
+      const pct = Math.min(100, Math.floor((p.downloaded / p.total) * 100));
+      if (pct === lastPct) return;
+      lastPct = pct;
+      lastTitle = title;
+      lastAt = now;
+      onEmit(title, p);
+      return;
+    }
+    if (title === lastTitle && now - lastAt < minIntervalMs) return;
+    lastTitle = title;
+    lastAt = now;
+    onEmit(title, p);
+  };
+}
+
+/** App-Plus 优先用 nativeUI.showWaiting（可 setTitle）；否则降级 uni.showLoading（已节流）。 */
+export function createDownloadProgressUi(): {
+  start: (title?: string) => void;
+  update: (p: InstallProgress) => void;
+  close: () => void;
+} {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const plus = (globalThis as any).plus;
+  let waiting: { setTitle?: (t: string) => void; close?: () => void } | null = null;
+  let opened = false;
+  let lastShownTitle = "";
+
+  const showUni = (title: string) => {
+    if (title === lastShownTitle && opened) return;
+    lastShownTitle = title;
+    opened = true;
+    uni.showLoading({ title, mask: true });
+  };
+
+  const start = (title = "下载更新 0%") => {
+    lastShownTitle = title;
+    opened = true;
+    if (plus?.nativeUI?.showWaiting) {
+      try {
+        waiting = plus.nativeUI.showWaiting(title, { modal: true });
+        return;
+      } catch {
+        waiting = null;
+      }
+    }
+    uni.showLoading({ title, mask: true });
+  };
+
+  const update = createThrottledProgressHandler((title) => {
+    if (waiting?.setTitle) {
+      try {
+        if (title !== lastShownTitle) {
+          waiting.setTitle(title);
+          lastShownTitle = title;
+        }
+        return;
+      } catch {
+        /* fall through */
+      }
+    }
+    showUni(title);
+  });
+
+  const close = () => {
+    opened = false;
+    lastShownTitle = "";
+    if (waiting?.close) {
+      try {
+        waiting.close();
+      } catch {
+        /* ignore */
+      }
+      waiting = null;
+    }
+    try {
+      uni.hideLoading();
+    } catch {
+      /* ignore */
+    }
+  };
+
+  return { start, update, close };
+}
+
 /**
  * v1.121.5: 候选顺序 raw → github raw → gcore → fastly → cdn → b-cdn
  */

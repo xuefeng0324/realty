@@ -4,7 +4,9 @@ import {
   selectWgtBase,
   buildWgtUrlCandidates,
   buildUpdatePrompt,
-  supportsAppUpdateRuntime
+  supportsAppUpdateRuntime,
+  formatDownloadProgressTitle,
+  createThrottledProgressHandler
 } from "../src/utils/appUpdate";
 
 describe("appUpdate.rewriteWgtUrlToBase", () => {
@@ -103,5 +105,24 @@ describe("appUpdate startup prompt", () => {
 
   it("非原生运行时不会启用启动热更新", () => {
     expect(supportsAppUpdateRuntime()).toBe(false);
+  });
+});
+
+describe("appUpdate download progress UI helpers", () => {
+  it("formatDownloadProgressTitle 有总量时输出整数百分比", () => {
+    expect(formatDownloadProgressTitle({ downloaded: 512, total: 1024 })).toBe("下载更新 50%");
+    expect(formatDownloadProgressTitle({ downloaded: 1024, total: 1024 })).toBe("下载更新 100%");
+  });
+
+  it("createThrottledProgressHandler 同百分比不重复触发", () => {
+    const titles: string[] = [];
+    const handler = createThrottledProgressHandler((title) => {
+      titles.push(title);
+    });
+    handler({ downloaded: 100, total: 1000 });
+    handler({ downloaded: 109, total: 1000 }); // still 10%
+    handler({ downloaded: 150, total: 1000 }); // 15%
+    handler({ downloaded: 150, total: 1000 });
+    expect(titles).toEqual(["下载更新 10%", "下载更新 15%"]);
   });
 });
