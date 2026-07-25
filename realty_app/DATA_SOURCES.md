@@ -170,7 +170,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | （深圳土地成交总价） | （未接入） | `szggzy` land-list / detail / clinch SPA | 2026-07-26 复测：列表 `amount` 恒空；detail 空/404；不接第三方付费 API |
 | `static/zh_affordable_progress.csv` | `zhAffordableProgress.ts` + dashboard「🏗️ 珠海安居工程进展」 | `crawl_zh_affordable_progress.py`（**周更 CI**，需 `xlrd`） | 珠海住建局月度「保障性安居工程建设进展情况快报表」**.xls**；年内累计开工/基本建成/竣工；**非商品房成交、非房价** |
 | `static/gz_affordable_projects.csv` | `gzAffordableProjects.ts` + dashboard「🏗️ 广州保障房项目清单」 | `crawl_gz_affordable_projects.py`（**周更 CI**，需 `xlrd`） | 市住建局保障性住房项目公开 **已筹建/已竣工** XLS 汇总套数与项目数；含配售型/保障房/棚改；**非商品房成交、非房价** |
-| （深圳保障房筹集/建成项目表） | （候补） | `zjj.sz.gov.cn/ztfw/zfbz/xmxx2017/` | 多为 **PDF** 附件；下轮评估纯文本 PDF 解析或手工摘要 |
+| `static/sz_affordable_projects.csv` | `szAffordableProjects.ts` + dashboard「🏗️ 深圳保障房项目表」 | `crawl_sz_affordable_projects.py`（**周更 CI**，需 `pypdf`） | 市住建局项目建设信息 PDF/XLSX：建设筹集 / 基本建成套数合计；**非商品房成交、非房价**；旧年扫描型 PDF 可能解析失败则跳过 |
 | `static/seed/admin_districts.csv` | `adminDistrictRanking.ts` + dashboard「🗺️ 行政区划」 | （国标整理） | v1.121.16：主城/郊区/新区与区码列表；v1.121.19：×规划地铁文案交叉 |
 | `static/seed/community_commercial.csv` | `communityCommercialRanking.ts` + 分区商业/密度桶 | （派生） | v1.121.17 分区均分；v1.121.19 餐饮密度×距离桶（按 city 过滤） |
 | `static/seed/listing_school_premium.csv` | `listingSchoolPremiumRanking.ts` + 高学区房源卡 | `compute_listing_school_premium` | v1.121.16：溢价分桶与分区 Top |

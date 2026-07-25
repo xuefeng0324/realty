@@ -1286,6 +1286,30 @@
         </view>
       </view>
 
+      <view v-if="szAffordableRaised || szAffordableCompleted" class="card" data-tab="overview,price" data-sz-affordable-projects>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🏗️ 深圳保障房项目表</view>
+          <view class="muted" style="font-size: 22rpx">
+            {{ (szAffordableRaised || szAffordableCompleted)?.year }} 年
+          </view>
+        </view>
+        <view class="gz-inventory-grid">
+          <view v-if="szAffordableRaised" class="gz-inventory-kpi">
+            <text class="cell-label">建设筹集 · {{ szAffordableRaised.category }}</text>
+            <text class="gz-inventory-value">{{ szAffordableRaised.totalUnits.toLocaleString() }} 套</text>
+            <text class="cell-sub muted">{{ szAffordableRaised.projectCount }} 个项目</text>
+          </view>
+          <view v-if="szAffordableCompleted" class="gz-inventory-kpi">
+            <text class="cell-label">基本建成 · {{ szAffordableCompleted.category }}</text>
+            <text class="gz-inventory-value">{{ szAffordableCompleted.totalUnits.toLocaleString() }} 套</text>
+            <text class="cell-sub muted">{{ szAffordableCompleted.projectCount }} 个项目</text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：深圳市住建局项目建设信息 PDF/XLSX；套数为项目表合计，不是商品房成交量、不是房价均价。
+        </view>
+      </view>
+
       <view v-if="zhAffordable" class="card" data-tab="overview,price" data-zh-affordable-progress>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 珠海安居工程进展</view>
@@ -6046,6 +6070,11 @@ import {
   type SzLandDeal
 } from "../../local/szLandDeals";
 import {
+  getLatestSzAffordableRaised,
+  getLatestSzAffordableCompleted,
+  type SzAffordableProjectsRow
+} from "../../local/szAffordableProjects";
+import {
   getLatestZhAffordableProgress,
   getZhAffordableProgressMoM,
   type ZhAffordableProgressRow
@@ -7224,6 +7253,14 @@ const szLandSummary = computed(() => {
 });
 const szLandLatest = computed<SzLandDeal[]>(() => (szLandSummary.value ? getLatestSzLandDeals(3) : []));
 const szLandByMonth = computed(() => (szLandSummary.value ? summarizeSzLandDealsByMonth(6) : []));
+const szAffordableRaised = computed<SzAffordableProjectsRow | null>(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "深圳" ? getLatestSzAffordableRaised() : null;
+});
+const szAffordableCompleted = computed<SzAffordableProjectsRow | null>(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "深圳" ? getLatestSzAffordableCompleted() : null;
+});
 const zhAffordable = computed<ZhAffordableProgressRow | null>(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   return city === "珠海" ? getLatestZhAffordableProgress() : null;
