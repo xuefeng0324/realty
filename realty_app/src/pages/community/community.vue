@@ -54,6 +54,29 @@
         </view>
       </view>
 
+      <!-- 挂牌新鲜度（listing_freshness 派生） -->
+      <view v-if="listingFreshness" class="card">
+        <view class="card-title">挂牌新鲜度</view>
+        <view class="muted" style="margin-bottom: 8rpx; font-size: 24rpx">
+          新鲜度分 {{ listingFreshness.freshnessScore.toFixed(0) }}
+          · 中位龄
+          {{
+            listingFreshness.medianAgeDays != null
+              ? listingFreshness.medianAgeDays.toFixed(0) + " 天"
+              : "—"
+          }}
+        </view>
+        <view class="muted" style="font-size: 22rpx">
+          共 {{ listingFreshness.totalListings }} 套
+          · 近 4 周 {{ listingFreshness.recent4wCount }}
+          · 近 2 周新上 {{ listingFreshness.new2wCount }}
+          · 陈旧 {{ listingFreshness.staleCount }}
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 20rpx">
+          数据源：listing_freshness.csv（按小区聚合挂牌龄）。
+        </view>
+      </view>
+
       <!-- 价格趋势 -->
       <view class="card">
         <view class="row-between">
@@ -327,8 +350,10 @@ import {
   getCommunitySchoolScore,
   getCommunityById,
   getCommunitiesByCity,
-  getListingsByCommunity
+  getListingsByCommunity,
+  getListingFreshness
 } from "../../local/store";
+import type { LocalListingFreshness } from "../../local/types";
 import type { QualitySummaryBin } from "../../api/contracts";
 
 const communityId = ref<number>(0);
@@ -339,6 +364,14 @@ const currentDistrict = ref<string>("");
 const currentCommunityObj = computed<LocalCommunity | undefined>(() =>
   communityId.value ? getCommunityById(communityId.value) : undefined
 );
+
+const listingFreshness = computed<LocalListingFreshness | null>(() => {
+  if (!communityId.value) return null;
+  return (
+    getListingFreshness().find((x) => x.communityId === communityId.value) ??
+    null
+  );
+});
 interface SiblingCommunity {
   communityId: number;
   communityName: string;

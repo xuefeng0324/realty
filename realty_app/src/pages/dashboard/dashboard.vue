@@ -1618,6 +1618,24 @@
           数据源：listings.csv 按 (city, dimension, bucket) 聚合。
           户型 / 面积 / 朝向 / 装修 各维度占比，条形比例代表 share。
         </view>
+        <view v-if="distributionCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城分布源聚合（加权中位价）
+        </view>
+        <view
+          v-for="(d, idx) in distributionCitySummaries"
+          :key="'dcs-' + d.cityId"
+          class="ld-row"
+        >
+          <text class="ld-bucket">{{ idx + 1 }}. {{ d.cityName }}</text>
+          <text class="ld-count">{{ d.totalListings }} 套</text>
+          <text class="ld-pct">
+            {{
+              d.weightedMedianPrice != null
+                ? Math.round(d.weightedMedianPrice / 1000) + "k"
+                : "—"
+            }}
+          </text>
+        </view>
       </view>
 
       <!-- v0.28.0 new-6 房源 tags 标签云 -->
@@ -2347,6 +2365,20 @@
           <text class="mp-year-y">{{ ph.phase }}</text>
           <text class="mp-year-n muted">
             {{ ph.lineCount }} 条 · {{ ph.totalLengthKm.toFixed(0) }}km · {{ ph.totalStations }} 站
+          </text>
+        </view>
+        <view v-if="metroOpenYearTimeline.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          全国开通年份时间线（近 {{ metroOpenYearTimeline.length }} 档）
+        </view>
+        <view
+          v-for="oy in metroOpenYearTimeline"
+          :key="'moyt-' + oy.year"
+          class="mp-year-chip"
+          style="margin-right: 8rpx; margin-bottom: 6rpx"
+        >
+          <text class="mp-year-y">{{ oy.year }}</text>
+          <text class="mp-year-n muted">
+            {{ oy.lineCount }} 条 · {{ oy.totalLengthKm.toFixed(0) }}km · {{ oy.totalStations }} 站
           </text>
         </view>
         <view v-if="metroOpenYear2028.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
@@ -3373,6 +3405,30 @@
             <view class="scatter-leg-dot" style="background:#9333ea"></view>
             <text>价值洼地 ({{ scatter.byQuadrant["价值洼地"]?.length || 0 }})</text>
           </view>
+        </view>
+        <view v-if="scatterCitySummary" class="muted" style="margin: 8rpx 0; font-size: 22rpx">
+          本市聚合 {{ scatterCitySummary.communityCount }} 小区
+          · 均单价 {{ Math.round(scatterCitySummary.avgUnitPrice / 1000) }}k
+          · 均总价 {{ Math.round(scatterCitySummary.avgTotalPrice10w) }} 万
+          · 均面积 {{ Math.round(scatterCitySummary.avgArea) }}㎡
+        </view>
+        <view v-if="scatterQuadrantSummary.length" class="muted" style="margin: 4rpx 0; font-size: 20rpx">
+          象限：
+          <text
+            v-for="(q, i) in scatterQuadrantSummary"
+            :key="'sqs-' + q.quadrant"
+          >
+            {{ i ? " · " : "" }}{{ q.quadrant }} {{ q.communityCount }}
+          </text>
+        </view>
+        <view v-if="scatterAreaCohortSummary.length" class="muted" style="margin: 4rpx 0 8rpx; font-size: 20rpx">
+          面积段：
+          <text
+            v-for="(a, i) in scatterAreaCohortSummary"
+            :key="'sas-' + a.areaCohort"
+          >
+            {{ i ? " · " : "" }}{{ a.areaCohort }} {{ a.communityCount }}
+          </text>
         </view>
         <view class="scatter-wrap">
           <svg :viewBox="`0 0 ${SCATTER_W} ${SCATTER_H}`" class="scatter-svg" xmlns="http://www.w3.org/2000/svg">
@@ -5440,6 +5496,7 @@ import {
   getMetroPlanningByStatus,
   summarizeMetroPlanningByPhase,
   summarizeMetroPlanningByStatus,
+  summarizeMetroPlanningByOpenYear,
   type CityMetroPlanningSummary,
   type OpenYearMetroPlanningSummary,
   type TopByMetric,
@@ -5470,9 +5527,11 @@ import {
   getDistributionShareLeaderboard,
   getDistributionTopByMedianPrice,
   getDistributionByCityDimension,
+  summarizeDistributionByCity,
   type CrossCityBucketEntry,
   type CrossCityShareEntry,
-  type DistributionRow
+  type DistributionRow,
+  type CityDistributionSummary
 } from "../../local/distributionRanking";
 import {
   getFeaturePremiumCrossCityLeaderboard,
@@ -5511,9 +5570,15 @@ import {
   getCommunityScatterByAreaCohort,
   getCommunityScatterByQuadrant,
   getCommunityScatterCrossCityByQuadrant,
+  summarizeCommunityScatterByCity,
+  summarizeCommunityScatterByCityQuadrant,
+  summarizeCommunityScatterByCityAreaCohort,
   type TotalPriceExtreme,
   type ParetoEntry as ScatterParetoEntry,
-  type CrossCityQuadrantEntry
+  type CrossCityQuadrantEntry,
+  type CityCommunityScatterSummary,
+  type QuadrantSummary,
+  type AreaCohortSummary
 } from "../../local/communityScatterRanking";
 import {
   getCommuteByCityFastestSlowestCompare,
@@ -6046,6 +6111,9 @@ const metroOpenYear2028 = computed<LocalMetroLine[]>(() =>
 const metroPhaseSummary = computed<PhaseMetroPlanningSummary[]>(() =>
   summarizeMetroPlanningByPhase().slice(0, 6)
 );
+const metroOpenYearTimeline = computed<OpenYearMetroPlanningSummary[]>(() =>
+  summarizeMetroPlanningByOpenYear().slice(-8)
+);
 const metroBuildingLines = computed<LocalMetroLine[]>(() =>
   getMetroPlanningByStatus("在建").filter((x) => x.cityId === app.cityId).slice(0, 5)
 );
@@ -6090,6 +6158,9 @@ const layoutTwoBedShareCross = computed<CrossCityShareEntry[]>(() =>
 );
 const layoutMedianPriceTop = computed<DistributionRow[]>(() =>
   getDistributionTopByMedianPrice(app.cityId, 5)
+);
+const distributionCitySummaries = computed<CityDistributionSummary[]>(() =>
+  summarizeDistributionByCity()
 );
 function distRowLabel(r: DistributionRow): string {
   if ("decorate" in r && "ageBucket" in r) {
@@ -6187,6 +6258,19 @@ const tagComboCitySummaries = computed<CityTagCombinationSummary[]>(() =>
 );
 const scatterPriceExtremes = computed(() =>
   getCommunityScatterByCityTotalPriceExtremes(app.cityId, 3)
+);
+const scatterCitySummary = computed<CityCommunityScatterSummary | null>(
+  () => summarizeCommunityScatterByCity().find((x) => x.cityId === app.cityId) ?? null
+);
+const scatterQuadrantSummary = computed<QuadrantSummary[]>(() =>
+  summarizeCommunityScatterByCityQuadrant()
+    .filter((x) => x.cityId === app.cityId)
+    .sort((a, b) => b.communityCount - a.communityCount)
+);
+const scatterAreaCohortSummary = computed<AreaCohortSummary[]>(() =>
+  summarizeCommunityScatterByCityAreaCohort()
+    .filter((x) => x.cityId === app.cityId)
+    .sort((a, b) => b.communityCount - a.communityCount)
 );
 const scatterImproveValue = computed<ScatterParetoEntry[]>(() => {
   const ids = communityIdsInCity(app.cityId);

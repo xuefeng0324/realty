@@ -100,6 +100,48 @@
         </view>
       </view>
 
+      <!-- 派生：全国排位 / 趋势方向 / 近12月 -->
+      <view v-if="hasData" class="card">
+        <view class="card-title">派生洞察 · {{ focusCity }}</view>
+        <view v-if="cityRank" class="muted" style="margin-bottom: 8rpx; font-size: 24rpx">
+          全国排位 #{{ cityRank.rank }}/{{ cityRank.totalCities }}
+          （前 {{ cityRank.topPct }}%）· {{ base }}{{ kind === "new" ? "新建" : "二手" }}
+          {{ formatIndex(cityRank.value) }}
+        </view>
+        <view v-if="cityTrendDir" class="muted" style="margin-bottom: 8rpx; font-size: 24rpx">
+          近月方向：
+          <text :class="cityTrendDir.direction === '上涨' ? 'trend-up' : cityTrendDir.direction === '下跌' ? 'trend-down' : ''">
+            {{ cityTrendDir.direction }}
+          </text>
+          <text v-if="cityTrendDir.direction !== '数据不足'">
+            （均变 {{ cityTrendDir.avgChangePp > 0 ? "+" : "" }}{{ cityTrendDir.avgChangePp }} pp）
+          </text>
+        </view>
+        <view v-if="city12m.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          近 {{ city12m.length }} 月{{ kind === "new" ? "新建" : "二手" }}同比
+        </view>
+        <view v-for="p in city12m" :key="'c12-' + p.date" class="trend-row">
+          <view class="muted" style="width: 140rpx">{{ formatDateLabel(p.date) }}</view>
+          <view class="trend-bar-track">
+            <view
+              class="trend-bar-fill"
+              :class="valueClass(city12mValue(p))"
+              :style="{ width: trendBarPct(city12mValue(p)) + '%' }"
+            ></view>
+          </view>
+          <view style="width: 140rpx" :class="valueClass(city12mValue(p))">{{ formatIndex(city12mValue(p)) }}</view>
+        </view>
+        <view v-if="monthSpread.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          最新月全国离散度（最大−最小）
+        </view>
+        <view v-for="s in monthSpread" :key="'msp-' + s.fixedBase + s.indexType" class="rank-row">
+          <view class="rank-name">{{ s.fixedBase }}·{{ s.indexType === "new_idx" ? "新建" : "二手" }}</view>
+          <view class="rank-val muted">
+            {{ formatIndex(s.min) }}–{{ formatIndex(s.max) }} · 差 {{ formatIndex(s.spread) }}
+          </view>
+        </view>
+      </view>
+
       <!-- 单城市时间序列（点击 row 时显示） -->
       <view v-if="pickedCity" class="card">
         <view class="card-title">
@@ -151,11 +193,31 @@ import {
   getRanking,
   getCityTrend
 } from "../../local/stats70";
+import {
+  getStats70CurrentCityNationalRank,
+  getStats70CityOver12MonthChange,
+  getStats70CityTrendDirection,
+  getStats70CrossCityByMonthSpread,
+  getStats70LatestMonth as getStats70LatestMonthTrend,
+  type City12MonthPoint,
+  type CityTrendDirection,
+  type CurrentCityNationalRank,
+  type MonthSpreadEntry
+} from "../../local/stats70TrendAnalysis";
+import { useAppStore } from "../../store/app";
 import EmptyState from "../../components/EmptyState.vue";
 
 type Base = "同比" | "环比";
 type Kind = "new" | "second";
 type SortDir = "desc" | "asc";
+type IndexType = "new_idx" | "second_idx";
+
+const app = useAppStore();
+const CITY_ID_TO_STATS70: Record<number, string> = {
+  1: "广州",
+  2: "深圳",
+  3: "珠海"
+};
 
 const kind = ref<Kind>("new");
 const base = ref<Base>("同比");
@@ -171,6 +233,42 @@ const ranking = computed(() => {
 const sortLabel = computed(() => (sortDir.value === "desc" ? "降序" : "升序"));
 
 const hasData = computed(() => ranking.value.length > 0);
+
+const indexType = computed<IndexType>(() =>
+  kind.value === "new" ? "new_idx" : "second_idx"
+);
+
+const pickedCity = ref<string | null>(null);
+
+const focusCity = computed(
+  () =>
+    pickedCity.value ??
+    CITY_ID_TO_STATS70[app.cityId] ??
+    ranking.value[0]?.city ??
+    "深圳"
+);
+
+const cityRank = computed<CurrentCityNationalRank | null>(() =>
+  getStats70CurrentCityNationalRank(focusCity.value, base.value, indexType.value)
+);
+
+const cityTrendDir = computed<CityTrendDirection | null>(() =>
+  getStats70CityTrendDirection(focusCity.value, base.value, indexType.value)
+);
+
+const city12m = computed<City12MonthPoint[]>(() =>
+  getStats70CityOver12MonthChange(focusCity.value)
+);
+
+const monthSpread = computed<MonthSpreadEntry[]>(() => {
+  const m = latestMonth.value ?? getStats70LatestMonthTrend();
+  if (!m) return [];
+  return getStats70CrossCityByMonthSpread(m);
+});
+
+function city12mValue(p: City12MonthPoint): number | null {
+  return kind.value === "new" ? p.newYoY : p.secondYoY;
+}
 
 function goDashboard() {
   uni.switchTab({ url: "/pages/dashboard/dashboard" });
@@ -228,7 +326,6 @@ function formatDateLabel(dateStr: string): string {
   return `${parts[0]}-${parts[1].padStart(2, "0")}`;
 }
 
-const pickedCity = ref<string | null>(null);
 const trend = ref<{ date: string; yoy: number | null }[]>([]);
 
 function onPickCity(city: string) {

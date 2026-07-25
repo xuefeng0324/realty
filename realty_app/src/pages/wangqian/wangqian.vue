@@ -122,7 +122,7 @@
         </view>
       </view>
 
-      <!-- 各区分区（日更最近交易日） -->
+      <!-- 各行政区 · 当日 -->
       <view v-if="district && district.rows.length" class="card">
         <view class="card-title">各行政区 · 当日 {{ district.date }}</view>
         <view class="wq-table-head">
@@ -142,6 +142,45 @@
         </view>
         <view class="muted" style="margin-top: 12rpx; font-size: 20rpx">
           新房分区=住宅口径（合计=走势新房）；二手分区=全部口径（含非住宅）。分区接口仅当天。
+        </view>
+      </view>
+
+      <!-- 周趋势派生（wangqianTrendRanking） -->
+      <view v-if="wqTrendReady" class="card">
+        <view class="card-title">区级周趋势（派生）· {{ cityName }}</view>
+        <view v-if="wqCategoryTrend" class="muted" style="margin-bottom: 8rpx; font-size: 22rpx">
+          全市 {{ wqCategoryTrend.category }}：近周 {{ wqCategoryTrend.latestUnits }} 套
+          · vs 前均 {{ wqCategoryTrend.recentAvg.toFixed(0) }}
+          <text :class="wqCategoryTrend.changePct >= 0 ? 'trend-up' : 'trend-down'">
+            {{ wqCategoryTrend.changePct >= 0 ? "+" : "" }}{{ formatWowPct(wqCategoryTrend.changePct) }}%
+          </text>
+        </view>
+        <view v-if="wqWowUp.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">周环比上升 Top</view>
+        <view v-for="(it, idx) in wqWowUp" :key="'wu-' + it.district" class="wq-table-row">
+          <text class="wq-col-name">{{ idx + 1 }}. {{ it.district }}</text>
+          <text class="wq-col-num">{{ it.prevUnits }}→{{ it.latestUnits }}</text>
+          <text class="wq-col-num trend-up">+{{ formatWowPct(it.changePct) }}%</text>
+        </view>
+        <view v-if="wqWowDown.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">周环比下降 Top</view>
+        <view v-for="(it, idx) in wqWowDown" :key="'wd-' + it.district" class="wq-table-row">
+          <text class="wq-col-name">{{ idx + 1 }}. {{ it.district }}</text>
+          <text class="wq-col-num">{{ it.prevUnits }}→{{ it.latestUnits }}</text>
+          <text class="wq-col-num trend-down">{{ formatWowPct(it.changePct) }}%</text>
+        </view>
+        <view v-if="wqSpikes.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">近周突增</view>
+        <view v-for="(it, idx) in wqSpikes" :key="'ws-' + it.district" class="wq-table-row">
+          <text class="wq-col-name">{{ idx + 1 }}. {{ it.district }}</text>
+          <text class="wq-col-num">{{ it.latestUnits }} 套</text>
+          <text class="wq-col-num">×{{ it.multiplier.toFixed(1) }}</text>
+        </view>
+        <view v-if="wqVolatility.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">波动最高（CV）</view>
+        <view v-for="(it, idx) in wqVolatility" :key="'wv-' + it.district" class="wq-table-row">
+          <text class="wq-col-name">{{ idx + 1 }}. {{ it.district }}</text>
+          <text class="wq-col-num">均 {{ it.mean.toFixed(0) }}</text>
+          <text class="wq-col-num">CV {{ it.cv.toFixed(2) }}</text>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 20rpx">
+          数据源：wangqian_district_weekly.csv → wangqianTrendRanking。口径默认二手。
         </view>
       </view>
 
@@ -295,6 +334,16 @@ import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import { openGovWeb } from "../../config/govLinks";
 import { showToast, daysAgoFromToday } from "../../utils/format";
 import EmptyState from "../../components/EmptyState.vue";
+import {
+  getWangqianWeeklyWoWChange,
+  getWangqianWeeklyRecentSpikes,
+  getWangqianWeeklyVolatility,
+  getWangqianWeeklyByCityCategoryTrend,
+  type DistrictWoWChange,
+  type DistrictSpike,
+  type DistrictVolatility,
+  type CityCategoryTrend
+} from "../../local/wangqianTrendRanking";
 
 const cityName = ref<string>("深圳");
 const sheetOpen = ref(false);
@@ -308,6 +357,58 @@ const supportedCities = computed(() => {
   return list.length ? list : ["深圳", "广州"];
 });
 
+const wqWowAll = computed<DistrictWoWChange[]>(() => {
+  void dataVersion.value;
+  return getWangqianWeeklyWoWChange().filter(
+    (x) => x.city === cityName.value && x.category === "二手"
+  );
+});
+const wqWowUp = computed(() =>
+  [...wqWowAll.value]
+    .filter((x) => Number.isFinite(x.changePct) && x.changePct > 0)
+    .sort((a, b) => b.changePct - a.changePct)
+    .slice(0, 5)
+);
+const wqWowDown = computed(() =>
+  [...wqWowAll.value]
+    .filter((x) => Number.isFinite(x.changePct) && x.changePct < 0)
+    .sort((a, b) => a.changePct - b.changePct)
+    .slice(0, 5)
+);
+const wqSpikes = computed<DistrictSpike[]>(() => {
+  void dataVersion.value;
+  return getWangqianWeeklyRecentSpikes(4, 1.5)
+    .filter((x) => x.city === cityName.value && x.category === "二手")
+    .slice(0, 5);
+});
+const wqVolatility = computed<DistrictVolatility[]>(() => {
+  void dataVersion.value;
+  return getWangqianWeeklyVolatility()
+    .filter((x) => x.city === cityName.value && x.category === "二手")
+    .sort((a, b) => b.cv - a.cv)
+    .slice(0, 5);
+});
+const wqCategoryTrend = computed<CityCategoryTrend | null>(() => {
+  void dataVersion.value;
+  return (
+    getWangqianWeeklyByCityCategoryTrend(4).find(
+      (x) => x.city === cityName.value && x.category === "二手"
+    ) ?? null
+  );
+});
+const wqTrendReady = computed(
+  () =>
+    wqWowUp.value.length > 0 ||
+    wqWowDown.value.length > 0 ||
+    wqSpikes.value.length > 0 ||
+    wqVolatility.value.length > 0 ||
+    wqCategoryTrend.value != null
+);
+
+function formatWowPct(v: number): string {
+  if (!Number.isFinite(v)) return "∞";
+  return Math.abs(v).toFixed(1);
+}
 const snapshot = computed<CityDailySnapshot | null>(() => {
   void dataVersion.value;
   if (!hasDailyWangqian()) return null;
@@ -697,5 +798,11 @@ onLoad((opts?: Record<string, string>) => {
   color: var(--color-muted);
   font-size: 30rpx;
   border-top: 1rpx solid #1e293b;
+}
+.trend-up {
+  color: #4ade80;
+}
+.trend-down {
+  color: #f87171;
 }
 </style>
