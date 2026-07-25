@@ -705,19 +705,20 @@ describe("build integrity", () => {
     });
   });
 
-  // ---------- v0.12.0 地图成交价热力 ----------
-  describe("地图成交价热力 v0.12.0", () => {
+  // ---------- v0.12.0 地图挂牌均价热力（原误称「成交价热力」） ----------
+  describe("地图挂牌均价热力 v0.12.0", () => {
     it("map-view.vue 存在", () => {
       expect(existsSync(resolve(ROOT, "src/pages/map-view/map-view.vue"))).toBe(true);
     });
 
-    it("map-view.vue 含 'priceColorRamp' (成交价热力色阶函数)", () => {
+    it("map-view.vue 含 'priceColorRamp' (挂牌均价热力色阶函数)", () => {
       const content = readFileSync(
         resolve(ROOT, "src/pages/map-view/map-view.vue"),
         "utf-8"
       );
       expect(content).toMatch(/priceColorRamp/);
-      expect(content).toMatch(/成交价热力/);
+      expect(content).toMatch(/挂牌均价热力/);
+      expect(content).not.toMatch(/label:\s*"成交价"/);
     });
 
     it("map-view.vue 含 MapMode = count | price | listings", () => {

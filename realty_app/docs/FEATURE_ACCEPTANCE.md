@@ -135,6 +135,7 @@ node tests/e2e/smoke_theme_buttons.mjs
 |------|------|
 | 浅色 / 深色 / 跟随系统 | [THEME_ACCEPTANCE.md](./THEME_ACCEPTANCE.md) |
 | 总览长页信息流去分割缝 | [DASHBOARD_FEED_ACCEPTANCE.md](./DASHBOARD_FEED_ACCEPTANCE.md) |
+| 房价三轴（挂牌/网签量/指数） | [HOUSING_PRICE_ACCEPTANCE.md](./HOUSING_PRICE_ACCEPTANCE.md) |
 
 ---
 

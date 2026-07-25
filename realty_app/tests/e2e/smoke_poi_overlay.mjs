@@ -24,14 +24,14 @@ async function run() {
     await page.addStyleTag({ content: ".uni-page-head { display: none !important; }" });
     await page.waitForTimeout(300);
 
-    // 1. count → price (1 click)
-    await page.locator("text=切到成交价热力").first().click({ force: true });
+    // 1. count → price
+    await page.locator('.map-mode-btn[data-map-mode="price"]').first().click({ force: true });
     await page.waitForTimeout(700);
-    // 2. price → listings (1 click)
-    await page.locator("text=切到挂牌点").first().click({ force: true });
+    // 2. price → listings
+    await page.locator('.map-mode-btn[data-map-mode="listings"]').first().click({ force: true });
     await page.waitForTimeout(700);
-    // 3. listings → poi (1 click)
-    await page.locator("text=切到 POI").first().click({ force: true });
+    // 3. listings → poi
+    await page.locator('.map-mode-btn[data-map-mode="poi"]').first().click({ force: true });
     await page.waitForTimeout(1000);
 
     const legend = await page.locator(".legend").first().textContent();

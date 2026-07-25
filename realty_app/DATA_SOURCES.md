@@ -2,6 +2,14 @@
 
 本文档记录手机端 `realty_app` 的宏观数据、挂牌数据、派生样本和完整快照更新方式。所有单套房源必须通过 `source_kind` 明确区分真实挂牌与派生样本。
 
+> **房价怎么理解？** 本 App 的「房价」不是单一官方成交均价，而是三轴并列。计划与验收见 [docs/HOUSING_PRICE_ACCEPTANCE.md](./docs/HOUSING_PRICE_ACCEPTANCE.md)。
+>
+> | 轴 | 含义 | 单位 | 主文件 |
+> |----|------|------|--------|
+> | 挂牌价 | 卖方公开挂牌要价（开源贝壳/链家爬虫同类） | 元/㎡、万元 | `seed/listings.csv` |
+> | 网签成交量 | 政府公示成交套数/面积（**无单价**） | 套、㎡ | `daily_wangqian.csv` |
+> | 70城价格指数 | 统计局相对指数（[hugohe3/70cityprice](https://github.com/hugohe3/70cityprice) 同类） | 基期=100 | `stats_70.csv` |
+
 ---
 
 ## 1. 国家统计局 70 城价格指数

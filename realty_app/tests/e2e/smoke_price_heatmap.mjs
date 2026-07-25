@@ -1,5 +1,5 @@
 // tests/e2e/smoke_price_heatmap.mjs
-// v0.12.0: 验证 map-view 成交价热力模式
+// 验证 map-view 挂牌均价热力模式（非成交价）
 import { chromium } from "playwright";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
@@ -10,7 +10,8 @@ const __dirname = dirname(__filename);
 const OUT_DIR = resolve(__dirname, "../e2e-screenshots");
 mkdirSync(OUT_DIR, { recursive: true });
 
-const BASE_URL = process.env.E2E_BASE_URL ?? "http://127.0.0.1:5174/#/pages/map-view/map-view";
+const BASE = (process.env.E2E_BASE_URL ?? "http://127.0.0.1:5174").replace(/\/$/, "");
+const BASE_URL = `${BASE}/#/pages/map-view/map-view`;
 
 async function run() {
   const browser = await chromium.launch();
@@ -24,40 +25,30 @@ async function run() {
     await page.addStyleTag({ content: ".uni-page-head { display: none !important; }" });
     await page.waitForTimeout(300);
 
-    // 等 circles 渲染
-    await page.waitForSelector("text=成交价热力", { timeout: 10000 }).catch(() => {});
+    await page.waitForSelector(".map-mode-btn", { timeout: 15000 });
+    await page.locator('.map-mode-btn[data-map-mode="price"]').first().click({ force: true });
     await page.waitForTimeout(800);
 
-    // 初始: 挂牌数热力 (count) → 切到 成交价热力 (price)
-    const toggleBtn = page.locator("text=切到成交价热力").first();
-    await toggleBtn.waitFor({ timeout: 5000 });
-    await toggleBtn.click({ force: true });
-    await page.waitForTimeout(800);
-
-    // 验证 legend 已切到"成交价热力"
     const legend = await page.locator(".legend").first().textContent();
     console.log("legend:", legend);
-    if (!legend || !legend.includes("成交价")) {
-      throw new Error(`legend 未切到成交价模式: ${legend}`);
+    if (!legend || !legend.includes("挂牌均价")) {
+      throw new Error(`legend 未切到挂牌均价模式: ${legend}`);
     }
-    console.log("[price] legend 切到成交价 ✓");
+    console.log("[price] legend 切到挂牌均价 ✓");
 
-    // v0.21.0: 验证「价格分位图例」卡片
     await page.waitForTimeout(800);
-    const legendCard = page.locator("text=价格分位图例").first();
+    const legendCard = page.locator("text=挂牌价格分位图例").first();
     await legendCard.waitFor({ timeout: 5000 });
     const legendRows = await page.locator(".legend-row").count();
-    console.log(`[price] 价格分位图例行数: ${legendRows}`);
+    console.log(`[price] 挂牌价格分位图例行数: ${legendRows}`);
     if (legendRows < 5) {
-      throw new Error(`价格分位图例行数应 >= 5, 实际 ${legendRows}`);
+      throw new Error(`挂牌价格分位图例行数应 >= 5, 实际 ${legendRows}`);
     }
-    // 验证有「最便宜」和「最贵」
     const cheapestText = await page.locator("text=最便宜").count();
     const priciestText = await page.locator("text=最贵").count();
     if (cheapestText < 1 || priciestText < 1) {
       throw new Error(`图例应包含「最便宜」「最贵」分位`);
     }
-    // 验证有 swatch + 城市均价
     const swatchCount = await page.locator(".legend-swatch").count();
     console.log(`[price] swatch 数: ${swatchCount}`);
     if (swatchCount < 5) {
@@ -67,7 +58,7 @@ async function run() {
     if (cityAvgText < 1) {
       throw new Error(`图例应包含「城市均价」汇总`);
     }
-    console.log("[price] 价格分位图例 ✓ (5 档 + 城市均价)");
+    console.log("[price] 挂牌价格分位图例 ✓ (5 档 + 城市均价)");
 
     await page.screenshot({
       path: resolve(OUT_DIR, "smoke_price_heatmap.png"),
@@ -75,34 +66,22 @@ async function run() {
     });
     console.log("[price] 截图已保存");
 
-    // 切换城市 → 广州
     const gzBtn = page.locator("text=广州").first();
     await gzBtn.click({ force: true });
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(1200);
     await page.screenshot({
       path: resolve(OUT_DIR, "smoke_price_heatmap_gz.png"),
       fullPage: true
     });
-    console.log("[gz] 截图已保存");
+    console.log("[price] 广州截图已保存");
 
-    // 验证 circles 仍存在 (uni-app map 组件)
-    const circlesCount = await page.locator(".uni-map__circle").count();
-    console.log(`[gz] circles 元素数: ${circlesCount}`);
-    if (circlesCount === 0) {
-      console.warn("[gz] 未检测到 circle DOM (uni-app H5 可能用 canvas 渲染)");
-    }
-
-    console.log("\n✓ smoke_price_heatmap 通过");
-  } catch (e) {
-    console.error("\n✗ smoke_price_heatmap 失败:", e.message);
-    await page.screenshot({
-      path: resolve(OUT_DIR, "smoke_price_heatmap_FAIL.png"),
-      fullPage: true
-    });
-    process.exitCode = 1;
+    console.log("PASS smoke_price_heatmap");
   } finally {
     await browser.close();
   }
 }
 
-run();
+run().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

@@ -80,7 +80,7 @@ async function run() {
     await page.waitForTimeout(800);
     legend = await page.locator(".legend").first().textContent();
     console.log("[map] price 模式 legend:", legend);
-    if (!legend || !legend.includes("成交价")) {
+    if (!legend || !legend.includes("挂牌均价")) {
       issues.push(`map price mode 切换失败: ${legend}`);
     }
     await page.screenshot({ path: resolve(OUT_DIR, "map_price.png"), fullPage: true });

@@ -40,8 +40,8 @@ async function run() {
   await page.waitForTimeout(3500);
 
   // 切到 listings 模式: count → price → listings
-  await clickButton(page, "切到成交价热力");
-  await clickButton(page, "切到挂牌点");
+  await page.locator('.map-mode-btn[data-map-mode="price"]').first().click({ force: true });
+  await page.locator('.map-mode-btn[data-map-mode="listings"]').first().click({ force: true });
   await page.waitForTimeout(1500);
 
   // 验证 legend

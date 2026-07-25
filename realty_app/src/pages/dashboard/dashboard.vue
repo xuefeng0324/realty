@@ -58,6 +58,7 @@
         <text class="muted period-hint">
           数据构成：真实挂牌 {{ sourceKindSummary.real }} / 派生样本 {{ sourceKindSummary.derived }} / 其他 {{ sourceKindSummary.other }}；派生样本不代表逐套成交。
         </text>
+        <text class="muted period-hint">{{ priceAxesHint }}</text>
       </view>
 
       <!-- 今日要点：参考贝壳/链家「首页速览」收敛首屏信息密度 -->
@@ -5443,6 +5444,10 @@ import {
   type CityCategoryTrend,
   type DistrictWeeklySummary
 } from "../../local/wangqianTrendRanking";
+import {
+  listingMedianUnitPriceLabel,
+  priceAxesDisclaimer
+} from "../../local/priceSemantics";
 import * as store from "../../local/store";
 import {
   summarizeMetroWalkAccessibility,
@@ -7134,10 +7139,10 @@ const heroSlides = computed<HeroSlide[]>(() => {
   if (medianUnitPrice.value > 0) {
     slides.push({
       icon: "💰",
-      label: "全市中位单价",
+      label: listingMedianUnitPriceLabel(),
       value: medianUnitPrice.value.toLocaleString(),
       unit: "元/㎡",
-      sub: `周 ${app.weekEnd || ""}`,
+      sub: `周 ${app.weekEnd || ""} · 卖方挂牌`,
       tone: "red",
       tab: "price"
     });
@@ -8650,10 +8655,17 @@ const currentCityIndex = computed<LatestIndexForCity | null>(() => {
 /** 贝壳/链家式首屏速览：把分散 KPI 收成 2×2 */
 const todayHighlights = computed(() => {
   const items: Array<{ label: string; value: string; sub?: string; toneClass?: string }> = [];
+  if (medianUnitPrice.value > 0) {
+    items.push({
+      label: listingMedianUnitPriceLabel(),
+      value: `${medianUnitPrice.value.toLocaleString()} 元/㎡`,
+      sub: "卖方挂牌 · 非成交价"
+    });
+  }
   const idx = currentCityIndex.value;
   if (idx?.secondMoM != null) {
     items.push({
-      label: "二手环比",
+      label: "二手价格指数环比",
       value: formatIndex(idx.secondMoM),
       sub: deltaLabel(idx.secondMoM),
       toneClass: trendClass(idx.secondMoM)
@@ -8662,9 +8674,9 @@ const todayHighlights = computed(() => {
   const wq = wangqianOverview.value;
   if (wq && wq.totalUnits > 0) {
     items.push({
-      label: "近4周网签",
+      label: "近4周网签套数",
       value: `${wq.totalUnits} 套`,
-      sub: wq.cityName
+      sub: `${wq.cityName} · 成交量非均价`
     });
   }
   if (lprLatest.value) {
@@ -8683,6 +8695,8 @@ const todayHighlights = computed(() => {
   }
   return items.slice(0, 4);
 });
+
+const priceAxesHint = priceAxesDisclaimer();
 
 function formatIndex(v: number | null): string {
   if (v == null) return "—";

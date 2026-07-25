@@ -41,7 +41,7 @@
       </view>
       <view class="muted legend">
         <text v-if="mode === 'price'">
-          成交价热力 (v0.21.0)：5 档价格分位 (P0/P20/P40/P60/P80) + 半径按价格×挂牌数综合 (大=贵+多)；图例卡片见下方
+          挂牌均价热力：5 档价格分位 (P0/P20/P40/P60/P80) + 半径按价格×挂牌数综合 (大=贵+多)；图例卡片见下方（卖方挂牌均价，非成交价）
         </text>
         <text v-else-if="mode === 'count'">
           挂牌数热力：圆点 = 挂牌数 (颜色: 红=多 / 蓝=少)
@@ -138,9 +138,9 @@
 
     <!-- v0.21.0 map-7: 价格热力 5 档分位 legend -->
     <view v-if="mode === 'price' && priceBuckets.length > 0" class="card legend-card">
-      <view class="card-title" style="margin-bottom: 4rpx">🎨 价格分位图例</view>
+      <view class="card-title" style="margin-bottom: 4rpx">🎨 挂牌价格分位图例</view>
       <view class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
-        颜色 = 5 档价格分位 (绿便宜 → 红贵)；半径 = 价格×挂牌数 (大=贵+多)
+        颜色 = 5 档挂牌单价分位 (绿便宜 → 红贵)；半径 = 价格×挂牌数 (大=贵+多)；非成交价
       </view>
       <view class="legend-row" v-for="b in priceBuckets" :key="b.label">
         <view class="legend-swatch" :style="{ background: b.color }"></view>
@@ -279,7 +279,7 @@ const CLUSTER_MARKER_ICON_LARGE =
 
 const app = useAppStore();
 const errorMsg = ref<string>("");
-/** v0.12.0 三种模式: count=挂牌数热力, price=成交价热力, listings=挂牌点
+/** 三种模式: count=挂牌数热力, price=挂牌均价热力, listings=挂牌点
  *  v0.13.0 加 poi 模式: 5 类 POI marker overlay
  *  v0.15.0 加 metro 模式: 地铁规划线 polyline overlay
  */
@@ -291,7 +291,7 @@ const mapReloadKey = ref(0);
 
 const mapModeItems: { key: MapMode; icon: string; label: string }[] = [
   { key: "count", icon: "🔴", label: "挂牌热力" },
-  { key: "price", icon: "💰", label: "成交价" },
+  { key: "price", icon: "💰", label: "挂牌均价" },
   { key: "listings", icon: "📍", label: "挂牌点" },
   { key: "poi", icon: "🏫", label: "POI" },
   { key: "metro", icon: "🚇", label: "地铁" }
@@ -736,7 +736,7 @@ const listingClusterMarkers = computed<any[]>(() => {
 });
 
 // 热力图：用 uni-app map 的 circles 模拟 (无独立热力图层)
-// v0.12.0 支持两种热力：挂牌数(count) 或 成交价(price)
+// 支持两种热力：挂牌数(count) 或 挂牌均价(price)
 // v0.21.0 map-7: 价格热力升级
 // - 5 档分位 (P20/P40/P60/P80/P100) → 颜色 (绿/黄绿/黄/橙/红)
 // - 半径按 价格分位 + 挂牌数 综合 (贵=大+多=大)
@@ -942,7 +942,7 @@ function toggleType() {
   // count → price → listings → poi → metro → count
   if (mode.value === "count") {
     mode.value = "price";
-    showToast("成交价热力（绿=便宜/红=贵）");
+    showToast("挂牌均价热力（绿=便宜/红=贵；非成交价）");
   } else if (mode.value === "price") {
     mode.value = "listings";
     showToast("挂牌点模式");

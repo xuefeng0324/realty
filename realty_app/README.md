@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.121.44 | 2026-07-26 | 房价三轴计划/验收；地图挂牌均价语义纠偏；网签周聚合随日更 |
 | v1.121.43 | 2026-07-26 | 总览长页去分割缝：同色连续信息流 + hairline；验收文档与 seam smoke |
 | v1.121.42 | 2026-07-26 | 主题按 uni-app 官方 DarkMode 整改；验收流程文档；对比度门禁通过 |
 | v1.121.41 | 2026-07-26 | 修周切换反馈/本市隔离/房源唤起App/区筛选与分页 |
@@ -440,7 +441,7 @@ python scripts/crawl_daily_wangqian.py fetch --merge
 | 项目 | 说明 |
 |------|------|
 | 代码审查 | 检查逻辑正确、改动范围最小，不夹带无关文件 |
-| 验收标准 | **用户可见改动必须先有验收标准再合并**，流程见 [docs/FEATURE_ACCEPTANCE.md](./docs/FEATURE_ACCEPTANCE.md)；主题见 [docs/THEME_ACCEPTANCE.md](./docs/THEME_ACCEPTANCE.md)；总览信息流见 [docs/DASHBOARD_FEED_ACCEPTANCE.md](./docs/DASHBOARD_FEED_ACCEPTANCE.md) |
+| 验收标准 | **用户可见改动必须先有验收标准再合并**，流程见 [docs/FEATURE_ACCEPTANCE.md](./docs/FEATURE_ACCEPTANCE.md)；主题见 [docs/THEME_ACCEPTANCE.md](./docs/THEME_ACCEPTANCE.md)；总览信息流见 [docs/DASHBOARD_FEED_ACCEPTANCE.md](./docs/DASHBOARD_FEED_ACCEPTANCE.md)；房价三轴见 [docs/HOUSING_PRICE_ACCEPTANCE.md](./docs/HOUSING_PRICE_ACCEPTANCE.md) |
 | 补充注释 | 为非显而易见的业务/爬虫逻辑补充必要注释 |
 | 测试 | `npm run test` 全部通过；涉及主题时再跑 `tests/theme.test.ts` +（有 H5 时）`smoke_theme_*.mjs` |
 | 更新版本号 | **必须**按 [docs/VERSIONING.md](./docs/VERSIONING.md)：跑 `node scripts/bump-version.mjs patch\|minor\|major`（同步 `manifest.json` / `config.ts` / `package.json`；`versionCode` 每次发版 +1）。禁止口头乱跳号 |
@@ -499,6 +500,10 @@ gh auth setup-git
 ## 更新日志
 
 详细变更见 [changelog/](./changelog/) 目录。
+
+### v1.121.44 (2026-07-26)
+
+房价三轴（挂牌/网签量/70城指数）计划与验收；纠正地图「成交价」误称；网签周聚合接入日更 CI。详见 [changelog/2026-07-26-v1.121.44-房价三轴计划与语义纠偏.md](./changelog/2026-07-26-v1.121.44-房价三轴计划与语义纠偏.md)。
 
 ### v1.121.43 (2026-07-26)
 

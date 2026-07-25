@@ -34,9 +34,9 @@ async function run() {
     await page.waitForTimeout(300);
 
     // 5 模式轮换: count -> price -> listings -> poi -> metro
-    const labels = ["切到成交价热力", "切到挂牌点", "切到 POI", "切到地铁规划"];
-    for (const lab of labels) {
-      const btn = page.locator(`text=${lab}`).first();
+    const modes = ["price", "listings", "poi", "metro"];
+    for (const key of modes) {
+      const btn = page.locator(`.map-mode-btn[data-map-mode="${key}"]`).first();
       await btn.waitFor({ timeout: 5000 });
       await btn.click({ force: true });
       await page.waitForTimeout(700);
@@ -50,10 +50,10 @@ async function run() {
     }
     console.log("[metro] legend 切到地铁规划 ✓");
 
-    // 验证 toggle 按钮已变成 "切到挂牌数热力"
-    const toggleBtn = page.locator("text=切到挂牌数热力").first();
-    await toggleBtn.waitFor({ timeout: 5000 });
-    console.log("[metro] toggle 按钮显示正确 ✓");
+    // 回到挂牌热力模式按钮应存在
+    const countBtn = page.locator('.map-mode-btn[data-map-mode="count"]').first();
+    await countBtn.waitFor({ timeout: 5000 });
+    console.log("[metro] 挂牌热力模式按钮可用 ✓");
 
     // map 元素存在
     const mapCount = await page.locator("#realty-map").count();
