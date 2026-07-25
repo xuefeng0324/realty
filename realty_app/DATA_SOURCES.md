@@ -164,11 +164,14 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/seed/listing_keyword.csv` | `listingKeyword.ts` + dashboard「🔖 挂牌标签」关键词段 | `compute_listing_keyword.py` | 标题关键词热度（南北通透等）；v1.121.24 仪表盘本市榜 + 跨城「南北通透」 |
 | `static/education_overview.csv` | `educationOverview.ts`（模块内 `?raw`）+ dashboard「📚 教育事业」 | `crawl_gz_education_overview.py` + `crawl_sz_education_overview.py` + `crawl_zh_education_overview.py`（**周更 CI**） | 广州公报（含小学/初中）；深圳「普通中小学」合计；珠海基础教育学校数官方 XLSX（在校生未公布=0）；均不伪造 |
 | `static/sz_planned_supply.csv` | `szPlannedSupply.ts`（模块内 `?raw`）+ dashboard「🏗️ 深圳计划入市」 | `crawl_sz_planned_supply.py`（**周更 CI**） | 深圳市住建局季度「计划入市」公示正文摘要（套数/面积/业态）；**非成交、非可售库存**；不解析 PDF 附件 |
+| `static/gz_housing_plan.csv` | `gzHousingPlan.ts`（模块内 `?raw`）+ dashboard「📋 广州住房发展计划」 | `crawl_gz_housing_plan.py`（**周更 CI**） | 广州市住建局《住房发展年度计划》公文附件（.doc/.docx）指标：计划批准预售面积、商品住宅用地、保障性住房筹建；**年更计划口径** |
 | `static/seed/admin_districts.csv` | `adminDistrictRanking.ts` + dashboard「🗺️ 行政区划」 | （国标整理） | v1.121.16：主城/郊区/新区与区码列表；v1.121.19：×规划地铁文案交叉 |
 | `static/seed/community_commercial.csv` | `communityCommercialRanking.ts` + 分区商业/密度桶 | （派生） | v1.121.17 分区均分；v1.121.19 餐饮密度×距离桶（按 city 过滤） |
 | `static/seed/listing_school_premium.csv` | `listingSchoolPremiumRanking.ts` + 高学区房源卡 | `compute_listing_school_premium` | v1.121.16：溢价分桶与分区 Top |
 | `static/school_source_audit.json` | 审计用（测试/脚本） | `scripts/audit_school_sources.py` | 学校来源分级审计结果，不直接驱动 UI 排名 |
-| （珠海不动产公开页） | （未接入） | `bdc.zhuhai.gov.cn/zwgk/sjfb/` | 季度登记统计页仅为 PNG 图（已探针确认无 HTML 表）；暂不 OCR |
+| （珠海不动产公开页） | （未接入） | `bdc.zhuhai.gov.cn/zwgk/sjfb/` | 季度登记统计页仅为 **PNG**（已探针确认无 HTML 表/XLSX）；暂不 OCR |
+| （珠海预售专网） | （未接入） | `zhfc.zhszjj.com` | TLS handshake 超时（HTTPS/HTTP 均失败，2026-07-26 复测）；暂无可用结构化 endpoint |
+| （广州月度批准预售专栏） | （未接入明细） | `zfcj.gz.gov.cn/.../xjspfpzystjxx/` | 月度正文仅为 **PNG 统计图**；年更计划已由 `gz_housing_plan.csv` 覆盖核心指标 |
 
 #### 4.1 国家统计局房地产多期回填
 

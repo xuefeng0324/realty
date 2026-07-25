@@ -1125,6 +1125,38 @@
         </view>
       </view>
 
+      <view v-if="gzHousingPlan" class="card" data-tab="overview,price" data-gz-housing-plan>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">📋 广州住房发展计划</view>
+          <view class="muted" style="font-size: 22rpx">{{ gzHousingPlan.year }} 年</view>
+        </view>
+        <view class="gz-inventory-grid">
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">计划批准预售</text>
+            <text class="gz-inventory-value">{{ formatWan(gzHousingPlan.approvedPresaleAreaWanSqm, " 万㎡") }}</text>
+            <text v-if="gzHousingPlanYoY" class="cell-sub" :class="invDeltaClass(gzHousingPlanYoY.areaDeltaWan)">
+              较上年 {{ gzHousingPlanYoY.areaDeltaWan > 0 ? "+" : "" }}{{ gzHousingPlanYoY.areaDeltaWan.toFixed(1) }} 万㎡
+            </text>
+          </view>
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">商品住宅用地</text>
+            <text class="gz-inventory-value">{{ formatWan(gzHousingPlan.residentialLandHa, " 公顷") }}</text>
+            <text v-if="gzHousingPlanYoY" class="cell-sub" :class="invDeltaClass(gzHousingPlanYoY.landDeltaHa)">
+              较上年 {{ gzHousingPlanYoY.landDeltaHa > 0 ? "+" : "" }}{{ gzHousingPlanYoY.landDeltaHa.toFixed(1) }} 公顷
+            </text>
+          </view>
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">保障性住房</text>
+            <text class="gz-inventory-value">{{ formatWan(gzHousingPlan.affordableUnitsWan, " 万套") }}</text>
+            <text class="cell-sub muted">筹建计划</text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          {{ gzHousingPlan.sourceOrg }} · {{ gzHousingPlan.publishDate || (gzHousingPlan.year + " 年") }} 印发。
+          年度计划指标，非成交量、非可售库存、非成交均价。
+        </view>
+      </view>
+
       <view v-if="runtime" class="card muted">
         <text>DB: {{ runtime.database_file || runtime.database_url }}</text>
         <text> · 规则: {{ runtime.rule_version_listing }}</text>
@@ -5814,6 +5846,11 @@ import {
   formatSzSupplyPeriod,
   type SzPlannedSupplyRow
 } from "../../local/szPlannedSupply";
+import {
+  getLatestGzHousingPlan,
+  getGzHousingPlanYoY,
+  type GzHousingPlanRow
+} from "../../local/gzHousingPlan";
 import { assessGzInventoryFreshness } from "../../local/gzInventoryFreshness";
 import { getLatestProvidentFundRate, monthlyPayment } from "../../local/providentFund";
 
@@ -6956,6 +6993,16 @@ const szSupplyQoQ = computed(() => (szPlannedSupply.value ? getSzSupplyQoQDelta(
 function formatSupplyArea(sqm: number): string {
   if (sqm >= 10000) return `${(sqm / 10000).toFixed(1)} 万㎡`;
   return `${sqm.toLocaleString()} ㎡`;
+}
+
+const gzHousingPlan = computed<GzHousingPlanRow | null>(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "广州" ? getLatestGzHousingPlan() : null;
+});
+const gzHousingPlanYoY = computed(() => (gzHousingPlan.value ? getGzHousingPlanYoY() : null));
+function formatWan(v: number, unit: string): string {
+  if (!v) return "—";
+  return `${v.toLocaleString()}${unit}`;
 }
 function formatInvDelta(v: number): string {
   if (v === 0) return "持平";
