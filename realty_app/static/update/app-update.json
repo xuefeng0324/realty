@@ -1,12 +1,12 @@
 {
-  "versionName": "1.121.21",
-  "versionCode": "142",
-  "publishedAt": "2026-07-25T18:18:12Z",
+  "versionName": "1.121.22",
+  "versionCode": "143",
+  "publishedAt": "2026-07-25T18:25:58Z",
   "force": false,
-  "notes": "\ufefffeat(app): v1.121.21 LPR\u5747\u503c / \u7f51\u7b7e\u6ce2\u52a8 / CBD\u533b\u7597\n\n2026-07-25-v1.110.0-\u89c4\u5212\u5730\u94c1\u6d3e\u751f: v1.110.0 \u2014 \u89c4\u5212\u5730\u94c1\u6d3e\u751f\n2026-07-25-v1.111.0-LPR\u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f: v1.111.0 \u2014 LPR \u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f\n2026-07-25-v1.112.0-\u5468\u8fb9\u5546\u4e1aPOI\u63a5\u5165\u4e0e\u6d3e\u751f: v1.112.0 \u2014 \u5468\u8fb9\u5546\u4e1a POI \u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n",
+  "notes": "\ufefffix(app): v1.121.22 \u4fee cityOf \u9519\u5206\u4e0e LPR \u4e03\u6708\n\n2026-07-25-v1.120.0-\u4fee\u590dOTA\u68c0\u67e5\u66f4\u65b0fetch: v1.120.0 \u00b7 \u4fee\u590d OTA \u68c0\u67e5\u66f4\u65b0\uff08fetch is not a function\uff09\n2026-07-25-v1.121.0-\u5730\u56fefetch-\u4fee\u590d\u4e0eAPK\u56fe\u6807: v1.121.0 \u2014 \u5730\u56fe fetch \u4fee\u590d + \u81ea\u52a8 APK \u53ef\u9009 job + \u5e94\u7528\u56fe\u6807\u91cd\u505a\n2026-07-25-v1.121.2-OTA\u68c0\u67e5\u66f4\u65b0\u4fee\u590d: v1.121.2 \u2014 OTA \u68c0\u67e5\u66f4\u65b0\u65e0\u53cd\u5e94\u4fee\u590d\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/142/app.wgt",
-    "sha256": "7a0ff362bce0b02934d6021131e681a3c044a6bfbdfbae032ba6f05d488e6415"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/143/app.wgt",
+    "sha256": "5d6ce4bb92fdd9ca81c9aec4b4a20f7f0787adc2da42fb85a16dcd9d773398c2"
   },
   "ios": {
     "available": false,
