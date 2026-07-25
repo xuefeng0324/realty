@@ -235,11 +235,38 @@ export function skipVersion(versionCode: string): void {
 /**
  * 下载并安装 wgt；成功后提示用户"重启应用"。
  *
+ * v1.121.3: 多 URL 回退——依次尝试 primaryUrl → fallbackUrls，任一成功即用其产物 install。
+ * 单个 URL 下载失败（DNS 解析失败 / 超时 / 4xx 5xx）→ 自动试下一个。
+ *
  * 仅 APP-PLUS 可用，调用方需先 #ifdef APP-PLUS。
  */
 export interface InstallProgress {
   downloaded: number;
   total: number;
+}
+
+/**
+ * 把一个 wgt URL 拆出（base, versionDir/file），给同一资源生成多镜像候选 URL。
+ * 例如 https://gcore.jsdelivr.net/gh/x/y@main/realty_app/static/update/93/app.wgt
+ *   → base=gcore.jsdelivr.net, tail=/update/93/app.wgt
+ * 候选顺序：原 URL 的 base 优先，其余 jsDelivr 镜像；raw.githubusercontent 不可下二进制所以排除。
+ */
+export function buildWgtUrlCandidates(primaryUrl: string): string[] {
+  const u = new URL(primaryUrl);
+  const tail = primaryUrl.slice(primaryUrl.indexOf("/update/"));
+  const baseOf = (host: string) => `${u.protocol}//${host}${u.pathname.slice(0, u.pathname.indexOf("/update/"))}`;
+  const jsdelivrHosts = [
+    "cdn.jsdelivr.net",
+    "gcore.jsdelivr.net",
+    "fastly.jsdelivr.net",
+    "jsdelivr.b-cdn.net"
+  ];
+  const out: string[] = [primaryUrl];
+  for (const h of jsdelivrHosts) {
+    const cand = `${baseOf(h)}${tail}`;
+    if (cand !== primaryUrl && !out.includes(cand)) out.push(cand);
+  }
+  return out;
 }
 
 export async function downloadAndInstallWgt(
@@ -258,28 +285,44 @@ export async function downloadAndInstallWgt(
     state: number;
     filename: string;
   }
-  const task = plus.downloader.createDownload(url, { method: "GET" }, undefined as unknown as string);
-  const localPath: string = await new Promise((resolve, reject) => {
-    task.addEventListener("statechanged", (task2: PlusDownloadTask, status: number) => {
-      if (typeof onProgress === "function") {
-        onProgress({ downloaded: task2.downloadedSize, total: task2.totalSize });
-      }
-      if (task2.state === 4 && status === 200) {
-        resolve(task2.filename);
-      } else if (task2.state === 4) {
-        reject(new Error(`下载失败 status=${status}`));
-      }
-    });
-    task.start();
-  });
-  return new Promise((resolve) => {
-    plus.runtime.install(
-      localPath,
-      { force: true },
-      () => resolve({ ok: true, localPath }),
-      (err: { message: string }) => resolve({ ok: false, reason: err?.message ?? "安装失败" })
-    );
-  });
+
+  const urls = buildWgtUrlCandidates(url);
+  const tried: string[] = [];
+  for (const u of urls) {
+    tried.push(u);
+    const task = plus.downloader.createDownload(u, { method: "GET" }, undefined as unknown as string);
+    try {
+      const localPath: string = await new Promise<string>((resolve, reject) => {
+        task.addEventListener("statechanged", (task2: PlusDownloadTask, status: number) => {
+          if (typeof onProgress === "function") {
+            onProgress({ downloaded: task2.downloadedSize, total: task2.totalSize });
+          }
+          if (task2.state === 4 && status === 200) {
+            resolve(task2.filename);
+          } else if (task2.state === 4) {
+            reject(new Error(`status=${status}`));
+          }
+        });
+        task.start();
+      });
+      // 下载成功 → 安装
+      const installResult = await new Promise<{ ok: true; localPath: string } | { ok: false; reason: string }>((resolve) => {
+        plus.runtime.install(
+          localPath,
+          { force: true },
+          () => resolve({ ok: true, localPath }),
+          (err: { message: string }) => resolve({ ok: false, reason: err?.message ?? "安装失败" })
+        );
+      });
+      if (installResult.ok) return installResult;
+      // 安装失败：直接返回（不再试别的 URL，文件已损坏）
+      return installResult;
+    } catch (e) {
+      // 当前 URL 下载失败，尝试下一个
+      continue;
+    }
+  }
+  return { ok: false, reason: `所有 wgt 镜像均失败（已试 ${tried.length} 个：${tried.map((s) => s.slice(8, 30)).join(", ")}...）` };
   // #endif
   return { ok: false, reason: "当前平台不支持 OTA 升级（仅 APP-PLUS）" };
 }
