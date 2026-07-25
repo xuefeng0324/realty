@@ -857,6 +857,29 @@
         <view v-if="adminMetroCross?.onlyMetro.length" class="muted" style="font-size: 20rpx; margin-top: 2rpx">
           仅地铁文案：{{ adminMetroCross.onlyMetro.join("、") }}
         </view>
+        <view v-if="adminXinQuList.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          名含「新区」
+        </view>
+        <view
+          v-for="d in adminXinQuList"
+          :key="'axq-' + d.districtCode"
+          class="admin-dist-row"
+        >
+          <text class="admin-code muted">{{ d.districtCode }}</text>
+          <text class="admin-name">{{ cityNameForId(d.cityId) }} · {{ d.districtName }}</text>
+          <text class="admin-type muted">{{ adminSuffixType(d.districtCode) }}</text>
+        </view>
+        <view v-if="adminHaiList.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          跨城名含「海」
+        </view>
+        <view
+          v-for="d in adminHaiList"
+          :key="'ahai-' + d.districtCode"
+          class="admin-dist-row"
+        >
+          <text class="admin-code muted">{{ d.districtCode }}</text>
+          <text class="admin-name">{{ cityNameForId(d.cityId) }} · {{ d.districtName }}</text>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：admin_districts.csv × metro_planning.districts。交叉用于发现命名不一致。
         </view>
@@ -3001,6 +3024,36 @@
           <text class="scatter-meta">{{ Math.round(p.medianArea) }}㎡ · {{ p.quadrant }}</text>
           <text class="scatter-up">{{ Math.round(p.medianUnitPrice / 1000) }}k</text>
         </view>
+        <view v-if="scatterImproveCohort.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          本市「改善」面积段小区
+        </view>
+        <view
+          v-for="(p, i) in scatterImproveCohort"
+          :key="'sic-' + p.communityId"
+          class="scatter-qrow tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(p.communityId)"
+        >
+          <text class="scatter-rank">#{{ i + 1 }}</text>
+          <text class="scatter-name">{{ p.communityName }}</text>
+          <text class="scatter-meta">{{ Math.round(p.medianArea) }}㎡ · {{ p.quadrant }}</text>
+          <text class="scatter-up">{{ Math.round(p.medianUnitPrice / 1000) }}k</text>
+        </view>
+        <view v-if="scatterValueDip.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          本市「价值洼地」象限
+        </view>
+        <view
+          v-for="(p, i) in scatterValueDip"
+          :key="'svd-' + p.communityId"
+          class="scatter-qrow tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(p.communityId)"
+        >
+          <text class="scatter-rank">#{{ i + 1 }}</text>
+          <text class="scatter-name">{{ p.communityName }}</text>
+          <text class="scatter-tp">{{ Math.round(p.medianTotalPrice10w) }}万</text>
+          <text class="scatter-up">{{ Math.round(p.medianUnitPrice / 1000) }}k</text>
+        </view>
       </view>
 
       <!-- v0.46.0 map-11 行政区 + 社区 marker 地图 -->
@@ -3405,6 +3458,23 @@
           <text class="hosp-dist-name">{{ d.districtName }}</text>
           <text class="hosp-dist-count">{{ d.hospitalCount }} 家</text>
           <text v-if="d.sanJiaCount" class="hosp-dist-sj muted">三甲 {{ d.sanJiaCount }}</text>
+        </view>
+        <view v-if="hospitalFocusDistrictList.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          「{{ hospitalDistrictCrossName }}」医院名录
+        </view>
+        <view
+          v-for="(h, idx) in hospitalFocusDistrictList"
+          :key="'hfd-' + h.hospitalId"
+          class="hosp-top-row"
+        >
+          <text class="hosp-top-rank muted">{{ idx + 1 }}</text>
+          <view class="hosp-top-mid">
+            <text class="hosp-top-name">{{ h.displayName || h.officialName }}</text>
+            <text class="hosp-top-meta muted">{{ h.hospitalType || "医院" }}</text>
+          </view>
+          <text class="hosp-top-level" :class="'hosp-lv--' + (h.hospitalLevel || '其他')">
+            {{ h.hospitalLevel || "其他" }}
+          </text>
         </view>
         <view v-if="hospitalTopList.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           等级优先 Top {{ hospitalTopList.length }}
@@ -4374,6 +4444,7 @@ import {
   getHospitalKeyFlagByCity,
   getHospitalByCityByType,
   getHospitalCrossCityByDistrict,
+  getHospitalByCityByDistrict,
   type CityHospitalSummary,
   type CityDistrictHospitalSummary,
   type CrossCityHospitalEntry
@@ -4466,6 +4537,8 @@ import {
 import {
   getCommunityScatterByCityTotalPriceExtremes,
   getCommunityScatterPareto,
+  getCommunityScatterByAreaCohort,
+  getCommunityScatterByQuadrant,
   type TotalPriceExtreme,
   type ParetoEntry as ScatterParetoEntry
 } from "../../local/communityScatterRanking";
@@ -4497,6 +4570,8 @@ import {
   detectAdminDistrictCodeGaps,
   classifyAdminDistrictSuffix,
   getAdminDistrictByCityCrossReference,
+  getAdminDistrictByNameLike,
+  getAdminDistrictCrossCityByNameLike,
   type CityAdminDistrictSummary,
   type CitySuffixTypeCount,
   type AdminDistrictCodeGap,
@@ -4546,7 +4621,7 @@ import {
   type CityOrientationFloorTopEntry,
   type CrossCityOrientationFloorEntry
 } from "../../local/orientationFloorRanking";
-import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict, LocalMetroLine } from "../../local/types";
+import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict, LocalMetroLine, LocalCommunityScatter } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -4626,6 +4701,11 @@ const hospitalDistrictCross = computed<CrossCityHospitalEntry[]>(() => {
   const name = hospitalDistrictCrossName.value;
   if (!name) return [];
   return getHospitalCrossCityByDistrict(name);
+});
+const hospitalFocusDistrictList = computed<LocalHospital[]>(() => {
+  const name = hospitalDistrictCrossName.value;
+  if (!name) return [];
+  return getHospitalByCityByDistrict(app.cityId, name).slice(0, 5);
 });
 
 // v1.121.15 医院坐标覆盖
@@ -4764,6 +4844,12 @@ const adminMetroCross = computed<AdminMetroCrossRef | null>(() => {
   if (!adminSummary.value) return null;
   return getAdminDistrictByCityCrossReference(app.cityId);
 });
+const adminXinQuList = computed<LocalAdminDistrict[]>(() =>
+  getAdminDistrictByNameLike("新区").filter((d) => d.cityId === app.cityId)
+);
+const adminHaiList = computed<LocalAdminDistrict[]>(() =>
+  getAdminDistrictCrossCityByNameLike("海").slice(0, 8)
+);
 
 // v1.121.16 listing 学区溢价分布 / 分区
 const lspCitySummary = computed<CitySchoolPremiumSummary | null>(() => {
@@ -4997,6 +5083,16 @@ const scatterImproveValue = computed<ScatterParetoEntry[]>(() => {
     .filter((x) => ids.has(x.communityId))
     .slice(0, 5);
 });
+const scatterImproveCohort = computed<LocalCommunityScatter[]>(() =>
+  [...getCommunityScatterByAreaCohort("改善", app.cityId)]
+    .sort((a, b) => b.medianUnitPrice - a.medianUnitPrice)
+    .slice(0, 5)
+);
+const scatterValueDip = computed<LocalCommunityScatter[]>(() =>
+  [...getCommunityScatterByQuadrant("价值洼地", app.cityId)]
+    .sort((a, b) => a.medianUnitPrice - b.medianUnitPrice)
+    .slice(0, 5)
+);
 const freshnessCrossCityTop = computed<FreshnessRankingEntry[]>(() =>
   getFreshestCommunityTopN(undefined, 5)
 );
