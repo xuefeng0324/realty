@@ -34,6 +34,10 @@ realty_app/.tmp-vite-*.log
 coverage/
 realty_app/coverage/
 
+# 本机爬虫临时探针 / 可选 vendored xlrd（CI 用 pip 装 xlrd）
+scripts/_tmp*
+scripts/_vendor/
+
 # v1.121.1 路径 C — 本机生成的签名 keystore（不入仓；base64 入 GH Secrets）
 realty-release.keystore
 *.b64

@@ -1253,6 +1253,52 @@
         </view>
       </view>
 
+      <view v-if="zhAffordable" class="card" data-tab="overview,price" data-zh-affordable-progress>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🏗️ 珠海安居工程进展</view>
+          <view class="muted" style="font-size: 22rpx">
+            {{ zhAffordable.year }}-{{ String(zhAffordable.month).padStart(2, "0") }}
+          </view>
+        </view>
+        <view class="gz-inventory-grid">
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">新开工</text>
+            <text class="gz-inventory-value">{{ zhAffordable.startedUnits.toLocaleString() }} 套</text>
+            <text
+              v-if="zhAffordableMoM"
+              class="cell-sub"
+              :class="invDeltaClass(zhAffordableMoM.startedDelta)"
+            >
+              较上月 {{ zhAffordableMoM.startedDelta > 0 ? "+" : "" }}{{ zhAffordableMoM.startedDelta.toLocaleString() }}
+            </text>
+          </view>
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">基本建成</text>
+            <text class="gz-inventory-value">{{ zhAffordable.basicallyCompletedUnits.toLocaleString() }} 套</text>
+          </view>
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">竣工</text>
+            <text class="gz-inventory-value">{{ zhAffordable.completedUnits.toLocaleString() }} 套</text>
+            <text
+              v-if="zhAffordableMoM"
+              class="cell-sub"
+              :class="invDeltaClass(zhAffordableMoM.completedDelta)"
+            >
+              较上月 {{ zhAffordableMoM.completedDelta > 0 ? "+" : "" }}{{ zhAffordableMoM.completedDelta.toLocaleString() }}
+            </text>
+          </view>
+        </view>
+        <view class="gz-inventory-row" style="margin-top: 8rpx">
+          <text class="muted">年内计划投资</text>
+          <text>{{ Math.round(zhAffordable.planInvestWan).toLocaleString() }} 万元</text>
+          <text class="muted">租赁补贴</text>
+          <text>{{ zhAffordable.rentalSubsidyHouseholds.toLocaleString() }} 户</text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：珠海市住建局「保障性安居工程建设进展情况快报表」XLS；指标为当年 1 月至报告期末累计，非商品房成交量、非房价均价。环比仅同年相邻月展示。
+        </view>
+      </view>
+
       <view v-if="runtime" class="card muted">
         <text>DB: {{ runtime.database_file || runtime.database_url }}</text>
         <text> · 规则: {{ runtime.rule_version_listing }}</text>
@@ -5961,6 +6007,11 @@ import {
   landStartSurfaceUnitPriceYuan,
   type SzLandDeal
 } from "../../local/szLandDeals";
+import {
+  getLatestZhAffordableProgress,
+  getZhAffordableProgressMoM,
+  type ZhAffordableProgressRow
+} from "../../local/zhAffordableProgress";
 import { assessGzInventoryFreshness } from "../../local/gzInventoryFreshness";
 import { getLatestProvidentFundRate, monthlyPayment } from "../../local/providentFund";
 
@@ -7127,6 +7178,18 @@ const szLandSummary = computed(() => {
 });
 const szLandLatest = computed<SzLandDeal[]>(() => (szLandSummary.value ? getLatestSzLandDeals(3) : []));
 const szLandByMonth = computed(() => (szLandSummary.value ? summarizeSzLandDealsByMonth(6) : []));
+const zhAffordable = computed<ZhAffordableProgressRow | null>(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "珠海" ? getLatestZhAffordableProgress() : null;
+});
+const zhAffordableMoM = computed(() => {
+  if (!zhAffordable.value) return null;
+  const mom = getZhAffordableProgressMoM();
+  if (!mom) return null;
+  // 跨年累计口径不同，环比无意义
+  if (mom.prev.year !== zhAffordable.value.year) return null;
+  return mom;
+});
 function formatLandPrice(wan: number): string {
   return wan >= 10000 ? `${(wan / 10000).toFixed(2)} 亿元` : `${wan.toLocaleString()} 万元`;
 }

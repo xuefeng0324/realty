@@ -167,6 +167,8 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/gz_housing_plan.csv` | `gzHousingPlan.ts`（模块内 `?raw`）+ dashboard「📋 广州住房发展计划」 | `crawl_gz_housing_plan.py`（**周更 CI**） | 广州市住建局《住房发展年度计划》公文附件（.doc/.docx）指标：计划批准预售面积、商品住宅用地、保障性住房筹建；**年更计划口径** |
 | `static/gz_land_deals.csv` | `gzLandDeals.ts`（模块内 `?raw`）+ dashboard「🗺️ 广州居住用地成交」 | `crawl_gz_land_deals.py`（**周更 CI**，默认 12 页） | 广州市规自局成交公示中用途含 **居住/R2/安置** 的地块；土地价款≠房价均价；地表单价未除容积率；卡内含分月汇总 |
 | `static/sz_land_deals.csv` | `szLandDeals.ts`（模块内 `?raw`）+ dashboard「🗺️ 深圳居住用地（已成交）」 | `crawl_sz_land_deals.py`（**周更 CI**） | 深圳公共资源交易中心 `szggzy.com/cms/.../land-list`；`landUseLike=居住` + 已成交；**金额为列表起始价**（非成交总价、非房价均价）；`pageNum` 从 0 起 |
+| （深圳土地成交总价） | （未接入） | `szggzy` land-list / detail / clinch SPA | 2026-07-26 复测：列表 `amount` 恒空；detail 空/404；不接第三方付费 API |
+| `static/zh_affordable_progress.csv` | `zhAffordableProgress.ts` + dashboard「🏗️ 珠海安居工程进展」 | `crawl_zh_affordable_progress.py`（**周更 CI**，需 `xlrd`） | 珠海住建局月度「保障性安居工程建设进展情况快报表」**.xls**；年内累计开工/基本建成/竣工；**非商品房成交、非房价** |
 | `static/seed/admin_districts.csv` | `adminDistrictRanking.ts` + dashboard「🗺️ 行政区划」 | （国标整理） | v1.121.16：主城/郊区/新区与区码列表；v1.121.19：×规划地铁文案交叉 |
 | `static/seed/community_commercial.csv` | `communityCommercialRanking.ts` + 分区商业/密度桶 | （派生） | v1.121.17 分区均分；v1.121.19 餐饮密度×距离桶（按 city 过滤） |
 | `static/seed/listing_school_premium.csv` | `listingSchoolPremiumRanking.ts` + 高学区房源卡 | `compute_listing_school_premium` | v1.121.16：溢价分桶与分区 Top |
@@ -174,6 +176,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | （珠海不动产公开页） | （未接入） | `bdc.zhuhai.gov.cn/zwgk/sjfb/` | 季度登记统计页仅为 **PNG**（已探针确认无 HTML 表/XLSX）；暂不 OCR |
 | （珠海预售专网） | （未接入） | `zhfc.zhszjj.com` | TLS handshake 超时（HTTPS/HTTP 均失败，2026-07-26 复测）；暂无可用结构化 endpoint |
 | （广州月度批准预售专栏） | （未接入明细） | `zfcj.gz.gov.cn/.../xjspfpzystjxx/` | 月度正文仅为 **PNG 统计图**；年更计划已由 `gz_housing_plan.csv` 覆盖核心指标 |
+| （广州配售型保障房已筹建 XLS） | （候补） | `zfcj.gz.gov.cn/.../bzxzfxm/` 附件 `.xls` | 已探针可解析项目清单；下轮可汇总套数（本版优先补珠海缺口） |
 
 #### 4.1 国家统计局房地产多期回填
 
