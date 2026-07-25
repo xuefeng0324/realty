@@ -879,7 +879,7 @@
             <text class="edu-kpi-label muted">学校</text>
           </view>
           <view class="edu-kpi">
-            <text class="edu-kpi-val">{{ eduOverview.totalStudents10k.toFixed(1) }}</text>
+            <text class="edu-kpi-val">{{ eduOverview.totalStudents10k > 0 ? eduOverview.totalStudents10k.toFixed(1) : "—" }}</text>
             <text class="edu-kpi-label muted">在校生万</text>
           </view>
           <template v-if="eduHasPrimaryJuniorSplit">
@@ -906,14 +906,14 @@
         <view class="edu-grid">
           <text v-if="eduHasPrimaryJuniorSplit" class="edu-chip">幼儿园 {{ eduOverview.kindergartenCount }}</text>
           <text v-if="eduOverview.seniorHighCount > 0" class="edu-chip">高中 {{ eduOverview.seniorHighCount }}</text>
-          <text class="edu-chip">职校 {{ eduOverview.vocationalCount }}</text>
-          <text class="edu-chip">民办 {{ eduOverview.privateCount }}</text>
-          <text class="edu-chip">特殊教育 {{ eduOverview.specialCount }}</text>
+          <text v-if="eduOverview.vocationalCount > 0" class="edu-chip">职校 {{ eduOverview.vocationalCount }}</text>
+          <text v-if="eduOverview.privateCount > 0" class="edu-chip">民办 {{ eduOverview.privateCount }}</text>
+          <text v-if="eduOverview.specialCount > 0" class="edu-chip">特殊教育 {{ eduOverview.specialCount }}</text>
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           {{ eduOverview.sourceOrg }} · {{ eduOverview.publishDate }} 发布。
-          <text v-if="!eduHasPrimaryJuniorSplit">深圳口径为「普通中小学」合计，不伪造小学/初中分项。</text>
-          <text v-else>珠海暂无同口径公开表，不伪造。</text>
+          <text v-if="eduOverview.city === '珠海'">基础教育学校数官方表；在校生/民办未公布不伪造。</text>
+          <text v-else-if="!eduHasPrimaryJuniorSplit">深圳口径为「普通中小学」合计，不伪造小学/初中分项。</text>
         </view>
       </view>
 

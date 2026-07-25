@@ -162,7 +162,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/seed/metro_planning.csv` | `metroPlanningRanking.ts` + dashboard「🛤️ 规划地铁」 | （公开规划整理） | 线路本体概览；v1.121.14 仪表盘 KPI / 开通年 / 里程 Top |
 | `static/seed/listing_tags_summary.csv` | `listingTagsComparison.ts` + dashboard「🔖 挂牌标签」 | `compute_listing_tags_summary` | 城市级标签渗透；v1.121.14 仪表盘 Top + 特色标签 |
 | `static/seed/listing_keyword.csv` | `listingKeyword.ts` + dashboard「🔖 挂牌标签」关键词段 | `compute_listing_keyword.py` | 标题关键词热度（南北通透等）；v1.121.24 仪表盘本市榜 + 跨城「南北通透」 |
-| `static/education_overview.csv` | `educationOverview.ts`（模块内 `?raw`）+ dashboard「📚 教育事业」 | `scripts/crawl_gz_education_overview.py` + `scripts/crawl_sz_education_overview.py`（**周更 CI**） | 广州教育事业统计公报（含小学/初中拆分）；深圳「教育事业发展基本情况」（普通中小学合计，不伪造分项）；珠海无结构化表不写入 |
+| `static/education_overview.csv` | `educationOverview.ts`（模块内 `?raw`）+ dashboard「📚 教育事业」 | `crawl_gz_education_overview.py` + `crawl_sz_education_overview.py` + `crawl_zh_education_overview.py`（**周更 CI**） | 广州公报（含小学/初中）；深圳「普通中小学」合计；珠海基础教育学校数官方 XLSX（在校生未公布=0）；均不伪造 |
 | `static/seed/admin_districts.csv` | `adminDistrictRanking.ts` + dashboard「🗺️ 行政区划」 | （国标整理） | v1.121.16：主城/郊区/新区与区码列表；v1.121.19：×规划地铁文案交叉 |
 | `static/seed/community_commercial.csv` | `communityCommercialRanking.ts` + 分区商业/密度桶 | （派生） | v1.121.17 分区均分；v1.121.19 餐饮密度×距离桶（按 city 过滤） |
 | `static/seed/listing_school_premium.csv` | `listingSchoolPremiumRanking.ts` + 高学区房源卡 | `compute_listing_school_premium` | v1.121.16：溢价分桶与分区 Top |

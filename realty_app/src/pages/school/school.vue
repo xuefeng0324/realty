@@ -12,7 +12,10 @@
         <view class="muted">{{ educationOverview.period }} 年 · {{ educationOverview.sourceOrg }} · {{ educationOverview.publishDate }}</view>
         <view class="edu-grid">
           <view class="edu-cell"><text class="muted">学校总数</text><text>{{ educationOverview.totalSchools.toLocaleString() }}</text></view>
-          <view class="edu-cell"><text class="muted">在校学生</text><text>{{ educationOverview.totalStudents10k }} 万</text></view>
+          <view class="edu-cell">
+            <text class="muted">在校学生</text>
+            <text>{{ educationOverview.totalStudents10k > 0 ? educationOverview.totalStudents10k + " 万" : "—" }}</text>
+          </view>
           <view class="edu-cell">
             <text class="muted">{{ educationHasSplit ? "义务教育" : "普通中小学" }}</text>
             <text>{{ educationOverview.compulsoryCount.toLocaleString() }}</text>
@@ -26,7 +29,10 @@
             <text>{{ educationOverview.kindergartenCount.toLocaleString() }}</text>
           </view>
         </view>
-        <view v-if="!educationHasSplit" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+        <view v-if="educationOverview.city === '珠海'" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          基础教育学校数官方表；在校生未公布不伪造。
+        </view>
+        <view v-else-if="!educationHasSplit" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           深圳公报不拆小学/初中/高中分项，仅展示官方公布口径。
         </view>
       </view>

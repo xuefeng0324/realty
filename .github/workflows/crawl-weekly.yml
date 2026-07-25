@@ -75,11 +75,12 @@ jobs:
           python scripts/rebuild_listing_derivatives.py
           python scripts/publish_csv.py
 
-      - name: 刷新广深教育事业概览
+      - name: 刷新广深珠教育事业概览
         run: |
           cd realty_app
           python scripts/crawl_gz_education_overview.py
           python scripts/crawl_sz_education_overview.py
+          python scripts/crawl_zh_education_overview.py
 
       - name: 提交 CSV
         run: |
