@@ -56,6 +56,9 @@ describe("gz affordable projects", () => {
     expect(dash).toContain("data-gz-affordable-shanty-note");
     expect(dash).toContain("getNbsImpliedUnitPriceTrend");
     expect(dash).toContain("getNbsImpliedInventoryMonths");
+    expect(dash).toContain("getNbsImpliedInventoryMonthsTrend");
+    expect(dash).toContain("销售额同比（多期）");
+    expect(dash).toContain("到位资金同比（多期）");
   });
 
   it("CSV 解析", () => {

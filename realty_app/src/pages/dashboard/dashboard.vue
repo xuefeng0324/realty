@@ -1059,10 +1059,34 @@
             {{ p.shortLabel }} {{ p.unitPriceYuanPerSqm.toLocaleString() }}<text v-if="i < nbsUnitPriceTrend.length - 1"> · </text>
           </text>
         </view>
+        <view v-if="nbsInventoryMonthsTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx">
+          粗算可售月数（多期，累计口径勿直接环比）：
+          <text v-for="(p, i) in nbsInventoryMonthsTrend" :key="'im-' + p.period">
+            {{ p.shortLabel }} {{ p.inventoryMonths }}月<template v-if="i < nbsInventoryMonthsTrend.length - 1"> · </template>
+          </text>
+        </view>
         <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx">
           销售面积同比（多期）：
           <text v-for="(p, i) in nbsYoyTrend" :key="p.period">
             {{ p.shortLabel }} {{ formatMacroPct(p.salesAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
+          </text>
+        </view>
+        <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx">
+          销售额同比（多期）：
+          <text v-for="(p, i) in nbsYoyTrend" :key="'sa-' + p.period">
+            {{ p.shortLabel }} {{ formatMacroPct(p.salesAmountYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
+          </text>
+        </view>
+        <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx">
+          开发投资同比（多期）：
+          <text v-for="(p, i) in nbsYoyTrend" :key="'inv-' + p.period">
+            {{ p.shortLabel }} {{ formatMacroPct(p.investmentYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
+          </text>
+        </view>
+        <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx">
+          到位资金同比（多期）：
+          <text v-for="(p, i) in nbsYoyTrend" :key="'fund-' + p.period">
+            {{ p.shortLabel }} {{ formatMacroPct(p.fundsYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
           </text>
         </view>
       </view>
@@ -6218,6 +6242,7 @@ import {
   getLatestNbsRealEstate,
   getNbsImpliedContractUnitPrice,
   getNbsImpliedInventoryMonths,
+  getNbsImpliedInventoryMonthsTrend,
   getNbsImpliedUnitPriceTrend,
   getNbsYoyTrend
 } from "../../local/nbsRealEstate";
@@ -7402,6 +7427,7 @@ const nbsYoyTrend = computed(() => getNbsYoyTrend(6));
 const nbsImpliedUnitPrice = computed(() => getNbsImpliedContractUnitPrice(nbsMacro.value));
 const nbsUnitPriceTrend = computed(() => getNbsImpliedUnitPriceTrend(6));
 const nbsImpliedInventoryMonths = computed(() => getNbsImpliedInventoryMonths(nbsMacro.value));
+const nbsInventoryMonthsTrend = computed(() => getNbsImpliedInventoryMonthsTrend(6));
 const gzInventory = computed(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   return city === "广州" ? getGzInventoryOverview() : null;

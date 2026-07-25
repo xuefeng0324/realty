@@ -5,6 +5,7 @@ import {
   getLatestNbsRealEstate,
   getNbsImpliedContractUnitPrice,
   getNbsImpliedInventoryMonths,
+  getNbsImpliedInventoryMonthsTrend,
   getNbsImpliedUnitPriceTrend,
   getNbsRealEstateHistory,
   getNbsYoyTrend,
@@ -49,6 +50,11 @@ describe("国家统计局房地产市场数据", () => {
     const priceTrend = getNbsImpliedUnitPriceTrend();
     expect(priceTrend.map((x) => x.shortLabel)).toEqual(["1—2", "1—3", "1—4", "1—5", "1—6"]);
     expect(priceTrend.map((x) => x.unitPriceYuanPerSqm)).toEqual([8809, 8841, 9106, 9376, 9453]);
+
+    const monthsTrend = getNbsImpliedInventoryMonthsTrend();
+    expect(monthsTrend.map((x) => x.shortLabel)).toEqual(["1—2", "1—3", "1—4", "1—5", "1—6"]);
+    expect(monthsTrend.map((x) => x.inventoryMonths)).toEqual([17.2, 12.1, 12.3, 12.3, 11.4]);
+    expect(trend.map((x) => x.fundsYoyPct)).toEqual([-16.5, -17.3, -18.4, -19.0, -20.2]);
   });
 
   it("合同均价在面积为 0 时返回 null", () => {

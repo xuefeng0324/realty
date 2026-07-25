@@ -66,6 +66,7 @@ export type NbsYoyTrendPoint = {
   salesAreaYoyPct: number;
   salesAmountYoyPct: number;
   investmentYoyPct: number;
+  fundsYoyPct: number;
 };
 
 function shortPeriodLabel(period: string): string {
@@ -74,7 +75,7 @@ function shortPeriodLabel(period: string): string {
   return `1—${Number(m[2])}`;
 }
 
-/** 销售面积/销售额/投资同比序列（官方累计口径，非成交均价） */
+/** 销售面积/销售额/投资/到位资金同比序列（官方累计口径，非成交均价） */
 export function getNbsYoyTrend(limit = 6): NbsYoyTrendPoint[] {
   return getNbsRealEstateHistory(limit)
     .slice()
@@ -84,7 +85,8 @@ export function getNbsYoyTrend(limit = 6): NbsYoyTrendPoint[] {
       shortLabel: shortPeriodLabel(s.period),
       salesAreaYoyPct: s.salesAreaYoyPct,
       salesAmountYoyPct: s.salesAmountYoyPct,
-      investmentYoyPct: s.investmentYoyPct
+      investmentYoyPct: s.investmentYoyPct,
+      fundsYoyPct: s.fundsYoyPct
     }));
 }
 
@@ -138,4 +140,27 @@ export function getNbsImpliedInventoryMonths(
   const months = m ? Number(m[2]) : 0;
   if (!(months > 0)) return null;
   return Math.round((s.inventoryArea10kSqm * months * 10) / s.salesArea10kSqm) / 10;
+}
+
+export type NbsInventoryMonthsTrendPoint = {
+  period: string;
+  shortLabel: string;
+  inventoryMonths: number;
+};
+
+/** 多期粗算可售月数（时间升序）；累计口径，勿直接当作城市去化环比 */
+export function getNbsImpliedInventoryMonthsTrend(limit = 6): NbsInventoryMonthsTrendPoint[] {
+  return getNbsRealEstateHistory(limit)
+    .slice()
+    .reverse()
+    .map((s) => {
+      const inventoryMonths = getNbsImpliedInventoryMonths(s);
+      if (inventoryMonths == null) return null;
+      return {
+        period: s.period,
+        shortLabel: shortPeriodLabel(s.period),
+        inventoryMonths
+      };
+    })
+    .filter((x): x is NbsInventoryMonthsTrendPoint => !!x);
 }
