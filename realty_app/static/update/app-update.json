@@ -1,0 +1,15 @@
+{
+  "versionName": "0.87.0",
+  "versionCode": "89",
+  "publishedAt": "2026-07-25T08:55:00Z",
+  "force": false,
+  "notes": "首次发布 OTA 通道。后续每次 push 到 main 都会自动出新版 wgt + app-update.json。",
+  "wgt": {
+    "url": "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/89/app.wgt",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "ios": {
+    "available": false,
+    "note": "iOS 用户请前往 Releases 整包安装（未上架 App Store）"
+  }
+}

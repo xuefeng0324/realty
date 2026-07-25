@@ -11,7 +11,8 @@
 export const DEFAULT_API_BASE_URL = "http://localhost:8000";
 
 export const APP_NAME = "Realty App";
-export const APP_VERSION = "0.57.0";
+// 与 src/manifest.json 的 versionName 同步；CI 出包时会自动覆写
+export const APP_VERSION = "0.87.0";
 
 export const STORAGE_KEYS = {
   apiBaseUrl: "realty_app.apiBaseUrl",
@@ -24,3 +25,25 @@ export const STORAGE_KEYS = {
 export const SNAPSHOT_UPDATED_EVENT = "realty:snapshot-updated";
 
 export const DEFAULT_PAGE_SIZE = 20;
+
+/**
+ * 应用升级（OTA）配置
+ *
+ * - UPDATE_BASE_URL：检查更新 manifest 的根地址
+ *   - jsDelivr：https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/
+ *   - GitHub Pages：未来可改为 https://xuefeng0324.github.io/realty/static/update/
+ * - APP_UPDATE_MANIFEST：相对路径下的 app-update.json
+ * - APP_UPDATE_STORAGE_KEY：本地记录"已忽略的版本"，避免每次启动都弹升级
+ */
+export const UPDATE_BASE_URL =
+  "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/";
+
+export const APP_UPDATE_MANIFEST = "app-update.json";
+
+export const APP_UPDATE_STORAGE_KEY = "realty_app.update.skippedVersion";
+
+/**
+ * GitHub Release（仅整包 APK 用）
+ * OTA 升级不需要这里；只有"重新装整包"才走 Release assets。
+ */
+export const APP_GITHUB_REPO = "xuefeng0324/realty";

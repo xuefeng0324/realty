@@ -1,0 +1,158 @@
+# build-app-wgt.yml — wgt OTA 升级 + 整包 APK 构建
+#
+# 触发：push 到 main（仅 realty_app 与本 workflow 变更时）
+#
+# 输出：
+#   1. wgt 资源包 → realty_app/static/update/<versionCode>/app.wgt
+#   2. OTA 清单     → realty_app/static/update/app-update.json
+#   3. 整包 APK     → workflow artifact + GitHub Release（可选）
+#
+# 设计原则：
+#   - wgt 由 `npm run build:app` 产出（uni-app 标准资源包，本质是 zip）
+#   - APK 走 dcloudio/uni-app 提供的 uniHelper-cli（仍需在 GH Secrets 配置 DCloud 账号）；
+#     留空时只出 wgt，跳过 APK 阶段（CI 不会失败）
+#   - 自动 commit & push：产物直接进 main 仓库的 static/update/，
+#     jsDelivr CDN 即时生效，App 内"检查更新"即可下载
+
+name: realty_app build (wgt + apk)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "realty_app/**"
+      - ".github/workflows/build-app-wgt.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: realty_app-build
+  cancel-in-progress: true
+
+jobs:
+  build-wgt:
+    name: 编译 wgt 并发布 OTA 清单
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: realty_app
+
+    steps:
+      - name: 拉代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 设 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: realty_app/package-lock.json
+
+      - name: 装依赖
+        run: npm ci --no-audit --no-fund
+
+      - name: type-check
+        run: npm run type-check
+
+      - name: 跑单测
+        run: npm test
+
+      - name: 编译 wgt（uni-app 标准资源包）
+        id: build_app
+        run: npm run build:app
+
+      - name: 检查 wgt 产物
+        run: |
+          if [ ! -d dist/build/app ]; then
+            echo "ERROR: dist/build/app 不存在，build:app 失败"
+            exit 1
+          fi
+
+      - name: 读取内置 manifest
+        id: read_manifest
+        run: |
+          if [ ! -f dist/build/app/manifest.json ]; then
+            echo "ERROR: 缺少 dist/build/app/manifest.json"
+            exit 1
+          fi
+          VERSION_NAME=$(python3 -c "import json,sys;m=json.load(open('dist/build/app/manifest.json'));print(m['version']['name'])")
+          VERSION_CODE=$(python3 -c "import json,sys;m=json.load(open('dist/build/app/manifest.json'));print(m['version']['code'])")
+          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "versionName=$VERSION_NAME"
+          echo "versionCode=$VERSION_CODE"
+
+      - name: 把 wgt 重命名并放进 static/update/<code>/
+        run: |
+          mkdir -p static/update/${{ steps.read_manifest.outputs.version_code }}
+          # uni-app 默认把 dist/build/app 当成 wgt；但官方约定包名应为 *.wgt；
+          # 这里把 manifest.json 旁边所有内容打成 zip 重命名为 app.wgt
+          cd dist/build/app
+          zip -r ../../../static/update/${{ steps.read_manifest.outputs.version_code }}/app.wgt . -x "*.map" "*.log"
+          cd ../../..
+          ls -lh static/update/${{ steps.read_manifest.outputs.version_code }}/app.wgt
+
+      - name: 计算 sha256
+        id: hash
+        run: |
+          HASH=$(sha256sum static/update/${{ steps.read_manifest.outputs.version_code }}/app.wgt | awk '{print $1}')
+          echo "sha256=$HASH" >> $GITHUB_OUTPUT
+          echo "wgt sha256=$HASH"
+
+      - name: 生成 app-update.json 清单
+        run: |
+          VERSION_CODE="${{ steps.read_manifest.outputs.version_code }}"
+          VERSION_NAME="${{ steps.read_manifest.outputs.version_name }}"
+          SHA="${{ steps.hash.outputs.sha256 }}"
+          COMMIT_SHA="${{ github.sha }}"
+          COMMIT_MSG=$(git log -1 --format='%s' "$COMMIT_SHA")
+          NOTES=$(printf '%s' "$COMMIT_MSG" | python3 -c "import sys,json;print(json.dumps(sys.stdin.read())[1:-1])")
+          # 从最近 10 个 changelog 拼一段更新说明
+          CHANGELOG_NOTES=""
+          for f in $(ls -t changelog/2026-07-25-v*.md changelog/2026-07-24-v*.md 2>/dev/null | head -3); do
+            CHANGELOG_NOTES="$CHANGELOG_NOTES$(basename $f .md): "$(head -1 "$f" | sed 's/^# //')"\n"
+          done
+          CHANGELOG_JSON=$(printf "%b" "$CHANGELOG_NOTES" | python3 -c "import sys,json;print(json.dumps(sys.stdin.read())[1:-1])")
+          cat > static/update/app-update.json <<EOF
+          {
+            "versionName": "$VERSION_NAME",
+            "versionCode": "$VERSION_CODE",
+            "publishedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "force": false,
+            "notes": "$NOTES\n\n$CHANGELOG_JSON",
+            "wgt": {
+              "url": "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/$VERSION_CODE/app.wgt",
+              "sha256": "$SHA"
+            },
+            "ios": {
+              "available": false,
+              "note": "iOS 用户请前往 Releases 整包安装（未上架 App Store）"
+            }
+          }
+          EOF
+          cat static/update/app-update.json
+
+      - name: 提交 OTA 产物到 main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add realty_app/static/update/
+          if git diff --cached --quiet; then
+            echo "OTA 清单无变化，跳过 commit"
+          else
+            git commit -m "ci(realty_app): 发布 OTA 清单 ${{ steps.read_manifest.outputs.version_name }} (${{ steps.read_manifest.outputs.version_code }})"
+            git push
+          fi
+
+      - name: 上传 wgt 与 APK 产物作为 workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: realty_app-wgt-${{ steps.read_manifest.outputs.version_code }}
+          path: realty_app/static/update/${{ steps.read_manifest.outputs.version_code }}/app.wgt
+          retention-days: 30

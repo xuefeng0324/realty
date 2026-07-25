@@ -168,6 +168,56 @@
           评分规则在手机上实时计算；当前自动化测试为 458 个用例
         </view>
       </view>
+
+      <!-- 应用升级（OTA / 整包） -->
+      <!-- #ifdef APP-PLUS -->
+      <view class="card" data-card="app-update">
+        <view class="card-title">应用升级</view>
+        <view class="muted">
+          当前版本：v{{ localVersion.versionName }}（{{ localVersion.versionCode }}）
+        </view>
+        <view v-if="updateStatus" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          {{ updateStatus }}
+        </view>
+        <view v-if="updateProgress" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          下载进度：{{ updateProgress }}
+        </view>
+        <view class="row-gap" style="margin-top: 16rpx">
+          <button
+            class="btn"
+            size="mini"
+            :disabled="updateChecking"
+            @click="onCheckUpdate"
+          >
+            {{ updateChecking ? "检查中…" : "检查更新" }}
+          </button>
+          <button
+            v-if="updateAvailable"
+            class="btn"
+            size="mini"
+            :disabled="updateDownloading"
+            @click="onDownloadAndInstall"
+          >
+            {{ updateDownloading ? "安装中…" : "下载并安装" }}
+          </button>
+          <button
+            v-if="updateAvailable && !updateManifest?.force"
+            class="btn btn-ghost"
+            size="mini"
+            @click="onSkipUpdate"
+          >
+            跳过该版本
+          </button>
+        </view>
+        <view v-if="updateManifest?.notes" class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+          更新内容：{{ updateManifest.notes }}
+        </view>
+        <text class="muted" style="margin-top: 12rpx; font-size: 22rpx; display: block">
+          数据源：GitHub Actions build-app-wgt → jsDelivr CDN；
+          整包 APK 见 <text class="link" @click="openGithubReleases">Releases</text>。
+        </text>
+      </view>
+      <!-- #endif -->
       </view>
     </view>
   </view>
@@ -201,6 +251,14 @@ import {
 import { loadDailyWangqianFromCSV } from "../../local/dailyWangqian";
 import { getStoredThemeMode, setThemeMode, type ThemeMode } from "../../utils/theme";
 import { GOV_WEB_LINKS, openGovWeb, type GovWebLinkKey } from "../../config/govLinks";
+import {
+  checkAppUpdate,
+  downloadAndInstallWgt,
+  getLocalVersion,
+  skipVersion,
+  type AppUpdateManifest
+} from "../../utils/appUpdate";
+import { openExternalUrl } from "../../utils/openExternal";
 // @ts-ignore
 import dailyWangqianRaw from "../../../static/daily_wangqian.csv?raw";
 
@@ -402,6 +460,107 @@ function restoreSeed() {
   clearRemoteCache();
   lastRefresh.value = {};
   resetToSeed();
+}
+
+// ===== 应用升级（OTA）=====
+const localVersion = ref<{ versionName: string; versionCode: number }>({
+  versionName: APP_VERSION,
+  versionCode: 0
+});
+const updateStatus = ref<string>("");
+const updateProgress = ref<string>("");
+const updateAvailable = ref<boolean>(false);
+const updateChecking = ref<boolean>(false);
+const updateDownloading = ref<boolean>(false);
+const updateManifest = ref<AppUpdateManifest | null>(null);
+
+// 页面加载时初始化本地版本（仅 APP-PLUS 走 plus，其它平台用 src/config 兜底）
+void (async () => {
+  try {
+    const info = await getLocalVersion();
+    if (info.versionCode > 0) localVersion.value = info;
+  } catch (e) {
+    // 忽略：H5 / 小程序无 plus
+  }
+})();
+
+async function onCheckUpdate() {
+  errorMsg.value = "";
+  updateStatus.value = "";
+  updateChecking.value = true;
+  try {
+    const result = await checkAppUpdate();
+    if (result.status === "available" && result.manifest) {
+      updateManifest.value = result.manifest;
+      updateAvailable.value = true;
+      updateStatus.value = `发现新版本 v${result.manifest.versionName}（${result.manifest.versionCode}）`;
+    } else if (result.status === "up-to-date") {
+      updateManifest.value = result.manifest ?? null;
+      updateAvailable.value = false;
+      updateStatus.value = "已是最新版本";
+    } else if (result.status === "skipped") {
+      updateManifest.value = result.manifest ?? null;
+      updateAvailable.value = false;
+      updateStatus.value = `已跳过 v${result.manifest?.versionName}`;
+    } else {
+      updateStatus.value = `检查失败：${result.reason ?? "未知错误"}`;
+    }
+  } catch (e) {
+    updateStatus.value = `检查异常：${toErrorMessage(e)}`;
+  } finally {
+    updateChecking.value = false;
+  }
+}
+
+async function onDownloadAndInstall() {
+  const m = updateManifest.value;
+  if (!m) return;
+  const url = m.wgt?.url;
+  if (!url) {
+    updateStatus.value = "新版本未提供 wgt 资源，无法 OTA 升级";
+    return;
+  }
+  updateDownloading.value = true;
+  updateStatus.value = "正在下载 wgt…";
+  updateProgress.value = "0%";
+  try {
+    const result = await downloadAndInstallWgt(url, (p) => {
+      if (p.total > 0) {
+        const pct = Math.floor((p.downloaded / p.total) * 100);
+        updateProgress.value = `${pct}%`;
+      } else {
+        updateProgress.value = `${(p.downloaded / 1024).toFixed(0)} KB`;
+      }
+    });
+    if (result.ok) {
+      updateStatus.value = "已下载，请关闭并重启 App 生效";
+      updateProgress.value = "100%";
+      // 提示用户手动重启（uni-app 无 API 直接重启）
+      uni.showModal({
+        title: "升级完成",
+        content: "新版本已安装，请手动关闭并重新打开 App 以生效。",
+        showCancel: false
+      });
+    } else {
+      updateStatus.value = `升级失败：${result.reason}`;
+    }
+  } catch (e) {
+    updateStatus.value = `升级异常：${toErrorMessage(e)}`;
+  } finally {
+    updateDownloading.value = false;
+  }
+}
+
+function onSkipUpdate() {
+  const m = updateManifest.value;
+  if (!m) return;
+  skipVersion(m.versionCode);
+  updateAvailable.value = false;
+  updateStatus.value = `已跳过 v${m.versionName}`;
+}
+
+function openGithubReleases() {
+  openExternalUrl("https://github.com/xuefeng0324/realty/releases");
 }
 </script>
 
