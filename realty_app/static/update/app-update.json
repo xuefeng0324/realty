@@ -1,15 +1,15 @@
 {
   "versionName": "1.121.12",
   "versionCode": "133",
-  "publishedAt": "2026-07-25T17:25:14Z",
+  "publishedAt": "2026-07-25T17:27:08Z",
   "force": false,
-  "notes": "feat(realty_app): 1.121.12 医疗资源榜 + 深色统一",
+  "notes": "feat(realty_app): 1.121.12/133 \u533b\u7597\u8d44\u6e90\u699c + \u53d1\u5e03 OTA\uff08\u542b\u6df1\u8272\u7edf\u4e00\uff09\n\n2026-07-25-v1.104.0-\u901a\u52e4\u4e0e\u5206\u5e03\u6d3e\u751f: v1.104.0 \u901a\u52e4\u65f6\u957f + \u901a\u7528\u5206\u5e03\u6d3e\u751f\uff08\u4ec5\u6570\u636e\u5c42\uff09\n2026-07-25-v1.105.0-\u751f\u6d3b\u4fbf\u5229\u5ea6\u6d3e\u751f: v1.105.0 \u751f\u6d3b\u4fbf\u5229\u5ea6\u6d3e\u751f\uff08\u4ec5\u6570\u636e\u5c42\uff09\n2026-07-25-v1.106.0-\u671d\u5411\u697c\u5c42\u6ea2\u4ef7\u6d3e\u751f: v1.106.0 \u671d\u5411\u00d7\u697c\u5c42\u6ea2\u4ef7\u6d3e\u751f\uff08\u4ec5\u6570\u636e\u5c42\uff09\n",
   "wgt": {
     "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/133/app.wgt",
-    "sha256": "2e8253c8c229161150961100a014cac326c7cf33f4ff23fa3b957d4f62994185"
+    "sha256": "7ac56ff654371bb130801984bb742e58bfdedf00421b8c7cc5189edb5d9dde83"
   },
   "ios": {
     "available": false,
-    "note": "iOS 用户请前往 Releases 下载安装（未上架 App Store）"
+    "note": "iOS 用户请前往 Releases 整包安装（未上架 App Store）"
   }
 }
