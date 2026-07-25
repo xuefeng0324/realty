@@ -1819,6 +1819,18 @@
           </view>
           <text class="mp-line-km">{{ ln.maxSpeedKmh }} km/h</text>
         </view>
+        <view v-if="metroStatusStations.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          本市状态 × 站数
+        </view>
+        <view
+          v-for="s in metroStatusStations"
+          :key="'mss-' + s.status"
+          class="mp-year-chip"
+          style="margin-right: 8rpx; margin-bottom: 6rpx"
+        >
+          <text class="mp-year-y">{{ s.status }}</text>
+          <text class="mp-year-n muted">{{ s.lineCount }} 条 · {{ s.totalStations }} 站</text>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：metro_planning.csv + metro_planning_geo.csv。弯曲系数 ≥1.3 表示线路明显绕行。
         </view>
@@ -2029,6 +2041,19 @@
           数据源：listings.csv (中位单价) + cities.csv → scripts/compute_feature_premium.py。<br>
           公式：premium% = (bucket 桶中位单价 ÷ 城市中位单价 − 1) × 100。
         </view>
+        <view v-if="featurePremiumCrossBedrooms.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城「户型」最高溢价桶
+        </view>
+        <view
+          v-for="r in featurePremiumCrossBedrooms"
+          :key="'fpb-' + r.cityId"
+          class="fp-row"
+        >
+          <view class="fp-bucket">{{ r.cityName }} · {{ r.bucket }}</view>
+          <view :class="['fp-pct', fpPctClass(r.premiumPct)]">
+            {{ r.premiumPct >= 0 ? '+' : '' }}{{ r.premiumPct.toFixed(1) }}%
+          </view>
+        </view>
       </view>
 
       <!-- v1.121.14 挂牌标签热度（listingTagsComparison，筛选项页已用，仪表盘此前未展示） -->
@@ -2128,6 +2153,26 @@
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：listing_tags.csv (7518 行) → scripts/compute_tag_combination.py。<br>
           公式：对每个 listing 取 4-7 个 tag, C(2) 算 2-组合, count ≥ 5 才入榜。
+        </view>
+        <view v-if="tagComboCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城共有标签对
+        </view>
+        <view
+          v-for="(it, idx) in tagComboCrossCity"
+          :key="'tcc-' + it.tagA + it.tagB"
+          class="tc-row"
+        >
+          <view class="tc-rank">{{ idx + 1 }}</view>
+          <view class="tc-mid">
+            <view class="tc-pair">
+              <text class="tc-tag">{{ it.tagA }}</text>
+              <text class="tc-plus">+</text>
+              <text class="tc-tag">{{ it.tagB }}</text>
+            </view>
+            <view class="tc-meta muted">
+              {{ it.cities.join(" / ") }} · 合计 {{ it.totalCount }} 套
+            </view>
+          </view>
         </view>
       </view>
 
@@ -2493,6 +2538,36 @@
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：listings.csv (community median) → scripts/compute_community_scatter.py。<br>
           X=单价 元/㎡, Y=总价 万元; 虚线=城市中位, 4 象限: 豪宅板块 / 学区刚需 / 改善低密 / 价值洼地
+        </view>
+        <view v-if="scatterPriceExtremes.top.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          总价最高
+        </view>
+        <view
+          v-for="(p, i) in scatterPriceExtremes.top"
+          :key="'sct-' + p.communityId"
+          class="scatter-qrow tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(p.communityId)"
+        >
+          <text class="scatter-rank">#{{ i + 1 }}</text>
+          <text class="scatter-name">{{ p.communityName }}</text>
+          <text class="scatter-tp">{{ Math.round(p.medianTotalPrice10w) }}万</text>
+          <text class="scatter-up">{{ Math.round(p.medianUnitPrice / 1000) }}k</text>
+        </view>
+        <view v-if="scatterPriceExtremes.bottom.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          总价最低（上车盘）
+        </view>
+        <view
+          v-for="(p, i) in scatterPriceExtremes.bottom"
+          :key="'scb-' + p.communityId"
+          class="scatter-qrow tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(p.communityId)"
+        >
+          <text class="scatter-rank">#{{ i + 1 }}</text>
+          <text class="scatter-name">{{ p.communityName }}</text>
+          <text class="scatter-tp">{{ Math.round(p.medianTotalPrice10w) }}万</text>
+          <text class="scatter-up">{{ Math.round(p.medianUnitPrice / 1000) }}k</text>
         </view>
       </view>
 
@@ -2907,6 +2982,23 @@
             {{ h.hospitalLevel || "其他" }}
           </text>
         </view>
+        <view v-if="hospitalKeyList.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          重点医院名录
+        </view>
+        <view
+          v-for="(h, idx) in hospitalKeyList"
+          :key="'hk-' + h.hospitalId"
+          class="hosp-top-row"
+        >
+          <text class="hosp-top-rank muted">{{ idx + 1 }}</text>
+          <view class="hosp-top-mid">
+            <text class="hosp-top-name">{{ h.displayName || h.officialName }}</text>
+            <text class="hosp-top-meta muted">{{ h.districtName || "—" }}</text>
+          </view>
+          <text class="hosp-top-level" :class="'hosp-lv--' + (h.hospitalLevel || '其他')">
+            {{ h.hospitalLevel || "其他" }}
+          </text>
+        </view>
         <view v-if="hospitalGeoSummary" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           坐标覆盖（hospitals_geo）
         </view>
@@ -3077,6 +3169,20 @@
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：poi_market.csv（每小区最近 3 个菜市场/超市）。
         </view>
+        <view v-if="marketCategoryStats.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          全国品类结构
+        </view>
+        <view
+          v-for="c in marketCategoryStats"
+          :key="'mkc-' + c.category"
+          class="pc-row"
+        >
+          <view class="pc-mid">
+            <text class="pc-name">{{ c.category }}</text>
+            <text class="pc-meta muted">均距 {{ Math.round(c.avgDistanceM) }} m</text>
+          </view>
+          <text class="pc-dist">{{ c.count }}</text>
+        </view>
       </view>
 
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
@@ -3129,6 +3235,44 @@
           <view class="lc-right">
             <text :class="['lc-score', lifeScoreClass(it.score100)]">{{ it.score100 }}</text>
             <view class="muted" style="font-size: 20rpx">/ 100</view>
+          </view>
+        </view>
+        <view v-if="lifeConvenienceParetoSubway.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          高分 + 地铁近（帕累托）
+        </view>
+        <view
+          v-for="(it, idx) in lifeConvenienceParetoSubway"
+          :key="'lcp-' + it.communityId"
+          class="lc-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(it.communityId)"
+        >
+          <view class="lc-mid">
+            <view class="lc-name">{{ it.communityName }}</view>
+            <view class="lc-dist muted">{{ it.districtName }} · 地铁维 {{ it.dimValue }}</view>
+          </view>
+          <view class="lc-right">
+            <text :class="['lc-score', lifeScoreClass(it.score100)]">{{ it.score100 }}</text>
+          </view>
+        </view>
+        <view v-if="lifeConvenienceImbalance.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          单维偏强 · 综合偏低
+        </view>
+        <view
+          v-for="it in lifeConvenienceImbalance"
+          :key="'lci-' + it.communityId"
+          class="lc-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(it.communityId)"
+        >
+          <view class="lc-mid">
+            <view class="lc-name">{{ it.communityName }}</view>
+            <view class="lc-dist muted">
+              {{ it.districtName }} · 强维 {{ it.strongestDim }}={{ it.strongestValue }}
+            </view>
+          </view>
+          <view class="lc-right">
+            <text :class="['lc-score', lifeScoreClass(it.score100)]">{{ it.score100 }}</text>
           </view>
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
@@ -3633,6 +3777,7 @@ import {
   summarizeHospitalByCity,
   summarizeHospitalByCityDistrict,
   getHospitalTopByLevelByCity,
+  getHospitalKeyFlagByCity,
   type CityHospitalSummary,
   type CityDistrictHospitalSummary
 } from "../../local/hospitalRanking";
@@ -3661,15 +3806,19 @@ import {
 } from "../../local/poiCommercialRanking";
 import {
   summarizePoiMarketByCommunity,
-  type CommunityPoiMarketSummary
+  getPoiMarketByCategoryRanking,
+  type CommunityPoiMarketSummary,
+  type MarketCategoryStat
 } from "../../local/poiMarketRanking";
 import {
   summarizeMetroPlanningByCity,
   getMetroPlanningByCityTopByLength,
   getMetroPlanningByCityFastLines,
+  getMetroPlanningByCityStatusVsStations,
   type CityMetroPlanningSummary,
   type OpenYearMetroPlanningSummary,
-  type TopByMetric
+  type TopByMetric,
+  type CityStatusStations
 } from "../../local/metroPlanningRanking";
 import {
   getMetroPlanningGeoByCityCrossReference,
@@ -3684,6 +3833,23 @@ import {
   getDistributionCrossCityLeaderboard,
   type CrossCityBucketEntry
 } from "../../local/distributionRanking";
+import {
+  getFeaturePremiumCrossCityLeaderboard
+} from "../../local/featurePremiumRanking";
+import {
+  getTagCombinationCrossCityMostCommon,
+  type TagPairAggregate
+} from "../../local/tagCombinationRanking";
+import {
+  getLifeConveniencePareto,
+  getLifeConvenienceDimensionBalance,
+  type ParetoEntry,
+  type DimensionImbalance
+} from "../../local/lifeConvenienceRanking";
+import {
+  getCommunityScatterByCityTotalPriceExtremes,
+  type TotalPriceExtreme
+} from "../../local/communityScatterRanking";
 import {
   getCommuteByCityFastestSlowestCompare,
   type FastestSlowestCompare
@@ -3789,6 +3955,9 @@ const hospitalDistrictTop = computed<CityDistrictHospitalSummary[]>(() =>
 const hospitalTopList = computed<LocalHospital[]>(() =>
   getHospitalTopByLevelByCity(app.cityId, 5)
 );
+const hospitalKeyList = computed<LocalHospital[]>(() =>
+  getHospitalKeyFlagByCity(app.cityId).slice(0, 5)
+);
 
 // v1.121.15 医院坐标覆盖
 const hospitalGeoSummary = computed<CityHospitalGeoSummary | null>(() => {
@@ -3888,6 +4057,9 @@ const marketFarTop = computed(() =>
     .sort((a, b) => (b.nearestDistanceM ?? 0) - (a.nearestDistanceM ?? 0))
     .slice(0, 3)
 );
+const marketCategoryStats = computed<MarketCategoryStat[]>(() =>
+  getPoiMarketByCategoryRanking().slice(0, 5)
+);
 
 // v1.121.16 教育事业概览
 const eduOverview = computed<EducationOverview | null>(() => {
@@ -3980,6 +4152,9 @@ const metroMissingEndpoints = computed(() =>
 const metroFastLines = computed(() =>
   getMetroPlanningByCityFastLines(100).filter((x) => x.cityId === app.cityId).slice(0, 5)
 );
+const metroStatusStations = computed<CityStatusStations[]>(() =>
+  getMetroPlanningByCityStatusVsStations().filter((x) => x.cityId === app.cityId)
+);
 
 // v1.121.18 挂牌结构占比（layout_distribution）
 const layoutBedroomShare = computed<LocalLayoutDistribution[]>(() =>
@@ -4056,6 +4231,31 @@ const orientationFloor = ref<OrientationFloorResponse | null>(null);
 const decorateAge = ref<DecorateAgeResponse | null>(null);
 // v0.45.0 trend-25: 总价 × 单价 双轴散点
 const scatter = ref<CommunityScatterResponse | null>(null);
+const featurePremiumCrossBedrooms = computed(
+  () => getFeaturePremiumCrossCityLeaderboard("bedrooms").rows
+);
+const tagComboCrossCity = computed<TagPairAggregate[]>(() =>
+  getTagCombinationCrossCityMostCommon(5)
+);
+const scatterPriceExtremes = computed(() =>
+  getCommunityScatterByCityTotalPriceExtremes(app.cityId, 3)
+);
+const lifeConvenienceParetoSubway = computed<ParetoEntry[]>(() => {
+  const ids = new Set(
+    store.getCommunitiesByCity(app.cityId).map((c) => c.communityId)
+  );
+  return getLifeConveniencePareto("subwayNear", 80, 8).filter((x) =>
+    ids.has(x.communityId)
+  ).slice(0, 3);
+});
+const lifeConvenienceImbalance = computed<DimensionImbalance[]>(() => {
+  const ids = new Set(
+    store.getCommunitiesByCity(app.cityId).map((c) => c.communityId)
+  );
+  return getLifeConvenienceDimensionBalance(60, 25, 8).filter((x) =>
+    ids.has(x.communityId)
+  ).slice(0, 3);
+});
 // v0.46.0 map-11: 行政区 + 社区 marker 地图
 const districtMap = ref<DistrictMapResponse | null>(null);
 // v0.47.0 school-4: 学区指标细分
