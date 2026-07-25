@@ -55,6 +55,30 @@ export function getGzInventoryOverview(): GzInventoryOverview | null {
   };
 }
 
+/** 最新日 vs 上一交易日（同 CSV 内）的全市总量差 */
+export interface GzInventoryDayDelta {
+  prevDate: string;
+  availableDelta: number;
+  unsoldDelta: number;
+  signedDelta: number;
+}
+
+export function getGzInventoryDayDelta(): GzInventoryDayDelta | null {
+  if (rows.length === 0) return null;
+  const dates = [...new Set(rows.map((r) => r.date))].sort();
+  if (dates.length < 2) return null;
+  const latest = dates[dates.length - 1]!;
+  const prev = dates[dates.length - 2]!;
+  const sum = (date: string, key: "availableUnits" | "unsoldUnits" | "signedUnits") =>
+    rows.filter((r) => r.date === date).reduce((s, r) => s + r[key], 0);
+  return {
+    prevDate: prev,
+    availableDelta: sum(latest, "availableUnits") - sum(prev, "availableUnits"),
+    unsoldDelta: sum(latest, "unsoldUnits") - sum(prev, "unsoldUnits"),
+    signedDelta: sum(latest, "signedUnits") - sum(prev, "signedUnits")
+  };
+}
+
 function numberField(value: string | undefined): number {
   const parsed = Number(value ?? 0);
   return Number.isFinite(parsed) ? parsed : 0;

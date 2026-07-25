@@ -74,7 +74,7 @@ App 因此把二手拆成「住宅 / 全部」两列都展示，不再互相覆�
 | 新房签约 | `GET https://zfcj.gz.gov.cn/ysqgk/Api/WebApi/mrxjspfqyxx.ashx` | 住宅 `zhuZaiTaoShu` / `zhuZaiArea`（按区） |
 
 - 入口页面：<https://zfcj.gz.gov.cn/zfcj/tjxx/spfxstjxx>
-- 同页面另有 `mrxjspfksxx`（可售）、`mrxjspfwsxx`（未售），本 App **未使用**
+- 同页面另有 `mrxjspfksxx`（可售）、`mrxjspfwsxx`（未售），已由 `crawl_gz_new_house_inventory.py` 写入 `gz_new_house_inventory.csv`
 - 广州二手房月度统计为图片公告（存量房交易登记统计信息），**暂无日更 API**
 
 ### 2.3 CSV 字段
@@ -180,6 +180,10 @@ admin_districts.csv          → adminDistrictRanking  → 行政区划（dashbo
 listing_school_premium.csv   → listingSchoolPremium  → 学区挂牌溢价分布（dashboard v1.121.16）
 school_dimensions.csv        → schoolDimensionRanking → 重点学校维度（dashboard v1.121.17）
 community_commercial.csv     → communityCommercial   → 分区商业均分（dashboard v1.121.17）
+gz_new_house_inventory.csv   → gzNewHouseInventory    → 广州库存 + 日环比（dashboard v1.121.18）
+layout_distribution.csv      → layout / distribution → 挂牌结构占比（dashboard v1.121.18）
+metro_planning_geo.csv       → metroPlanningGeoAnalysis → 弯曲系数（dashboard v1.121.18）
+lpr_history.csv              → lprHistoryAnalysis     → 利差 / 调息节点（dashboard v1.121.18）
 static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务快照
 ```
 

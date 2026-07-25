@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { getGzInventoryOverview, loadGzInventoryFromCSV } from "../src/local/gzNewHouseInventory";
+import {
+  getGzInventoryDayDelta,
+  getGzInventoryOverview,
+  loadGzInventoryFromCSV
+} from "../src/local/gzNewHouseInventory";
 
 describe("广州新房库存", () => {
   it("解析并按可售套数排序，同时汇总城市总量", () => {
@@ -19,6 +23,19 @@ describe("广州新房库存", () => {
     expect(overview?.districts[0].district).toBe("增城区");
   });
 
+  it("日环比：最新日 vs 上一交易日全市总量差", () => {
+    loadGzInventoryFromCSV([
+      "date,district,available_units,available_area_sqm,unsold_units,unsold_area_sqm,signed_units,signed_area_sqm,source_url",
+      "2026-07-22,天河区,100,1,200,1,10,1,https://example.com",
+      "2026-07-23,天河区,110,1,190,1,12,1,https://example.com"
+    ].join("\n"));
+    const delta = getGzInventoryDayDelta();
+    expect(delta?.prevDate).toBe("2026-07-22");
+    expect(delta?.availableDelta).toBe(10);
+    expect(delta?.unsoldDelta).toBe(-10);
+    expect(delta?.signedDelta).toBe(2);
+  });
+
   it("内置官方快照覆盖广州 11 区且字段口径有效", () => {
     const csv = readFileSync(resolve(process.cwd(), "static/gz_new_house_inventory.csv"), "utf8");
     const loaded = loadGzInventoryFromCSV(csv);
@@ -29,5 +46,8 @@ describe("广州新房库存", () => {
     expect(latest?.unsoldUnits).toBeGreaterThan(latest?.availableUnits ?? 0);
     expect(latest?.sourceUrl).toContain("zfcj.gz.gov.cn");
     expect(loaded.every((row) => row.availableUnits >= 0 && row.unsoldUnits >= 0 && row.signedUnits >= 0)).toBe(true);
+    const delta = getGzInventoryDayDelta();
+    expect(delta).not.toBeNull();
+    expect(delta?.prevDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 });

@@ -284,6 +284,39 @@
           </text>
         </view>
 
+        <view v-if="lprSpreadCurrent" class="trend-summary" style="margin-top: 8rpx">
+          <view class="trend-cell">
+            <text class="cell-label">首套加点</text>
+            <text class="cell-value">{{ formatBp(lprSpreadCurrent.firstSpreadBp) }}</text>
+            <text class="cell-sub muted">vs 5Y LPR</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">二套加点</text>
+            <text class="cell-value">{{ formatBp(lprSpreadCurrent.secondSpreadBp) }}</text>
+            <text class="cell-sub muted">vs 5Y LPR</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">首二套利差</text>
+            <text class="cell-value">{{ formatBp(lprSpreadCurrent.firstSecondDeltaBp) }}</text>
+            <text class="cell-sub muted">二套 − 首套</text>
+          </view>
+        </view>
+
+        <view v-if="lprRecentCycles.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          近期调息节点（5Y LPR）
+        </view>
+        <view
+          v-for="c in lprRecentCycles"
+          :key="c.month"
+          class="top-row"
+        >
+          <text class="top-rank">{{ c.month }}</text>
+          <text class="top-val" :class="c.direction === 'down' ? 'trend-up' : 'trend-down'">
+            {{ c.fromLpr5y.toFixed(2) }}% → {{ c.toLpr5y.toFixed(2) }}%
+            （{{ c.direction === "down" ? "降" : "升" }} {{ Math.abs(c.changeBp) }} bp）
+          </text>
+        </view>
+
         <view class="top-section" v-if="lprYearSummaries.length > 0">
           <view class="top-line">
             <text class="muted" style="font-size: 22rpx">5 年期 LPR · 年度均值</text>
@@ -787,18 +820,28 @@
           <view class="gz-inventory-kpi">
             <text class="cell-label">可售住宅</text>
             <text class="gz-inventory-value">{{ formatInventoryUnits(gzInventory.availableUnits) }}</text>
+            <text v-if="gzInventoryDelta" class="cell-sub" :class="invDeltaClass(gzInventoryDelta.availableDelta)">
+              较上日 {{ formatInvDelta(gzInventoryDelta.availableDelta) }}
+            </text>
           </view>
           <view class="gz-inventory-kpi">
             <text class="cell-label">未售住宅</text>
             <text class="gz-inventory-value">{{ formatInventoryUnits(gzInventory.unsoldUnits) }}</text>
+            <text v-if="gzInventoryDelta" class="cell-sub" :class="invDeltaClass(gzInventoryDelta.unsoldDelta)">
+              较上日 {{ formatInvDelta(gzInventoryDelta.unsoldDelta) }}
+            </text>
           </view>
           <view class="gz-inventory-kpi">
             <text class="cell-label">当日签约</text>
             <text class="gz-inventory-value gz-inventory-value--signed">{{ gzInventory.signedUnits }} 套</text>
+            <text v-if="gzInventoryDelta" class="cell-sub" :class="invDeltaClass(gzInventoryDelta.signedDelta)">
+              较上日 {{ formatInvDelta(gzInventoryDelta.signedDelta) }}
+            </text>
           </view>
         </view>
         <view v-if="gzInventory.districts[0]" class="overview-card-summary">
           可售量最高：{{ gzInventory.districts[0].district }} {{ gzInventory.districts[0].availableUnits.toLocaleString() }} 套
+          <text v-if="gzInventoryDelta" class="muted"> · 对比 {{ gzInventoryDelta.prevDate }}</text>
         </view>
         <template v-if="gzInventoryExpanded">
           <view
@@ -1629,8 +1672,65 @@
           </view>
           <text class="mp-line-km">{{ it.lengthKm.toFixed(1) }} km</text>
         </view>
+        <view v-if="metroCurvatureTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          线路弯曲系数 Top（实际里程 ÷ 起终点直线）
+        </view>
+        <view
+          v-for="(c, idx) in metroCurvatureTop"
+          :key="'curv-' + c.lineId"
+          class="mp-line-row"
+        >
+          <text class="mp-line-rank muted">{{ idx + 1 }}</text>
+          <view class="mp-line-mid">
+            <text class="mp-line-name">{{ c.lineName }}</text>
+            <text class="mp-line-meta muted">
+              直线 {{ c.straightLineKm.toFixed(1) }} km
+              <text v-if="c.actualLengthKm != null"> · 规划 {{ c.actualLengthKm.toFixed(1) }} km</text>
+            </text>
+          </view>
+          <text class="mp-line-km">{{ c.curvatureRatio?.toFixed(2) ?? "—" }}×</text>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：metro_planning.csv（公开规划整理）。与上方「规划受益」不同：本卡看线路本体，不按小区距离打分。
+          数据源：metro_planning.csv + metro_planning_geo.csv。弯曲系数 ≥1.3 表示线路明显绕行。
+        </view>
+      </view>
+
+      <!-- v1.121.18 挂牌结构占比（distributionRanking + layout_distribution） -->
+      <view v-if="layoutBedroomShare.length || layoutOrientShare.length" class="card" data-tab="all,price">
+        <view class="row-between">
+          <view class="card-title">📐 挂牌结构占比 · {{ hospitalCityName }}</view>
+          <view class="muted">layout</view>
+        </view>
+        <view v-if="layoutBedroomShare.length" class="muted" style="margin: 4rpx 0; font-size: 22rpx">户型</view>
+        <view
+          v-for="(r, idx) in layoutBedroomShare"
+          :key="'bed-' + layoutBucket(r)"
+          class="ltk-row"
+        >
+          <text class="ltk-rank muted">{{ idx + 1 }}</text>
+          <text class="ltk-tag">{{ layoutBucket(r) }}</text>
+          <view class="ltk-bar-wrap">
+            <view class="ltk-bar" :style="{ width: Math.min(100, (r.share / (layoutBedroomShare[0]?.share || 0.01)) * 100) + '%' }" />
+          </view>
+          <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
+          <text class="ltk-count muted">{{ r.count }}</text>
+        </view>
+        <view v-if="layoutOrientShare.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">朝向</view>
+        <view
+          v-for="(r, idx) in layoutOrientShare"
+          :key="'ori-' + layoutBucket(r)"
+          class="ltk-row"
+        >
+          <text class="ltk-rank muted">{{ idx + 1 }}</text>
+          <text class="ltk-tag">{{ layoutBucket(r) }}</text>
+          <view class="ltk-bar-wrap">
+            <view class="ltk-bar" :style="{ width: Math.min(100, (r.share / (layoutOrientShare[0]?.share || 0.01)) * 100) + '%' }" />
+          </view>
+          <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
+          <text class="ltk-count muted">{{ r.count }}</text>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：layout_distribution.csv → distributionRanking。与户型×面积矩阵卡互补（本卡看单维占比）。
         </view>
       </view>
 
@@ -3231,7 +3331,11 @@ import {
   getLprDelta,
   summarizeLprByYear,
   getLprLongestFlatStreak,
-  getLprDownwardCumulative
+  getLprDownwardCumulative,
+  summarizeLprSpread,
+  detectLprCutCycles,
+  type LprSpreadSnapshot,
+  type LprCycle
 } from "../../local/lprHistoryAnalysis";
 import {
   getLatestCityDaily,
@@ -3301,6 +3405,10 @@ import {
   type TopByMetric
 } from "../../local/metroPlanningRanking";
 import {
+  getMetroPlanningGeoByCityCrossReference,
+  type CurvatureEntry
+} from "../../local/metroPlanningGeoAnalysis";
+import {
   summarizeListingTagsByCity,
   getCityTagSignature,
   type CityTagSummary,
@@ -3337,7 +3445,7 @@ import {
   type DistrictCommercialSummary
 } from "../../local/communityCommercialRanking";
 import { getEducationOverview, type EducationOverview } from "../../local/educationOverview";
-import type { LocalHospital, LocalAdminDistrict } from "../../local/types";
+import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -3351,7 +3459,7 @@ import type {
 import { coverageText, formatUnitPrice, showToast, daysAgoFromToday } from "../../utils/format";
 import { SNAPSHOT_UPDATED_EVENT } from "../../config";
 import { getLatestNbsRealEstate } from "../../local/nbsRealEstate";
-import { getGzInventoryOverview } from "../../local/gzNewHouseInventory";
+import { getGzInventoryOverview, getGzInventoryDayDelta } from "../../local/gzNewHouseInventory";
 import { getLatestProvidentFundRate, monthlyPayment } from "../../local/providentFund";
 
 const app = useAppStore();
@@ -3545,6 +3653,30 @@ const metroPlanYears = computed<OpenYearMetroPlanningSummary[]>(() => {
 const metroPlanTop = computed<TopByMetric[]>(() =>
   getMetroPlanningByCityTopByLength(app.cityId, 5)
 );
+const metroCurvatureTop = computed<CurvatureEntry[]>(() =>
+  getMetroPlanningGeoByCityCrossReference()
+    .filter((x) => x.cityId === app.cityId && x.curvatureRatio != null)
+    .slice(0, 5)
+);
+
+// v1.121.18 挂牌结构占比（layout_distribution）
+const layoutBedroomShare = computed<LocalLayoutDistribution[]>(() =>
+  store
+    .getLayoutDistributions()
+    .filter((x) => x.cityId === app.cityId && x.dimension === "bedrooms")
+    .sort((a, b) => b.share - a.share)
+    .slice(0, 5)
+);
+const layoutOrientShare = computed<LocalLayoutDistribution[]>(() =>
+  store
+    .getLayoutDistributions()
+    .filter((x) => x.cityId === app.cityId && x.dimension === "orientation")
+    .sort((a, b) => b.share - a.share)
+    .slice(0, 5)
+);
+function layoutBucket(r: LocalLayoutDistribution): string {
+  return r.bucket;
+}
 
 // v1.121.14 挂牌标签热度
 const listingTagCitySummary = computed<CityTagSummary | null>(() => {
@@ -4036,6 +4168,19 @@ const gzInventory = computed(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   return city === "广州" ? getGzInventoryOverview() : null;
 });
+const gzInventoryDelta = computed(() => {
+  if (!gzInventory.value) return null;
+  return getGzInventoryDayDelta();
+});
+function formatInvDelta(v: number): string {
+  if (v === 0) return "持平";
+  return `${v > 0 ? "+" : ""}${v.toLocaleString()}`;
+}
+function invDeltaClass(v: number): string {
+  if (v > 0) return "trend-up";
+  if (v < 0) return "trend-down";
+  return "muted";
+}
 const providentRate = computed(() => getLatestProvidentFundRate());
 
 function formatMacro100m(v: number) {
@@ -5583,6 +5728,15 @@ const lprDelta12m = computed(() => {
 const lprDownwardCumulative = computed(() => getLprDownwardCumulative());
 const lprLongestFlat = computed(() => getLprLongestFlatStreak());
 const lprYearSummaries = computed(() => summarizeLprByYear());
+const lprSpreadCurrent = computed<LprSpreadSnapshot | null>(
+  () => summarizeLprSpread().current
+);
+const lprRecentCycles = computed<LprCycle[]>(() =>
+  detectLprCutCycles().slice(-5).reverse()
+);
+function formatBp(bp: number): string {
+  return `${bp > 0 ? "+" : ""}${bp} bp`;
+}
 const districtMomentumRank = computed<DistrictMomentumEntry[]>(() =>
   getDistrictRecentMomentumRank()
 );
