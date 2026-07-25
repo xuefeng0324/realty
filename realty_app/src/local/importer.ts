@@ -30,6 +30,11 @@ import type {
   LocalLayoutDistribution,
   LocalListingSchoolPremium,
   LocalListingTag,
+  LocalListingTagSummary,
+  LocalPoiMarket,
+  LocalPoiCommercial,
+  LocalAdminDistrict,
+  LocalHospitalGeo,
   LocalMetroLine,
   LocalMetroLineGeo,
   LocalMetroBenefit,
@@ -113,6 +118,16 @@ export interface SnapshotInputs {
   layoutDistributionCSV?: string;
   /** v0.28.0: 房源 tags (单 tag 一行) */
   listingTagsCSV?: string;
+  /** v0.96.0: 城市级标签预聚合 (listing_tags_summary.csv) */
+  listingTagsSummaryCSV?: string;
+  /** v0.98.0: 周边菜市场/超市 (poi_market.csv) */
+  poiMarketCSV?: string;
+  /** v1.112.0: 周边商业 POI（餐饮/银行/便利店） */
+  poiCommercialCSV?: string;
+  /** v1.113.0: 行政区划基础数据 */
+  adminDistrictCSV?: string;
+  /** v1.115.0: 医院坐标数据 */
+  hospitalsGeoCSV?: string;
   /** v0.29.0: 区级房价指数 (CSV) */
   districtIndexCSV?: string;
   /** v0.31.0: 生活便利度 */
@@ -334,6 +349,136 @@ function parseTagCombination(csvText: string): LocalTagCombination[] {
       } as LocalTagCombination;
     })
     .filter((x): x is LocalTagCombination => x !== null);
+}
+
+function parseListingTagsSummary(
+  csvText: string
+): LocalListingTagSummary[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.city_id);
+      if (cid == null) return null;
+      const num = (v: string | undefined): number => {
+        if (v === undefined || v === "") return 0;
+        const x = Number(v);
+        return Number.isFinite(x) ? x : 0;
+      };
+      return {
+        cityId: cid,
+        cityName: s(r.city_name) ?? "",
+        tag: s(r.tag) ?? "",
+        count: num(r.count ?? undefined),
+        share: num(r.share ?? undefined)
+      } as LocalListingTagSummary;
+    })
+    .filter(
+      (x): x is LocalListingTagSummary =>
+        x !== null && x.cityName !== "" && x.tag !== ""
+    );
+}
+
+function parsePoiMarket(csvText: string): LocalPoiMarket[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.community_id);
+      const rk = n(r.poi_rank);
+      const dist = n(r.distance_m);
+      const lat = n(r.lat);
+      const lng = n(r.lng);
+      if (cid == null || rk == null || dist == null) return null;
+      // poi_type 字段是 "购物服务;综合市场;农副产品市场"。
+      // 取第二段作为 category（"综合市场" / "购物相关场所"），
+      // 缺省用 "市场"。
+      const poiTypeRaw = s(r.poi_type ?? undefined) ?? "";
+      const parts = poiTypeRaw.split(";");
+      const category = parts[1] ?? parts[0] ?? "市场";
+      return {
+        communityId: cid,
+        rank: rk,
+        poiName: s(r.poi_name ?? undefined) ?? "",
+        poiCategory: s(r.poi_category ?? undefined) ?? "",
+        poiTypeCategory: category,
+        distanceM: dist,
+        lat,
+        lng,
+        address: s(r.address ?? undefined) ?? ""
+      } as LocalPoiMarket;
+    })
+    .filter((x): x is LocalPoiMarket => x !== null && x.poiName !== "");
+}
+
+/** v1.112.0: 解析 poi_commercial.csv */
+function parsePoiCommercial(csvText: string): LocalPoiCommercial[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.community_id);
+      const rk = n(r.poi_rank);
+      const dist = n(r.distance_m);
+      if (cid == null || rk == null || dist == null) return null;
+      const catRaw = s(r.poi_category ?? undefined);
+      if (
+        catRaw !== "restaurant" &&
+        catRaw !== "bank" &&
+        catRaw !== "convenience"
+      )
+        return null;
+      return {
+        communityId: cid,
+        poiCategory: catRaw,
+        rank: rk,
+        poiName: s(r.poi_name ?? undefined) ?? "",
+        poiType: s(r.poi_type ?? undefined) ?? "",
+        distanceM: dist,
+        lat: n(r.lat),
+        lng: n(r.lng),
+        address: s(r.address ?? undefined) ?? ""
+      } as LocalPoiCommercial;
+    })
+    .filter((x): x is LocalPoiCommercial => x !== null && x.poiName !== "");
+}
+
+/** v1.113.0: 解析 admin_districts.csv */
+function parseAdminDistricts(csvText: string): LocalAdminDistrict[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const cid = n(r.city_id);
+      if (cid == null) return null;
+      return {
+        cityId: cid,
+        cityCode: s(r.city_code ?? undefined) ?? "",
+        districtCode: s(r.district_code ?? undefined) ?? "",
+        districtName: s(r.district_name ?? undefined) ?? ""
+      } as LocalAdminDistrict;
+    })
+    .filter((x): x is LocalAdminDistrict => x !== null && x.districtName !== "");
+}
+
+/** v1.115.0: 解析 hospitals_geo.csv */
+function parseHospitalsGeo(csvText: string): LocalHospitalGeo[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(csvText))
+    .map((r) => {
+      const hid = n(r.hospital_id);
+      if (hid == null) return null;
+      const confRaw = s(r.confidence ?? undefined);
+      const conf: LocalHospitalGeo["confidence"] =
+        confRaw === "high" ||
+        confRaw === "medium" ||
+        confRaw === "low" ||
+        confRaw === "missing"
+          ? confRaw
+          : "missing";
+      return {
+        hospitalId: hid,
+        lat: n(r.lat),
+        lng: n(r.lng),
+        amapPoiId: s(r.amap_poi_id ?? undefined) ?? "",
+        formattedAddress: s(r.formatted_address ?? undefined) ?? "",
+        confidence: conf,
+        source: s(r.source ?? undefined) ?? "",
+        distanceM: n(r.distance_m)
+      } as LocalHospitalGeo;
+    })
+    .filter((x): x is LocalHospitalGeo => x !== null);
 }
 
 function parseListingFreshness(csvText: string): LocalListingFreshness[] {
@@ -1187,6 +1332,19 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
       : [],
     listingFreshness: inputs.listingFreshnessCSV
       ? parseListingFreshness(inputs.listingFreshnessCSV)
+      : [],
+    listingTagSummaries: inputs.listingTagsSummaryCSV
+      ? parseListingTagsSummary(inputs.listingTagsSummaryCSV)
+      : [],
+    poiMarkets: inputs.poiMarketCSV ? parsePoiMarket(inputs.poiMarketCSV) : [],
+    poiCommercials: inputs.poiCommercialCSV
+      ? parsePoiCommercial(inputs.poiCommercialCSV)
+      : [],
+    adminDistricts: inputs.adminDistrictCSV
+      ? parseAdminDistricts(inputs.adminDistrictCSV)
+      : [],
+    hospitalGeos: inputs.hospitalsGeoCSV
+      ? parseHospitalsGeo(inputs.hospitalsGeoCSV)
       : [],
     bedroomArea: inputs.bedroomAreaCSV
       ? parseBedroomArea(inputs.bedroomAreaCSV)

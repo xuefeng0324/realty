@@ -103,6 +103,186 @@
 
       <view v-if="errorMsg" class="error">{{ errorMsg }}</view>
 
+      <!-- v0.95.0 市场流动性（派生：基于 listing_freshness.csv） -->
+      <view
+        v-if="freshnessSummary && freshnessSummary.communityCount > 0"
+        class="card"
+      >
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">📡 市场流动性</view>
+          <view class="muted" style="font-size: 22rpx">
+            {{ freshnessSummary.communityCount }} 个小区样本
+          </view>
+        </view>
+        <view style="margin-top: 10rpx">
+          <view class="muted" style="font-size: 22rpx">
+            当前城市 {{ freshnessSummary.cityName }} · 总挂牌 {{ freshnessSummary.totalListings }} ·
+            鲜活度均值 {{ freshnessSummary.avgFreshness.toFixed(1) }}
+            <text v-if="freshnessSummary.avgMedianAgeDays != null">
+              · 中位挂牌 {{ Math.round(freshnessSummary.avgMedianAgeDays) }} 天
+            </text>
+          </view>
+        </view>
+        <view class="freshness-bar" style="margin-top: 10rpx">
+          <view
+            class="freshness-bar-new"
+            :style="{ width: (freshnessSummary.new2wRate * 100).toFixed(1) + '%' }"
+          />
+          <view
+            class="freshness-bar-r4"
+            :style="{ width: ((freshnessSummary.recent4wRate - freshnessSummary.new2wRate) * 100).toFixed(1) + '%' }"
+          />
+          <view
+            class="freshness-bar-stale"
+            :style="{ width: ((1 - freshnessSummary.recent4wRate) * 100).toFixed(1) + '%' }"
+          />
+        </view>
+        <view style="margin-top: 6rpx; font-size: 20rpx">
+          <text class="legend-new">≤2 周 {{ formatPct(freshnessSummary.new2wRate) }}</text>
+          <text class="legend-r4">  · ≤4 周 {{ formatPct(freshnessSummary.recent4wRate) }}</text>
+          <text class="legend-stale">  · 陈旧 {{ formatPct(freshnessSummary.staleRate) }}</text>
+        </view>
+        <view
+          v-if="freshestTop.length || stalestTop.length"
+          style="margin-top: 14rpx"
+        >
+          <view v-if="freshestTop.length" style="margin-bottom: 6rpx">
+            <view class="muted" style="font-size: 22rpx">最最新鲜 Top 3</view>
+            <view
+              v-for="(row, i) in freshestTop"
+              :key="'fr' + row.communityId"
+              class="drift-row"
+            >
+              <text class="drift-rank">{{ i + 1 }}</text>
+              <text class="drift-city">
+                {{ row.communityName }} <text class="muted">({{ row.districtName }})</text>
+              </text>
+              <text class="drift-value drift-up">
+                {{ row.freshnessScore.toFixed(1) }}
+              </text>
+            </view>
+          </view>
+          <view v-if="stalestTop.length">
+            <view class="muted" style="font-size: 22rpx">最积压 Top 3</view>
+            <view
+              v-for="(row, i) in stalestTop"
+              :key="'st' + row.communityId"
+              class="drift-row"
+            >
+              <text class="drift-rank">{{ i + 1 }}</text>
+              <text class="drift-city">
+                {{ row.communityName }} <text class="muted">({{ row.districtName }})</text>
+              </text>
+              <text class="drift-value drift-down">
+                <text v-if="row.medianAgeDays != null">{{ row.medianAgeDays }}天</text>
+                <text v-else>—</text>
+              </text>
+            </view>
+          </view>
+        </view>
+        <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+          派生：snapshot.listingFreshness。鲜活度 = 近期新增数 / 总挂牌，年龄为小区内挂牌中位天数。
+        </view>
+      </view>
+
+      <!-- v0.96.0 三市标签横评（派生：基于 listing_tags_summary.csv） -->
+      <view
+        v-if="tagPenetrationCompare.length > 0"
+        class="card"
+      >
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🏷️ 三市标签横评</view>
+          <view class="muted" style="font-size: 22rpx">
+            {{ tagPenetrationCompare.length }} 个标签 ·
+            {{ tagCitySummary.length }} 个城市有标签数据
+          </view>
+        </view>
+        <view style="margin-top: 10rpx">
+          <view
+            v-for="row in tagPenetrationCompare.slice(0, 6)"
+            :key="'tp' + row.tag"
+            class="tag-penetration-row"
+          >
+            <view class="tag-penetration-head">
+              <text class="tag-name">{{ row.tag }}</text>
+              <text class="muted" style="font-size: 20rpx">
+                {{ row.presentIn.length }} 市
+              </text>
+            </view>
+            <view class="tag-penetration-bar">
+              <view
+                v-for="(cell, idx) in tagPenetrationCompareRow(row)"
+                :key="'tpc' + idx"
+                class="tag-penetration-cell"
+              >
+                <view
+                  class="tag-penetration-fill"
+                  :style="{ width: (Math.max(cell.share, 0) * 100).toFixed(1) + '%' }"
+                />
+                <text class="tag-penetration-label muted">
+                  {{ cell.cityName }} {{ formatPct(cell.share) }}
+                </text>
+              </view>
+            </view>
+          </view>
+        </view>
+        <view
+          v-if="cityTagSignature.length"
+          style="margin-top: 14rpx"
+        >
+          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
+            当前城市 ({{ tagCityName }}) 标签特色 · 显著高于其他市
+          </view>
+          <view
+            v-for="(row, i) in cityTagSignature.slice(0, 4)"
+            :key="'cts' + row.tag"
+            class="drift-row"
+          >
+            <text class="drift-rank">{{ i + 1 }}</text>
+            <text class="drift-city">{{ row.tag }}</text>
+            <text class="drift-value drift-up">{{ formatPct(row.share) }}</text>
+            <text class="muted" style="font-size: 20rpx; margin-left: 8rpx">
+              vs {{ formatPct(row.otherAvg) }}
+            </text>
+          </view>
+        </view>
+        <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+          派生：snapshot.listingTagSummaries（{{ tagPenetrationTotalRows }} 条预聚合）。
+          share = 该标签小区数 / 全市所有标签小区数（一位小数 %）。
+        </view>
+      </view>
+
+      <!-- v1.118.0 性价比之选（社区散点 Pareto 派生） -->
+      <view class="card" v-if="paretoTop.length">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">⭐ 性价比之选</view>
+          <view class="muted" style="font-size: 22rpx">
+            改善段 ≤ {{ paretoPriceCapWan }} 万/m² · 面积 Top {{ paretoTop.length }}
+          </view>
+        </view>
+        <view class="pareto-desc muted">
+          同面积段 + 同价格上限下，面积最大的小区 → 居住舒适度 × 总价可控
+        </view>
+        <view
+          v-for="(row, i) in paretoTop"
+          :key="row.communityId"
+          class="pareto-row"
+          @click="goCommunity(row.communityId)"
+        >
+          <view class="pareto-rank tap">{{ i + 1 }}</view>
+          <view class="pareto-meta">
+            <view class="pareto-name">{{ row.communityName }}</view>
+            <view class="pareto-sub muted">
+              {{ row.cityName }} · {{ row.areaCohort }} · {{ row.quadrant }}
+            </view>
+          </view>
+          <view class="pareto-stats">
+            <text class="pareto-area">{{ row.medianArea.toFixed(0) }} m²</text>
+            <text class="pareto-price muted">{{ (row.medianUnitPrice / 10000).toFixed(1) }} 万/m²</text>
+          </view>
+        </view>
+      </view>
+
       <!-- 结果 -->
       <view class="card">
         <view class="row-between">
@@ -187,7 +367,27 @@ import { computed, onMounted, onUnmounted, ref } from "vue";
 import { SNAPSHOT_UPDATED_EVENT } from "../../config";
 import { onLoad } from "@dcloudio/uni-app";
 import { filterListings } from "../../local/queries";
+import {
+  summarizeListingFreshnessByCity,
+  getFreshestCommunityTopN,
+  getStalestCommunityTopN,
+  type CityFreshnessSummary,
+  type FreshnessRankingEntry
+} from "../../local/listingFreshnessRanking";
+import {
+  summarizeListingTagsByCity,
+  getTagPenetrationCompare,
+  getCityTagSignature,
+  type CityTagSummary,
+  type TagPenetration,
+  type TagSignatureEntry
+} from "../../local/listingTagsComparison";
 import { getCities, getPeriods, getSources } from "../../local/queries";
+import { getCommunityScatter } from "../../local/store";
+import {
+  getCommunityScatterPareto,
+  type ParetoEntry
+} from "../../local/communityScatterRanking";
 import type { CityItem, ListingItem, SourceStatItem } from "../../api/contracts";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { useAppStore } from "../../store/app";
@@ -459,6 +659,88 @@ function goListing(id: number) {
   uni.navigateTo({ url: `/pages/listing-detail/listing-detail?id=${id}` });
 }
 
+function goCommunity(id: number) {
+  uni.navigateTo({ url: `/pages/community/community?id=${id}` });
+}
+
+// v0.95.0：市场流动性（listing_freshness.csv）
+const freshnessSummary = computed<CityFreshnessSummary | null>(() => {
+  const all = summarizeListingFreshnessByCity();
+  return all.find((s) => s.cityId === app.cityId) ?? null;
+});
+const freshestTop = computed<FreshnessRankingEntry[]>(() => {
+  const all = getFreshestCommunityTopN(app.cityId, 3);
+  return all;
+});
+const stalestTop = computed<FreshnessRankingEntry[]>(() => {
+  const all = getStalestCommunityTopN(app.cityId, 3);
+  return all;
+});
+
+/** 本地百分比格式化（listing-filter 页面未全局共享 formatPct） */
+function formatPct(x: number): string {
+  return `${(x * 100).toFixed(1)}%`;
+}
+
+// v0.96.0：三市标签横评（listing_tags_summary.csv）
+const tagCitySummary = computed<CityTagSummary[]>(() =>
+  summarizeListingTagsByCity(8)
+);
+const tagPenetrationCompare = computed<TagPenetration[]>(() => {
+  const all = getTagPenetrationCompare();
+  // 仅显示至少在 2 城出现且 avgShare ≥ 1% 的标签 —— 排掉零碎 / 噪点
+  return all.filter((p) => p.presentIn.length >= 2 && p.avgShare >= 0.01);
+});
+const tagPenetrationTotalRows = computed<number>(() => {
+  const all = getTagPenetrationCompare();
+  return all.reduce((s, p) => s + p.presentIn.length, 0);
+});
+const cityTagSignature = computed<TagSignatureEntry[]>(() =>
+  getCityTagSignature(app.cityId, 1.5)
+);
+const tagCityName = computed<string>(
+  () =>
+    tagCitySummary.value.find((c) => c.cityId === app.cityId)?.cityName ?? ""
+);
+
+/** 单行横评的几条 chip，按 presentIn 顺序展示 */
+function tagPenetrationCompareRow(row: TagPenetration): {
+  cityId: number;
+  cityName: string;
+  share: number;
+}[] {
+  const arr: { cityId: number; cityName: string; share: number }[] = [];
+  for (const cid of row.presentIn) {
+    const cell = row.byCity[cid];
+    if (!cell) continue;
+    arr.push({ cityId: cid, cityName: cell.cityName, share: cell.share });
+  }
+  return arr;
+}
+
+// v1.118.0 性价比之选：同面积段 + 价格上限下面积 Top N
+// 价格上限采用"当前城市单价中位数 + 50%" —— 让卡跟随当前城市动态调整
+const paretoPriceCapWan = computed<number>(() => {
+  const allScatter = getCommunityScatter();
+  if (allScatter.length === 0) return 8; // 兜底
+  const cityName = cities.value.find((c) => c.city_id === app.cityId)?.city_name;
+  if (!cityName) return 8;
+  const cityRows = allScatter.filter(
+    (r) => r.cityName === cityName && r.areaCohort === "改善(60-110)"
+  );
+  if (cityRows.length === 0) return 8;
+  const sorted = [...cityRows.map((r) => r.medianUnitPrice)].sort(
+    (a, b) => a - b
+  );
+  const median = sorted[Math.floor(sorted.length / 2)]!;
+  // 上限 = 中位数 × 1.5（容许小幅溢价去搜面积更大）
+  return Math.round((median * 1.5) / 10000);
+});
+const paretoTop = computed<ParetoEntry[]>(() => {
+  const capYuan = paretoPriceCapWan.value * 10000;
+  return getCommunityScatterPareto("改善(60-110)", capYuan, 5);
+});
+
 onLoad((q: any) => {
   if (q?.communityId) {
     filterCommunityId.value = Number(q.communityId);
@@ -487,6 +769,113 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16rpx;
+}
+
+/* v0.95.0：市场流动性条 */
+.freshness-bar {
+  display: flex;
+  height: 12rpx;
+  border-radius: 8rpx;
+  overflow: hidden;
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.freshness-bar-new {
+  background: #16a34a; /* ≤2 周 鲜 */
+  height: 100%;
+}
+
+.freshness-bar-r4 {
+  background: #d97706; /* 2–4 周 中 */
+  height: 100%;
+}
+
+.freshness-bar-stale {
+  background: #9ca3af; /* 陈旧 */
+  height: 100%;
+}
+
+.legend-new {
+  color: #16a34a;
+}
+
+.legend-r4 {
+  color: #d97706;
+}
+
+.legend-stale {
+  color: #9ca3af;
+}
+
+/* v0.96.0：标签横评 */
+.tag-penetration-row {
+  padding: 6rpx 0;
+}
+.tag-penetration-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4rpx;
+}
+.tag-name {
+  font-size: 22rpx;
+  font-weight: 500;
+}
+.tag-penetration-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.tag-penetration-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 18rpx;
+  border-radius: 6rpx;
+  background: rgba(148, 163, 184, 0.12);
+  overflow: hidden;
+}
+.tag-penetration-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #6366f1);
+  border-radius: 6rpx;
+}
+.tag-penetration-label {
+  position: absolute;
+  left: 6rpx;
+  font-size: 18rpx;
+  white-space: nowrap;
+}
+
+/* 复用项目里通用的 drift-row（如果全局已有则会被覆盖） */
+.drift-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 6rpx 0;
+  font-size: 22rpx;
+}
+.drift-rank {
+  display: inline-block;
+  width: 28rpx;
+  text-align: center;
+  font-weight: 600;
+  color: var(--muted, #94a3b8);
+}
+.drift-city {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.drift-value {
+  font-variant-numeric: tabular-nums;
+}
+.drift-up {
+  color: #16a34a;
+}
+.drift-down {
+  color: #dc2626;
 }
 
 .form-item {
@@ -651,6 +1040,73 @@ onUnmounted(() => {
   color: #94a3b8;
   font-size: 30rpx;
   border-top: 1rpx solid #1e293b;
+}
+
+/* v1.118.0 性价比之选卡 */
+.pareto-desc {
+  font-size: 22rpx;
+  margin: 12rpx 0 16rpx;
+  line-height: 1.5;
+}
+.pareto-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #1f2937;
+  cursor: pointer;
+}
+.pareto-row:last-child {
+  border-bottom: none;
+}
+.pareto-row:active {
+  background: #1f2937;
+}
+.pareto-rank {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 22rpx;
+  background: #facc15;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 26rpx;
+  flex-shrink: 0;
+}
+.pareto-meta {
+  flex: 1;
+  min-width: 0;
+}
+.pareto-name {
+  font-size: 28rpx;
+  color: #f3f4f6;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pareto-sub {
+  font-size: 22rpx;
+  margin-top: 4rpx;
+}
+.pareto-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4rpx;
+  flex-shrink: 0;
+}
+.pareto-area {
+  font-size: 28rpx;
+  color: #4ade80;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.pareto-price {
+  font-size: 22rpx;
+  font-variant-numeric: tabular-nums;
 }
 
 .listing-row {

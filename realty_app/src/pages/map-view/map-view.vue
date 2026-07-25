@@ -56,6 +56,36 @@
         </text>
       </view>
 
+      <!-- v1.119.0 弯曲系数 Top 5（仅 metro 模式） -->
+      <view v-if="mode === 'metro'" class="curvature-card">
+        <view class="row-between">
+          <view class="curvature-title">🌀 弯曲系数 Top 5</view>
+          <view class="muted" style="font-size: 22rpx">
+            actual / straight · 越高越曲折
+          </view>
+        </view>
+        <view class="curvature-desc muted">
+          同等直线距离下，实际线路长度比值。比值高 → 站点更多 / 拐弯更多 → 覆盖广
+        </view>
+        <view
+          v-for="(row, i) in curvatureTop5"
+          :key="row.lineId"
+          class="curvature-row"
+        >
+          <view class="curvature-rank">{{ i + 1 }}</view>
+          <view class="curvature-meta">
+            <view class="curvature-name">{{ row.lineName }}</view>
+            <view class="curvature-sub muted">
+              实际 {{ row.actualLengthKm?.toFixed(1) ?? "?" }} km ·
+              直线 {{ row.straightLineKm.toFixed(1) }} km
+            </view>
+          </view>
+          <view class="curvature-ratio">
+            {{ row.curvatureRatio != null ? row.curvatureRatio.toFixed(2) : "—" }}
+          </view>
+        </view>
+      </view>
+
       <!-- v0.13.0 POI 模式下显示 5 类 toggle -->
       <view v-if="mode === 'poi'" class="poi-toggles">
         <view
@@ -217,6 +247,7 @@ import {
   getMetroLinesByCity
 } from "../../local/store";
 import { getCities, getPoisByCommunity } from "../../local/store";
+import { getMetroPlanningGeoByCityCrossReference, type CurvatureEntry } from "../../local/metroPlanningGeoAnalysis";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { showToast } from "../../utils/format";
 import { clusterMarkers, type ClusterInputPoint, type ClusterOutputPoint } from "../../local/cluster";
@@ -561,6 +592,14 @@ const metroPolylines = computed(() => {
     });
   }
   return out;
+});
+
+// v1.119.0 弯曲系数 Top 5（当前城市，按弯曲比降序）
+const curvatureTop5 = computed<CurvatureEntry[]>(() => {
+  if (!app.cityId) return [];
+  return getMetroPlanningGeoByCityCrossReference()
+    .filter((r) => r.cityId === app.cityId)
+    .slice(0, 5);
 });
 
 // poiSeed 总体统计（5 类各多少）
@@ -1151,6 +1190,72 @@ onUnmounted(() => {
   background: rgba(220, 38, 38, 0.3);
   color: #fca5a5 !important;
 }
+/* v1.119.0 弯曲系数 Top 5 卡 */
+.curvature-card {
+  margin-top: 16rpx;
+  padding: 16rpx 20rpx;
+  background: #0f172a;
+  border: 1rpx solid #1e293b;
+  border-radius: 14rpx;
+}
+.curvature-title {
+  font-size: 28rpx;
+  color: #f3f4f6;
+  font-weight: 600;
+}
+.curvature-desc {
+  font-size: 22rpx;
+  margin: 10rpx 0 14rpx;
+  line-height: 1.5;
+}
+.curvature-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid #1f2937;
+}
+.curvature-row:last-child {
+  border-bottom: none;
+}
+.curvature-rank {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 20rpx;
+  background: #38bdf8;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 24rpx;
+  flex-shrink: 0;
+}
+.curvature-meta {
+  flex: 1;
+  min-width: 0;
+}
+.curvature-name {
+  font-size: 26rpx;
+  color: #f3f4f6;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.curvature-sub {
+  font-size: 22rpx;
+  margin-top: 4rpx;
+  font-variant-numeric: tabular-nums;
+}
+.curvature-ratio {
+  font-size: 30rpx;
+  color: #facc15;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
 /* v0.13.0 POI toggles */
 .poi-toggles {
   display: flex;

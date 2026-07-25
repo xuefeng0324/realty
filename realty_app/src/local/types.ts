@@ -379,6 +379,84 @@ export interface LocalListingTag {
 }
 
 /**
+ * v0.96.0: 城市级标签预聚合 (listing_tags_summary.csv)。
+ * 与 LocalListingTag 不同：这是已经按 (city, tag) 预聚合的城市级汇总，
+ * 而不是 listing_id 级。用于派生跨城横评（无需重复数 listing 表）。
+ */
+export interface LocalListingTagSummary {
+  cityId: number;
+  cityName: string;
+  tag: string;
+  count: number;
+  share: number;
+}
+
+/**
+ * v0.98.0: 周边菜市场/超市预聚合 (poi_market.csv)。
+ * 不进 LocalPoi（poi_seed.csv 字段语义不同 — market 是分类）。
+ * 每行表示某小区某 city 半径内最近 3 个 POI（含距离 / 经纬度 / 地址）。
+ */
+export interface LocalPoiMarket {
+  communityId: number;
+  rank: number;
+  poiName: string;
+  poiCategory: string;
+  /** "购物服务;综合市场;农副产品市场" → 解析后归类 */
+  poiTypeCategory: string;
+  distanceM: number;
+  lat: number | null;
+  lng: number | null;
+  address: string;
+}
+
+/**
+ * v1.115.0: 医院坐标数据（hospitals_geo.csv，50 行 × 三城）
+ * 与 LocalHospital 一一对应（hospital_id 1-50）
+ * confidence: "high" | "medium" | "low" | "missing"
+ * source: "amap_text"（高德文本搜索结果）
+ */
+export interface LocalHospitalGeo {
+  hospitalId: number;
+  lat: number | null;
+  lng: number | null;
+  amapPoiId: string;
+  formattedAddress: string;
+  confidence: "high" | "medium" | "low" | "missing";
+  source: string;
+  distanceM: number | null;
+}
+
+/**
+ * v1.113.0: 行政区划基础数据（admin_districts.csv，24 行 × 三城）
+ * city_id/city_code(4401/4403/4404)/district_code(6 位)/district_name
+ */
+export interface LocalAdminDistrict {
+  cityId: number;
+  cityCode: string;
+  districtCode: string;
+  districtName: string;
+}
+
+/**
+ * v1.112.0: 周边商业 POI（poi_commercial.csv）
+ * 3 类 POI：restaurant / bank / convenience
+ * 每个 community 每类取 Top 3 → ~9 行/community × 50 community ≈ 412 行
+ */
+export interface LocalPoiCommercial {
+  communityId: number;
+  /** "restaurant" | "bank" | "convenience" */
+  poiCategory: "restaurant" | "bank" | "convenience";
+  rank: number;
+  poiName: string;
+  /** 完整高德分类字符串 "购物服务;便民商店/便利店;7-ELEVEn便利店" */
+  poiType: string;
+  distanceM: number;
+  lat: number | null;
+  lng: number | null;
+  address: string;
+}
+
+/**
  * v0.29.0: 区级房价指数 (scripts/compute_district_index.py)
  * index_value = 该区 baseline 中位价对应 100 基准
  */
@@ -680,6 +758,10 @@ export interface DataSnapshot {
   layoutDistributions: LocalLayoutDistribution[];
   /** v0.28.0: 房源 tags 列表 (scripts/compute_listing_tags.py) */
   listingTags: LocalListingTag[];
+  /** v0.96.0: 城市级标签预聚合 (listing_tags_summary.csv，由 compute_listing_tags_summary 派生) */
+  listingTagSummaries: LocalListingTagSummary[];
+  /** v0.98.0: 周边菜市场/超市 (poi_market.csv) */
+  poiMarkets: LocalPoiMarket[];
   /** v0.29.0: 区级房价指数 (scripts/compute_district_index.py) */
   districtIndices: LocalDistrictIndex[];
   /** v0.31.0: 生活便利度 (scripts/compute_life_convenience.py) */
@@ -721,6 +803,12 @@ export interface DataSnapshot {
   schoolDimensions: LocalSchoolDimension[];
   /** v0.53.0 macro-1: LPR + 房贷利率历史 (scripts/compute_lpr_history.py) */
   lprHistory: LocalLprRow[];
+  /** v1.112.0: 周边商业 POI（餐饮/银行/便利店） */
+  poiCommercials: LocalPoiCommercial[];
+  /** v1.113.0: 行政区划基础数据 */
+  adminDistricts: LocalAdminDistrict[];
+  /** v1.115.0: 医院坐标数据 */
+  hospitalGeos: LocalHospitalGeo[];
   /** Available weeks that have at least one listing. */
   availableWeeks: LocalWeekRange[];
 }

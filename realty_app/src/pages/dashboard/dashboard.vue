@@ -112,6 +112,171 @@
         <view class="stats70-foot muted">点击进入全国 70 城榜单 ›</view>
       </view>
 
+      <!-- v1.116.0 全国 70 城涨跌 Top + 当前城市排位 + 趋势方向 -->
+      <view class="card" v-if="stats70Ready">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">全国 70 城 · 涨跌 Top</view>
+          <view class="muted" style="font-size: 22rpx">{{ stats70MonthLabel }}</view>
+        </view>
+
+        <view class="trend-summary">
+          <view
+            v-for="row in stats70CityCounts"
+            :key="row.fixedBase + row.indexType"
+            class="trend-cell"
+          >
+            <text class="cell-label">
+              {{ row.fixedBase }} · {{ row.indexType === "new_idx" ? "新建" : "二手" }}
+            </text>
+            <text class="cell-value" :class="row.upCount >= row.downCount ? 'trend-up' : 'trend-down'">
+              涨 {{ row.upCount }} · 跌 {{ row.downCount }}
+            </text>
+            <text class="cell-sub muted">共 {{ row.total }} 城</text>
+          </view>
+        </view>
+
+        <view class="rank-row" v-if="stats70CurrentCityRank">
+          <text class="muted" style="font-size: 22rpx">当前城市排位</text>
+          <text class="rank-val">
+            {{ stats70CurrentCityRank.city }}
+            · 全国 Top
+            <text :class="stats70CurrentCityRank.rank <= 10 ? 'trend-up' : 'trend-down'">
+              {{ stats70CurrentCityRank.topPct }}%
+            </text>
+            · 同比 {{ formatIndex(stats70CurrentCityRank.value) }}
+          </text>
+        </view>
+
+        <view class="trend-row" v-if="stats70CurrentCityTrend">
+          <text class="muted" style="font-size: 22rpx">近 3 月趋势</text>
+          <text
+            class="cell-value"
+            :class="stats70CurrentCityTrend.direction === '上涨' ? 'trend-up' : stats70CurrentCityTrend.direction === '下跌' ? 'trend-down' : 'muted'"
+          >
+            {{ stats70CurrentCityTrend.direction }}
+            <text class="muted" style="font-size: 22rpx" v-if="stats70CurrentCityTrend.direction !== '数据不足'">
+              （{{ stats70CurrentCityTrend.avgChangePp > 0 ? '+' : '' }}{{ stats70CurrentCityTrend.avgChangePp }} pp）
+            </text>
+          </text>
+        </view>
+
+        <view class="top-section">
+          <view class="top-line">
+            <text class="muted" style="font-size: 22rpx">新建 同比 · 涨 Top 5</text>
+          </view>
+          <view
+            v-for="row in stats70TopUpYoy"
+            :key="row.city + 'yoy-up'"
+            class="top-row"
+          >
+            <text class="top-rank">{{ row.city }}</text>
+            <text class="top-val trend-up">{{ row.value.toFixed(1) }}</text>
+          </view>
+          <view class="top-line" style="margin-top: 8rpx">
+            <text class="muted" style="font-size: 22rpx">新建 同比 · 跌 Top 5</text>
+          </view>
+          <view
+            v-for="row in stats70TopDownYoy"
+            :key="row.city + 'yoy-down'"
+            class="top-row"
+          >
+            <text class="top-rank">{{ row.city }}</text>
+            <text class="top-val trend-down">{{ row.value.toFixed(1) }}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- v1.117.0 LPR 与房贷利率信号卡 -->
+      <view class="card" v-if="lprLatest">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🏦 LPR 与房贷利率</view>
+          <view class="muted" style="font-size: 22rpx">{{ lprLatest.month }}</view>
+        </view>
+
+        <view class="trend-summary" style="margin-top: 12rpx">
+          <view class="trend-cell">
+            <text class="cell-label">1 年期 LPR</text>
+            <text class="cell-value">{{ lprLatest.lpr1y.toFixed(2) }}%</text>
+            <text class="cell-sub muted" v-if="lprDelta12m">
+              12 月
+              <text :class="lprDelta12m.lpr1yDeltaBp > 0 ? 'trend-down' : lprDelta12m.lpr1yDeltaBp < 0 ? 'trend-up' : 'muted'">
+                {{ lprDelta12m.lpr1yDeltaBp > 0 ? '↓' : lprDelta12m.lpr1yDeltaBp < 0 ? '↑' : '·' }}
+                {{ Math.abs(lprDelta12m.lpr1yDeltaBp) }} bp
+              </text>
+            </text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">5 年期以上 LPR</text>
+            <text class="cell-value">{{ lprLatest.lpr5y.toFixed(2) }}%</text>
+            <text class="cell-sub muted" v-if="lprDelta12m">
+              12 月
+              <text :class="lprDelta12m.lpr5yDeltaBp > 0 ? 'trend-down' : lprDelta12m.lpr5yDeltaBp < 0 ? 'trend-up' : 'muted'">
+                {{ lprDelta12m.lpr5yDeltaBp > 0 ? '↓' : lprDelta12m.lpr5yDeltaBp < 0 ? '↑' : '·' }}
+                {{ Math.abs(lprDelta12m.lpr5yDeltaBp) }} bp
+              </text>
+            </text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">首套房贷</text>
+            <text class="cell-value">{{ lprLatest.mortgageFirst.toFixed(2) }}%</text>
+            <text class="cell-sub muted" v-if="lprDelta12m">
+              12 月
+              <text :class="lprDelta12m.mortgageFirstDeltaBp > 0 ? 'trend-down' : lprDelta12m.mortgageFirstDeltaBp < 0 ? 'trend-up' : 'muted'">
+                {{ lprDelta12m.mortgageFirstDeltaBp > 0 ? '↓' : lprDelta12m.mortgageFirstDeltaBp < 0 ? '↑' : '·' }}
+                {{ Math.abs(lprDelta12m.mortgageFirstDeltaBp) }} bp
+              </text>
+            </text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">二套房贷</text>
+            <text class="cell-value">{{ lprLatest.mortgageSecond.toFixed(2) }}%</text>
+            <text class="cell-sub muted" v-if="lprDelta12m">
+              12 月
+              <text :class="lprDelta12m.mortgageSecondDeltaBp > 0 ? 'trend-down' : lprDelta12m.mortgageSecondDeltaBp < 0 ? 'trend-up' : 'muted'">
+                {{ lprDelta12m.mortgageSecondDeltaBp > 0 ? '↓' : lprDelta12m.mortgageSecondDeltaBp < 0 ? '↑' : '·' }}
+                {{ Math.abs(lprDelta12m.mortgageSecondDeltaBp) }} bp
+              </text>
+            </text>
+          </view>
+        </view>
+
+        <view class="rank-row" v-if="lprDownwardCumulative">
+          <text class="muted" style="font-size: 22rpx">累计降息（自 {{ lprDownwardCumulative.startMonth }} 起）</text>
+          <text class="rank-val">
+            5 年期 LPR
+            <text class="trend-down">
+              ↓ {{ lprDownwardCumulative.lpr5yCumulativeBp }} bp
+            </text>
+            ·
+            <text class="muted" style="font-size: 22rpx">首套房贷 ↓ {{ lprDownwardCumulative.mortgageFirstCumulativeBp }} bp</text>
+          </text>
+        </view>
+
+        <view class="rank-row" v-if="lprLongestFlat">
+          <text class="muted" style="font-size: 22rpx">最长"按兵不动"</text>
+          <text class="rank-val">
+            {{ lprLongestFlat.months }} 个月
+            <text class="muted" style="font-size: 22rpx">
+              （{{ lprLongestFlat.startMonth }} ~ {{ lprLongestFlat.endMonth }}）
+            </text>
+          </text>
+        </view>
+
+        <view class="top-section" v-if="lprYearSummaries.length > 0">
+          <view class="top-line">
+            <text class="muted" style="font-size: 22rpx">5 年期 LPR · 年度均值</text>
+          </view>
+          <view
+            v-for="row in lprYearSummaries"
+            :key="row.year"
+            class="top-row"
+          >
+            <text class="top-rank">{{ row.year }} 年</text>
+            <text class="top-val">{{ row.endLpr5y.toFixed(2) }}%</text>
+          </view>
+        </view>
+      </view>
+
       <!-- 政府每日网签（摘要，点击进详情页） -->
       <view
         class="card wangqian-card tap-target"
@@ -274,6 +439,162 @@
           派生：snapshot.metroWalks（{{
             metroWalkSummary.reduce((s, r) => s + r.totalCommunities, 0)
           }} 个小区）。优先选 5 分钟覆盖比例最高城市。
+        </view>
+      </view>
+
+      <!-- v0.93.0 分区近 12 周均价变动排行（派生：基于 district_trend.csv） -->
+      <view
+        v-if="district12wChange.length"
+        class="card district-drift-card"
+      >
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">📊 分区近 12 周均价变动</view>
+          <view class="muted" style="font-size: 22rpx">
+            <text v-if="districtChangeDistribution.strictTotal > 0">
+              ≥13 周 · 涨 {{ districtChangeDistribution.strictUp }} ·
+              跌 {{ districtChangeDistribution.strictDown }}
+              <text class="muted" style="font-size: 18rpx">
+                ({{ districtChangeDistribution.strictTotal }} 区)
+              </text>
+            </text>
+            <text v-else>
+              涨 {{ districtChangeDistribution.up }} ·
+              跌 {{ districtChangeDistribution.down }}
+              <text class="muted" style="font-size: 18rpx">
+                (全 {{ districtChangeDistribution.total }} 区样本不足时回退)
+              </text>
+            </text>
+          </view>
+        </view>
+
+        <view class="stats70-grid">
+          <view
+            v-for="row in district12wChange.slice(0, 6)"
+            :key="'dd' + row.cityId + row.districtName"
+            class="stats70-cell"
+          >
+            <text class="cell-label">{{ cityNameForId(row.cityId) }} · {{ row.districtName }}</text>
+            <text class="cell-value" :class="row.change > 0 ? 'drift-up' : row.change < 0 ? 'drift-down' : ''">
+              {{ formatPct(row.change) }}
+            </text>
+            <text class="cell-sub muted">
+              {{ formatUnitPrice(row.latestPrice) }} ({{ row.weeksAvailable }}w)
+            </text>
+          </view>
+        </view>
+
+        <view
+          v-if="districtMomentumRank.length"
+          style="margin-top: 14rpx"
+        >
+          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
+            近 4 周 vs 前 4 周动量 · Top 3
+          </view>
+          <view
+            v-for="(row, i) in districtMomentumRank.slice(0, 3)"
+            :key="'mm' + row.cityId + row.districtName"
+            class="drift-row"
+          >
+            <text class="drift-rank">{{ i + 1 }}</text>
+            <text class="drift-city">{{ cityNameForId(row.cityId) }} · {{ row.districtName }}</text>
+            <text
+              v-if="row.momentum != null"
+              class="drift-value"
+              :class="row.momentum > 0 ? 'drift-up' : row.momentum < 0 ? 'drift-down' : ''"
+            >
+              {{ formatPct(row.momentum) }}
+            </text>
+            <text v-else class="drift-value muted">—</text>
+          </view>
+        </view>
+        <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+          派生：snapshot.districtTrends（{{ districtDriftTotalWeeks }} 周样本 /
+          {{ districtDriftTotalDistricts }} 区），当前严格 12 周对比仅
+          {{ districtChangeDistribution.strictTotal }} 区。卡片严格口径排序，宽松口径作为兜底。
+        </view>
+      </view>
+
+      <!-- v0.94.0 学校指标各维度 Top 5（派生：基于 school_indicators.csv） -->
+      <view
+        v-if="schoolIndicatorSummary.total > 0"
+        class="card school-indicator-card"
+      >
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🎓 学校指标 · 各维度 Top 5</view>
+          <view class="muted" style="font-size: 22rpx">
+            综合 ≥ 90 {{ formatPct(schoolIndicatorSummary.highLevelRate) }} ·
+            集团校 {{ formatPct(schoolIndicatorSummary.groupSchoolRate) }}
+          </view>
+        </view>
+
+        <view class="stats70-grid">
+          <view class="stats70-cell">
+            <text class="cell-label">综合排名分</text>
+            <text class="cell-value">#{{ schoolTopLevel[0]?.schoolId ?? "-" }}</text>
+            <text class="cell-sub muted">
+              {{ schoolTopLevel[0]?.score?.toFixed(1) ?? "-" }} 分
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">集团校实力</text>
+            <text class="cell-value">#{{ schoolTopGroup[0]?.schoolId ?? "-" }}</text>
+            <text class="cell-sub muted">
+              {{ schoolTopGroup[0]?.score?.toFixed(1) ?? "-" }} 分
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">区域均衡度</text>
+            <text class="cell-value">#{{ schoolTopBalance[0]?.schoolId ?? "-" }}</text>
+            <text class="cell-sub muted">
+              {{ schoolTopBalance[0]?.score?.toFixed(1) ?? "-" }} 分
+            </text>
+          </view>
+        </view>
+
+        <view
+          v-if="schoolTrendRising.length || schoolTrendDeclining.length"
+          style="margin-top: 14rpx"
+        >
+          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
+            上升 {{ schoolIndicatorSummary.risingCount }} ·
+            下滑 {{ schoolIndicatorSummary.decliningCount }} ·
+            不变 {{ schoolIndicatorSummary.flatCount }}
+          </view>
+          <view
+            v-if="schoolTrendRising.length"
+            style="margin-bottom: 6rpx"
+          >
+            <view class="muted" style="font-size: 20rpx">上升 Top</view>
+            <view
+              v-for="(row, i) in schoolTrendRising.slice(0, 3)"
+              :key="'sup' + row.schoolId"
+              class="drift-row"
+            >
+              <text class="drift-rank">{{ i + 1 }}</text>
+              <text class="drift-city">学校 #{{ row.schoolId }}</text>
+              <text class="drift-value drift-up">
+                +{{ row.trendDelta.toFixed(2) }}
+              </text>
+            </view>
+          </view>
+          <view v-if="schoolTrendDeclining.length">
+            <view class="muted" style="font-size: 20rpx">下滑 Top</view>
+            <view
+              v-for="(row, i) in schoolTrendDeclining.slice(0, 3)"
+              :key="'sdn' + row.schoolId"
+              class="drift-row"
+            >
+              <text class="drift-rank">{{ i + 1 }}</text>
+              <text class="drift-city">学校 #{{ row.schoolId }}</text>
+              <text class="drift-value drift-down">
+                {{ row.trendDelta.toFixed(2) }}
+              </text>
+            </view>
+          </view>
+        </view>
+        <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+          派生：snapshot.schoolIndicators（{{ schoolIndicatorSummary.total }} 所学校）。
+          Top 列仅按各维度分数排序，综合分用于横向参考；具体名称可在「学区」页查看。
         </view>
       </view>
 
@@ -2346,6 +2667,20 @@ import {
   type DriftDistribution
 } from "../../local/stats70";
 import {
+  getStats70TopByTypeByMonth,
+  getStats70CurrentCityNationalRank,
+  getStats70CityTrendDirection,
+  getStats70CrossCityByCityCount,
+  getStats70LatestMonth as getStats70LatestMonthTrend
+} from "../../local/stats70TrendAnalysis";
+import {
+  getLprLatest,
+  getLprDelta,
+  summarizeLprByYear,
+  getLprLongestFlatStreak,
+  getLprDownwardCumulative
+} from "../../local/lprHistoryAnalysis";
+import {
   getLatestCityDaily,
   type CityDailySnapshot
 } from "../../local/dailyWangqian";
@@ -2357,6 +2692,21 @@ import {
   type MetroWalkAccessibility,
   type MetroWalkRankingItem
 } from "../../local/metro";
+import {
+  getDistrict12WeekChangeRank,
+  getDistrictRecentMomentumRank,
+  summarizeChangeDistribution,
+  type DistrictChangeEntry,
+  type DistrictMomentumEntry
+} from "../../local/districtDrift";
+import {
+  getSchoolIndicatorDimensionTopN,
+  getSchoolIndicatorTrendTop,
+  summarizeSchoolIndicators,
+  type SchoolIndicatorRankingEntry,
+  type SchoolIndicatorSummary,
+  type SchoolIndicatorTrendEntry
+} from "../../local/schoolIndicatorRanking";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -4311,6 +4661,110 @@ const metroWalkTop = computed<MetroWalkRankingItem[]>(() =>
   getMetroWalkRankingTopN(3)
 );
 
+// v0.93.0：分区近 12 周均价变动
+// 严格 12 周口径：≥13 周才算"近 12 周变动"（与卡片标题贴合）
+const district12wChange = computed<DistrictChangeEntry[]>(() =>
+  getDistrict12WeekChangeRank(undefined, { minWeeks: 13, strictBase: true })
+);
+const districtChangeDistribution = computed(() =>
+  summarizeChangeDistribution()
+);
+
+// v1.116.0 全国 70 城涨跌 Top + 当前城市排位 + 趋势方向
+const stats70TopUpYoy = computed(() => {
+  const date = getStats70LatestMonthTrend();
+  if (!date) return [];
+  return getStats70TopByTypeByMonth(date, "同比", "new_idx", 5);
+});
+const stats70TopDownYoy = computed(() => {
+  const date = getStats70LatestMonthTrend();
+  if (!date) return [];
+  return getStats70TopByTypeByMonth(date, "同比", "new_idx", -5);
+});
+const stats70CityCounts = computed(() => {
+  const date = getStats70LatestMonthTrend();
+  if (!date) return [];
+  return getStats70CrossCityByCityCount(date);
+});
+const stats70CurrentCityRank = computed(() => {
+  if (!stats70Ready.value) return null;
+  const city = cities.value.find((c) => c.city_id === app.cityId);
+  if (!city) return null;
+  return getStats70CurrentCityNationalRank(city.city_name, "同比", "new_idx");
+});
+const stats70CurrentCityTrend = computed(() => {
+  if (!stats70Ready.value) return null;
+  const city = cities.value.find((c) => c.city_id === app.cityId);
+  if (!city) return null;
+  return getStats70CityTrendDirection(city.city_name, "同比", "new_idx");
+});
+
+// v1.117.0 LPR 与房贷利率信号
+const lprLatest = computed(() => getLprLatest());
+const lprDelta12m = computed(() => {
+  const latest = lprLatest.value;
+  if (!latest) return null;
+  // 同比：当前月 vs 去年同月
+  const parts = latest.month.split("-");
+  if (parts.length < 2) return null;
+  const y = parseInt(parts[0]!, 10);
+  const m = parseInt(parts[1]!, 10);
+  if (!y || !m) return null;
+  const fromMonthStr = `${y - 1}-${m.toString().padStart(2, "0")}`;
+  return getLprDelta(fromMonthStr, latest.month);
+});
+const lprDownwardCumulative = computed(() => getLprDownwardCumulative());
+const lprLongestFlat = computed(() => getLprLongestFlatStreak());
+const lprYearSummaries = computed(() => summarizeLprByYear());
+const districtMomentumRank = computed<DistrictMomentumEntry[]>(() =>
+  getDistrictRecentMomentumRank()
+);
+const districtDriftTotalWeeks = computed<number>(() => {
+  const arr = store.getDistrictTrends();
+  if (arr.length === 0) return 0;
+  const latest = arr.reduce(
+    (acc: string, t) => (t.weekEnd > acc ? t.weekEnd : acc),
+    arr[0]!.weekEnd
+  );
+  const earliest = arr.reduce(
+    (acc: string, t) => (t.weekEnd < acc ? t.weekEnd : acc),
+    arr[0]!.weekEnd
+  );
+  // 估算周数差（粗略按 7 天，但只用来显示，不影响排序）
+  const diff = (Date.parse(latest) - Date.parse(earliest)) / 86400000;
+  return Math.max(0, Math.round(diff / 7) + 1);
+});
+const districtDriftTotalDistricts = computed<number>(() => {
+  const set = new Set<string>();
+  for (const t of store.getDistrictTrends()) {
+    set.add(`${t.cityId}|${t.districtName}`);
+  }
+  return set.size;
+});
+const districtDriftWithEnough = computed<number>(
+  () => district12wChange.value.filter((r) => r.weeksAvailable >= 13).length
+);
+
+// v0.94.0：学校指标各维度 Top + 涨跌
+const schoolIndicatorSummary = computed<SchoolIndicatorSummary>(() =>
+  summarizeSchoolIndicators()
+);
+const schoolTopLevel = computed<SchoolIndicatorRankingEntry[]>(() =>
+  getSchoolIndicatorDimensionTopN("latestLevelScoreRaw", 5)
+);
+const schoolTopGroup = computed<SchoolIndicatorRankingEntry[]>(() =>
+  getSchoolIndicatorDimensionTopN("groupSchoolStrengthRaw", 5)
+);
+const schoolTopBalance = computed<SchoolIndicatorRankingEntry[]>(() =>
+  getSchoolIndicatorDimensionTopN("districtBalanceLevelRaw", 5)
+);
+const schoolTrendRising = computed<SchoolIndicatorTrendEntry[]>(() =>
+  getSchoolIndicatorTrendTop("rising", 5)
+);
+const schoolTrendDeclining = computed<SchoolIndicatorTrendEntry[]>(() =>
+  getSchoolIndicatorTrendTop("declining", 5)
+);
+
 const currentCityIndex = computed<LatestIndexForCity | null>(() => {
   if (!hasStats70()) return null;
   const city = cities.value.find((c) => c.city_id === app.cityId);
@@ -4995,6 +5449,67 @@ onShow(async () => {
   display: flex;
   flex-direction: column;
   gap: 6rpx;
+}
+
+/* v1.116.0 全国 70 城涨跌 Top 卡片样式 */
+.trend-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12rpx;
+  margin-top: 16rpx;
+}
+.trend-cell {
+  background: #111827;
+  border: 1rpx solid #1f2937;
+  border-radius: 12rpx;
+  padding: 14rpx 18rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.rank-row,
+.trend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16rpx;
+  padding: 12rpx 16rpx;
+  background: #0f172a;
+  border: 1rpx solid #1e293b;
+  border-radius: 10rpx;
+}
+.rank-val {
+  font-size: 26rpx;
+  color: #f3f4f6;
+  font-weight: 600;
+}
+.top-section {
+  margin-top: 18rpx;
+}
+.top-line {
+  padding: 6rpx 0;
+}
+.top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8rpx 12rpx;
+  border-bottom: 1rpx solid #1f2937;
+  font-size: 26rpx;
+}
+.top-rank {
+  color: #cbd5e1;
+  font-weight: 500;
+}
+.top-val {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.trend-up {
+  color: #f87171;
+}
+.trend-down {
+  color: #4ade80;
 }
 
 .cell-label {

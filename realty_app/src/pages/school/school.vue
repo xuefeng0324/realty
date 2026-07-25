@@ -18,6 +18,110 @@
         </view>
       </view>
 
+      <!-- v0.97.0 重点学校维度细分 (派生：基于 school_dimensions.csv) -->
+      <view
+        v-if="dimCitySummary.length > 0"
+        class="card"
+        data-school-dimensions
+      >
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🏫 重点学校维度细分</view>
+          <view class="muted" style="font-size: 22rpx">
+            {{ dimCitySummary.reduce((s, c) => s + c.schoolCount, 0) }} 所重点校 ·
+            {{ dimCitySummary.length }} 个城市
+          </view>
+        </view>
+        <view
+          v-if="dimPolymathList.length > 0"
+          style="margin-top: 14rpx"
+        >
+          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
+            🛡️ 全维度学校
+            <text class="muted" style="font-size: 20rpx">
+              （综合≥80 / 集团实力≥70 / 区均衡度≥70）
+            </text>
+          </view>
+          <view
+            v-for="(row, i) in dimPolymathList.slice(0, 4)"
+            :key="'poly' + row.schoolId"
+            class="drift-row"
+          >
+            <text class="drift-rank">{{ i + 1 }}</text>
+            <text class="drift-city">
+              {{ row.schoolName }}
+              <text class="muted" style="font-size: 18rpx">
+                ({{ row.cityName }}·{{ row.districtName }}·{{ row.schoolType }})
+              </text>
+            </text>
+            <text class="drift-value drift-up">{{ row.score.toFixed(1) }}</text>
+          </view>
+        </view>
+
+        <view
+          v-if="dimTopLevel.length > 0 || dimTopGroup.length > 0 || dimTopBalance.length > 0"
+          style="margin-top: 14rpx"
+        >
+          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
+            三维度 Top 1（每城市当前）
+          </view>
+          <view class="stats70-grid">
+            <view class="stats70-cell">
+              <text class="cell-label">综合排名分</text>
+              <text class="cell-value">
+                {{ dimTopLevel[0]?.schoolName ?? "-" }}
+              </text>
+              <text class="cell-sub muted">
+                {{ dimTopLevel[0]?.score?.toFixed(1) ?? "-" }} 分
+              </text>
+            </view>
+            <view class="stats70-cell">
+              <text class="cell-label">集团校实力</text>
+              <text class="cell-value">
+                {{ dimTopGroup[0]?.schoolName ?? "-" }}
+              </text>
+              <text class="cell-sub muted">
+                {{ dimTopGroup[0]?.score?.toFixed(1) ?? "-" }} 分
+              </text>
+            </view>
+            <view class="stats70-cell">
+              <text class="cell-label">区均衡度</text>
+              <text class="cell-value">
+                {{ dimTopBalance[0]?.schoolName ?? "-" }}
+              </text>
+              <text class="cell-sub muted">
+                {{ dimTopBalance[0]?.score?.toFixed(1) ?? "-" }} 分
+              </text>
+            </view>
+          </view>
+        </view>
+
+        <view
+          v-if="cityByComposite.length > 0"
+          style="margin-top: 14rpx"
+        >
+          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
+            各市综合得分最强
+          </view>
+          <view
+            v-for="(row, i) in cityByComposite"
+            :key="'ctc' + row.cityId"
+            class="drift-row"
+          >
+            <text class="drift-rank">{{ i + 1 }}</text>
+            <text class="drift-city">
+              {{ row.cityName }} · {{ row.topSchool?.schoolName ?? "-" }}
+            </text>
+            <text class="drift-value drift-up">
+              {{ row.topSchool?.score?.toFixed(1) ?? "-" }}
+            </text>
+          </view>
+        </view>
+        <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+          派生：snapshot.schoolDimensions（仅重点学校子集）。
+          "六边形战士" 同时满足综合≥80 / 集团实力≥70 / 区均衡度≥70。
+        </view>
+      </view>
+
       <view class="card">
         <view class="form-grid">
           <view class="form-item">
@@ -87,6 +191,15 @@ import { toErrorMessage } from "../../utils/errorMessage";
 import { useAppStore } from "../../store/app";
 import { showToast } from "../../utils/format";
 import { getEducationOverview } from "../../local/educationOverview";
+import {
+  summarizeSchoolDimensionsByCity,
+  getSchoolDimensionByDimensionTopN,
+  getSchoolDimensionPolymath,
+  getCityByCompositeRank,
+  type CityDimensionSummary,
+  type SchoolDimensionEntry,
+  type CityTopComposite
+} from "../../local/schoolDimensionRanking";
 
 const app = useAppStore();
 const cities = ref<CityItem[]>([]);
@@ -101,6 +214,26 @@ const currentCityLabel = computed(() => {
   return c?.city_name || "";
 });
 const educationOverview = computed(() => getEducationOverview(currentCityLabel.value.replace(/市$/, "")));
+
+// v0.97.0：重点学校维度细分
+const dimCitySummary = computed<CityDimensionSummary[]>(() =>
+  summarizeSchoolDimensionsByCity()
+);
+const dimPolymathList = computed<SchoolDimensionEntry[]>(() =>
+  getSchoolDimensionPolymath(undefined, {})
+);
+const dimTopLevel = computed<SchoolDimensionEntry[]>(() =>
+  getSchoolDimensionByDimensionTopN("levelScore", app.cityId, 1)
+);
+const dimTopGroup = computed<SchoolDimensionEntry[]>(() =>
+  getSchoolDimensionByDimensionTopN("groupStrength", app.cityId, 1)
+);
+const dimTopBalance = computed<SchoolDimensionEntry[]>(() =>
+  getSchoolDimensionByDimensionTopN("districtBalance", app.cityId, 1)
+);
+const cityByComposite = computed<CityTopComposite[]>(() =>
+  getCityByCompositeRank()
+);
 
 function onCityChange(e: { detail: { value: string } }) {
   const c = cities.value[Number(e.detail.value)];

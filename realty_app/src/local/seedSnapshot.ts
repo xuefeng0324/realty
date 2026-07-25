@@ -90,6 +90,18 @@ import districtMetaCSV from "../../static/seed/district_meta.csv?raw";
 import featurePremiumCSV from "../../static/seed/feature_premium.csv?raw";
 import tagCombinationCSV from "../../static/seed/tag_combination.csv?raw";
 import listingFreshnessCSV from "../../static/seed/listing_freshness.csv?raw";
+// v0.96.0 城市级标签预聚合 (listing_tags_summary.csv)
+// @ts-ignore
+import listingTagsSummaryCSV from "../../static/seed/listing_tags_summary.csv?raw";
+// v1.112.0 周边商业 POI（餐饮/银行/便利店）(poi_commercial.csv)
+import poiCommercialCSV from "../../static/seed/poi_commercial.csv?raw";
+// v1.113.0 行政区划基础数据 (admin_districts.csv)
+import adminDistrictCSV from "../../static/seed/admin_districts.csv?raw";
+// v1.115.0 医院坐标数据 (hospitals_geo.csv)
+import hospitalsGeoCSV from "../../static/seed/hospitals_geo.csv?raw";
+// @ts-ignore
+import poiMarketCSV from "../../static/seed/poi_market.csv?raw";
+// v0.99.0 stub removed (reuses v0.33.0 CSV)
 import bedroomAreaCSV from "../../static/seed/bedroom_area.csv?raw";
 import orientationFloorCSV from "../../static/seed/orientation_floor.csv?raw";
 import decorateAgeCSV from "../../static/seed/decorate_age.csv?raw";
@@ -134,6 +146,11 @@ export function buildSeedSnapshot(): DataSnapshot {
       featurePremiumCSV: String(featurePremiumCSV ?? ""),
       tagCombinationCSV: String(tagCombinationCSV ?? ""),
       listingFreshnessCSV: String(listingFreshnessCSV ?? ""),
+      listingTagsSummaryCSV: String(listingTagsSummaryCSV ?? ""),
+      poiMarketCSV: String(poiMarketCSV ?? ""),
+      poiCommercialCSV: String(poiCommercialCSV ?? ""),
+      adminDistrictCSV: String(adminDistrictCSV ?? ""),
+      hospitalsGeoCSV: String(hospitalsGeoCSV ?? ""),
       bedroomAreaCSV: String(bedroomAreaCSV ?? ""),
       orientationFloorCSV: String(orientationFloorCSV ?? ""),
       decorateAgeCSV: String(decorateAgeCSV ?? ""),

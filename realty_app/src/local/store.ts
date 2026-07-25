@@ -37,12 +37,18 @@ import type {
   LocalLprRow,
   LocalMetroWalk,
   LocalListing,
+  LocalListingTagSummary,
+  LocalPoiMarket,
+  LocalPoiCommercial,
+  LocalAdminDistrict,
+  LocalHospitalGeo,
   LocalListingSchoolPremium,
   LocalListingTag,
   LocalMetroLine,
   LocalMetroLineGeo,
   LocalPoi,
   LocalSchool,
+  LocalSchoolIndicator,
   LocalSchoolPremiumCommunity,
   LocalSchoolPremiumDistrict,
   LocalStats70Row,
@@ -180,6 +186,11 @@ export function getSchoolById(schoolId: number): LocalSchool | undefined {
 
 export function getIndicatorsBySchool(schoolId: number) {
   return (snapshot?.schoolIndicators ?? []).find((i) => i.schoolId === schoolId);
+}
+
+/** v0.94.0: 学校指标全表（用于派生各维度 Top 5） */
+export function getSchoolIndicators(): LocalSchoolIndicator[] {
+  return snapshot?.schoolIndicators ?? [];
 }
 
 export function getListingsByCity(cityId: number): LocalListing[] {
@@ -386,6 +397,74 @@ export function getListingTags(): LocalListingTag[] {
 
 export function getListingTagsByCity(cityId: number): LocalListingTag[] {
   return (snapshot?.listingTags ?? []).filter((t) => t.cityId === cityId);
+}
+
+/** v0.96.0: 城市级标签预聚合（全表） */
+export function getListingTagSummaries(): LocalListingTagSummary[] {
+  return snapshot?.listingTagSummaries ?? [];
+}
+
+/** v0.96.0: 城市级标签预聚合（按城市） */
+export function getListingTagSummariesByCity(
+  cityId: number
+): LocalListingTagSummary[] {
+  return (snapshot?.listingTagSummaries ?? []).filter(
+    (t) => t.cityId === cityId
+  );
+}
+
+/** v0.98.0: 周边菜市场/超市全表 */
+export function getPoiMarkets(): LocalPoiMarket[] {
+  return snapshot?.poiMarkets ?? [];
+}
+
+/** v0.98.0: 某小区周边菜市场/超市 */
+export function getPoiMarketsByCommunity(communityId: number): LocalPoiMarket[] {
+  return (snapshot?.poiMarkets ?? [])
+    .filter((p) => p.communityId === communityId)
+    .sort((a, b) => a.rank - b.rank);
+}
+
+/** v1.112.0: 周边商业 POI 全表 */
+export function getPoiCommercials(): LocalPoiCommercial[] {
+  return snapshot?.poiCommercials ?? [];
+}
+
+/** v1.112.0: 某小区周边商业 POI（按 category+rank 排序） */
+export function getPoiCommercialsByCommunity(
+  communityId: number
+): LocalPoiCommercial[] {
+  return (snapshot?.poiCommercials ?? [])
+    .filter((p) => p.communityId === communityId)
+    .sort(
+      (a, b) =>
+        a.poiCategory.localeCompare(b.poiCategory) || a.rank - b.rank
+    );
+}
+
+/** v1.113.0: 行政区划全表 */
+export function getAdminDistricts(): LocalAdminDistrict[] {
+  return snapshot?.adminDistricts ?? [];
+}
+
+/** v1.113.0: 某 city 行政区划 */
+export function getAdminDistrictsByCity(cityId: number): LocalAdminDistrict[] {
+  return (snapshot?.adminDistricts ?? [])
+    .filter((d) => d.cityId === cityId)
+    .sort((a, b) => a.districtCode.localeCompare(b.districtCode));
+}
+
+/** v1.115.0: 医院坐标全表 */
+export function getHospitalGeos(): LocalHospitalGeo[] {
+  return snapshot?.hospitalGeos ?? [];
+}
+
+/** v1.115.0: 单医院坐标 */
+export function getHospitalGeoById(hospitalId: number): LocalHospitalGeo | null {
+  return (
+    (snapshot?.hospitalGeos ?? []).find((g) => g.hospitalId === hospitalId) ??
+    null
+  );
 }
 
 /**
