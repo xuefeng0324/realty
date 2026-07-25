@@ -1018,7 +1018,13 @@
           </view>
         </view>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
-          国家统计局累计口径：{{ nbsMacro.period.replace("_to_", " 至 ") }}。销售面积和销售额为新建商品房合同口径。
+          国家统计局累计口径：{{ nbsMacro.period.replace("_to_", " 至 ") }}。销售面积和销售额为新建商品房合同口径，不是城市成交均价。
+        </view>
+        <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx">
+          销售面积同比（多期）：
+          <text v-for="(p, i) in nbsYoyTrend" :key="p.period">
+            {{ p.shortLabel }} {{ formatMacroPct(p.salesAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
+          </text>
         </view>
       </view>
 
@@ -5756,7 +5762,7 @@ import type {
 } from "../../api/contracts";
 import { coverageText, formatUnitPrice, showToast, daysAgoFromToday } from "../../utils/format";
 import { SNAPSHOT_UPDATED_EVENT } from "../../config";
-import { getLatestNbsRealEstate } from "../../local/nbsRealEstate";
+import { getLatestNbsRealEstate, getNbsYoyTrend } from "../../local/nbsRealEstate";
 import { getGzInventoryOverview, getGzInventoryDayDelta } from "../../local/gzNewHouseInventory";
 import { getLatestProvidentFundRate, monthlyPayment } from "../../local/providentFund";
 
@@ -6874,6 +6880,7 @@ const loading = ref<boolean>(false);
 const gzInventoryExpanded = ref(false);
 
 const nbsMacro = computed(() => getLatestNbsRealEstate());
+const nbsYoyTrend = computed(() => getNbsYoyTrend(6));
 const gzInventory = computed(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   return city === "广州" ? getGzInventoryOverview() : null;

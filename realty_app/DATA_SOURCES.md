@@ -152,7 +152,8 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | CSV | 加载模块 | 脚本 | 说明 |
 |-----|----------|------|------|
 | `static/provident_fund_rates.csv` | `providentFund.ts` | （人工维护 / 国务院公告） | 住房公积金贷款利率档位；`App.vue` 启动 `?raw` 加载 |
-| `static/nbs_real_estate.csv` | `nbsRealEstate.ts` | `scripts/crawl_nbs_real_estate.py` | 国家统计局房地产开发投资与销售；来源须为 `stats.gov.cn` |
+| `static/nbs_real_estate.csv` | `nbsRealEstate.ts` | `scripts/crawl_nbs_real_estate.py` | 国家统计局全国房地产市场基本情况；**多期 merge**（`period` 主键）；来源须为 `stats.gov.cn`；仪表盘展示销售面积同比多期，**不是成交均价** |
+
 | `static/gz_new_house_inventory.csv` | `gzNewHouseInventory.ts` | `scripts/crawl_gz_new_house_inventory.py` | 广州新房可售/未售/签约分区库存 |
 | `static/seed/hospitals.csv` | `hospitalRanking.ts` + dashboard「🏥 医疗资源」 | （名录整理） | 三城医院名录；v1.121.12 起仪表盘展示三甲占比 / 分区密度 / 等级 Top |
 | `static/seed/hospitals_geo.csv` | `hospitalGeoAnalysis.ts` + 医疗卡坐标段 | （高德文本检索） | v1.121.15：置信度 / 地址分区 / 最近医院对 |
@@ -167,6 +168,16 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/seed/listing_school_premium.csv` | `listingSchoolPremiumRanking.ts` + 高学区房源卡 | `compute_listing_school_premium` | v1.121.16：溢价分桶与分区 Top |
 | `static/school_source_audit.json` | 审计用（测试/脚本） | `scripts/audit_school_sources.py` | 学校来源分级审计结果，不直接驱动 UI 排名 |
 | （珠海不动产公开页） | （未接入） | `bdc.zhuhai.gov.cn/zwgk/sjfb/` | 季度登记统计多为 PNG 图，无结构化表；暂不 OCR |
+
+#### 4.1 国家统计局房地产多期回填
+
+```bash
+cd realty_app
+# 回填已知 2026 归档（1—4 / 1—5 / 1—6）并按 period merge
+python scripts/crawl_nbs_real_estate.py --backfill --no-latest
+# 仅刷新首页最新一期（merge，不抹掉历史）
+python scripts/crawl_nbs_real_estate.py
+```
 
 ---
 

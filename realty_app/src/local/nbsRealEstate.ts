@@ -53,3 +53,37 @@ export function loadNbsRealEstateFromCSV(text: string): NbsRealEstateSnapshot[] 
 export function getLatestNbsRealEstate(): NbsRealEstateSnapshot | null {
   return snapshots[0] ?? null;
 }
+
+/** 按 publishDate 降序的历史快照（最新在前） */
+export function getNbsRealEstateHistory(limit = 12): NbsRealEstateSnapshot[] {
+  return snapshots.slice(0, Math.max(0, limit));
+}
+
+export type NbsYoyTrendPoint = {
+  period: string;
+  /** 短标签，如 1—6 */
+  shortLabel: string;
+  salesAreaYoyPct: number;
+  salesAmountYoyPct: number;
+  investmentYoyPct: number;
+};
+
+function shortPeriodLabel(period: string): string {
+  const m = period.match(/(\d{4})-01_to_\1-(\d{2})/);
+  if (!m) return period;
+  return `1—${Number(m[2])}`;
+}
+
+/** 销售面积/销售额/投资同比序列（官方累计口径，非成交均价） */
+export function getNbsYoyTrend(limit = 6): NbsYoyTrendPoint[] {
+  return getNbsRealEstateHistory(limit)
+    .slice()
+    .reverse()
+    .map((s) => ({
+      period: s.period,
+      shortLabel: shortPeriodLabel(s.period),
+      salesAreaYoyPct: s.salesAreaYoyPct,
+      salesAmountYoyPct: s.salesAmountYoyPct,
+      investmentYoyPct: s.investmentYoyPct
+    }));
+}
