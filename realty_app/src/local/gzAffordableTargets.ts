@@ -70,7 +70,8 @@ export function getGzAffordableTargetRows(): GzAffordableTargetRow[] {
 export function getLatestGzAffordableTargetRaised(preferYear?: number): GzAffordableTargetRow | null {
   const raised = rows.filter((r) => r.metric === "raised");
   const pool = preferYear && preferYear > 0 ? raised.filter((r) => r.year === preferYear) : raised;
-  const src = pool.length ? pool : raised;
+  const src = preferYear && preferYear > 0 && pool.length === 0 ? [] : pool.length ? pool : raised;
+  if (!src.length) return null;
   return (
     src.find((r) => r.targetUnits > 0 && r.category.includes("配售型")) ||
     src.find((r) => r.targetUnits > 0) ||
@@ -83,6 +84,8 @@ export function getLatestGzAffordableTargetRaised(preferYear?: number): GzAfford
 export function getLatestGzAffordableTargetCompleted(preferYear?: number): GzAffordableTargetRow | null {
   const done = rows.filter((r) => r.metric === "completed");
   const pool = preferYear && preferYear > 0 ? done.filter((r) => r.year === preferYear) : done;
+  // 指定年份无数据时不回退旧年，避免脚注跨年误挂
+  if (preferYear && preferYear > 0 && pool.length === 0) return null;
   const src = pool.length ? pool : done;
   return (
     src.find((r) => r.targetUnits > 0 && r.category.includes("配售型")) ||

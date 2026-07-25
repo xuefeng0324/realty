@@ -1116,7 +1116,13 @@
           <view class="gz-inventory-kpi">
             <text class="cell-label">其中住宅</text>
             <text class="gz-inventory-value">{{ szPlannedSupply.residentialUnits.toLocaleString() }} 套</text>
-            <text class="cell-sub muted">{{ formatSupplyArea(szPlannedSupply.residentialAreaSqm) }}</text>
+            <view v-if="szSupplyResidentialPct != null" class="gz-progress-track" aria-hidden="true">
+              <view class="gz-progress-fill" :style="{ width: Math.min(100, szSupplyResidentialPct) + '%' }" />
+            </view>
+            <text class="cell-sub muted">
+              {{ formatSupplyArea(szPlannedSupply.residentialAreaSqm) }}
+              <template v-if="szSupplyResidentialPct != null"> · 占供应 {{ szSupplyResidentialPct }}%</template>
+            </text>
           </view>
         </view>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
@@ -1255,17 +1261,22 @@
             <text class="gz-inventory-value">{{ formatLandPrice(gzLandSummary.totalPriceWan) }}</text>
           </view>
           <view class="gz-inventory-kpi">
-            <text class="cell-label">最新一宗</text>
+            <text class="cell-label">样本均价</text>
             <text class="gz-inventory-value" style="font-size: 28rpx">
-              {{ gzLandLatest[0]?.district || "—" }}
+              {{
+                gzLandSummary.avgSurfaceUnitPriceYuan != null
+                  ? Math.round(gzLandSummary.avgSurfaceUnitPriceYuan).toLocaleString() + " 元/㎡地"
+                  : "—"
+              }}
             </text>
-            <text class="cell-sub muted">
-              {{ gzLandLatest[0] ? formatLandPrice(gzLandLatest[0].priceWan) : "" }}
-            </text>
+            <text class="cell-sub muted">最新 {{ gzLandLatest[0]?.district || "—" }} · {{ (gzLandLatest[0]?.dealDate || gzLandLatest[0]?.publishDate || "").slice(0, 10) }}</text>
           </view>
         </view>
         <view v-for="d in gzLandLatest" :key="d.sourceUrl" class="gz-inventory-row" style="margin-top: 8rpx">
-          <text class="gz-inventory-district">{{ d.district || "广州" }}</text>
+          <text class="gz-inventory-district">
+            {{ d.district || "广州" }}
+            <text class="muted" v-if="d.dealDate || d.publishDate"> · {{ (d.dealDate || d.publishDate).slice(0, 10) }}</text>
+          </text>
           <text>{{ formatLandPrice(d.priceWan) }}</text>
           <text class="muted">{{ formatLandArea(d.areaSqm) }}</text>
           <text class="muted">
@@ -1301,17 +1312,22 @@
             <text class="gz-inventory-value">{{ formatLandPrice(szLandSummary.totalStartPriceWan) }}</text>
           </view>
           <view class="gz-inventory-kpi">
-            <text class="cell-label">最新一宗</text>
+            <text class="cell-label">样本起始均价</text>
             <text class="gz-inventory-value" style="font-size: 28rpx">
-              {{ szLandLatest[0]?.district || "—" }}
+              {{
+                szLandSummary.avgStartSurfaceUnitPriceYuan != null
+                  ? Math.round(szLandSummary.avgStartSurfaceUnitPriceYuan).toLocaleString() + " 元/㎡地"
+                  : "—"
+              }}
             </text>
-            <text class="cell-sub muted">
-              {{ szLandLatest[0] ? formatLandPrice(szLandLatest[0].startPriceWan) : "" }}
-            </text>
+            <text class="cell-sub muted">最新 {{ szLandLatest[0]?.district || "—" }} · {{ (szLandLatest[0]?.publishDate || "").slice(0, 10) }}</text>
           </view>
         </view>
         <view v-for="d in szLandLatest" :key="d.landNo || d.sourceUrl" class="gz-inventory-row" style="margin-top: 8rpx">
-          <text class="gz-inventory-district">{{ d.district || "深圳" }}</text>
+          <text class="gz-inventory-district">
+            {{ d.district || "深圳" }}
+            <text class="muted" v-if="d.publishDate"> · {{ d.publishDate.slice(0, 10) }}</text>
+          </text>
           <text>{{ formatLandPrice(d.startPriceWan) }}</text>
           <text class="muted">{{ formatLandArea(d.areaSqm) }}</text>
           <text class="muted">
@@ -6139,6 +6155,7 @@ import {
   getLatestSzPlannedSupply,
   getSzSupplyQoQDelta,
   formatSzSupplyPeriod,
+  residentialSharePct,
   type SzPlannedSupplyRow
 } from "../../local/szPlannedSupply";
 import {
@@ -7327,6 +7344,7 @@ const szPlannedSupply = computed<SzPlannedSupplyRow | null>(() => {
   return city === "深圳" ? getLatestSzPlannedSupply() : null;
 });
 const szSupplyQoQ = computed(() => (szPlannedSupply.value ? getSzSupplyQoQDelta() : null));
+const szSupplyResidentialPct = computed(() => residentialSharePct(szPlannedSupply.value));
 function formatSupplyArea(sqm: number): string {
   if (sqm >= 10000) return `${(sqm / 10000).toFixed(1)} 万㎡`;
   return `${sqm.toLocaleString()} ㎡`;
@@ -7364,7 +7382,9 @@ const gzAffordableTargetRaised = computed<GzAffordableTargetRow | null>(() => {
 const gzAffordableTargetCompleted = computed<GzAffordableTargetRow | null>(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   if (city !== "广州") return null;
-  return getLatestGzAffordableTargetCompleted(gzAffordableCompleted.value?.year);
+  // 与筹集目标同年，避免 2025 卡脚注挂 2024 竣工目标
+  const preferYear = gzAffordableTargetRaised.value?.year ?? gzAffordableRaised.value?.year;
+  return getLatestGzAffordableTargetCompleted(preferYear);
 });
 const gzAffordableTargetPct = computed(() => progressPct(gzAffordableTargetRaised.value) ?? 0);
 const gzAffordableTargetCompletedPct = computed(() => progressPct(gzAffordableTargetCompleted.value) ?? 0);

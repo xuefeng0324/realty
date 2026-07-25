@@ -32,6 +32,7 @@ describe("gz affordable targets", () => {
     expect(done).not.toBeNull();
     expect(done!.targetUnits).toBe(4843);
     expect(done!.actualUnits).toBe(2811);
+    expect(getLatestGzAffordableTargetCompleted(2025)).toBeNull();
   });
 
   it("爬虫与仪表盘门禁", () => {

@@ -22,6 +22,8 @@ describe("gz residential land deals", () => {
     expect(sum).not.toBeNull();
     expect(sum!.count).toBe(rows.length);
     expect(sum!.totalPriceWan).toBeGreaterThan(0);
+    expect(sum!.avgSurfaceUnitPriceYuan).not.toBeNull();
+    expect(sum!.avgSurfaceUnitPriceYuan!).toBeCloseTo((sum!.totalPriceWan * 10000) / sum!.totalAreaSqm, 5);
   });
 
   it("地表单价 = 成交价万元×10000/面积", () => {
@@ -39,6 +41,8 @@ describe("gz residential land deals", () => {
     expect(script).toContain("必须用途字段命中");
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     expect(dash).toContain("data-gz-land-deals");
+    expect(dash).toContain("样本均价");
+    expect(dash).toContain("avgSurfaceUnitPriceYuan");
     expect(dash).toContain("getLatestGzLandDeals");
     expect(dash).toContain("summarizeGzLandDealsByMonth");
     expect(dash).toContain("gzLandByMonth");

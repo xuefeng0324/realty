@@ -23,6 +23,11 @@ describe("sz residential land deals", () => {
     expect(sum!.count).toBe(rows.length);
     expect(sum!.totalStartPriceWan).toBeGreaterThan(0);
     expect(sum!.latestDate >= "2025-01-01").toBe(true);
+    expect(sum!.avgStartSurfaceUnitPriceYuan).not.toBeNull();
+    expect(sum!.avgStartSurfaceUnitPriceYuan!).toBeCloseTo(
+      (sum!.totalStartPriceWan * 10000) / sum!.totalAreaSqm,
+      5
+    );
   });
 
   it("地表单价 = 起始价万元×10000/面积", () => {
@@ -40,6 +45,8 @@ describe("sz residential land deals", () => {
     expect(script).toContain("NamedTemporaryFile");
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     expect(dash).toContain("data-sz-land-deals");
+    expect(dash).toContain("样本起始均价");
+    expect(dash).toContain("avgStartSurfaceUnitPriceYuan");
     expect(dash).toContain("summarizeSzLandDealsByMonth");
     expect(dash).toContain("起始价");
   });

@@ -9,7 +9,8 @@ import {
   getLatestSzPlannedSupply,
   getSzPlannedSupplyRows,
   getSzSupplyQoQDelta,
-  loadSzPlannedSupplyFromCSV
+  loadSzPlannedSupplyFromCSV,
+  residentialSharePct
 } from "../src/local/szPlannedSupply";
 
 describe("adversarial color + cityName + sz supply", () => {
@@ -51,8 +52,10 @@ describe("adversarial color + cityName + sz supply", () => {
     expect(getSzPlannedSupplyRows().length).toBeGreaterThanOrEqual(4);
     const qoq = getSzSupplyQoQDelta();
     expect(qoq).not.toBeNull();
+    expect(qoq!.prev.year).toBe(2026);
     expect(qoq!.prev.quarter).toBe(2);
     expect(qoq!.unitsDelta).toBe(7212 - 10909);
+    expect(residentialSharePct(latest)).toBe(Math.round((6929 / 7212) * 1000) / 10);
   });
 
   it("CSV 解析支持 RFC4180；爬虫脚本认住建局域名", () => {

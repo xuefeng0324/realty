@@ -59,13 +59,18 @@ export function summarizeGzLandDeals(): {
   totalAreaSqm: number;
   totalPriceWan: number;
   latestDate: string;
+  avgSurfaceUnitPriceYuan: number | null;
 } | null {
   if (rows.length === 0) return null;
+  const totalAreaSqm = rows.reduce((s, r) => s + r.areaSqm, 0);
+  const totalPriceWan = rows.reduce((s, r) => s + r.priceWan, 0);
   return {
     count: rows.length,
-    totalAreaSqm: rows.reduce((s, r) => s + r.areaSqm, 0),
-    totalPriceWan: rows.reduce((s, r) => s + r.priceWan, 0),
-    latestDate: rows[0]!.dealDate || rows[0]!.publishDate
+    totalAreaSqm,
+    totalPriceWan,
+    latestDate: rows[0]!.dealDate || rows[0]!.publishDate,
+    avgSurfaceUnitPriceYuan:
+      totalAreaSqm > 0 && totalPriceWan > 0 ? (totalPriceWan * 10000) / totalAreaSqm : null
   };
 }
 

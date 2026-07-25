@@ -65,13 +65,20 @@ export function summarizeSzLandDeals(): {
   totalAreaSqm: number;
   totalStartPriceWan: number;
   latestDate: string;
+  avgStartSurfaceUnitPriceYuan: number | null;
 } | null {
   if (rows.length === 0) return null;
+  const totalAreaSqm = rows.reduce((s, r) => s + r.areaSqm, 0);
+  const totalStartPriceWan = rows.reduce((s, r) => s + r.startPriceWan, 0);
   return {
     count: rows.length,
-    totalAreaSqm: rows.reduce((s, r) => s + r.areaSqm, 0),
-    totalStartPriceWan: rows.reduce((s, r) => s + r.startPriceWan, 0),
-    latestDate: rows[0]!.publishDate
+    totalAreaSqm,
+    totalStartPriceWan,
+    latestDate: rows[0]!.publishDate,
+    avgStartSurfaceUnitPriceYuan:
+      totalAreaSqm > 0 && totalStartPriceWan > 0
+        ? (totalStartPriceWan * 10000) / totalAreaSqm
+        : null
   };
 }
 

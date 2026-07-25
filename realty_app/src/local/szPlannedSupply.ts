@@ -72,14 +72,23 @@ export function formatSzSupplyPeriod(row: SzPlannedSupplyRow): string {
   return `${row.year} 年 Q${row.quarter}`;
 }
 
-/** 相对上一季套数变化；无上季则 null */
+/** 相对上一季套数变化；须为相邻季度，否则 null */
 export function getSzSupplyQoQDelta(): { prev: SzPlannedSupplyRow; unitsDelta: number; unitsPct: number } | null {
   if (rows.length < 2) return null;
   const cur = rows[0]!;
-  const prev = rows[1]!;
+  const expectYear = cur.quarter === 1 ? cur.year - 1 : cur.year;
+  const expectQuarter = cur.quarter === 1 ? 4 : cur.quarter - 1;
+  const prev = rows.find((r) => r.year === expectYear && r.quarter === expectQuarter) ?? null;
+  if (!prev) return null;
   const unitsDelta = cur.totalUnits - prev.totalUnits;
   const unitsPct = prev.totalUnits > 0 ? (unitsDelta / prev.totalUnits) * 100 : 0;
   return { prev, unitsDelta, unitsPct };
+}
+
+/** 住宅套数占计划供应比例（%） */
+export function residentialSharePct(row: SzPlannedSupplyRow | null): number | null {
+  if (!row || row.totalUnits <= 0) return null;
+  return Math.round((row.residentialUnits / row.totalUnits) * 1000) / 10;
 }
 
 export function __setSzPlannedSupplyRowsForTest(next: SzPlannedSupplyRow[]): void {

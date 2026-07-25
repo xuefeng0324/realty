@@ -59,7 +59,8 @@ export function getGzHousingPlanYoY(): {
 } | null {
   if (rows.length < 2) return null;
   const cur = rows[0]!;
-  const prev = rows[1]!;
+  const prev = rows.find((r) => r.year === cur.year - 1) ?? null;
+  if (!prev) return null;
   return {
     prev,
     areaDeltaWan: cur.approvedPresaleAreaWanSqm - prev.approvedPresaleAreaWanSqm,
