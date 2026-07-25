@@ -185,8 +185,13 @@ gz_new_house_inventory.csv   → gzNewHouseInventory    → 广州库存 + 日�
 layout_distribution.csv      → layout / distribution → 挂牌结构占比 + 3室/精装跨城（v1.121.18–20）
 bedroom_area.csv             → distributionRanking   → 3室×面积跨城均价（v1.121.20）
 metro_planning_geo.csv       → metroPlanningGeoAnalysis → 弯曲 + 覆盖率 + 手工兜底（v1.121.18–20）
-lpr_history.csv              → lprHistoryAnalysis     → 利差 / 调息 / 同比 bp（v1.121.18/19）
-hospitals_geo.csv            → hospitalGeoAnalysis   → 坐标覆盖 + 重复 POI（v1.121.15/19/20）
+lpr_history.csv              → lprHistoryAnalysis     → 利差 / 调息 / 同比 / 全期均值（v1.121.18–21）
+hospitals_geo.csv            → hospitalGeoAnalysis   → 坐标 + CBD 半径医疗（v1.121.15/19–21）
+wangqian_district_weekly.csv → wangqianTrendRanking  → 周环比 / 突增 / CV 波动（v1.121.13/21）
+commute.csv                  → commuteRanking        → 通勤榜 + 快慢分裂（v0.24 / v1.121.21）
+poi_commercial.csv           → poiCommercialRanking  → 周边商业 + 银行覆盖（v1.121.15/21）
+metro_planning.csv           → metroPlanningRanking  → 规划地铁 + 快线（v1.121.14/21）
+listing_tags_summary.csv     → listingTagsComparison → 标签热度 + 跨城渗透（v1.121.14/21）
 admin_districts.csv          → adminDistrictRanking  → 区划 + ×地铁交叉（v1.121.16/19）
 community_commercial.csv     → communityCommercial   → 分区均分 + 密度桶（v1.121.17/19）
 static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务快照

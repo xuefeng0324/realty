@@ -329,6 +329,39 @@
           </view>
         </view>
 
+        <view v-if="lprVsAllTimeAvg && lprLatest" class="trend-summary" style="margin-top: 8rpx">
+          <view class="trend-cell">
+            <text class="cell-label">5Y vs 全期均</text>
+            <text
+              class="cell-value"
+              :class="lprVsAllTimeAvg.lpr5yDeltaBp <= 0 ? 'trend-up' : 'trend-down'"
+            >
+              {{ formatBp(lprVsAllTimeAvg.lpr5yDeltaBp) }}
+            </text>
+            <text class="cell-sub muted">均 {{ lprVsAllTimeAvg.lpr5yAvg.toFixed(2) }}%</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">首套 vs 全期均</text>
+            <text
+              class="cell-value"
+              :class="lprVsAllTimeAvg.mortgageFirstDeltaBp <= 0 ? 'trend-up' : 'trend-down'"
+            >
+              {{ formatBp(lprVsAllTimeAvg.mortgageFirstDeltaBp) }}
+            </text>
+            <text class="cell-sub muted">{{ lprVsAllTimeAvg.monthCount }} 月样本</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">1Y vs 全期均</text>
+            <text
+              class="cell-value"
+              :class="lprVsAllTimeAvg.lpr1yDeltaBp <= 0 ? 'trend-up' : 'trend-down'"
+            >
+              {{ formatBp(lprVsAllTimeAvg.lpr1yDeltaBp) }}
+            </text>
+            <text class="cell-sub muted">均 {{ lprVsAllTimeAvg.lpr1yAvg.toFixed(2) }}%</text>
+          </view>
+        </view>
+
         <view v-if="lprRecentCycles.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           近期调息节点（5Y LPR）
         </view>
@@ -1272,8 +1305,22 @@
               <text class="wq-trend-units muted">{{ Math.round(it.recentAvg) }}→{{ it.latestUnits }} 套</text>
             </view>
           </view>
+          <view v-if="wangqianTrendVolatility.length" class="wq-trend-block">
+            <view class="wq-trend-sub muted">波动 Top（变异系数 CV）</view>
+            <view
+              v-for="(it, idx) in wangqianTrendVolatility"
+              :key="'vol-' + it.district + it.category"
+              class="wq-trend-row"
+            >
+              <text class="wq-trend-idx">{{ idx + 1 }}</text>
+              <text class="wq-trend-name">{{ it.district }}</text>
+              <text class="wq-trend-cat">{{ it.category }}</text>
+              <text class="wq-trend-pct">CV {{ it.cv.toFixed(2) }}</text>
+              <text class="wq-trend-units muted">均 {{ Math.round(it.mean) }} · σ {{ Math.round(it.stdDev) }}</text>
+            </view>
+          </view>
           <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-            周环比 = 最近完整周 vs 上一周网签套数；突增 = 最新周较前 4 周均值倍数。数据源：wangqian_district_weekly.csv。
+            周环比 = 最近完整周 vs 上一周网签套数；突增 = 最新周较前 4 周均值倍数；CV = 标准差÷均值。数据源：wangqian_district_weekly.csv。
           </view>
         </template>
       </view>
@@ -1322,6 +1369,10 @@
               ({{ (it.transitDistanceM / 1000).toFixed(1) }}km)
             </text>
           </text>
+        </view>
+        <view v-if="commuteSplit" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          市内快慢分裂：最快 {{ Math.round(commuteSplit.fastestMinutes) }} 分 · 最慢
+          {{ Math.round(commuteSplit.slowestMinutes) }} 分 · 约 {{ commuteSplit.ratio.toFixed(1) }}×
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：高德 /v3/direction/transit/integrated (公交通勤方案 1, 早 08:30)。
@@ -1753,6 +1804,21 @@
             · 缺端点 {{ metroMissingEndpoints.length }} 条
           </text>
         </view>
+        <view v-if="metroFastLines.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          本市快线（≥100km/h）
+        </view>
+        <view
+          v-for="(ln, idx) in metroFastLines"
+          :key="'fast-' + ln.lineId"
+          class="mp-line-row"
+        >
+          <text class="mp-line-rank muted">{{ idx + 1 }}</text>
+          <view class="mp-line-mid">
+            <text class="mp-line-name">{{ ln.lineName }}</text>
+            <text class="mp-line-meta muted">{{ ln.status }} · {{ ln.stationCount }} 站</text>
+          </view>
+          <text class="mp-line-km">{{ ln.maxSpeedKmh }} km/h</text>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：metro_planning.csv + metro_planning_geo.csv。弯曲系数 ≥1.3 表示线路明显绕行。
         </view>
@@ -1998,6 +2064,30 @@
           <text class="ltk-sig-tag">{{ s.tag }}</text>
           <text class="ltk-sig-share">{{ (s.share * 100).toFixed(1) }}%</text>
           <text class="ltk-sig-vs muted">他城均 {{ (s.otherAvg * 100).toFixed(1) }}%</text>
+        </view>
+        <view v-if="listingTagPenetrationTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城共有标签渗透（本市）
+        </view>
+        <view
+          v-for="t in listingTagPenetrationTop"
+          :key="'pen-' + t.tag"
+          class="ltk-row"
+        >
+          <text class="ltk-tag">{{ t.tag }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{
+                width:
+                  Math.min(
+                    100,
+                    ((t.cityShare ?? 0) / (listingTagPenetrationTop[0]?.cityShare || 0.01)) * 100
+                  ) + '%'
+              }"
+            />
+          </view>
+          <text class="ltk-share">{{ ((t.cityShare ?? 0) * 100).toFixed(1) }}%</text>
+          <text class="ltk-count muted">均 {{ (t.avgShare * 100).toFixed(1) }}%</text>
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：listing_tags_summary.csv。与「标签组合」不同：本卡看单标签渗透与城市特色。
@@ -2867,6 +2957,19 @@
           </text>
           <text class="hosp-geo-km">{{ p.distanceKm.toFixed(2) }} km</text>
         </view>
+        <view v-if="hospitalCbdRadius" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          CBD {{ hospitalCbdRadius.radiusKm }}km 内医院
+          {{ hospitalCbdRadius.withinCount }} 家
+          <text v-if="hospitalCbdName">（{{ hospitalCbdName }}）</text>
+        </view>
+        <view
+          v-for="(hid, idx) in (hospitalCbdRadius?.hospitalIds ?? []).slice(0, 3)"
+          :key="'cbd-h-' + hid"
+          class="hosp-geo-pair"
+        >
+          <text class="hosp-geo-rank muted">{{ idx + 1 }}</text>
+          <text class="hosp-geo-names">{{ hospitalDisplayName(hid) }}</text>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           名录：hospitals.csv。坐标：hospitals_geo.csv（高德文本检索）。置信度反映 POI 匹配质量。
         </view>
@@ -2895,6 +2998,11 @@
             <text class="pc-kpi-val">{{ Math.round(commercialAvgDist) }}</text>
             <text class="pc-kpi-label muted">均距 m</text>
           </view>
+        </view>
+        <view v-if="commercialBankCoverage" class="muted" style="margin: 4rpx 0 8rpx; font-size: 22rpx">
+          银行覆盖小区
+          {{ commercialBankCoverage.bankCoveredCommunities }}/{{ commercialBankCoverage.totalCommunities }}
+          （{{ (commercialBankCoverage.coverageRatio * 100).toFixed(0) }}%）
         </view>
         <view class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">步行便利 Top（≤500m 加权）</view>
         <view
@@ -3482,6 +3590,7 @@ import {
   summarizeLprSpread,
   detectLprCutCycles,
   summarizeLprCurrentVsYearAgo,
+  getLprMonthlyAverage,
   type LprSpreadSnapshot,
   type LprCycle
 } from "../../local/lprHistoryAnalysis";
@@ -3493,8 +3602,10 @@ import { hasStats70, hasDailyWangqian, getWangqianDistrictWeekly } from "../../l
 import {
   getWangqianWeeklyWoWChange,
   getWangqianWeeklyRecentSpikes,
+  getWangqianWeeklyVolatility,
   type DistrictWoWChange,
-  type DistrictSpike
+  type DistrictSpike,
+  type DistrictVolatility
 } from "../../local/wangqianTrendRanking";
 import * as store from "../../local/store";
 import {
@@ -3532,17 +3643,21 @@ import {
   getHospitalGeoByCityAddressDistrict,
   getHospitalGeoCoverageStats,
   detectHospitalGeoDuplicateAmapPoi,
+  getHospitalGeoByCityWithinRadius,
   type CityHospitalGeoSummary,
   type HospitalGeoHighConfidenceRatio,
   type HospitalGeoNearestPair,
   type HospitalGeoDistrictSummary,
-  type HospitalGeoCoverageStats
+  type HospitalGeoCoverageStats,
+  type HospitalGeoWithinRadius
 } from "../../local/hospitalGeoAnalysis";
 import {
   getPoiCommercialByCommunityWalkScore,
   getPoiCommercialCrossCommunityByCategoryDistance,
+  getPoiCommercialByCityBankCoverage,
   type WalkScore,
-  type CommunityBankNearest
+  type CommunityBankNearest,
+  type CityBankCoverage
 } from "../../local/poiCommercialRanking";
 import {
   summarizePoiMarketByCommunity,
@@ -3551,6 +3666,7 @@ import {
 import {
   summarizeMetroPlanningByCity,
   getMetroPlanningByCityTopByLength,
+  getMetroPlanningByCityFastLines,
   type CityMetroPlanningSummary,
   type OpenYearMetroPlanningSummary,
   type TopByMetric
@@ -3569,10 +3685,16 @@ import {
   type CrossCityBucketEntry
 } from "../../local/distributionRanking";
 import {
+  getCommuteByCityFastestSlowestCompare,
+  type FastestSlowestCompare
+} from "../../local/commuteRanking";
+import {
   summarizeListingTagsByCity,
   getCityTagSignature,
+  getTagPenetrationCompare,
   type CityTagSummary,
-  type TagSignatureEntry
+  type TagSignatureEntry,
+  type TagPenetration
 } from "../../local/listingTagsComparison";
 import {
   summarizeAdminDistrictByCity,
@@ -3644,6 +3766,9 @@ const districtWangqianRank = ref<DistrictWangqianRankResponse | null>(null);
 const wqRankCat = ref<"新房" | "二手" | "全部">("全部");
 // v0.24.0 new-5: 通勤时长榜
 const commuteRanking = ref<CommuteRankingResponse | null>(null);
+const commuteSplit = computed<FastestSlowestCompare | null>(() =>
+  getCommuteByCityFastestSlowestCompare().find((x) => x.cityId === app.cityId) ?? null
+);
 const layoutDistribution = ref<LayoutDistributionResponse | null>(null);
 const tagCloud = ref<TagCloudResponse | null>(null);
 const tagCloudFilteredHint = ref<string>("");
@@ -3679,6 +3804,18 @@ const hospitalGeoDupCount = computed(
 const hospitalGeoNearest = computed<HospitalGeoNearestPair[]>(() =>
   getHospitalGeoByCityNearestPair(app.cityId, 3)
 );
+const hospitalCbdRef = computed(() => {
+  const rows = store.getCommutesByCity(app.cityId);
+  const hit = rows.find((x) => x.cbdLat != null && x.cbdLng != null);
+  if (!hit) return null;
+  return { lat: hit.cbdLat, lng: hit.cbdLng, name: hit.cbdName };
+});
+const hospitalCbdName = computed(() => hospitalCbdRef.value?.name ?? null);
+const hospitalCbdRadius = computed<HospitalGeoWithinRadius | null>(() => {
+  const ref = hospitalCbdRef.value;
+  if (!ref) return null;
+  return getHospitalGeoByCityWithinRadius(app.cityId, ref.lat, ref.lng, 3);
+});
 const hospitalGeoDistricts = computed<HospitalGeoDistrictSummary[]>(() =>
   getHospitalGeoByCityAddressDistrict(app.cityId).slice(0, 5)
 );
@@ -3730,6 +3867,9 @@ const commercialBankNear = computed<CommunityBankNearest[]>(() =>
   getPoiCommercialCrossCommunityByCategoryDistance("bank", 80)
     .filter((x) => store.getCommunityById(x.communityId)?.cityId === app.cityId)
     .slice(0, 5)
+);
+const commercialBankCoverage = computed<CityBankCoverage | null>(() =>
+  getPoiCommercialByCityBankCoverage().find((x) => x.cityId === app.cityId) ?? null
 );
 
 // v1.121.15 菜市场可达
@@ -3837,6 +3977,9 @@ const metroManualFallback = computed<ManualFallbackRate | null>(() =>
 const metroMissingEndpoints = computed(() =>
   getMetroPlanningGeoByCityMissingEndpoints(app.cityId)
 );
+const metroFastLines = computed(() =>
+  getMetroPlanningByCityFastLines(100).filter((x) => x.cityId === app.cityId).slice(0, 5)
+);
 
 // v1.121.18 挂牌结构占比（layout_distribution）
 const layoutBedroomShare = computed<LocalLayoutDistribution[]>(() =>
@@ -3882,6 +4025,18 @@ const listingTagTopShare = computed(
 const listingTagSignature = computed<TagSignatureEntry[]>(() =>
   getCityTagSignature(app.cityId, 1.5).slice(0, 5)
 );
+const listingTagPenetrationTop = computed(() => {
+  const cityId = app.cityId;
+  return getTagPenetrationCompare()
+    .filter((t) => t.presentIn.length >= 2 && t.byCity[cityId] != null)
+    .map((t) => ({
+      tag: t.tag,
+      avgShare: t.avgShare,
+      cityShare: t.byCity[cityId]?.share ?? null
+    }))
+    .sort((a, b) => (b.cityShare ?? 0) - (a.cityShare ?? 0))
+    .slice(0, 5);
+});
 
 // v0.35.0 map-9: 地铁步行通勤
 const metroWalk = ref<MetroWalkResponse | null>(null);
@@ -5939,6 +6094,17 @@ const lprSpreadCurrent = computed<LprSpreadSnapshot | null>(
   () => summarizeLprSpread().current
 );
 const lprYoY = computed(() => summarizeLprCurrentVsYearAgo());
+const lprVsAllTimeAvg = computed(() => {
+  const avg = getLprMonthlyAverage();
+  const latest = lprLatest.value;
+  if (!avg || !latest) return null;
+  return {
+    ...avg,
+    lpr5yDeltaBp: Math.round((latest.lpr5y - avg.lpr5yAvg) * 100),
+    lpr1yDeltaBp: Math.round((latest.lpr1y - avg.lpr1yAvg) * 100),
+    mortgageFirstDeltaBp: Math.round((latest.mortgageFirst - avg.mortgageFirstAvg) * 100)
+  };
+});
 const lprRecentCycles = computed<LprCycle[]>(() =>
   detectLprCutCycles().slice(-5).reverse()
 );
@@ -6060,6 +6226,14 @@ const wangqianTrendSpikes = computed((): DistrictSpike[] => {
   const city = wangqianTrendCityName.value;
   if (!city) return [];
   return getWangqianWeeklyRecentSpikes(4, 1.5).filter((x) => x.city === city);
+});
+const wangqianTrendVolatility = computed((): DistrictVolatility[] => {
+  const city = wangqianTrendCityName.value;
+  if (!city) return [];
+  return getWangqianWeeklyVolatility()
+    .filter((x) => x.city === city)
+    .sort((a, b) => b.cv - a.cv)
+    .slice(0, 3);
 });
 const wangqianTrendHasCityData = computed(
   () =>
