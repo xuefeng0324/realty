@@ -244,7 +244,8 @@ import {
   getCommunityById,
   getPoisByCity,
   getMetroLineGeosByCity,
-  getMetroLinesByCity
+  getMetroLinesByCity,
+  getCommunityGeoByCity
 } from "../../local/store";
 import { getCities, getPoisByCommunity } from "../../local/store";
 import { getMetroPlanningGeoByCityCrossReference, type CurvatureEntry } from "../../local/metroPlanningGeoAnalysis";
@@ -996,12 +997,19 @@ async function loadCommunityMarkers() {
         cur.sum += l.unitPrice;
         agg.set(l.communityId, cur);
       }
-      // 从 communities_geo 取 lat/lng (通过 store.getCommunityById 不带 lat/lng, 需另读)
-      // 这里直接读 raw csv via fetch
-      const csvText = await fetch("/static/seed/communities_geo.csv").then((r) =>
-        r.ok ? r.text() : ""
+      // 从 communities_geo 取 lat/lng — App-Plus WebView 没有 fetch, 必须走 store
+      const geos = getCommunityGeoByCity(cityId);
+      const geoMap = new Map(
+        geos.map((g) => [
+          g.communityId,
+          {
+            lat: g.lat,
+            lng: g.lng,
+            district: g.district ?? "",
+            formattedAddress: ""
+          }
+        ])
       );
-      const geoMap = parseGeoCsv(csvText);
       for (const c of communities) {
         const geo = geoMap.get(c.communityId);
         if (!geo) continue;
@@ -1025,28 +1033,8 @@ async function loadCommunityMarkers() {
   }
 }
 
-function parseGeoCsv(text: string): Map<number, { lat: number; lng: number; district: string; formattedAddress: string }> {
-  const m = new Map<number, { lat: number; lng: number; district: string; formattedAddress: string }>();
-  if (!text) return m;
-  const lines = text.split(/\r?\n/);
-  if (lines.length < 2) return m;
-  const header = lines[0].split(",");
-  const idx = (k: string) => header.indexOf(k);
-  for (let i = 1; i < lines.length; i++) {
-    const cols = lines[i].split(",");
-    if (cols.length < 3) continue;
-    const cid = Number(cols[idx("community_id")]);
-    const lat = Number(cols[idx("lat")]);
-    const lng = Number(cols[idx("lng")]);
-    if (!cid || Number.isNaN(lat) || Number.isNaN(lng)) continue;
-    m.set(cid, {
-      lat,
-      lng,
-      district: cols[idx("district")] ?? "",
-      formattedAddress: cols[idx("formatted_address")] ?? ""
-    });
-  }
-  return m;
+function _parseGeoCsvRemoved_v1_121_0() {
+  // 占位删除: 历史 fetch('/static/seed/communities_geo.csv') 改走 store.getCommunityGeoByCity
 }
 
 onMounted(() => {

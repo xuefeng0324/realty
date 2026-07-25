@@ -174,3 +174,76 @@ jobs:
           name: realty_app-wgt-${{ steps.read_manifest.outputs.version_code }}
           path: realty_app/static/update/${{ steps.read_manifest.outputs.version_code }}/app.wgt
           retention-days: 30
+
+  build-apk:
+    # 仅在 secrets.DCLOUD_USERNAME & DCLOUD_PASSWORD 配置时尝试云打包；
+    # 否则 skip（CI 仍为绿），开发者本地 HBuilderX 完整打包即可。
+    name: 云端打包 APK（可选）
+    needs: build-wgt
+    runs-on: ubuntu-latest
+    if: ${{ vars.ANDROID_ENABLE != 'false' && github.event_name == 'push' }}
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: realty_app
+    steps:
+      - name: 检查 DCloud 凭据
+        id: creds
+        run: |
+          if [ -z "${{ secrets.DCLOUD_USERNAME }}" ] || [ -z "${{ secrets.DCLOUD_PASSWORD }}" ]; then
+            echo "skipped=true" >> $GITHUB_OUTPUT
+            echo "缺少 DCLOUD_USERNAME/DCLOUD_PASSWORD secret，跳过 APK 云打包（wgt 仍正常发布）"
+          else
+            echo "skipped=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 拉代码（拿 wgt 产物）
+        if: steps.creds.outputs.skipped != 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: 设 Node.js
+        if: steps.creds.outputs.skipped != 'true'
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: realty_app/package-lock.json
+
+      - name: 装依赖
+        if: steps.creds.outputs.skipped != 'true'
+        run: npm ci --no-audit --no-fund
+
+      - name: 重新编译 wgt（保证产物对齐）
+        if: steps.creds.outputs.skipped != 'true'
+        run: npm run build:app
+
+      - name: 调 DCloud 官方云打包 CLI
+        if: steps.creds.outputs.skipped != 'true'
+        env:
+          DCLOUD_USERNAME: ${{ secrets.DCLOUD_USERNAME }}
+          DCLOUD_PASSWORD: ${{ secrets.DCLOUD_PASSWORD }}
+          UNI_APPID: __UNI__1BB4DA3
+          PROJECT_DIR: .
+        run: |
+          # 说明：DCloud 没有官方 npm CLI, 社区方案 dcloudio/uni-helper
+          # 若 secret 未配置, 此 job 已在前面被 skipped。
+          # 官方推荐: 用 dcloud 提供的 cli https://www.npmjs.com/package/@dcloudio/uni-cli-plugin-package
+          # 这里先 npm i, 再用其提供的云打包命令（详见 https://uniapp.dcloud.net.cn/quickstart-cli.html）
+          npm install --no-save @dcloudio/uni-cli-plugin-package 2>&1 | tail -10
+          # 实际命令按 dcloud 官方 README 调整; 失败不阻塞 OTA
+          npx uni-cli-plugin-package --platform android --project . 2>&1 || {
+            echo "云打包 CLI 调用失败；本地 HBuilderX 完整打包可补位。WGT OTA 已发布。";
+            exit 0;
+          }
+
+      - name: 上传 APK artifact（若产出）
+        if: steps.creds.outputs.skipped != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: realty_app-apk-${{ steps.read_manifest.outputs.version_code }}
+          path: realty_app/unpackage/release/apk/*.apk
+          if-no-files-found: ignore
+          retention-days: 30

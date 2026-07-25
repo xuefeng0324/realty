@@ -86,3 +86,21 @@ npm run build:app
 | `static/update/app-update.json` | OTA 清单，CI 自动生成；不要手动改 |
 | `static/update/<versionCode>/app.wgt` | 历史 wgt 包，App 内下载即用 |
 | `scripts/build_apk.ps1` | 本地一键：编译 wgt 并打印产物信息 |
+| `scripts/build_app_icons.mjs` | 零依赖（Node 22）生成 `static/app-icons/{72,96,144,192}.png`；SVG 在 `static/app-icon.svg` |
+
+## 应用图标（v1.121.0+）
+
+`static/app-icons/` 现在是 4 张「深蓝渐变 + amber 柱 + pin 圆点」的简约品牌图标。
+本仓提供两个零依赖维护路径：
+
+1. **重新生成 PNG**：本地 Node 22+ 直接跑
+
+   ```powershell
+   node realty_app/scripts/build_app_icons.mjs
+   ```
+
+   输出 `72/96/144/192.png`。再拷一份到 `unpackage/res/icons/`（HBuilderX 云打包读这个目录）。
+2. **改主设计**：编辑 `realty_app/static/app-icon.svg`（矢量），CI 出新 PNG。
+   CI 出 PNG 的步骤目前靠你本地跑脚本（见 README 末尾 v1.121.0 changelog 后续 TODO）。
+
+> iOS / 启动屏 / 各 DPI 适配可后续再扩。当前图标先满足安卓端"基础包+OTA"主线。
