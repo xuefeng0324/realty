@@ -8,8 +8,8 @@
       </view>
 
       <view v-if="educationOverview" class="card" data-education-overview>
-        <view class="card-title">官方教育事业统计 · {{ currentCityLabel }}</view>
-        <view class="muted">{{ educationOverview.period }} 年 · {{ educationOverview.sourceOrg }} · {{ educationOverview.publishDate }}</view>
+        <view class="card-title">官方教育事业统计 · {{ educationCityLabel }}</view>
+        <view class="muted">{{ formatEducationPeriodLabel(educationOverview) }} · {{ educationOverview.sourceOrg }} · {{ educationOverview.publishDate }}</view>
         <view class="edu-grid">
           <view class="edu-cell"><text class="muted">学校总数</text><text>{{ educationOverview.totalSchools.toLocaleString() }}</text></view>
           <view class="edu-cell">
@@ -24,16 +24,16 @@
             <text class="muted">小学/初中</text>
             <text>{{ educationOverview.primaryCount }}/{{ educationOverview.juniorHighCount }}</text>
           </view>
-          <view v-else class="edu-cell">
+          <view v-if="educationOverview.kindergartenCount > 0" class="edu-cell">
             <text class="muted">幼儿园</text>
             <text>{{ educationOverview.kindergartenCount.toLocaleString() }}</text>
           </view>
         </view>
         <view v-if="educationOverview.city === '珠海'" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          基础教育学校数官方表；在校生未公布不伪造。
+          基础教育学校数官方表；在校生未公布不伪造。期间为学年，非自然年。
         </view>
         <view v-else-if="!educationHasSplit" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          深圳公报不拆小学/初中/高中分项，仅展示官方公布口径。
+          官方口径为「普通中小学」合计，不伪造小学/初中分项。
         </view>
       </view>
 
@@ -209,7 +209,12 @@ import type { CityItem, SchoolItem } from "../../api/contracts";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { useAppStore } from "../../store/app";
 import { showToast } from "../../utils/format";
-import { getEducationOverview, educationHasPrimaryJuniorSplit } from "../../local/educationOverview";
+import {
+  getEducationOverview,
+  educationHasPrimaryJuniorSplit,
+  formatEducationPeriodLabel
+} from "../../local/educationOverview";
+import * as store from "../../local/store";
 import {
   summarizeSchoolDimensionsByCity,
   getSchoolDimensionByDimensionTopN,
@@ -232,7 +237,11 @@ const currentCityLabel = computed(() => {
   const c = cities.value.find((c) => c.city_id === app.cityId);
   return c?.city_name || "";
 });
-const educationOverview = computed(() => getEducationOverview(currentCityLabel.value.replace(/市$/, "")));
+/** 教育概览必须走同步 store，不能等异步 getCities，否则首屏无卡 */
+const educationCityLabel = computed(
+  () => store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? ""
+);
+const educationOverview = computed(() => getEducationOverview(educationCityLabel.value));
 const educationHasSplit = computed(() =>
   educationOverview.value ? educationHasPrimaryJuniorSplit(educationOverview.value) : false
 );

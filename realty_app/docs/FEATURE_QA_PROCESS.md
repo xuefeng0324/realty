@@ -105,11 +105,31 @@ $env:E2E_BASE_URL="http://127.0.0.1:5174"; npm run test:e2e:core
 
 ---
 
-## 6. 与现有文档关系
+## 6. 对抗式找 Bug（AI 协作约定）
+
+业界常见「多角色辩论」流程（Hunter → Skeptic），本仓落地为：
+
+```text
+Hunter：列可达缺陷（竞态、错误口径、脆弱解析、页签漏测）
+Skeptic：只保留可复现 / 可写断言的项；证伪即丢弃
+Fix：最小修复 + adversarial*.test.ts / smoke 门禁钉死错误行为
+```
+
+规则：
+
+- **禁止**把「感觉还有 bug」当成任务；必须写出复现条件或失败断言
+- **禁止**把产品预期（如 NBS 全国口径）误报成 bug
+- 新增对抗用例放 `tests/adversarial*.test.ts`，命名写明 P0/P1/P2
+
+本仓已用该流程修过：教育卡首屏丢卡、CSV 逗号错列、珠海学年误标（见 v1.121.53）。
+
+---
+
+## 7. 与现有文档关系
 
 | 文档 | 职责 |
 |------|------|
-| **本文件** | 强制流程 + Bug 分类 + DoD |
+| **本文件** | 强制流程 + Bug 分类 + DoD + 对抗式找 bug |
 | [FEATURE_CATALOG.md](./FEATURE_CATALOG.md) | **全部功能**验收标准与测试流程总表 |
 | [FEATURE_ACCEPTANCE.md](./FEATURE_ACCEPTANCE.md) | 简版总则 + 专题索引 |
 | 专题 `*_ACCEPTANCE.md` | 深挖某一横切能力（主题/房价/信息流…） |
@@ -119,13 +139,14 @@ $env:E2E_BASE_URL="http://127.0.0.1:5174"; npm run test:e2e:core
 
 ---
 
-## 7. 禁止事项
+## 8. 禁止事项
 
 - 禁止「先上线再补验收」
 - 禁止只用截图、不写可重复步骤
 - 禁止把 DERIVED / 空爬取结果包装成「数据已更新」
 - 禁止在 CATALOG 未登记的情况下合并新 Tab/新模式/新口径
 - 禁止 AI/人工用「我看代码应该对」代替门禁结果
+- 禁止 Hunter 清单未经 Skeptic 就整批「优化」
 
 ---
 

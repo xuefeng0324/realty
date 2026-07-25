@@ -868,10 +868,10 @@
       </view>
 
       <!-- v1.121.16 教育事业概览（educationOverview，学校页已有，仪表盘此前未展示） -->
-      <view v-if="eduOverview" class="card" data-tab="all,school">
+      <view v-if="eduOverview" class="card" data-tab="all,school" data-education-overview>
         <view class="row-between">
           <view class="card-title">📚 教育事业 · {{ eduOverview.city }}</view>
-          <view class="muted">{{ eduOverview.period }} 年</view>
+          <view class="muted">{{ formatEducationPeriodLabel(eduOverview) }}</view>
         </view>
         <view class="edu-summary">
           <view class="edu-kpi">
@@ -895,7 +895,7 @@
           <template v-else>
             <view class="edu-kpi">
               <text class="edu-kpi-val">{{ eduOverview.compulsoryCount }}</text>
-              <text class="edu-kpi-label muted">中小学</text>
+              <text class="edu-kpi-label muted">普通中小学</text>
             </view>
             <view class="edu-kpi">
               <text class="edu-kpi-val">{{ eduOverview.kindergartenCount }}</text>
@@ -913,7 +913,7 @@
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           {{ eduOverview.sourceOrg }} · {{ eduOverview.publishDate }} 发布。
           <text v-if="eduOverview.city === '珠海'">基础教育学校数官方表；在校生/民办未公布不伪造。</text>
-          <text v-else-if="!eduHasPrimaryJuniorSplit">深圳口径为「普通中小学」合计，不伪造小学/初中分项。</text>
+          <text v-else-if="!eduHasPrimaryJuniorSplit">官方口径为「普通中小学」合计，不伪造小学/初中分项。</text>
         </view>
       </view>
 
@@ -5746,7 +5746,7 @@ import {
   type DensityDistanceBucket,
   type CityCommercialSummary
 } from "../../local/communityCommercialRanking";
-import { getEducationOverview, educationHasPrimaryJuniorSplit, type EducationOverview } from "../../local/educationOverview";
+import { getEducationOverview, educationHasPrimaryJuniorSplit, formatEducationPeriodLabel, type EducationOverview } from "../../local/educationOverview";
 import {
   getListingKeywordsByCity,
   getListingKeywordsCrossCity,
@@ -6025,7 +6025,8 @@ const marketCategoryStats = computed<MarketCategoryStat[]>(() =>
 
 // v1.121.16 教育事业概览
 const eduOverview = computed<EducationOverview | null>(() => {
-  const name = cityNameForId(app.cityId).replace(/市$/, "");
+  // 必须走 store（同步），不能依赖异步 getCities 的 cities.value，否则首屏会短暂无卡
+  const name = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   return getEducationOverview(name);
 });
 const eduHasPrimaryJuniorSplit = computed(() =>

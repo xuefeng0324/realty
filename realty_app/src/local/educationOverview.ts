@@ -1,3 +1,4 @@
+import { parseCSV, rowsToObjects } from "./csv";
 // @ts-ignore
 import rawCsv from "../../static/education_overview.csv?raw";
 
@@ -24,35 +25,39 @@ function parseNumber(value: string): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function loadRows(): EducationOverview[] {
-  const lines = String(rawCsv ?? "").trim().split(/\r?\n/);
-  if (lines.length < 2) return [];
-  return lines.slice(1).map((line) => {
-    const cells = line.split(",");
-    return {
-      city: cells[0] ?? "",
-      period: cells[1] ?? "",
-      publishDate: cells[2] ?? "",
-      totalSchools: parseNumber(cells[3]),
-      totalStudents10k: parseNumber(cells[4]),
-      kindergartenCount: parseNumber(cells[5]),
-      compulsoryCount: parseNumber(cells[6]),
-      primaryCount: parseNumber(cells[7]),
-      juniorHighCount: parseNumber(cells[8]),
-      seniorHighCount: parseNumber(cells[9]),
-      vocationalCount: parseNumber(cells[10]),
-      specialCount: parseNumber(cells[11]),
-      privateCount: parseNumber(cells[12]),
-      sourceOrg: cells[13] ?? "",
-      sourceUrl: cells[14] ?? ""
-    };
-  });
+function mapRow(row: Record<string, string>): EducationOverview {
+  return {
+    city: String(row.city ?? "").trim(),
+    period: String(row.period ?? "").trim(),
+    publishDate: String(row.publish_date ?? "").trim(),
+    totalSchools: parseNumber(row.total_schools ?? ""),
+    totalStudents10k: parseNumber(row.total_students_10k ?? ""),
+    kindergartenCount: parseNumber(row.kindergarten_count ?? ""),
+    compulsoryCount: parseNumber(row.compulsory_count ?? ""),
+    primaryCount: parseNumber(row.primary_count ?? ""),
+    juniorHighCount: parseNumber(row.junior_high_count ?? ""),
+    seniorHighCount: parseNumber(row.senior_high_count ?? ""),
+    vocationalCount: parseNumber(row.vocational_count ?? ""),
+    specialCount: parseNumber(row.special_count ?? ""),
+    privateCount: parseNumber(row.private_count ?? ""),
+    sourceOrg: String(row.source_org ?? "").trim(),
+    sourceUrl: String(row.source_url ?? "").trim()
+  };
 }
 
-const rows = loadRows();
+/** 可测入口：RFC4180 解析（支持字段内逗号） */
+export function loadEducationOverviewFromCSV(text: string): EducationOverview[] {
+  return rowsToObjects<Record<string, string>>(parseCSV(text))
+    .map(mapRow)
+    .filter((row) => row.city);
+}
+
+let rows: EducationOverview[] = loadEducationOverviewFromCSV(String(rawCsv ?? ""));
 
 export function getEducationOverview(city: string): EducationOverview | null {
-  return rows.find((row) => row.city === city) ?? null;
+  const key = city.replace(/市$/, "").trim();
+  if (!key || key.startsWith("city#")) return null;
+  return rows.find((row) => row.city === key) ?? null;
 }
 
 export function getEducationOverviews(): EducationOverview[] {
@@ -62,4 +67,21 @@ export function getEducationOverviews(): EducationOverview[] {
 /** 深圳公报不拆小学/初中；用普通中小学（存于 compulsoryCount）降级展示 */
 export function educationHasPrimaryJuniorSplit(row: EducationOverview): boolean {
   return row.primaryCount > 0 && row.juniorHighCount > 0;
+}
+
+/**
+ * 展示用期间文案。
+ * 珠海基础教育表为学年起点年（如 2024 = 2024–2025 学年），不可写成「2024 年」自然年。
+ */
+export function formatEducationPeriodLabel(row: EducationOverview): string {
+  if (row.city === "珠海" && /^\d{4}$/.test(row.period)) {
+    const y = Number(row.period);
+    return `${y}–${y + 1} 学年`;
+  }
+  return `${row.period} 年`;
+}
+
+/** 测试用：替换内存快照 */
+export function __setEducationOverviewRowsForTest(next: EducationOverview[]): void {
+  rows = [...next];
 }
