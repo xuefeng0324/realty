@@ -60,7 +60,16 @@ export function getGzInventoryOverview(): GzInventoryOverview | null {
 /** 可售最高区占全市可售比例（%） */
 export function topDistrictAvailableSharePct(overview: GzInventoryOverview | null): number | null {
   if (!overview || overview.availableUnits <= 0 || !overview.districts[0]) return null;
-  return Math.round((overview.districts[0].availableUnits / overview.availableUnits) * 1000) / 10;
+  return districtAvailableSharePct(overview.districts[0], overview.availableUnits);
+}
+
+/** 单区可售占全市可售比例（%） */
+export function districtAvailableSharePct(
+  row: Pick<GzInventoryRow, "availableUnits"> | null | undefined,
+  cityAvailableUnits: number
+): number | null {
+  if (!row || cityAvailableUnits <= 0) return null;
+  return Math.round((row.availableUnits / cityAvailableUnits) * 1000) / 10;
 }
 
 /** 最新日 vs 上一交易日（同 CSV 内）的全市总量差 */

@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   getLatestNbsRealEstate,
+  getNbsImpliedContractUnitPrice,
   getNbsRealEstateHistory,
   getNbsYoyTrend,
   loadNbsRealEstateFromCSV
@@ -36,6 +37,30 @@ describe("国家统计局房地产市场数据", () => {
     expect(trend.map((x) => x.shortLabel)).toEqual(["1—2", "1—3", "1—4", "1—5", "1—6"]);
     expect(trend[0].salesAreaYoyPct).toBe(-13.5);
     expect(trend[4].salesAreaYoyPct).toBe(-11.6);
+
+    // 37945 亿元 / 40140 万㎡ → 约 9453 元/㎡（合同派生，非城市均价）
+    expect(getNbsImpliedContractUnitPrice(latest)).toBe(9453);
+    expect(getNbsImpliedContractUnitPrice()).toBe(9453);
+  });
+
+  it("合同均价在面积为 0 时返回 null", () => {
+    expect(
+      getNbsImpliedContractUnitPrice({
+        period: "x",
+        publishDate: "2026-01-01",
+        investmentCny100m: 1,
+        investmentYoyPct: 0,
+        salesArea10kSqm: 0,
+        salesAreaYoyPct: 0,
+        salesAmountCny100m: 100,
+        salesAmountYoyPct: 0,
+        inventoryArea10kSqm: 1,
+        inventoryAreaYoyPct: 0,
+        fundsCny100m: 1,
+        fundsYoyPct: 0,
+        sourceUrl: "https://www.stats.gov.cn/x"
+      })
+    ).toBeNull();
   });
 
   it("拒绝非国家统计局来源", () => {

@@ -197,6 +197,16 @@
             </text>
             · 同比 {{ formatIndex(stats70CurrentCityRank.value) }}
           </text>
+          <view
+            class="gz-progress-track"
+            style="margin-top: 8rpx"
+            aria-hidden="true"
+          >
+            <view
+              class="gz-progress-fill"
+              :style="{ width: Math.min(100, Math.max(0, stats70CurrentCityRank.topPct)) + '%' }"
+            />
+          </view>
         </view>
 
         <view class="trend-row" v-if="stats70CurrentCityTrend">
@@ -1031,8 +1041,12 @@
             <text class="cell-sub" :class="macroTrendClass(nbsMacro.inventoryAreaYoyPct)">同比 {{ formatMacroPct(nbsMacro.inventoryAreaYoyPct) }}</text>
           </view>
         </view>
+        <view v-if="nbsImpliedUnitPrice != null" class="rank-row" style="margin-top: 12rpx">
+          <text class="muted" style="font-size: 22rpx">全国合同均价（销售额÷面积）</text>
+          <text class="rank-val">{{ nbsImpliedUnitPrice.toLocaleString() }} 元/㎡</text>
+        </view>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
-          国家统计局累计口径：{{ nbsMacro.period.replace("_to_", " 至 ") }}。销售面积和销售额为新建商品房合同口径，不是城市成交均价。
+          国家统计局累计口径：{{ nbsMacro.period.replace("_to_", " 至 ") }}。销售面积和销售额为新建商品房合同口径；上方均价为销售额÷面积派生值，不是城市挂牌/网签均价，也不是 70 城价格指数。
         </view>
         <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx">
           销售面积同比（多期）：
@@ -1093,7 +1107,12 @@
             class="gz-inventory-row"
             data-gz-inventory-detail
           >
-            <text class="gz-inventory-district">{{ row.district }}</text>
+            <text class="gz-inventory-district">
+              {{ row.district }}
+              <text class="muted" v-if="districtAvailableSharePct(row, gzInventory.availableUnits) != null">
+                · {{ districtAvailableSharePct(row, gzInventory.availableUnits) }}%
+              </text>
+            </text>
             <text>可售 {{ row.availableUnits.toLocaleString() }}</text>
             <text class="muted">未售 {{ row.unsoldUnits.toLocaleString() }}</text>
             <text class="muted">签约 {{ row.signedUnits }}</text>
@@ -6173,8 +6192,8 @@ import type {
 } from "../../api/contracts";
 import { coverageText, formatUnitPrice, showToast, daysAgoFromToday } from "../../utils/format";
 import { SNAPSHOT_UPDATED_EVENT } from "../../config";
-import { getLatestNbsRealEstate, getNbsYoyTrend } from "../../local/nbsRealEstate";
-import { getGzInventoryOverview, getGzInventoryDayDelta, topDistrictAvailableSharePct } from "../../local/gzNewHouseInventory";
+import { getLatestNbsRealEstate, getNbsImpliedContractUnitPrice, getNbsYoyTrend } from "../../local/nbsRealEstate";
+import { getGzInventoryOverview, getGzInventoryDayDelta, topDistrictAvailableSharePct, districtAvailableSharePct } from "../../local/gzNewHouseInventory";
 import {
   getLatestSzPlannedSupply,
   getSzSupplyQoQDelta,
@@ -7351,6 +7370,7 @@ const gzInventoryExpanded = ref(false);
 
 const nbsMacro = computed(() => getLatestNbsRealEstate());
 const nbsYoyTrend = computed(() => getNbsYoyTrend(6));
+const nbsImpliedUnitPrice = computed(() => getNbsImpliedContractUnitPrice(nbsMacro.value));
 const gzInventory = computed(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   return city === "广州" ? getGzInventoryOverview() : null;

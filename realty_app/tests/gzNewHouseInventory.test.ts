@@ -5,7 +5,8 @@ import {
   getGzInventoryDayDelta,
   getGzInventoryOverview,
   loadGzInventoryFromCSV,
-  topDistrictAvailableSharePct
+  topDistrictAvailableSharePct,
+  districtAvailableSharePct
 } from "../src/local/gzNewHouseInventory";
 
 describe("广州新房库存", () => {
@@ -23,6 +24,7 @@ describe("广州新房库存", () => {
     expect(overview?.signedUnits).toBe(13);
     expect(overview?.districts[0].district).toBe("增城区");
     expect(topDistrictAvailableSharePct(overview)).toBe(71.4);
+    expect(districtAvailableSharePct(overview!.districts[1], overview!.availableUnits)).toBe(28.6);
   });
 
   it("日环比：最新日 vs 上一交易日全市总量差", () => {

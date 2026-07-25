@@ -87,3 +87,16 @@ export function getNbsYoyTrend(limit = 6): NbsYoyTrendPoint[] {
       investmentYoyPct: s.investmentYoyPct
     }));
 }
+
+/**
+ * 全国新建商品房合同均价（销售额÷销售面积）派生值，单位元/㎡。
+ * 累计合同口径，≠城市挂牌均价、≠网签均价、≠70城价格指数。
+ */
+export function getNbsImpliedContractUnitPrice(
+  snapshot?: NbsRealEstateSnapshot | null
+): number | null {
+  const s = snapshot === undefined ? getLatestNbsRealEstate() : snapshot;
+  if (!s || !(s.salesArea10kSqm > 0) || !Number.isFinite(s.salesAmountCny100m)) return null;
+  // 亿元 / 万㎡ → 元/㎡ = (亿元×1e8) / (万㎡×1e4) = 亿元×1e4 / 万㎡
+  return Math.round((s.salesAmountCny100m * 10000) / s.salesArea10kSqm);
+}
