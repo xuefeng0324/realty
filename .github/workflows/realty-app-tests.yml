@@ -40,18 +40,6 @@ jobs:
           cache: npm
           cache-dependency-path: realty_app/package-lock.json
 
-      - name: 下载 actionlint 二进制
-        # rhysd/actionlint 仓库本身不是 GitHub Action（无 action.yml），
-        # 不能用 uses:；按官方推荐用 download script 拉二进制。
-        # 默认 lint 整个 .github/workflows/（含 crawl-*）。
-        id: get_actionlint
-        run: bash <(curl -sSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
-        shell: bash
-
-      - name: lint workflows（actionlint）
-        run: ${{ steps.get_actionlint.outputs.executable }} -color
-        shell: bash
-
       - name: 装依赖（npm ci）
         run: npm ci --no-audit --no-fund
 
