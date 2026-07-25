@@ -1235,6 +1235,74 @@
         </template>
       </view>
 
+      <view v-if="gdConstruction" class="card macro-card" data-tab="overview,price" data-gd-construction>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">广东建筑业生产运行</view>
+          <view class="muted" style="font-size: 22rpx">{{ gdConstruction.periodLabel }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <view class="stats70-cell">
+            <text class="cell-label">建筑业总产值</text>
+            <text class="cell-value">{{ formatMacro100m(gdConstruction.totalOutputYi) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(gdConstruction.totalOutputYoyPct)">
+              同比 {{ formatMacroPct(gdConstruction.totalOutputYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">房屋建筑业产值</text>
+            <text class="cell-value">{{ formatMacro100m(gdConstruction.housingOutputYi) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(gdConstruction.housingOutputYoyPct)">
+              同比 {{ formatMacroPct(gdConstruction.housingOutputYoyPct) }}
+              <template v-if="gdConstructionHousingShare != null">
+                · 占比 {{ gdConstructionHousingShare }}%
+              </template>
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">土木工程产值</text>
+            <text class="cell-value">{{ formatMacro100m(gdConstruction.civilOutputYi) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(gdConstruction.civilOutputYoyPct)">
+              同比 {{ formatMacroPct(gdConstruction.civilOutputYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">珠三角总产值</text>
+            <text class="cell-value">{{ formatMacro100m(gdConstruction.prOutputYi) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(gdConstruction.prOutputYoyPct)">
+              同比 {{ formatMacroPct(gdConstruction.prOutputYoyPct) }}
+            </text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          {{ gdConstruction.sourceOrg }} · {{ gdConstruction.publishDate || gdConstruction.periodLabel }}。
+          资质建筑业企业产值口径；房屋建筑业 ≠ 商品房销售/挂牌均价。
+        </view>
+        <button
+          v-if="gdConstructionTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-gd-construction-series-toggle
+          :aria-expanded="gdConstructionSeriesExpanded"
+          @click="gdConstructionSeriesExpanded = !gdConstructionSeriesExpanded"
+        >
+          {{ gdConstructionSeriesExpanded ? "收起多期序列" : "展开多期序列" }}
+        </button>
+        <template v-if="gdConstructionSeriesExpanded">
+          <view class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-gd-construction-series-detail>
+            总产值同比：
+            <text v-for="(p, i) in gdConstructionTrend" :key="'gc-' + p.period">
+              {{ p.periodLabel }} {{ formatMacroPct(p.totalOutputYoyPct) }}<text v-if="i < gdConstructionTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-gd-construction-series-detail>
+            房屋建筑业同比：
+            <text v-for="(p, i) in gdConstructionTrend" :key="'gh-' + p.period">
+              {{ p.periodLabel }} {{ formatMacroPct(p.housingOutputYoyPct) }}<text v-if="i < gdConstructionTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
+
       <view v-if="gzInventory" class="card gz-inventory-card" data-tab="overview,price">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 广州新房库存</view>
@@ -6635,6 +6703,12 @@ import {
   getGdFaInvestmentTrend,
   type GdFaInvestmentRow
 } from "../../local/gdFaInvestment";
+import {
+  getLatestGdConstruction,
+  getGdConstructionTrend,
+  gdHousingSharePct,
+  type GdConstructionRow
+} from "../../local/gdConstruction";
 
 const app = useAppStore();
 
@@ -7755,6 +7829,7 @@ const gzInventoryExpanded = ref(false);
 const nbsSeriesExpanded = ref(false);
 const gdBriefSeriesExpanded = ref(false);
 const gdFaSeriesExpanded = ref(false);
+const gdConstructionSeriesExpanded = ref(false);
 const gdProvidentExpanded = ref(false);
 
 const nbsMacro = computed(() => getLatestNbsRealEstate());
@@ -7914,6 +7989,9 @@ const gdBriefUnitPrice = computed(() => gdBriefImpliedUnitPrice(gdRealEstateBrie
 const gdBriefTrend = computed(() => getGdRealEstateBriefTrend(8));
 const gdFaInvestment = computed<GdFaInvestmentRow | null>(() => getLatestGdFaInvestment());
 const gdFaTrend = computed(() => getGdFaInvestmentTrend(6));
+const gdConstruction = computed<GdConstructionRow | null>(() => getLatestGdConstruction());
+const gdConstructionTrend = computed(() => getGdConstructionTrend(6));
+const gdConstructionHousingShare = computed(() => gdHousingSharePct(gdConstruction.value));
 const gzProvidentAnnual = computed<GzProvidentAnnualRow | null>(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   return city === "广州" ? getLatestGzProvidentAnnual() : null;
