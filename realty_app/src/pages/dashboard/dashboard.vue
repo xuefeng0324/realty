@@ -2187,6 +2187,19 @@
             {{ r.premiumPct >= 0 ? '+' : '' }}{{ r.premiumPct.toFixed(1) }}%
           </view>
         </view>
+        <view v-if="featurePremiumCityTops.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          本市各维最高溢价桶
+        </view>
+        <view
+          v-for="r in featurePremiumCityTops"
+          :key="'fpt-' + r.dimension"
+          class="fp-row"
+        >
+          <view class="fp-bucket">{{ fpDimLabel(r.dimension) }} · {{ r.bucket }}</view>
+          <view :class="['fp-pct', fpPctClass(r.premiumPct)]">
+            {{ r.premiumPct >= 0 ? '+' : '' }}{{ r.premiumPct.toFixed(1) }}%
+          </view>
+        </view>
       </view>
 
       <!-- v1.121.14 挂牌标签热度（listingTagsComparison，筛选项页已用，仪表盘此前未展示） -->
@@ -2626,6 +2639,22 @@
           <text class="of-key">{{ p.cityName }} · {{ p.floorBucket }}</text>
           <text class="of-px">{{ Math.round(p.medianUnitPrice) }} 元</text>
           <text class="of-n">×{{ p.count }}</text>
+        </view>
+        <view v-if="orientationTongtouHighCross.length" class="of-section-title">
+          「南北通透 · 高楼层」跨城溢价
+        </view>
+        <view
+          v-for="(p, idx) in orientationTongtouHighCross"
+          :key="'ofh-' + p.cityId"
+          class="of-row"
+          :class="p.premiumPct >= 0 ? 'of-row-up' : 'of-row-down'"
+        >
+          <text class="of-rank">#{{ idx + 1 }}</text>
+          <text class="of-key">{{ p.cityName }}</text>
+          <text class="of-pct">
+            {{ p.premiumPct >= 0 ? '+' : '' }}{{ p.premiumPct.toFixed(1) }}%
+          </text>
+          <text class="of-px">{{ Math.round(p.medianUnitPrice) }} 元</text>
         </view>
       </view>
 
@@ -3685,6 +3714,48 @@
           数据源：学校评分由 latest_level_score_raw 加权；溢价 = (该区中位单价 / 全市中位单价 - 1)。
           已过滤 listings &lt; 10 套的小样本区。名校聚集区通常呈现正溢价。
         </view>
+        <view v-if="schoolPremiumDistrictTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          派生层分区溢价 Top
+        </view>
+        <view
+          v-for="(it, idx) in schoolPremiumDistrictTop"
+          :key="'spd-' + it.districtName"
+          class="sp-row"
+        >
+          <view class="sp-rank">
+            <text class="sp-medal">{{ idx + 1 }}</text>
+          </view>
+          <view class="sp-mid">
+            <view class="sp-district">{{ it.districtName }}</view>
+            <view class="sp-meta">
+              <text>评分 {{ it.avgSchoolScore.toFixed(1) }}</text>
+              <text class="muted"> · {{ it.schoolCount }} 所 · {{ it.listingCount }} 套</text>
+            </view>
+          </view>
+          <view class="sp-right">
+            <view :class="['sp-premium', premiumClass(it.premiumRatio)]">
+              {{ formatPremium(it.premiumRatio) }}
+            </view>
+          </view>
+        </view>
+        <view v-if="schoolPremiumDistrictCross.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          同名区跨城对照 · {{ schoolPremiumDistrictCrossName }}
+        </view>
+        <view
+          v-for="it in schoolPremiumDistrictCross"
+          :key="'spx-' + it.cityId + it.districtName"
+          class="sp-row"
+        >
+          <view class="sp-mid">
+            <view class="sp-district">{{ cityNameForId(it.cityId) }} · {{ it.districtName }}</view>
+            <view class="sp-meta muted">评分 {{ it.avgSchoolScore.toFixed(1) }} · {{ it.schoolCount }} 所</view>
+          </view>
+          <view class="sp-right">
+            <view :class="['sp-premium', premiumClass(it.premiumRatio)]">
+              {{ formatPremium(it.premiumRatio) }}
+            </view>
+          </view>
+        </view>
       </view>
 
       <!-- 小区排行 -->
@@ -4225,7 +4296,8 @@ import {
 } from "../../local/distributionRanking";
 import {
   getFeaturePremiumCrossCityLeaderboard,
-  getFeaturePremiumByDimensionCoverage
+  getFeaturePremiumByDimensionCoverage,
+  getFeaturePremiumTopByDimension
 } from "../../local/featurePremiumRanking";
 import {
   getTagCombinationCrossCityMostCommon,
@@ -4299,7 +4371,10 @@ import {
 } from "../../local/schoolDimensionRanking";
 import {
   getSchoolPremiumThreeTierConsistency,
-  type ThreeTierConsistency
+  getSchoolPremiumDistrictByCityTop,
+  getSchoolPremiumDistrictCrossCityByDistrict,
+  type ThreeTierConsistency,
+  type CrossCityDistrictEntry
 } from "../../local/schoolPremiumRanking";
 import {
   getCommunityCommercialByCityDistrict,
@@ -4316,9 +4391,11 @@ import {
 import {
   getOrientationFloorBestWorstByCity,
   getOrientationFloorByOrientationLeaderboard,
-  type CityOrientationFloorTopEntry
+  getOrientationFloorCrossCityByPair,
+  type CityOrientationFloorTopEntry,
+  type CrossCityOrientationFloorEntry
 } from "../../local/orientationFloorRanking";
-import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore } from "../../local/types";
+import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -4700,6 +4777,12 @@ const featurePremiumCrossBedrooms = computed(
 const featurePremiumAbsTop = computed<LocalFeaturePremium[]>(() =>
   getFeaturePremiumByDimensionCoverage(5)
 );
+const featurePremiumCityTops = computed<LocalFeaturePremium[]>(() => {
+  const dims = ["bedrooms", "area_sqm", "orientation", "decorate"] as const;
+  return dims
+    .map((d) => getFeaturePremiumTopByDimension(app.cityId, d))
+    .filter((x): x is LocalFeaturePremium => x != null);
+});
 const tagComboCrossCity = computed<TagPairAggregate[]>(() =>
   getTagCombinationCrossCityMostCommon(5)
 );
@@ -6743,6 +6826,17 @@ const schoolCompositeCrossCity = computed<CityTopComposite[]>(() =>
 const schoolPremiumTier = computed<ThreeTierConsistency | null>(() =>
   getSchoolPremiumThreeTierConsistency().find((x) => x.cityId === app.cityId) ?? null
 );
+const schoolPremiumDistrictTop = computed<LocalSchoolPremiumDistrict[]>(() =>
+  getSchoolPremiumDistrictByCityTop(app.cityId, 5)
+);
+const schoolPremiumDistrictCrossName = computed(
+  () => schoolPremiumDistrictTop.value[0]?.districtName ?? ""
+);
+const schoolPremiumDistrictCross = computed<CrossCityDistrictEntry[]>(() => {
+  const name = schoolPremiumDistrictCrossName.value;
+  if (!name) return [];
+  return getSchoolPremiumDistrictCrossCityByDistrict(name);
+});
 const orientationFloorCityBest = computed<CityOrientationFloorTopEntry[]>(() =>
   getOrientationFloorBestWorstByCity(2).best.filter((x) => x.cityId === app.cityId)
 );
@@ -6751,6 +6845,9 @@ const orientationFloorCityWorst = computed<CityOrientationFloorTopEntry[]>(() =>
 );
 const orientationTongtouPriceTop = computed<LocalOrientationFloor[]>(() =>
   getOrientationFloorByOrientationLeaderboard("南北通透", 5)
+);
+const orientationTongtouHighCross = computed<CrossCityOrientationFloorEntry[]>(() =>
+  getOrientationFloorCrossCityByPair("南北通透", "高楼层")
 );
 
 // v1.121.17 分区商业均分
