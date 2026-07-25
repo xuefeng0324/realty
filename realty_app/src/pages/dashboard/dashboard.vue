@@ -1833,6 +1833,48 @@
             </text>
           </view>
         </view>
+        <view v-if="communityScoreLifeTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          生活维 Top（派生）
+        </view>
+        <view
+          v-for="(it, idx) in communityScoreLifeTop"
+          :key="'csl-' + it.communityId"
+          class="cs-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(it.communityId)"
+        >
+          <view class="cs-rank">
+            <text class="cs-medal">{{ idx + 1 }}</text>
+          </view>
+          <view class="cs-mid">
+            <view class="cs-name">{{ it.communityName }}</view>
+            <view class="cs-dist muted">{{ it.districtName }} · 总分 {{ it.totalScore.toFixed(0) }}</view>
+          </view>
+          <view class="cs-right">
+            <text class="cs-total">{{ it.lifeScore.toFixed(0) }}</text>
+          </view>
+        </view>
+        <view v-if="communityScoreSchoolTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          学区维 Top（派生）
+        </view>
+        <view
+          v-for="(it, idx) in communityScoreSchoolTop"
+          :key="'css-' + it.communityId"
+          class="cs-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(it.communityId)"
+        >
+          <view class="cs-rank">
+            <text class="cs-medal">{{ idx + 1 }}</text>
+          </view>
+          <view class="cs-mid">
+            <view class="cs-name">{{ it.communityName }}</view>
+            <view class="cs-dist muted">{{ it.districtName }} · 总分 {{ it.totalScore.toFixed(0) }}</view>
+          </view>
+          <view class="cs-right">
+            <text class="cs-total">{{ it.schoolScore.toFixed(0) }}</text>
+          </view>
+        </view>
         </template>
       </view>
 
@@ -3892,6 +3934,18 @@
           <text class="hosp-geo-rank muted">{{ idx + 1 }}</text>
           <text class="hosp-geo-names">{{ hospitalDisplayName(hid) }}</text>
         </view>
+        <view v-if="hospitalGeoLowConf.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          低置信坐标（待复核）
+        </view>
+        <view
+          v-for="(g, idx) in hospitalGeoLowConf"
+          :key="'hgl-' + g.hospitalId"
+          class="hosp-geo-pair"
+        >
+          <text class="hosp-geo-rank muted">{{ idx + 1 }}</text>
+          <text class="hosp-geo-names">{{ hospitalDisplayName(g.hospitalId) }}</text>
+          <text class="hosp-geo-km muted">{{ g.confidence }}</text>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           名录：hospitals.csv。坐标：hospitals_geo.csv（高德文本检索）。置信度反映 POI 匹配质量。
         </view>
@@ -4235,6 +4289,24 @@
             <text class="lc-score">{{ d.avgScore100.toFixed(0) }}</text>
           </view>
         </view>
+        <view v-if="lifeScoreTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          派生层 score100 Top
+        </view>
+        <view
+          v-for="(it, idx) in lifeScoreTop"
+          :key="'lst-' + it.communityId"
+          class="lc-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(it.communityId)"
+        >
+          <view class="lc-mid">
+            <view class="lc-name">{{ it.communityName }}</view>
+            <view class="lc-dist muted">{{ it.districtName }} · #{{ idx + 1 }}</view>
+          </view>
+          <view class="lc-right">
+            <text :class="['lc-score', lifeScoreClass(it.score100)]">{{ it.score100 }}</text>
+          </view>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：poi_seed.csv + poi_market.csv (高德新拉) → life_convenience.csv。
           评分维度 M=商场 P=公园 S=地铁 X=学校 Y=医院 C=菜市场。
@@ -4421,6 +4493,26 @@
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：schools.csv (district_name) + school_indicators.csv (latest_level_score_raw)。
           支持按区过滤、最低评分筛选、4 种排序 (评分/均价/挂牌/校数)。
+        </view>
+        <view v-if="schoolPremiumCommunityDeriveTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          派生层学区评分 Top
+        </view>
+        <view
+          v-for="(it, idx) in schoolPremiumCommunityDeriveTop"
+          :key="'spcdt-' + it.communityId"
+          class="community-row tap-target"
+          hover-class="row-active"
+          @click="goCommunity(it.communityId)"
+        >
+          <view class="community-rank">
+            <text class="sp-medal-mini">{{ idx + 1 }}</text>
+          </view>
+          <view class="community-main">
+            <view class="community-name">{{ it.communityName }}</view>
+            <view class="muted">
+              {{ it.districtName }} · 评分 {{ it.avgSchoolScore.toFixed(1) }} · {{ it.schoolCount }} 所
+            </view>
+          </view>
         </view>
         <view v-if="schoolPremiumTier" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           学区挂牌三层一致性：
@@ -4661,6 +4753,49 @@
             </text>
           </view>
         </view>
+        <view v-if="commercialScoreTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          派生层商业分 Top
+        </view>
+        <view
+          v-for="(it, idx) in commercialScoreTop"
+          :key="'cst-' + it.communityId"
+          class="community-row tap-target"
+          hover-class="row-active"
+          @click="goCommunity(it.communityId)"
+        >
+          <view class="community-rank">
+            <text class="sp-medal-mini">{{ idx + 1 }}</text>
+          </view>
+          <view class="community-main">
+            <view class="community-name">{{ it.communityName }}</view>
+            <view class="muted">
+              {{ it.districtName }} · 餐{{ it.restaurantCount }} / 银{{ it.bankCount }} / 便{{ it.convenienceCount }}
+            </view>
+          </view>
+          <view class="community-sp-price">
+            <text :class="['sp-up', commercialScoreClass(it.commercialScore)]">
+              {{ it.commercialScore.toFixed(0) }}
+            </text>
+          </view>
+        </view>
+        <view v-if="commercialCitySummary.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城商业均分对照
+        </view>
+        <view
+          v-for="c in commercialCitySummary"
+          :key="'ccs-' + c.cityId"
+          class="community-row"
+        >
+          <view class="community-main">
+            <view class="community-name">{{ cityNameForId(c.cityId) }}</view>
+            <view class="muted">{{ c.communityCount }} 小区 · 均近餐 {{ Math.round(c.avgNearestRestaurantM ?? 0) }} m</view>
+          </view>
+          <view class="community-sp-price">
+            <text :class="['sp-up', commercialScoreClass(c.avgCommercialScore)]">
+              {{ c.avgCommercialScore.toFixed(0) }}
+            </text>
+          </view>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           分区均分 / 密度分桶：communityCommercialRanking。「高密度远」可能是门口空、远处扎堆。
         </view>
@@ -4847,6 +4982,7 @@ import {
   detectHospitalGeoDuplicateAmapPoi,
   getHospitalGeoByCityWithinRadius,
   getHospitalGeoCrossCityByCityPairDistance,
+  getHospitalGeoByCityByConfidence,
   type CityHospitalGeoSummary,
   type HospitalGeoHighConfidenceRatio,
   type HospitalGeoNearestPair,
@@ -4936,6 +5072,7 @@ import {
   getLifeConvenienceDimensionBalance,
   getLifeConvenienceByDimensionCoverage,
   getLifeConvenienceByCityDistrict,
+  getLifeConvenienceTopByScore,
   type ParetoEntry,
   type DimensionImbalance,
   type DimensionCoverageEntry,
@@ -4966,7 +5103,8 @@ import {
 } from "../../local/listingFreshnessRanking";
 import {
   getCommunityScorePareto,
-  getCommunityScoreByCommuteFastest
+  getCommunityScoreByCommuteFastest,
+  getCommunityScoreByDimensionTopN
 } from "../../local/communityScoreRanking";
 import {
   summarizeListingTagsByCity,
@@ -5014,6 +5152,7 @@ import {
   getSchoolPremiumThreeTierConsistency,
   getSchoolPremiumDistrictByCityTop,
   getSchoolPremiumDistrictCrossCityByDistrict,
+  getSchoolPremiumCommunityTopByScore,
   type ThreeTierConsistency,
   type CrossCityDistrictEntry
 } from "../../local/schoolPremiumRanking";
@@ -5021,8 +5160,11 @@ import {
   getCommunityCommercialByCityDistrict,
   getCommunityCommercialDensityVsDistance,
   getCommunityCommercialByNearest,
+  getCommunityCommercialByScoreTopN,
+  summarizeCommunityCommercialByCity,
   type DistrictCommercialSummary,
-  type DensityDistanceBucket
+  type DensityDistanceBucket,
+  type CityCommercialSummary
 } from "../../local/communityCommercialRanking";
 import { getEducationOverview, type EducationOverview } from "../../local/educationOverview";
 import {
@@ -5039,7 +5181,7 @@ import {
   type CityOrientationFloorTopEntry,
   type CrossCityOrientationFloorEntry
 } from "../../local/orientationFloorRanking";
-import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict, LocalMetroLine, LocalCommunityScatter, LocalCommunityCommercial, LocalCommute, LocalLprRow } from "../../local/types";
+import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict, LocalSchoolPremiumCommunity, LocalMetroLine, LocalCommunityScatter, LocalCommunityCommercial, LocalCommute, LocalLprRow, LocalLifeConvenience, LocalHospitalGeo } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -5163,6 +5305,9 @@ const hospitalCbdRadius = computed<HospitalGeoWithinRadius | null>(() => {
 });
 const hospitalGeoDistricts = computed<HospitalGeoDistrictSummary[]>(() =>
   getHospitalGeoByCityAddressDistrict(app.cityId).slice(0, 5)
+);
+const hospitalGeoLowConf = computed<LocalHospitalGeo[]>(() =>
+  getHospitalGeoByCityByConfidence(app.cityId, "low").slice(0, 5)
 );
 
 function hospitalDisplayName(hospitalId: number): string {
@@ -5578,6 +5723,12 @@ const communityScorePareto = computed<LocalCommunityScore[]>(() =>
 const communityScoreCommuteFast = computed<LocalCommunityScore[]>(() =>
   getCommunityScoreByCommuteFastest(app.cityId, 5)
 );
+const communityScoreLifeTop = computed<LocalCommunityScore[]>(() =>
+  getCommunityScoreByDimensionTopN("life", app.cityId, 5)
+);
+const communityScoreSchoolTop = computed<LocalCommunityScore[]>(() =>
+  getCommunityScoreByDimensionTopN("school", app.cityId, 5)
+);
 const lifeConvenienceParetoSubway = computed<ParetoEntry[]>(() => {
   const ids = new Set(
     store.getCommunitiesByCity(app.cityId).map((c) => c.communityId)
@@ -5602,6 +5753,9 @@ const lifeMarketNearTop = computed<DimensionCoverageEntry[]>(() => {
 });
 const lifeDistrictTop = computed<DistrictLifeConvenienceSummary[]>(() =>
   getLifeConvenienceByCityDistrict(app.cityId).slice(0, 5)
+);
+const lifeScoreTop = computed<LocalLifeConvenience[]>(() =>
+  getLifeConvenienceTopByScore(app.cityId, 5)
 );
 // v0.46.0 map-11: 行政区 + 社区 marker 地图
 const districtMap = ref<DistrictMapResponse | null>(null);
@@ -7639,6 +7793,15 @@ const commercialDistrictTop = computed<DistrictCommercialSummary[]>(() =>
 );
 const commercialNearestRestaurant = computed<LocalCommunityCommercial[]>(() =>
   getCommunityCommercialByNearest("restaurant", app.cityId, 5)
+);
+const commercialScoreTop = computed<LocalCommunityCommercial[]>(() =>
+  getCommunityCommercialByScoreTopN(app.cityId, 5)
+);
+const commercialCitySummary = computed<CityCommercialSummary[]>(() =>
+  summarizeCommunityCommercialByCity()
+);
+const schoolPremiumCommunityDeriveTop = computed<LocalSchoolPremiumCommunity[]>(() =>
+  getSchoolPremiumCommunityTopByScore(app.cityId, 5)
 );
 const decorateAgeDistBuckets = computed<DistributionRow[]>(() =>
   getDistributionByCityDimension(app.cityId, "精装").slice(0, 6)

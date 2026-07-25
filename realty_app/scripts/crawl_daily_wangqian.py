@@ -37,14 +37,17 @@
   python scripts/crawl_daily_wangqian.py fetch --merge
   python scripts/crawl_daily_wangqian.py fetch --city 深圳 --sz-days 90
 
-依赖：pip install requests
+依赖：优先 pip install requests；若无 requests 则自动回退标准库 urllib（本地 venv/pip 损坏时可用）。
 """
 from __future__ import annotations
 
 import argparse
 import csv
+import json
 import re
 import sys
+import urllib.error
+import urllib.request
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -52,9 +55,8 @@ from typing import Any
 
 try:
     import requests
-except ImportError:
-    print("需要 requests：pip install requests", file=sys.stderr)
-    raise
+except ImportError:  # pragma: no cover - 无 requests 时走 urllib
+    requests = None  # type: ignore[assignment]
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUT = REPO_ROOT / "static" / "daily_wangqian.csv"
@@ -130,32 +132,83 @@ class Row:
         ]
 
 
-class _LegacyTLSAdapter(requests.adapters.HTTPAdapter):
-    """兼容旧服务端的 TLS 重协商。
+class _UrllibResponse:
+    def __init__(self, data: bytes, status: int) -> None:
+        self._data = data
+        self.status_code = status
 
-    深圳 fdc 子站在 OpenSSL 3（如 GitHub Actions ubuntu）下会报
-    UNSAFE_LEGACY_RENEGOTIATION_DISABLED；本地 Windows/OpenSSL 1.1 无此问题。
-    开启 OP_LEGACY_SERVER_CONNECT (0x4) 即可，仅影响握手、不降低证书校验。
-    """
+    def raise_for_status(self) -> None:
+        if self.status_code >= 400:
+            raise RuntimeError(f"HTTP {self.status_code}")
 
-    def init_poolmanager(self, *args: Any, **kwargs: Any) -> Any:
-        import ssl
+    def json(self) -> Any:
+        return json.loads(self._data.decode("utf-8"))
 
+
+class _UrllibSession:
+    """无 requests 时的最小 Session（post/get + json）。"""
+
+    def __init__(self) -> None:
+        self.headers: dict[str, str] = {"User-Agent": UA}
+
+    def _open(self, req: urllib.request.Request, timeout: int) -> _UrllibResponse:
         try:
-            from urllib3.util.ssl_ import create_urllib3_context
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return _UrllibResponse(resp.read(), getattr(resp, "status", 200))
+        except urllib.error.HTTPError as e:
+            body = e.read() if hasattr(e, "read") else b""
+            return _UrllibResponse(body, int(getattr(e, "code", 500) or 500))
 
-            ctx = create_urllib3_context()
-        except Exception:  # pragma: no cover - 退回默认上下文
-            ctx = ssl.create_default_context()
-        ctx.options |= 0x4  # OP_LEGACY_SERVER_CONNECT
-        kwargs["ssl_context"] = ctx
-        return super().init_poolmanager(*args, **kwargs)
+    def post(
+        self,
+        url: str,
+        headers: dict[str, str] | None = None,
+        json: dict[str, Any] | None = None,  # noqa: A002 — 对齐 requests API
+        timeout: int = 30,
+    ) -> _UrllibResponse:
+        h = {**self.headers, **(headers or {})}
+        data = None
+        if json is not None:
+            data = __import__("json").dumps(json).encode("utf-8")
+            h.setdefault("Content-Type", "application/json")
+        req = urllib.request.Request(url, data=data, headers=h, method="POST")
+        return self._open(req, timeout)
+
+    def get(
+        self,
+        url: str,
+        headers: dict[str, str] | None = None,
+        timeout: int = 30,
+    ) -> _UrllibResponse:
+        h = {**self.headers, **(headers or {})}
+        req = urllib.request.Request(url, headers=h, method="GET")
+        return self._open(req, timeout)
 
 
-def _session() -> requests.Session:
+def _session() -> Any:
+    if requests is None:
+        print("[crawl_daily_wangqian] requests 不可用，改用 urllib", file=sys.stderr)
+        return _UrllibSession()
     s = requests.Session()
     s.headers.update({"User-Agent": UA})
-    s.mount("https://", _LegacyTLSAdapter())
+
+    class _Adapter(requests.adapters.HTTPAdapter):  # type: ignore[name-defined]
+        """兼容旧服务端 TLS 重协商（OpenSSL 3 / GitHub Actions）。"""
+
+        def init_poolmanager(self, *args: Any, **kwargs: Any) -> Any:
+            import ssl
+
+            try:
+                from urllib3.util.ssl_ import create_urllib3_context
+
+                ctx = create_urllib3_context()
+            except Exception:  # pragma: no cover
+                ctx = ssl.create_default_context()
+            ctx.options |= 0x4  # OP_LEGACY_SERVER_CONNECT
+            kwargs["ssl_context"] = ctx
+            return super().init_poolmanager(*args, **kwargs)
+
+    s.mount("https://", _Adapter())
     return s
 
 
@@ -193,7 +246,7 @@ def _fdc_json_headers(referer_path: str) -> dict[str, str]:
     }
 
 
-def fetch_shenzhen_city_trend(sess: requests.Session, days: int) -> list[Row]:
+def fetch_shenzhen_city_trend(sess: Any, days: int) -> list[Row]:
     """全市新房/二手近 N 个交易日（getFjzsInfoData，可回溯）。"""
     if days <= 0:
         return []
@@ -247,7 +300,7 @@ def fetch_shenzhen_city_trend(sess: requests.Session, days: int) -> list[Row]:
     return rows
 
 
-def fetch_shenzhen_district_latest(sess: requests.Session) -> list[Row]:
+def fetch_shenzhen_district_latest(sess: Any) -> list[Row]:
     """最新交易日分区新房/二手（饼图 API）。
 
     口径说明：
@@ -307,7 +360,7 @@ def fetch_shenzhen_district_latest(sess: requests.Session) -> list[Row]:
     return rows
 
 
-def fetch_shenzhen_month_latest(sess: requests.Session) -> list[Row]:
+def fetch_shenzhen_month_latest(sess: Any) -> list[Row]:
     """最近完整月的分区成交（新房/二手），granularity=month(全市) / month_district。
 
     getYsf/EsfCjxxGsMonthDataNew：xmlDateMonth=数据月，dataTs 按区套数、dataMj 按区面积。
@@ -355,7 +408,7 @@ def fetch_shenzhen_month_latest(sess: requests.Session) -> list[Row]:
     return rows
 
 
-def fetch_shenzhen(sess: requests.Session, sz_days: int) -> list[Row]:
+def fetch_shenzhen(sess: Any, sz_days: int) -> list[Row]:
     """深圳：历史全市 + 最新日分区 + 最近完整月分区。"""
     rows = fetch_shenzhen_city_trend(sess, sz_days)
     rows.extend(fetch_shenzhen_district_latest(sess))
@@ -363,7 +416,7 @@ def fetch_shenzhen(sess: requests.Session, sz_days: int) -> list[Row]:
     return rows
 
 
-def fetch_guangzhou(sess: requests.Session) -> list[Row]:
+def fetch_guangzhou(sess: Any) -> list[Row]:
     headers = {"Referer": GZ_SOURCE}
     r = sess.get(GZ_NEW_API, headers=headers, timeout=30)
     r.raise_for_status()
