@@ -1176,6 +1176,65 @@
         </template>
       </view>
 
+      <view v-if="gdFaInvestment" class="card macro-card" data-tab="overview,price" data-gd-fa-investment>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">广东固定资产投资</view>
+          <view class="muted" style="font-size: 22rpx">{{ gdFaInvestment.periodLabel }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <view class="stats70-cell">
+            <text class="cell-label">全省固投同比</text>
+            <text class="cell-value" :class="macroTrendClass(gdFaInvestment.faYoyPct)">
+              {{ formatMacroPct(gdFaInvestment.faYoyPct) }}
+            </text>
+            <text class="cell-sub muted">名义增速 · 不含农户</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">工业投资同比</text>
+            <text class="cell-value" :class="macroTrendClass(gdFaInvestment.industryYoyPct)">
+              {{ formatMacroPct(gdFaInvestment.industryYoyPct) }}
+            </text>
+            <text class="cell-sub muted">制造 {{ formatMacroPct(gdFaInvestment.manufacturingYoyPct) }}</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">第三产业同比</text>
+            <text class="cell-value" :class="macroTrendClass(gdFaInvestment.tertiaryYoyPct)">
+              {{ formatMacroPct(gdFaInvestment.tertiaryYoyPct) }}
+            </text>
+            <text class="cell-sub muted">二产 {{ formatMacroPct(gdFaInvestment.secondaryYoyPct) }}</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">珠三角同比</text>
+            <text class="cell-value" :class="macroTrendClass(gdFaInvestment.prYoyPct)">
+              {{ formatMacroPct(gdFaInvestment.prYoyPct) }}
+            </text>
+            <text class="cell-sub muted">粤东 {{ formatMacroPct(gdFaInvestment.eastYoyPct) }}</text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          {{ gdFaInvestment.sourceOrg }} · {{ gdFaInvestment.publishDate || gdFaInvestment.periodLabel }}。
+          官方简况多为同比、无绝对额；含全部房地产开发项目投资，≠城市挂牌/网签均价。
+        </view>
+        <button
+          v-if="gdFaTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-gd-fa-series-toggle
+          :aria-expanded="gdFaSeriesExpanded"
+          @click="gdFaSeriesExpanded = !gdFaSeriesExpanded"
+        >
+          {{ gdFaSeriesExpanded ? "收起多期序列" : "展开多期序列" }}
+        </button>
+        <template v-if="gdFaSeriesExpanded">
+          <view class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-gd-fa-series-detail>
+            固投同比（累计口径勿直接环比）：
+            <text v-for="(p, i) in gdFaTrend" :key="'fa-' + p.period">
+              {{ p.periodLabel }} {{ formatMacroPct(p.faYoyPct) }}<text v-if="i < gdFaTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
+
       <view v-if="gzInventory" class="card gz-inventory-card" data-tab="overview,price">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 广州新房库存</view>
@@ -6571,6 +6630,11 @@ import {
   gdBriefImpliedUnitPrice,
   type GdRealEstateBriefRow
 } from "../../local/gdRealEstateBrief";
+import {
+  getLatestGdFaInvestment,
+  getGdFaInvestmentTrend,
+  type GdFaInvestmentRow
+} from "../../local/gdFaInvestment";
 
 const app = useAppStore();
 
@@ -7690,6 +7754,7 @@ const loading = ref<boolean>(false);
 const gzInventoryExpanded = ref(false);
 const nbsSeriesExpanded = ref(false);
 const gdBriefSeriesExpanded = ref(false);
+const gdFaSeriesExpanded = ref(false);
 const gdProvidentExpanded = ref(false);
 
 const nbsMacro = computed(() => getLatestNbsRealEstate());
@@ -7847,6 +7912,8 @@ const szProvidentYearDelta = computed(() =>
 const gdRealEstateBrief = computed<GdRealEstateBriefRow | null>(() => getLatestGdRealEstateBrief());
 const gdBriefUnitPrice = computed(() => gdBriefImpliedUnitPrice(gdRealEstateBrief.value));
 const gdBriefTrend = computed(() => getGdRealEstateBriefTrend(8));
+const gdFaInvestment = computed<GdFaInvestmentRow | null>(() => getLatestGdFaInvestment());
+const gdFaTrend = computed(() => getGdFaInvestmentTrend(6));
 const gzProvidentAnnual = computed<GzProvidentAnnualRow | null>(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   return city === "广州" ? getLatestGzProvidentAnnual() : null;

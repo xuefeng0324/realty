@@ -34,6 +34,14 @@ SEED_BRIEFS: list[tuple[str, str]] = [
         "2026年上半年广东房地产市场运行简况",
     ),
     (
+        "http://stats.gd.gov.cn/tjkx185/content/post_4916181.html",
+        "2026年1—5月份广东房地产市场运行简况",
+    ),
+    (
+        "http://stats.gd.gov.cn/tjkx185/content/post_4903569.html",
+        "2026年1—4月份广东房地产市场运行简况",
+    ),
+    (
         "https://zfcxjst.gd.gov.cn/xxgk/tjxx/content/post_4891221.html",
         "【图解数据】2026年一季度广东房地产市场运行简况",
     ),
@@ -90,6 +98,7 @@ SEED_BRIEFS: list[tuple[str, str]] = [
         "【图解数据】2024年广东房地产市场运行简况",
     ),
 ]
+STATS_LIST_URL = "http://stats.gd.gov.cn/tjkx185/index.html"
 
 FIELDS = [
     "region",
@@ -215,7 +224,7 @@ def parse_period(title: str) -> tuple[str, str, str] | None:
 
 
 def list_briefs(max_pages: int = 1) -> list[tuple[str, str]]:
-    urls = [LIST_URL]
+    urls = [LIST_URL, STATS_LIST_URL]
     for i in range(2, max_pages + 1):
         urls.append(f"https://zfcxjst.gd.gov.cn/xxgk/tjxx/index_{i}.html")
     out: list[tuple[str, str]] = []
@@ -233,7 +242,26 @@ def list_briefs(max_pages: int = 1) -> list[tuple[str, str]]:
             title = unescape(m.group(1)).strip()
             if "房地产市场运行简况" not in title:
                 continue
-            out.append((abs_url(m.group(2)), title))
+            href = m.group(2)
+            if href.startswith("http"):
+                out.append((href, title))
+            elif href.startswith("/"):
+                base = "http://stats.gd.gov.cn" if "stats.gd.gov.cn" in list_url else "https://zfcxjst.gd.gov.cn"
+                out.append((base + href, title))
+            else:
+                out.append((abs_url(href), title))
+        for m in re.finditer(r'href="([^"]*post_\d+\.html)"[^>]*>([^<]{0,120})</a>', html):
+            title = unescape(m.group(2)).strip()
+            if "房地产市场运行简况" not in title:
+                continue
+            href = m.group(1)
+            if href.startswith("http"):
+                out.append((href, title))
+            elif href.startswith("/"):
+                base = "http://stats.gd.gov.cn" if "stats.gd.gov.cn" in list_url else "https://zfcxjst.gd.gov.cn"
+                out.append((base + href, title))
+            else:
+                out.append((abs_url(href), title))
         for m in re.finditer(
             r'href="([^"]*post_\d+\.html)"[^>]{0,220}title="([^"]+)"',
             html,
@@ -242,7 +270,7 @@ def list_briefs(max_pages: int = 1) -> list[tuple[str, str]]:
             title = unescape(m.group(2)).strip()
             if "房地产市场运行简况" not in title:
                 continue
-            out.append((abs_url(m.group(1)), title))
+            out.append((abs_url(m.group(1)) if not m.group(1).startswith("http") else m.group(1), title))
     seen: set[str] = set()
     uniq: list[tuple[str, str]] = []
     for url, title in out:

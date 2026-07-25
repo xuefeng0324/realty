@@ -12,7 +12,7 @@ import {
 describe("gd real estate brief", () => {
   it("加载广东房地产运行简况多期", () => {
     const rows = getGdRealEstateBriefRows();
-    expect(rows.length).toBeGreaterThanOrEqual(10);
+    expect(rows.length).toBeGreaterThanOrEqual(15);
     const latest = getLatestGdRealEstateBrief();
     expect(latest).not.toBeNull();
     expect(latest!.period).toBe("2026_H1");
@@ -25,10 +25,11 @@ describe("gd real estate brief", () => {
     expect(gdBriefImpliedUnitPrice(y2025!)).toBe(15666);
     const q1 = rows.find((r) => r.period === "2025_Q1");
     expect(q1!.salesAreaWanSqm).toBe(1556.33);
+    expect(rows.find((r) => r.period === "2026_01_05")!.salesAreaWanSqm).toBe(2189.6);
     expect(getGdRealEstateBriefTrend(3).map((r) => r.period)).toEqual([
       "2026_H1",
-      "2026_Q1",
-      "2026_01_02"
+      "2026_01_05",
+      "2026_01_04"
     ]);
   });
 
@@ -37,6 +38,7 @@ describe("gd real estate brief", () => {
     expect(script).toContain("房地产市场运行简况");
     expect(script).toContain("zfcxjst.gd.gov.cn");
     expect(script).toContain("stats.gd.gov.cn");
+    expect(script).toContain("STATS_LIST_URL");
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     expect(dash).toContain("getLatestGdRealEstateBrief");
     expect(dash).toContain("data-gd-real-estate-brief");
