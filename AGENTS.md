@@ -82,6 +82,7 @@ deleted   path/to/old_file.ts        # 一句话说明删除原因
 
 完成代码改动后，**提交前**应主动检查（不要求 AI 执行 git 命令，由用户授权）：
 
+- 用户可见改动 → **必须先**走 `realty_app/docs/FEATURE_QA_PROCESS.md`（加功能→验收→测试），并在 `FEATURE_CATALOG.md` 登记/更新功能 ID；总则见 `FEATURE_ACCEPTANCE.md`
 - 涉及 `realty_app/` 代码 → 需同步更新 `realty_app/README.md` 底部更新日志
 - **版本号** → **必须**遵守 `realty_app/docs/VERSIONING.md`：发版用 `node realty_app/scripts/bump-version.mjs patch|minor|major`（`versionName` SemVer + `versionCode` 每次 +1）；禁止口头乱跳号；README 版本表**新增**一行（**不要修改**历史版本行）
 - 详细变更 → `realty_app/changelog/YYYY-MM-DD-vX.Y.Z-变更标题.md`
@@ -94,9 +95,10 @@ deleted   path/to/old_file.ts        # 一句话说明删除原因
 ❌ "我做了类型收敛和 a11y 改进。"
 ❌ "方案很好，没问题。"
 ❌ "后续可以继续优化。"
+❌ "功能做完了但没写验收/没登 CATALOG。"
 
 ✅ 见本文件「任务结束汇报模板」段落。
 
 ---
 
-最后更新：2026-07-12 (CI 接入完成)
+最后更新：2026-07-26（强制 FEATURE_QA_PROCESS + FEATURE_CATALOG）
