@@ -1942,6 +1942,42 @@
             {{ ln.lengthKm != null ? ln.lengthKm.toFixed(1) + " km" : "—" }}
           </text>
         </view>
+        <view v-if="metroOpenYear2028.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          全国 2028 开通线路（按里程）
+        </view>
+        <view
+          v-for="(ln, idx) in metroOpenYear2028"
+          :key="'moy-' + ln.lineId"
+          class="mp-line-row"
+        >
+          <text class="mp-line-rank muted">{{ idx + 1 }}</text>
+          <view class="mp-line-mid">
+            <text class="mp-line-name">{{ cityNameForId(ln.cityId) }} · {{ ln.lineName }}</text>
+            <text class="mp-line-meta muted">{{ ln.status }} · {{ ln.stationCount ?? "—" }} 站</text>
+          </view>
+          <text class="mp-line-km">
+            {{ ln.lengthKm != null ? ln.lengthKm.toFixed(1) + " km" : "—" }}
+          </text>
+        </view>
+        <view v-if="metroBuildingLines.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          本市在建线路
+        </view>
+        <view
+          v-for="(ln, idx) in metroBuildingLines"
+          :key="'mbl-' + ln.lineId"
+          class="mp-line-row"
+        >
+          <text class="mp-line-rank muted">{{ idx + 1 }}</text>
+          <view class="mp-line-mid">
+            <text class="mp-line-name">{{ ln.lineName }}</text>
+            <text class="mp-line-meta muted">
+              {{ ln.openYearExpected ?? "—" }} 年 · {{ ln.stationCount ?? "—" }} 站
+            </text>
+          </view>
+          <text class="mp-line-km">
+            {{ ln.lengthKm != null ? ln.lengthKm.toFixed(1) + " km" : "—" }}
+          </text>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：metro_planning.csv + metro_planning_geo.csv。弯曲系数 ≥1.3 表示线路明显绕行。
         </view>
@@ -2068,6 +2104,25 @@
           </view>
           <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
           <text class="ltk-count muted">{{ r.count }}</text>
+        </view>
+        <view v-if="layoutMedianPriceTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          本市结构桶中位单价 Top
+        </view>
+        <view
+          v-for="(r, idx) in layoutMedianPriceTop"
+          :key="'lmp-' + idx + distRowLabel(r)"
+          class="ltk-row"
+        >
+          <text class="ltk-rank muted">{{ idx + 1 }}</text>
+          <text class="ltk-tag" style="flex: 1">{{ distRowLabel(r) }}</text>
+          <text class="ltk-share">
+            {{
+              distRowPrice(r) != null
+                ? Math.round((distRowPrice(r) as number) / 1000) + "k"
+                : "—"
+            }}
+          </text>
+          <text class="ltk-count muted">×{{ r.count }}</text>
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：layout_distribution.csv + bedroom_area.csv。与户型×面积矩阵卡互补（本卡看单维占比与跨城结构）。
@@ -3422,6 +3477,18 @@
             {{ h.hospitalLevel || "其他" }}
           </text>
         </view>
+        <view v-if="hospitalDistrictCross.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          同名区医院对照 · {{ hospitalDistrictCrossName }}
+        </view>
+        <view
+          v-for="d in hospitalDistrictCross"
+          :key="'hdx-' + d.cityId + d.districtName"
+          class="hosp-dist-row"
+        >
+          <text class="hosp-dist-name">{{ cityNameForId(d.cityId) }} · {{ d.districtName }}</text>
+          <text class="hosp-dist-count">{{ d.hospitalCount }} 家</text>
+          <text v-if="d.sanJiaCount" class="hosp-dist-sj muted">三甲 {{ d.sanJiaCount }}</text>
+        </view>
         <view v-if="hospitalGeoSummary" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           坐标覆盖（hospitals_geo）
         </view>
@@ -4306,8 +4373,10 @@ import {
   getHospitalTopByLevelByCity,
   getHospitalKeyFlagByCity,
   getHospitalByCityByType,
+  getHospitalCrossCityByDistrict,
   type CityHospitalSummary,
-  type CityDistrictHospitalSummary
+  type CityDistrictHospitalSummary,
+  type CrossCityHospitalEntry
 } from "../../local/hospitalRanking";
 import {
   summarizeHospitalGeoByCity,
@@ -4349,6 +4418,8 @@ import {
   getMetroPlanningByCityStatusVsStations,
   getMetroPlanningCrossCityByYear,
   getMetroPlanningByDistrict,
+  getMetroPlanningByOpenYear,
+  getMetroPlanningByStatus,
   type CityMetroPlanningSummary,
   type OpenYearMetroPlanningSummary,
   type TopByMetric,
@@ -4366,8 +4437,10 @@ import {
 import {
   getDistributionCrossCityLeaderboard,
   getDistributionShareLeaderboard,
+  getDistributionTopByMedianPrice,
   type CrossCityBucketEntry,
-  type CrossCityShareEntry
+  type CrossCityShareEntry,
+  type DistributionRow
 } from "../../local/distributionRanking";
 import {
   getFeaturePremiumCrossCityLeaderboard,
@@ -4546,6 +4619,14 @@ const hospitalTcmList = computed<LocalHospital[]>(() =>
 const hospitalMaternityList = computed<LocalHospital[]>(() =>
   getHospitalByCityByType(app.cityId, "妇幼保健院").slice(0, 5)
 );
+const hospitalDistrictCrossName = computed(
+  () => hospitalDistrictTop.value[0]?.districtName ?? ""
+);
+const hospitalDistrictCross = computed<CrossCityHospitalEntry[]>(() => {
+  const name = hospitalDistrictCrossName.value;
+  if (!name) return [];
+  return getHospitalCrossCityByDistrict(name);
+});
 
 // v1.121.15 医院坐标覆盖
 const hospitalGeoSummary = computed<CityHospitalGeoSummary | null>(() => {
@@ -4774,6 +4855,12 @@ const metroDistrictLines = computed<LocalMetroLine[]>(() => {
   if (!name) return [];
   return getMetroPlanningByDistrict(name, app.cityId).slice(0, 5);
 });
+const metroOpenYear2028 = computed<LocalMetroLine[]>(() =>
+  getMetroPlanningByOpenYear(2028).slice(0, 6)
+);
+const metroBuildingLines = computed<LocalMetroLine[]>(() =>
+  getMetroPlanningByStatus("在建").filter((x) => x.cityId === app.cityId).slice(0, 5)
+);
 
 // v1.121.18 挂牌结构占比（layout_distribution）
 const layoutBedroomShare = computed<LocalLayoutDistribution[]>(() =>
@@ -4813,6 +4900,22 @@ const layoutTwoBedShareCross = computed<CrossCityShareEntry[]>(() =>
     (x) => x.dimensions[1] === "2室"
   )
 );
+const layoutMedianPriceTop = computed<DistributionRow[]>(() =>
+  getDistributionTopByMedianPrice(app.cityId, 5)
+);
+function distRowLabel(r: DistributionRow): string {
+  if ("decorate" in r && "ageBucket" in r) {
+    return `${r.decorate} · ${r.ageBucket}`;
+  }
+  if ("bedrooms" in r && "areaBucket" in r) {
+    return `${r.bedrooms}室 · ${r.areaBucket}`;
+  }
+  const ld = r as LocalLayoutDistribution;
+  return `${ld.dimension} · ${ld.bucket}`;
+}
+function distRowPrice(r: DistributionRow): number | null {
+  return (r as { medianUnitPrice?: number | null }).medianUnitPrice ?? null;
+}
 
 // v1.121.14 挂牌标签热度
 const listingTagCitySummary = computed<CityTagSummary | null>(() => {
