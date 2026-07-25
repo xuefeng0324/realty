@@ -1071,8 +1071,20 @@
           </view>
         </view>
         <view v-if="gzInventory.districts[0]" class="overview-card-summary">
-          可售量最高：{{ gzInventory.districts[0].district }} {{ gzInventory.districts[0].availableUnits.toLocaleString() }} 套
+          可售量最高：{{ gzInventory.districts[0].district }}
+          {{ gzInventory.districts[0].availableUnits.toLocaleString() }} 套
+          <template v-if="gzInventoryTopSharePct != null">
+            · 占全市 {{ gzInventoryTopSharePct }}%
+          </template>
           <text v-if="gzInventoryDelta" class="muted"> · 对比 {{ gzInventoryDelta.prevDate }}</text>
+        </view>
+        <view
+          v-if="gzInventoryTopSharePct != null"
+          class="gz-progress-track"
+          style="margin-top: 8rpx"
+          aria-hidden="true"
+        >
+          <view class="gz-progress-fill" :style="{ width: Math.min(100, gzInventoryTopSharePct) + '%' }" />
         </view>
         <template v-if="gzInventoryExpanded">
           <view
@@ -1284,12 +1296,18 @@
           </text>
         </view>
         <view v-if="gzLandByMonth.length" style="margin-top: 12rpx">
-          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">分月汇总（样本库）</view>
+          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">分月汇总（样本加权均价）</view>
           <view v-for="m in gzLandByMonth" :key="m.month" class="gz-inventory-row">
             <text class="gz-inventory-district">{{ m.month }}</text>
-            <text>{{ m.count }} 宗</text>
+            <text>{{ m.count }} 宗 · {{ formatLandPrice(m.totalPriceWan) }}</text>
             <text class="muted">{{ formatLandArea(m.totalAreaSqm) }}</text>
-            <text class="muted">{{ formatLandPrice(m.totalPriceWan) }}</text>
+            <text class="muted">
+              {{
+                m.avgSurfaceUnitPriceYuan != null
+                  ? Math.round(m.avgSurfaceUnitPriceYuan).toLocaleString() + " 元/㎡地"
+                  : "—"
+              }}
+            </text>
           </view>
         </view>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
@@ -1339,12 +1357,18 @@
           </text>
         </view>
         <view v-if="szLandByMonth.length" style="margin-top: 12rpx">
-          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">分月汇总（样本库）</view>
+          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">分月汇总（样本起始均价）</view>
           <view v-for="m in szLandByMonth" :key="m.month" class="gz-inventory-row">
             <text class="gz-inventory-district">{{ m.month }}</text>
-            <text>{{ m.count }} 宗</text>
+            <text>{{ m.count }} 宗 · {{ formatLandPrice(m.totalStartPriceWan) }}</text>
             <text class="muted">{{ formatLandArea(m.totalAreaSqm) }}</text>
-            <text class="muted">{{ formatLandPrice(m.totalStartPriceWan) }}</text>
+            <text class="muted">
+              {{
+                m.avgStartSurfaceUnitPriceYuan != null
+                  ? Math.round(m.avgStartSurfaceUnitPriceYuan).toLocaleString() + " 元/㎡地"
+                  : "—"
+              }}
+            </text>
           </view>
         </view>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
@@ -6150,7 +6174,7 @@ import type {
 import { coverageText, formatUnitPrice, showToast, daysAgoFromToday } from "../../utils/format";
 import { SNAPSHOT_UPDATED_EVENT } from "../../config";
 import { getLatestNbsRealEstate, getNbsYoyTrend } from "../../local/nbsRealEstate";
-import { getGzInventoryOverview, getGzInventoryDayDelta } from "../../local/gzNewHouseInventory";
+import { getGzInventoryOverview, getGzInventoryDayDelta, topDistrictAvailableSharePct } from "../../local/gzNewHouseInventory";
 import {
   getLatestSzPlannedSupply,
   getSzSupplyQoQDelta,
@@ -7335,6 +7359,7 @@ const gzInventoryDelta = computed(() => {
   if (!gzInventory.value) return null;
   return getGzInventoryDayDelta();
 });
+const gzInventoryTopSharePct = computed(() => topDistrictAvailableSharePct(gzInventory.value));
 const gzInventoryFresh = computed(() =>
   assessGzInventoryFreshness(gzInventory.value?.date ?? null)
 );

@@ -55,6 +55,14 @@ describe("sz residential land deals", () => {
     const months = summarizeSzLandDealsByMonth(12);
     expect(months.length).toBeGreaterThan(0);
     expect(months.every((m) => /^\d{4}-\d{2}$/.test(m.month))).toBe(true);
+    expect(
+      months.every(
+        (m) =>
+          m.avgStartSurfaceUnitPriceYuan == null ||
+          Math.abs(m.avgStartSurfaceUnitPriceYuan - (m.totalStartPriceWan * 10000) / m.totalAreaSqm) <
+            1e-6
+      )
+    ).toBe(true);
   });
 
   it("CSV 解析", () => {

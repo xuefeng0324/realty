@@ -43,8 +43,10 @@ export function loadGzInventoryFromCSV(text: string): GzInventoryRow[] {
 
 export function getGzInventoryOverview(): GzInventoryOverview | null {
   if (rows.length === 0) return null;
-  const latestDate = rows.reduce((latest, row) => row.date > latest ? row.date : latest, rows[0].date);
-  const latestRows = rows.filter((row) => row.date === latestDate).sort((a, b) => b.availableUnits - a.availableUnits);
+  const latestDate = rows.reduce((latest, row) => (row.date > latest ? row.date : latest), rows[0].date);
+  const latestRows = rows
+    .filter((row) => row.date === latestDate)
+    .sort((a, b) => b.availableUnits - a.availableUnits);
   return {
     date: latestDate,
     availableUnits: latestRows.reduce((sum, row) => sum + row.availableUnits, 0),
@@ -53,6 +55,12 @@ export function getGzInventoryOverview(): GzInventoryOverview | null {
     sourceUrl: latestRows[0].sourceUrl,
     districts: latestRows
   };
+}
+
+/** 可售最高区占全市可售比例（%） */
+export function topDistrictAvailableSharePct(overview: GzInventoryOverview | null): number | null {
+  if (!overview || overview.availableUnits <= 0 || !overview.districts[0]) return null;
+  return Math.round((overview.districts[0].availableUnits / overview.availableUnits) * 1000) / 10;
 }
 
 /** 最新日 vs 上一交易日（同 CSV 内）的全市总量差 */

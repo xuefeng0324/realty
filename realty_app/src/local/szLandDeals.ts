@@ -87,6 +87,8 @@ export interface SzLandMonthSummary {
   count: number;
   totalAreaSqm: number;
   totalStartPriceWan: number;
+  /** 当月样本加权起始地表均价（元/㎡地） */
+  avgStartSurfaceUnitPriceYuan: number | null;
 }
 
 export function summarizeSzLandDealsByMonth(limit = 6): SzLandMonthSummary[] {
@@ -94,13 +96,26 @@ export function summarizeSzLandDealsByMonth(limit = 6): SzLandMonthSummary[] {
   for (const r of rows) {
     const month = r.publishDate.slice(0, 7);
     if (!/^\d{4}-\d{2}$/.test(month)) continue;
-    const cur = map.get(month) ?? { month, count: 0, totalAreaSqm: 0, totalStartPriceWan: 0 };
+    const cur = map.get(month) ?? {
+      month,
+      count: 0,
+      totalAreaSqm: 0,
+      totalStartPriceWan: 0,
+      avgStartSurfaceUnitPriceYuan: null
+    };
     cur.count += 1;
     cur.totalAreaSqm += r.areaSqm;
     cur.totalStartPriceWan += r.startPriceWan;
     map.set(month, cur);
   }
   return [...map.values()]
+    .map((m) => ({
+      ...m,
+      avgStartSurfaceUnitPriceYuan:
+        m.totalAreaSqm > 0 && m.totalStartPriceWan > 0
+          ? (m.totalStartPriceWan * 10000) / m.totalAreaSqm
+          : null
+    }))
     .sort((a, b) => b.month.localeCompare(a.month))
     .slice(0, Math.max(0, limit));
 }

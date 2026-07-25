@@ -79,6 +79,8 @@ export interface GzLandMonthSummary {
   count: number;
   totalAreaSqm: number;
   totalPriceWan: number;
+  /** 当月样本加权地表均价（元/㎡地）；面积为 0 时 null */
+  avgSurfaceUnitPriceYuan: number | null;
 }
 
 /** 按成交月汇总（缺 dealDate 则用 publishDate） */
@@ -88,13 +90,24 @@ export function summarizeGzLandDealsByMonth(limit = 6): GzLandMonthSummary[] {
     const raw = r.dealDate || r.publishDate;
     const month = raw.slice(0, 7);
     if (!/^\d{4}-\d{2}$/.test(month)) continue;
-    const cur = map.get(month) ?? { month, count: 0, totalAreaSqm: 0, totalPriceWan: 0 };
+    const cur = map.get(month) ?? {
+      month,
+      count: 0,
+      totalAreaSqm: 0,
+      totalPriceWan: 0,
+      avgSurfaceUnitPriceYuan: null
+    };
     cur.count += 1;
     cur.totalAreaSqm += r.areaSqm;
     cur.totalPriceWan += r.priceWan;
     map.set(month, cur);
   }
   return [...map.values()]
+    .map((m) => ({
+      ...m,
+      avgSurfaceUnitPriceYuan:
+        m.totalAreaSqm > 0 && m.totalPriceWan > 0 ? (m.totalPriceWan * 10000) / m.totalAreaSqm : null
+    }))
     .sort((a, b) => b.month.localeCompare(a.month))
     .slice(0, Math.max(0, limit));
 }

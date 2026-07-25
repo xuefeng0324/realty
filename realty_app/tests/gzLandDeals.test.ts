@@ -53,6 +53,13 @@ describe("gz residential land deals", () => {
     expect(months.length).toBeGreaterThan(0);
     expect(months.every((m) => /^\d{4}-\d{2}$/.test(m.month))).toBe(true);
     expect(months.every((m) => m.count > 0)).toBe(true);
+    expect(
+      months.every(
+        (m) =>
+          m.avgSurfaceUnitPriceYuan == null ||
+          Math.abs(m.avgSurfaceUnitPriceYuan - (m.totalPriceWan * 10000) / m.totalAreaSqm) < 1e-6
+      )
+    ).toBe(true);
     if (months.length >= 2) {
       expect(months[0]!.month >= months[1]!.month).toBe(true);
     }
