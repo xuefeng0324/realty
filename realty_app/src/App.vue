@@ -14,6 +14,13 @@ import {
   refreshWangqianFromRemote
 } from "./local/wangqianDataRefresher";
 import { initializeTheme } from "./utils/theme";
+import {
+  buildUpdatePrompt,
+  checkAppUpdate,
+  downloadAndInstallWgt,
+  restartAppAfterUpdate,
+  supportsAppUpdateRuntime
+} from "./utils/appUpdate";
 // 直接以 raw 字符串 import，绕开 app-plus 静态资源下载问题。
 //   H5/小程序：`?raw` query 由 vite 处理返回字符串
 //   app-plus：在 webpack/vite 阶段把文件内联进来
@@ -31,8 +38,77 @@ import nbsRealEstateRaw from "../static/nbs_real_estate.csv?raw";
 // @ts-ignore
 import gzNewHouseInventoryRaw from "../static/gz_new_house_inventory.csv?raw";
 
+let startupUpdateCheckStarted = false;
+
+async function checkUpdateOnLaunch() {
+  if (startupUpdateCheckStarted || !supportsAppUpdateRuntime()) return;
+  startupUpdateCheckStarted = true;
+  try {
+    const result = await checkAppUpdate({ ignoreSkipped: true });
+    if (result.status !== "available" || !result.manifest) return;
+    const manifest = result.manifest;
+    const prompt = buildUpdatePrompt(manifest);
+    uni.showModal({
+      ...prompt,
+      showCancel: !manifest.force,
+      success: async (choice) => {
+        if (!choice.confirm) return;
+        const url = manifest.wgt?.url;
+        if (!url) {
+          uni.showModal({
+            title: "暂不支持热更新",
+            content: "新版本没有提供 WGT 更新包，请前往设置页查看整包更新方式。",
+            showCancel: false
+          });
+          return;
+        }
+        uni.showLoading({ title: "下载更新 0%", mask: true });
+        let installed: Awaited<ReturnType<typeof downloadAndInstallWgt>>;
+        try {
+          installed = await downloadAndInstallWgt(url, (progress) => {
+            const title = progress.total > 0
+              ? `下载更新 ${Math.min(100, Math.floor(progress.downloaded / progress.total * 100))}%`
+              : `已下载 ${Math.floor(progress.downloaded / 1024)}KB`;
+            uni.showLoading({ title, mask: true });
+          });
+        } catch (error) {
+          installed = {
+            ok: false,
+            reason: error instanceof Error ? error.message : "下载或安装更新时发生未知错误"
+          };
+        } finally {
+          uni.hideLoading();
+        }
+        if (!installed.ok) {
+          uni.showModal({
+            title: "更新失败",
+            content: installed.reason,
+            showCancel: false
+          });
+          return;
+        }
+        uni.showModal({
+          title: "更新已安装",
+          content: "热更新资源已经安装完成，立即重启后生效。",
+          confirmText: "立即重启",
+          cancelText: "稍后",
+          success: (restartChoice) => {
+            if (restartChoice.confirm && !restartAppAfterUpdate()) {
+              uni.showToast({ title: "请手动重启 App", icon: "none", duration: 2500 });
+            }
+          }
+        });
+      }
+    });
+  } catch (error) {
+    // 启动检查失败不阻塞主页面；用户仍可在设置页手动检查并查看具体错误。
+    console.warn("[realty_app] startup update check failed", error);
+  }
+}
+
 onLaunch(() => {
   initializeTheme();
+  void checkUpdateOnLaunch();
   // 启动时加载种子"真数据"快照（来自国家统计局 70 城指数 + 公开政策派生）
   // 替代原本的内置随机 demo。
   if (!isLoaded()) {
@@ -128,6 +204,7 @@ page {
   --color-muted: #94a3b8;
   --color-primary: #22c55e;
   --color-primary-strong: #16a34a;
+  --color-primary-contrast: #4ade80;
   --color-primary-text: #052e16;
   --color-danger: #ef4444;
   --shadow-card: 0 12rpx 34rpx rgba(0, 0, 0, 0.2);
@@ -152,6 +229,7 @@ html[data-realty-theme="light"] page {
   --color-muted: #64748b;
   --color-primary: #16a34a;
   --color-primary-strong: #15803d;
+  --color-primary-contrast: #15803d;
   --shadow-card: 0 10rpx 30rpx rgba(15, 23, 42, 0.065);
 }
 

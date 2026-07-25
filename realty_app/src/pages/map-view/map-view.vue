@@ -13,9 +13,9 @@
       <view class="control-section">
         <view class="control-label">城市</view>
         <view class="city-segment">
-          <button class="btn city-option" :class="{ 'city-option--active': app.cityId === 2 }" size="mini" @click="zoomToCity(2)">深圳</button>
-          <button class="btn city-option" :class="{ 'city-option--active': app.cityId === 1 }" size="mini" @click="zoomToCity(1)">广州</button>
-          <button class="btn city-option" :class="{ 'city-option--active': app.cityId === 3 }" size="mini" @click="zoomToCity(3)">珠海</button>
+          <button class="btn city-option" :class="{ 'city-option--active': app.cityId === 2, 'btn--active': app.cityId === 2 }" size="mini" @click="zoomToCity(2)">深圳</button>
+          <button class="btn city-option" :class="{ 'city-option--active': app.cityId === 1, 'btn--active': app.cityId === 1 }" size="mini" @click="zoomToCity(1)">广州</button>
+          <button class="btn city-option" :class="{ 'city-option--active': app.cityId === 3, 'btn--active': app.cityId === 3 }" size="mini" @click="zoomToCity(3)">珠海</button>
         </view>
       </view>
       <view class="control-label layer-label">图层模式</view>
@@ -26,6 +26,7 @@
             :key="item.key"
             class="map-mode-btn"
             :class="{ 'map-mode-btn--active': mode === item.key }"
+            :data-map-mode="item.key"
             size="mini"
             @click="setMapMode(item.key)"
           >
@@ -102,7 +103,11 @@
     <view class="map-wrap">
       <map
         id="realty-map"
+        :key="mapReloadKey"
         class="map"
+        :data-map-mode="mode"
+        :data-overlay-count="currentOverlayCount"
+        :data-map-reload-key="mapReloadKey"
         :latitude="mapCenter.lat"
         :longitude="mapCenter.lng"
         :scale="mapScale"
@@ -326,6 +331,13 @@ function closeMetroCard() {
 const modeLabel = computed(() => {
   const item = mapModeItems.find((m) => m.key === mode.value);
   return item ? `${item.icon} ${item.label}` : mode.value;
+});
+
+const currentOverlayCount = computed(() => {
+  if (mode.value === "listings") return listingClusterMarkers.value.length;
+  if (mode.value === "poi") return poiMarkers.value.length;
+  if (mode.value === "metro") return metroPolylines.value.length + metroLineMarkers.value.length;
+  return heatCircles.value.length;
 });
 
 function togglePoiCategory(cat: PoiCat) {
@@ -1340,11 +1352,13 @@ onUnmounted(() => {
 
 .map-mode-btn {
   background: var(--color-surface-raised);
+  color: var(--color-text);
+  border: 1rpx solid var(--color-border);
 }
 
 .map-mode-btn--active {
   border-color: var(--color-primary);
-  color: var(--color-primary);
+  color: var(--color-primary-contrast);
 }
 
 .mode-summary-row {

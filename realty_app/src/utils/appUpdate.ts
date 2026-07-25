@@ -38,6 +38,38 @@ export interface UpdateCheckResult {
   reason?: string;
 }
 
+export interface UpdateCheckOptions {
+  /** 启动检查必须再次提示可用版本；设置页的“跳过此版本”仍只影响手动检查。 */
+  ignoreSkipped?: boolean;
+}
+
+export interface UpdatePromptContent {
+  title: string;
+  content: string;
+  confirmText: string;
+  cancelText: string;
+}
+
+export function supportsAppUpdateRuntime(): boolean {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const plus = (globalThis as any).plus;
+  return !!(plus?.runtime?.getProperty && plus?.downloader && plus?.runtime?.install);
+}
+
+export function buildUpdatePrompt(manifest: AppUpdateManifest): UpdatePromptContent {
+  const details = (manifest.notes || "包含功能改进与问题修复。")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 240);
+  const published = manifest.publishedAt ? `\n发布时间：${manifest.publishedAt}` : "";
+  return {
+    title: `发现新版本 v${manifest.versionName}`,
+    content: `版本号：${manifest.versionCode}${published}\n\n${details}`,
+    confirmText: "立即更新",
+    cancelText: "稍后"
+  };
+}
+
 /** 候选更新清单 URL：raw / 自定义优先，jsDelivr 垫后（其 @main 常缓存旧清单）。 */
 export function getUpdateManifestUrls(): string[] {
   const bust = `t=${Date.now()}`;
@@ -165,7 +197,7 @@ export function selectWgtBase(manifestBase: string, candidateBases: string[]): s
   return norm(manifestBase);
 }
 
-export async function checkAppUpdate(): Promise<UpdateCheckResult> {
+export async function checkAppUpdate(options: UpdateCheckOptions = {}): Promise<UpdateCheckResult> {
   const hit = await fetchManifestWithBase();
   if (!hit) {
     return {
@@ -188,7 +220,7 @@ export async function checkAppUpdate(): Promise<UpdateCheckResult> {
   if (remoteCode <= localInfo.versionCode) {
     return { status: "up-to-date", manifest };
   }
-  if (!manifest.force) {
+  if (!manifest.force && !options.ignoreSkipped) {
     const skipped = uni.getStorageSync(APP_UPDATE_STORAGE_KEY);
     if (skipped === manifest.versionCode) {
       return { status: "skipped", manifest };

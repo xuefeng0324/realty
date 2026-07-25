@@ -16,7 +16,7 @@ try {
   await page.waitForTimeout(1400);
   const overview = page.locator("[data-education-overview]");
   if (await overview.count() !== 1) issues.push("广州学校页未显示官方教育事业概览");
-  for (const value of ["3,806", "292.63", "1012", "420"]) {
+  for (const value of ["3,806", "292.63 万", "1012/420"]) {
     if (await overview.getByText(value, { exact: true }).count() !== 1) {
       issues.push(`广州教育概览缺少官方统计值：${value}`);
     }

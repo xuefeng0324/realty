@@ -74,7 +74,7 @@ try {
         };
         return {
           theme: document.documentElement.dataset.realtyTheme,
-          page: describe(firstVisible(".page, .container")),
+          page: describe(document.body),
           card: describe(firstVisible(".card, [class$='-card'], [class*='-card ']")),
           title: describe(firstVisible(".card-title, [class$='-title'], [class*='-title ']")),
           muted: describe(firstVisible(".muted, [class$='-sub'], [class*='-hint'], [class*='-meta']")),

@@ -773,6 +773,7 @@
             v-for="q in QUICK_SHORTCUTS"
             :key="q.key"
             class="quick-tile"
+            :data-quick-key="q.key"
             @click="quickClick(q)"
           >
             <view class="quick-tile-icon" :class="'quick-tile-icon--' + q.tone">{{ q.icon }}</view>
@@ -3573,7 +3574,8 @@ function quickClick(q: QuickShortcut) {
   if (q.action === "tab" && q.target) {
     activeTab.value = q.target as DashTabKey;
   } else if (q.action === "page" && q.target === "settings") {
-    uni.navigateTo({ url: "/pages/settings/settings" });
+    // 设置页属于 tabBar，navigateTo 在真机和 H5 都可能被框架拒绝。
+    uni.switchTab({ url: "/pages/settings/settings" });
   } else if (q.action === "page" && q.target === "period") {
     // 滚动到顶部 (周期 sticky 已经固定, 滚动到位即可)
     uni.pageScrollTo({ scrollTop: 0, duration: 200 });
@@ -5638,6 +5640,14 @@ onShow(async () => {
 .trend-axis {
   margin-top: 4rpx;
   text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+}
+.trend-axis .muted {
+  display: block;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 /* v0.11.0 学区溢价榜 */
@@ -7577,6 +7587,7 @@ onShow(async () => {
 }
 .hero-slide {
   width: 100%;
+  max-width: 100%;
   height: 200rpx;
   padding: 24rpx 28rpx;
   border-radius: 16rpx;
@@ -7584,6 +7595,7 @@ onShow(async () => {
   transition: transform 0.15s;
   box-sizing: border-box;
   vertical-align: top;
+  overflow: hidden;
 }
 .hero-slide:active {
   transform: scale(0.98);
@@ -7616,6 +7628,9 @@ onShow(async () => {
   display: flex;
   align-items: center;
   gap: 18rpx;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 .hero-slide-icon {
   font-size: 60rpx;
@@ -7624,6 +7639,7 @@ onShow(async () => {
 .hero-slide-mid {
   flex: 1;
   min-width: 0;
+  overflow-wrap: anywhere;
 }
 .hero-slide-label {
   font-size: 24rpx;

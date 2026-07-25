@@ -76,7 +76,7 @@ async function run() {
     await page.screenshot({ path: resolve(OUT_DIR, "map_count.png"), fullPage: true });
 
     // 切到 price
-    await page.locator("text=切到成交价热力").first().click({ force: true });
+    await page.locator('.map-mode-btn[data-map-mode="price"]').click({ force: true });
     await page.waitForTimeout(800);
     legend = await page.locator(".legend").first().textContent();
     console.log("[map] price 模式 legend:", legend);
@@ -86,7 +86,7 @@ async function run() {
     await page.screenshot({ path: resolve(OUT_DIR, "map_price.png"), fullPage: true });
 
     // 切到 listings
-    await page.locator("text=切到挂牌点").first().click({ force: true });
+    await page.locator('.map-mode-btn[data-map-mode="listings"]').click({ force: true });
     await page.waitForTimeout(800);
     legend = await page.locator(".legend").first().textContent();
     console.log("[map] listings 模式 legend:", legend);

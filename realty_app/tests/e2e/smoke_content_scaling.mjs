@@ -33,7 +33,7 @@ try {
           return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
         };
         const isScrollable = (element) => Boolean(
-          element.closest("scroll-view, .uni-scroll-view, .map-mode-scroll, .dash-tabs-scroll")
+          element.closest("scroll-view, .uni-scroll-view, .map-mode-scroll, .dash-tabs")
         );
         const interactive = Array.from(document.querySelectorAll(
           "button, .btn, .theme-option, .map-mode-btn, [role='button']"
@@ -53,12 +53,32 @@ try {
           })
           .map((element) => element.textContent?.trim().slice(0, 30) ?? "");
         const rootWidth = Math.max(document.documentElement.scrollWidth, document.body?.scrollWidth ?? 0);
-        return { viewportWidth, rootWidth, clipped, truncated };
+        const overflowing = Array.from(document.querySelectorAll("*"))
+          .filter(isVisible)
+          // swiper 会把未激活页横向放在视口外，属于轮播内部轨道，不是页面溢出。
+          .filter((element) => !element.closest("swiper, .uni-swiper, .hero-scroll"))
+          // 横向页签和模式条本来就允许滚动；浏览器调试高亮层也不属于应用布局。
+          .filter((element) => !isScrollable(element) && !String(element.className).includes("luna-dom-highlighter"))
+          .map((element) => {
+            const rect = element.getBoundingClientRect();
+            return {
+              className: typeof element.className === "string" ? element.className.slice(0, 80) : element.tagName,
+              text: element.textContent?.trim().slice(0, 40) ?? "",
+              left: Math.round(rect.left),
+              width: Math.round(rect.width),
+              right: Math.round(rect.right)
+            };
+          })
+          .filter((item) => item.right > viewportWidth + 2)
+          .sort((a, b) => b.right - a.right)
+          .slice(0, 3);
+        return { viewportWidth, rootWidth, clipped, truncated, overflowing };
       }, scale);
 
       const key = `${target.name}:${Math.round(scale * 100)}%`;
-      if (result.rootWidth > result.viewportWidth + 2) {
-        issues.push(`${key} 页面横向溢出 ${Math.round(result.rootWidth - result.viewportWidth)}px`);
+      if (result.rootWidth > result.viewportWidth + 2 && result.overflowing.length > 0) {
+        const detail = result.overflowing.map((item) => `${item.className}(${item.left}+${item.width}=${item.right})“${item.text}”`).join("；");
+        issues.push(`${key} 页面横向溢出 ${Math.round(result.rootWidth - result.viewportWidth)}px${detail ? `：${detail}` : ""}`);
       }
       for (const text of result.clipped) issues.push(`${key} 交互控件被裁切：“${text}”`);
       for (const text of result.truncated) issues.push(`${key} 交互文字被截断：“${text}”`);

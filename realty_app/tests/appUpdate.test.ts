@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   rewriteWgtUrlToBase,
   selectWgtBase,
-  buildWgtUrlCandidates
+  buildWgtUrlCandidates,
+  buildUpdatePrompt,
+  supportsAppUpdateRuntime
 } from "../src/utils/appUpdate";
 
 describe("appUpdate.rewriteWgtUrlToBase", () => {
@@ -80,5 +82,26 @@ describe("appUpdate.buildWgtUrlCandidates (v1.121.5)", () => {
     expect(cands[0]).toBe(
       "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/120/app.wgt"
     );
+  });
+});
+
+describe("appUpdate startup prompt", () => {
+  it("启动提示包含版本、发布日期和精简后的更新说明", () => {
+    const prompt = buildUpdatePrompt({
+      versionName: "1.122.0",
+      versionCode: "131",
+      publishedAt: "2026-07-26T08:00:00Z",
+      notes: "  启动时自动检查更新。\n有新版本时显示更新内容。  "
+    });
+    expect(prompt.title).toBe("发现新版本 v1.122.0");
+    expect(prompt.content).toContain("版本号：131");
+    expect(prompt.content).toContain("发布时间：2026-07-26T08:00:00Z");
+    expect(prompt.content).toContain("启动时自动检查更新。 有新版本时显示更新内容。");
+    expect(prompt.confirmText).toBe("立即更新");
+    expect(prompt.cancelText).toBe("稍后");
+  });
+
+  it("非原生运行时不会启用启动热更新", () => {
+    expect(supportsAppUpdateRuntime()).toBe(false);
   });
 });

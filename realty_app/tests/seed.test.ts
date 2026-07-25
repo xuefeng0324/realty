@@ -31,6 +31,13 @@ describe("seed snapshot", () => {
     expect(cities.has(3)).toBe(true);
   });
 
+  test("旧学校快照缺少来源列时明确标记为人工整理样本", () => {
+    const s = getSnapshot();
+    expect(s!.schools.length).toBeGreaterThan(0);
+    expect(s!.schools.every((school) => school.sourceKind === "CURATED")).toBe(true);
+    expect(s!.schools.every((school) => !school.sourceUrl && !school.verifiedAt)).toBe(true);
+  });
+
   test("种子快照的 unit_price 与公开市场量级一致", () => {
     const s = getSnapshot();
     const prices = s!.listings.map((l) => l.unitPrice ?? 0).filter((p) => p > 0);

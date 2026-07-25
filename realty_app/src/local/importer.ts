@@ -869,7 +869,12 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     displayName: s(r.display_name),
     schoolType: s(r.school_type),
     provinceKeyFlag: b(r.province_key_flag),
-    cityKeyFlag: b(r.city_key_flag)
+    cityKeyFlag: b(r.city_key_flag),
+    // 历史 schools.csv 是人工整理样本，旧快照尚无来源列；缺失时不能冒充官方，
+    // 也不应显示成无法解释的 UNKNOWN。
+    sourceKind: s(r.source_kind) ?? "CURATED",
+    sourceUrl: s(r.source_url),
+    verifiedAt: s(r.verified_at)
   }));
 
   const indicatorRows = rowsToObjects<Record<string, string>>(parseCSV(inputs.schoolIndicatorsCSV));

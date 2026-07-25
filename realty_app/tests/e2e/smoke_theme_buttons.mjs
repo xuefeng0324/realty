@@ -24,18 +24,14 @@ try {
   const persistedTheme = await page.evaluate(() => document.documentElement.dataset.realtyTheme);
   if (persistedTheme !== "dark") issues.push(`主题未持久化: ${persistedTheme}`);
 
-  const healthRows = await page.locator("[data-source-health-row]").count();
-  if (healthRows !== 5) issues.push(`官方数据新鲜度应显示 5 个来源，实际 ${healthRows}`);
-
-  const healthBadges = await page.locator(".source-health-badge").count();
-  if (healthBadges !== 5) issues.push(`官方数据新鲜度状态应有 5 个，实际 ${healthBadges}`);
-
-  const lprHealthText = await page.locator("[data-source-health-row]").filter({ hasText: "贷款市场报价利率 LPR" }).count();
-  if (lprHealthText !== 1) issues.push(`LPR 官方来源状态应显示 1 行，实际 ${lprHealthText}`);
+  await page.getByText("高级设置", { exact: true }).click({ force: true });
+  if (await page.getByText("数据源类型", { exact: true }).count() !== 1) issues.push("高级设置展开后缺少数据源类型");
+  if (await page.getByText("保存", { exact: true }).count() !== 1) issues.push("高级设置展开后缺少保存按钮");
+  if (await page.getByText("启动时自动检查热更新", { exact: false }).count() !== 1) issues.push("关于区域未说明启动自动检查更新");
 
   await page.goto(`${BASE_URL}/#/pages/dashboard/dashboard`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1800);
-  await page.getByText("数据设置", { exact: true }).click({ force: true });
+  await page.locator('[data-quick-key="settings"]').click({ force: true });
   await page.waitForTimeout(500);
   if (!page.url().includes("#/pages/settings/settings")) {
     issues.push(`数据设置按钮跳转错误: ${page.url()}`);

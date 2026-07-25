@@ -12,14 +12,14 @@ export const DEFAULT_API_BASE_URL = "http://localhost:8000";
 
 export const APP_NAME = "Realty App";
 // 与 src/manifest.json 的 versionName 同步；CI 出包时会自动覆写
-export const APP_VERSION = "1.121.9";
+export const APP_VERSION = "1.121.10";
 
 export const STORAGE_KEYS = {
   apiBaseUrl: "realty_app.apiBaseUrl",
   cityId: "realty_app.cityId",
   weekEnd: "realty_app.weekEnd",
   source: "realty_app.source",
-  metric: "realty_app.metric"
+  metric: "realty_app.metric",
 };
 
 export const SNAPSHOT_UPDATED_EVENT = "realty:snapshot-updated";
