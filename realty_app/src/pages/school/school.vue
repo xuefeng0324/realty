@@ -328,7 +328,7 @@ onUnmounted(() => {
 }
 
 .form-label {
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 24rpx;
 }
 

@@ -885,7 +885,7 @@ onUnmounted(() => {
 }
 
 .form-label {
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 24rpx;
 }
 
@@ -893,7 +893,7 @@ onUnmounted(() => {
   background: #1e293b;
   border-radius: 8rpx;
   padding: 12rpx 16rpx;
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-size: 26rpx;
 }
 
@@ -951,7 +951,7 @@ onUnmounted(() => {
   left: 50%;
   transform: translateX(-50%);
   background: #0f172a;
-  color: #f3f4f6;
+  color: var(--color-heading);
   border-radius: 6rpx;
   padding: 2rpx 8rpx;
   font-size: 20rpx;
@@ -974,7 +974,7 @@ onUnmounted(() => {
 }
 
 .picker-caret {
-  color: #64748b;
+  color: var(--color-muted);
   font-size: 22rpx;
   margin-left: 8rpx;
 }
@@ -1003,7 +1003,7 @@ onUnmounted(() => {
 .sheet-title {
   text-align: center;
   font-size: 28rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
   padding: 16rpx;
   border-bottom: 1rpx solid #1e293b;
 }
@@ -1017,7 +1017,7 @@ onUnmounted(() => {
 .sheet-item {
   padding: 24rpx 16rpx;
   border-bottom: 1rpx solid #1e293b;
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-size: 30rpx;
   display: flex;
   justify-content: space-between;
@@ -1037,7 +1037,7 @@ onUnmounted(() => {
 .sheet-cancel {
   text-align: center;
   padding: 28rpx 0;
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 30rpx;
   border-top: 1rpx solid #1e293b;
 }
@@ -1067,7 +1067,7 @@ onUnmounted(() => {
   height: 44rpx;
   border-radius: 22rpx;
   background: #facc15;
-  color: #0f172a;
+  color: var(--color-heading);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1081,7 +1081,7 @@ onUnmounted(() => {
 }
 .pareto-name {
   font-size: 28rpx;
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1128,7 +1128,7 @@ onUnmounted(() => {
 
 .listing-title {
   font-size: 28rpx;
-  color: #f3f4f6;
+  color: var(--color-heading);
   margin-bottom: 6rpx;
   overflow: hidden;
   text-overflow: ellipsis;

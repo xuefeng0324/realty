@@ -284,7 +284,7 @@ function onPickCity(city: string) {
 
 .rank-name {
   width: 130rpx;
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-size: 26rpx;
   overflow: hidden;
   text-overflow: ellipsis;

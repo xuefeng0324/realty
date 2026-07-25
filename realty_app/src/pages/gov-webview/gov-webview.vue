@@ -118,7 +118,7 @@ web-view {
 }
 
 .fallback-title {
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-size: 32rpx;
 }
 

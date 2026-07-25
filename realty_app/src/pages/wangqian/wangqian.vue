@@ -519,7 +519,7 @@ onLoad((opts?: Record<string, string>) => {
   gap: 6rpx;
 }
 .metric-label {
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 22rpx;
 }
 .metric-value {
@@ -613,15 +613,15 @@ onLoad((opts?: Record<string, string>) => {
   font-size: 26rpx;
 }
 .wq-table-head {
-  color: #64748b;
+  color: var(--color-muted);
   border-bottom: 1rpx solid #1f2937;
 }
 .wq-table-row {
   border-bottom: 1rpx solid #1f2937;
-  color: #e2e8f0;
+  color: var(--color-text);
 }
 .wq-total {
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-weight: 700;
   border-top: 1rpx solid #1f2937;
 }
@@ -663,14 +663,14 @@ onLoad((opts?: Record<string, string>) => {
 .sheet-title {
   text-align: center;
   font-size: 28rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
   padding: 16rpx;
   border-bottom: 1rpx solid #1e293b;
 }
 .sheet-item {
   padding: 24rpx 32rpx;
   border-bottom: 1rpx solid #1e293b;
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-size: 30rpx;
   display: flex;
   justify-content: space-between;
@@ -687,7 +687,7 @@ onLoad((opts?: Record<string, string>) => {
 .sheet-cancel {
   text-align: center;
   padding: 28rpx 0;
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 30rpx;
   border-top: 1rpx solid #1e293b;
 }

@@ -636,23 +636,25 @@ function openGithubReleases() {
 }
 
 .form-label {
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 24rpx;
 }
 
 .picker-value {
-  background: #1e293b;
+  background: var(--color-soft);
+  border: 1rpx solid var(--color-border);
   border-radius: 8rpx;
   padding: 12rpx 16rpx;
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-size: 26rpx;
 }
 
 .input {
-  background: #1e293b;
+  background: var(--color-soft);
+  border: 1rpx solid var(--color-border);
   border-radius: 8rpx;
   padding: 12rpx 16rpx;
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-size: 26rpx;
 }
 </style>

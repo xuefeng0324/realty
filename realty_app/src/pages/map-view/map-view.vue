@@ -1079,8 +1079,8 @@ onUnmounted(() => {
   gap: 12rpx;
 }
 .btn {
-  background: #0ea5e9;
-  color: #ffffff;
+  background: var(--color-accent) !important;
+  color: var(--color-accent-text) !important;
   font-size: 24rpx;
   padding: 4rpx 16rpx;
   border-radius: 4rpx;
@@ -1107,11 +1107,11 @@ onUnmounted(() => {
 .legend-text {
   flex: 1;
   font-size: 24rpx;
-  color: #cbd5e1;
+  color: var(--color-text);
 }
 .legend-range {
   font-size: 22rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
   font-variant-numeric: tabular-nums;
 }
 .legend-summary {
@@ -1131,12 +1131,12 @@ onUnmounted(() => {
   z-index: 100;
 }
 .info-name {
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-size: 30rpx;
   font-weight: 600;
 }
 .info-close {
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 32rpx;
   padding: 0 8rpx;
 }
@@ -1156,11 +1156,11 @@ onUnmounted(() => {
   flex-direction: column;
 }
 .info-stat-label {
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 22rpx;
 }
 .info-stat-value {
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-size: 30rpx;
   font-weight: 600;
 }
@@ -1200,7 +1200,7 @@ onUnmounted(() => {
 }
 .curvature-title {
   font-size: 28rpx;
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-weight: 600;
 }
 .curvature-desc {
@@ -1223,7 +1223,7 @@ onUnmounted(() => {
   height: 40rpx;
   border-radius: 20rpx;
   background: #38bdf8;
-  color: #0f172a;
+  color: var(--color-heading);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1237,7 +1237,7 @@ onUnmounted(() => {
 }
 .curvature-name {
   font-size: 26rpx;
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1278,7 +1278,7 @@ onUnmounted(() => {
 .poi-toggle-off {
   background: rgba(148, 163, 184, 0.1);
   border-color: #475569;
-  color: #94a3b8;
+  color: var(--color-muted);
 }
 
 .map-control-card {

@@ -51,6 +51,7 @@ describe("theme", () => {
   it("原生端同步导航栏与 TabBar 配色", () => {
     const setNavigationBarColor = vi.fn();
     const setTabBarStyle = vi.fn();
+    vi.stubGlobal("plus", {});
     vi.stubGlobal("uni", { setNavigationBarColor, setTabBarStyle });
 
     expect(applyTheme("dark")).toBe("dark");

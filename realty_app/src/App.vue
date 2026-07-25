@@ -195,6 +195,7 @@ page {
   --safe-area-right: env(safe-area-inset-right, 0px);
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --safe-area-left: env(safe-area-inset-left, 0px);
+  /* 默认 = 深色；浅色由 data-realty-theme=light 覆盖 */
   --color-bg: #080d18;
   --color-surface: #111827;
   --color-surface-raised: #182235;
@@ -207,6 +208,20 @@ page {
   --color-primary-contrast: #4ade80;
   --color-primary-text: #052e16;
   --color-danger: #ef4444;
+  --color-accent: #3b82f6;
+  --color-accent-text: #eff6ff;
+  --color-soft: #1e293b;
+  --color-soft-strong: #334155;
+  --color-panel: #0f172a;
+  --color-chip-text: #cbd5e1;
+  --color-success-soft: rgba(34, 197, 94, 0.16);
+  --color-danger-soft: rgba(239, 68, 68, 0.16);
+  --color-warn-soft: rgba(234, 179, 8, 0.16);
+  --color-info-soft: rgba(56, 189, 248, 0.16);
+  --color-violet-soft: rgba(139, 92, 246, 0.18);
+  --color-on-success-soft: #86efac;
+  --color-on-danger-soft: #fca5a5;
+  --color-on-warn-soft: #fde68a;
   --shadow-card: 0 12rpx 34rpx rgba(0, 0, 0, 0.2);
   background-color: var(--color-bg);
   background-image:
@@ -219,7 +234,10 @@ page {
 }
 
 html[data-realty-theme="light"],
-html[data-realty-theme="light"] page {
+html[data-realty-theme="light"] page,
+body[data-realty-theme="light"],
+body[data-realty-theme="light"] page,
+page[data-realty-theme="light"] {
   --color-bg: #f4f7fb;
   --color-surface: #ffffff;
   --color-surface-raised: #f6f8fb;
@@ -230,12 +248,30 @@ html[data-realty-theme="light"] page {
   --color-primary: #16a34a;
   --color-primary-strong: #15803d;
   --color-primary-contrast: #15803d;
+  --color-primary-text: #ffffff;
+  --color-accent: #2563eb;
+  --color-accent-text: #ffffff;
+  --color-soft: #f1f5f9;
+  --color-soft-strong: #e2e8f0;
+  --color-panel: #f8fafc;
+  --color-chip-text: #334155;
+  --color-success-soft: #ecfdf5;
+  --color-danger-soft: #fef2f2;
+  --color-warn-soft: #fef3c7;
+  --color-info-soft: #e0f2fe;
+  --color-violet-soft: #ede9fe;
+  --color-on-success-soft: #166534;
+  --color-on-danger-soft: #991b1b;
+  --color-on-warn-soft: #92400e;
   --shadow-card: 0 10rpx 30rpx rgba(15, 23, 42, 0.065);
+  background-image: none;
 }
 
-view,
-text {
-  box-sizing: border-box;
+/* 表单控件默认跟主题，避免深色模式下冒出系统浅色输入框 */
+input,
+textarea {
+  color: var(--color-text);
+  background: var(--color-soft);
 }
 
 .container {
@@ -259,11 +295,11 @@ text {
   font-size: 32rpx;
   font-weight: 600;
   margin-bottom: 16rpx;
-  color: #f3f4f6;
+  color: var(--color-heading);
 }
 
 .muted {
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 24rpx;
 }
 
@@ -288,8 +324,8 @@ text {
   display: inline-block;
   padding: 4rpx 12rpx;
   border-radius: 999rpx;
-  background: #1e293b;
-  color: #cbd5e1;
+  background: var(--color-soft);
+  color: var(--color-chip-text);
   font-size: 22rpx;
   margin-right: 8rpx;
   margin-bottom: 8rpx;
@@ -310,26 +346,45 @@ text {
   color: #fca5a5;
 }
 
-.btn {
+/* 干掉 uni-app button 默认浅灰底/黑字，否则深色模式到处「浅色按键」 */
+button {
+  background: transparent;
+  color: inherit;
+  padding-left: 0;
+  padding-right: 0;
+  line-height: inherit;
+  font-size: inherit;
+  border-radius: inherit;
+}
+button::after {
+  border: none;
+}
+
+.btn,
+button.btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #2563eb;
-  color: #fff;
-  border: none;
+  background: var(--color-accent) !important;
+  color: var(--color-accent-text) !important;
+  border: 1rpx solid transparent;
   border-radius: 12rpx;
   padding: 16rpx 32rpx;
   font-size: 28rpx;
+  line-height: 1.3;
 }
 
-.btn-ghost {
-  background: transparent;
-  color: #93c5fd;
-  border: 1rpx solid #1d4ed8;
+.btn-ghost,
+button.btn-ghost {
+  background: var(--color-soft) !important;
+  color: var(--color-text) !important;
+  border: 1rpx solid var(--color-border) !important;
 }
 
-.btn-danger {
-  background: #ef4444;
+.btn-danger,
+button.btn-danger {
+  background: var(--color-danger) !important;
+  color: #fff !important;
 }
 
 .score-pill {
@@ -360,14 +415,14 @@ text {
 
 .divider {
   height: 1rpx;
-  background: #1f2937;
+  background: var(--color-border);
   margin: 16rpx 0;
 }
 
 .empty {
   padding: 64rpx 0;
   text-align: center;
-  color: #64748b;
+  color: var(--color-muted);
 }
 
 .error {
@@ -409,6 +464,6 @@ button:focus,
 .card-active,
 .row-active {
   opacity: 0.75;
-  background: #1e293b !important;
+  background: var(--color-soft) !important;
 }
 </style>

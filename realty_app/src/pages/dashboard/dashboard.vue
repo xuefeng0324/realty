@@ -5213,7 +5213,7 @@ onShow(async () => {
 }
 
 .form-label {
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 26rpx;
   min-width: 140rpx;
 }
@@ -5222,7 +5222,7 @@ onShow(async () => {
   background: #1e293b;
   border-radius: 8rpx;
   padding: 12rpx 20rpx;
-  color: #f3f4f6;
+  color: var(--color-heading);
   min-width: 200rpx;
   display: flex;
   align-items: center;
@@ -5230,7 +5230,7 @@ onShow(async () => {
 }
 
 .picker-caret {
-  color: #64748b;
+  color: var(--color-muted);
   font-size: 22rpx;
   margin-left: 8rpx;
 }
@@ -5238,7 +5238,7 @@ onShow(async () => {
 .period-hint {
   display: block;
   margin-top: 12rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 22rpx;
   line-height: 1.4;
 }
@@ -5268,7 +5268,7 @@ onShow(async () => {
 .sheet-title {
   text-align: center;
   font-size: 28rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
   padding: 16rpx;
   border-bottom: 1rpx solid #1e293b;
 }
@@ -5282,7 +5282,7 @@ onShow(async () => {
 .sheet-item {
   padding: 24rpx 16rpx;
   border-bottom: 1rpx solid #1e293b;
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-size: 30rpx;
   display: flex;
   justify-content: space-between;
@@ -5302,7 +5302,7 @@ onShow(async () => {
 .sheet-cancel {
   text-align: center;
   padding: 28rpx 0;
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 30rpx;
   border-top: 1rpx solid #1e293b;
 }
@@ -5340,7 +5340,7 @@ onShow(async () => {
 .bar-value {
   width: 200rpx;
   text-align: right;
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-size: 24rpx;
 }
 
@@ -5350,7 +5350,7 @@ onShow(async () => {
   border-top: 1rpx solid #1f2937;
   font-size: 22rpx;
   line-height: 1.5;
-  color: #64748b;
+  color: var(--color-muted);
 }
 
 .community-row {
@@ -5377,7 +5377,7 @@ onShow(async () => {
 
 .community-name {
   font-size: 30rpx;
-  color: #f3f4f6;
+  color: var(--color-heading);
   margin-bottom: 4rpx;
 }
 
@@ -5402,7 +5402,7 @@ onShow(async () => {
   color: #4ade80;
 }
 .drift-unknown {
-  color: #94a3b8;
+  color: var(--color-muted);
 }
 .drift-row {
   display: flex;
@@ -5416,12 +5416,12 @@ onShow(async () => {
 }
 .drift-rank {
   width: 40rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
   font-weight: 700;
 }
 .drift-city {
   flex: 1 1 auto;
-  color: #e2e8f0;
+  color: var(--color-text);
 }
 .drift-value {
   font-weight: 700;
@@ -5482,7 +5482,7 @@ onShow(async () => {
 }
 .rank-val {
   font-size: 26rpx;
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-weight: 600;
 }
 .top-section {
@@ -5515,19 +5515,19 @@ onShow(async () => {
 }
 
 .cell-label {
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 24rpx;
 }
 
 .cell-value {
   font-size: 36rpx;
   font-weight: 700;
-  color: #f3f4f6;
+  color: var(--color-heading);
 }
 
 .cell-sub {
   font-size: 22rpx;
-  color: #64748b;
+  color: var(--color-muted);
 }
 
 .stats70-up {
@@ -5539,7 +5539,7 @@ onShow(async () => {
 }
 
 .stats70-flat {
-  color: #94a3b8 !important;
+  color: var(--color-muted) !important;
 }
 
 .wangqian-card {
@@ -5594,7 +5594,7 @@ onShow(async () => {
 }
 .trend-name {
   font-size: 26rpx;
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-weight: 500;
   min-width: 140rpx;
 }
@@ -5615,7 +5615,7 @@ onShow(async () => {
   color: #22c55e;
 }
 .trend-flat {
-  color: #94a3b8;
+  color: var(--color-muted);
 }
 .trend-bars {
   display: flex;
@@ -5686,12 +5686,12 @@ onShow(async () => {
   background: linear-gradient(135deg, #d97706, #b45309);
 }
 .medal-flat {
-  background: #e2e8f0;
+  background: var(--color-soft-strong);
   color: #475569;
 }
 .medal-flat-mini {
   background: #1e293b;
-  color: #94a3b8;
+  color: var(--color-muted);
 }
 .sp-medal-mini {
   display: inline-block;
@@ -5746,7 +5746,7 @@ onShow(async () => {
 }
 .weather-cond {
   font-size: 24rpx;
-  color: #64748b;
+  color: var(--color-muted);
 }
 .weather-stats {
   display: flex;
@@ -5763,12 +5763,12 @@ onShow(async () => {
 }
 .weather-stat-label {
   font-size: 20rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
 }
 .weather-stat-value {
   font-size: 24rpx;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-heading);
 }
 .aqi-chip {
   border-radius: 6rpx;
@@ -5785,7 +5785,7 @@ onShow(async () => {
 }
 .forecast-title {
   font-size: 22rpx;
-  color: #64748b;
+  color: var(--color-muted);
   margin-bottom: 8rpx;
 }
 .forecast-grid {
@@ -5807,11 +5807,11 @@ onShow(async () => {
 .forecast-week {
   font-size: 22rpx;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-heading);
 }
 .forecast-date {
   font-size: 18rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
 }
 .forecast-icon {
   font-size: 36rpx;
@@ -5841,7 +5841,7 @@ onShow(async () => {
 .sp-district {
   font-size: 28rpx;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-heading);
 }
 .sp-meta {
   font-size: 22rpx;
@@ -5858,7 +5858,7 @@ onShow(async () => {
 }
 .sp-pos-strong { color: #16a34a; }
 .sp-pos { color: #22c55e; }
-.sp-flat { color: #64748b; }
+.sp-flat { color: var(--color-muted); }
 .sp-neg { color: #dc2626; }
 
 /* v0.23.0 trend-9 全品类网签榜 tabs */
@@ -5894,7 +5894,7 @@ onShow(async () => {
 .wq-area {
   flex: 0 0 100rpx;
   font-size: 22rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
   text-align: right;
 }
 
@@ -5939,7 +5939,7 @@ onShow(async () => {
 .ld-pct {
   flex: 0 0 80rpx;
   text-align: right;
-  color: #94a3b8;
+  color: var(--color-muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -5958,7 +5958,7 @@ onShow(async () => {
 }
 .spc-label {
   flex: 0 0 90rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
   padding-top: 6rpx;
 }
 .spc-chips {
@@ -6007,7 +6007,7 @@ onShow(async () => {
 }
 .tag-size-2 {
   font-size: 26rpx;
-  color: #e2e8f0;
+  color: var(--color-text);
 }
 .tag-size-3 {
   font-size: 30rpx;
@@ -6087,7 +6087,7 @@ onShow(async () => {
 .dc-name {
   font-size: 28rpx;
   font-weight: 500;
-  color: #e2e8f0;
+  color: var(--color-text);
 }
 .dc-right {
   flex: 0 0 auto;
@@ -6121,7 +6121,7 @@ onShow(async () => {
 .lc-name {
   font-size: 26rpx;
   font-weight: 500;
-  color: #e2e8f0;
+  color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -6145,7 +6145,7 @@ onShow(async () => {
 }
 .lc-dim-label {
   font-size: 18rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
   font-weight: 600;
 }
 .lc-dim-val {
@@ -6171,7 +6171,7 @@ onShow(async () => {
   color: #38bdf8;
 }
 .lc-score-low {
-  color: #94a3b8;
+  color: var(--color-muted);
 }
 
 /* v0.33.0 小区综合评分榜 */
@@ -6201,7 +6201,7 @@ onShow(async () => {
 }
 .cs-preset-on {
   background: #38bdf8;
-  color: #0f172a;
+  color: var(--color-heading);
   border-color: #38bdf8;
   font-weight: 600;
 }
@@ -6213,7 +6213,7 @@ onShow(async () => {
 }
 .cs-slider-label {
   font-size: 22rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
   min-width: 60rpx;
 }
 .cs-slider {
@@ -6221,7 +6221,7 @@ onShow(async () => {
 }
 .cs-slider-val {
   font-size: 22rpx;
-  color: #e2e8f0;
+  color: var(--color-text);
   min-width: 60rpx;
   text-align: right;
   font-variant-numeric: tabular-nums;
@@ -6256,7 +6256,7 @@ onShow(async () => {
   color: #fb923c;
 }
 .cs-medal-none {
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 28rpx;
 }
 .cs-mid {
@@ -6266,7 +6266,7 @@ onShow(async () => {
 .cs-name {
   font-size: 26rpx;
   font-weight: 500;
-  color: #e2e8f0;
+  color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -6290,7 +6290,7 @@ onShow(async () => {
 }
 .cs-dim-label {
   font-size: 18rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
   font-weight: 600;
 }
 .cs-dim-val {
@@ -6316,7 +6316,7 @@ onShow(async () => {
   color: #38bdf8;
 }
 .cs-total-low {
-  color: #94a3b8;
+  color: var(--color-muted);
 }
 
 /* v0.35.0 map-9 地铁步行通勤 */
@@ -6366,7 +6366,7 @@ onShow(async () => {
 .mw-name {
   font-size: 28rpx;
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -6434,7 +6434,7 @@ onShow(async () => {
 .mb-name {
   font-size: 28rpx;
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -6468,7 +6468,7 @@ onShow(async () => {
 }
 .mb-st-plan {
   background: rgba(148, 163, 184, 0.25);
-  color: #94a3b8;
+  color: var(--color-muted);
 }
 
 /* v0.10.0 网签热度榜 */
@@ -6497,11 +6497,11 @@ onShow(async () => {
 }
 .wq-rank-gold {
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  color: #1f2937;
+  color: var(--color-text);
 }
 .wq-rank-silver {
   background: linear-gradient(135deg, #e5e7eb 0%, #94a3b8 100%);
-  color: #1f2937;
+  color: var(--color-text);
 }
 .wq-rank-bronze {
   background: linear-gradient(135deg, #d97706 0%, #92400e 100%);
@@ -6509,12 +6509,12 @@ onShow(async () => {
 }
 .wq-rank-normal {
   background: #1e293b;
-  color: #94a3b8;
+  color: var(--color-muted);
 }
 .wq-name {
   width: 140rpx;
   font-size: 26rpx;
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-weight: 500;
   flex-shrink: 0;
 }
@@ -6533,7 +6533,7 @@ onShow(async () => {
 .wq-units {
   width: 180rpx;
   font-size: 24rpx;
-  color: #f3f4f6;
+  color: var(--color-heading);
   text-align: right;
   flex-shrink: 0;
 }
@@ -6548,7 +6548,7 @@ onShow(async () => {
 .dm-chip {
   padding: 6rpx 18rpx;
   border-radius: 999rpx;
-  background: #e5e7eb;
+  background: var(--color-soft-strong);
   color: #374151;
   font-size: 24rpx;
   transition: all 0.15s;
@@ -6576,7 +6576,7 @@ onShow(async () => {
 .dm-name {
   font-size: 30rpx;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-heading);
 }
 .dm-mid {
   flex: 1;
@@ -6592,17 +6592,17 @@ onShow(async () => {
 }
 .dm-k {
   width: 80rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 22rpx;
 }
 .dm-v {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-heading);
   min-width: 70rpx;
 }
 .dm-sub {
   font-size: 22rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
 }
 .dm-mom {
   font-size: 22rpx;
@@ -6612,15 +6612,15 @@ onShow(async () => {
 }
 .dm-mom-up {
   color: #dc2626;
-  background: #fef2f2;
+  background: var(--color-danger-soft);
 }
 .dm-mom-down {
   color: #16a34a;
-  background: #f0fdf4;
+  background: var(--color-success-soft);
 }
 .dm-mom-flat {
-  color: #64748b;
-  background: #f1f5f9;
+  color: var(--color-muted);
+  background: var(--color-soft);
 }
 
 /* v0.39.0 trend-19: 特征画像溢价 */
@@ -6631,7 +6631,7 @@ onShow(async () => {
   margin-top: 12rpx;
 }
 .fp-dim-block {
-  background: #f8fafc;
+  background: var(--color-panel);
   border-radius: 12rpx;
   padding: 14rpx 16rpx;
 }
@@ -6644,7 +6644,7 @@ onShow(async () => {
 }
 .fp-dim-name {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-heading);
 }
 .fp-row {
   display: flex;
@@ -6664,7 +6664,7 @@ onShow(async () => {
 .fp-bar-wrap {
   flex: 1;
   height: 14rpx;
-  background: #e2e8f0;
+  background: var(--color-soft-strong);
   border-radius: 8rpx;
   overflow: hidden;
 }
@@ -6680,7 +6680,7 @@ onShow(async () => {
   background: linear-gradient(90deg, #38bdf8 0%, #2563eb 100%);
 }
 .fp-bar-flat {
-  background: #cbd5e1;
+  background: var(--color-soft-strong);
 }
 .fp-pct {
   width: 100rpx;
@@ -6696,7 +6696,7 @@ onShow(async () => {
   color: #2563eb;
 }
 .fp-pct-flat {
-  color: #64748b;
+  color: var(--color-muted);
 }
 
 /* v0.40.0 trend-20: 标签组合 */
@@ -6714,8 +6714,8 @@ onShow(async () => {
   width: 40rpx;
   height: 40rpx;
   border-radius: 50%;
-  background: #f1f5f9;
-  color: #64748b;
+  background: var(--color-soft);
+  color: var(--color-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6737,7 +6737,7 @@ onShow(async () => {
   flex-wrap: wrap;
 }
 .tc-tag {
-  background: #ede9fe;
+  background: var(--color-violet-soft);
   color: #6d28d9;
   padding: 2rpx 10rpx;
   border-radius: 6rpx;
@@ -6745,7 +6745,7 @@ onShow(async () => {
   font-weight: 500;
 }
 .tc-plus {
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 22rpx;
   margin: 0 2rpx;
 }
@@ -6753,13 +6753,13 @@ onShow(async () => {
   font-size: 22rpx;
 }
 .tc-price {
-  color: #0f172a;
+  color: var(--color-heading);
   font-weight: 600;
 }
 .tc-bar-wrap {
   width: 120rpx;
   height: 10rpx;
-  background: #e2e8f0;
+  background: var(--color-soft-strong);
   border-radius: 6rpx;
   overflow: hidden;
   flex-shrink: 0;
@@ -6774,7 +6774,7 @@ onShow(async () => {
 .lf-section-title {
   font-size: 26rpx;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-heading);
   margin: 16rpx 0 8rpx;
   padding-left: 6rpx;
   border-left: 6rpx solid #0ea5e9;
@@ -6799,7 +6799,7 @@ onShow(async () => {
 .lf-name {
   font-size: 26rpx;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-heading);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -6819,12 +6819,12 @@ onShow(async () => {
 }
 .lf-k {
   font-size: 20rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
 }
 .lf-v {
   font-size: 26rpx;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-heading);
 }
 .lf-score {
   width: 64rpx;
@@ -6838,15 +6838,15 @@ onShow(async () => {
   flex-shrink: 0;
 }
 .lf-fresh-up {
-  background: #dcfce7;
+  background: var(--color-success-soft);
   color: #16a34a;
 }
 .lf-fresh-mid {
-  background: #fef3c7;
+  background: var(--color-warn-soft);
   color: #d97706;
 }
 .lf-fresh-down {
-  background: #fee2e2;
+  background: var(--color-danger-soft);
   color: #dc2626;
 }
 
@@ -6865,7 +6865,7 @@ onShow(async () => {
 }
 .ba-header {
   font-size: 22rpx;
-  color: #64748b;
+  color: var(--color-muted);
   margin-bottom: 4rpx;
 }
 .ba-corner,
@@ -6887,7 +6887,7 @@ onShow(async () => {
   width: 80rpx;
   text-align: right;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-heading);
   font-size: 24rpx;
 }
 .ba-cell {
@@ -6906,7 +6906,7 @@ onShow(async () => {
   color: #fff;
 }
 .ba-cell-off {
-  background: #f1f5f9;
+  background: var(--color-soft);
   color: #cbd5e1;
 }
 .ba-cell-n {
@@ -6924,7 +6924,7 @@ onShow(async () => {
 .of-section-title {
   font-size: 26rpx;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-heading);
   margin-top: 18rpx;
   margin-bottom: 8rpx;
 }
@@ -6938,11 +6938,11 @@ onShow(async () => {
   margin-bottom: 4rpx;
 }
 .of-row-up {
-  background: #ecfdf5;
+  background: var(--color-success-soft);
   border-left: 4rpx solid #10b981;
 }
 .of-row-down {
-  background: #fef2f2;
+  background: var(--color-danger-soft);
   border-left: 4rpx solid #ef4444;
 }
 .of-rank {
@@ -6952,7 +6952,7 @@ onShow(async () => {
 }
 .of-key {
   flex: 1;
-  color: #0f172a;
+  color: var(--color-heading);
   font-weight: 500;
 }
 .of-pct {
@@ -6962,13 +6962,13 @@ onShow(async () => {
 .of-row-up .of-pct { color: #059669; }
 .of-row-down .of-pct { color: #dc2626; }
 .of-px {
-  color: #64748b;
+  color: var(--color-muted);
   font-size: 20rpx;
   width: 110rpx;
   text-align: right;
 }
 .of-n {
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 20rpx;
   width: 60rpx;
   text-align: right;
@@ -6997,7 +6997,7 @@ onShow(async () => {
 .of-mcorner,
 .of-mcol-h {
   font-size: 20rpx;
-  color: #64748b;
+  color: var(--color-muted);
 }
 .of-mcorner {
   width: 90rpx;
@@ -7009,7 +7009,7 @@ onShow(async () => {
   width: 90rpx;
   text-align: right;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-heading);
   font-size: 22rpx;
 }
 .of-mcell {
@@ -7022,7 +7022,7 @@ onShow(async () => {
   justify-content: center;
 }
 .of-cell-off {
-  background: #f1f5f9;
+  background: var(--color-soft);
   color: #cbd5e1;
 }
 .of-cell-up-strong {
@@ -7034,7 +7034,7 @@ onShow(async () => {
   color: #064e3b;
 }
 .of-cell-flat {
-  background: #fef3c7;
+  background: var(--color-warn-soft);
   color: #78350f;
 }
 .of-cell-down {
@@ -7056,13 +7056,13 @@ onShow(async () => {
 
 /* v0.44.0 trend-24: 装修 × 楼龄 - 复用 of-* 的颜色逻辑, 这里只定义 da-* 别名 */
 .da-cell-off {
-  background: #f1f5f9;
+  background: var(--color-soft);
   color: #cbd5e1;
 }
 .da-cell-up-strong { background: #059669; color: #fff; }
-.da-cell-up { background: #6ee7b7; color: #064e3b; }
-.da-cell-flat { background: #fef3c7; color: #78350f; }
-.da-cell-down { background: #fca5a5; color: #7f1d1d; }
+.da-cell-up { background: var(--color-success-soft); color: var(--color-on-success-soft); }
+.da-cell-flat { background: var(--color-warn-soft); color: var(--color-on-warn-soft); }
+.da-cell-down { background: var(--color-danger-soft); color: var(--color-on-danger-soft); }
 .da-cell-down-strong { background: #dc2626; color: #fff; }
 
 /* v0.45.0 trend-25: 总价 × 单价 散点 SVG */
@@ -7088,7 +7088,7 @@ onShow(async () => {
 .scatter-wrap {
   width: 100%;
   margin-top: 12rpx;
-  background: #fafafa;
+  background: var(--color-panel);
   border-radius: 8rpx;
   padding: 8rpx;
 }
@@ -7106,7 +7106,7 @@ onShow(async () => {
   gap: 8rpx;
   font-size: 26rpx;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-heading);
   margin-bottom: 6rpx;
 }
 .scatter-q-dot {
@@ -7121,7 +7121,7 @@ onShow(async () => {
   gap: 8rpx;
   padding: 8rpx 12rpx;
   font-size: 22rpx;
-  background: #f8fafc;
+  background: var(--color-panel);
   border-radius: 6rpx;
   margin-bottom: 4rpx;
 }
@@ -7132,10 +7132,10 @@ onShow(async () => {
 }
 .scatter-name {
   flex: 1;
-  color: #0f172a;
+  color: var(--color-heading);
 }
 .scatter-meta {
-  color: #64748b;
+  color: var(--color-muted);
   font-size: 20rpx;
   width: 160rpx;
 }
@@ -7158,7 +7158,7 @@ onShow(async () => {
 .map-wrap {
   width: 100%;
   margin-top: 12rpx;
-  background: #f1f5f9;
+  background: var(--color-soft);
   border-radius: 8rpx;
   padding: 8rpx;
   overflow: hidden;
@@ -7168,7 +7168,7 @@ onShow(async () => {
   height: auto;
   max-height: 60vh;
   display: block;
-  background: #f1f5f9;
+  background: var(--color-soft);
   border-radius: 4rpx;
 }
 .map-district-p {
@@ -7196,14 +7196,14 @@ onShow(async () => {
   gap: 4rpx;
   padding: 8rpx 12rpx;
   border-radius: 8rpx;
-  background: #f1f5f9;
+  background: var(--color-soft);
   font-size: 22rpx;
   color: #475569;
   cursor: pointer;
   transition: background 0.15s;
 }
 .map-mode-tab:hover {
-  background: #e2e8f0;
+  background: var(--color-soft-strong);
 }
 .map-mode-tab--active {
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
@@ -7238,7 +7238,7 @@ onShow(async () => {
   font-size: 20rpx;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  color: #334155;
+  color: var(--color-chip-text);
 }
 .map-district-val {
   font-size: 12px;
@@ -7294,7 +7294,7 @@ onShow(async () => {
 }
 .lpr-drop-cell {
   flex: 1;
-  background: #f8fafc;
+  background: var(--color-panel);
   border-radius: 8rpx;
   padding: 10rpx 12rpx;
   display: flex;
@@ -7303,12 +7303,12 @@ onShow(async () => {
 }
 .lpr-drop-label {
   font-size: 20rpx;
-  color: #64748b;
+  color: var(--color-muted);
 }
 .lpr-drop-val {
   font-size: 22rpx;
   font-weight: 600;
-  color: #334155;
+  color: var(--color-chip-text);
   font-variant-numeric: tabular-nums;
 }
 .lpr-drop-val--down {
@@ -7319,12 +7319,12 @@ onShow(async () => {
 }
 .lpr-chart-title {
   font-size: 24rpx;
-  color: #334155;
+  color: var(--color-chip-text);
   font-weight: 600;
   margin: 8rpx 0 4rpx;
 }
 .lpr-chart-wrap {
-  background: #fafafa;
+  background: var(--color-panel);
   border-radius: 8rpx;
   padding: 4rpx;
 }
@@ -7393,7 +7393,7 @@ onShow(async () => {
   align-items: center;
   gap: 12rpx;
   padding: 10rpx 12rpx;
-  background: #f8fafc;
+  background: var(--color-panel);
   border-radius: 8rpx;
 }
 .sd-rank {
@@ -7410,7 +7410,7 @@ onShow(async () => {
 .sd-name {
   font-size: 26rpx;
   font-weight: 500;
-  color: #0f172a;
+  color: var(--color-heading);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -7428,7 +7428,7 @@ onShow(async () => {
 .sd-score-bar {
   width: 100rpx;
   height: 8rpx;
-  background: #e2e8f0;
+  background: var(--color-soft-strong);
   border-radius: 4rpx;
   overflow: hidden;
   margin-bottom: 4rpx;
@@ -7448,7 +7448,7 @@ onShow(async () => {
   gap: 12rpx;
 }
 .sd-cell {
-  background: #f8fafc;
+  background: var(--color-panel);
   border-radius: 8rpx;
   padding: 12rpx;
 }
@@ -7673,7 +7673,7 @@ onShow(async () => {
   width: 12rpx;
   height: 12rpx;
   border-radius: 50%;
-  background: #cbd5e1;
+  background: var(--color-soft-strong);
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -7689,7 +7689,7 @@ onShow(async () => {
   gap: 12rpx;
   margin-top: 16rpx;
   padding: 16rpx 12rpx;
-  background: #f8fafc;
+  background: var(--color-panel);
   border-radius: 12rpx;
 }
 .quick-tile {
@@ -7700,7 +7700,7 @@ onShow(async () => {
   gap: 6rpx;
   padding: 12rpx 4rpx;
   border-radius: 10rpx;
-  background: #fff;
+  background: var(--color-surface);
   cursor: pointer;
   transition: all 0.15s;
   box-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.04);
@@ -7742,7 +7742,7 @@ onShow(async () => {
 }
 .quick-tile-label {
   font-size: 22rpx;
-  color: #334155;
+  color: var(--color-chip-text);
   font-weight: 500;
 }
 
@@ -7763,7 +7763,7 @@ onShow(async () => {
   min-width: 140rpx;
   padding: 12rpx 16rpx;
   border-radius: 12rpx;
-  background: #f1f5f9;
+  background: var(--color-soft);
   font-size: 26rpx;
   display: flex;
   flex-direction: column;

@@ -495,15 +495,15 @@ onMounted(async () => {
   min-width: 140rpx;
   padding: 14rpx 18rpx;
   border-radius: 10rpx;
-  background: #f1f5f9;
+  background: var(--color-soft);
   font-size: 24rpx;
-  color: #334155;
+  color: var(--color-chip-text);
   text-align: center;
   cursor: pointer;
   transition: background 0.15s;
 }
 .qn-btn:hover {
-  background: #e2e8f0;
+  background: var(--color-soft-strong);
 }
 .qn-btn--primary {
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
@@ -589,7 +589,7 @@ onMounted(async () => {
   flex-direction: column;
   gap: 4rpx;
   font-size: 26rpx;
-  color: #f3f4f6;
+  color: var(--color-heading);
 }
 
 .dim-row {
@@ -622,7 +622,7 @@ onMounted(async () => {
 .dim-value {
   width: 100rpx;
   text-align: right;
-  color: #f3f4f6;
+  color: var(--color-heading);
   font-size: 24rpx;
 }
 
@@ -642,7 +642,7 @@ onMounted(async () => {
 .poi-cat-name {
   font-size: 28rpx;
   font-weight: 600;
-  color: #f3f4f6;
+  color: var(--color-heading);
   flex: 1;
 }
 .poi-row {
@@ -651,7 +651,7 @@ onMounted(async () => {
   padding: 8rpx 0 8rpx 40rpx;
   border-bottom: 1rpx solid #1f2937;
   font-size: 24rpx;
-  color: #e2e8f0;
+  color: var(--color-text);
 }
 .poi-row:last-child {
   border-bottom: none;
@@ -683,7 +683,7 @@ onMounted(async () => {
 }
 .hosp-name {
   font-size: 26rpx;
-  color: #f3f4f6;
+  color: var(--color-heading);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -740,7 +740,7 @@ onMounted(async () => {
 .metro-name {
   font-size: 28rpx;
   font-weight: 600;
-  color: #f3f4f6;
+  color: var(--color-heading);
 }
 .metro-status {
   padding: 2rpx 8rpx;
