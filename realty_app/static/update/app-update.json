@@ -1,12 +1,12 @@
 {
-  "versionName": "1.121.41",
-  "versionCode": "162",
-  "publishedAt": "2026-07-25T20:13:18Z",
+  "versionName": "1.121.42",
+  "versionCode": "163",
+  "publishedAt": "2026-07-25T20:21:38Z",
   "force": false,
-  "notes": "docs(app): README \u8865 v1.121.41 \u66f4\u65b0\u65e5\u5fd7\n\n2026-07-25-v1.121.7-\u623f\u6e90\u6253\u5f00\u8d1d\u58f3App: v1.121.7 \u2014 \u623f\u6e90\u8df3\u8d1d\u58f3 + \u79bb\u7ebf APK \u8865 zip4j\uff08\u4fee OTA 100% \u95ea\u9000\uff09\n2026-07-25-v1.121.8-\u79bb\u7ebfOTA\u81ea\u68c0\u52a0\u56fa: v1.121.8 \u2014 \u79bb\u7ebf\u5305 OTA \u81ea\u68c0\u52a0\u56fa\uff08zip4j + install-apk + \u5ba1\u8ba1\u811a\u672c\uff09\n2026-07-25-v1.121.9-OTA\u9a8c\u8bc1130: v1.121.9 \u2014 OTA \u9a8c\u8bc1\u5305 130\n",
+  "notes": "fix(app): v1.121.42 \u4e3b\u9898\u6309\u5b98\u65b9 DarkMode \u6574\u6539\u5e76\u56fa\u5316\u9a8c\u6536\u6d41\u7a0b\n\n2026-07-25-v1.121.2-OTA\u68c0\u67e5\u66f4\u65b0\u4fee\u590d: v1.121.2 \u2014 OTA \u68c0\u67e5\u66f4\u65b0\u65e0\u53cd\u5e94\u4fee\u590d\n2026-07-25-v1.121.4-OTA\u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316: v1.121.4 \u2014 OTA \u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316\n2026-07-25-v1.121.5-\u542f\u52a8\u9875\u4e0eOTA\u6839\u6cbb: v1.121.5 / v1.121.6 \u2014 \u542f\u52a8\u9875 + OTA \u6839\u6cbb\u4e0e\u9a8c\u8bc1\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/162/app.wgt",
-    "sha256": "745794567f79e5c148565d0bf1fca9fd33052cb0b04a01f270064882662f89fa"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/163/app.wgt",
+    "sha256": "6d9c4b88fe8495d92c459b7839f16b8175611bc7dbfaf5ca72397258d7100bf0"
   },
   "ios": {
     "available": false,
