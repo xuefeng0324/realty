@@ -2234,6 +2234,64 @@
         </template>
       </view>
 
+      <!-- v1.121.12 医疗资源榜（hospitalRanking 已派生，此前未接 UI） -->
+      <view v-if="hospitalCitySummary" class="card" data-tab="all,school">
+        <view class="row-between">
+          <view class="card-title">🏥 医疗资源 · {{ hospitalCityName }}</view>
+          <view class="muted">{{ hospitalCitySummary.hospitalCount }} 家</view>
+        </view>
+        <view class="hosp-summary">
+          <view class="hosp-kpi">
+            <text class="hosp-kpi-val">{{ hospitalCitySummary.sanJiaCount }}</text>
+            <text class="hosp-kpi-label muted">三甲</text>
+          </view>
+          <view class="hosp-kpi">
+            <text class="hosp-kpi-val">{{ (hospitalCitySummary.sanJiaShare * 100).toFixed(0) }}%</text>
+            <text class="hosp-kpi-label muted">三甲占比</text>
+          </view>
+          <view class="hosp-kpi">
+            <text class="hosp-kpi-val">{{ hospitalCitySummary.keyFlagCount }}</text>
+            <text class="hosp-kpi-label muted">重点</text>
+          </view>
+        </view>
+        <view v-if="hospitalDistrictTop.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          分区医院数 Top
+        </view>
+        <view
+          v-for="d in hospitalDistrictTop"
+          :key="d.districtName"
+          class="hosp-dist-row"
+        >
+          <text class="hosp-dist-rank muted">{{ d.rankInCity }}</text>
+          <text class="hosp-dist-name">{{ d.districtName }}</text>
+          <text class="hosp-dist-count">{{ d.hospitalCount }} 家</text>
+          <text v-if="d.sanJiaCount" class="hosp-dist-sj muted">三甲 {{ d.sanJiaCount }}</text>
+        </view>
+        <view v-if="hospitalTopList.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          等级优先 Top {{ hospitalTopList.length }}
+        </view>
+        <view
+          v-for="(h, idx) in hospitalTopList"
+          :key="h.hospitalId"
+          class="hosp-top-row"
+        >
+          <text class="hosp-top-rank muted">{{ idx + 1 }}</text>
+          <view class="hosp-top-mid">
+            <text class="hosp-top-name">{{ h.displayName || h.officialName }}</text>
+            <text class="hosp-top-meta muted">
+              {{ h.districtName || "—" }} · {{ h.hospitalType || "医院" }}
+              <text v-if="h.keyFlag"> · 重点</text>
+            </text>
+          </view>
+          <text class="hosp-top-level" :class="'hosp-lv--' + (h.hospitalLevel || '其他')">
+            {{ h.hospitalLevel || "其他" }}
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：hospitals.csv（公开名录整理）。三甲占比 = 三甲数 / 该城医院数。
+        </view>
+      </view>
+
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
       <view v-if="lifeConvenience && lifeConvenience.items.length > 0" class="card" data-tab="all,transit">
         <view class="row-between">
@@ -2708,6 +2766,14 @@ import {
   type SchoolIndicatorSummary,
   type SchoolIndicatorTrendEntry
 } from "../../local/schoolIndicatorRanking";
+import {
+  summarizeHospitalByCity,
+  summarizeHospitalByCityDistrict,
+  getHospitalTopByLevelByCity,
+  type CityHospitalSummary,
+  type CityDistrictHospitalSummary
+} from "../../local/hospitalRanking";
+import type { LocalHospital } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -2749,6 +2815,19 @@ const districtIndex = ref<DistrictIndexResponse | null>(null);
 const districtChange = ref<DistrictChangeResponse | null>(null);
 const lifeConvenience = ref<LifeConvenienceResponse | null>(null);
 const communityScore = ref<CommunityScoreResponse | null>(null);
+
+// v1.121.12 医疗资源（同步派生，跟 cityId）
+const hospitalCitySummary = computed<CityHospitalSummary | null>(() => {
+  const all = summarizeHospitalByCity();
+  return all.find((x) => x.cityId === app.cityId) ?? null;
+});
+const hospitalCityName = computed(() => cityNameForId(app.cityId));
+const hospitalDistrictTop = computed<CityDistrictHospitalSummary[]>(() =>
+  summarizeHospitalByCityDistrict(app.cityId).slice(0, 6)
+);
+const hospitalTopList = computed<LocalHospital[]>(() =>
+  getHospitalTopByLevelByCity(app.cityId, 5)
+);
 // v0.35.0 map-9: 地铁步行通勤
 const metroWalk = ref<MetroWalkResponse | null>(null);
 // v0.36.0 map-10: 地铁规划受益
@@ -6109,7 +6188,7 @@ onShow(async () => {
   align-items: center;
   gap: 12rpx;
   padding: 8rpx 0;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-border);
 }
 .lc-row:last-child {
   border-bottom: none;
@@ -6138,7 +6217,7 @@ onShow(async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #1e293b;
+  background: var(--color-soft);
   border-radius: 6rpx;
   padding: 2rpx 6rpx;
   min-width: 32rpx;
@@ -6150,7 +6229,7 @@ onShow(async () => {
 }
 .lc-dim-val {
   font-size: 22rpx;
-  color: #cbd5e1;
+  color: var(--color-chip-text);
   font-variant-numeric: tabular-nums;
 }
 .lc-right {
@@ -6163,6 +6242,103 @@ onShow(async () => {
   font-size: 32rpx;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+}
+
+/* v1.121.12 医疗资源 */
+.hosp-summary {
+  display: flex;
+  gap: 12rpx;
+  margin: 8rpx 0 4rpx;
+}
+.hosp-kpi {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12rpx 8rpx;
+  border-radius: 12rpx;
+  background: var(--color-soft);
+  border: 1rpx solid var(--color-border);
+}
+.hosp-kpi-val {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--color-heading);
+  font-variant-numeric: tabular-nums;
+}
+.hosp-kpi-label {
+  font-size: 20rpx;
+  margin-top: 2rpx;
+}
+.hosp-dist-row,
+.hosp-top-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 8rpx 0;
+  border-bottom: 1rpx solid var(--color-border);
+}
+.hosp-dist-row:last-child,
+.hosp-top-row:last-child {
+  border-bottom: none;
+}
+.hosp-dist-rank,
+.hosp-top-rank {
+  width: 36rpx;
+  font-size: 22rpx;
+  text-align: center;
+}
+.hosp-dist-name {
+  flex: 1;
+  font-size: 26rpx;
+  color: var(--color-text);
+}
+.hosp-dist-count {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--color-heading);
+  font-variant-numeric: tabular-nums;
+}
+.hosp-dist-sj {
+  font-size: 20rpx;
+  min-width: 90rpx;
+  text-align: right;
+}
+.hosp-top-mid {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.hosp-top-name {
+  font-size: 26rpx;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hosp-top-meta {
+  font-size: 20rpx;
+}
+.hosp-top-level {
+  font-size: 22rpx;
+  padding: 4rpx 10rpx;
+  border-radius: 999rpx;
+  background: var(--color-soft);
+  color: var(--color-chip-text);
+}
+.hosp-lv--三甲 {
+  background: var(--color-danger-soft);
+  color: var(--color-on-danger-soft);
+}
+.hosp-lv--三级 {
+  background: var(--color-warn-soft);
+  color: var(--color-on-warn-soft);
+}
+.hosp-lv--二甲,
+.hosp-lv--二级 {
+  background: var(--color-info-soft);
+  color: var(--color-accent);
 }
 .lc-score-high {
   color: #22c55e;

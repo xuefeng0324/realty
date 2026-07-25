@@ -146,6 +146,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/provident_fund_rates.csv` | `providentFund.ts` | （人工维护 / 国务院公告） | 住房公积金贷款利率档位；`App.vue` 启动 `?raw` 加载 |
 | `static/nbs_real_estate.csv` | `nbsRealEstate.ts` | `scripts/crawl_nbs_real_estate.py` | 国家统计局房地产开发投资与销售；来源须为 `stats.gov.cn` |
 | `static/gz_new_house_inventory.csv` | `gzNewHouseInventory.ts` | `scripts/crawl_gz_new_house_inventory.py` | 广州新房可售/未售/签约分区库存 |
+| `static/seed/hospitals.csv` | `hospitalRanking.ts` + dashboard「🏥 医疗资源」 | （名录整理） | 三城医院名录；v1.121.12 起仪表盘展示三甲占比 / 分区密度 / 等级 Top |
 | `static/education_overview.csv` | `educationOverview.ts`（模块内 `?raw`） | `scripts/crawl_gz_education_overview.py` | 广州教育事业概览；深圳/珠海无数据时返回空，不伪造 |
 | `static/school_source_audit.json` | 审计用（测试/脚本） | `scripts/audit_school_sources.py` | 学校来源分级审计结果，不直接驱动 UI 排名 |
 
