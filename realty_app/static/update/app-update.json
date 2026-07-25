@@ -1,12 +1,12 @@
 {
-  "versionName": "0.87.0",
-  "versionCode": "89",
-  "publishedAt": "2026-07-25T08:55:00Z",
+  "versionName": "0.89.0",
+  "versionCode": "90",
+  "publishedAt": "2026-07-25T01:16:40Z",
   "force": false,
-  "notes": "首次发布 OTA 通道。后续每次 push 到 main 都会自动出新版 wgt + app-update.json。",
+  "notes": "\ufefffix(ci): OTA push \u6b65\u9aa4 working-directory \u4fee\u6b63 + \u79fb\u9664\u4e0d\u7a33 actionlint \u4e0b\u8f7d\n\n2026-07-25-v0.87.1-\u8986\u76d6\u7387\u95e8\u69db\u6821\u51c6\u4e0eCI\u4fee\u7eff: v0.87.1\uff1a\u8986\u76d6\u7387\u95e8\u69db\u6821\u51c6\u4e0e CI \u4fee\u7eff\n2026-07-25-v0.88.0-wgt-OTA\u4e0e\u81ea\u52a8\u6253\u5305: v0.88.0\uff1awgt OTA \u5347\u7ea7 + GitHub Actions \u81ea\u52a8\u51fa\u5305\n2026-07-25-v0.89.0-\u6708\u5ea6\u6210\u4ea4\u8d8b\u52bf\u4e0eOTA\u63a8\u9001\u4fee\u590d: v0.89.0 \u2014\u2014 \u6708\u5ea6\u6210\u4ea4\u8d8b\u52bf\u6d3e\u751f + \u672c\u5730\u4e00\u952e APK + CI \u63a8\u9001\u4fee\u590d\n",
   "wgt": {
-    "url": "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/89/app.wgt",
-    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    "url": "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/90/app.wgt",
+    "sha256": "aa89e3c522834e48475c91c59aa6f2ebb97119ad2e4e130bad82a13e8c578690"
   },
   "ios": {
     "available": false,
