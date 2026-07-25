@@ -81,7 +81,7 @@
           <button class="btn btn-ghost" size="mini" @click="openGov('szZjjPortal')">住建局官网</button>
         </view>
         <text class="muted" style="margin-top: 12rpx; font-size: 22rpx; display: block">
-          {{ govLinkNotes.szPortal }}
+          {{ govLinkNotes.szPortal.note }}
         </text>
       </view>
 

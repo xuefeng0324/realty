@@ -115,6 +115,7 @@
 | v1.117.0 | 2026-07-25 | LPR 历史派生落地 dashboard：复用 `lprHistoryAnalysis.ts` 已有的 `getLprLatest` + `getLprDelta` + `summarizeLprByYear` + `getLprLongestFlatStreak` + `getLprDownwardCumulative`，新增"🏦 LPR 与房贷利率"卡（4 指数 1y/5y/首套/二套 × 当期值 + 12 月同比 bp 变化 + 累计降息 bp + 最长按兵不动月数 + 5y LPR 年度末值）；中国习惯配色（降息=绿色/加息=红色）；继续未新增单元测试（5 个复用函数已有覆盖） |
 | v1.118.0 | 2026-07-25 | 性价比之选落地 listing-filter：复用 `communityScatterRanking.ts` 已有的 `getCommunityScatterPareto`，新增"⭐ 性价比之选"卡（同面积段"改善(60-110)" + 当前城市单价中位数 × 1.5 动态上限 + 面积 Top 5 小区）；点击跳转 `pages/community/community`；未新增单元测试（已有 9 个覆盖） |
 | v1.119.0 | 2026-07-25 | 地铁规划弯曲系数落地 map-view：复用 `metroPlanningGeoAnalysis.ts` 已有的 `getMetroPlanningGeoByCityCrossReference`，新增"🌀 弯曲系数 Top 5"卡（仅 metro 模式显示，按 actual/straight 比值降序，蓝底圆排名 + 黄色比值）；未新增单元测试（已有 13 个覆盖） |
+| v1.120.0 | 2026-07-25 | 修复 OTA「检查更新」：`appUpdate.ts` 去掉 App WebView 不存在的全局 `fetch`，改用 `uni.request` + 多 CDN 镜像回退（与 `remoteFetch` 同口径），并把清单里的 wgt URL 改写到命中镜像；顺带修设置页政府查询备注渲染成 `[object Object]` |
 | v0.93.1 | 2026-07-25 | 分区 12 周口径严格化：`getDistrict12WeekChangeRank` 默认 `minWeeks=13 + strictBase=true`，避免样本不足的区被错算入涨跌；新增 `summarizeChangeDistribution` 同时暴露"严格 ≥13 周"和"宽松 ≥2 周"两个口径供 UI 选择；dashboard 角标和脚注改为"严格 vs 兜底"二段式展示，让"涨 3 跌 7"对应的是真有 12 周样本的 10 个区而非全部 15 个区 |
 | v0.87.1 | 2026-07-25 | 测试覆盖率门槛 (45/40) + 排除 e2e 脚本；本仓库还按月份排序写到 daily_wangqian.csv 的 city 行 |
 | v0.35.0 | 2026-07-13 | 地铁步行通勤：🚶 metro_walk.csv (37 行，AMAP_API 4 + ESTIMATED 30 + 5 skip)；3 色分档 (绿 ≤5 / 橙 ≤10 / 红 >10min)；quota 友好 fallback 启发式；深圳 振华路42号 0min 居首 |

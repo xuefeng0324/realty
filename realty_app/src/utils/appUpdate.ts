@@ -2,16 +2,16 @@
  * App OTA 升级（wgt）
  *
  * 流程：
- *   1. fetch(UPDATE_BASE_URL + app-update.json) 拿到远程清单
- *   2. 解析 wgt.android / wgt.ios（iOS 仅在企业签/自签/TestFlight 内可用）
- *   3. 对比 versionCode：远程 > 本地 → 提示用户升级
- *   4. 用户确认后下载 wgt → plus.runtime.install(path, force) → 重启生效
+ *   1. uni.request 拉 UPDATE CDN 上的 app-update.json（多镜像回退）
+ *   2. 对比 versionCode：远程 > 本地 → 提示用户升级
+ *   3. 用户确认后 plus.downloader 下载 wgt → plus.runtime.install → 重启生效
  *
- * H5/小程序端本文件的方法均走条件编译，调用前 #ifdef APP-PLUS 即可避免误触发。
- * 直接在 H5 里调用 downloadAndInstall 会因为没有 plus 抛错，调用方需负责平台判断。
+ * 注意：App-Plus WebView 通常没有全局 fetch（会报 fetch is not a function），
+ * 必须走 uni.request；与 remoteFetch.downloadText 同口径。
  */
 
 import { APP_UPDATE_STORAGE_KEY, APP_UPDATE_MANIFEST, UPDATE_BASE_URL } from "../config";
+import { getStaticBases } from "../local/remoteFetch";
 
 export interface AppUpdateManifest {
   /** 与 src/manifest.json 的 versionName 同步 */
@@ -48,29 +48,114 @@ export interface UpdateCheckResult {
   reason?: string;
 }
 
+/** 候选更新清单 URL：自定义 UPDATE_BASE_URL 优先，再跟 static 多镜像。 */
+function getUpdateManifestUrls(): string[] {
+  const urls: string[] = [];
+  const primary = (UPDATE_BASE_URL || "").replace(/\/+$/, "");
+  if (primary) urls.push(`${primary}/${APP_UPDATE_MANIFEST}`);
+  for (const base of getStaticBases()) {
+    const u = `${base.replace(/\/+$/, "")}/update/${APP_UPDATE_MANIFEST}`;
+    if (!urls.includes(u)) urls.push(u);
+  }
+  return urls;
+}
+
+/**
+ * 用 uni.request 拉 JSON（App/H5/小程序通用）；失败返回 null。
+ * App-Plus 无 fetch，不能用全局 fetch。
+ */
+function requestJson(url: string, timeoutMs = 15000): Promise<unknown | null> {
+  return new Promise((resolve) => {
+    const u = (typeof uni !== "undefined" ? uni : undefined) as
+      | { request?: (opts: Record<string, unknown>) => void }
+      | undefined;
+    if (u && typeof u.request === "function") {
+      u.request({
+        url,
+        method: "GET",
+        timeout: timeoutMs,
+        // 避免 CDN 缓存旧清单
+        header: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+        success: (res: { statusCode?: number; data?: unknown }) => {
+          if (res.statusCode === 200 && res.data != null) {
+            if (typeof res.data === "string") {
+              try {
+                resolve(JSON.parse(res.data));
+              } catch {
+                resolve(null);
+              }
+            } else {
+              resolve(res.data);
+            }
+          } else {
+            resolve(null);
+          }
+        },
+        fail: () => resolve(null)
+      });
+      return;
+    }
+    // 非 uni 环境（单测 / Node）兜底：仅当全局有 fetch 时才用
+    if (typeof fetch === "function") {
+      fetch(url, { cache: "no-cache" })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((j) => resolve(j))
+        .catch(() => resolve(null));
+      return;
+    }
+    resolve(null);
+  });
+}
+
+/**
+ * 拉到清单的同时记住命中的 update 根目录，方便把 wgt.url 改写到同一镜像。
+ */
+async function fetchManifestWithBase(): Promise<{
+  manifest: AppUpdateManifest;
+  updateBase: string;
+} | null> {
+  for (const url of getUpdateManifestUrls()) {
+    const data = await requestJson(url);
+    if (!data || typeof data !== "object") continue;
+    const m = data as AppUpdateManifest;
+    if (!m.versionCode || !m.versionName) continue;
+    const updateBase = url.slice(0, url.lastIndexOf("/") + 1);
+    return { manifest: m, updateBase };
+  }
+  return null;
+}
+
+/**
+ * 把清单里写死的 cdn.jsdelivr wgt URL 改写到当前命中的镜像根。
+ * 例如 .../static/update/93/app.wgt → 用 updateBase + 93/app.wgt
+ */
+export function rewriteWgtUrlToBase(wgtUrl: string, updateBase: string): string {
+  const m = wgtUrl.match(/\/update\/(\d+\/[^/?#]+)$/);
+  if (m) return `${updateBase.replace(/\/+$/, "")}/${m[1]}`;
+  // 兜底：若只是文件名
+  const file = wgtUrl.split("/").pop();
+  if (file) return `${updateBase.replace(/\/+$/, "")}/${file}`;
+  return wgtUrl;
+}
+
 /**
  * 仅做远程版本探测，不下载不安装。供设置页"检查更新"按钮使用。
+ * App-Plus / H5 均走 uni.request（App WebView 无全局 fetch）。
  */
 export async function checkAppUpdate(): Promise<UpdateCheckResult> {
-  // #ifdef APP-PLUS
-  const url = UPDATE_BASE_URL + APP_UPDATE_MANIFEST;
-  let res: Response;
-  try {
-    res = await fetch(url, { cache: "no-cache" });
-  } catch (e) {
-    return { status: "unsupported", reason: `无法访问更新服务器：${(e as Error).message}` };
+  const hit = await fetchManifestWithBase();
+  if (!hit) {
+    return {
+      status: "unsupported",
+      reason: "无法访问更新服务器：所有 CDN 镜像均失败（请检查网络或稍后重试）"
+    };
   }
-  if (!res.ok) {
-    return { status: "unsupported", reason: `更新清单 HTTP ${res.status}` };
-  }
-  let manifest: AppUpdateManifest;
-  try {
-    manifest = (await res.json()) as AppUpdateManifest;
-  } catch (e) {
-    return { status: "unsupported", reason: `更新清单解析失败：${(e as Error).message}` };
-  }
-  if (!manifest.versionCode || !manifest.versionName) {
-    return { status: "unsupported", reason: "更新清单缺 versionCode/versionName" };
+  const { manifest, updateBase } = hit;
+  if (manifest.wgt?.url) {
+    manifest.wgt = {
+      ...manifest.wgt,
+      url: rewriteWgtUrlToBase(manifest.wgt.url, updateBase)
+    };
   }
   const remoteCode = parseInt(manifest.versionCode, 10);
   if (!Number.isFinite(remoteCode)) {
@@ -88,9 +173,6 @@ export async function checkAppUpdate(): Promise<UpdateCheckResult> {
     }
   }
   return { status: "available", manifest };
-  // #endif
-  // 非 APP-PLUS 平台：H5 / 小程序不支持 plus.runtime.install
-  return { status: "unsupported", reason: "当前平台不支持 OTA 升级（仅 APP-PLUS）" };
 }
 
 export interface LocalVersionInfo {
@@ -148,12 +230,12 @@ export async function downloadAndInstallWgt(
     return { ok: false, reason: "当前运行时不支持 plus.runtime.install（仅 APP-PLUS）" };
   }
   interface PlusDownloadTask {
-  downloadedSize: number;
-  totalSize: number;
-  state: number;
-  filename: string;
-}
-const task = plus.downloader.createDownload(url, { method: "GET" }, undefined as unknown as string);
+    downloadedSize: number;
+    totalSize: number;
+    state: number;
+    filename: string;
+  }
+  const task = plus.downloader.createDownload(url, { method: "GET" }, undefined as unknown as string);
   const localPath: string = await new Promise((resolve, reject) => {
     task.addEventListener("statechanged", (task2: PlusDownloadTask, status: number) => {
       if (typeof onProgress === "function") {
