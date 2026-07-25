@@ -86,6 +86,7 @@
 | v0.89.0 | 2026-07-25 | 月度成交趋势派生（无需新增抓取）：`daily_wangqian.csv` → 按 y-m 聚合新房/二手最近 12 月套数 + 环比 + sparkline，写入 wangqian 页；本地 `scripts/build_apk.ps1` 一键出 wgt + HBuilderX 出包提示；CI workflows 升级到 `actions/setup-node@v5`；ota 修复：commit 前 `git checkout $BRANCH` + 显式 token URL 解决 push 失败（exit 128） |
 | v0.90.0 | 2026-07-25 | 消除 dart-sass legacy JS API deprecation 警告：`vite.config.ts` 显式 `css.preprocessorOptions.scss.api = 'modern-compiler'` + `silenceDeprecations: ['legacy-js-api']`；`build:h5` 输出干净，CI 端 build log 不再有噪音 |
 | v0.91.0 | 2026-07-25 | 70 城近 12 月同比趋势派生：`stats70.ts` 新增 `getCityDriftOverLastYear` / `summarizeCityDrift`；dashboard 加「70 城近 12 月同比趋势」卡：扩张 / 收缩 / 数据不足计数 + Top 3 + Bottom 3（纯派生，无新抓取） |
+| v0.92.0 | 2026-07-25 | 地铁步行可达性派生：`src/local/metro.ts` 新增 `summarizeMetroWalkAccessibility` + `getMetroWalkRankingTopN`（消费已有 `metro_walk.csv`，零抓虫）；dashboard 加「🚶 地铁步行可达性」卡：每城市 ≤5min / ≤10min 覆盖比 + 全市场步行最少 Top 3；v0.91.0 卡补 tap 跳转；新增 `.tmp-vite-*.log` / `coverage/` 到 `.gitignore` |
 | v0.87.1 | 2026-07-25 | 测试覆盖率门槛 (45/40) + 排除 e2e 脚本；本仓库还按月份排序写到 daily_wangqian.csv 的 city 行 |
 | v0.35.0 | 2026-07-13 | 地铁步行通勤：🚶 metro_walk.csv (37 行，AMAP_API 4 + ESTIMATED 30 + 5 skip)；3 色分档 (绿 ≤5 / 橙 ≤10 / 红 >10min)；quota 友好 fallback 启发式；深圳 振华路42号 0min 居首 |
 | v0.36.0 | 2026-07-13 | 地铁规划受益：🚇 metro_benefit.csv (49 行 × 21 规划线路)；结合 距离分 × status 权重 (在建×1.2 / 即将开通×1.5)；深圳 top1 中海天钻/星河智荟 72 分 → 在建 17/21 号线一期；广州 保利天悦 90 → 8 号线东延 |

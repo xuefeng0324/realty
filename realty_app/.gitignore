@@ -25,3 +25,11 @@ Thumbs.db
 
 # Backup files (scripts/ 自动生成的 *.{csv,json,...}.bak)
 *.bak
+
+# 本机 vite 临时日志（开发启动时落在仓库根 / realty_app/，git status 会噪音）
+.tmp-vite-*.log
+realty_app/.tmp-vite-*.log
+
+# coverage 报告（跑 test:coverage 产生的中间产物；CI 单独上传 artifact）
+coverage/
+realty_app/coverage/

@@ -166,7 +166,11 @@
       <!-- v0.91.0 70 城 12 月趋势对比（派生：基于 stats_70.csv） -->
       <view
         v-if="stats70Ready && driftReady"
-        class="card stats70-drift-card"
+        class="card stats70-drift-card tap-target"
+        role="button"
+        tabindex="0"
+        hover-class="card-active"
+        @click="goStats70"
       >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">全国 70 城 · 近 12 月同比趋势</view>
@@ -222,6 +226,54 @@
         </view>
         <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
           派生：最近 12 月指数均值 / 前 12 月指数均值 -1，数据源 stats_70.csv，仅二手指数
+        </view>
+      </view>
+
+      <!-- v0.92.0 地铁步行可达性概览（派生：基于 metro_walk.csv） -->
+      <view
+        v-if="metroWalkSummary.length"
+        class="card metro-walk-card"
+      >
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🚶 地铁步行可达性</view>
+          <view class="muted" style="font-size: 22rpx">深度站 / 全市场</view>
+        </view>
+
+        <view class="stats70-grid">
+          <view
+            v-for="row in metroWalkSummary"
+            :key="'mw' + row.cityId"
+            class="stats70-cell"
+          >
+            <text class="cell-label">{{ cityNameForId(row.cityId) }}</text>
+            <text class="cell-value">{{ formatPct(row.pct5Min) }}</text>
+            <text class="cell-sub muted">
+              ≤5min {{ row.within5Min }}/{{ row.totalCommunities }} · ≤10min {{ row.within10Min }}
+            </text>
+          </view>
+        </view>
+
+        <view
+          v-if="metroWalkTop.length"
+          style="margin-top: 14rpx"
+        >
+          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
+            步行最少 Top 3（深广全市场）
+          </view>
+          <view
+            v-for="(row, i) in metroWalkTop.slice(0, 3)"
+            :key="'mwt' + row.communityId"
+            class="drift-row"
+          >
+            <text class="drift-rank">{{ i + 1 }}</text>
+            <text class="drift-city">{{ row.communityName }} → {{ row.stationName }}</text>
+            <text class="drift-value drift-up">{{ row.walkMinutes.toFixed(1) }}min</text>
+          </view>
+        </view>
+        <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+          派生：snapshot.metroWalks（{{
+            metroWalkSummary.reduce((s, r) => s + r.totalCommunities, 0)
+          }} 个小区）。优先选 5 分钟覆盖比例最高城市。
         </view>
       </view>
 
@@ -2299,6 +2351,12 @@ import {
 } from "../../local/dailyWangqian";
 import { hasStats70, hasDailyWangqian } from "../../local/store";
 import * as store from "../../local/store";
+import {
+  summarizeMetroWalkAccessibility,
+  getMetroWalkRankingTopN,
+  type MetroWalkAccessibility,
+  type MetroWalkRankingItem
+} from "../../local/metro";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -4233,6 +4291,25 @@ function fmtPct(value: number | null): string {
   const pct = value * 100;
   return `${pct >= 0 ? "" : ""}${pct.toFixed(1)}%`;
 }
+
+// 把内部小数显示成百分比（与上面 fmtPct 同语义，但 alias 给模板用更清晰）
+function formatPct(value: number | null): string {
+  return fmtPct(value);
+}
+
+/** 用 cityId → 城市名（"深圳" / "广州" 等）。 */
+function cityNameForId(cityId: number): string {
+  const c = cities.value.find((x) => x.city_id === cityId);
+  return c?.city_name ?? `city#${cityId}`;
+}
+
+// v0.92.0：地铁步行可达性
+const metroWalkSummary = computed<MetroWalkAccessibility[]>(() =>
+  summarizeMetroWalkAccessibility()
+);
+const metroWalkTop = computed<MetroWalkRankingItem[]>(() =>
+  getMetroWalkRankingTopN(3)
+);
 
 const currentCityIndex = computed<LatestIndexForCity | null>(() => {
   if (!hasStats70()) return null;
