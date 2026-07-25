@@ -184,6 +184,28 @@
             <text class="top-val trend-down">{{ row.value.toFixed(1) }}</text>
           </view>
         </view>
+
+        <view v-if="stats70City12m.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          {{ stats70City12mName }} · 近 {{ stats70City12m.length }} 月指数（同比）
+        </view>
+        <view v-if="stats70City12m.length" class="s70-12m">
+          <view v-for="p in stats70City12m" :key="p.date" class="s70-12m-row">
+            <text class="s70-12m-date muted">{{ formatStats70Month(p.date) }}</text>
+            <text class="s70-12m-val" :class="idxTone(p.newYoY)">新 {{ formatIndex(p.newYoY) }}</text>
+            <text class="s70-12m-val" :class="idxTone(p.secondYoY)">二 {{ formatIndex(p.secondYoY) }}</text>
+          </view>
+        </view>
+        <view v-if="stats70MonthSpread.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          全国离散度（当月 max−min）
+        </view>
+        <view v-if="stats70MonthSpread.length" class="s70-spread">
+          <view v-for="s in stats70MonthSpread" :key="s.fixedBase + s.indexType" class="s70-spread-cell">
+            <text class="s70-spread-l muted">
+              {{ s.fixedBase }}·{{ s.indexType === "new_idx" ? "新建" : "二手" }}
+            </text>
+            <text class="s70-spread-v">{{ s.spread.toFixed(1) }}</text>
+          </view>
+        </view>
       </view>
 
       <!-- v1.117.0 LPR 与房贷利率信号卡 -->
@@ -594,7 +616,68 @@
         </view>
         <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
           派生：snapshot.schoolIndicators（{{ schoolIndicatorSummary.total }} 所学校）。
-          Top 列仅按各维度分数排序，综合分用于横向参考；具体名称可在「学区」页查看。
+          Top 列仅按各维度分数排序，综合分用于横向参考；具体名称见下方「重点学校维度」。
+        </view>
+      </view>
+
+      <!-- v1.121.17 重点学校维度（schoolDimensionRanking，学校页已有；仪表盘此前只有无校名的指标 ID） -->
+      <view v-if="dimCityReady" class="card" data-tab="all,school">
+        <view class="row-between">
+          <view class="card-title">🏫 重点学校维度 · {{ hospitalCityName }}</view>
+          <view class="muted">{{ dimCitySummaryLocal?.schoolCount ?? 0 }} 所</view>
+        </view>
+        <view v-if="dimCitySummaryLocal" class="edu-summary">
+          <view class="edu-kpi">
+            <text class="edu-kpi-val">{{ dimCitySummaryLocal.avgComposite.toFixed(1) }}</text>
+            <text class="edu-kpi-label muted">均综合</text>
+          </view>
+          <view class="edu-kpi">
+            <text class="edu-kpi-val">
+              {{ dimCitySummaryLocal.avgTrendDelta == null ? "—" : dimCitySummaryLocal.avgTrendDelta.toFixed(2) }}
+            </text>
+            <text class="edu-kpi-label muted">均趋势Δ</text>
+          </view>
+          <view class="edu-kpi">
+            <text class="edu-kpi-val">{{ dimPolymathCity.length }}</text>
+            <text class="edu-kpi-label muted">全维度</text>
+          </view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 8rpx">
+          <view class="stats70-cell">
+            <text class="cell-label">综合排名分</text>
+            <text class="cell-value dim-name">{{ dimTopLevelCity[0]?.schoolName ?? "—" }}</text>
+            <text class="cell-sub muted">{{ dimTopLevelCity[0]?.score?.toFixed(1) ?? "—" }} · {{ dimTopLevelCity[0]?.districtName ?? "" }}</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">集团校实力</text>
+            <text class="cell-value dim-name">{{ dimTopGroupCity[0]?.schoolName ?? "—" }}</text>
+            <text class="cell-sub muted">{{ dimTopGroupCity[0]?.score?.toFixed(1) ?? "—" }} · {{ dimTopGroupCity[0]?.districtName ?? "" }}</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">区域均衡度</text>
+            <text class="cell-value dim-name">{{ dimTopBalanceCity[0]?.schoolName ?? "—" }}</text>
+            <text class="cell-sub muted">{{ dimTopBalanceCity[0]?.score?.toFixed(1) ?? "—" }} · {{ dimTopBalanceCity[0]?.districtName ?? "" }}</text>
+          </view>
+        </view>
+        <view v-if="dimPolymathCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          全维度学校（综合≥80 / 集团≥70 / 均衡≥70）
+        </view>
+        <view
+          v-for="(row, i) in dimPolymathCity"
+          :key="'poly-' + row.schoolId"
+          class="dim-row tap-row"
+          hover-class="tap-row--active"
+          @click="goSchool(row.schoolId)"
+        >
+          <text class="dim-rank muted">{{ i + 1 }}</text>
+          <view class="dim-mid">
+            <text class="dim-school">{{ row.schoolName }}</text>
+            <text class="dim-meta muted">{{ row.districtName }} · {{ row.schoolType }}</text>
+          </view>
+          <text class="dim-score">{{ row.score.toFixed(1) }}</text>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：school_dimensions.csv（重点校子集，含校名）。与上方「学校指标」平行但更适合点名阅读。
         </view>
       </view>
 
@@ -2990,6 +3073,19 @@
           <view class="card-title">🛒 商业热度 Top {{ commercialResp.items.length }} · {{ commercialResp.cityName }}</view>
           <view class="muted">共 {{ commercialResp.total }} 个小区上榜</view>
         </view>
+        <view v-if="commercialDistrictTop.length" class="muted" style="margin: 0 0 4rpx; font-size: 22rpx">
+          分区均分 Top
+        </view>
+        <view
+          v-for="d in commercialDistrictTop"
+          :key="'cd-' + d.districtName"
+          class="cd-row"
+        >
+          <text class="cd-rank muted">{{ d.rankOverall }}</text>
+          <text class="cd-name">{{ d.districtName }}</text>
+          <text class="cd-meta muted">{{ d.communityCount }} 小区</text>
+          <text class="cd-score">{{ d.avgCommercialScore.toFixed(0) }}</text>
+        </view>
         <view
           v-for="item in commercialResp.items"
           :key="item.communityId"
@@ -3019,8 +3115,7 @@
           </view>
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：高德 /v3/place/around (餐饮/银行/便利店 3 类 POI，每类最近 3 个，按距离衰减加权)。
-          评分 = 餐饮(50) + 银行(30) + 便利店(20)，每类按数量阶梯打分并乘以最近距离权重 (≤300m×1.0 / 800m×0.7 / 1500m×0.4 / 1500m+×0.1)。
+          分区均分：communityCommercialRanking。小区榜：高德周边餐饮/银行/便利店加权分。
         </view>
       </view>
 
@@ -3125,7 +3220,11 @@ import {
   getStats70CurrentCityNationalRank,
   getStats70CityTrendDirection,
   getStats70CrossCityByCityCount,
-  getStats70LatestMonth as getStats70LatestMonthTrend
+  getStats70CityOver12MonthChange,
+  getStats70CrossCityByMonthSpread,
+  getStats70LatestMonth as getStats70LatestMonthTrend,
+  type City12MonthPoint,
+  type MonthSpreadEntry
 } from "../../local/stats70TrendAnalysis";
 import {
   getLprLatest,
@@ -3226,6 +3325,17 @@ import {
   type PremiumBucket,
   type DistrictPremiumSummary
 } from "../../local/listingSchoolPremiumRanking";
+import {
+  summarizeSchoolDimensionsByCity,
+  getSchoolDimensionByDimensionTopN,
+  getSchoolDimensionPolymath,
+  type CityDimensionSummary,
+  type SchoolDimensionEntry
+} from "../../local/schoolDimensionRanking";
+import {
+  getCommunityCommercialByCityDistrict,
+  type DistrictCommercialSummary
+} from "../../local/communityCommercialRanking";
 import { getEducationOverview, type EducationOverview } from "../../local/educationOverview";
 import type { LocalHospital, LocalAdminDistrict } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
@@ -5399,6 +5509,63 @@ const stats70CurrentCityTrend = computed(() => {
   return getStats70CityTrendDirection(city.city_name, "同比", "new_idx");
 });
 
+// v1.121.17 当前城市近 12 月指数序列 + 全国离散度
+const stats70City12mName = computed(() => {
+  const city = cities.value.find((c) => c.city_id === app.cityId);
+  return city?.city_name?.replace(/市$/, "") ?? "";
+});
+const stats70City12m = computed<City12MonthPoint[]>(() => {
+  if (!stats70Ready.value || !stats70City12mName.value) return [];
+  const all = getStats70CityOver12MonthChange(stats70City12mName.value);
+  return all.slice(-6);
+});
+const stats70MonthSpread = computed<MonthSpreadEntry[]>(() => {
+  const date = getStats70LatestMonthTrend();
+  if (!date) return [];
+  return getStats70CrossCityByMonthSpread(date);
+});
+function formatStats70Month(date: string): string {
+  const parts = date.split("/");
+  if (parts.length < 2) return date;
+  return `${parts[0]}-${parts[1]!.padStart(2, "0")}`;
+}
+function idxTone(v: number | null): string {
+  if (v == null || !Number.isFinite(v)) return "muted";
+  if (v >= 100) return "trend-up";
+  if (v < 100) return "trend-down";
+  return "muted";
+}
+
+// v1.121.17 重点学校维度（当前城市）
+const dimCitySummaryLocal = computed<CityDimensionSummary | null>(() => {
+  return summarizeSchoolDimensionsByCity().find((x) => x.cityId === app.cityId) ?? null;
+});
+const dimCityReady = computed(() => (dimCitySummaryLocal.value?.schoolCount ?? 0) > 0);
+const dimTopLevelCity = computed<SchoolDimensionEntry[]>(() =>
+  getSchoolDimensionByDimensionTopN("levelScore", app.cityId, 1)
+);
+const dimTopGroupCity = computed<SchoolDimensionEntry[]>(() =>
+  getSchoolDimensionByDimensionTopN("groupStrength", app.cityId, 1)
+);
+const dimTopBalanceCity = computed<SchoolDimensionEntry[]>(() =>
+  getSchoolDimensionByDimensionTopN("districtBalance", app.cityId, 1)
+);
+const dimPolymathCity = computed<SchoolDimensionEntry[]>(() =>
+  getSchoolDimensionPolymath(app.cityId, {}).slice(0, 5)
+);
+
+// v1.121.17 分区商业均分
+const commercialDistrictTop = computed<DistrictCommercialSummary[]>(() =>
+  getCommunityCommercialByCityDistrict(app.cityId).slice(0, 5)
+);
+
+function goSchool(schoolId: number) {
+  uni.navigateTo({
+    url: `/pages/school-detail/school-detail?id=${schoolId}`,
+    fail: (e) => showToast(`打开学校详情失败：${String((e as any)?.errMsg ?? e)}`)
+  });
+}
+
 // v1.117.0 LPR 与房贷利率信号
 const lprLatest = computed(() => getLprLatest());
 const lprDelta12m = computed(() => {
@@ -7434,6 +7601,109 @@ onShow(async () => {
   min-width: 160rpx;
 }
 .lsp-pct {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--color-heading);
+  font-variant-numeric: tabular-nums;
+}
+
+/* v1.121.17 70 城 12 月序列 / 重点学校 / 分区商业 */
+.s70-12m {
+  max-height: 360rpx;
+  overflow: hidden;
+}
+.s70-12m-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 4rpx 0;
+  border-bottom: 1rpx solid var(--color-border);
+}
+.s70-12m-row:last-child {
+  border-bottom: none;
+}
+.s70-12m-date {
+  width: 120rpx;
+  font-size: 20rpx;
+  font-variant-numeric: tabular-nums;
+}
+.s70-12m-val {
+  flex: 1;
+  font-size: 22rpx;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.s70-spread {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+.s70-spread-cell {
+  flex: 1;
+  min-width: 140rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8rpx;
+  border-radius: 10rpx;
+  background: var(--color-soft);
+  border: 1rpx solid var(--color-border);
+}
+.s70-spread-l {
+  font-size: 18rpx;
+}
+.s70-spread-v {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: var(--color-heading);
+  font-variant-numeric: tabular-nums;
+}
+.dim-name {
+  font-size: 22rpx !important;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.dim-row,
+.cd-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 8rpx 0;
+  border-bottom: 1rpx solid var(--color-border);
+}
+.dim-row:last-child,
+.cd-row:last-child {
+  border-bottom: none;
+}
+.dim-rank,
+.cd-rank {
+  width: 36rpx;
+  font-size: 22rpx;
+  text-align: center;
+}
+.dim-mid {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.dim-school,
+.cd-name {
+  font-size: 26rpx;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dim-meta,
+.cd-meta {
+  font-size: 20rpx;
+}
+.dim-score,
+.cd-score {
   font-size: 24rpx;
   font-weight: 600;
   color: var(--color-heading);

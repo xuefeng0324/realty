@@ -178,6 +178,9 @@ metro_planning.csv           → metroPlanningRanking  → 规划地铁概览（
 listing_tags_summary.csv     → listingTagsComparison → 挂牌标签热度（dashboard v1.121.14）
 admin_districts.csv          → adminDistrictRanking  → 行政区划（dashboard v1.121.16）
 listing_school_premium.csv   → listingSchoolPremium  → 学区挂牌溢价分布（dashboard v1.121.16）
+school_dimensions.csv        → schoolDimensionRanking → 重点学校维度（dashboard v1.121.17）
+community_commercial.csv     → communityCommercial   → 分区商业均分（dashboard v1.121.17）
+stats_70.csv                 → stats70TrendAnalysis  → 近月序列/离散度（dashboard v1.121.17）
 static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务快照
 ```
 
