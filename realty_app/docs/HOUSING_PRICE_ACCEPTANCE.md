@@ -35,10 +35,12 @@
 2. 链家仅作补充；反爬失败时保持 REAL 存量，不掺 DERIVED 冒充  
 3. ✅ REAL 占比与最新 `crawl_date` 在设置「数据源」与总览工作台可见（`listingTrustSummary`）
 
-### Phase D — 指数月更（后续）
+### Phase D — 指数月更（本迭代落地管线）
 
-1. 参照 hugohe3：每月 15–20 日跑 `crawl_stats_70` 或拉取整理版  
-2. 可选 GitHub Action（需能访问 stats.gov.cn）  
+1. ✅ 参照 hugohe3：`crawl-monthly-stats70.yml` 每月 16–20 日自动 `download`  
+2. ✅ `check_stats70_freshness.py` + `stats70Freshness.ts` 新鲜度门禁（publishDay=18）  
+3. ✅ 设置 / 总览 / stats70 页展示「截至…是否跟上」  
+4. ⚠️ 七月指数约 8 月中发布；当前仓内与 hugohe3 均为 **2026/6**（已达标）
 
 ### 明确不做
 
@@ -74,6 +76,8 @@
 - [x] 日更 CI 末尾调用 `build_wangqian_heatmap.py`
 - [x] `tests/listingTrustSummary.test.ts`（REAL 占比 / 最新 crawl_date）
 - [x] 周爬 CI：成功路径校验 REAL≥1；`<min-rows` abort 不覆盖
+- [x] `tests/stats70Freshness.test.ts` + `scripts/check_stats70_freshness.py`
+- [x] `.github/workflows/crawl-monthly-stats70.yml` 月更管线
 
 ### 手工
 

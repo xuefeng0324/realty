@@ -1,0 +1,58 @@
+name: crawl-monthly-stats70
+
+# 房价 Phase D：每月中旬从 hugohe3/70cityprice 拉整理版并刷新窄表
+# 对照：realty_app/docs/HOUSING_PRICE_ACCEPTANCE.md
+# 统计局通常 15–17 日发布上月指数；16–20 日 UTC 02:00 ≈ 北京 10:00 尝试拉取
+
+on:
+  schedule:
+    - cron: "0 2 16-20 * *"
+  workflow_dispatch:
+
+concurrency:
+  group: crawl-monthly-stats70
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+
+    steps:
+      - name: 拉代码
+        uses: actions/checkout@v4
+
+      - name: 设 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 下载 hugohe3 整理版并转窄表
+        working-directory: realty_app
+        run: |
+          set -o pipefail
+          python scripts/crawl_stats_70.py download --out static/stats_70.csv 2>&1 | tee stats70.log
+          python scripts/check_stats70_freshness.py --csv static/stats_70.csv
+
+      - name: 看结果
+        working-directory: realty_app
+        run: |
+          echo "===== 最新 date ====="
+          cut -d, -f1 static/stats_70.csv | sort -u | tail -5
+          wc -l static/stats_70.csv
+          cat stats70.log
+
+      - name: 有变更则提交
+        run: |
+          cd realty_app
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet HEAD -- static/stats_70.csv; then
+            git add static/stats_70.csv
+            git commit -m "data(stats70): 月更 70 城指数 $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git push
+          else
+            echo "stats_70.csv 无变化，跳过 commit"
+          fi

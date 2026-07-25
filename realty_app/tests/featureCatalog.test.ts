@@ -71,7 +71,10 @@ describe("FEATURE QA 文档门禁", () => {
       "tests/e2e/smoke_price_heatmap.mjs",
       "tests/priceSemantics.test.ts",
       "tests/theme.test.ts",
-      "scripts/check.ps1"
+      "tests/stats70Freshness.test.ts",
+      "scripts/check.ps1",
+      "scripts/check_stats70_freshness.py",
+      "src/local/stats70Freshness.ts"
     ];
     for (const rel of mustExist) {
       expect(existsSync(resolve(root, rel)), `缺失 ${rel}`).toBe(true);

@@ -43,8 +43,11 @@
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           挂牌可信度：{{ listingTrustLine }}
         </view>
+        <view class="muted" style="margin-top: 4rpx; font-size: 22rpx">
+          70城指数：{{ stats70FreshnessLine }}
+        </view>
         <view class="muted" style="margin-top: 4rpx; font-size: 20rpx">
-          REAL 为公开页解析的真实挂牌；DERIVED 为分析样本，不代表逐套成交。见 HOUSING_PRICE Phase C。
+          REAL 为公开页解析的真实挂牌；DERIVED 为分析样本，不代表逐套成交。见 HOUSING_PRICE Phase C/D。
         </view>
 
         <view class="row-gap" style="margin-top: 16rpx">
@@ -253,6 +256,8 @@ import {
   formatListingTrustLine,
   summarizeListingTrust
 } from "../../local/listingTrustSummary";
+import { assessStats70Freshness } from "../../local/stats70Freshness";
+import { getLatestMonth } from "../../local/stats70";
 import { buildSeedSnapshot, resetSeedSnapshotCache } from "../../local/seedSnapshot";
 import { showToast } from "../../utils/format";
 import { loadSnapshotFromBase } from "../../local/snapshotLoader";
@@ -338,6 +343,8 @@ const listingTrustLine = computed(() => {
   const s = getSnapshot();
   return formatListingTrustLine(summarizeListingTrust(s?.listings ?? []));
 });
+
+const stats70FreshnessLine = computed(() => assessStats70Freshness(getLatestMonth()).label);
 
 const dataModeLabels = ["内置完整快照", "自定义 CSV 快照"];
 const dataModeIndex = computed(() => dataMode.value === "csv-url" ? 1 : 0);

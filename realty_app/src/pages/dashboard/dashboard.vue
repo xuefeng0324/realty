@@ -5454,6 +5454,7 @@ import {
   priceAxesDisclaimer
 } from "../../local/priceSemantics";
 import { summarizeListingTrust } from "../../local/listingTrustSummary";
+import { assessStats70Freshness } from "../../local/stats70Freshness";
 import * as store from "../../local/store";
 import {
   summarizeMetroWalkAccessibility,
@@ -8281,9 +8282,7 @@ const stats70Ready = computed(() => hasStats70());
 const stats70MonthLabel = computed(() => {
   const m = getLatestMonth();
   if (!m) return "";
-  const parts = m.split("/");
-  if (parts.length < 3) return m;
-  return `${parts[0]}-${parts[1].padStart(2, "0")}`;
+  return assessStats70Freshness(m).label;
 });
 const stats70TrendLatestMonth = computed(() => getStats70LatestMonthTrend());
 const stats70RecentMonths = computed<string[]>(() =>

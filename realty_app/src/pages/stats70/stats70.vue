@@ -5,6 +5,7 @@
         <view class="card-title">全国 70 城价格指数</view>
         <view class="muted" v-if="latestMonth">
           数据月份：{{ latestMonth }}（来源：国家统计局）
+          <text v-if="freshnessLabel"> · {{ freshnessLabel }}</text>
         </view>
         <view class="muted" v-else>
           暂无 70 城指数数据。请确认 app 已联网启动一次。
@@ -206,6 +207,7 @@ import {
 } from "../../local/stats70TrendAnalysis";
 import { useAppStore } from "../../store/app";
 import EmptyState from "../../components/EmptyState.vue";
+import { assessStats70Freshness } from "../../local/stats70Freshness";
 
 type Base = "同比" | "环比";
 type Kind = "new" | "second";
@@ -224,6 +226,7 @@ const base = ref<Base>("同比");
 const sortDir = ref<SortDir>("desc");
 
 const latestMonth = ref<string | null>(getLatestMonth());
+const freshnessLabel = computed(() => assessStats70Freshness(latestMonth.value).label);
 
 const ranking = computed(() => {
   const all = getRanking(base.value, kind.value);
