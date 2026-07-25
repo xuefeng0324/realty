@@ -165,7 +165,8 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/education_overview.csv` | `educationOverview.ts`（模块内 `?raw`）+ dashboard「📚 教育事业」 | `crawl_gz_education_overview.py` + `crawl_sz_education_overview.py` + `crawl_zh_education_overview.py`（**周更 CI**） | 广州公报（含小学/初中）；深圳「普通中小学」合计；珠海基础教育学校数官方 XLSX（在校生未公布=0）；均不伪造 |
 | `static/sz_planned_supply.csv` | `szPlannedSupply.ts`（模块内 `?raw`）+ dashboard「🏗️ 深圳计划入市」 | `crawl_sz_planned_supply.py`（**周更 CI**） | 深圳市住建局季度「计划入市」公示正文摘要（套数/面积/业态）；**非成交、非可售库存**；不解析 PDF 附件 |
 | `static/gz_housing_plan.csv` | `gzHousingPlan.ts`（模块内 `?raw`）+ dashboard「📋 广州住房发展计划」 | `crawl_gz_housing_plan.py`（**周更 CI**） | 广州市住建局《住房发展年度计划》公文附件（.doc/.docx）指标：计划批准预售面积、商品住宅用地、保障性住房筹建；**年更计划口径** |
-| `static/gz_land_deals.csv` | `gzLandDeals.ts`（模块内 `?raw`）+ dashboard「🗺️ 广州居住用地成交」 | `crawl_gz_land_deals.py`（**周更 CI**） | 广州市规自局成交公示中的 **居住/R2** 地块（面积/成交价/受让人）；土地价款≠房价均价；地表单价未除容积率 |
+| `static/gz_land_deals.csv` | `gzLandDeals.ts`（模块内 `?raw`）+ dashboard「🗺️ 广州居住用地成交」 | `crawl_gz_land_deals.py`（**周更 CI**，默认 12 页） | 广州市规自局成交公示中用途含 **居住/R2/安置** 的地块；土地价款≠房价均价；地表单价未除容积率 |
+| （深圳土地成交） | （未接入） | `pnr.sz.gov.cn` / `szggzy.com` 等 | 2026-07-26 探针：412 / DNS 失败 / 空页，暂无可用结构化 HTML |
 | `static/seed/admin_districts.csv` | `adminDistrictRanking.ts` + dashboard「🗺️ 行政区划」 | （国标整理） | v1.121.16：主城/郊区/新区与区码列表；v1.121.19：×规划地铁文案交叉 |
 | `static/seed/community_commercial.csv` | `communityCommercialRanking.ts` + 分区商业/密度桶 | （派生） | v1.121.17 分区均分；v1.121.19 餐饮密度×距离桶（按 city 过滤） |
 | `static/seed/listing_school_premium.csv` | `listingSchoolPremiumRanking.ts` + 高学区房源卡 | `compute_listing_school_premium` | v1.121.16：溢价分桶与分区 Top |

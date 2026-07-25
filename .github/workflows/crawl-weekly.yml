@@ -83,7 +83,7 @@ jobs:
           python scripts/crawl_zh_education_overview.py
           python scripts/crawl_sz_planned_supply.py --max 12
           python scripts/crawl_gz_housing_plan.py
-          python scripts/crawl_gz_land_deals.py --pages 4 --max-detail 48
+          python scripts/crawl_gz_land_deals.py --pages 12 --max-detail 120
 
       - name: 提交 CSV
         run: |

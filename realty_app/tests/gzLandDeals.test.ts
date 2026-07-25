@@ -10,12 +10,13 @@ import {
 } from "../src/local/gzLandDeals";
 
 describe("gz residential land deals", () => {
-  it("加载广州居住用地成交样本", () => {
+  it("加载广州居住用地成交样本（扩大历史）", () => {
     const rows = getGzLandDeals();
-    expect(rows.length).toBeGreaterThanOrEqual(3);
+    expect(rows.length).toBeGreaterThanOrEqual(10);
     expect(rows.every((r) => r.city === "广州")).toBe(true);
-    expect(rows.every((r) => /居住|住宅|R2/.test(r.landUse))).toBe(true);
+    expect(rows.every((r) => /居住|住宅|R2|安置/.test(r.landUse))).toBe(true);
     expect(rows[0]!.sourceUrl).toMatch(/ghzyj\.gz\.gov\.cn/);
+    expect(rows[rows.length - 1]!.dealDate <= rows[0]!.dealDate).toBe(true);
     const sum = summarizeGzLandDeals();
     expect(sum).not.toBeNull();
     expect(sum!.count).toBe(rows.length);
@@ -28,11 +29,13 @@ describe("gz residential land deals", () => {
     expect(unit).toBeCloseTo((d.priceWan * 10000) / d.areaSqm, 5);
   });
 
-  it("爬虫仅认居住用途；仪表盘有卡", () => {
+  it("爬虫默认扩页；用途字段门禁；仪表盘有卡", () => {
     const script = readFileSync(resolve(process.cwd(), "scripts/crawl_gz_land_deals.py"), "utf8");
     expect(script).toContain("ghzyj.gz.gov.cn");
     expect(script).toContain("RESIDENTIAL_RE");
     expect(script).toContain("NamedTemporaryFile");
+    expect(script).toContain("default=12");
+    expect(script).toContain("必须用途字段命中");
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     expect(dash).toContain("data-gz-land-deals");
     expect(dash).toContain("getLatestGzLandDeals");

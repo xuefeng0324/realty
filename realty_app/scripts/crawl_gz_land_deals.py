@@ -7,7 +7,7 @@
 
 用法：
   python scripts/crawl_gz_land_deals.py
-  python scripts/crawl_gz_land_deals.py --pages 4 --max-detail 40
+  python scripts/crawl_gz_land_deals.py --pages 12 --max-detail 120
 """
 from __future__ import annotations
 
@@ -41,7 +41,7 @@ FIELDS = [
     "source_url",
 ]
 
-RESIDENTIAL_RE = re.compile(r"居住|住宅|R2|R1|商品住宅|二类居住|一类居住")
+RESIDENTIAL_RE = re.compile(r"居住|住宅|R2|R1|商品住宅|二类居住|一类居住|安置房|安置用地")
 
 
 def fetch(url: str) -> str:
@@ -179,11 +179,14 @@ def parse_detail(url: str, title: str) -> list[dict]:
         if m:
             buyer = m.group(1).strip()
 
-    # residential filter
-    blob = f"{title} {location} {land_use} {text[:800]}"
-    if not RESIDENTIAL_RE.search(blob):
+    # residential filter：必须用途字段命中（避免正文提及住宅导致商业地误入）
+    if not RESIDENTIAL_RE.search(land_use):
         return []
-
+    # 纯商业/工业排除（混合「居住兼容商业」仍保留）
+    if re.search(r"^(商业|工业|物流|仓储|轨道交通)", land_use.strip()) and not RESIDENTIAL_RE.search(
+        land_use
+    ):
+        return []
     area = parse_num(area_s)
     price = parse_num(price_s)
     if area <= 0 or price <= 0:
@@ -236,8 +239,8 @@ def write_csv(rows: list[dict], path: Path) -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--pages", type=int, default=3)
-    ap.add_argument("--max-detail", type=int, default=36)
+    ap.add_argument("--pages", type=int, default=12)
+    ap.add_argument("--max-detail", type=int, default=120)
     ap.add_argument("--out", type=Path, default=OUT)
     args = ap.parse_args()
 
