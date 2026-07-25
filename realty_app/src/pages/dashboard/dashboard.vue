@@ -1687,6 +1687,29 @@
           数据源：life_convenience.csv (50%) + school_premium_community.csv (30%) + commute.csv (20%) → community_score.csv。
           综合分 0-100，按总分降序；金色前 3 名。
         </view>
+        <view v-if="communityScorePareto.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          高分 + 通勤快（总分≥80）
+        </view>
+        <view
+          v-for="(it, idx) in communityScorePareto"
+          :key="'csp-' + it.communityId"
+          class="cs-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(it.communityId)"
+        >
+          <view class="cs-rank">
+            <text class="cs-medal">{{ idx + 1 }}</text>
+          </view>
+          <view class="cs-mid">
+            <view class="cs-name">{{ it.communityName }}</view>
+            <view class="cs-dist muted">{{ it.districtName }} · 总分 {{ it.totalScore.toFixed(0) }}</view>
+          </view>
+          <view class="cs-right">
+            <text class="cs-total">
+              {{ it.commuteMinutes != null ? Math.round(it.commuteMinutes) + " 分" : "—" }}
+            </text>
+          </view>
+        </view>
         </template>
       </view>
 
@@ -1890,6 +1913,18 @@
           <text class="mp-year-y">{{ s.status }}</text>
           <text class="mp-year-n muted">{{ s.lineCount }} 条 · {{ s.totalStations }} 站</text>
         </view>
+        <view v-if="metroCrossYear2028.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          跨城 2028 预计开通线路
+        </view>
+        <view
+          v-for="row in metroCrossYear2028"
+          :key="'m28-' + row.cityId"
+          class="mp-year-chip"
+          style="margin-right: 8rpx; margin-bottom: 6rpx"
+        >
+          <text class="mp-year-y">{{ row.cityName }}</text>
+          <text class="mp-year-n muted">{{ row.lines.join("、") }}</text>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：metro_planning.csv + metro_planning_geo.csv。弯曲系数 ≥1.3 表示线路明显绕行。
         </view>
@@ -1991,6 +2026,30 @@
           <text class="ltk-share">
             {{ r.medianUnitPrice != null ? Math.round(r.medianUnitPrice / 1000) + "k" : "—" }}
           </text>
+          <text class="ltk-count muted">{{ r.count }}</text>
+        </view>
+        <view v-if="layoutTwoBedShareCross.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城「2室」占比（layout）
+        </view>
+        <view
+          v-for="r in layoutTwoBedShareCross"
+          :key="'2b-' + r.cityId"
+          class="ltk-row"
+        >
+          <text class="ltk-tag" style="width: 100rpx">{{ r.cityName }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{
+                width:
+                  Math.min(
+                    100,
+                    (r.share / (layoutTwoBedShareCross[0]?.share || 0.01)) * 100
+                  ) + '%'
+              }"
+            />
+          </view>
+          <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
           <text class="ltk-count muted">{{ r.count }}</text>
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
@@ -2404,6 +2463,27 @@
             <view class="lf-name">{{ it.communityName }}</view>
             <view class="muted" style="font-size: 22rpx">
               {{ it.cityName }} · {{ it.districtName }} · {{ it.totalListings }} 套
+            </view>
+          </view>
+          <view :class="['lf-score', lfFreshClass(it.freshnessScore)]">
+            {{ it.freshnessScore.toFixed(0) }}
+          </view>
+        </view>
+        <view v-if="freshnessStaleCrossCity.length" class="lf-section-title">
+          跨城最积压 Top
+        </view>
+        <view
+          v-for="(it, idx) in freshnessStaleCrossCity"
+          :key="'fs-' + it.communityId"
+          class="lf-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(it.communityId)"
+        >
+          <view class="lf-left">
+            <view class="lf-name">{{ it.communityName }}</view>
+            <view class="muted" style="font-size: 22rpx">
+              {{ it.cityName }} · {{ it.districtName }}
+              · 中位 {{ it.medianAgeDays ?? "—" }} 天
             </view>
           </view>
           <view :class="['lf-score', lfFreshClass(it.freshnessScore)]">
@@ -4122,6 +4202,7 @@ import {
   getMetroPlanningByCityTopByStations,
   getMetroPlanningByCityFastLines,
   getMetroPlanningByCityStatusVsStations,
+  getMetroPlanningCrossCityByYear,
   type CityMetroPlanningSummary,
   type OpenYearMetroPlanningSummary,
   type TopByMetric,
@@ -4138,7 +4219,9 @@ import {
 } from "../../local/metroPlanningGeoAnalysis";
 import {
   getDistributionCrossCityLeaderboard,
-  type CrossCityBucketEntry
+  getDistributionShareLeaderboard,
+  type CrossCityBucketEntry,
+  type CrossCityShareEntry
 } from "../../local/distributionRanking";
 import {
   getFeaturePremiumCrossCityLeaderboard,
@@ -4170,8 +4253,12 @@ import {
 } from "../../local/commuteRanking";
 import {
   getFreshestCommunityTopN,
+  getStalestCommunityTopN,
   type FreshnessRankingEntry
 } from "../../local/listingFreshnessRanking";
+import {
+  getCommunityScorePareto
+} from "../../local/communityScoreRanking";
 import {
   summarizeListingTagsByCity,
   getCityTagSignature,
@@ -4231,7 +4318,7 @@ import {
   getOrientationFloorByOrientationLeaderboard,
   type CityOrientationFloorTopEntry
 } from "../../local/orientationFloorRanking";
-import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination } from "../../local/types";
+import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -4509,6 +4596,17 @@ const metroFastLines = computed(() =>
 const metroStatusStations = computed<CityStatusStations[]>(() =>
   getMetroPlanningByCityStatusVsStations().filter((x) => x.cityId === app.cityId)
 );
+const metroCrossYear2028 = computed(() => {
+  const map = getMetroPlanningCrossCityByYear(2028);
+  return Object.entries(map)
+    .map(([cityId, lines]) => ({
+      cityId: Number(cityId),
+      cityName: cityNameForId(Number(cityId)),
+      lines
+    }))
+    .filter((x) => x.lines.length > 0)
+    .sort((a, b) => b.lines.length - a.lines.length);
+});
 
 // v1.121.18 挂牌结构占比（layout_distribution）
 const layoutBedroomShare = computed<LocalLayoutDistribution[]>(() =>
@@ -4542,6 +4640,11 @@ const layoutDecorateCrossCity = computed(() =>
 );
 const bedroomAreaCrossCityPrice = computed<CrossCityBucketEntry[]>(() =>
   getDistributionCrossCityLeaderboard("3室", "80-110")
+);
+const layoutTwoBedShareCross = computed<CrossCityShareEntry[]>(() =>
+  getDistributionShareLeaderboard("bedrooms").filter(
+    (x) => x.dimensions[1] === "2室"
+  )
 );
 
 // v1.121.14 挂牌标签热度
@@ -4614,6 +4717,12 @@ const scatterImproveValue = computed<ScatterParetoEntry[]>(() => {
 });
 const freshnessCrossCityTop = computed<FreshnessRankingEntry[]>(() =>
   getFreshestCommunityTopN(undefined, 5)
+);
+const freshnessStaleCrossCity = computed<FreshnessRankingEntry[]>(() =>
+  getStalestCommunityTopN(undefined, 5)
+);
+const communityScorePareto = computed<LocalCommunityScore[]>(() =>
+  getCommunityScorePareto(app.cityId, 80, 5)
 );
 const lifeConvenienceParetoSubway = computed<ParetoEntry[]>(() => {
   const ids = new Set(
