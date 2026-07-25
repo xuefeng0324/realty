@@ -56,7 +56,12 @@
           默认仅展示本市卡片；点「含跨城」才显示对照块。周切换只刷新「本周速览 / 区对比 / 小区周榜」。
         </text>
         <text class="muted period-hint">
-          数据构成：真实挂牌 {{ sourceKindSummary.real }} / 派生样本 {{ sourceKindSummary.derived }} / 其他 {{ sourceKindSummary.other }}；派生样本不代表逐套成交。
+          数据构成：真实挂牌 {{ listingTrust.real }}（{{ listingTrust.realPct }}%）/
+          派生样本 {{ listingTrust.derived }} / 其他 {{ listingTrust.other }}；派生样本不代表逐套成交。
+          <text v-if="listingTrust.latestRealCrawlDate">
+            真实挂牌最新 crawl_date {{ listingTrust.latestRealCrawlDate }}。
+          </text>
+          <text v-else>当前城市尚无带日期的真实挂牌。</text>
         </text>
         <text class="muted period-hint">{{ priceAxesHint }}</text>
       </view>
@@ -5448,6 +5453,7 @@ import {
   listingMedianUnitPriceLabel,
   priceAxesDisclaimer
 } from "../../local/priceSemantics";
+import { summarizeListingTrust } from "../../local/listingTrustSummary";
 import * as store from "../../local/store";
 import {
   summarizeMetroWalkAccessibility,
@@ -7074,18 +7080,7 @@ const overviewLprSummary = computed(() => {
 
 // v0.55.0 hero-1: 顶部大盘轮播 — 城市级聚合 (从 snapshot 实时计算)
 const listingCount = computed<number>(() => store.getListingsByCity(app.cityId).length);
-const sourceKindSummary = computed(() => {
-  const rows = store.getListingsByCity(app.cityId);
-  return rows.reduce(
-    (acc, row) => {
-      if (row.sourceKind === "REAL") acc.real++;
-      else if (row.sourceKind === "DERIVED") acc.derived++;
-      else acc.other++;
-      return acc;
-    },
-    { real: 0, derived: 0, other: 0 }
-  );
-});
+const listingTrust = computed(() => summarizeListingTrust(store.getListingsByCity(app.cityId)));
 const communityCount = computed<number>(() => {
   const seen = new Set<number>();
   for (const l of store.getListingsByCity(app.cityId)) seen.add(l.communityId);

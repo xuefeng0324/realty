@@ -38,8 +38,26 @@ jobs:
         id: crawl
         run: |
           cd realty_app
-          python scripts/crawl_anjuke.py 2>&1 | tee crawl.log
+          # Phase C：少于 --min-rows（默认 50）会 exit 2，不覆盖已有 listings（告警=红）
+          python scripts/crawl_anjuke.py --min-rows 50 2>&1 | tee crawl.log
         continue-on-error: false
+
+      - name: 校验 REAL 挂牌写入（成功爬取后）
+        if: success()
+        run: |
+          cd realty_app
+          python - <<'PY'
+          import csv
+          from pathlib import Path
+          p = Path("static/seed/listings.csv")
+          rows = list(csv.DictReader(p.open(encoding="utf-8-sig")))
+          real = [r for r in rows if (r.get("source_kind") or "").upper() == "REAL"]
+          print(f"listings={len(rows)} REAL={len(real)}")
+          if len(real) < 1:
+              raise SystemExit("Phase C: 成功写入后应至少 1 条 REAL")
+          dates = [r.get("crawl_date") or "" for r in real if r.get("crawl_date")]
+          print("latest REAL crawl_date=", max(dates) if dates else None)
+          PY
 
       - name: 看结果
         run: |

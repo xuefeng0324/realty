@@ -29,11 +29,11 @@
 1. 日更网签 CI 末尾重建 `wangqian_district_weekly.csv`（量热度跟 daily）  
 2. 本地重建并提交落后的周聚合  
 
-### Phase C — 真实挂牌增量（后续，不伪造）
+### Phase C — 真实挂牌增量（本迭代部分完成）
 
-1. 安居客周 CI：非 0 条才算成功 / 失败告警  
+1. 安居客周 CI：`< min-rows` abort（不覆盖）；成功写入后校验至少 1 条 REAL  
 2. 链家仅作补充；反爬失败时保持 REAL 存量，不掺 DERIVED 冒充  
-3. REAL 占比与最新 `crawl_date` 在设置/工作台可见  
+3. ✅ REAL 占比与最新 `crawl_date` 在设置「数据源」与总览工作台可见（`listingTrustSummary`）
 
 ### Phase D — 指数月更（后续）
 
@@ -72,6 +72,8 @@
 - [x] `npm run type-check` / `npm test`（含 buildIntegrity 改名断言）
 - [x] 网签周聚合重建：`wangqian_district_weekly` week_end 覆盖至最近周日
 - [x] 日更 CI 末尾调用 `build_wangqian_heatmap.py`
+- [x] `tests/listingTrustSummary.test.ts`（REAL 占比 / 最新 crawl_date）
+- [x] 周爬 CI：成功路径校验 REAL≥1；`<min-rows` abort 不覆盖
 
 ### 手工
 

@@ -40,6 +40,12 @@
         <view class="muted" style="margin-top: 6rpx">
           数据量：城市 {{ counts.cities }} / 小区 {{ counts.communities }} / 房源 {{ counts.listings }}
         </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          挂牌可信度：{{ listingTrustLine }}
+        </view>
+        <view class="muted" style="margin-top: 4rpx; font-size: 20rpx">
+          REAL 为公开页解析的真实挂牌；DERIVED 为分析样本，不代表逐套成交。见 HOUSING_PRICE Phase C。
+        </view>
 
         <view class="row-gap" style="margin-top: 16rpx">
           <button class="btn" size="mini" @click="resetToSeed">重置为内置快照</button>
@@ -243,6 +249,10 @@ import { computed, ref } from "vue";
 import { APP_VERSION, SNAPSHOT_UPDATED_EVENT } from "../../config";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { setSnapshot, getSnapshot } from "../../local/store";
+import {
+  formatListingTrustLine,
+  summarizeListingTrust
+} from "../../local/listingTrustSummary";
 import { buildSeedSnapshot, resetSeedSnapshotCache } from "../../local/seedSnapshot";
 import { showToast } from "../../utils/format";
 import { loadSnapshotFromBase } from "../../local/snapshotLoader";
@@ -322,6 +332,11 @@ const counts = computed(() => {
     communities: s?.communities.length ?? 0,
     listings: s?.listings.length ?? 0
   };
+});
+
+const listingTrustLine = computed(() => {
+  const s = getSnapshot();
+  return formatListingTrustLine(summarizeListingTrust(s?.listings ?? []));
 });
 
 const dataModeLabels = ["内置完整快照", "自定义 CSV 快照"];
