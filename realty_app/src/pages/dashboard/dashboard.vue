@@ -550,6 +550,23 @@
             <text class="drift-value drift-up">{{ row.walkMinutes.toFixed(1) }}min</text>
           </view>
         </view>
+        <view
+          v-if="metroWalkCityTop.length"
+          style="margin-top: 10rpx"
+        >
+          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
+            本市步行最少 Top（派生）
+          </view>
+          <view
+            v-for="(row, i) in metroWalkCityTop"
+            :key="'mwct' + row.communityId"
+            class="drift-row"
+          >
+            <text class="drift-rank">{{ i + 1 }}</text>
+            <text class="drift-city">{{ row.communityName }} → {{ row.stationName }}</text>
+            <text class="drift-value drift-up">{{ row.walkMinutes.toFixed(1) }}min</text>
+          </view>
+        </view>
         <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
           派生：snapshot.metroWalks（{{
             metroWalkSummary.reduce((s, r) => s + r.totalCommunities, 0)
@@ -1768,6 +1785,24 @@
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：poi_seed.csv (subway) → 高德 /v3/direction/walking。
           步行时长按距离升序；绿/橙/红三档 (≤5 / ≤10 / &gt;10min)，AMAP_API 是高德实测，其余为启发式估算（直线×1.45 / 80m·min⁻¹）。
+        </view>
+        <view v-if="metroWalkCityTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          派生层本市步行最少 Top
+        </view>
+        <view
+          v-for="(it, idx) in metroWalkCityTop"
+          :key="'mwc-' + it.communityId"
+          class="mw-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(it.communityId)"
+        >
+          <view class="mw-rank">
+            <text :class="['mw-min', mwBandClass(it.walkMinutes)]">{{ it.walkMinutes.toFixed(0) }}min</text>
+          </view>
+          <view class="mw-mid">
+            <view class="mw-name">{{ it.communityName }}</view>
+            <view class="mw-dist muted">→ {{ it.stationName }} · {{ it.walkDistanceM }}m</view>
+          </view>
         </view>
       </view>
 
@@ -3547,6 +3582,23 @@
             {{ h.hospitalLevel || "其他" }}
           </text>
         </view>
+        <view v-if="hospitalSpecialtyList.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          专科医院
+        </view>
+        <view
+          v-for="(h, idx) in hospitalSpecialtyList"
+          :key="'hsp-' + h.hospitalId"
+          class="hosp-top-row"
+        >
+          <text class="hosp-top-rank muted">{{ idx + 1 }}</text>
+          <view class="hosp-top-mid">
+            <text class="hosp-top-name">{{ h.displayName || h.officialName }}</text>
+            <text class="hosp-top-meta muted">{{ h.districtName || "—" }}</text>
+          </view>
+          <text class="hosp-top-level" :class="'hosp-lv--' + (h.hospitalLevel || '其他')">
+            {{ h.hospitalLevel || "其他" }}
+          </text>
+        </view>
         <view v-if="hospitalDistrictCross.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           同名区医院对照 · {{ hospitalDistrictCrossName }}
         </view>
@@ -3671,6 +3723,23 @@
           </view>
           <text class="pc-score">{{ w.walkScore }}</text>
         </view>
+        <view v-if="commercialRestaurantNear.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          最近餐饮 Top
+        </view>
+        <view
+          v-for="(b, idx) in commercialRestaurantNear"
+          :key="'rest-' + b.communityId"
+          class="pc-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(b.communityId)"
+        >
+          <text class="pc-rank muted">{{ idx + 1 }}</text>
+          <view class="pc-mid">
+            <text class="pc-name">{{ communityDisplayName(b.communityId) }}</text>
+            <text class="pc-meta muted">{{ b.poiName }}</text>
+          </view>
+          <text class="pc-dist">{{ Math.round(b.distanceM) }} m</text>
+        </view>
         <view class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">最近银行 Top</view>
         <view
           v-for="(b, idx) in commercialBankNear"
@@ -3759,6 +3828,35 @@
             <text class="pc-meta muted">{{ m.nearestName || "—" }}</text>
           </view>
           <text class="pc-dist">{{ Math.round(m.nearestDistanceM ?? 0) }} m</text>
+        </view>
+        <view v-if="marketDeriveNear.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          派生层最近榜（本市）
+        </view>
+        <view
+          v-for="(m, idx) in marketDeriveNear"
+          :key="'mkdn-' + m.communityId"
+          class="pc-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(m.communityId)"
+        >
+          <text class="pc-rank muted">{{ idx + 1 }}</text>
+          <view class="pc-mid">
+            <text class="pc-name">{{ communityDisplayName(m.communityId) }}</text>
+            <text class="pc-meta muted">{{ m.nearestName || "—" }}</text>
+          </view>
+          <text class="pc-dist">{{ Math.round(m.nearestDistanceM ?? 0) }} m</text>
+        </view>
+        <view v-if="marketNearestDetail" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          最近小区详情 · {{ communityDisplayName(marketNearestDetail.communityId) }}
+        </view>
+        <view v-if="marketNearestDetail" class="pc-row">
+          <view class="pc-mid">
+            <text class="pc-name">{{ marketNearestDetail.poiName }}</text>
+            <text class="pc-meta muted">
+              {{ marketNearestDetail.poiTypeCategory }} · {{ marketNearestDetail.address || "—" }}
+            </text>
+          </view>
+          <text class="pc-dist">{{ Math.round(marketNearestDetail.distanceM) }} m</text>
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：poi_market.csv（每小区最近 3 个菜市场/超市）。
@@ -3885,6 +3983,22 @@
           </view>
           <view class="lc-right">
             <text class="lc-score">{{ it.value }}</text>
+          </view>
+        </view>
+        <view v-if="lifeDistrictTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          分区便利均分 Top（派生）
+        </view>
+        <view
+          v-for="d in lifeDistrictTop"
+          :key="'lcd-' + d.districtName"
+          class="lc-row"
+        >
+          <view class="lc-mid">
+            <view class="lc-name">{{ d.districtName }}</view>
+            <view class="lc-dist muted">#{{ d.rankOverall }} · {{ d.communityCount }} 小区</view>
+          </view>
+          <view class="lc-right">
+            <text class="lc-score">{{ d.avgScore100.toFixed(0) }}</text>
           </view>
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
@@ -4183,6 +4297,21 @@
           <text class="lsp-meta muted">{{ d.listingCount }} 套 · {{ d.communityCount }} 小区</text>
           <text class="lsp-pct">{{ d.avgPremiumPct >= 0 ? "+" : "" }}{{ d.avgPremiumPct.toFixed(1) }}%</text>
         </view>
+        <view v-if="lspCommunityTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          小区挂牌溢价 Top（派生）
+        </view>
+        <view
+          v-for="(c, idx) in lspCommunityTop"
+          :key="'lspc-' + c.communityId"
+          class="lsp-dist-item tap-target"
+          hover-class="row-active"
+          @click="goCommunity(c.communityId)"
+        >
+          <text class="lsp-rank muted">{{ idx + 1 }}</text>
+          <text class="lsp-dname">{{ communityDisplayName(c.communityId) }}</text>
+          <text class="lsp-meta muted">{{ c.districtName }} · {{ c.listingCount }} 套</text>
+          <text class="lsp-pct">{{ c.avgPremiumPct >= 0 ? "+" : "" }}{{ c.avgPremiumPct.toFixed(1) }}%</text>
+        </view>
         <view
           v-for="item in listingPremiumOverview.items"
           :key="item.listingId"
@@ -4272,6 +4401,29 @@
             <text class="dens-l muted">{{ b.bucket }}</text>
             <text v-if="b.communities[0]" class="dens-ex muted">
               例：{{ b.communities[0].communityName }}
+            </text>
+          </view>
+        </view>
+        <view v-if="commercialNearestRestaurant.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          最近饭店小区 Top（派生）
+        </view>
+        <view
+          v-for="(it, idx) in commercialNearestRestaurant"
+          :key="'cnr-' + it.communityId"
+          class="community-row tap-target"
+          hover-class="row-active"
+          @click="goCommunity(it.communityId)"
+        >
+          <view class="community-rank">
+            <text class="sp-medal-mini">{{ idx + 1 }}</text>
+          </view>
+          <view class="community-main">
+            <view class="community-name">{{ it.communityName }}</view>
+            <view class="muted">{{ it.districtName }} · 最近饭店 {{ Math.round(it.nearestRestaurantM ?? 0) }} m</view>
+          </view>
+          <view class="community-sp-price">
+            <text :class="['sp-up', commercialScoreClass(it.commercialScore)]">
+              {{ it.commercialScore.toFixed(0) }}
             </text>
           </view>
         </view>
@@ -4419,6 +4571,7 @@ import * as store from "../../local/store";
 import {
   summarizeMetroWalkAccessibility,
   getMetroWalkRankingTopN,
+  getMetroWalkRankingByCityTopN,
   type MetroWalkAccessibility,
   type MetroWalkRankingItem
 } from "../../local/metro";
@@ -4469,6 +4622,7 @@ import {
   getPoiCommercialCrossCommunityByCategoryDistance,
   getPoiCommercialByCityBankCoverage,
   getPoiCommercialByCityConvenienceLeaderboard,
+  getPoiCommercialByCityRestaurantNearestByCommunity,
   getPoiCommercialByPoiTypeLeaderboard,
   type WalkScore,
   type CommunityBankNearest,
@@ -4478,8 +4632,11 @@ import {
 import {
   summarizePoiMarketByCommunity,
   getPoiMarketByCategoryRanking,
+  getPoiMarketNearestByCommunity,
+  getPoiMarketDistanceLeaderboard,
   type CommunityPoiMarketSummary,
-  type MarketCategoryStat
+  type MarketCategoryStat,
+  type NearestMarketEntry
 } from "../../local/poiMarketRanking";
 import {
   summarizeMetroPlanningByCity,
@@ -4530,9 +4687,11 @@ import {
   getLifeConveniencePareto,
   getLifeConvenienceDimensionBalance,
   getLifeConvenienceByDimensionCoverage,
+  getLifeConvenienceByCityDistrict,
   type ParetoEntry,
   type DimensionImbalance,
-  type DimensionCoverageEntry
+  type DimensionCoverageEntry,
+  type DistrictLifeConvenienceSummary
 } from "../../local/lifeConvenienceRanking";
 import {
   getCommunityScatterByCityTotalPriceExtremes,
@@ -4582,9 +4741,11 @@ import {
   summarizeListingSchoolPremiumByCity,
   getListingSchoolPremiumDistribution,
   getListingSchoolPremiumByCityDistrict,
+  getListingSchoolPremiumByCommunityLeaderboard,
   type CitySchoolPremiumSummary,
   type PremiumBucket,
-  type DistrictPremiumSummary
+  type DistrictPremiumSummary,
+  type CommunityPremiumAggregate
 } from "../../local/listingSchoolPremiumRanking";
 import {
   summarizeSchoolDimensionsByCity,
@@ -4605,6 +4766,7 @@ import {
 import {
   getCommunityCommercialByCityDistrict,
   getCommunityCommercialDensityVsDistance,
+  getCommunityCommercialByNearest,
   type DistrictCommercialSummary,
   type DensityDistanceBucket
 } from "../../local/communityCommercialRanking";
@@ -4621,7 +4783,7 @@ import {
   type CityOrientationFloorTopEntry,
   type CrossCityOrientationFloorEntry
 } from "../../local/orientationFloorRanking";
-import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict, LocalMetroLine, LocalCommunityScatter } from "../../local/types";
+import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict, LocalMetroLine, LocalCommunityScatter, LocalCommunityCommercial } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -4693,6 +4855,9 @@ const hospitalTcmList = computed<LocalHospital[]>(() =>
 );
 const hospitalMaternityList = computed<LocalHospital[]>(() =>
   getHospitalByCityByType(app.cityId, "妇幼保健院").slice(0, 5)
+);
+const hospitalSpecialtyList = computed<LocalHospital[]>(() =>
+  getHospitalByCityByType(app.cityId, "专科医院").slice(0, 5)
 );
 const hospitalDistrictCrossName = computed(
   () => hospitalDistrictTop.value[0]?.districtName ?? ""
@@ -4783,6 +4948,11 @@ const commercialBankNear = computed<CommunityBankNearest[]>(() =>
     .filter((x) => store.getCommunityById(x.communityId)?.cityId === app.cityId)
     .slice(0, 5)
 );
+const commercialRestaurantNear = computed<CommunityBankNearest[]>(() =>
+  getPoiCommercialByCityRestaurantNearestByCommunity(80)
+    .filter((x) => store.getCommunityById(x.communityId)?.cityId === app.cityId)
+    .slice(0, 5)
+);
 const commercialConvenienceNear = computed<CommunityBankNearest[]>(() =>
   getPoiCommercialByCityConvenienceLeaderboard(80)
     .filter((x) => store.getCommunityById(x.communityId)?.cityId === app.cityId)
@@ -4813,6 +4983,17 @@ const marketFarTop = computed(() =>
     .sort((a, b) => (b.nearestDistanceM ?? 0) - (a.nearestDistanceM ?? 0))
     .slice(0, 3)
 );
+const marketDeriveNear = computed<CommunityPoiMarketSummary[]>(() => {
+  const ids = communityIdsInCity(app.cityId);
+  return getPoiMarketDistanceLeaderboard(40).nearest
+    .filter((s) => ids.has(s.communityId))
+    .slice(0, 5);
+});
+const marketNearestDetail = computed<NearestMarketEntry | null>(() => {
+  const top = marketNearTop.value[0];
+  if (!top) return null;
+  return getPoiMarketNearestByCommunity(top.communityId);
+});
 const marketCategoryStats = computed<MarketCategoryStat[]>(() =>
   getPoiMarketByCategoryRanking().slice(0, 5)
 );
@@ -4860,6 +5041,9 @@ const lspDist = computed<PremiumBucket[]>(() =>
 );
 const lspDistrictTop = computed<DistrictPremiumSummary[]>(() =>
   getListingSchoolPremiumByCityDistrict(app.cityId).slice(0, 5)
+);
+const lspCommunityTop = computed<CommunityPremiumAggregate[]>(() =>
+  getListingSchoolPremiumByCommunityLeaderboard(app.cityId, 5)
 );
 
 // v1.121.14 规划地铁线路概览
@@ -5124,6 +5308,9 @@ const lifeMarketNearTop = computed<DimensionCoverageEntry[]>(() => {
     .filter((x) => ids.has(x.communityId))
     .slice(0, 5);
 });
+const lifeDistrictTop = computed<DistrictLifeConvenienceSummary[]>(() =>
+  getLifeConvenienceByCityDistrict(app.cityId).slice(0, 5)
+);
 // v0.46.0 map-11: 行政区 + 社区 marker 地图
 const districtMap = ref<DistrictMapResponse | null>(null);
 // v0.47.0 school-4: 学区指标细分
@@ -7032,6 +7219,9 @@ const metroWalkSummary = computed<MetroWalkAccessibility[]>(() =>
 const metroWalkTop = computed<MetroWalkRankingItem[]>(() =>
   getMetroWalkRankingTopN(3)
 );
+const metroWalkCityTop = computed<MetroWalkRankingItem[]>(() =>
+  getMetroWalkRankingByCityTopN(app.cityId, 5)
+);
 
 // v0.93.0：分区近 12 周均价变动
 // 严格 12 周口径：≥13 周才算"近 12 周变动"（与卡片标题贴合）
@@ -7148,6 +7338,9 @@ const orientationTongtouHighCross = computed<CrossCityOrientationFloorEntry[]>((
 // v1.121.17 分区商业均分
 const commercialDistrictTop = computed<DistrictCommercialSummary[]>(() =>
   getCommunityCommercialByCityDistrict(app.cityId).slice(0, 5)
+);
+const commercialNearestRestaurant = computed<LocalCommunityCommercial[]>(() =>
+  getCommunityCommercialByNearest("restaurant", app.cityId, 5)
 );
 const commercialDensityCity = computed<DensityDistanceBucket[]>(() => {
   const cityId = app.cityId;
