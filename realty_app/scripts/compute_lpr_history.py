@@ -22,7 +22,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 OUT = REPO_ROOT / "static" / "seed" / "lpr_history.csv"
 
-# LPR 改革后历史 (2019-08 至 2026-06, 月度)
+# LPR 改革后历史 (2019-08 至 2026-07, 月度)
 # 来源: 央行公开公告 + 主流财经媒体复核
 # 注: 2022-05 单独调整 5Y-15bp (房贷降息), 2024-02/2024-07/2024-10 5Y 不对称下调
 LPR_HISTORY: list[tuple[str, float, float, float, float]] = [
@@ -119,6 +119,8 @@ LPR_HISTORY: list[tuple[str, float, float, float, float]] = [
     ("2026-04", 3.00, 3.50, -30, 35),
     ("2026-05", 3.00, 3.50, -30, 35),
     ("2026-06", 3.00, 3.50, -30, 35),
+    # 2026-07-20 公告：1Y/5Y 持平上月
+    ("2026-07", 3.00, 3.50, -30, 35),
 ]
 
 

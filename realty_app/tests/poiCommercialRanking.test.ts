@@ -13,7 +13,7 @@ import {
   summarizePoiCommercialByCity
 } from "../src/local/poiCommercialRanking";
 import { setSnapshot } from "../src/local/store";
-import type { DataSnapshot, LocalPoiCommercial } from "../src/local/types";
+import type { DataSnapshot, LocalCommunity, LocalPoiCommercial } from "../src/local/types";
 
 function emptySnapshot(): DataSnapshot {
   return {
@@ -50,6 +50,29 @@ function emptySnapshot(): DataSnapshot {
     listingMonthlyStats: [],
     buyingGuides: []
   } as unknown as DataSnapshot;
+}
+
+function community(communityId: number, cityId: number, name = `c${communityId}`): LocalCommunity {
+  return {
+    communityId,
+    cityId,
+    districtName: "测试区",
+    communityName: name
+  };
+}
+
+/** 按测试约定：community 1/2/11 → 广州(1)，30/40 → 深圳(2) */
+function withTestCommunities(snap: DataSnapshot, extra: LocalCommunity[] = []): void {
+  const base = [
+    community(1, 1, "广州测小区1"),
+    community(2, 1, "广州测小区2"),
+    community(11, 1, "广州测小区11"),
+    community(30, 2, "深圳测小区30"),
+    community(40, 2, "深圳测小区40")
+  ];
+  const byId = new Map<number, LocalCommunity>();
+  for (const c of [...base, ...extra]) byId.set(c.communityId, c);
+  snap.communities = [...byId.values()];
 }
 
 function PC(
@@ -93,6 +116,7 @@ describe("poiCommercialRanking", () => {
       PC(30, "bank", 1, "B4", "银行", 90),
       PC(30, "convenience", 1, "C4", "便利店", 60)
     ];
+    withTestCommunities(snap);
     setSnapshot(snap);
 
     const arr = summarizePoiCommercialByCity();
@@ -120,6 +144,7 @@ describe("poiCommercialRanking", () => {
       PC(30, "bank", 1, "B2", "银行", 90),
       PC(1, "convenience", 1, "C1", "便利店", 70)
     ];
+    withTestCommunities(snap);
     setSnapshot(snap);
 
     const arr = summarizePoiCommercialByCategory();
@@ -147,6 +172,7 @@ describe("poiCommercialRanking", () => {
       PC(1, "bank", 1, "B1", "银行", 80),
       PC(1, "convenience", 1, "C1", "便利店", 70)
     ];
+    withTestCommunities(snap);
     setSnapshot(snap);
 
     const tops = getPoiCommercialByCommunityTopByCategory(1);
@@ -168,6 +194,7 @@ describe("poiCommercialRanking", () => {
       PC(1, "convenience", 1, "C1", "便利店", 150),
       PC(1, "convenience", 2, "C2", "便利店", 70) // 第二近
     ];
+    withTestCommunities(snap);
     setSnapshot(snap);
 
     const nearest = getPoiCommercialByCommunityNearestAcross(1, 3);
@@ -189,6 +216,7 @@ describe("poiCommercialRanking", () => {
       PC(40, "restaurant", 1, "R1", "餐饮", 100),
       PC(40, "convenience", 1, "C1", "便利店", 70)
     ];
+    withTestCommunities(snap);
     setSnapshot(snap);
 
     const arr = getPoiCommercialByCityBankCoverage();
@@ -210,6 +238,7 @@ describe("poiCommercialRanking", () => {
       PC(11, "bank", 1, "B2", "银行", 30), // 最近
       PC(30, "bank", 1, "B3", "银行", 90)
     ];
+    withTestCommunities(snap);
     setSnapshot(snap);
 
     const arr = getPoiCommercialByCityBankNearestByCommunity(3);
@@ -225,6 +254,7 @@ describe("poiCommercialRanking", () => {
       PC(11, "restaurant", 1, "R2", "餐饮", 100),
       PC(30, "restaurant", 1, "R3", "餐饮", 80)
     ];
+    withTestCommunities(snap);
     setSnapshot(snap);
 
     const arr = getPoiCommercialCrossCommunityByCategoryDistance(
@@ -241,6 +271,7 @@ describe("poiCommercialRanking", () => {
       PC(1, "restaurant", 1, "R1", "餐饮", 50),
       PC(11, "restaurant", 1, "R2", "餐饮", 100)
     ];
+    withTestCommunities(snap);
     setSnapshot(snap);
     const arr = getPoiCommercialByCityRestaurantNearestByCommunity(5);
     expect(arr).toHaveLength(2);
@@ -261,6 +292,7 @@ describe("poiCommercialRanking", () => {
       PC(1, "convenience", 2, "C2", "便利店", 250), // >200 ≤500 → 1 分
       PC(1, "convenience", 3, "C3", "便利店", 350) // >200 ≤500 → 1 分
     ];
+    withTestCommunities(snap);
     setSnapshot(snap);
 
     const ws = getPoiCommercialByCommunityWalkScore(1);
@@ -277,6 +309,7 @@ describe("poiCommercialRanking", () => {
       PC(11, "convenience", 1, "C2", "便利店", 20), // 最近
       PC(30, "convenience", 1, "C3", "便利店", 100)
     ];
+    withTestCommunities(snap);
     setSnapshot(snap);
     const arr = getPoiCommercialByCityConvenienceLeaderboard(3);
     expect(arr[0]!.poiName).toBe("C2");
@@ -289,6 +322,7 @@ describe("poiCommercialRanking", () => {
       PC(11, "convenience", 1, "美宜佳", "购物服务;便利店;美宜佳", 30), // 不含关键字
       PC(30, "convenience", 1, "7-ELEVEn 店 B", "购物服务;便利店;7-ELEVEn便利店", 80)
     ];
+    withTestCommunities(snap);
     setSnapshot(snap);
     const arr = getPoiCommercialByPoiTypeLeaderboard("7-ELEVEn", 5);
     expect(arr).toHaveLength(2);

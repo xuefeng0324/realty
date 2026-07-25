@@ -22,7 +22,7 @@
  *   - getPoiCommercialByPoiTypeLeaderboard: 跨 community 某 poiType 距离 Top
  */
 
-import { getPoiCommercials } from "./store";
+import { getCommunityById, getPoiCommercials } from "./store";
 import type { LocalPoiCommercial } from "./types";
 
 export type PoiCommercialCategory =
@@ -40,14 +40,10 @@ export interface CityPoiCommercialSummary {
   avgTopDistanceM: number;
 }
 
-/** 通过 communityId 推 cityId（简化映射：与 community_scatter.csv / alias 一致）。 */
-function cityOf(communityId: number): number {
-  // community_id 1-9,24,25,27-30,33-43,45-52 → 深圳 (2)
-  // community_id 11-23,44 → 广州 (1)
-  // community_id 10,26 → 广州 (部分) → 实际看 scatter
-  if (communityId <= 10) return 1; // 1-10 主要是广州+珠海
-  if (communityId <= 23) return 1; // 11-23 广州
-  return 2; // 24+ 深圳（含 44 实际是广州，独立处理留作后续）
+/** community → cityId；必须走 store，禁止硬编码 id 区间（会把深圳/珠海错归广州）。 */
+function cityOf(communityId: number): number | null {
+  const c = getCommunityById(communityId);
+  return c?.cityId ?? null;
 }
 
 export function summarizePoiCommercialByCity(): CityPoiCommercialSummary[] {
@@ -56,6 +52,7 @@ export function summarizePoiCommercialByCity(): CityPoiCommercialSummary[] {
   const grouped = new Map<number, LocalPoiCommercial[]>();
   for (const x of all) {
     const cid = cityOf(x.communityId);
+    if (cid == null) continue;
     let arr = grouped.get(cid);
     if (!arr) {
       arr = [];
@@ -169,6 +166,7 @@ export function getPoiCommercialByCityBankCoverage(): CityBankCoverage[] {
   const cityAllCommunities = new Map<number, Set<number>>();
   for (const x of all) {
     const cid = cityOf(x.communityId);
+    if (cid == null) continue;
     if (!grouped.has(cid)) grouped.set(cid, new Set());
     if (!cityAllCommunities.has(cid)) cityAllCommunities.set(cid, new Set());
     cityAllCommunities.get(cid)!.add(x.communityId);
@@ -212,7 +210,7 @@ export function getPoiCommercialByCityBankNearestByCommunity(
     .slice(0, n)
     .map((x) => ({
       communityId: x.communityId,
-      cityId: cityOf(x.communityId),
+      cityId: cityOf(x.communityId) ?? 0,
       poiName: x.poiName,
       distanceM: x.distanceM,
       address: x.address
@@ -235,7 +233,7 @@ export function getPoiCommercialCrossCommunityByCategoryDistance(
     .slice(0, n)
     .map((x) => ({
       communityId: x.communityId,
-      cityId: cityOf(x.communityId),
+      cityId: cityOf(x.communityId) ?? 0,
       poiName: x.poiName,
       distanceM: x.distanceM,
       address: x.address
@@ -326,7 +324,7 @@ export function getPoiCommercialByPoiTypeLeaderboard(
     .slice(0, n)
     .map((x) => ({
       communityId: x.communityId,
-      cityId: cityOf(x.communityId),
+      cityId: cityOf(x.communityId) ?? 0,
       poiName: x.poiName,
       distanceM: x.distanceM
     }));

@@ -3249,14 +3249,14 @@ describe("build integrity", () => {
 
   // v0.53.0 macro-1: LPR + 房贷利率
   describe("v0.53.0 macro-1 LPR + 房贷利率", () => {
-    it("lpr_history.csv 存在且 80+ 行 (2019-08 ~ 2026-06)", () => {
+    it("lpr_history.csv 存在且 80+ 行 (2019-08 ~ 2026-07)", () => {
       const csv = readFileSync(resolve(ROOT, "static/seed/lpr_history.csv"), "utf8");
       const lines = csv.trim().split(/\r?\n/);
       expect(lines.length).toBeGreaterThanOrEqual(80);
       expect(lines[0]).toMatch(/month,lpr_1y,lpr_5y,mortgage_first,mortgage_second,source/);
       expect(lines[1]).toMatch(/2019-08,4\.25,4\.85/);
       const last = lines[lines.length - 1];
-      expect(last).toMatch(/2026-06,3\.0,3\.5/);
+      expect(last).toMatch(/2026-07,3\.0,3\.5/);
     });
 
     it("scripts/compute_lpr_history.py 生成 lpr_history.csv", () => {
@@ -3299,6 +3299,7 @@ describe("build integrity", () => {
       const csv = readFileSync(resolve(ROOT, "static/seed/lpr_history.csv"), "utf8");
       expect(csv).toMatch(/2019-08.*4\.85.*4\.9.*5\.2/);
       expect(csv).toMatch(/2026-06.*3\.5.*3\.2.*3\.85/);
+      expect(csv).toMatch(/2026-07.*3\.5.*3\.2.*3\.85/);
       // 累计: 4.85 - 3.5 = 1.35
       // 脚本 / 卡片渲染会再次算
     });
