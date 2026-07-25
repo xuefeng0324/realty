@@ -157,10 +157,12 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 ```
 stats_70.csv                 → stats70.ts            → 70 城价格指数（月度）
 daily_wangqian.csv           → dailyWangqian.ts      → 深广网签（日更）
+wangqian_district_weekly.csv → wangqianTrendRanking  → 周环比 / 突增（dashboard v1.121.13）
 provident_fund_rates.csv     → providentFund.ts      → 公积金利率 / 月供
 nbs_real_estate.csv          → nbsRealEstate.ts      → 全国房地产开销宏观
 gz_new_house_inventory.csv   → gzNewHouseInventory.ts → 广州新房库存
 education_overview.csv       → educationOverview.ts  → 广州教育事业概览
+hospitals.csv                → hospitalRanking.ts    → 医疗资源榜（dashboard v1.121.12）
 static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务快照
 ```
 

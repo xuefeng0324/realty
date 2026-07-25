@@ -978,6 +978,65 @@
         </template>
       </view>
 
+      <!-- 网签周环比 + 异常突增（wangqianTrendRanking 派生，随 cityId） -->
+      <view v-if="wangqianTrendWeeklyReady" class="card" data-tab="all,price">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">
+            📈 网签周环比 · {{ wangqianTrendCityName }}
+          </view>
+        </view>
+        <view v-if="!wangqianTrendHasCityData" class="empty" style="padding: 24rpx 0">
+          <text class="muted">当前城市暂无区级周网签数据（深圳、广州有住建局周度口径）</text>
+        </view>
+        <template v-else>
+          <view class="wq-trend-section-title muted">周环比涨跌 Top</view>
+          <view v-if="wangqianTrendWowUp.length" class="wq-trend-block">
+            <view class="wq-trend-sub muted">涨幅 Top 3</view>
+            <view
+              v-for="(it, idx) in wangqianTrendWowUp"
+              :key="'wow-up-' + it.district + it.category"
+              class="wq-trend-row"
+            >
+              <text class="wq-trend-idx">{{ idx + 1 }}</text>
+              <text class="wq-trend-name">{{ it.district }}</text>
+              <text class="wq-trend-cat">{{ it.category }}</text>
+              <text class="wq-trend-pct wq-trend-up">{{ formatWowPct(it.changePct) }}</text>
+              <text class="wq-trend-units muted">{{ it.prevUnits }}→{{ it.latestUnits }} 套</text>
+            </view>
+          </view>
+          <view v-if="wangqianTrendWowDown.length" class="wq-trend-block">
+            <view class="wq-trend-sub muted">跌幅 Top 3</view>
+            <view
+              v-for="(it, idx) in wangqianTrendWowDown"
+              :key="'wow-down-' + it.district + it.category"
+              class="wq-trend-row"
+            >
+              <text class="wq-trend-idx">{{ idx + 1 }}</text>
+              <text class="wq-trend-name">{{ it.district }}</text>
+              <text class="wq-trend-cat">{{ it.category }}</text>
+              <text class="wq-trend-pct wq-trend-down">{{ formatWowPct(it.changePct) }}</text>
+              <text class="wq-trend-units muted">{{ it.prevUnits }}→{{ it.latestUnits }} 套</text>
+            </view>
+          </view>
+          <view v-if="wangqianTrendSpikes.length" class="wq-trend-block">
+            <view class="wq-trend-sub muted">异常突增（较近 4 周均 ≥1.5 倍）</view>
+            <view
+              v-for="it in wangqianTrendSpikes"
+              :key="'spike-' + it.district + it.category"
+              class="wq-trend-row wq-trend-row--spike"
+            >
+              <text class="wq-trend-name">{{ it.district }}</text>
+              <text class="wq-trend-cat">{{ it.category }}</text>
+              <text class="wq-trend-mult">{{ formatWqSpikeMultiplier(it.multiplier) }}</text>
+              <text class="wq-trend-units muted">{{ Math.round(it.recentAvg) }}→{{ it.latestUnits }} 套</text>
+            </view>
+          </view>
+          <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+            周环比 = 最近完整周 vs 上一周网签套数；突增 = 最新周较前 4 周均值倍数。数据源：wangqian_district_weekly.csv。
+          </view>
+        </template>
+      </view>
+
       <!-- v0.24.0 new-5: 通勤时长榜 (community → 城市 CBD 公交通勤) -->
       <view
         v-if="commuteRanking && commuteRanking.fastest.length > 0"
@@ -2743,7 +2802,13 @@ import {
   getLatestCityDaily,
   type CityDailySnapshot
 } from "../../local/dailyWangqian";
-import { hasStats70, hasDailyWangqian } from "../../local/store";
+import { hasStats70, hasDailyWangqian, getWangqianDistrictWeekly } from "../../local/store";
+import {
+  getWangqianWeeklyWoWChange,
+  getWangqianWeeklyRecentSpikes,
+  type DistrictWoWChange,
+  type DistrictSpike
+} from "../../local/wangqianTrendRanking";
 import * as store from "../../local/store";
 import {
   summarizeMetroWalkAccessibility,
@@ -4888,6 +4953,46 @@ const currentWangqianCityName = computed(() => {
   return city?.city_name.replace(/市$/, "") ?? "";
 });
 
+const wangqianTrendWeeklyReady = computed(() => getWangqianDistrictWeekly().length > 0);
+const wangqianTrendCityName = computed(() => currentWangqianCityName.value);
+
+function wowRowsForCity(city: string): DistrictWoWChange[] {
+  if (!city) return [];
+  return getWangqianWeeklyWoWChange().filter(
+    (x) => x.city === city && Number.isFinite(x.changePct)
+  );
+}
+
+const wangqianTrendWowUp = computed(() =>
+  [...wowRowsForCity(wangqianTrendCityName.value)]
+    .sort((a, b) => b.changePct - a.changePct)
+    .slice(0, 3)
+);
+const wangqianTrendWowDown = computed(() =>
+  [...wowRowsForCity(wangqianTrendCityName.value)]
+    .sort((a, b) => a.changePct - b.changePct)
+    .slice(0, 3)
+);
+const wangqianTrendSpikes = computed((): DistrictSpike[] => {
+  const city = wangqianTrendCityName.value;
+  if (!city) return [];
+  return getWangqianWeeklyRecentSpikes(4, 1.5).filter((x) => x.city === city);
+});
+const wangqianTrendHasCityData = computed(
+  () =>
+    wangqianTrendWowUp.value.length > 0 ||
+    wangqianTrendWowDown.value.length > 0 ||
+    wangqianTrendSpikes.value.length > 0
+);
+
+function formatWowPct(pct: number): string {
+  const sign = pct > 0 ? "+" : "";
+  return `${sign}${pct.toFixed(1)}%`;
+}
+function formatWqSpikeMultiplier(m: number): string {
+  return `×${m.toFixed(1)}`;
+}
+
 const wangqianDateLabel = computed(() => {
   const d = currentWangqian.value?.date;
   return d || "";
@@ -5960,6 +6065,78 @@ onShow(async () => {
 .wq-cat-tab-off {
   background: transparent;
   color: #cbd5e1;
+}
+
+/* 网签周环比 + 突增区 */
+.wq-trend-section-title {
+  margin: 8rpx 0 4rpx;
+  font-size: 22rpx;
+}
+.wq-trend-block {
+  margin-bottom: 12rpx;
+}
+.wq-trend-sub {
+  font-size: 22rpx;
+  margin-bottom: 4rpx;
+}
+.wq-trend-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  padding: 6rpx 0;
+  border-bottom: 1rpx solid var(--color-border);
+  font-size: 24rpx;
+}
+.wq-trend-row:last-child {
+  border-bottom: none;
+}
+.wq-trend-row--spike {
+  background: var(--color-soft);
+  border-radius: 8rpx;
+  padding: 8rpx 10rpx;
+  margin-bottom: 6rpx;
+  border-bottom: none;
+}
+.wq-trend-idx {
+  width: 36rpx;
+  font-size: 22rpx;
+  color: var(--color-muted);
+  flex-shrink: 0;
+}
+.wq-trend-name {
+  flex: 1 1 140rpx;
+  min-width: 120rpx;
+  color: var(--color-heading);
+  font-weight: 500;
+}
+.wq-trend-cat {
+  font-size: 20rpx;
+  padding: 2rpx 10rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid var(--color-border);
+  background: var(--color-soft);
+  color: var(--color-muted);
+  flex-shrink: 0;
+}
+.wq-trend-pct {
+  font-weight: 600;
+  font-family: "Menlo", "Consolas", monospace;
+  flex-shrink: 0;
+}
+.wq-trend-up {
+  color: var(--color-on-success-soft);
+}
+.wq-trend-down {
+  color: var(--color-on-danger-soft);
+}
+.wq-trend-mult {
+  font-weight: 700;
+  color: var(--color-on-warn-soft, var(--color-heading));
+}
+.wq-trend-units {
+  font-size: 20rpx;
+  flex: 0 0 auto;
 }
 
 /* v0.24.0 new-5: 通勤时长 badge */
