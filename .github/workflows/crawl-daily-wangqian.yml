@@ -31,7 +31,7 @@ jobs:
       - name: 装依赖
         run: pip install requests
 
-      - name: 抓取深广网签（merge 追加）
+      - name: 抓取深广网签（merge）+ 广州新房库存
         shell: bash
         run: |
           set -o pipefail   # 否则 python 失败会被 tee 吞掉导致假成功
@@ -40,6 +40,8 @@ jobs:
           python scripts/publish_wangqian_meta.py
           # 周聚合须随 daily 重建，否则仪表盘网签热度/周环比落后（见 HOUSING_PRICE_ACCEPTANCE Phase B）
           python scripts/build_wangqian_heatmap.py
+          # 广州住建可售/未售/签约：按 date+district merge（HOUSING Phase E）
+          python scripts/crawl_gz_new_house_inventory.py 2>&1 | tee gz_inventory.log
 
       - name: 看结果
         shell: bash
@@ -53,16 +55,19 @@ jobs:
           cut -d, -f4 static/seed/wangqian_district_weekly.csv | sort -u | tail -5 || true
           echo "===== 最近全市汇总（date,city,category,scope,全市,...）====="
           grep ',全市,' static/daily_wangqian.csv | tail -8 || true
+          echo "===== gz_new_house_inventory 日期 ====="
+          cut -d, -f1 static/gz_new_house_inventory.csv | sort -u | tail -5 || true
           cat wangqian.log
+          cat gz_inventory.log || true
 
       - name: 提交 CSV
         run: |
           cd realty_app
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet HEAD -- static/daily_wangqian.csv static/wangqian_meta.json static/seed/wangqian_district_weekly.csv; then
-            git add static/daily_wangqian.csv static/wangqian_meta.json static/seed/wangqian_district_weekly.csv
-            git commit -m "data(wangqian): 追加深广每日网签并重建周聚合 $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          if ! git diff --quiet HEAD -- static/daily_wangqian.csv static/wangqian_meta.json static/seed/wangqian_district_weekly.csv static/gz_new_house_inventory.csv; then
+            git add static/daily_wangqian.csv static/wangqian_meta.json static/seed/wangqian_district_weekly.csv static/gz_new_house_inventory.csv
+            git commit -m "data(wangqian+gz-inv): 日更网签/周聚合与广州库存 $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
             git push
           else
             echo "数据无变化（同日已抓过），跳过 commit"

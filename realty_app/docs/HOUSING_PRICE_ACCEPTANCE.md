@@ -42,6 +42,13 @@
 3. ✅ 设置 / 总览 / stats70 页展示「截至…是否跟上」  
 4. ⚠️ 七月指数约 8 月中发布；当前仓内与 hugohe3 均为 **2026/6**（已达标）
 
+### Phase E — 配套官方库存 / 宏观日更·月更（本迭代）
+
+1. ✅ 日更 CI（`crawl-daily-wangqian.yml`）附带 `crawl_gz_new_house_inventory.py`，按 date+district merge  
+2. ✅ 月更 CI 附带 `crawl_nbs_real_estate.py`（period merge，不抹历史）  
+3. ✅ `gzInventoryFreshness`：源站超过 3 自然日未更新时总览卡标明滞后  
+4. ⚠️ 深圳 opendata 一手/二手成交需 `OPENDATA_SZ_TOKEN`，未配置前不进 CI  
+
 ### 明确不做
 
 - 用 DERIVED 样本声称「本市成交均价」  
@@ -78,6 +85,8 @@
 - [x] 周爬 CI：成功路径校验 REAL≥1；`<min-rows` abort 不覆盖
 - [x] `tests/stats70Freshness.test.ts` + `scripts/check_stats70_freshness.py`
 - [x] `.github/workflows/crawl-monthly-stats70.yml` 月更管线
+- [x] 日更 CI 含广州库存 merge；月更 CI 含 NBS merge
+- [x] `tests/gzInventoryFreshness.test.ts`
 
 ### 手工
 

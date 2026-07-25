@@ -1031,7 +1031,7 @@
       <view v-if="gzInventory" class="card gz-inventory-card" data-tab="overview,price">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 广州新房库存</view>
-          <view class="muted" style="font-size: 22rpx">{{ gzInventory.date }}</view>
+          <view class="muted" style="font-size: 22rpx">{{ gzInventoryFresh.label }}</view>
         </view>
         <view class="gz-inventory-grid">
           <view class="gz-inventory-kpi">
@@ -5764,6 +5764,7 @@ import { coverageText, formatUnitPrice, showToast, daysAgoFromToday } from "../.
 import { SNAPSHOT_UPDATED_EVENT } from "../../config";
 import { getLatestNbsRealEstate, getNbsYoyTrend } from "../../local/nbsRealEstate";
 import { getGzInventoryOverview, getGzInventoryDayDelta } from "../../local/gzNewHouseInventory";
+import { assessGzInventoryFreshness } from "../../local/gzInventoryFreshness";
 import { getLatestProvidentFundRate, monthlyPayment } from "../../local/providentFund";
 
 const app = useAppStore();
@@ -6889,6 +6890,9 @@ const gzInventoryDelta = computed(() => {
   if (!gzInventory.value) return null;
   return getGzInventoryDayDelta();
 });
+const gzInventoryFresh = computed(() =>
+  assessGzInventoryFreshness(gzInventory.value?.date ?? null)
+);
 function formatInvDelta(v: number): string {
   if (v === 0) return "持平";
   return `${v > 0 ? "+" : ""}${v.toLocaleString()}`;

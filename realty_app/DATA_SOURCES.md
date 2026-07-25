@@ -152,9 +152,9 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | CSV | 加载模块 | 脚本 | 说明 |
 |-----|----------|------|------|
 | `static/provident_fund_rates.csv` | `providentFund.ts` | （人工维护 / 国务院公告） | 住房公积金贷款利率档位；`App.vue` 启动 `?raw` 加载 |
-| `static/nbs_real_estate.csv` | `nbsRealEstate.ts` | `scripts/crawl_nbs_real_estate.py` | 国家统计局全国房地产市场基本情况；**多期 merge**（`period` 主键）；来源须为 `stats.gov.cn`；仪表盘展示销售面积同比多期，**不是成交均价** |
+| `static/nbs_real_estate.csv` | `nbsRealEstate.ts` | `scripts/crawl_nbs_real_estate.py`（**月更 CI** 随 `crawl-monthly-stats70`） | 国家统计局全国房地产市场基本情况；**多期 merge**（`period` 主键）；来源须为 `stats.gov.cn`；仪表盘展示销售面积同比多期，**不是成交均价** |
 
-| `static/gz_new_house_inventory.csv` | `gzNewHouseInventory.ts` | `scripts/crawl_gz_new_house_inventory.py` | 广州新房可售/未售/签约分区库存 |
+| `static/gz_new_house_inventory.csv` | `gzNewHouseInventory.ts` + `gzInventoryFreshness.ts` | `scripts/crawl_gz_new_house_inventory.py`（**日更 CI** 随 `crawl-daily-wangqian`） | 广州新房可售/未售/签约分区库存；>3 天未更新时总览标明滞后 |
 | `static/seed/hospitals.csv` | `hospitalRanking.ts` + dashboard「🏥 医疗资源」 | （名录整理） | 三城医院名录；v1.121.12 起仪表盘展示三甲占比 / 分区密度 / 等级 Top |
 | `static/seed/hospitals_geo.csv` | `hospitalGeoAnalysis.ts` + 医疗卡坐标段 | （高德文本检索） | v1.121.15：置信度 / 地址分区 / 最近医院对 |
 | `static/seed/poi_commercial.csv` | `poiCommercialRanking.ts` + dashboard「🏪 周边商业」 | （高德周边） | v1.121.15：餐饮/银行/便利店与步行分 |

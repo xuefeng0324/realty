@@ -1,8 +1,10 @@
 name: crawl-monthly-stats70
 
-# 房价 Phase D：每月中旬从 hugohe3/70cityprice 拉整理版并刷新窄表
+# 房价 Phase D/E：每月中旬
+# - hugohe3/70cityprice → stats_70.csv
+# - 国家统计局全国房地产 → nbs_real_estate.csv（period merge）
 # 对照：realty_app/docs/HOUSING_PRICE_ACCEPTANCE.md
-# 统计局通常 15–17 日发布上月指数；16–20 日 UTC 02:00 ≈ 北京 10:00 尝试拉取
+# 统计局通常 15–17 日发布上月指数 / 房地产月报；16–20 日 UTC 02:00 ≈ 北京 10:00
 
 on:
   schedule:
@@ -29,30 +31,35 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: 下载 hugohe3 整理版并转窄表
+      - name: 下载 70 城指数 + merge NBS 全国房地产
         working-directory: realty_app
         run: |
           set -o pipefail
           python scripts/crawl_stats_70.py download --out static/stats_70.csv 2>&1 | tee stats70.log
           python scripts/check_stats70_freshness.py --csv static/stats_70.csv
+          # Phase E：首页最新一期 merge，不抹掉已回填历史
+          python scripts/crawl_nbs_real_estate.py 2>&1 | tee nbs.log
 
       - name: 看结果
         working-directory: realty_app
         run: |
-          echo "===== 最新 date ====="
+          echo "===== 最新 stats70 date ====="
           cut -d, -f1 static/stats_70.csv | sort -u | tail -5
           wc -l static/stats_70.csv
+          echo "===== nbs periods ====="
+          cut -d, -f1,2 static/nbs_real_estate.csv | tail -8
           cat stats70.log
+          cat nbs.log || true
 
       - name: 有变更则提交
         run: |
           cd realty_app
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet HEAD -- static/stats_70.csv; then
-            git add static/stats_70.csv
-            git commit -m "data(stats70): 月更 70 城指数 $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          if ! git diff --quiet HEAD -- static/stats_70.csv static/nbs_real_estate.csv; then
+            git add static/stats_70.csv static/nbs_real_estate.csv
+            git commit -m "data(stats70+nbs): 月更 70城指数与全国房地产 $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
             git push
           else
-            echo "stats_70.csv 无变化，跳过 commit"
+            echo "stats_70 / nbs_real_estate 无变化，跳过 commit"
           fi
