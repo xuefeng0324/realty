@@ -1267,6 +1267,24 @@
           数据源：深圳市/广州市住建局公示的每日网签，按周聚合；只看二手住宅。
           网签活跃度反映板块热度，与挂牌价互补（挂牌 = 卖家意愿，网签 = 真实成交）。
         </view>
+        <view v-if="wangqianWeeklyDistrictTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          派生区周累计 Top（二手）
+        </view>
+        <view
+          v-for="(it, idx) in wangqianWeeklyDistrictTop"
+          :key="'wqd-' + it.district + it.category"
+          class="wq-row"
+        >
+          <text class="wq-rank" :class="rankClass(idx + 1)">{{ idx + 1 }}</text>
+          <text class="wq-name">{{ it.district }}</text>
+          <text class="wq-units">
+            累计 {{ it.totalUnits }} 套
+            <text class="muted" style="font-size: 20rpx">
+              · 日均 {{ it.avgDailyUnits.toFixed(1) }}
+              <text v-if="it.latestUnits != null"> · 近周 {{ it.latestUnits }}</text>
+            </text>
+          </text>
+        </view>
       </view>
 
       <!-- v0.23.0 trend-9: 全品类区级网签热度榜 (新房/二手/全部 tab 切换) -->
@@ -2168,6 +2186,22 @@
         >
           <text class="mp-line-name">{{ cityNameForId(c.cityId) }}</text>
           <text class="mp-line-km">{{ c.lineCount }} 条</text>
+        </view>
+        <view v-if="metroGeoManualLines.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          手工坐标兜底线路（派生）
+        </view>
+        <view
+          v-for="(g, idx) in metroGeoManualLines"
+          :key="'mgm-' + g.lineId"
+          class="mp-line-row"
+        >
+          <text class="mp-line-rank muted">{{ idx + 1 }}</text>
+          <view class="mp-line-mid">
+            <text class="mp-line-name">{{ metroLineName(g.lineId) }}</text>
+            <text class="mp-line-meta muted">
+              起 {{ g.startConfidence }} / 终 {{ g.endConfidence }}
+            </text>
+          </view>
         </view>
         <view v-if="metroFastLines.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
           本市快线（≥100km/h）
@@ -3160,6 +3194,24 @@
           </text>
           <text class="of-px">{{ Math.round(p.medianUnitPrice) }} 元</text>
         </view>
+        <view v-if="orientationFloorCitySummaries.length" class="of-section-title">
+          跨城朝向×楼层均溢价
+        </view>
+        <view
+          v-for="c in orientationFloorCitySummaries"
+          :key="'ofcs-' + c.cityId"
+          class="of-row"
+          :class="c.avgPremiumPct >= 0 ? 'of-row-up' : 'of-row-down'"
+        >
+          <text class="of-key">{{ c.cityName }}</text>
+          <text class="of-pct">
+            均 {{ c.avgPremiumPct >= 0 ? '+' : '' }}{{ c.avgPremiumPct.toFixed(1) }}%
+          </text>
+          <text class="of-n">×{{ c.totalListings }}</text>
+          <text v-if="c.best" class="of-px muted">
+            高 {{ c.best.orientation }}·{{ c.best.floorBucket }}
+          </text>
+        </view>
       </view>
 
       <!-- v0.44.0 trend-24 装修 × 楼龄 溢价矩阵 -->
@@ -3997,6 +4049,17 @@
             · 重复 amapPoi {{ hospitalGeoDupCount }} 组
           </text>
         </view>
+        <view v-if="hospitalGeoConfNational.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          全国医院坐标置信分布
+        </view>
+        <view
+          v-for="c in hospitalGeoConfNational"
+          :key="'hgcn-' + c.level"
+          class="hosp-dist-row"
+        >
+          <text class="hosp-dist-name">{{ c.level }}</text>
+          <text class="hosp-dist-count">{{ c.count }} 家 · {{ c.cityCount }} 城</text>
+        </view>
         <view v-if="hospitalGeoDistricts.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
           地址分区 Top
         </view>
@@ -4121,6 +4184,21 @@
           <view class="pc-mid">
             <text class="pc-name">{{ categoryLabel(p.poiCategory) }} · {{ p.poiName }}</text>
             <text class="pc-meta muted">{{ p.poiType || "—" }}</text>
+          </view>
+          <text class="pc-dist">{{ Math.round(p.distanceM) }} m</text>
+        </view>
+        <view v-if="commercialCategoryTopSample.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          样例小区三类最近各 1 · {{ commercialNearestAcrossName }}
+        </view>
+        <view
+          v-for="p in commercialCategoryTopSample"
+          :key="'cct-' + p.poiCategory"
+          class="pc-row"
+        >
+          <text class="pc-rank muted">{{ categoryLabel(p.poiCategory) }}</text>
+          <view class="pc-mid">
+            <text class="pc-name">{{ p.poiName }}</text>
+            <text class="pc-meta muted">{{ p.address || "—" }}</text>
           </view>
           <text class="pc-dist">{{ Math.round(p.distanceM) }} m</text>
         </view>
@@ -4556,6 +4634,28 @@
             </view>
           </view>
         </view>
+        <view v-if="schoolPremiumDistrictCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城学区分区溢价汇总
+        </view>
+        <view
+          v-for="c in schoolPremiumDistrictCitySummaries"
+          :key="'spdcs-' + c.cityId"
+          class="sp-row"
+        >
+          <view class="sp-mid">
+            <view class="sp-district">{{ cityNameForId(c.cityId) }}</view>
+            <view class="sp-meta muted">
+              {{ c.districtCount }} 区 · 均分 {{ c.avgSchoolScore.toFixed(1) }}
+              <text v-if="c.topDistrict"> · Top {{ c.topDistrict.districtName }}</text>
+            </view>
+          </view>
+          <view class="sp-right">
+            <view v-if="c.weightedPremiumRatio != null" :class="['sp-premium', premiumClass(c.weightedPremiumRatio)]">
+              {{ formatPremium(c.weightedPremiumRatio) }}
+            </view>
+            <view v-else class="muted">—</view>
+          </view>
+        </view>
       </view>
 
       <!-- 小区排行 -->
@@ -4683,6 +4783,24 @@
             <view class="muted">
               {{ it.districtName }} · 评分 {{ it.avgSchoolScore.toFixed(1) }} · {{ it.schoolCount }} 所
             </view>
+          </view>
+        </view>
+        <view v-if="schoolPremiumCommunityByFocusDistrict.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          「{{ schoolPremiumFocusDistrictName }}」区内小区学区分
+        </view>
+        <view
+          v-for="(it, idx) in schoolPremiumCommunityByFocusDistrict"
+          :key="'spfd-' + it.communityId"
+          class="community-row tap-target"
+          hover-class="row-active"
+          @click="goCommunity(it.communityId)"
+        >
+          <view class="community-rank">
+            <text class="sp-medal-mini">{{ idx + 1 }}</text>
+          </view>
+          <view class="community-main">
+            <view class="community-name">{{ it.communityName }}</view>
+            <view class="muted">评分 {{ it.avgSchoolScore.toFixed(1) }} · {{ it.schoolCount }} 所 · {{ it.listingCount }} 套</view>
           </view>
         </view>
         <view v-if="schoolPremiumCommunityCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
@@ -5123,10 +5241,12 @@ import {
   getWangqianWeeklyRecentSpikes,
   getWangqianWeeklyVolatility,
   getWangqianWeeklyByCityCategoryTrend,
+  summarizeWangqianWeeklyByDistrict,
   type DistrictWoWChange,
   type DistrictSpike,
   type DistrictVolatility,
-  type CityCategoryTrend
+  type CityCategoryTrend,
+  type DistrictWeeklySummary
 } from "../../local/wangqianTrendRanking";
 import * as store from "../../local/store";
 import {
@@ -5173,13 +5293,15 @@ import {
   getHospitalGeoByCityWithinRadius,
   getHospitalGeoCrossCityByCityPairDistance,
   getHospitalGeoByCityByConfidence,
+  summarizeHospitalGeoByConfidence,
   type CityHospitalGeoSummary,
   type HospitalGeoHighConfidenceRatio,
   type HospitalGeoNearestPair,
   type HospitalGeoDistrictSummary,
   type HospitalGeoCoverageStats,
   type HospitalGeoWithinRadius,
-  type CrossCityHospitalDistance
+  type CrossCityHospitalDistance,
+  type HospitalGeoConfidenceSummary
 } from "../../local/hospitalGeoAnalysis";
 import {
   getPoiCommercialByCommunityWalkScore,
@@ -5191,12 +5313,14 @@ import {
   summarizePoiCommercialByCategory,
   summarizePoiCommercialByCity,
   getPoiCommercialByCommunityNearestAcross,
+  getPoiCommercialByCommunityTopByCategory,
   type WalkScore,
   type CommunityBankNearest,
   type CityBankCoverage,
   type PoiTypeLeaderboardEntry,
   type CategoryPoiCommercialSummary,
-  type CityPoiCommercialSummary
+  type CityPoiCommercialSummary,
+  type CommunityCategoryTop
 } from "../../local/poiCommercialRanking";
 import {
   summarizePoiMarketByCommunity,
@@ -5233,6 +5357,7 @@ import {
   summarizeMetroPlanningGeoByCity,
   summarizeMetroPlanningGeoByConfidence,
   getMetroPlanningGeoCrossCityByConfidence,
+  getMetroPlanningGeoByConfidence,
   type CurvatureEntry,
   type CoverageStats,
   type ManualFallbackRate,
@@ -5361,9 +5486,12 @@ import {
   getSchoolPremiumDistrictCrossCityByDistrict,
   getSchoolPremiumCommunityTopByScore,
   summarizeSchoolPremiumCommunityByCity,
+  summarizeSchoolPremiumDistrictByCity,
+  getSchoolPremiumCommunityByDistrict,
   type ThreeTierConsistency,
   type CrossCityDistrictEntry,
-  type CitySchoolPremiumCommunitySummary
+  type CitySchoolPremiumCommunitySummary,
+  type CitySchoolPremiumDistrictSummary
 } from "../../local/schoolPremiumRanking";
 import {
   getCommunityCommercialByCityDistrict,
@@ -5387,10 +5515,12 @@ import {
   getOrientationFloorCrossCityByPair,
   getOrientationFloorByCityOrientation,
   getOrientationFloorByCityFloorBucket,
+  summarizeOrientationFloorByCity,
   type CityOrientationFloorTopEntry,
-  type CrossCityOrientationFloorEntry
+  type CrossCityOrientationFloorEntry,
+  type CityOrientationFloorSummary
 } from "../../local/orientationFloorRanking";
-import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict, LocalSchoolPremiumCommunity, LocalMetroLine, LocalCommunityScatter, LocalCommunityCommercial, LocalCommute, LocalLprRow, LocalLifeConvenience, LocalHospitalGeo, LocalPoiCommercial } from "../../local/types";
+import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict, LocalSchoolPremiumCommunity, LocalMetroLine, LocalCommunityScatter, LocalCommunityCommercial, LocalCommute, LocalLprRow, LocalLifeConvenience, LocalHospitalGeo, LocalPoiCommercial, LocalMetroLineGeo } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -5521,6 +5651,9 @@ const hospitalGeoDistricts = computed<HospitalGeoDistrictSummary[]>(() =>
 const hospitalGeoLowConf = computed<LocalHospitalGeo[]>(() =>
   getHospitalGeoByCityByConfidence(app.cityId, "low").slice(0, 5)
 );
+const hospitalGeoConfNational = computed<HospitalGeoConfidenceSummary[]>(() =>
+  summarizeHospitalGeoByConfidence()
+);
 
 function hospitalDisplayName(hospitalId: number): string {
   const h = store.getHospitalById(hospitalId);
@@ -5596,6 +5729,11 @@ const commercialNearestAcrossSample = computed<LocalPoiCommercial[]>(() => {
 const commercialNearestAcrossName = computed(() => {
   const id = commercialWalkTop.value[0]?.communityId;
   return id != null ? communityDisplayName(id) : "";
+});
+const commercialCategoryTopSample = computed<CommunityCategoryTop[]>(() => {
+  const id = commercialWalkTop.value[0]?.communityId;
+  if (id == null) return [];
+  return getPoiCommercialByCommunityTopByCategory(id);
 });
 const commercialCategoryStats = computed<CategoryPoiCommercialSummary[]>(() =>
   summarizePoiCommercialByCategory()
@@ -5746,6 +5884,11 @@ const metroGeoConfNational = computed<ConfidenceLevelSummary[]>(() =>
 );
 const metroGeoHighCrossCity = computed<{ cityId: number; lineCount: number }[]>(() =>
   getMetroPlanningGeoCrossCityByConfidence("high")
+);
+const metroGeoManualLines = computed<LocalMetroLineGeo[]>(() =>
+  getMetroPlanningGeoByConfidence("manual")
+    .filter((x) => x.cityId === app.cityId)
+    .slice(0, 5)
 );
 const metroMissingEndpoints = computed(() =>
   getMetroPlanningGeoByCityMissingEndpoints(app.cityId)
@@ -7906,6 +8049,10 @@ function cityNameForId(cityId: number): string {
   return c?.city_name ?? `city#${cityId}`;
 }
 
+function metroLineName(lineId: number): string {
+  return store.getMetroLines().find((l) => l.lineId === lineId)?.lineName ?? `线#${lineId}`;
+}
+
 // v0.92.0：地铁步行可达性
 const metroWalkSummary = computed<MetroWalkAccessibility[]>(() =>
   summarizeMetroWalkAccessibility()
@@ -8016,6 +8163,17 @@ const schoolPremiumDistrictCross = computed<CrossCityDistrictEntry[]>(() => {
   if (!name) return [];
   return getSchoolPremiumDistrictCrossCityByDistrict(name);
 });
+const schoolPremiumDistrictCitySummaries = computed<CitySchoolPremiumDistrictSummary[]>(() =>
+  summarizeSchoolPremiumDistrictByCity()
+);
+const schoolPremiumFocusDistrictName = computed(
+  () => schoolPremiumDistrictTop.value[0]?.districtName ?? ""
+);
+const schoolPremiumCommunityByFocusDistrict = computed<LocalSchoolPremiumCommunity[]>(() => {
+  const name = schoolPremiumFocusDistrictName.value;
+  if (!name) return [];
+  return getSchoolPremiumCommunityByDistrict(app.cityId, name).slice(0, 5);
+});
 const orientationFloorCityBest = computed<CityOrientationFloorTopEntry[]>(() =>
   getOrientationFloorBestWorstByCity(2).best.filter((x) => x.cityId === app.cityId)
 );
@@ -8033,6 +8191,9 @@ const orientationHighFloorBuckets = computed<LocalOrientationFloor[]>(() =>
 );
 const orientationTongtouHighCross = computed<CrossCityOrientationFloorEntry[]>(() =>
   getOrientationFloorCrossCityByPair("南北通透", "高楼层")
+);
+const orientationFloorCitySummaries = computed<CityOrientationFloorSummary[]>(() =>
+  summarizeOrientationFloorByCity()
 );
 
 // v1.121.17 分区商业均分
@@ -8353,6 +8514,14 @@ function formatWangqianArea(v: number | null): string {
   if (v >= 10000) return `${(v / 10000).toFixed(1)} 万㎡`;
   return `${Math.round(v)} ㎡`;
 }
+
+const wangqianWeeklyDistrictTop = computed<DistrictWeeklySummary[]>(() => {
+  const city = hospitalCityName.value.replace(/市$/, "");
+  return summarizeWangqianWeeklyByDistrict()
+    .filter((x) => x.city === city && x.category === "二手")
+    .sort((a, b) => b.totalUnits - a.totalUnits)
+    .slice(0, 5);
+});
 
 // v0.48.0 dashboard-tabs: H5 only — apply active tab via body attribute
 function applyTabClass() {

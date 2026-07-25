@@ -125,14 +125,22 @@ def write_narrow_csv(rows: list[dict], out_path: Path, append: bool = False) -> 
 
 # ---------- mode 1: download ----------
 def cmd_download(args: argparse.Namespace) -> int:
-    if requests is None:
-        print("需要 requests 库：pip install requests", file=sys.stderr)
-        return 1
     out_path = Path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     print(f"[download] GET {HUGO_CSV_URL}")
-    r = requests.get(HUGO_CSV_URL, timeout=60)
-    r.raise_for_status()
-    raw = r.content
+    if requests is not None:
+        r = requests.get(HUGO_CSV_URL, timeout=60)
+        r.raise_for_status()
+        raw = r.content
+    else:
+        import urllib.request
+
+        print("[download] requests 不可用，改用 urllib", file=sys.stderr)
+        req = urllib.request.Request(
+            HUGO_CSV_URL, headers={"User-Agent": "Mozilla/5.0"}
+        )
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            raw = resp.read()
     # 去掉 UTF-8 BOM
     if raw.startswith(b"\xef\xbb\xbf"):
         text = raw[3:].decode("utf-8")
