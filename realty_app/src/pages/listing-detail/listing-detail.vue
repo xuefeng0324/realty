@@ -267,18 +267,25 @@ import {
   formatArea,
   formatPrice,
   formatUnitPrice,
-  scoreClass,
-  showToast
+  scoreClass
 } from "../../utils/format";
 import { getListingsByCommunity, getCommunityById } from "../../local/store";
 import { listingSourceKindLabel } from "../../local/listingSource";
+import { housingAppHint, openHousingSourceUrl } from "../../utils/openExternal";
 
 const listingId = ref<number>(0);
 const data = ref<ListingDetailResponse | null>(null);
 const errorMsg = ref<string>("");
 const explainOpen = ref(false);
 const sourceKindLabel = computed(() => data.value ? listingSourceKindLabel(data.value.listing.source_kind) : "");
-const sourceLinkLabel = computed(() => data.value?.listing.source_kind === "DERIVED" ? "查看参考页面" : "查看源链接");
+const sourceLinkLabel = computed(() => {
+  const url = data.value?.listing.source_url;
+  if (url) {
+    const hint = housingAppHint(url);
+    if (hint) return hint.label;
+  }
+  return data.value?.listing.source_kind === "DERIVED" ? "查看参考页面" : "查看源链接";
+});
 
 // v0.54.0 detail-1: 同小区其他 listings
 const sameCommunityAll = ref<ReturnType<typeof getListingsByCommunity>>([]);
@@ -363,16 +370,10 @@ const explainText = computed(() => {
 });
 
 function openSource() {
-  if (!data.value?.listing.source_url) return;
-  // #ifdef H5
-  window.open(data.value.listing.source_url, "_blank");
-  // #endif
-  // #ifndef H5
-  uni.setClipboardData({
-    data: data.value.listing.source_url,
-    success: () => showToast("链接已复制，请到浏览器打开")
-  });
-  // #endif
+  const url = data.value?.listing.source_url;
+  if (!url) return;
+  // App：优先唤起贝壳/安居客等（保留登录态）；H5/其它走浏览器或复制回退
+  openHousingSourceUrl(url);
 }
 
 function copyUrl() {

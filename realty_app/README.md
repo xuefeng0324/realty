@@ -126,6 +126,8 @@
 | v1.121.3 | 2026-07-25 | 修复「检查更新拉到清单，但下载 wgt 失败」：`downloadAndInstallWgt` 新增多 URL 回退（gcore/fastly/cdn/b-cdn jsDelivr 镜像共 4 个），单个失败自动试下一个；wgt URL 写入 manifest 时改用 gcore.jsdelivr 优先（部分网络下 cdn.jsdelivr.net DNS 解析超时）；新增 `buildWgtUrlCandidates` 工具 + 2 个测试 |
 | v1.121.4 | 2026-07-25 | OTA 可验证升级：清单 URL 加缓存戳；`UPDATE_BASE_URL` 改 raw；wgt 候选固定 gcore 优先；安装后可「立即重启」；`compatible.ignoreVersion` 去掉 SDK/编译器弹窗；包名回到 `realty.app`；升 versionCode 125 供真机热更新验证 |
 | v1.121.5 | 2026-07-25 | 启动页换新（暗色天际线 splash）+ OTA 根治：多镜像取 **最高 versionCode**（防 jsDelivr 过期 200）；wgt **优先 raw.githubusercontent**（实测可下）；出整包 APK `1.121.5/126` |
+| v1.121.8 | 2026-07-25 | 离线 OTA 自检加固：补 install-apk aar、出包前 audit 脚本拦 zip4j/缺库、下载前建 `_doc/update`；须重装 129 整包 |
+| v1.121.7 | 2026-07-25 | 房源「打开贝壳找房」+ **离线 APK 补 zip4j**（修 OTA 下载 100% 后闪退，须重装整包）；复制链接仍只复制 |
 | v1.121.6 | 2026-07-25 | 热更新验证包 127：关于页文案「热更新 127 已生效」；供 126 基座 OTA 自测 |
 | v0.93.1 | 2026-07-25 | 分区 12 周口径严格化：`getDistrict12WeekChangeRank` 默认 `minWeeks=13 + strictBase=true`，避免样本不足的区被错算入涨跌；新增 `summarizeChangeDistribution` 同时暴露"严格 ≥13 周"和"宽松 ≥2 周"两个口径供 UI 选择；dashboard 角标和脚注改为"严格 vs 兜底"二段式展示，让"涨 3 跌 7"对应的是真有 12 周样本的 10 个区而非全部 15 个区 |
 | v0.87.1 | 2026-07-25 | 测试覆盖率门槛 (45/40) + 排除 e2e 脚本；本仓库还按月份排序写到 daily_wangqian.csv 的 city 行 |
@@ -461,6 +463,14 @@ gh auth setup-git
 ## 更新日志
 
 详细变更见 [changelog/](./changelog/) 目录。
+
+### v1.121.8 (2026-07-25)
+
+离线 OTA 自检加固（install-apk + audit 脚本）。详见 [changelog/2026-07-25-v1.121.8-离线OTA自检加固.md](./changelog/2026-07-25-v1.121.8-离线OTA自检加固.md)。
+
+### v1.121.7 (2026-07-25)
+
+房源跳贝壳/安居客；离线 APK 补 zip4j 修复 OTA 100% 闪退（须重装整包）。详见 [changelog/2026-07-25-v1.121.7-房源打开贝壳App.md](./changelog/2026-07-25-v1.121.7-房源打开贝壳App.md)。
 
 ### v1.121.5 / v1.121.6 (2026-07-25)
 

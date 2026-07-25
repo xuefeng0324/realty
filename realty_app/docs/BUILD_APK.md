@@ -61,8 +61,23 @@ powershell -File realty_app/scripts/build_apk.ps1 -OutDir "$env:USERPROFILE\Down
 - dcloudio/uni-app-android 模板项目（约 200 MB）
 - 自行管理签名 keystore（Base64 入 GH Secrets）
 
-CI 时间：每次构建 25–40 分钟（含 `npm ci` + gradle 编译）。
-工程量：约 1 人天首次配置；后续只需触发 workflow。
+### ⚠ 热更新闪退（必看）
+
+离线打的 APK 若 `simpleDemo/build.gradle` **缺少**：
+
+```gradle
+implementation 'net.lingala.zip4j:zip4j:2.11.5'
+```
+
+或 `libs/` 缺 `install-apk-release.aar`，则 App 内「检查更新」可能下载到 **100% 后闪退/装不上**。  
+云打包一般自带；**离线包必须手动加**。
+
+出包前请跑：
+
+```powershell
+node realty_app/scripts/audit_offline_pack.mjs
+powershell -File realty_app/scripts/build_apk_local.ps1   # 内含审计，失败拒出包
+```
 
 ### 落地步骤（v1.121.1）
 

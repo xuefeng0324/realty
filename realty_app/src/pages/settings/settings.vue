@@ -534,23 +534,28 @@ async function onDownloadAndInstall() {
       }
     });
     if (result.ok) {
-      updateStatus.value = "已安装，正在重启…";
+      updateStatus.value = "安装成功，请重启生效";
       updateProgress.value = "100%";
-      uni.showModal({
-        title: "升级完成",
-        content: "新版本已安装。点「立即重启」生效；若无反应请手动关掉 App 再打开。",
-        confirmText: "立即重启",
-        cancelText: "稍后",
-        success: (res) => {
-          if (res.confirm) {
-            if (!restartAppAfterUpdate()) {
-              updateStatus.value = "自动重启失败，请手动关闭并重新打开 App";
+      // 稍等一帧再弹窗，避免 install 刚结束立刻抢 UI 触发个别机型异常
+      setTimeout(() => {
+        uni.showModal({
+          title: "升级完成",
+          content: "新资源已装好。点「立即重启」生效；若闪退过，请改用新整包 APK（已补 zip4j）再试 OTA。",
+          confirmText: "立即重启",
+          cancelText: "稍后",
+          success: (res) => {
+            if (res.confirm) {
+              setTimeout(() => {
+                if (!restartAppAfterUpdate()) {
+                  updateStatus.value = "自动重启失败，请手动关闭并重新打开 App";
+                }
+              }, 300);
+            } else {
+              updateStatus.value = "已安装，请手动关闭并重新打开 App 生效";
             }
-          } else {
-            updateStatus.value = "已下载，请手动关闭并重新打开 App 生效";
           }
-        }
-      });
+        });
+      }, 200);
     } else {
       updateStatus.value = `升级失败：${result.reason}`;
     }

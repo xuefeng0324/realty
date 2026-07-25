@@ -277,9 +277,40 @@ export async function downloadAndInstallWgt(
 
   const urls = buildWgtUrlCandidates(url);
   const tried: string[] = [];
+  // 固定落到应用私有目录，避免临时路径在 install 时被清掉
+  const localName = `_doc/update/app_${Date.now()}.wgt`;
+
+  // 确保 _doc/update 存在，否则部分机型 createDownload 直接失败或落到不可 install 路径
+  await new Promise<void>((resolve) => {
+    try {
+      plus.io.requestFileSystem(
+        plus.io.PRIVATE_DOC,
+        (fs: {
+          root: {
+            getDirectory: (
+              name: string,
+              opts: { create: boolean },
+              ok: () => void,
+              fail: () => void
+            ) => void;
+          };
+        }) => {
+          fs.root.getDirectory("update", { create: true }, () => resolve(), () => resolve());
+        },
+        () => resolve()
+      );
+    } catch {
+      resolve();
+    }
+  });
+
   for (const u of urls) {
     tried.push(u);
-    const task = plus.downloader.createDownload(u, { method: "GET" }, undefined as unknown as string);
+    const task = plus.downloader.createDownload(
+      u,
+      { method: "GET", filename: localName },
+      undefined as unknown as string
+    );
     try {
       const localPath: string = await new Promise<string>((resolve, reject) => {
         task.addEventListener("statechanged", (task2: PlusDownloadTask, status: number) => {
@@ -294,18 +325,54 @@ export async function downloadAndInstallWgt(
         });
         task.start();
       });
+
+      // 下载完成不等于文件可用：先确认体积，避免空/HTML 错误页当 wgt 装
+      const fileOk = await new Promise<boolean>((resolve) => {
+        try {
+          plus.io.resolveLocalFileSystemURL(
+            localPath,
+            (entry: { file: (cb: (f: { size: number }) => void) => void }) => {
+              entry.file((f) => resolve(!!f && f.size > 10_000));
+            },
+            () => resolve(false)
+          );
+        } catch {
+          resolve(false);
+        }
+      });
+      if (!fileOk) {
+        continue;
+      }
+
       const installResult = await new Promise<{ ok: true; localPath: string } | { ok: false; reason: string }>(
         (resolve) => {
-          plus.runtime.install(
-            localPath,
-            { force: true },
-            () => resolve({ ok: true, localPath }),
-            (err: { message: string }) => resolve({ ok: false, reason: err?.message ?? "安装失败" })
-          );
+          try {
+            plus.runtime.install(
+              localPath,
+              { force: true },
+              () => resolve({ ok: true, localPath }),
+              (err: { message?: string; code?: number }) =>
+                resolve({
+                  ok: false,
+                  reason:
+                    err?.message ||
+                    (err?.code != null ? `install code=${err.code}` : "安装失败")
+                })
+            );
+          } catch (e) {
+            resolve({
+              ok: false,
+              reason: e instanceof Error ? e.message : "install 抛异常（基座可能缺 zip4j，需重装整包 APK）"
+            });
+          }
         }
       );
       if (installResult.ok) return installResult;
-      return installResult;
+      // 安装失败（非闪退）时不要盲目换镜像再装同一坏包；返回明确原因
+      return {
+        ok: false,
+        reason: `${installResult.reason}。若点安装后直接闪退，是离线 APK 缺 zip4j，请重装带 zip4j 的整包后再 OTA`
+      };
     } catch {
       continue;
     }
