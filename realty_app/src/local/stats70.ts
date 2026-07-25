@@ -193,3 +193,131 @@ export function getRanking(
 export function getRankingByYoY(kind: "new" | "second" = "new"): { city: string; date: string; value: number | null }[] {
   return getRanking("同比", kind);
 }
+
+/**
+ * v0.91.0 派生：把所有城市的近 12 个月指数值算出一个聚合统计量，
+ * 给出"过去 12 个月累计变化 vs 上一个 12 个月累计变化"的对比，
+ * 即"过去 12 个月 vs 同比基期（过去 12 月对过去 24-13 月）"的环比描述。
+ *
+ * 不抓虫，纯派生：直接消费 stats_70.csv 已有逐月行。
+ *
+ * @param base "同比" | "环比" —— 选择参与排序的指数维度
+ * @param kind "new" | "second" —— 新建 / 二手
+ */
+export interface City12MonthSummary {
+  city: string;
+  /** 最近 12 个完整月的指数（按月份升序） */
+  recent12: { date: string; value: number }[];
+  /** 前 12 个完整月（作为对比基期） */
+  prev12: { date: string; value: number }[];
+  /** 最近 12 月指数平均值 */
+  recentAvg: number | null;
+  /** 前 12 月指数平均值 */
+  prevAvg: number | null;
+  /** (recent - prev) / prev：正表示 12-月趋势扩张，负表示收缩 */
+  drift: number | null;
+  /** 最近月份指数值（用于展示在卡上） */
+  latest: number | null;
+  /** 最近月份的 month label */
+  latestDate: string | null;
+}
+
+/** 把 stats70 行的 fixed_base + kind 投影成单个数字（找不到返回 null）。 */
+function pickIndex(r: LocalStats70Row, kind: "new" | "second"): number | null {
+  return kind === "new" ? r.new_idx : r.second_idx;
+}
+
+/** 取某城市的某 base+kind 完整、按月份升序的指数序列。 */
+function cityIndexSeries(
+  city: string,
+  base: "同比" | "环比",
+  kind: "new" | "second"
+): { date: string; value: number }[] {
+  // dateSortKey 是文件内私有函数；这里按字符串升序即可，因为 stats70 已是日期升序
+  const out: { date: string; value: number }[] = [];
+  for (const r of getStats70ByCity(city)) {
+    if (r.fixed_base !== base) continue;
+    const v = pickIndex(r, kind);
+    if (v == null) continue;
+    out.push({ date: r.date, value: v });
+  }
+  return out;
+}
+
+export function getCityDriftOverLastYear(
+  base: "同比" | "环比" = "同比",
+  kind: "new" | "second" = "second"
+): City12MonthSummary[] {
+  const allCities = getAllCities();
+  const out: City12MonthSummary[] = [];
+  for (const city of allCities) {
+    const series = cityIndexSeries(city, base, kind);
+    if (series.length === 0) continue;
+    const n = series.length;
+    const recent = series.slice(Math.max(0, n - 12));
+    const prev = series.slice(Math.max(0, n - 24), Math.max(0, n - 12));
+    const recentAvg = avg(recent.map((b) => b.value));
+    const prevAvg = prev.length ? avg(prev.map((b) => b.value)) : null;
+    // 派生指标语义：drift = (recent 12 月 均值 - prior 12 月 均值) / prior 12 月 均值。
+    // 含义：
+    //   * 比 0 大：这一年的指数均值比去年同窗口更高 ⇒ 同比 / 环比持续走强。
+    //   * 比 0 小：走低 ⇒ 价格压力在退坡。
+    //   * null：数据不到 24 个月，不可计算。
+    // 不要和"序列自身是否在涨 / 跌"搞混：本指标衡量的"持续性"。
+    const drift =
+      recentAvg != null &&
+      prevAvg != null &&
+      prevAvg !== 0
+        ? (recentAvg - prevAvg) / prevAvg
+        : null;
+    out.push({
+      city,
+      recent12: recent,
+      prev12: prev,
+      recentAvg,
+      prevAvg,
+      drift,
+      latest: series[n - 1]?.value ?? null,
+      latestDate: series[n - 1]?.date ?? null
+    });
+  }
+  return out;
+}
+
+function avg(xs: number[]): number | null {
+  if (xs.length === 0) return null;
+  let s = 0;
+  for (const x of xs) s += x;
+  return s / xs.length;
+}
+
+/**
+ * 派生：根据 12 月 drift 把所有城市分成"扩张 / 收缩"两档。
+ * 在 dashboard 上能直接展示「过去 12 月趋势扩张的城市 N 个 / 收缩 M 个」。
+ */
+export interface DriftDistribution {
+  totalCities: number;
+  /** drift > 0（扩张）：列表 */
+  expanding: City12MonthSummary[];
+  /** drift < 0（收缩）：列表 */
+  contracting: City12MonthSummary[];
+  /** 没有足够 24 个月数据无法计算 drift 的城市数 */
+  unknown: number;
+}
+
+export function summarizeCityDrift(summaries: City12MonthSummary[]): DriftDistribution {
+  let unknown = 0;
+  const expanding: City12MonthSummary[] = [];
+  const contracting: City12MonthSummary[] = [];
+  for (const s of summaries) {
+    if (s.drift == null) {
+      unknown += 1;
+      continue;
+    }
+    if (s.drift > 0) expanding.push(s);
+    else if (s.drift < 0) contracting.push(s);
+  }
+  expanding.sort((a, b) => (b.drift ?? 0) - (a.drift ?? 0));
+  contracting.sort((a, b) => (a.drift ?? 0) - (b.drift ?? 0));
+  return { totalCities: summaries.length, expanding, contracting, unknown };
+}

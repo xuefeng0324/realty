@@ -163,6 +163,68 @@
         <view class="stats70-foot">点击查看 90 日趋势与分区 ›</view>
       </view>
 
+      <!-- v0.91.0 70 城 12 月趋势对比（派生：基于 stats_70.csv） -->
+      <view
+        v-if="stats70Ready && driftReady"
+        class="card stats70-drift-card"
+      >
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">全国 70 城 · 近 12 月同比趋势</view>
+          <view class="muted" style="font-size: 22rpx">派生 / {{ driftLatestLabel || "—" }}</view>
+        </view>
+        <view class="stats70-grid">
+          <view class="stats70-cell">
+            <text class="cell-label">扩张</text>
+            <text class="cell-value drift-up">{{ driftDistribution?.expanding.length ?? 0 }}</text>
+            <text class="cell-sub muted">个</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">收缩</text>
+            <text class="cell-value drift-down">{{ driftDistribution?.contracting.length ?? 0 }}</text>
+            <text class="cell-sub muted">个</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">数据不足</text>
+            <text class="cell-value drift-unknown">{{ driftDistribution?.unknown ?? 0 }}</text>
+            <text class="cell-sub muted">个</text>
+          </view>
+        </view>
+
+        <view v-if="driftTop.length" style="margin-top: 12rpx">
+          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
+            扩张 Top 3（二手）
+          </view>
+          <view
+            v-for="(row, i) in driftTop"
+            :key="'up' + row.city"
+            class="drift-row"
+          >
+            <text class="drift-rank">{{ i + 1 }}</text>
+            <text class="drift-city">{{ row.city }}</text>
+            <text class="drift-value drift-up">
+              +{{ fmtPct(row.drift) }}
+            </text>
+          </view>
+          <view class="muted" style="font-size: 22rpx; margin: 12rpx 0 6rpx">
+            收缩 Top 3（二手）
+          </view>
+          <view
+            v-for="(row, i) in driftBottom"
+            :key="'dn' + row.city"
+            class="drift-row"
+          >
+            <text class="drift-rank">{{ i + 1 }}</text>
+            <text class="drift-city">{{ row.city }}</text>
+            <text class="drift-value drift-down">
+              {{ fmtPct(row.drift) }}
+            </text>
+          </view>
+        </view>
+        <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+          派生：最近 12 月指数均值 / 前 12 月指数均值 -1，数据源 stats_70.csv，仅二手指数
+        </view>
+      </view>
+
       <view v-if="nbsMacro" class="card macro-card" data-tab="overview,price">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">全国房地产开发与销售</view>
@@ -2225,7 +2287,11 @@ import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWa
 import {
   getLatestIndexForCity,
   getLatestMonth,
-  type LatestIndexForCity
+  getCityDriftOverLastYear,
+  summarizeCityDrift,
+  type LatestIndexForCity,
+  type City12MonthSummary,
+  type DriftDistribution
 } from "../../local/stats70";
 import {
   getLatestCityDaily,
@@ -4135,6 +4201,39 @@ const stats70MonthLabel = computed(() => {
   return `${parts[0]}-${parts[1].padStart(2, "0")}`;
 });
 
+// v0.91.0：70 城近 12 月同比趋势扩张 / 收缩派生
+const cityDriftSummaries = computed<City12MonthSummary[]>(() => {
+  if (!stats70Ready.value) return [];
+  return getCityDriftOverLastYear("同比", "second");
+});
+const driftDistribution = computed<DriftDistribution | null>(() => {
+  if (!stats70Ready.value) return null;
+  return summarizeCityDrift(cityDriftSummaries.value);
+});
+const driftReady = computed(
+  () => stats70Ready.value && cityDriftSummaries.value.length > 0
+);
+const driftTop = computed<City12MonthSummary[]>(
+  () => driftDistribution.value?.expanding.slice(0, 3) ?? []
+);
+const driftBottom = computed<City12MonthSummary[]>(
+  () => driftDistribution.value?.contracting.slice(0, 3) ?? []
+);
+const driftLatestLabel = computed(() => {
+  const series = cityDriftSummaries.value;
+  if (series.length === 0) return "";
+  const ld = series[0].latestDate ?? "";
+  if (!ld) return "";
+  const parts = ld.split("/");
+  if (parts.length < 3) return ld;
+  return `${parts[0]}-${parts[1].padStart(2, "0")}`;
+});
+function fmtPct(value: number | null): string {
+  if (value == null || !Number.isFinite(value)) return "—";
+  const pct = value * 100;
+  return `${pct >= 0 ? "" : ""}${pct.toFixed(1)}%`;
+}
+
 const currentCityIndex = computed<LatestIndexForCity | null>(() => {
   if (!hasStats70()) return null;
   const city = cities.value.find((c) => c.city_id === app.cityId);
@@ -4760,6 +4859,41 @@ onShow(async () => {
   text-align: right;
   font-size: 22rpx;
   color: #4ade80;
+}
+
+/* v0.91.0 70 城 12 月同比趋势派生卡 */
+.drift-up {
+  color: #ef4444;
+}
+.drift-down {
+  color: #4ade80;
+}
+.drift-unknown {
+  color: #94a3b8;
+}
+.drift-row {
+  display: flex;
+  align-items: center;
+  padding: 6rpx 0;
+  font-size: 26rpx;
+  border-bottom: 1rpx dashed #1f2937;
+}
+.drift-row:last-child {
+  border-bottom: 0;
+}
+.drift-rank {
+  width: 40rpx;
+  color: #94a3b8;
+  font-weight: 700;
+}
+.drift-city {
+  flex: 1 1 auto;
+  color: #e2e8f0;
+}
+.drift-value {
+  font-weight: 700;
+  min-width: 100rpx;
+  text-align: right;
 }
 
 .stats70-grid {
