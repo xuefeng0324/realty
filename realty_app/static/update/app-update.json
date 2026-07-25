@@ -1,12 +1,12 @@
 {
   "versionName": "1.121.0",
   "versionCode": "122",
-  "publishedAt": "2026-07-25T08:30:22Z",
+  "publishedAt": "2026-07-25T09:13:47Z",
   "force": false,
-  "notes": "\ufefffix(realty_app): \u5730\u56fe fetch \u5d29\u6e83\u4fee\u590d + APK workflow + \u56fe\u6807\u91cd\u505a (v1.121.0)\n\n2026-07-25-v1.114.0-\u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f: v1.114.0 \u2014 \u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f\n2026-07-25-v1.115.0-\u533b\u9662\u5750\u6807\u63a5\u5165\u4e0e\u6d3e\u751f: v1.115.0 \u2014 \u533b\u9662\u5750\u6807\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n",
+  "notes": "\ufeffci(realty_app): \u81ea\u6258\u7ba1 Runner APK \u5de5\u4f5c\u6d41 (v1.121.1)\n\n2026-07-25-v1.108.0-\u533b\u9662\u8d44\u6e90\u6d3e\u751f: v1.108.0 \u533b\u9662\u8d44\u6e90\u6d3e\u751f\uff08\u4ec5\u6570\u636e\u5c42\uff09\n2026-07-25-v1.109.0-\u793e\u533a\u603b\u4ef7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f: v1.109.0 \u2014 \u793e\u533a\u603b\u4ef7\u00d7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f\n2026-07-25-v1.110.0-\u89c4\u5212\u5730\u94c1\u6d3e\u751f: v1.110.0 \u2014 \u89c4\u5212\u5730\u94c1\u6d3e\u751f\n",
   "wgt": {
     "url": "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/122/app.wgt",
-    "sha256": "6ba30b0290159294ddd6972fe6baa78b949fda879bd185e747bbba05757f8955"
+    "sha256": "61af79f6d3e16c87853530a5912c098ec7c3a37f49fc0416b6c067d30ddc1c07"
   },
   "ios": {
     "available": false,
