@@ -58,3 +58,8 @@ export function getEducationOverview(city: string): EducationOverview | null {
 export function getEducationOverviews(): EducationOverview[] {
   return [...rows];
 }
+
+/** 深圳公报不拆小学/初中；用普通中小学（存于 compulsoryCount）降级展示 */
+export function educationHasPrimaryJuniorSplit(row: EducationOverview): boolean {
+  return row.primaryCount > 0 && row.juniorHighCount > 0;
+}

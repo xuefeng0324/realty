@@ -1,7 +1,11 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { getEducationOverview, getEducationOverviews } from "../src/local/educationOverview";
+import {
+  educationHasPrimaryJuniorSplit,
+  getEducationOverview,
+  getEducationOverviews
+} from "../src/local/educationOverview";
 
 describe("official education overview", () => {
   it("加载广州2025年教育事业统计公报核心数据", () => {
@@ -11,22 +15,39 @@ describe("official education overview", () => {
     expect(row?.totalSchools).toBe(3806);
     expect(row?.totalStudents10k).toBe(292.63);
     expect(row?.primaryCount + row?.juniorHighCount).toBe(row?.compulsoryCount);
+    expect(educationHasPrimaryJuniorSplit(row!)).toBe(true);
   });
 
-  it("来源必须是广州教育局官方HTTPS页面", () => {
+  it("加载深圳2025年教育事业发展基本情况（普通中小学口径）", () => {
+    const row = getEducationOverview("深圳");
+    expect(row).not.toBeNull();
+    expect(row?.period).toBe("2025");
+    expect(row?.totalSchools).toBe(2996);
+    expect(row?.totalStudents10k).toBe(287.41);
+    expect(row?.compulsoryCount).toBe(960);
+    expect(row?.kindergartenCount).toBe(1977);
+    expect(row?.privateCount).toBe(1193);
+    expect(row?.primaryCount).toBe(0);
+    expect(row?.juniorHighCount).toBe(0);
+    expect(educationHasPrimaryJuniorSplit(row!)).toBe(false);
+    expect(row?.sourceOrg).toBe("深圳市教育局");
+    expect(row?.sourceUrl).toMatch(/^https:\/\/szeb\.sz\.gov\.cn\//);
+    expect(row?.publishDate).toBe("2026-05-13");
+  });
+
+  it("来源必须是教育局官方 HTTPS，且含广深两城", () => {
     const rows = getEducationOverviews();
-    expect(rows).toHaveLength(1);
-    expect(rows[0].sourceOrg).toBe("广州市教育局");
-    expect(rows[0].sourceUrl).toMatch(/^https:\/\/jyj\.gz\.gov\.cn\//);
-    expect(rows[0].publishDate).toBe("2026-06-15");
+    expect(rows.map((r) => r.city).sort()).toEqual(["广州", "深圳"]);
+    const gz = rows.find((r) => r.city === "广州")!;
+    expect(gz.sourceOrg).toBe("广州市教育局");
+    expect(gz.sourceUrl).toMatch(/^https:\/\/jyj\.gz\.gov\.cn\//);
   });
 
   it("未接入官方公报的城市不生成替代数据", () => {
-    expect(getEducationOverview("深圳")).toBeNull();
     expect(getEducationOverview("珠海")).toBeNull();
   });
 
-  it("抓取脚本具备官方域名、字段完整性和分项关系保护", () => {
+  it("广州抓取脚本具备官方域名、字段完整性和分项关系保护", () => {
     const script = readFileSync(resolve(process.cwd(), "scripts/crawl_gz_education_overview.py"), "utf8");
     expect(script).toContain('SOURCE_HOST = "jyj.gz.gov.cn"');
     expect(script).toContain("广州教育公报缺少字段");
@@ -34,9 +55,18 @@ describe("official education overview", () => {
     expect(script).toContain("NamedTemporaryFile");
   });
 
-  it("周任务会刷新并提交教育概览快照", () => {
+  it("深圳抓取脚本仅认 szeb.sz.gov.cn 且不伪造小学初中分项", () => {
+    const script = readFileSync(resolve(process.cwd(), "scripts/crawl_sz_education_overview.py"), "utf8");
+    expect(script).toContain("szeb.sz.gov.cn");
+    expect(script).toContain("普通中小学");
+    expect(script).toContain('"primary_count": 0');
+    expect(script).toContain("NamedTemporaryFile");
+  });
+
+  it("周任务会刷新广深教育概览快照", () => {
     const workflow = readFileSync(resolve(process.cwd(), "../.github/workflows/crawl-weekly.yml"), "utf8");
     expect(workflow).toContain("python scripts/crawl_gz_education_overview.py");
+    expect(workflow).toContain("python scripts/crawl_sz_education_overview.py");
     expect(workflow).toContain("static/education_overview.csv");
   });
 });

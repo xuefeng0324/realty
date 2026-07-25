@@ -13,8 +13,21 @@
         <view class="edu-grid">
           <view class="edu-cell"><text class="muted">学校总数</text><text>{{ educationOverview.totalSchools.toLocaleString() }}</text></view>
           <view class="edu-cell"><text class="muted">在校学生</text><text>{{ educationOverview.totalStudents10k }} 万</text></view>
-          <view class="edu-cell"><text class="muted">义务教育</text><text>{{ educationOverview.compulsoryCount.toLocaleString() }}</text></view>
-          <view class="edu-cell"><text class="muted">小学/初中</text><text>{{ educationOverview.primaryCount }}/{{ educationOverview.juniorHighCount }}</text></view>
+          <view class="edu-cell">
+            <text class="muted">{{ educationHasSplit ? "义务教育" : "普通中小学" }}</text>
+            <text>{{ educationOverview.compulsoryCount.toLocaleString() }}</text>
+          </view>
+          <view v-if="educationHasSplit" class="edu-cell">
+            <text class="muted">小学/初中</text>
+            <text>{{ educationOverview.primaryCount }}/{{ educationOverview.juniorHighCount }}</text>
+          </view>
+          <view v-else class="edu-cell">
+            <text class="muted">幼儿园</text>
+            <text>{{ educationOverview.kindergartenCount.toLocaleString() }}</text>
+          </view>
+        </view>
+        <view v-if="!educationHasSplit" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          深圳公报不拆小学/初中/高中分项，仅展示官方公布口径。
         </view>
       </view>
 
@@ -190,7 +203,7 @@ import type { CityItem, SchoolItem } from "../../api/contracts";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { useAppStore } from "../../store/app";
 import { showToast } from "../../utils/format";
-import { getEducationOverview } from "../../local/educationOverview";
+import { getEducationOverview, educationHasPrimaryJuniorSplit } from "../../local/educationOverview";
 import {
   summarizeSchoolDimensionsByCity,
   getSchoolDimensionByDimensionTopN,
@@ -214,6 +227,9 @@ const currentCityLabel = computed(() => {
   return c?.city_name || "";
 });
 const educationOverview = computed(() => getEducationOverview(currentCityLabel.value.replace(/市$/, "")));
+const educationHasSplit = computed(() =>
+  educationOverview.value ? educationHasPrimaryJuniorSplit(educationOverview.value) : false
+);
 
 // v0.97.0：重点学校维度细分
 const dimCitySummary = computed<CityDimensionSummary[]>(() =>

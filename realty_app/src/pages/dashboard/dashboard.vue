@@ -882,24 +882,38 @@
             <text class="edu-kpi-val">{{ eduOverview.totalStudents10k.toFixed(1) }}</text>
             <text class="edu-kpi-label muted">在校生万</text>
           </view>
-          <view class="edu-kpi">
-            <text class="edu-kpi-val">{{ eduOverview.primaryCount }}</text>
-            <text class="edu-kpi-label muted">小学</text>
-          </view>
-          <view class="edu-kpi">
-            <text class="edu-kpi-val">{{ eduOverview.juniorHighCount }}</text>
-            <text class="edu-kpi-label muted">初中</text>
-          </view>
+          <template v-if="eduHasPrimaryJuniorSplit">
+            <view class="edu-kpi">
+              <text class="edu-kpi-val">{{ eduOverview.primaryCount }}</text>
+              <text class="edu-kpi-label muted">小学</text>
+            </view>
+            <view class="edu-kpi">
+              <text class="edu-kpi-val">{{ eduOverview.juniorHighCount }}</text>
+              <text class="edu-kpi-label muted">初中</text>
+            </view>
+          </template>
+          <template v-else>
+            <view class="edu-kpi">
+              <text class="edu-kpi-val">{{ eduOverview.compulsoryCount }}</text>
+              <text class="edu-kpi-label muted">中小学</text>
+            </view>
+            <view class="edu-kpi">
+              <text class="edu-kpi-val">{{ eduOverview.kindergartenCount }}</text>
+              <text class="edu-kpi-label muted">幼儿园</text>
+            </view>
+          </template>
         </view>
         <view class="edu-grid">
-          <text class="edu-chip">幼儿园 {{ eduOverview.kindergartenCount }}</text>
-          <text class="edu-chip">高中 {{ eduOverview.seniorHighCount }}</text>
+          <text v-if="eduHasPrimaryJuniorSplit" class="edu-chip">幼儿园 {{ eduOverview.kindergartenCount }}</text>
+          <text v-if="eduOverview.seniorHighCount > 0" class="edu-chip">高中 {{ eduOverview.seniorHighCount }}</text>
           <text class="edu-chip">职校 {{ eduOverview.vocationalCount }}</text>
           <text class="edu-chip">民办 {{ eduOverview.privateCount }}</text>
           <text class="edu-chip">特殊教育 {{ eduOverview.specialCount }}</text>
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          {{ eduOverview.sourceOrg }} · {{ eduOverview.publishDate }} 发布。深圳/珠海暂无同口径公开表，不伪造。
+          {{ eduOverview.sourceOrg }} · {{ eduOverview.publishDate }} 发布。
+          <text v-if="!eduHasPrimaryJuniorSplit">深圳口径为「普通中小学」合计，不伪造小学/初中分项。</text>
+          <text v-else>珠海暂无同口径公开表，不伪造。</text>
         </view>
       </view>
 
@@ -5732,7 +5746,7 @@ import {
   type DensityDistanceBucket,
   type CityCommercialSummary
 } from "../../local/communityCommercialRanking";
-import { getEducationOverview, type EducationOverview } from "../../local/educationOverview";
+import { getEducationOverview, educationHasPrimaryJuniorSplit, type EducationOverview } from "../../local/educationOverview";
 import {
   getListingKeywordsByCity,
   getListingKeywordsCrossCity,
@@ -6014,6 +6028,9 @@ const eduOverview = computed<EducationOverview | null>(() => {
   const name = cityNameForId(app.cityId).replace(/市$/, "");
   return getEducationOverview(name);
 });
+const eduHasPrimaryJuniorSplit = computed(() =>
+  eduOverview.value ? educationHasPrimaryJuniorSplit(eduOverview.value) : false
+);
 
 // v1.121.16 行政区划
 const adminSummary = computed<CityAdminDistrictSummary | null>(() => {
