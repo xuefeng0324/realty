@@ -1,12 +1,12 @@
 {
-  "versionName": "1.121.20",
-  "versionCode": "141",
-  "publishedAt": "2026-07-25T18:13:38Z",
+  "versionName": "1.121.21",
+  "versionCode": "142",
+  "publishedAt": "2026-07-25T18:18:12Z",
   "force": false,
-  "notes": "\ufefffeat(app): v1.121.20 \u7cbe\u88c5\u8de8\u57ce / \u5730\u94c1\u624b\u5de5\u515c\u5e95\n\n2026-07-25-v1.121.2-OTA\u68c0\u67e5\u66f4\u65b0\u4fee\u590d: v1.121.2 \u2014 OTA \u68c0\u67e5\u66f4\u65b0\u65e0\u53cd\u5e94\u4fee\u590d\n2026-07-25-v1.121.4-OTA\u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316: v1.121.4 \u2014 OTA \u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316\n2026-07-25-v1.121.5-\u542f\u52a8\u9875\u4e0eOTA\u6839\u6cbb: v1.121.5 / v1.121.6 \u2014 \u542f\u52a8\u9875 + OTA \u6839\u6cbb\u4e0e\u9a8c\u8bc1\n",
+  "notes": "\ufefffeat(app): v1.121.21 LPR\u5747\u503c / \u7f51\u7b7e\u6ce2\u52a8 / CBD\u533b\u7597\n\n2026-07-25-v1.110.0-\u89c4\u5212\u5730\u94c1\u6d3e\u751f: v1.110.0 \u2014 \u89c4\u5212\u5730\u94c1\u6d3e\u751f\n2026-07-25-v1.111.0-LPR\u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f: v1.111.0 \u2014 LPR \u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f\n2026-07-25-v1.112.0-\u5468\u8fb9\u5546\u4e1aPOI\u63a5\u5165\u4e0e\u6d3e\u751f: v1.112.0 \u2014 \u5468\u8fb9\u5546\u4e1a POI \u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/141/app.wgt",
-    "sha256": "f40aaa8f92147ef3ba162b6332f498126a06172b348b264d6bca2a568e50f446"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/142/app.wgt",
+    "sha256": "7a0ff362bce0b02934d6021131e681a3c044a6bfbdfbae032ba6f05d488e6415"
   },
   "ios": {
     "available": false,
