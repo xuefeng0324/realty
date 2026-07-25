@@ -126,6 +126,7 @@
 | v1.121.3 | 2026-07-25 | 修复「检查更新拉到清单，但下载 wgt 失败」：`downloadAndInstallWgt` 新增多 URL 回退（gcore/fastly/cdn/b-cdn jsDelivr 镜像共 4 个），单个失败自动试下一个；wgt URL 写入 manifest 时改用 gcore.jsdelivr 优先（部分网络下 cdn.jsdelivr.net DNS 解析超时）；新增 `buildWgtUrlCandidates` 工具 + 2 个测试 |
 | v1.121.4 | 2026-07-25 | OTA 可验证升级：清单 URL 加缓存戳；`UPDATE_BASE_URL` 改 raw；wgt 候选固定 gcore 优先；安装后可「立即重启」；`compatible.ignoreVersion` 去掉 SDK/编译器弹窗；包名回到 `realty.app`；升 versionCode 125 供真机热更新验证 |
 | v1.121.5 | 2026-07-25 | 启动页换新（暗色天际线 splash）+ OTA 根治：多镜像取 **最高 versionCode**（防 jsDelivr 过期 200）；wgt **优先 raw.githubusercontent**（实测可下）；出整包 APK `1.121.5/126` |
+| v1.121.9 | 2026-07-25 | OTA 验证包 130：关于页「热更新 130 已生效」；含贝壳跳转 + OTA 安装加固；供 **129 整包**（含 zip4j）热更新自测 |
 | v1.121.8 | 2026-07-25 | 离线 OTA 自检加固：补 install-apk aar、出包前 audit 脚本拦 zip4j/缺库、下载前建 `_doc/update`；须重装 129 整包 |
 | v1.121.7 | 2026-07-25 | 房源「打开贝壳找房」+ **离线 APK 补 zip4j**（修 OTA 下载 100% 后闪退，须重装整包）；复制链接仍只复制 |
 | v1.121.6 | 2026-07-25 | 热更新验证包 127：关于页文案「热更新 127 已生效」；供 126 基座 OTA 自测 |
@@ -463,6 +464,10 @@ gh auth setup-git
 ## 更新日志
 
 详细变更见 [changelog/](./changelog/) 目录。
+
+### v1.121.9 (2026-07-25)
+
+OTA 验证包 130（关于页「热更新 130 已生效」）。在已装 **1.121.8/129** 整包上检查更新即可。详见 [changelog/2026-07-25-v1.121.9-OTA验证130.md](./changelog/2026-07-25-v1.121.9-OTA验证130.md)。
 
 ### v1.121.8 (2026-07-25)
 

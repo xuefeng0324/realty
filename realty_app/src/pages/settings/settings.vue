@@ -163,7 +163,7 @@
       <view class="card">
         <view class="card-title">关于</view>
         <view class="muted">
-          Realty App v{{ APP_VERSION }} · 热更新 127 已生效<br />
+          Realty App v{{ APP_VERSION }} · 热更新 130 已生效<br />
           默认数据：真实挂牌与公开指标派生样本并存，详情页会明确标注数据等级<br />
           评分规则在手机上实时计算；当前自动化测试为 458 个用例
         </view>
