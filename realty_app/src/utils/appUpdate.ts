@@ -109,18 +109,26 @@ function requestJson(url: string, timeoutMs = 15000): Promise<unknown | null> {
 
 /**
  * 拉到清单的同时记住命中的 update 根目录，方便把 wgt.url 改写到同一镜像。
+ *
+ * v1.121.2: raw.githubusercontent.com 上**没有** wgt 二进制（GitHub raw 不提供二进制下载），
+ * 所以 manifestBase（拉清单的源）≠ wgtBase（下 wgt 的源）。wgtBase 强制走 jsDelivr 系列镜像。
  */
 async function fetchManifestWithBase(): Promise<{
   manifest: AppUpdateManifest;
-  updateBase: string;
+  manifestBase: string;
+  wgtBase: string;
 } | null> {
-  for (const url of getUpdateManifestUrls()) {
+  const urls = getUpdateManifestUrls();
+  for (let i = 0; i < urls.length; i++) {
+    const url = urls[i];
     const data = await requestJson(url);
     if (!data || typeof data !== "object") continue;
     const m = data as AppUpdateManifest;
     if (!m.versionCode || !m.versionName) continue;
-    const updateBase = url.slice(0, url.lastIndexOf("/") + 1);
-    return { manifest: m, updateBase };
+    const manifestBase = url.slice(0, url.lastIndexOf("/") + 1);
+    const candidates = urls.map((u) => u.slice(0, u.lastIndexOf("/") + 1));
+    const wgtBase = selectWgtBase(manifestBase, candidates);
+    return { manifest: m, manifestBase, wgtBase };
   }
   return null;
 }
@@ -139,6 +147,21 @@ export function rewriteWgtUrlToBase(wgtUrl: string, updateBase: string): string 
 }
 
 /**
+ * v1.121.2: 给定命中的 manifestBase（拉清单的源），挑出能下 wgt 二进制的镜像 base。
+ * raw.githubusercontent.com 不能下二进制，所以必须回退到 jsDelivr 系列。
+ * 导出供单测。
+ */
+export function selectWgtBase(manifestBase: string, candidateBases: string[]): string {
+  if (!/raw\.githubusercontent\.com/.test(manifestBase)) return manifestBase;
+  for (const b of candidateBases) {
+    if (!/raw\.githubusercontent\.com/.test(b)) {
+      return b.endsWith("/") ? b : `${b}/`;
+    }
+  }
+  return manifestBase;
+}
+
+/**
  * 仅做远程版本探测，不下载不安装。供设置页"检查更新"按钮使用。
  * App-Plus / H5 均走 uni.request（App WebView 无全局 fetch）。
  */
@@ -150,11 +173,11 @@ export async function checkAppUpdate(): Promise<UpdateCheckResult> {
       reason: "无法访问更新服务器：所有 CDN 镜像均失败（请检查网络或稍后重试）"
     };
   }
-  const { manifest, updateBase } = hit;
+  const { manifest, wgtBase } = hit;
   if (manifest.wgt?.url) {
     manifest.wgt = {
       ...manifest.wgt,
-      url: rewriteWgtUrlToBase(manifest.wgt.url, updateBase)
+      url: rewriteWgtUrlToBase(manifest.wgt.url, wgtBase)
     };
   }
   const remoteCode = parseInt(manifest.versionCode, 10);

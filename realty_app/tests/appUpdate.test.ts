@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { rewriteWgtUrlToBase } from "../src/utils/appUpdate";
+import {
+  rewriteWgtUrlToBase,
+  selectWgtBase
+} from "../src/utils/appUpdate";
 
 describe("appUpdate.rewriteWgtUrlToBase", () => {
   it("把 jsDelivr 清单里的 wgt URL 改写到命中的 update 根", () => {
@@ -31,5 +34,27 @@ describe("appUpdate.rewriteWgtUrlToBase", () => {
     ).toBe(
       "https://gcore.jsdelivr.net/gh/x/y@main/realty_app/static/update/foo.wgt"
     );
+  });
+});
+
+describe("appUpdate.selectWgtBase (v1.121.2)", () => {
+  it("manifest 命中 jsDelivr 时 wgtBase = manifestBase", () => {
+    const mb =
+      "https://gcore.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/";
+    expect(selectWgtBase(mb, [mb])).toBe(mb);
+  });
+
+  it("manifest 命中 raw 时 wgtBase 强制走 jsDelivr 镜像", () => {
+    const raw =
+      "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/";
+    const jsd =
+      "https://gcore.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/";
+    expect(selectWgtBase(raw, [raw, jsd])).toBe(jsd);
+  });
+
+  it("所有 base 都是 raw 时回退 manifestBase", () => {
+    const raw =
+      "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/";
+    expect(selectWgtBase(raw, [raw])).toBe(raw);
   });
 });

@@ -14,12 +14,13 @@ export function getStaticBases(): string[] {
   const custom = u?.getStorageSync
     ? String(u.getStorageSync("realty:cdnBase") || "").trim()
     : "";
+  // v1.121.2: raw.githubusercontent.com 放第一位（大陆直连最稳，jsDelivr 各镜像反而经常被污染或限速）
   const bases = [
+    `https://raw.githubusercontent.com/${REPO}/main/realty_app/static`,
     `https://gcore.jsdelivr.net/gh/${REPO}@main/realty_app/static`,
     `https://fastly.jsdelivr.net/gh/${REPO}@main/realty_app/static`,
     `https://cdn.jsdelivr.net/gh/${REPO}@main/realty_app/static`,
-    `https://jsdelivr.b-cdn.net/gh/${REPO}@main/realty_app/static`,
-    `https://raw.githubusercontent.com/${REPO}/main/realty_app/static`
+    `https://jsdelivr.b-cdn.net/gh/${REPO}@main/realty_app/static`
   ];
   return custom ? [custom.replace(/\/+$/, ""), ...bases] : bases;
 }
