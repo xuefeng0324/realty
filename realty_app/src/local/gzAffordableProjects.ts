@@ -125,6 +125,16 @@ export function getLatestGzAffordableCompleted(opts?: {
   );
 }
 
+/** 同年棚改已竣工（脚注用；不与配售型/保障房 KPI 并排） */
+export function getLatestGzAffordableShantytownCompleted(
+  preferYear?: number
+): GzAffordableProjectsRow | null {
+  return getLatestGzAffordableCompleted({
+    preferYear,
+    preferCategory: "棚户区改造"
+  });
+}
+
 export function __setGzAffordableProjectsForTest(next: GzAffordableProjectsRow[]): void {
   rows = [...next].sort(
     (a, b) =>

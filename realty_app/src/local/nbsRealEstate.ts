@@ -100,3 +100,42 @@ export function getNbsImpliedContractUnitPrice(
   // 亿元 / 万㎡ → 元/㎡ = (亿元×1e8) / (万㎡×1e4) = 亿元×1e4 / 万㎡
   return Math.round((s.salesAmountCny100m * 10000) / s.salesArea10kSqm);
 }
+
+export type NbsUnitPriceTrendPoint = {
+  period: string;
+  shortLabel: string;
+  unitPriceYuanPerSqm: number;
+};
+
+/** 多期合同均价（时间升序）；累计口径，勿直接当作月度环比房价 */
+export function getNbsImpliedUnitPriceTrend(limit = 6): NbsUnitPriceTrendPoint[] {
+  return getNbsRealEstateHistory(limit)
+    .slice()
+    .reverse()
+    .map((s) => {
+      const unitPriceYuanPerSqm = getNbsImpliedContractUnitPrice(s);
+      if (unitPriceYuanPerSqm == null) return null;
+      return {
+        period: s.period,
+        shortLabel: shortPeriodLabel(s.period),
+        unitPriceYuanPerSqm
+      };
+    })
+    .filter((x): x is NbsUnitPriceTrendPoint => !!x);
+}
+
+/**
+ * 全国待售面积相对销售节奏的粗算「可售月数」：
+ * 待售面积 ÷（累计销售面积 / 累计月数）。
+ * 宏观派生，≠城市去化周期。
+ */
+export function getNbsImpliedInventoryMonths(
+  snapshot?: NbsRealEstateSnapshot | null
+): number | null {
+  const s = snapshot === undefined ? getLatestNbsRealEstate() : snapshot;
+  if (!s || !(s.salesArea10kSqm > 0) || !(s.inventoryArea10kSqm > 0)) return null;
+  const m = s.period.match(/(\d{4})-01_to_\1-(\d{2})/);
+  const months = m ? Number(m[2]) : 0;
+  if (!(months > 0)) return null;
+  return Math.round((s.inventoryArea10kSqm * months * 10) / s.salesArea10kSqm) / 10;
+}

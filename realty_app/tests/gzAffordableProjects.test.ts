@@ -5,6 +5,7 @@ import {
   getGzAffordableProjectsRows,
   getLatestGzAffordableCompleted,
   getLatestGzAffordableRaised,
+  getLatestGzAffordableShantytownCompleted,
   loadGzAffordableProjectsFromCSV
 } from "../src/local/gzAffordableProjects";
 
@@ -35,6 +36,10 @@ describe("gz affordable projects", () => {
     });
     // 2025 配售型尚无同族同年竣工清单 → 隐藏竣工 KPI
     expect(aligned).toBeNull();
+    const shanty = getLatestGzAffordableShantytownCompleted(raised!.year);
+    expect(shanty).not.toBeNull();
+    expect(shanty!.category).toContain("棚户");
+    expect(shanty!.totalUnits).toBe(10652);
   });
 
   it("爬虫与仪表盘门禁", () => {
@@ -48,6 +53,9 @@ describe("gz affordable projects", () => {
     expect(dash).toContain("getLatestGzAffordableRaised");
     expect(dash).toContain("gz-progress-track");
     expect(dash).toContain("preferCategory");
+    expect(dash).toContain("data-gz-affordable-shanty-note");
+    expect(dash).toContain("getNbsImpliedUnitPriceTrend");
+    expect(dash).toContain("getNbsImpliedInventoryMonths");
   });
 
   it("CSV 解析", () => {

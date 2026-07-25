@@ -1043,10 +1043,21 @@
         </view>
         <view v-if="nbsImpliedUnitPrice != null" class="rank-row" style="margin-top: 12rpx">
           <text class="muted" style="font-size: 22rpx">全国合同均价（销售额÷面积）</text>
-          <text class="rank-val">{{ nbsImpliedUnitPrice.toLocaleString() }} 元/㎡</text>
+          <text class="rank-val">
+            {{ nbsImpliedUnitPrice.toLocaleString() }} 元/㎡
+            <template v-if="nbsImpliedInventoryMonths != null">
+              · 粗算可售约 {{ nbsImpliedInventoryMonths }} 个月
+            </template>
+          </text>
         </view>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
-          国家统计局累计口径：{{ nbsMacro.period.replace("_to_", " 至 ") }}。销售面积和销售额为新建商品房合同口径；上方均价为销售额÷面积派生值，不是城市挂牌/网签均价，也不是 70 城价格指数。
+          国家统计局累计口径：{{ nbsMacro.period.replace("_to_", " 至 ") }}。销售面积和销售额为新建商品房合同口径；上方均价为销售额÷面积派生值；可售月数 = 待售面积÷（累计销售面积/月数），不是城市去化周期，也不是 70 城价格指数。
+        </view>
+        <view v-if="nbsUnitPriceTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx">
+          合同均价（多期，累计口径勿直接环比）：
+          <text v-for="(p, i) in nbsUnitPriceTrend" :key="'up-' + p.period">
+            {{ p.shortLabel }} {{ p.unitPriceYuanPerSqm.toLocaleString() }}<text v-if="i < nbsUnitPriceTrend.length - 1"> · </text>
+          </text>
         </view>
         <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx">
           销售面积同比（多期）：
@@ -1271,6 +1282,17 @@
           }}
           / {{ gzAffordableTargetCompleted.targetUnits.toLocaleString() }} 套，截至
           {{ gzAffordableTargetCompleted.asOfMonth }} 月底任务量完成表）。
+        </view>
+        <view
+          v-if="gzAffordableShantyNote"
+          class="muted"
+          style="margin-top: 8rpx; font-size: 21rpx"
+          data-gz-affordable-shanty-note
+        >
+          另：同年棚改已竣工 {{ gzAffordableShantyNote.totalUnits.toLocaleString() }} 套（{{
+            gzAffordableShantyNote.projectCount
+          }}
+          个项目，截至 {{ gzAffordableShantyNote.asOfMonth }} 月底）；与上方配售型/保障房清单不同口径，不并排作竣工 KPI。
         </view>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
           来源：广州市住建局保障性住房项目公开 XLS；已筹建/已竣工为项目清单合计；目标进度优先「任务量完成」，缺省回退「筹集建设计划」合计并对齐同年清单实际。均非商品房成交、非房价均价。
@@ -6192,7 +6214,13 @@ import type {
 } from "../../api/contracts";
 import { coverageText, formatUnitPrice, showToast, daysAgoFromToday } from "../../utils/format";
 import { SNAPSHOT_UPDATED_EVENT } from "../../config";
-import { getLatestNbsRealEstate, getNbsImpliedContractUnitPrice, getNbsYoyTrend } from "../../local/nbsRealEstate";
+import {
+  getLatestNbsRealEstate,
+  getNbsImpliedContractUnitPrice,
+  getNbsImpliedInventoryMonths,
+  getNbsImpliedUnitPriceTrend,
+  getNbsYoyTrend
+} from "../../local/nbsRealEstate";
 import { getGzInventoryOverview, getGzInventoryDayDelta, topDistrictAvailableSharePct, districtAvailableSharePct } from "../../local/gzNewHouseInventory";
 import {
   getLatestSzPlannedSupply,
@@ -6209,6 +6237,7 @@ import {
 import {
   getLatestGzAffordableRaised,
   getLatestGzAffordableCompleted,
+  getLatestGzAffordableShantytownCompleted,
   type GzAffordableProjectsRow
 } from "../../local/gzAffordableProjects";
 import {
@@ -7371,6 +7400,8 @@ const gzInventoryExpanded = ref(false);
 const nbsMacro = computed(() => getLatestNbsRealEstate());
 const nbsYoyTrend = computed(() => getNbsYoyTrend(6));
 const nbsImpliedUnitPrice = computed(() => getNbsImpliedContractUnitPrice(nbsMacro.value));
+const nbsUnitPriceTrend = computed(() => getNbsImpliedUnitPriceTrend(6));
+const nbsImpliedInventoryMonths = computed(() => getNbsImpliedInventoryMonths(nbsMacro.value));
 const gzInventory = computed(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   return city === "广州" ? getGzInventoryOverview() : null;
@@ -7412,6 +7443,11 @@ const gzAffordableCompleted = computed<GzAffordableProjectsRow | null>(() => {
     preferYear: raised?.year,
     preferCategory: raised?.category
   });
+});
+/** 同口径竣工缺失时，脚注同年棚改竣工（不同口径，不并排 KPI） */
+const gzAffordableShantyNote = computed<GzAffordableProjectsRow | null>(() => {
+  if (gzAffordableCompleted.value || !gzAffordableRaised.value) return null;
+  return getLatestGzAffordableShantytownCompleted(gzAffordableRaised.value.year);
 });
 const gzAffordableTargetRaised = computed<GzAffordableTargetRow | null>(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";

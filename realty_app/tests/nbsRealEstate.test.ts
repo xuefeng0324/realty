@@ -4,6 +4,8 @@ import { describe, expect, it } from "vitest";
 import {
   getLatestNbsRealEstate,
   getNbsImpliedContractUnitPrice,
+  getNbsImpliedInventoryMonths,
+  getNbsImpliedUnitPriceTrend,
   getNbsRealEstateHistory,
   getNbsYoyTrend,
   loadNbsRealEstateFromCSV
@@ -41,6 +43,12 @@ describe("国家统计局房地产市场数据", () => {
     // 37945 亿元 / 40140 万㎡ → 约 9453 元/㎡（合同派生，非城市均价）
     expect(getNbsImpliedContractUnitPrice(latest)).toBe(9453);
     expect(getNbsImpliedContractUnitPrice()).toBe(9453);
+    // 76315 × 6 / 40140 ≈ 11.4 个月（宏观粗算，非城市去化）
+    expect(getNbsImpliedInventoryMonths(latest)).toBe(11.4);
+
+    const priceTrend = getNbsImpliedUnitPriceTrend();
+    expect(priceTrend.map((x) => x.shortLabel)).toEqual(["1—2", "1—3", "1—4", "1—5", "1—6"]);
+    expect(priceTrend.map((x) => x.unitPriceYuanPerSqm)).toEqual([8809, 8841, 9106, 9376, 9453]);
   });
 
   it("合同均价在面积为 0 时返回 null", () => {
@@ -55,6 +63,23 @@ describe("国家统计局房地产市场数据", () => {
         salesAmountCny100m: 100,
         salesAmountYoyPct: 0,
         inventoryArea10kSqm: 1,
+        inventoryAreaYoyPct: 0,
+        fundsCny100m: 1,
+        fundsYoyPct: 0,
+        sourceUrl: "https://www.stats.gov.cn/x"
+      })
+    ).toBeNull();
+    expect(
+      getNbsImpliedInventoryMonths({
+        period: "2026-01_to_2026-06",
+        publishDate: "2026-01-01",
+        investmentCny100m: 1,
+        investmentYoyPct: 0,
+        salesArea10kSqm: 0,
+        salesAreaYoyPct: 0,
+        salesAmountCny100m: 100,
+        salesAmountYoyPct: 0,
+        inventoryArea10kSqm: 10,
         inventoryAreaYoyPct: 0,
         fundsCny100m: 1,
         fundsYoyPct: 0,
