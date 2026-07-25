@@ -4,6 +4,10 @@
 
 ## 版本信息
 
+> **版本规则（强制）**：[docs/VERSIONING.md](./docs/VERSIONING.md)  
+> 发版请用：`node scripts/bump-version.mjs patch|minor|major`（先 `--dry-run` 预览）。  
+> `versionName` = SemVer；`versionCode` = 每次发版 +1 的整数（OTA 只认它）。
+
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
 | v0.14.0 | 2026-07-12 | dashboard 新增「学区评分 Top 小区」卡：按 avg_school_score 降序展示该城市里沾名校光最多的小区（金/银/铜牌 + 区 + 评分 + 学校数 + 中位单价）；广州 Top 1: 珠江帝景苑 (天河 86.0)，深圳 Top 1: 笋岗仓库综合楼 (罗湖 90.3) |
@@ -401,10 +405,10 @@ python scripts/crawl_daily_wangqian.py fetch --merge
 | 代码审查 | 检查逻辑正确、改动范围最小，不夹带无关文件 |
 | 补充注释 | 为非显而易见的业务/爬虫逻辑补充必要注释 |
 | 测试 | `npm run test` 全部通过 |
-| 更新版本号 | `package.json` 的 `version` 随功能版本递增（如 `0.2.0`） |
-| 更新版本信息 | 本 README 顶部版本表**新增**一行（**不要修改**历史版本行） |
+| 更新版本号 | **必须**按 [docs/VERSIONING.md](./docs/VERSIONING.md)：跑 `node scripts/bump-version.mjs patch\|minor\|major`（同步 `manifest.json` / `config.ts` / `package.json`；`versionCode` 每次发版 +1）。禁止口头乱跳号 |
+| 更新版本信息 | 本 README 顶部版本表**新增**一行（**不要修改**历史版本行）；版本号与 bump 结果一致 |
 | 简要更新日志 | 本 README 底部「更新日志」添加简要说明 |
-| 更新 changelog | `changelog/YYYY-MM-DD-v版本-变更标题.md` 写详细变更（见已有示例） |
+| 更新 changelog | `changelog/YYYY-MM-DD-vX.Y.Z-变更标题.md`（`X.Y.Z` = 本次 `versionName`） |
 | 数据来源变更 | 同步更新 `DATA_SOURCES.md` |
 | 政府 CSV 变更 | 跑对应 `scripts/crawl_*.py`，一并提交 `static/*.csv` |
 | AI 任务结束汇报 | AI agent 改动代码后，按仓库根 [AGENTS.md](../AGENTS.md) 的 5 段模板汇报（修改文件 / 内容总结 / 优缺点 / 下一步 / 验证状态） |

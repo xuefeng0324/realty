@@ -1,6 +1,6 @@
 {
   "name": "realty-app",
-  "version": "0.87.0",
+  "version": "1.121.6",
   "private": true,
   "description": "Realty Analytics 手机端 App（基于 uni-app，复用 backend FastAPI）",
   "scripts": {
@@ -16,7 +16,11 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e:core": "node tests/e2e/run_suite.mjs core",
     "test:e2e:extended": "node tests/e2e/run_suite.mjs extended",
-    "test:e2e:history": "node tests/e2e/_all_smoke.mjs"
+    "test:e2e:history": "node tests/e2e/_all_smoke.mjs",
+    "bump:patch": "node scripts/bump-version.mjs patch",
+    "bump:minor": "node scripts/bump-version.mjs minor",
+    "bump:major": "node scripts/bump-version.mjs major",
+    "bump:dry": "node scripts/bump-version.mjs patch --dry-run"
   },
   "dependencies": {
     "@dcloudio/uni-app": "3.0.0-4030620241128001",

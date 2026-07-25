@@ -83,10 +83,10 @@ deleted   path/to/old_file.ts        # 一句话说明删除原因
 完成代码改动后，**提交前**应主动检查（不要求 AI 执行 git 命令，由用户授权）：
 
 - 涉及 `realty_app/` 代码 → 需同步更新 `realty_app/README.md` 底部更新日志
-- 版本号变更 → 顶部版本表**新增**一行（**不要修改**历史版本行）
+- **版本号** → **必须**遵守 `realty_app/docs/VERSIONING.md`：发版用 `node realty_app/scripts/bump-version.mjs patch|minor|major`（`versionName` SemVer + `versionCode` 每次 +1）；禁止口头乱跳号；README 版本表**新增**一行（**不要修改**历史版本行）
 - 详细变更 → `realty_app/changelog/YYYY-MM-DD-vX.Y.Z-变更标题.md`
 
-详细规则见 `realty_app/README.md` 第 261 行起的「提交规范」。
+详细规则见 `realty_app/README.md`「提交规范」与 `realty_app/docs/VERSIONING.md`。
 
 ## 反例（不要这样汇报）
 
