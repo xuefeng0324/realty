@@ -1319,6 +1319,25 @@
               <text class="wq-trend-units muted">均 {{ Math.round(it.mean) }} · σ {{ Math.round(it.stdDev) }}</text>
             </view>
           </view>
+          <view v-if="wangqianCategoryTrend.length" class="wq-trend-block">
+            <view class="wq-trend-sub muted">全市品类近 4 周变化</view>
+            <view
+              v-for="it in wangqianCategoryTrend"
+              :key="'wct-' + it.category"
+              class="wq-trend-row"
+            >
+              <text class="wq-trend-name">{{ it.category }}</text>
+              <text
+                class="wq-trend-pct"
+                :class="it.changePct >= 0 ? 'wq-trend-up' : 'wq-trend-down'"
+              >
+                {{ formatWowPct(it.changePct) }}
+              </text>
+              <text class="wq-trend-units muted">
+                {{ Math.round(it.recentAvg) }}→{{ it.latestUnits }} 套
+              </text>
+            </view>
+          </view>
           <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
             周环比 = 最近完整周 vs 上一周网签套数；突增 = 最新周较前 4 周均值倍数；CV = 标准差÷均值。数据源：wangqian_district_weekly.csv。
           </view>
@@ -1373,6 +1392,27 @@
         <view v-if="commuteSplit" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           市内快慢分裂：最快 {{ Math.round(commuteSplit.fastestMinutes) }} 分 · 最慢
           {{ Math.round(commuteSplit.slowestMinutes) }} 分 · 约 {{ commuteSplit.ratio.toFixed(1) }}×
+        </view>
+        <view v-if="commuteSpeedTop.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          等效通勤速度 Top（距离 ÷ 时长）
+        </view>
+        <view
+          v-for="(it, idx) in commuteSpeedTop"
+          :key="'csp-' + it.communityId"
+          class="wq-row tap-target"
+          role="button"
+          tabindex="0"
+          hover-class="row-active"
+          @click="goCommunity(it.communityId)"
+        >
+          <text class="wq-rank" :class="rankClass(idx + 1)">{{ idx + 1 }}</text>
+          <text class="wq-name">{{ it.communityName }}</text>
+          <text class="wq-units">
+            {{ it.speedKmh.toFixed(1) }} km/h
+            <text class="muted" style="font-size: 20rpx; margin-left: 4rpx">
+              · {{ Math.round(it.transitMinutes) }} 分
+            </text>
+          </text>
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：高德 /v3/direction/transit/integrated (公交通勤方案 1, 早 08:30)。
@@ -1773,6 +1813,25 @@
           </view>
           <text class="mp-line-km">{{ it.lengthKm.toFixed(1) }} km</text>
         </view>
+        <view v-if="metroPlanTopStations.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          站数 Top {{ metroPlanTopStations.length }}
+        </view>
+        <view
+          v-for="(it, idx) in metroPlanTopStations"
+          :key="'mps-' + it.lineName + idx"
+          class="mp-line-row"
+        >
+          <text class="mp-line-rank muted">{{ idx + 1 }}</text>
+          <view class="mp-line-mid">
+            <text class="mp-line-name">{{ it.lineName }}</text>
+            <text class="mp-line-meta muted">
+              {{ it.status }}
+              <text v-if="it.openYearExpected"> · {{ it.openYearExpected }} 年</text>
+              · {{ it.lengthKm.toFixed(1) }} km
+            </text>
+          </view>
+          <text class="mp-line-km">{{ it.stationCount }} 站</text>
+        </view>
         <view v-if="metroCurvatureTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           线路弯曲系数 Top（实际里程 ÷ 起终点直线）
         </view>
@@ -2054,6 +2113,21 @@
             {{ r.premiumPct >= 0 ? '+' : '' }}{{ r.premiumPct.toFixed(1) }}%
           </view>
         </view>
+        <view v-if="featurePremiumAbsTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          全国 |溢价| 最大桶
+        </view>
+        <view
+          v-for="(r, idx) in featurePremiumAbsTop"
+          :key="'fpa-' + r.cityId + r.dimension + r.bucket"
+          class="fp-row"
+        >
+          <view class="fp-bucket">
+            {{ idx + 1 }}. {{ r.cityName }} · {{ fpDimLabel(r.dimension) }} · {{ r.bucket }}
+          </view>
+          <view :class="['fp-pct', fpPctClass(r.premiumPct)]">
+            {{ r.premiumPct >= 0 ? '+' : '' }}{{ r.premiumPct.toFixed(1) }}%
+          </view>
+        </view>
       </view>
 
       <!-- v1.121.14 挂牌标签热度（listingTagsComparison，筛选项页已用，仪表盘此前未展示） -->
@@ -2116,6 +2190,53 @@
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：listing_tags_summary.csv。与「标签组合」不同：本卡看单标签渗透与城市特色。
+        </view>
+        <view v-if="listingKeywordsCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          标题关键词（listing_keyword）
+        </view>
+        <view
+          v-for="k in listingKeywordsCity"
+          :key="'kw-' + k.keyword"
+          class="ltk-row"
+        >
+          <text class="ltk-tag">{{ k.keyword }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{
+                width:
+                  Math.min(
+                    100,
+                    (k.share / (listingKeywordsCity[0]?.share || 0.01)) * 100
+                  ) + '%'
+              }"
+            />
+          </view>
+          <text class="ltk-share">{{ (k.share * 100).toFixed(1) }}%</text>
+          <text class="ltk-count muted">{{ k.count }}</text>
+        </view>
+        <view v-if="listingKeywordTongtouCross.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          跨城「南北通透」渗透
+        </view>
+        <view
+          v-for="k in listingKeywordTongtouCross"
+          :key="'tt-' + k.cityId"
+          class="ltk-row"
+        >
+          <text class="ltk-tag" style="width: 100rpx">{{ k.cityName }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{
+                width:
+                  Math.min(
+                    100,
+                    (k.share / (listingKeywordTongtouCross[0]?.share || 0.01)) * 100
+                  ) + '%'
+              }"
+            />
+          </view>
+          <text class="ltk-share">{{ (k.share * 100).toFixed(1) }}%</text>
         </view>
       </view>
 
@@ -2348,6 +2469,40 @@
           数据源：listings.csv (orientation + floor_number) → scripts/compute_orientation_floor.py。<br>
           公式：premium_pct = (cell_median - city_median) ÷ city_median × 100<br>
           颜色：绿=溢价 ≥3%, 红=折价 ≤-3%, 灰=中性
+        </view>
+        <view v-if="orientationFloorCityBest.length" class="of-section-title">
+          本市极值桶（派生层）
+        </view>
+        <view
+          v-for="(p, idx) in orientationFloorCityBest"
+          :key="'ofb-' + idx"
+          class="of-row of-row-up"
+        >
+          <text class="of-rank">↑{{ idx + 1 }}</text>
+          <text class="of-key">{{ p.orientation }} · {{ p.floorBucket }}</text>
+          <text class="of-pct">+{{ p.premiumPct.toFixed(1) }}%</text>
+        </view>
+        <view
+          v-for="(p, idx) in orientationFloorCityWorst"
+          :key="'ofw-' + idx"
+          class="of-row of-row-down"
+        >
+          <text class="of-rank">↓{{ idx + 1 }}</text>
+          <text class="of-key">{{ p.orientation }} · {{ p.floorBucket }}</text>
+          <text class="of-pct">{{ p.premiumPct.toFixed(1) }}%</text>
+        </view>
+        <view v-if="orientationTongtouPriceTop.length" class="of-section-title">
+          「南北通透」跨城楼层单价 Top
+        </view>
+        <view
+          v-for="(p, idx) in orientationTongtouPriceTop"
+          :key="'oft-' + p.cityId + p.floorBucket"
+          class="of-row"
+        >
+          <text class="of-rank">#{{ idx + 1 }}</text>
+          <text class="of-key">{{ p.cityName }} · {{ p.floorBucket }}</text>
+          <text class="of-px">{{ Math.round(p.medianUnitPrice) }} 元</text>
+          <text class="of-n">×{{ p.count }}</text>
         </view>
       </view>
 
@@ -2763,6 +2918,18 @@
 
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：school_indicators.csv (5 原始指标列) → 城市内百分位排名 → 综合分 0-100
+        </view>
+        <view v-if="schoolCompositeCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城综合分冠军校
+        </view>
+        <view
+          v-for="c in schoolCompositeCrossCity"
+          :key="'scc-' + c.cityId"
+          class="sd-ovr-row"
+        >
+          <text class="sd-name-sm">{{ c.cityName }}</text>
+          <text class="sd-name-sm">{{ c.topSchool?.schoolName?.slice(0, 16) ?? "—" }}</text>
+          <text class="sd-val">{{ c.topSchool?.score?.toFixed(1) ?? "—" }}</text>
         </view>
         </template>
       </view>
@@ -3420,6 +3587,14 @@
           数据源：schools.csv (district_name) + school_indicators.csv (latest_level_score_raw)。
           支持按区过滤、最低评分筛选、4 种排序 (评分/均价/挂牌/校数)。
         </view>
+        <view v-if="schoolPremiumTier" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          学区挂牌三层一致性：
+          小区合计 {{ schoolPremiumTier.communityListings }} ·
+          分区合计 {{ schoolPremiumTier.districtListings }}
+          <text :class="schoolPremiumTier.consistent ? 'trend-up' : 'trend-down'">
+            {{ schoolPremiumTier.consistent ? " · 一致" : " · 不一致" }}
+          </text>
+        </view>
       </view>
 
       <!-- 天气快照 + 4 天预报 -->
@@ -3747,9 +3922,11 @@ import {
   getWangqianWeeklyWoWChange,
   getWangqianWeeklyRecentSpikes,
   getWangqianWeeklyVolatility,
+  getWangqianWeeklyByCityCategoryTrend,
   type DistrictWoWChange,
   type DistrictSpike,
-  type DistrictVolatility
+  type DistrictVolatility,
+  type CityCategoryTrend
 } from "../../local/wangqianTrendRanking";
 import * as store from "../../local/store";
 import {
@@ -3813,6 +3990,7 @@ import {
 import {
   summarizeMetroPlanningByCity,
   getMetroPlanningByCityTopByLength,
+  getMetroPlanningByCityTopByStations,
   getMetroPlanningByCityFastLines,
   getMetroPlanningByCityStatusVsStations,
   type CityMetroPlanningSummary,
@@ -3834,7 +4012,8 @@ import {
   type CrossCityBucketEntry
 } from "../../local/distributionRanking";
 import {
-  getFeaturePremiumCrossCityLeaderboard
+  getFeaturePremiumCrossCityLeaderboard,
+  getFeaturePremiumByDimensionCoverage
 } from "../../local/featurePremiumRanking";
 import {
   getTagCombinationCrossCityMostCommon,
@@ -3852,6 +4031,7 @@ import {
 } from "../../local/communityScatterRanking";
 import {
   getCommuteByCityFastestSlowestCompare,
+  getCommuteSpeedLeaderboard,
   type FastestSlowestCompare
 } from "../../local/commuteRanking";
 import {
@@ -3887,9 +4067,15 @@ import {
   summarizeSchoolDimensionsByCity,
   getSchoolDimensionByDimensionTopN,
   getSchoolDimensionPolymath,
+  getCityByCompositeRank,
   type CityDimensionSummary,
-  type SchoolDimensionEntry
+  type SchoolDimensionEntry,
+  type CityTopComposite
 } from "../../local/schoolDimensionRanking";
+import {
+  getSchoolPremiumThreeTierConsistency,
+  type ThreeTierConsistency
+} from "../../local/schoolPremiumRanking";
 import {
   getCommunityCommercialByCityDistrict,
   getCommunityCommercialDensityVsDistance,
@@ -3897,7 +4083,17 @@ import {
   type DensityDistanceBucket
 } from "../../local/communityCommercialRanking";
 import { getEducationOverview, type EducationOverview } from "../../local/educationOverview";
-import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution } from "../../local/types";
+import {
+  getListingKeywordsByCity,
+  getListingKeywordsCrossCity,
+  type ListingKeywordRow
+} from "../../local/listingKeyword";
+import {
+  getOrientationFloorBestWorstByCity,
+  getOrientationFloorByOrientationLeaderboard,
+  type CityOrientationFloorTopEntry
+} from "../../local/orientationFloorRanking";
+import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -3934,6 +4130,12 @@ const wqRankCat = ref<"新房" | "二手" | "全部">("全部");
 const commuteRanking = ref<CommuteRankingResponse | null>(null);
 const commuteSplit = computed<FastestSlowestCompare | null>(() =>
   getCommuteByCityFastestSlowestCompare().find((x) => x.cityId === app.cityId) ?? null
+);
+const commuteSpeedTop = computed(() =>
+  getCommuteSpeedLeaderboard(app.cityId, 5).map((x) => ({
+    ...x,
+    communityName: store.getCommunityById(x.communityId)?.communityName ?? `#${x.communityId}`
+  }))
 );
 const layoutDistribution = ref<LayoutDistributionResponse | null>(null);
 const tagCloud = ref<TagCloudResponse | null>(null);
@@ -4137,6 +4339,9 @@ const metroPlanYears = computed<OpenYearMetroPlanningSummary[]>(() => {
 const metroPlanTop = computed<TopByMetric[]>(() =>
   getMetroPlanningByCityTopByLength(app.cityId, 5)
 );
+const metroPlanTopStations = computed<TopByMetric[]>(() =>
+  getMetroPlanningByCityTopByStations(app.cityId, 5)
+);
 const metroCurvatureTop = computed<CurvatureEntry[]>(() =>
   getMetroPlanningGeoByCityCrossReference()
     .filter((x) => x.cityId === app.cityId && x.curvatureRatio != null)
@@ -4212,6 +4417,12 @@ const listingTagPenetrationTop = computed(() => {
     .sort((a, b) => (b.cityShare ?? 0) - (a.cityShare ?? 0))
     .slice(0, 5);
 });
+const listingKeywordsCity = computed<ListingKeywordRow[]>(() =>
+  getListingKeywordsByCity(app.cityId).slice(0, 6)
+);
+const listingKeywordTongtouCross = computed(() =>
+  getListingKeywordsCrossCity("南北通透")
+);
 
 // v0.35.0 map-9: 地铁步行通勤
 const metroWalk = ref<MetroWalkResponse | null>(null);
@@ -4233,6 +4444,9 @@ const decorateAge = ref<DecorateAgeResponse | null>(null);
 const scatter = ref<CommunityScatterResponse | null>(null);
 const featurePremiumCrossBedrooms = computed(
   () => getFeaturePremiumCrossCityLeaderboard("bedrooms").rows
+);
+const featurePremiumAbsTop = computed<LocalFeaturePremium[]>(() =>
+  getFeaturePremiumByDimensionCoverage(5)
 );
 const tagComboCrossCity = computed<TagPairAggregate[]>(() =>
   getTagCombinationCrossCityMostCommon(5)
@@ -6247,6 +6461,21 @@ const dimTopBalanceCity = computed<SchoolDimensionEntry[]>(() =>
 const dimPolymathCity = computed<SchoolDimensionEntry[]>(() =>
   getSchoolDimensionPolymath(app.cityId, {}).slice(0, 5)
 );
+const schoolCompositeCrossCity = computed<CityTopComposite[]>(() =>
+  getCityByCompositeRank()
+);
+const schoolPremiumTier = computed<ThreeTierConsistency | null>(() =>
+  getSchoolPremiumThreeTierConsistency().find((x) => x.cityId === app.cityId) ?? null
+);
+const orientationFloorCityBest = computed<CityOrientationFloorTopEntry[]>(() =>
+  getOrientationFloorBestWorstByCity(2).best.filter((x) => x.cityId === app.cityId)
+);
+const orientationFloorCityWorst = computed<CityOrientationFloorTopEntry[]>(() =>
+  getOrientationFloorBestWorstByCity(2).worst.filter((x) => x.cityId === app.cityId)
+);
+const orientationTongtouPriceTop = computed<LocalOrientationFloor[]>(() =>
+  getOrientationFloorByOrientationLeaderboard("南北通透", 5)
+);
 
 // v1.121.17 分区商业均分
 const commercialDistrictTop = computed<DistrictCommercialSummary[]>(() =>
@@ -6434,6 +6663,11 @@ const wangqianTrendVolatility = computed((): DistrictVolatility[] => {
     .filter((x) => x.city === city)
     .sort((a, b) => b.cv - a.cv)
     .slice(0, 3);
+});
+const wangqianCategoryTrend = computed((): CityCategoryTrend[] => {
+  const city = wangqianTrendCityName.value;
+  if (!city) return [];
+  return getWangqianWeeklyByCityCategoryTrend(4).filter((x) => x.city === city);
 });
 const wangqianTrendHasCityData = computed(
   () =>
