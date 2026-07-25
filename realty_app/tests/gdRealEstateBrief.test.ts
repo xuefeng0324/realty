@@ -4,33 +4,44 @@ import { describe, expect, it } from "vitest";
 import {
   gdBriefImpliedUnitPrice,
   getGdRealEstateBriefRows,
+  getGdRealEstateBriefTrend,
   getLatestGdRealEstateBrief,
   loadGdRealEstateBriefFromCSV
 } from "../src/local/gdRealEstateBrief";
 
 describe("gd real estate brief", () => {
-  it("加载广东房地产运行简况", () => {
+  it("加载广东房地产运行简况多期", () => {
     const rows = getGdRealEstateBriefRows();
-    expect(rows.length).toBeGreaterThanOrEqual(2);
+    expect(rows.length).toBeGreaterThanOrEqual(10);
     const latest = getLatestGdRealEstateBrief();
     expect(latest).not.toBeNull();
-    expect(latest!.period).toBe("2026_Q1");
-    expect(latest!.salesAreaWanSqm).toBe(1313.34);
-    expect(latest!.investmentYi).toBe(1866.08);
-    expect(latest!.sourceUrl).toMatch(/zfcxjst\.gd\.gov\.cn/);
+    expect(latest!.period).toBe("2026_H1");
+    expect(latest!.salesAreaWanSqm).toBe(2823.5);
+    expect(latest!.investmentYi).toBe(3967.96);
+    expect(latest!.sourceUrl).toMatch(/stats\.gd\.gov\.cn|zfcxjst\.gd\.gov\.cn/);
     const y2025 = rows.find((r) => r.period === "2025");
     expect(y2025).toBeTruthy();
     expect(y2025!.salesAmountYi).toBe(9720.13);
     expect(gdBriefImpliedUnitPrice(y2025!)).toBe(15666);
+    const q1 = rows.find((r) => r.period === "2025_Q1");
+    expect(q1!.salesAreaWanSqm).toBe(1556.33);
+    expect(getGdRealEstateBriefTrend(3).map((r) => r.period)).toEqual([
+      "2026_H1",
+      "2026_Q1",
+      "2026_01_02"
+    ]);
   });
 
   it("爬虫与仪表盘门禁", () => {
     const script = readFileSync(resolve(process.cwd(), "scripts/crawl_gd_real_estate_brief.py"), "utf8");
     expect(script).toContain("房地产市场运行简况");
     expect(script).toContain("zfcxjst.gd.gov.cn");
+    expect(script).toContain("stats.gd.gov.cn");
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     expect(dash).toContain("getLatestGdRealEstateBrief");
     expect(dash).toContain("data-gd-real-estate-brief");
+    expect(dash).toContain("data-gd-brief-series-toggle");
+    expect(dash).toContain("gdBriefSeriesExpanded");
   });
 
   it("CSV 解析", () => {

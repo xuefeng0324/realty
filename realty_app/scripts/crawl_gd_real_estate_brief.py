@@ -30,12 +30,60 @@ CTX = ssl.create_default_context()
 # 列表偶发断连时的种子正文（可被列表抓取覆盖）
 SEED_BRIEFS: list[tuple[str, str]] = [
     (
+        "http://stats.gd.gov.cn/tjkx185/content/post_4927616.html",
+        "2026年上半年广东房地产市场运行简况",
+    ),
+    (
         "https://zfcxjst.gd.gov.cn/xxgk/tjxx/content/post_4891221.html",
         "【图解数据】2026年一季度广东房地产市场运行简况",
     ),
     (
+        "https://zfcxjst.gd.gov.cn/xxgk/tjxx/content/post_4872729.html",
+        "【图解数据】2026年1—2月份广东房地产市场运行简况",
+    ),
+    (
         "https://zfcxjst.gd.gov.cn/xxgk/tjxx/content/post_4850764.html",
         "【图解数据】2025年广东房地产市场运行简况",
+    ),
+    (
+        "https://zfcxjst.gd.gov.cn/xxgk/tjxx/content/post_4836762.html",
+        "【图解数据】2025年1-11月份房地产市场运行简况",
+    ),
+    (
+        "https://zfcxjst.gd.gov.cn/xxgk/tjxx/content/post_4808108.html",
+        "【图解数据】2025年1-10月份房地产市场运行简况",
+    ),
+    (
+        "https://zfcxjst.gd.gov.cn/xxgk/tjxx/content/post_4792406.html",
+        "【图解数据】2025年前三季度广东房地产市场运行简况",
+    ),
+    (
+        "https://zfcxjst.gd.gov.cn/xxgk/tjxx/content/post_4778686.html",
+        "【图解数据】2025年1-8月份房地产市场运行简况",
+    ),
+    (
+        "https://zfcxjst.gd.gov.cn/xxgk/tjxx/content/post_4763364.html",
+        "【图解数据】2025年1-7月份房地产市场运行简况",
+    ),
+    (
+        "https://zfcxjst.gd.gov.cn/xxgk/tjxx/content/post_4751554.html",
+        "【图解数据】2025年上半年广东房地产市场运行简况",
+    ),
+    (
+        "https://zfcxjst.gd.gov.cn/xxgk/tjxx/content/post_4734616.html",
+        "【图解数据】2025年1-5月份房地产市场运行简况",
+    ),
+    (
+        "https://zfcxjst.gd.gov.cn/xxgk/tjxx/content/post_4716839.html",
+        "【图解数据】2025年1-4月份房地产市场运行简况",
+    ),
+    (
+        "https://zfcxjst.gd.gov.cn/xxgk/tjxx/content/post_4704274.html",
+        "【图解数据】2025年一季度房地产市场运行简况",
+    ),
+    (
+        "https://zfcxjst.gd.gov.cn/xxgk/tjxx/content/post_4688603.html",
+        "【图解数据】2025年1-2月份房地产市场运行简况",
     ),
     (
         "https://zfcxjst.gd.gov.cn/xxgk/tjxx/content/post_4673966.html",
@@ -212,31 +260,26 @@ def parse_brief(url: str, title: str, html: str) -> dict | None:
     period, period_label, sort_key = period_info
     text = plain(html)
 
-    inv = one(
-        text,
-        r"房地产开发投资([\d.,]+)亿元[，,](?:同比|比上年)(下降|增长)([\d.]+)%",
-        r"房地产开发投资([\d.,]+)亿元",
-    )
-    inv_yoy = one_yoy(
-        text,
-        r"房地产开发投资([\d.,]+)亿元[，,](?:同比|比上年)(下降|增长)([\d.]+)%",
-    )
-    # 若 first one() 吃了带同比的组，上面 one 可能把整匹配错——重抽绝对值
     m_inv = re.search(
         r"房地产开发投资([\d.,]+)亿元[，,](?:同比|比上年)?(下降|增长)?([\d.]*)%?",
         text,
     )
-    if m_inv:
-        inv = fnum(m_inv.group(1))
-        if m_inv.group(2) and m_inv.group(3):
-            inv_yoy = signed_yoy(m_inv.group(2), m_inv.group(3))
+    inv = fnum(m_inv.group(1)) if m_inv else 0.0
+    inv_yoy = (
+        signed_yoy(m_inv.group(2), m_inv.group(3)) if m_inv and m_inv.group(2) and m_inv.group(3) else 0.0
+    )
 
     res_inv = one(text, r"商品住宅投资([\d.,]+)亿元")
 
     m_area = re.search(
-        r"新建商品房销售面积([\d.,]+)万平方米[，,](?:同比|比上年)?(下降|增长)?([\d.]*)%?",
+        r"(?:新建)?商品房销售面积([\d.,]+)万平方米[，,](?:同比|比上年)?(下降|增长)?([\d.]*)%?",
         text,
     )
+    if not m_area:
+        m_area = re.search(
+            r"全省商品房销售面积([\d.,]+)万平方米[，,](?:同比|比上年)?(下降|增长)?([\d.]*)%?",
+            text,
+        )
     sales_area = fnum(m_area.group(1)) if m_area else 0.0
     sales_area_yoy = (
         signed_yoy(m_area.group(2), m_area.group(3)) if m_area and m_area.group(2) and m_area.group(3) else 0.0
@@ -265,7 +308,11 @@ def parse_brief(url: str, title: str, html: str) -> dict | None:
 
     construction = one(text, r"房屋施工面积([\d.,]+)万平方米")
     completed = one(text, r"房屋竣工面积([\d.,]+)万平方米")
-    pr_sales = one(text, r"珠三角地区新建商品房销售面积([\d.,]+)万平方米")
+    pr_sales = one(
+        text,
+        r"珠三角地区(?:新建)?商品房销售面积([\d.,]+)万平方米",
+        r"珠三角地区销售面积([\d.,]+)万平方米",
+    )
     pr_inv = one(text, r"珠三角地区房地产开发投资([\d.,]+)亿元")
 
     pub = ""
@@ -273,8 +320,12 @@ def parse_brief(url: str, title: str, html: str) -> dict | None:
     if pm:
         pub = pm.group(1)
 
-    if sales_area <= 0 and inv <= 0:
+    if sales_area <= 0 and sales_amt <= 0 and inv <= 0:
         return None
+
+    source_org = "广东省住房和城乡建设厅"
+    if "stats.gd.gov.cn" in url:
+        source_org = "广东省统计局"
 
     return {
         "region": "广东",
@@ -296,7 +347,7 @@ def parse_brief(url: str, title: str, html: str) -> dict | None:
         "pr_sales_area_wan_sqm": fmt(pr_sales),
         "pr_investment_yi": fmt(pr_inv),
         "title": title,
-        "source_org": "广东省住房和城乡建设厅",
+        "source_org": source_org,
         "source_url": url,
     }
 

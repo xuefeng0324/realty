@@ -1141,9 +1141,39 @@
           <text class="rank-val">{{ gdBriefUnitPrice.toLocaleString() }} 元/㎡</text>
         </view>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
-          省住建厅简况：{{ gdRealEstateBrief.sourceOrg }} · {{ gdRealEstateBrief.publishDate || gdRealEstateBrief.periodLabel }}。
+          {{ gdRealEstateBrief.sourceOrg }} · {{ gdRealEstateBrief.publishDate || gdRealEstateBrief.periodLabel }}。
           全省累计合同口径；均价为派生值；≠城市挂牌/网签均价、≠70城指数。
         </view>
+        <button
+          v-if="gdBriefTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-gd-brief-series-toggle
+          :aria-expanded="gdBriefSeriesExpanded"
+          @click="gdBriefSeriesExpanded = !gdBriefSeriesExpanded"
+        >
+          {{ gdBriefSeriesExpanded ? "收起多期序列" : "展开多期序列" }}
+        </button>
+        <template v-if="gdBriefSeriesExpanded">
+          <view class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-gd-brief-series-detail>
+            销售面积同比（累计口径勿直接环比）：
+            <text v-for="(p, i) in gdBriefTrend" :key="'gd-a-' + p.period">
+              {{ p.periodLabel }} {{ formatMacroPct(p.salesAreaYoyPct) }}<text v-if="i < gdBriefTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-gd-brief-series-detail>
+            销售额同比：
+            <text v-for="(p, i) in gdBriefTrend" :key="'gd-s-' + p.period">
+              {{ p.periodLabel }} {{ formatMacroPct(p.salesAmountYoyPct) }}<text v-if="i < gdBriefTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-gd-brief-series-detail>
+            开发投资同比：
+            <text v-for="(p, i) in gdBriefTrend" :key="'gd-i-' + p.period">
+              {{ p.periodLabel }} {{ formatMacroPct(p.investmentYoyPct) }}<text v-if="i < gdBriefTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
       </view>
 
       <view v-if="gzInventory" class="card gz-inventory-card" data-tab="overview,price">
@@ -6537,6 +6567,7 @@ import {
 } from "../../local/zhProvidentDynamics";
 import {
   getLatestGdRealEstateBrief,
+  getGdRealEstateBriefTrend,
   gdBriefImpliedUnitPrice,
   type GdRealEstateBriefRow
 } from "../../local/gdRealEstateBrief";
@@ -7658,6 +7689,7 @@ const errorMsg = ref<string>("");
 const loading = ref<boolean>(false);
 const gzInventoryExpanded = ref(false);
 const nbsSeriesExpanded = ref(false);
+const gdBriefSeriesExpanded = ref(false);
 const gdProvidentExpanded = ref(false);
 
 const nbsMacro = computed(() => getLatestNbsRealEstate());
@@ -7814,6 +7846,7 @@ const szProvidentYearDelta = computed(() =>
 );
 const gdRealEstateBrief = computed<GdRealEstateBriefRow | null>(() => getLatestGdRealEstateBrief());
 const gdBriefUnitPrice = computed(() => gdBriefImpliedUnitPrice(gdRealEstateBrief.value));
+const gdBriefTrend = computed(() => getGdRealEstateBriefTrend(8));
 const gzProvidentAnnual = computed<GzProvidentAnnualRow | null>(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   return city === "广州" ? getLatestGzProvidentAnnual() : null;

@@ -63,7 +63,10 @@ function mapRow(row: Record<string, string>): GdRealEstateBriefRow | null {
 export function loadGdRealEstateBriefFromCSV(text: string): GdRealEstateBriefRow[] {
   return rowsToObjects<Record<string, string>>(parseCSV(text))
     .map(mapRow)
-    .filter((r): r is GdRealEstateBriefRow => !!r && r.region === "广东" && r.salesAreaWanSqm > 0)
+    .filter(
+      (r): r is GdRealEstateBriefRow =>
+        !!r && r.region === "广东" && (r.salesAreaWanSqm > 0 || r.salesAmountYi > 0 || r.investmentYi > 0)
+    )
     .sort((a, b) => b.sortKey.localeCompare(a.sortKey));
 }
 
@@ -75,6 +78,11 @@ export function getGdRealEstateBriefRows(): GdRealEstateBriefRow[] {
 
 export function getLatestGdRealEstateBrief(): GdRealEstateBriefRow | null {
   return rows[0] || null;
+}
+
+/** 多期同比序列（最新在前；默认取 8 期） */
+export function getGdRealEstateBriefTrend(limit = 8): GdRealEstateBriefRow[] {
+  return rows.slice(0, Math.max(0, limit));
 }
 
 /** 销售额÷销售面积派生全省合同均价（元/㎡）；累计口径，≠城市挂牌均价 */

@@ -156,7 +156,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/gz_provident_annual.csv` | `gzProvidentAnnual.ts` + 公积金卡「广州年报」KPI | `crawl_gz_provident_annual.py`（**周更 CI**；本机常 SSL 失败则保留种子） | 广州市住房公积金**年度报告**正文（2023/2024 种子已核；公租房计提 2024=42.46 亿）；字段对齐深圳年报；**非成交均价** |
 | `static/zh_provident_dynamics.csv` | `zhProvidentDynamics.ts` + 公积金卡「珠海动态」KPI | `crawl_zh_provident_dynamics.py`（**周更 CI**） | 珠海公积金中心「住房公积金动态(YYYY年1-N月)」：缴存/提取/发放贷款/个贷率；含 2025 全年 + **同月末对照**；完整年报正文若未公开则以动态为准；**非成交均价** |
 | `static/gd_provident_annual.csv` | `gdProvidentAnnual.ts` + 公积金卡「省年报」KPI（**默认折叠**） | `crawl_gd_provident_annual.py`（**周更 CI**） | 广东省住房公积金年报全省指标；官方 HTML **无稳定分市表**（分市见媒体解读）；**非成交均价** |
-| `static/gd_real_estate_brief.csv` | `gdRealEstateBrief.ts` + 仪表盘「广东房地产市场运行」卡 | `crawl_gd_real_estate_brief.py`（**周更 CI**；列表可达、正文偶发断连则保留种子） | 省住建厅「房地产市场运行简况」：全省/珠三角投资与新建商品房销售面积·销售额及同比；派生全省合同均价；**≠城市挂牌/网签均价、≠70城指数** |
+| `static/gd_real_estate_brief.csv` | `gdRealEstateBrief.ts` + 仪表盘「广东房地产市场运行」卡（**多期默认折叠**） | `crawl_gd_real_estate_brief.py`（**周更 CI**；列表可达、正文偶发断连则保留种子；含省统计局上半年简况种子） | 省住建厅/统计局「房地产市场运行简况」多期：全省/珠三角投资与新建商品房销售面积·销售额及同比；派生全省合同均价；**≠城市挂牌/网签均价、≠70城指数** |
 | `static/seed/lpr_history.csv` | LPR 卡 / 组合贷 | `compute_lpr_history.py`（基线）+ `crawl_lpr_history.py`（**月更 CI**） | 央行 PBOC 公告 1Y/5Y LPR；房贷加点沿用示意 bp |
 | `static/nbs_real_estate.csv` | `nbsRealEstate.ts` | `scripts/crawl_nbs_real_estate.py`（**月更 CI** 随 `crawl-monthly-stats70`） | 国家统计局全国房地产市场基本情况；**多期 merge**（`period` 主键）；来源须为 `stats.gov.cn`；仪表盘展示销售面积/销售额/投资/到位资金同比多期、**销售额÷面积派生全国合同均价（多期）**、以及 **待售÷销售节奏粗算可售月数（多期）**（均 ≠城市挂牌/网签均价、≠70城指数、≠城市去化周期） |
 
@@ -185,6 +185,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | （珠海不动产公开页） | （未接入） | `bdc.zhuhai.gov.cn/zwgk/sjfb/` | 季度登记统计页仅为 **PNG**（已探针确认无 HTML 表/XLSX）；暂不 OCR |
 | （珠海预售专网） | （未接入） | `zhfc.zhszjj.com` | TLS handshake 超时（HTTPS/HTTP 均失败，2026-07-26 复测）；暂无可用结构化 endpoint |
 | （广州月度批准预售专栏） | （未接入明细） | `zfcj.gz.gov.cn/.../xjspfpzystjxx/` | 月度正文多为 **PNG**；专栏路径 2026-07-26 复测 **404**；年更计划已由 `gz_housing_plan.csv` 覆盖核心指标 |
+| （广州存量房交易登记月报） | （未接入） | `zfcj.gz.gov.cn/.../clfjydjtjxx/` | 2026-07-26 探针：正文多为 **PNG**、无 HTML 表/XLS；暂不 OCR |
 | （广州公积金年报） | `static/gz_provident_annual.csv` | `gjj.gz.gov.cn` 年报正文 | **已接入**（v1.121.72）；本机 SSL 常失败，CI/可达网络用 `crawl_gz_provident_annual.py` 刷新；种子来自官方年报正文 |
 
 #### 4.1 国家统计局房地产多期回填
