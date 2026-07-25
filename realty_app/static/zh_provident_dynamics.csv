@@ -1,0 +1,6 @@
+﻿city,year,month_end,as_of_date,publish_date,deposit_amount_yi,deposit_yoy_pct,extract_amount_yi,extract_yoy_pct,extract_rate_pct,loan_issued_yi,loan_issued_yoy_pct,loan_balance_yi,loan_ratio_pct,paid_persons,deposit_balance_yi,title,source_org,source_url
+珠海,2026,3,2026-03-31,2026-04-27,35.6885,3,30.0315,7,84,9.8661,195,170.508,63,786712,269.392,珠海市住房公积金动态（2026年1-3月）,珠海市住房公积金管理中心,https://gjj.zhuhai.gov.cn/zwgk/gzdt/content/post_3900021.html
+珠海,2025,12,2025-12-31,2026-03-24,144.742,7,104.924,2,72,20.212,4,164.795,62,897248,263.736,珠海市住房公积金动态（2025年1-12月）,珠海市住房公积金管理中心,https://gjj.zhuhai.gov.cn/zwgk/gzdt/content/post_3889655.html
+珠海,2025,9,2025-09-30,2025-11-10,108.894,7,79.3746,3,73,14.5786,34,163.077,64,861500,253.436,珠海市住房公积金动态（2025年1-9月）,珠海市住房公积金管理中心,https://gjj.zhuhai.gov.cn/zwgk/gzdt/content/post_3850671.html
+珠海,2025,6,2025-06-30,2025-07-30,72.9064,8,51.6793,1,71,8.0549,28,160.545,65,772013,245.144,珠海市住房公积金动态（2025年1-6月）,珠海市住房公积金管理中心,https://gjj.zhuhai.gov.cn/zwgk/gzdt/content/post_3820337.html
+珠海,2025,3,2025-03-31,2025-06-11,34.629,7,28.0049,1,81,3.3458,18,159.606,69,759377,230.541,珠海市住房公积金动态（2025年1-3月）,珠海市住房公积金管理中心,https://gjj.zhuhai.gov.cn/zwgk/gzdt/content/post_3804552.html

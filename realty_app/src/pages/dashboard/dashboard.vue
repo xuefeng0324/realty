@@ -4502,6 +4502,42 @@
             </template>
             非成交均价、非挂牌价。
           </view>
+          <view v-if="zhProvidentDynamics" class="gz-inventory-grid" style="margin-top: 12rpx" data-zh-provident-dynamics>
+            <view class="gz-inventory-kpi">
+              <text class="cell-label">{{ zhProvidentPeriodLabel }} 缴存额</text>
+              <text class="gz-inventory-value">{{ zhProvidentDynamics.depositAmountYi.toLocaleString() }} 亿</text>
+              <text class="cell-sub" :class="macroTrendClass(zhProvidentDynamics.depositYoyPct)">
+                同比 {{ formatMacroPct(zhProvidentDynamics.depositYoyPct) }}
+              </text>
+            </view>
+            <view class="gz-inventory-kpi">
+              <text class="cell-label">发放贷款</text>
+              <text class="gz-inventory-value">{{ zhProvidentDynamics.loanIssuedYi.toLocaleString() }} 亿</text>
+              <text class="cell-sub" :class="macroTrendClass(zhProvidentDynamics.loanIssuedYoyPct)">
+                同比 {{ formatMacroPct(zhProvidentDynamics.loanIssuedYoyPct) }}
+                · 个贷率 {{ zhProvidentDynamics.loanRatioPct }}%
+              </text>
+            </view>
+            <view class="gz-inventory-kpi">
+              <text class="cell-label">缴存余额</text>
+              <text class="gz-inventory-value">{{ zhProvidentDynamics.depositBalanceYi.toLocaleString() }} 亿</text>
+              <text class="cell-sub muted">
+                实缴 {{ zhProvidentDynamics.paidPersons.toLocaleString() }} 人
+                <template v-if="zhProvidentDynamics.extractRatePct > 0">
+                  · 提取率 {{ zhProvidentDynamics.extractRatePct }}%
+                </template>
+              </text>
+            </view>
+          </view>
+          <view v-if="zhProvidentDynamics" class="muted" style="margin-top: 8rpx; font-size: 21rpx">
+            珠海动态：{{ zhProvidentDynamics.sourceOrg }} · 截至 {{ zhProvidentDynamics.asOfDate }}；
+            贷款余额 {{ zhProvidentDynamics.loanBalanceYi.toLocaleString() }} 亿元。
+            <template v-if="zhProvidentFullYear">
+              另有 {{ zhProvidentFullYear.year }} 全年动态：缴存 {{ zhProvidentFullYear.depositAmountYi.toLocaleString() }} 亿 /
+              发放贷款 {{ zhProvidentFullYear.loanIssuedYi.toLocaleString() }} 亿。
+            </template>
+            非成交均价、非挂牌价；完整年报正文若未公开则以本动态为准。
+          </view>
           <view class="pf-saving">
             贷款 100 万、30 年、等额本息：公积金首套月供约 {{ pfMonthly100w().toLocaleString() }} 元；
             比当前商业首套参考少约 {{ pfSavingVsCommercial100w().toLocaleString() }} 元/月。
@@ -6354,6 +6390,12 @@ import {
   gzLoanToDepositBalancePct,
   type GzProvidentAnnualRow
 } from "../../local/gzProvidentAnnual";
+import {
+  getLatestZhProvidentDynamics,
+  getLatestZhProvidentFullYear,
+  formatZhProvidentPeriod,
+  type ZhProvidentDynamicsRow
+} from "../../local/zhProvidentDynamics";
 
 const app = useAppStore();
 
@@ -7628,6 +7670,15 @@ const gzProvidentAnnual = computed<GzProvidentAnnualRow | null>(() => {
 });
 const gzProvidentExtractPct = computed(() => gzExtractToDepositPct(gzProvidentAnnual.value));
 const gzProvidentLoanBalancePct = computed(() => gzLoanToDepositBalancePct(gzProvidentAnnual.value));
+const zhProvidentDynamics = computed<ZhProvidentDynamicsRow | null>(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "珠海" ? getLatestZhProvidentDynamics() : null;
+});
+const zhProvidentFullYear = computed<ZhProvidentDynamicsRow | null>(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "珠海" ? getLatestZhProvidentFullYear() : null;
+});
+const zhProvidentPeriodLabel = computed(() => formatZhProvidentPeriod(zhProvidentDynamics.value));
 
 function formatMacro100m(v: number) {
   return `${v.toLocaleString()} 亿元`;

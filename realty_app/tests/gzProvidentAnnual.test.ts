@@ -21,6 +21,7 @@ describe("gz provident annual", () => {
     expect(latest!.loanBalanceYi).toBe(2233.93);
     expect(latest!.depositBalanceYi).toBe(3058.97);
     expect(latest!.supportPurchaseWanSqm).toBe(369.7);
+    expect(latest!.publicRentalSupplementYi).toBe(42.46);
     expect(latest!.sourceUrl).toMatch(/gjj\.gz\.gov\.cn/);
     expect(gzExtractToDepositPct(latest)).toBe(86.3);
     expect(gzLoanToDepositBalancePct(latest)).toBe(73.0);
