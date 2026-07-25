@@ -302,6 +302,33 @@
           </view>
         </view>
 
+        <view v-if="lprYoY && lprYoY.lpr5yDeltaBp != null" class="trend-summary" style="margin-top: 8rpx">
+          <view class="trend-cell">
+            <text class="cell-label">5Y 同比</text>
+            <text class="cell-value" :class="lprYoY.lpr5yDeltaBp <= 0 ? 'trend-up' : 'trend-down'">
+              {{ formatBp(lprYoY.lpr5yDeltaBp) }}
+            </text>
+            <text class="cell-sub muted">vs {{ lprYoY.yearAgo?.month ?? "去年同月" }}</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">首套同比</text>
+            <text
+              class="cell-value"
+              :class="(lprYoY.mortgageFirstDeltaBp ?? 0) <= 0 ? 'trend-up' : 'trend-down'"
+            >
+              {{ lprYoY.mortgageFirstDeltaBp != null ? formatBp(lprYoY.mortgageFirstDeltaBp) : "—" }}
+            </text>
+            <text class="cell-sub muted">加点后</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">1Y 同比</text>
+            <text class="cell-value" :class="(lprYoY.lpr1yDeltaBp ?? 0) <= 0 ? 'trend-up' : 'trend-down'">
+              {{ lprYoY.lpr1yDeltaBp != null ? formatBp(lprYoY.lpr1yDeltaBp) : "—" }}
+            </text>
+            <text class="cell-sub muted">短端</text>
+          </view>
+        </view>
+
         <view v-if="lprRecentCycles.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           近期调息节点（5Y LPR）
         </view>
@@ -774,8 +801,31 @@
         <view v-if="!adminGaps.isContiguous" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           区号末两位存在缺号（{{ adminGaps.missingSuffixes.join("、") }}），常见于行政区调整。
         </view>
+        <view v-if="adminMetroCross" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          与规划地铁覆盖交叉
+        </view>
+        <view v-if="adminMetroCross" class="admin-type-row">
+          <view class="admin-type-chip">
+            <text class="admin-type-n">{{ adminMetroCross.inBoth.length }}</text>
+            <text class="admin-type-l muted">两边都有</text>
+          </view>
+          <view class="admin-type-chip">
+            <text class="admin-type-n">{{ adminMetroCross.onlyAdmin.length }}</text>
+            <text class="admin-type-l muted">仅区划</text>
+          </view>
+          <view class="admin-type-chip">
+            <text class="admin-type-n">{{ adminMetroCross.onlyMetro.length }}</text>
+            <text class="admin-type-l muted">仅地铁</text>
+          </view>
+        </view>
+        <view v-if="adminMetroCross?.onlyAdmin.length" class="muted" style="font-size: 20rpx; margin-top: 4rpx">
+          仅区划：{{ adminMetroCross.onlyAdmin.join("、") }}
+        </view>
+        <view v-if="adminMetroCross?.onlyMetro.length" class="muted" style="font-size: 20rpx; margin-top: 2rpx">
+          仅地铁文案：{{ adminMetroCross.onlyMetro.join("、") }}
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：admin_districts.csv（国家标准区划代码）。主城 01–09 / 郊区 10–19 / 新区 20–49。
+          数据源：admin_districts.csv × metro_planning.districts。交叉用于发现命名不一致。
         </view>
       </view>
 
@@ -1690,6 +1740,11 @@
           </view>
           <text class="mp-line-km">{{ c.curvatureRatio?.toFixed(2) ?? "—" }}×</text>
         </view>
+        <view v-if="metroPlanGeoCoverage" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          全国端点坐标覆盖
+          {{ metroPlanGeoCoverage.completeEndpoints }}/{{ metroPlanGeoCoverage.totalEndpoints }}
+          （{{ (metroPlanGeoCoverage.coverageRatio * 100).toFixed(0) }}%）
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：metro_planning.csv + metro_planning_geo.csv。弯曲系数 ≥1.3 表示线路明显绕行。
         </view>
@@ -1729,8 +1784,26 @@
           <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
           <text class="ltk-count muted">{{ r.count }}</text>
         </view>
+        <view v-if="layoutThreeBedCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城「3室」占比
+        </view>
+        <view
+          v-for="r in layoutThreeBedCrossCity"
+          :key="'3b-' + r.cityId"
+          class="ltk-row"
+        >
+          <text class="ltk-tag" style="width: 100rpx">{{ r.cityName }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{ width: Math.min(100, (r.share / (layoutThreeBedCrossCity[0]?.share || 0.01)) * 100) + '%' }"
+            />
+          </view>
+          <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
+          <text class="ltk-count muted">{{ r.count }}</text>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：layout_distribution.csv → distributionRanking。与户型×面积矩阵卡互补（本卡看单维占比）。
+          数据源：layout_distribution.csv。与户型×面积矩阵卡互补（本卡看单维占比与跨城结构）。
         </view>
       </view>
 
@@ -2707,6 +2780,11 @@
             <text class="hosp-kpi-label muted">中/低置信</text>
           </view>
         </view>
+        <view v-if="hospitalGeoCoverage" class="muted" style="margin-top: 4rpx; font-size: 22rpx">
+          全国坐标覆盖
+          {{ hospitalGeoCoverage.withCoords }}/{{ hospitalGeoCoverage.total }}
+          （{{ (hospitalGeoCoverage.coverageRatio * 100).toFixed(0) }}%）
+        </view>
         <view v-if="hospitalGeoDistricts.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
           地址分区 Top
         </view>
@@ -3214,8 +3292,20 @@
             <view class="muted" style="font-size: 20rpx">商业分</view>
           </view>
         </view>
+        <view v-if="commercialDensityCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          餐饮密度×距离分桶（≥2.5 家 / ≤200m）
+        </view>
+        <view v-if="commercialDensityCity.length" class="dens-grid">
+          <view v-for="b in commercialDensityCity" :key="b.bucket" class="dens-cell">
+            <text class="dens-n">{{ b.count }}</text>
+            <text class="dens-l muted">{{ b.bucket }}</text>
+            <text v-if="b.communities[0]" class="dens-ex muted">
+              例：{{ b.communities[0].communityName }}
+            </text>
+          </view>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          分区均分：communityCommercialRanking。小区榜：高德周边餐饮/银行/便利店加权分。
+          分区均分 / 密度分桶：communityCommercialRanking。「高密度远」可能是门口空、远处扎堆。
         </view>
       </view>
 
@@ -3334,6 +3424,7 @@ import {
   getLprDownwardCumulative,
   summarizeLprSpread,
   detectLprCutCycles,
+  summarizeLprCurrentVsYearAgo,
   type LprSpreadSnapshot,
   type LprCycle
 } from "../../local/lprHistoryAnalysis";
@@ -3382,10 +3473,12 @@ import {
   getHospitalGeoByCityHighConfidenceRatio,
   getHospitalGeoByCityNearestPair,
   getHospitalGeoByCityAddressDistrict,
+  getHospitalGeoCoverageStats,
   type CityHospitalGeoSummary,
   type HospitalGeoHighConfidenceRatio,
   type HospitalGeoNearestPair,
-  type HospitalGeoDistrictSummary
+  type HospitalGeoDistrictSummary,
+  type HospitalGeoCoverageStats
 } from "../../local/hospitalGeoAnalysis";
 import {
   getPoiCommercialByCommunityWalkScore,
@@ -3406,7 +3499,9 @@ import {
 } from "../../local/metroPlanningRanking";
 import {
   getMetroPlanningGeoByCityCrossReference,
-  type CurvatureEntry
+  getMetroPlanningGeoCoverageStats,
+  type CurvatureEntry,
+  type CoverageStats
 } from "../../local/metroPlanningGeoAnalysis";
 import {
   summarizeListingTagsByCity,
@@ -3420,10 +3515,12 @@ import {
   getAdminDistrictByCityOrderedByCode,
   detectAdminDistrictCodeGaps,
   classifyAdminDistrictSuffix,
+  getAdminDistrictByCityCrossReference,
   type CityAdminDistrictSummary,
   type CitySuffixTypeCount,
   type AdminDistrictCodeGap,
-  type AdminDistrictSuffixType
+  type AdminDistrictSuffixType,
+  type AdminMetroCrossRef
 } from "../../local/adminDistrictRanking";
 import {
   summarizeListingSchoolPremiumByCity,
@@ -3442,7 +3539,9 @@ import {
 } from "../../local/schoolDimensionRanking";
 import {
   getCommunityCommercialByCityDistrict,
-  type DistrictCommercialSummary
+  getCommunityCommercialDensityVsDistance,
+  type DistrictCommercialSummary,
+  type DensityDistanceBucket
 } from "../../local/communityCommercialRanking";
 import { getEducationOverview, type EducationOverview } from "../../local/educationOverview";
 import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution } from "../../local/types";
@@ -3508,6 +3607,7 @@ const hospitalGeoSummary = computed<CityHospitalGeoSummary | null>(() => {
 const hospitalGeoConfRatio = computed<HospitalGeoHighConfidenceRatio | null>(() => {
   return getHospitalGeoByCityHighConfidenceRatio().find((x) => x.cityId === app.cityId) ?? null;
 });
+const hospitalGeoCoverage = computed<HospitalGeoCoverageStats>(() => getHospitalGeoCoverageStats());
 const hospitalGeoNearest = computed<HospitalGeoNearestPair[]>(() =>
   getHospitalGeoByCityNearestPair(app.cityId, 3)
 );
@@ -3604,6 +3704,10 @@ function adminSuffixType(districtCode: string): AdminDistrictSuffixType {
   const sfx = parseInt(districtCode.slice(-2), 10);
   return classifyAdminDistrictSuffix(Number.isFinite(sfx) ? sfx : 0);
 }
+const adminMetroCross = computed<AdminMetroCrossRef | null>(() => {
+  if (!adminSummary.value) return null;
+  return getAdminDistrictByCityCrossReference(app.cityId);
+});
 
 // v1.121.16 listing 学区溢价分布 / 分区
 const lspCitySummary = computed<CitySchoolPremiumSummary | null>(() => {
@@ -3658,6 +3762,7 @@ const metroCurvatureTop = computed<CurvatureEntry[]>(() =>
     .filter((x) => x.cityId === app.cityId && x.curvatureRatio != null)
     .slice(0, 5)
 );
+const metroPlanGeoCoverage = computed<CoverageStats>(() => getMetroPlanningGeoCoverageStats());
 
 // v1.121.18 挂牌结构占比（layout_distribution）
 const layoutBedroomShare = computed<LocalLayoutDistribution[]>(() =>
@@ -3677,6 +3782,12 @@ const layoutOrientShare = computed<LocalLayoutDistribution[]>(() =>
 function layoutBucket(r: LocalLayoutDistribution): string {
   return r.bucket;
 }
+const layoutThreeBedCrossCity = computed(() =>
+  store
+    .getLayoutDistributions()
+    .filter((x) => x.dimension === "bedrooms" && x.bucket === "3室")
+    .sort((a, b) => b.share - a.share)
+);
 
 // v1.121.14 挂牌标签热度
 const listingTagCitySummary = computed<CityTagSummary | null>(() => {
@@ -5703,6 +5814,19 @@ const dimPolymathCity = computed<SchoolDimensionEntry[]>(() =>
 const commercialDistrictTop = computed<DistrictCommercialSummary[]>(() =>
   getCommunityCommercialByCityDistrict(app.cityId).slice(0, 5)
 );
+const commercialDensityCity = computed<DensityDistanceBucket[]>(() => {
+  const cityId = app.cityId;
+  return getCommunityCommercialDensityVsDistance("restaurant").map((b) => {
+    const communities = b.communities.filter(
+      (c) => store.getCommunityById(c.communityId)?.cityId === cityId
+    );
+    return {
+      bucket: b.bucket,
+      count: communities.length,
+      communities: communities.slice(0, 1)
+    };
+  });
+});
 
 function goSchool(schoolId: number) {
   uni.navigateTo({
@@ -5731,6 +5855,7 @@ const lprYearSummaries = computed(() => summarizeLprByYear());
 const lprSpreadCurrent = computed<LprSpreadSnapshot | null>(
   () => summarizeLprSpread().current
 );
+const lprYoY = computed(() => summarizeLprCurrentVsYearAgo());
 const lprRecentCycles = computed<LprCycle[]>(() =>
   detectLprCutCycles().slice(-5).reverse()
 );
@@ -7862,6 +7987,42 @@ onShow(async () => {
   font-weight: 600;
   color: var(--color-heading);
   font-variant-numeric: tabular-nums;
+}
+
+/* v1.121.19 商业密度×距离分桶 */
+.dens-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+.dens-cell {
+  flex: 1;
+  min-width: 140rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10rpx 6rpx;
+  border-radius: 12rpx;
+  background: var(--color-soft);
+  border: 1rpx solid var(--color-border);
+}
+.dens-n {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--color-heading);
+  font-variant-numeric: tabular-nums;
+}
+.dens-l {
+  font-size: 20rpx;
+  margin-top: 2rpx;
+}
+.dens-ex {
+  font-size: 18rpx;
+  margin-top: 4rpx;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .lc-score-high {

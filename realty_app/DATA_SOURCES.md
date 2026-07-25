@@ -154,9 +154,11 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/seed/listing_tags_summary.csv` | `listingTagsComparison.ts` + dashboard「🔖 挂牌标签」 | `compute_listing_tags_summary` | 城市级标签渗透；v1.121.14 仪表盘 Top + 特色标签 |
 | `static/seed/listing_keyword.csv` | （未接入 App） | `compute_listing_keyword.py` | 标题关键词热度，仅 ~10 行且与标签摘要重叠，暂不入快照 |
 | `static/education_overview.csv` | `educationOverview.ts`（模块内 `?raw`）+ dashboard「📚 教育事业」 | `scripts/crawl_gz_education_overview.py` | 广州教育事业概览；深圳/珠海无数据时返回空，不伪造；v1.121.16 仪表盘展示 |
-| `static/seed/admin_districts.csv` | `adminDistrictRanking.ts` + dashboard「🗺️ 行政区划」 | （国标整理） | v1.121.16：主城/郊区/新区与区码列表 |
+| `static/seed/admin_districts.csv` | `adminDistrictRanking.ts` + dashboard「🗺️ 行政区划」 | （国标整理） | v1.121.16：主城/郊区/新区与区码列表；v1.121.19：×规划地铁文案交叉 |
+| `static/seed/community_commercial.csv` | `communityCommercialRanking.ts` + 分区商业/密度桶 | （派生） | v1.121.17 分区均分；v1.121.19 餐饮密度×距离桶（按 city 过滤） |
 | `static/seed/listing_school_premium.csv` | `listingSchoolPremiumRanking.ts` + 高学区房源卡 | `compute_listing_school_premium` | v1.121.16：溢价分桶与分区 Top |
 | `static/school_source_audit.json` | 审计用（测试/脚本） | `scripts/audit_school_sources.py` | 学校来源分级审计结果，不直接驱动 UI 排名 |
+| （珠海不动产公开页） | （未接入） | `bdc.zhuhai.gov.cn/zwgk/sjfb/` | 季度登记统计多为 PNG 图，无结构化表；暂不 OCR |
 
 ---
 
@@ -179,11 +181,13 @@ listing_tags_summary.csv     → listingTagsComparison → 挂牌标签热度（
 admin_districts.csv          → adminDistrictRanking  → 行政区划（dashboard v1.121.16）
 listing_school_premium.csv   → listingSchoolPremium  → 学区挂牌溢价分布（dashboard v1.121.16）
 school_dimensions.csv        → schoolDimensionRanking → 重点学校维度（dashboard v1.121.17）
-community_commercial.csv     → communityCommercial   → 分区商业均分（dashboard v1.121.17）
 gz_new_house_inventory.csv   → gzNewHouseInventory    → 广州库存 + 日环比（dashboard v1.121.18）
-layout_distribution.csv      → layout / distribution → 挂牌结构占比（dashboard v1.121.18）
-metro_planning_geo.csv       → metroPlanningGeoAnalysis → 弯曲系数（dashboard v1.121.18）
-lpr_history.csv              → lprHistoryAnalysis     → 利差 / 调息节点（dashboard v1.121.18）
+layout_distribution.csv      → layout / distribution → 挂牌结构占比 + 3室跨城（v1.121.18/19）
+metro_planning_geo.csv       → metroPlanningGeoAnalysis → 弯曲系数 + 端点覆盖率（v1.121.18/19）
+lpr_history.csv              → lprHistoryAnalysis     → 利差 / 调息 / 同比 bp（v1.121.18/19）
+hospitals_geo.csv            → hospitalGeoAnalysis   → 坐标覆盖 + 全国覆盖率（v1.121.15/19）
+admin_districts.csv          → adminDistrictRanking  → 区划 + ×地铁交叉（v1.121.16/19）
+community_commercial.csv     → communityCommercial   → 分区均分 + 密度桶（v1.121.17/19）
 static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务快照
 ```
 
