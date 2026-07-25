@@ -75,7 +75,7 @@ jobs:
           python scripts/rebuild_listing_derivatives.py
           python scripts/publish_csv.py
 
-      - name: 刷新广深珠教育事业概览 + 深圳计划入市 + 广州住房计划
+      - name: 刷新广深珠教育 + 深圳计划入市 + 广州住房计划/居住用地
         run: |
           cd realty_app
           python scripts/crawl_gz_education_overview.py
@@ -83,14 +83,15 @@ jobs:
           python scripts/crawl_zh_education_overview.py
           python scripts/crawl_sz_planned_supply.py --max 12
           python scripts/crawl_gz_housing_plan.py
+          python scripts/crawl_gz_land_deals.py --pages 4 --max-detail 48
 
       - name: 提交 CSV
         run: |
           cd realty_app
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet HEAD -- static/seed/listings.csv static/education_overview.csv static/sz_planned_supply.csv static/gz_housing_plan.csv; then
-            git add static/seed/*.csv static/seed/crawl_meta.json static/education_overview.csv static/sz_planned_supply.csv static/gz_housing_plan.csv
+          if ! git diff --quiet HEAD -- static/seed/listings.csv static/education_overview.csv static/sz_planned_supply.csv static/gz_housing_plan.csv static/gz_land_deals.csv; then
+            git add static/seed/*.csv static/seed/crawl_meta.json static/education_overview.csv static/sz_planned_supply.csv static/gz_housing_plan.csv static/gz_land_deals.csv
             git commit -m "data(anjuke): 刷新二手房挂牌 $(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
               || echo "no commit needed"
             git push

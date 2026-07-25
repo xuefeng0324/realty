@@ -378,6 +378,7 @@ import {
   formatPrice,
   scoreClass
 } from "../../utils/format";
+import * as store from "../../local/store";
 
 const app = useAppStore();
 
@@ -389,9 +390,12 @@ const cityLabels = computed(() => cities.value.map((c) => c.city_name));
 const cityIndex = computed(() => cities.value.findIndex((c) => c.city_id === app.cityId));
 const currentCityLabel = computed(() => {
   const c = cities.value.find((c) => c.city_id === app.cityId);
-  return c?.city_name || "";
+  return c?.city_name || store.getCityById(app.cityId)?.cityName || "";
 });
-
+/** 数据查询用同步城市名，避免异步 cities 未就绪时性价比卡失真 */
+const syncCityName = computed(
+  () => store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? ""
+);
 const periodIndex = computed(() => {
   const idx = periods.value.findIndex((p) => p === app.weekEnd);
   return idx >= 0 ? idx : 0;
@@ -728,7 +732,7 @@ const tagCityLocal = computed<CityTagSummary | null>(
 const paretoPriceCapWan = computed<number>(() => {
   const allScatter = getCommunityScatter();
   if (allScatter.length === 0) return 8; // 兜底
-  const cityName = cities.value.find((c) => c.city_id === app.cityId)?.city_name;
+  const cityName = syncCityName.value;
   if (!cityName) return 8;
   const cityRows = allScatter.filter(
     (r) => r.cityName === cityName && r.areaCohort === "改善(60-110)"
@@ -743,7 +747,7 @@ const paretoPriceCapWan = computed<number>(() => {
 });
 const paretoTop = computed<ParetoEntry[]>(() => {
   const capYuan = paretoPriceCapWan.value * 10000;
-  const cityName = cities.value.find((c) => c.city_id === app.cityId)?.city_name;
+  const cityName = syncCityName.value;
   return getCommunityScatterPareto("改善(60-110)", capYuan, 12)
     .filter((r) => !cityName || r.cityName === cityName)
     .slice(0, 5);

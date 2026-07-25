@@ -1157,6 +1157,43 @@
         </view>
       </view>
 
+      <view v-if="gzLandSummary" class="card" data-tab="overview,price" data-gz-land-deals>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🗺️ 广州居住用地成交</view>
+          <view class="muted" style="font-size: 22rpx">近 {{ gzLandSummary.count }} 宗 · {{ gzLandSummary.latestDate }}</view>
+        </view>
+        <view class="gz-inventory-grid">
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">成交面积</text>
+            <text class="gz-inventory-value">{{ formatLandArea(gzLandSummary.totalAreaSqm) }}</text>
+          </view>
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">成交总价</text>
+            <text class="gz-inventory-value">{{ formatLandPrice(gzLandSummary.totalPriceWan) }}</text>
+          </view>
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">最新一宗</text>
+            <text class="gz-inventory-value" style="font-size: 28rpx">
+              {{ gzLandLatest[0]?.district || "—" }}
+            </text>
+            <text class="cell-sub muted">
+              {{ gzLandLatest[0] ? formatLandPrice(gzLandLatest[0].priceWan) : "" }}
+            </text>
+          </view>
+        </view>
+        <view v-for="d in gzLandLatest" :key="d.sourceUrl" class="gz-inventory-row" style="margin-top: 8rpx">
+          <text class="gz-inventory-district">{{ d.district || "广州" }}</text>
+          <text>{{ formatLandPrice(d.priceWan) }}</text>
+          <text class="muted">{{ formatLandArea(d.areaSqm) }}</text>
+          <text class="muted">
+            {{ landSurfaceUnitPriceYuan(d) != null ? Math.round(landSurfaceUnitPriceYuan(d)!).toLocaleString() + " 元/㎡地" : "" }}
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：广州市规划和自然资源局成交公示；仅统计居住/R2 等住宅用途。成交价为土地出让价款，不是房价均价；地表单价未除容积率。
+        </view>
+      </view>
+
       <view v-if="runtime" class="card muted">
         <text>DB: {{ runtime.database_file || runtime.database_url }}</text>
         <text> · 规则: {{ runtime.rule_version_listing }}</text>
@@ -5851,6 +5888,12 @@ import {
   getGzHousingPlanYoY,
   type GzHousingPlanRow
 } from "../../local/gzHousingPlan";
+import {
+  getLatestGzLandDeals,
+  summarizeGzLandDeals,
+  landSurfaceUnitPriceYuan,
+  type GzLandDeal
+} from "../../local/gzLandDeals";
 import { assessGzInventoryFreshness } from "../../local/gzInventoryFreshness";
 import { getLatestProvidentFundRate, monthlyPayment } from "../../local/providentFund";
 
@@ -7003,6 +7046,18 @@ const gzHousingPlanYoY = computed(() => (gzHousingPlan.value ? getGzHousingPlanY
 function formatWan(v: number, unit: string): string {
   if (!v) return "—";
   return `${v.toLocaleString()}${unit}`;
+}
+
+const gzLandSummary = computed(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "广州" ? summarizeGzLandDeals() : null;
+});
+const gzLandLatest = computed<GzLandDeal[]>(() => (gzLandSummary.value ? getLatestGzLandDeals(3) : []));
+function formatLandPrice(wan: number): string {
+  return wan >= 10000 ? `${(wan / 10000).toFixed(2)} 亿元` : `${wan.toLocaleString()} 万元`;
+}
+function formatLandArea(sqm: number): string {
+  return sqm >= 10000 ? `${(sqm / 10000).toFixed(2)} 万㎡` : `${sqm.toLocaleString()} ㎡`;
 }
 function formatInvDelta(v: number): string {
   if (v === 0) return "持平";
@@ -8516,22 +8571,19 @@ const stats70CityCounts = computed(() => {
 });
 const stats70CurrentCityRank = computed(() => {
   if (!stats70Ready.value) return null;
-  const city = cities.value.find((c) => c.city_id === app.cityId);
-  if (!city) return null;
-  return getStats70CurrentCityNationalRank(city.city_name, "同比", "new_idx");
+  const name = cityNameForId(app.cityId).replace(/市$/, "");
+  if (!name || name.startsWith("city#")) return null;
+  return getStats70CurrentCityNationalRank(name, "同比", "new_idx");
 });
 const stats70CurrentCityTrend = computed(() => {
   if (!stats70Ready.value) return null;
-  const city = cities.value.find((c) => c.city_id === app.cityId);
-  if (!city) return null;
-  return getStats70CityTrendDirection(city.city_name, "同比", "new_idx");
+  const name = cityNameForId(app.cityId).replace(/市$/, "");
+  if (!name || name.startsWith("city#")) return null;
+  return getStats70CityTrendDirection(name, "同比", "new_idx");
 });
 
 // v1.121.17 当前城市近 12 月指数序列 + 全国离散度
-const stats70City12mName = computed(() => {
-  const city = cities.value.find((c) => c.city_id === app.cityId);
-  return city?.city_name?.replace(/市$/, "") ?? "";
-});
+const stats70City12mName = computed(() => cityNameForId(app.cityId).replace(/市$/, "").replace(/^city#.*/, ""));
 const stats70City12m = computed<City12MonthPoint[]>(() => {
   if (!stats70Ready.value || !stats70City12mName.value) return [];
   const all = getStats70CityOver12MonthChange(stats70City12mName.value);
@@ -8776,9 +8828,9 @@ const schoolTrendDeclining = computed<SchoolIndicatorTrendEntry[]>(() =>
 
 const currentCityIndex = computed<LatestIndexForCity | null>(() => {
   if (!hasStats70()) return null;
-  const city = cities.value.find((c) => c.city_id === app.cityId);
-  if (!city) return null;
-  return getLatestIndexForCity(city.city_name);
+  const name = cityNameForId(app.cityId).replace(/市$/, "");
+  if (!name || name.startsWith("city#")) return null;
+  return getLatestIndexForCity(name);
 });
 
 /** 贝壳/链家式首屏速览：把分散 KPI 收成 2×2 */
@@ -8858,8 +8910,8 @@ const currentWangqian = computed<CityDailySnapshot | null>(() => {
 });
 
 const currentWangqianCityName = computed(() => {
-  const city = cities.value.find((c) => c.city_id === app.cityId);
-  return city?.city_name.replace(/市$/, "") ?? "";
+  const name = cityNameForId(app.cityId).replace(/市$/, "");
+  return name.startsWith("city#") ? "" : name;
 });
 
 const wangqianTrendWeeklyReady = computed(() => getWangqianDistrictWeekly().length > 0);
