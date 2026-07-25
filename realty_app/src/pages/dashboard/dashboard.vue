@@ -2442,8 +2442,149 @@
             {{ h.hospitalLevel || "其他" }}
           </text>
         </view>
+        <view v-if="hospitalGeoSummary" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          坐标覆盖（hospitals_geo）
+        </view>
+        <view v-if="hospitalGeoSummary" class="hosp-summary">
+          <view class="hosp-kpi">
+            <text class="hosp-kpi-val">{{ hospitalGeoSummary.geoCount }}</text>
+            <text class="hosp-kpi-label muted">有坐标</text>
+          </view>
+          <view class="hosp-kpi">
+            <text class="hosp-kpi-val">{{ ((hospitalGeoConfRatio?.ratio ?? 0) * 100).toFixed(0) }}%</text>
+            <text class="hosp-kpi-label muted">高置信</text>
+          </view>
+          <view class="hosp-kpi">
+            <text class="hosp-kpi-val">{{ hospitalGeoSummary.confidence.medium + hospitalGeoSummary.confidence.low }}</text>
+            <text class="hosp-kpi-label muted">中/低置信</text>
+          </view>
+        </view>
+        <view v-if="hospitalGeoDistricts.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          地址分区 Top
+        </view>
+        <view
+          v-for="d in hospitalGeoDistricts"
+          :key="'geo-' + d.districtName"
+          class="hosp-dist-row"
+        >
+          <text class="hosp-dist-name">{{ d.districtName }}</text>
+          <text class="hosp-dist-count">{{ d.count }} 家</text>
+        </view>
+        <view v-if="hospitalGeoNearest.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          市内最近医院对
+        </view>
+        <view
+          v-for="(p, idx) in hospitalGeoNearest"
+          :key="'np-' + p.hospitalIdA + '-' + p.hospitalIdB"
+          class="hosp-geo-pair"
+        >
+          <text class="hosp-geo-rank muted">{{ idx + 1 }}</text>
+          <text class="hosp-geo-names">
+            {{ hospitalDisplayName(p.hospitalIdA) }} · {{ hospitalDisplayName(p.hospitalIdB) }}
+          </text>
+          <text class="hosp-geo-km">{{ p.distanceKm.toFixed(2) }} km</text>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：hospitals.csv（公开名录整理）。三甲占比 = 三甲数 / 该城医院数。
+          名录：hospitals.csv。坐标：hospitals_geo.csv（高德文本检索）。置信度反映 POI 匹配质量。
+        </view>
+      </view>
+
+      <!-- v1.121.15 周边商业 POI（poiCommercialRanking，此前未接仪表盘） -->
+      <view v-if="commercialReady" class="card" data-tab="all,transit">
+        <view class="row-between">
+          <view class="card-title">🏪 周边商业 · {{ hospitalCityName }}</view>
+          <view class="muted">{{ commercialCommunityCount }} 小区</view>
+        </view>
+        <view class="pc-summary">
+          <view class="pc-kpi">
+            <text class="pc-kpi-val">{{ commercialCatCount.restaurant }}</text>
+            <text class="pc-kpi-label muted">餐饮</text>
+          </view>
+          <view class="pc-kpi">
+            <text class="pc-kpi-val">{{ commercialCatCount.bank }}</text>
+            <text class="pc-kpi-label muted">银行</text>
+          </view>
+          <view class="pc-kpi">
+            <text class="pc-kpi-val">{{ commercialCatCount.convenience }}</text>
+            <text class="pc-kpi-label muted">便利店</text>
+          </view>
+          <view class="pc-kpi">
+            <text class="pc-kpi-val">{{ Math.round(commercialAvgDist) }}</text>
+            <text class="pc-kpi-label muted">均距 m</text>
+          </view>
+        </view>
+        <view class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">步行便利 Top（≤500m 加权）</view>
+        <view
+          v-for="(w, idx) in commercialWalkTop"
+          :key="'walk-' + w.communityId"
+          class="pc-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(w.communityId)"
+        >
+          <text class="pc-rank muted">{{ idx + 1 }}</text>
+          <view class="pc-mid">
+            <text class="pc-name">{{ communityDisplayName(w.communityId) }}</text>
+            <text class="pc-meta muted">≤100m {{ w.nearCount100 }} · ≤200m {{ w.nearCount200 }} · ≤500m {{ w.nearCount500 }}</text>
+          </view>
+          <text class="pc-score">{{ w.walkScore }}</text>
+        </view>
+        <view class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">最近银行 Top</view>
+        <view
+          v-for="(b, idx) in commercialBankNear"
+          :key="'bank-' + b.communityId"
+          class="pc-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(b.communityId)"
+        >
+          <text class="pc-rank muted">{{ idx + 1 }}</text>
+          <view class="pc-mid">
+            <text class="pc-name">{{ communityDisplayName(b.communityId) }}</text>
+            <text class="pc-meta muted">{{ b.poiName }}</text>
+          </view>
+          <text class="pc-dist">{{ Math.round(b.distanceM) }} m</text>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：poi_commercial.csv（餐饮 / 银行 / 便利店，每小区每类 Top3）。
+        </view>
+      </view>
+
+      <!-- v1.121.15 菜市场/超市可达（poiMarketRanking） -->
+      <view v-if="marketNearTop.length" class="card" data-tab="all,transit">
+        <view class="row-between">
+          <view class="card-title">🥬 菜市场可达 · {{ hospitalCityName }}</view>
+          <view class="muted">最近 Top {{ marketNearTop.length }}</view>
+        </view>
+        <view
+          v-for="(m, idx) in marketNearTop"
+          :key="'mkt-' + m.communityId"
+          class="pc-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(m.communityId)"
+        >
+          <text class="pc-rank muted">{{ idx + 1 }}</text>
+          <view class="pc-mid">
+            <text class="pc-name">{{ communityDisplayName(m.communityId) }}</text>
+            <text class="pc-meta muted">{{ m.nearestName || "—" }}</text>
+          </view>
+          <text class="pc-dist">{{ Math.round(m.nearestDistanceM ?? 0) }} m</text>
+        </view>
+        <view class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">最远（覆盖偏弱）</view>
+        <view
+          v-for="(m, idx) in marketFarTop"
+          :key="'mktf-' + m.communityId"
+          class="pc-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(m.communityId)"
+        >
+          <text class="pc-rank muted">{{ idx + 1 }}</text>
+          <view class="pc-mid">
+            <text class="pc-name">{{ communityDisplayName(m.communityId) }}</text>
+            <text class="pc-meta muted">{{ m.nearestName || "—" }}</text>
+          </view>
+          <text class="pc-dist">{{ Math.round(m.nearestDistanceM ?? 0) }} m</text>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：poi_market.csv（每小区最近 3 个菜市场/超市）。
         </view>
       </view>
 
@@ -2935,6 +3076,26 @@ import {
   type CityDistrictHospitalSummary
 } from "../../local/hospitalRanking";
 import {
+  summarizeHospitalGeoByCity,
+  getHospitalGeoByCityHighConfidenceRatio,
+  getHospitalGeoByCityNearestPair,
+  getHospitalGeoByCityAddressDistrict,
+  type CityHospitalGeoSummary,
+  type HospitalGeoHighConfidenceRatio,
+  type HospitalGeoNearestPair,
+  type HospitalGeoDistrictSummary
+} from "../../local/hospitalGeoAnalysis";
+import {
+  getPoiCommercialByCommunityWalkScore,
+  getPoiCommercialCrossCommunityByCategoryDistance,
+  type WalkScore,
+  type CommunityBankNearest
+} from "../../local/poiCommercialRanking";
+import {
+  summarizePoiMarketByCommunity,
+  type CommunityPoiMarketSummary
+} from "../../local/poiMarketRanking";
+import {
   summarizeMetroPlanningByCity,
   getMetroPlanningByCityTopByLength,
   type CityMetroPlanningSummary,
@@ -3001,6 +3162,86 @@ const hospitalDistrictTop = computed<CityDistrictHospitalSummary[]>(() =>
 );
 const hospitalTopList = computed<LocalHospital[]>(() =>
   getHospitalTopByLevelByCity(app.cityId, 5)
+);
+
+// v1.121.15 医院坐标覆盖
+const hospitalGeoSummary = computed<CityHospitalGeoSummary | null>(() => {
+  return summarizeHospitalGeoByCity().find((x) => x.cityId === app.cityId) ?? null;
+});
+const hospitalGeoConfRatio = computed<HospitalGeoHighConfidenceRatio | null>(() => {
+  return getHospitalGeoByCityHighConfidenceRatio().find((x) => x.cityId === app.cityId) ?? null;
+});
+const hospitalGeoNearest = computed<HospitalGeoNearestPair[]>(() =>
+  getHospitalGeoByCityNearestPair(app.cityId, 3)
+);
+const hospitalGeoDistricts = computed<HospitalGeoDistrictSummary[]>(() =>
+  getHospitalGeoByCityAddressDistrict(app.cityId).slice(0, 5)
+);
+
+function hospitalDisplayName(hospitalId: number): string {
+  const h = store.getHospitalById(hospitalId);
+  return h?.displayName || h?.officialName || `#${hospitalId}`;
+}
+
+function communityDisplayName(communityId: number): string {
+  return store.getCommunityById(communityId)?.communityName ?? `小区#${communityId}`;
+}
+
+function communityIdsInCity(cityId: number): Set<number> {
+  return new Set(
+    store
+      .getPoiCommercials()
+      .map((x) => x.communityId)
+      .filter((id) => store.getCommunityById(id)?.cityId === cityId)
+  );
+}
+
+// v1.121.15 周边商业
+const commercialCityPois = computed(() =>
+  store.getPoiCommercials().filter((x) => store.getCommunityById(x.communityId)?.cityId === app.cityId)
+);
+const commercialReady = computed(() => commercialCityPois.value.length > 0);
+const commercialCommunityCount = computed(() => communityIdsInCity(app.cityId).size);
+const commercialCatCount = computed(() => {
+  const c = { restaurant: 0, bank: 0, convenience: 0 };
+  for (const x of commercialCityPois.value) {
+    if (x.poiCategory in c) c[x.poiCategory as keyof typeof c]++;
+  }
+  return c;
+});
+const commercialAvgDist = computed(() => {
+  const arr = commercialCityPois.value;
+  if (arr.length === 0) return 0;
+  return arr.reduce((s, x) => s + x.distanceM, 0) / arr.length;
+});
+const commercialWalkTop = computed<WalkScore[]>(() => {
+  const ids = communityIdsInCity(app.cityId);
+  return [...ids]
+    .map((id) => getPoiCommercialByCommunityWalkScore(id))
+    .sort((a, b) => b.walkScore - a.walkScore)
+    .slice(0, 5);
+});
+const commercialBankNear = computed<CommunityBankNearest[]>(() =>
+  getPoiCommercialCrossCommunityByCategoryDistance("bank", 80)
+    .filter((x) => store.getCommunityById(x.communityId)?.cityId === app.cityId)
+    .slice(0, 5)
+);
+
+// v1.121.15 菜市场可达
+const marketSummariesInCity = computed<CommunityPoiMarketSummary[]>(() =>
+  summarizePoiMarketByCommunity().filter(
+    (s) => store.getCommunityById(s.communityId)?.cityId === app.cityId && s.nearestDistanceM != null
+  )
+);
+const marketNearTop = computed(() =>
+  [...marketSummariesInCity.value]
+    .sort((a, b) => (a.nearestDistanceM ?? 0) - (b.nearestDistanceM ?? 0))
+    .slice(0, 5)
+);
+const marketFarTop = computed(() =>
+  [...marketSummariesInCity.value]
+    .sort((a, b) => (b.nearestDistanceM ?? 0) - (a.nearestDistanceM ?? 0))
+    .slice(0, 3)
 );
 
 // v1.121.14 规划地铁线路概览
@@ -6830,6 +7071,84 @@ onShow(async () => {
   font-size: 20rpx;
   min-width: 140rpx;
   text-align: right;
+}
+
+/* v1.121.15 医院坐标对 / 周边商业 / 菜市场 */
+.hosp-geo-pair,
+.pc-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 8rpx 0;
+  border-bottom: 1rpx solid var(--color-border);
+}
+.hosp-geo-pair:last-child,
+.pc-row:last-child {
+  border-bottom: none;
+}
+.hosp-geo-rank,
+.pc-rank {
+  width: 36rpx;
+  font-size: 22rpx;
+  text-align: center;
+}
+.hosp-geo-names {
+  flex: 1;
+  min-width: 0;
+  font-size: 24rpx;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hosp-geo-km,
+.pc-dist,
+.pc-score {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--color-heading);
+  font-variant-numeric: tabular-nums;
+}
+.pc-summary {
+  display: flex;
+  gap: 10rpx;
+  margin: 8rpx 0 4rpx;
+}
+.pc-kpi {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12rpx 6rpx;
+  border-radius: 12rpx;
+  background: var(--color-soft);
+  border: 1rpx solid var(--color-border);
+}
+.pc-kpi-val {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--color-heading);
+  font-variant-numeric: tabular-nums;
+}
+.pc-kpi-label {
+  font-size: 20rpx;
+  margin-top: 2rpx;
+}
+.pc-mid {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.pc-name {
+  font-size: 26rpx;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pc-meta {
+  font-size: 20rpx;
 }
 
 .lc-score-high {

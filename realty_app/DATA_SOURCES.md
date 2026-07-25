@@ -147,6 +147,9 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/nbs_real_estate.csv` | `nbsRealEstate.ts` | `scripts/crawl_nbs_real_estate.py` | 国家统计局房地产开发投资与销售；来源须为 `stats.gov.cn` |
 | `static/gz_new_house_inventory.csv` | `gzNewHouseInventory.ts` | `scripts/crawl_gz_new_house_inventory.py` | 广州新房可售/未售/签约分区库存 |
 | `static/seed/hospitals.csv` | `hospitalRanking.ts` + dashboard「🏥 医疗资源」 | （名录整理） | 三城医院名录；v1.121.12 起仪表盘展示三甲占比 / 分区密度 / 等级 Top |
+| `static/seed/hospitals_geo.csv` | `hospitalGeoAnalysis.ts` + 医疗卡坐标段 | （高德文本检索） | v1.121.15：置信度 / 地址分区 / 最近医院对 |
+| `static/seed/poi_commercial.csv` | `poiCommercialRanking.ts` + dashboard「🏪 周边商业」 | （高德周边） | v1.121.15：餐饮/银行/便利店与步行分 |
+| `static/seed/poi_market.csv` | `poiMarketRanking.ts` + dashboard「🥬 菜市场」 | （高德周边） | v1.121.15：最近/最远菜市场小区榜 |
 | `static/seed/metro_planning.csv` | `metroPlanningRanking.ts` + dashboard「🛤️ 规划地铁」 | （公开规划整理） | 线路本体概览；v1.121.14 仪表盘 KPI / 开通年 / 里程 Top |
 | `static/seed/listing_tags_summary.csv` | `listingTagsComparison.ts` + dashboard「🔖 挂牌标签」 | `compute_listing_tags_summary` | 城市级标签渗透；v1.121.14 仪表盘 Top + 特色标签 |
 | `static/seed/listing_keyword.csv` | （未接入 App） | `compute_listing_keyword.py` | 标题关键词热度，仅 ~10 行且与标签摘要重叠，暂不入快照 |
@@ -166,6 +169,9 @@ nbs_real_estate.csv          → nbsRealEstate.ts      → 全国房地产开销
 gz_new_house_inventory.csv   → gzNewHouseInventory.ts → 广州新房库存
 education_overview.csv       → educationOverview.ts  → 广州教育事业概览
 hospitals.csv                → hospitalRanking.ts    → 医疗资源榜（dashboard v1.121.12）
+hospitals_geo.csv            → hospitalGeoAnalysis   → 医疗坐标覆盖（dashboard v1.121.15）
+poi_commercial.csv           → poiCommercialRanking  → 周边商业（dashboard v1.121.15）
+poi_market.csv               → poiMarketRanking      → 菜市场可达（dashboard v1.121.15）
 metro_planning.csv           → metroPlanningRanking  → 规划地铁概览（dashboard v1.121.14）
 listing_tags_summary.csv     → listingTagsComparison → 挂牌标签热度（dashboard v1.121.14）
 static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务快照
