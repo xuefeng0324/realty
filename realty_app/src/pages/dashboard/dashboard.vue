@@ -1429,6 +1429,63 @@
         </view>
       </view>
 
+      <!-- v1.121.14 规划地铁线路概览（metroPlanningRanking 已派生，此前未接 UI） -->
+      <view v-if="metroPlanSummary" class="card" data-tab="all,transit">
+        <view class="row-between">
+          <view class="card-title">🛤️ 规划地铁 · {{ metroPlanCityName }}</view>
+          <view class="muted">{{ metroPlanSummary.lineCount }} 条</view>
+        </view>
+        <view class="mp-summary">
+          <view class="mp-kpi">
+            <text class="mp-kpi-val">{{ metroPlanSummary.totalLengthKm.toFixed(0) }}</text>
+            <text class="mp-kpi-label muted">公里</text>
+          </view>
+          <view class="mp-kpi">
+            <text class="mp-kpi-val">{{ metroPlanSummary.totalStations }}</text>
+            <text class="mp-kpi-label muted">站</text>
+          </view>
+          <view class="mp-kpi">
+            <text class="mp-kpi-val">{{ metroPlanBuildCount }}</text>
+            <text class="mp-kpi-label muted">在建</text>
+          </view>
+          <view class="mp-kpi">
+            <text class="mp-kpi-val">{{ metroPlanSoonCount }}</text>
+            <text class="mp-kpi-label muted">即将开通</text>
+          </view>
+        </view>
+        <view v-if="metroPlanYears.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          预计开通年份
+        </view>
+        <view v-if="metroPlanYears.length" class="mp-year-row">
+          <view v-for="y in metroPlanYears" :key="y.year" class="mp-year-chip">
+            <text class="mp-year-y">{{ y.year }}</text>
+            <text class="mp-year-n muted">{{ y.lineCount }} 条 · {{ y.totalLengthKm.toFixed(0) }}km</text>
+          </view>
+        </view>
+        <view v-if="metroPlanTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          里程 Top {{ metroPlanTop.length }}
+        </view>
+        <view
+          v-for="(it, idx) in metroPlanTop"
+          :key="it.lineName + idx"
+          class="mp-line-row"
+        >
+          <text class="mp-line-rank muted">{{ idx + 1 }}</text>
+          <view class="mp-line-mid">
+            <text class="mp-line-name">{{ it.lineName }}</text>
+            <text class="mp-line-meta muted">
+              {{ it.status }}
+              <text v-if="it.openYearExpected"> · {{ it.openYearExpected }} 年</text>
+              · {{ it.stationCount }} 站
+            </text>
+          </view>
+          <text class="mp-line-km">{{ it.lengthKm.toFixed(1) }} km</text>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：metro_planning.csv（公开规划整理）。与上方「规划受益」不同：本卡看线路本体，不按小区距离打分。
+        </view>
+      </view>
+
       <!-- v0.38.0 trend-18 区情画像 (行政区代码 + 房价指数 + 学区评分 + 挂牌量 + 楼龄) -->
       <view v-if="districtMeta && districtMeta.items.length > 0" class="card" data-tab="all,school">
         <view class="row-between">
@@ -1530,6 +1587,45 @@
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：listings.csv (中位单价) + cities.csv → scripts/compute_feature_premium.py。<br>
           公式：premium% = (bucket 桶中位单价 ÷ 城市中位单价 − 1) × 100。
+        </view>
+      </view>
+
+      <!-- v1.121.14 挂牌标签热度（listingTagsComparison，筛选项页已用，仪表盘此前未展示） -->
+      <view v-if="listingTagCitySummary" class="card" data-tab="all,price">
+        <view class="row-between">
+          <view class="card-title">🔖 挂牌标签热度 · {{ listingTagCitySummary.cityName }}</view>
+          <view class="muted">{{ listingTagCitySummary.totalTags }} 标签</view>
+        </view>
+        <view
+          v-for="(t, idx) in listingTagCitySummary.topTags"
+          :key="t.tag"
+          class="ltk-row"
+        >
+          <text class="ltk-rank muted">{{ idx + 1 }}</text>
+          <text class="ltk-tag">{{ t.tag }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{ width: Math.min(100, (t.share / (listingTagTopShare || 0.01)) * 100) + '%' }"
+            />
+          </view>
+          <text class="ltk-share">{{ (t.share * 100).toFixed(1) }}%</text>
+          <text class="ltk-count muted">{{ t.count }}</text>
+        </view>
+        <view v-if="listingTagSignature.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          本市特色（相对他城 ≥1.5×）
+        </view>
+        <view
+          v-for="s in listingTagSignature"
+          :key="s.tag"
+          class="ltk-sig-row"
+        >
+          <text class="ltk-sig-tag">{{ s.tag }}</text>
+          <text class="ltk-sig-share">{{ (s.share * 100).toFixed(1) }}%</text>
+          <text class="ltk-sig-vs muted">他城均 {{ (s.otherAvg * 100).toFixed(1) }}%</text>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：listing_tags_summary.csv。与「标签组合」不同：本卡看单标签渗透与城市特色。
         </view>
       </view>
 
@@ -2838,6 +2934,19 @@ import {
   type CityHospitalSummary,
   type CityDistrictHospitalSummary
 } from "../../local/hospitalRanking";
+import {
+  summarizeMetroPlanningByCity,
+  getMetroPlanningByCityTopByLength,
+  type CityMetroPlanningSummary,
+  type OpenYearMetroPlanningSummary,
+  type TopByMetric
+} from "../../local/metroPlanningRanking";
+import {
+  summarizeListingTagsByCity,
+  getCityTagSignature,
+  type CityTagSummary,
+  type TagSignatureEntry
+} from "../../local/listingTagsComparison";
 import type { LocalHospital } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
@@ -2893,6 +3002,56 @@ const hospitalDistrictTop = computed<CityDistrictHospitalSummary[]>(() =>
 const hospitalTopList = computed<LocalHospital[]>(() =>
   getHospitalTopByLevelByCity(app.cityId, 5)
 );
+
+// v1.121.14 规划地铁线路概览
+const metroPlanSummary = computed<CityMetroPlanningSummary | null>(() => {
+  const all = summarizeMetroPlanningByCity();
+  return all.find((x) => x.cityId === app.cityId) ?? null;
+});
+const metroPlanCityName = computed(() => cityNameForId(app.cityId));
+const metroPlanBuildCount = computed(
+  () => metroPlanSummary.value?.statusDistribution["在建"] ?? 0
+);
+const metroPlanSoonCount = computed(
+  () => metroPlanSummary.value?.statusDistribution["即将开通"] ?? 0
+);
+const metroPlanYears = computed<OpenYearMetroPlanningSummary[]>(() => {
+  const lines = store.getMetroLinesByCity(app.cityId);
+  if (lines.length === 0) return [];
+  const grouped = new Map<number, typeof lines>();
+  for (const x of lines) {
+    if (x.openYearExpected == null) continue;
+    let arr = grouped.get(x.openYearExpected);
+    if (!arr) {
+      arr = [];
+      grouped.set(x.openYearExpected, arr);
+    }
+    arr.push(x);
+  }
+  return [...grouped.entries()]
+    .map(([year, arr]) => ({
+      year,
+      lineCount: arr.length,
+      totalLengthKm: arr.reduce((s, x) => s + (x.lengthKm ?? 0), 0),
+      totalStations: arr.reduce((s, x) => s + (x.stationCount ?? 0), 0)
+    }))
+    .sort((a, b) => a.year - b.year);
+});
+const metroPlanTop = computed<TopByMetric[]>(() =>
+  getMetroPlanningByCityTopByLength(app.cityId, 5)
+);
+
+// v1.121.14 挂牌标签热度
+const listingTagCitySummary = computed<CityTagSummary | null>(() => {
+  return summarizeListingTagsByCity(8).find((x) => x.cityId === app.cityId) ?? null;
+});
+const listingTagTopShare = computed(
+  () => listingTagCitySummary.value?.topTags[0]?.share ?? 0
+);
+const listingTagSignature = computed<TagSignatureEntry[]>(() =>
+  getCityTagSignature(app.cityId, 1.5).slice(0, 5)
+);
+
 // v0.35.0 map-9: 地铁步行通勤
 const metroWalk = ref<MetroWalkResponse | null>(null);
 // v0.36.0 map-10: 地铁规划受益
@@ -6517,6 +6676,162 @@ onShow(async () => {
   background: var(--color-info-soft);
   color: var(--color-accent);
 }
+
+/* v1.121.14 规划地铁 */
+.mp-summary {
+  display: flex;
+  gap: 10rpx;
+  margin: 8rpx 0 4rpx;
+}
+.mp-kpi {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12rpx 6rpx;
+  border-radius: 12rpx;
+  background: var(--color-soft);
+  border: 1rpx solid var(--color-border);
+}
+.mp-kpi-val {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--color-heading);
+  font-variant-numeric: tabular-nums;
+}
+.mp-kpi-label {
+  font-size: 20rpx;
+  margin-top: 2rpx;
+}
+.mp-year-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+.mp-year-chip {
+  display: flex;
+  flex-direction: column;
+  padding: 8rpx 12rpx;
+  border-radius: 10rpx;
+  background: var(--color-panel);
+  border: 1rpx solid var(--color-border);
+  min-width: 140rpx;
+}
+.mp-year-y {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: var(--color-heading);
+}
+.mp-year-n {
+  font-size: 20rpx;
+}
+.mp-line-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 8rpx 0;
+  border-bottom: 1rpx solid var(--color-border);
+}
+.mp-line-row:last-child {
+  border-bottom: none;
+}
+.mp-line-rank {
+  width: 36rpx;
+  font-size: 22rpx;
+  text-align: center;
+}
+.mp-line-mid {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.mp-line-name {
+  font-size: 26rpx;
+  color: var(--color-text);
+}
+.mp-line-meta {
+  font-size: 20rpx;
+}
+.mp-line-km {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--color-heading);
+  font-variant-numeric: tabular-nums;
+}
+
+/* v1.121.14 挂牌标签热度 */
+.ltk-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 8rpx 0;
+  border-bottom: 1rpx solid var(--color-border);
+}
+.ltk-row:last-child {
+  border-bottom: none;
+}
+.ltk-rank {
+  width: 32rpx;
+  font-size: 22rpx;
+  text-align: center;
+}
+.ltk-tag {
+  width: 140rpx;
+  font-size: 24rpx;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ltk-bar-wrap {
+  flex: 1;
+  height: 12rpx;
+  border-radius: 999rpx;
+  background: var(--color-soft);
+  overflow: hidden;
+}
+.ltk-bar {
+  height: 100%;
+  border-radius: 999rpx;
+  background: var(--color-primary, #3b82f6);
+}
+.ltk-share {
+  width: 72rpx;
+  text-align: right;
+  font-size: 22rpx;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-heading);
+}
+.ltk-count {
+  width: 56rpx;
+  text-align: right;
+  font-size: 20rpx;
+}
+.ltk-sig-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 6rpx 0;
+}
+.ltk-sig-tag {
+  flex: 1;
+  font-size: 24rpx;
+  color: var(--color-text);
+}
+.ltk-sig-share {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--color-heading);
+  font-variant-numeric: tabular-nums;
+}
+.ltk-sig-vs {
+  font-size: 20rpx;
+  min-width: 140rpx;
+  text-align: right;
+}
+
 .lc-score-high {
   color: #22c55e;
 }
