@@ -18,9 +18,23 @@ describe("gz affordable projects", () => {
     expect(raised!.kind).toBe("raised");
     expect(raised!.totalUnits).toBeGreaterThan(0);
     expect(raised!.attachmentUrl).toMatch(/\.xls/i);
-    const done = getLatestGzAffordableCompleted();
-    expect(done).not.toBeNull();
-    expect(done!.kind).toBe("completed");
+    // 无偏好时仍可取到保障房竣工（不优先棚改）
+    const doneAny = getLatestGzAffordableCompleted();
+    expect(doneAny).not.toBeNull();
+    expect(doneAny!.kind).toBe("completed");
+    expect(doneAny!.category).not.toContain("棚户");
+  });
+
+  it("已竣工与已筹建同口径：不把棚改并到配售型旁", () => {
+    const raised = getLatestGzAffordableRaised();
+    expect(raised).not.toBeNull();
+    expect(raised!.category).toContain("配售型");
+    const aligned = getLatestGzAffordableCompleted({
+      preferYear: raised!.year,
+      preferCategory: raised!.category
+    });
+    // 2025 配售型尚无同族同年竣工清单 → 隐藏竣工 KPI
+    expect(aligned).toBeNull();
   });
 
   it("爬虫与仪表盘门禁", () => {
@@ -32,6 +46,8 @@ describe("gz affordable projects", () => {
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     expect(dash).toContain("data-gz-affordable-projects");
     expect(dash).toContain("getLatestGzAffordableRaised");
+    expect(dash).toContain("gz-progress-track");
+    expect(dash).toContain("preferCategory");
   });
 
   it("CSV 解析", () => {

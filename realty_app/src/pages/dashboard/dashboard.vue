@@ -1166,14 +1166,20 @@
         </view>
         <view class="gz-inventory-grid">
           <view v-if="gzAffordableRaised" class="gz-inventory-kpi">
-            <text class="cell-label">已筹建 · {{ gzAffordableRaised.category.replace("保障性住房", "保障房") }}</text>
+            <text class="cell-label">
+              {{ gzAffordableRaised.year }} 已筹建 ·
+              {{ gzAffordableRaised.category.replace("保障性住房", "保障房") }}
+            </text>
             <text class="gz-inventory-value">{{ gzAffordableRaised.totalUnits.toLocaleString() }} 套</text>
             <text class="cell-sub muted">
               {{ gzAffordableRaised.projectCount }} 个项目 · 截至 {{ gzAffordableRaised.asOfMonth }} 月底
             </text>
           </view>
           <view v-if="gzAffordableCompleted" class="gz-inventory-kpi">
-            <text class="cell-label">已竣工 · {{ gzAffordableCompleted.category.replace("保障性住房", "保障房") }}</text>
+            <text class="cell-label">
+              {{ gzAffordableCompleted.year }} 已竣工 ·
+              {{ gzAffordableCompleted.category.replace("保障性住房", "保障房") }}
+            </text>
             <text class="gz-inventory-value">{{ gzAffordableCompleted.totalUnits.toLocaleString() }} 套</text>
             <text class="cell-sub muted">
               {{ gzAffordableCompleted.projectCount }} 个项目 · 截至 {{ gzAffordableCompleted.asOfMonth }} 月底
@@ -1185,6 +1191,9 @@
               {{ gzAffordableTargetRaised.category.replace("保障性住房", "保障房") }}
             </text>
             <text class="gz-inventory-value">{{ gzAffordableTargetPct }}%</text>
+            <view class="gz-progress-track" aria-hidden="true">
+              <view class="gz-progress-fill" :style="{ width: Math.min(100, gzAffordableTargetPct) + '%' }" />
+            </view>
             <text class="cell-sub muted">
               {{ gzAffordableTargetRaised.actualUnits.toLocaleString() }} /
               {{ gzAffordableTargetRaised.targetUnits.toLocaleString() }} 套
@@ -4329,11 +4338,19 @@
             <view class="gz-inventory-kpi">
               <text class="cell-label">缴存余额</text>
               <text class="gz-inventory-value">{{ szProvidentAnnual.depositBalanceYi.toLocaleString() }} 亿</text>
-              <text class="cell-sub muted">实缴 {{ szProvidentAnnual.paidPersonsWan.toLocaleString() }} 万人</text>
+              <text class="cell-sub muted">
+                实缴 {{ szProvidentAnnual.paidPersonsWan.toLocaleString() }} 万人
+                <template v-if="szProvidentExtractPct != null">
+                  · 提取/缴存 {{ szProvidentExtractPct }}%
+                </template>
+              </text>
             </view>
           </view>
           <view v-if="szProvidentAnnual" class="muted" style="margin-top: 8rpx; font-size: 21rpx">
             深圳年报：{{ szProvidentAnnual.sourceOrg }} · {{ szProvidentAnnual.publishDate || szProvidentAnnual.year }}；
+            <template v-if="szProvidentLoanBalancePct != null">
+              个贷余额/缴存余额 {{ szProvidentLoanBalancePct }}%；
+            </template>
             公租房建设补充资金计提 {{ szProvidentAnnual.publicRentalSupplementYi }} 亿元。非成交均价、非挂牌价。
           </view>
           <view class="pf-saving">
@@ -6169,6 +6186,8 @@ import { assessGzInventoryFreshness } from "../../local/gzInventoryFreshness";
 import { getLatestProvidentFundRate, monthlyPayment } from "../../local/providentFund";
 import {
   getLatestSzProvidentAnnual,
+  extractToDepositPct,
+  loanToDepositBalancePct,
   type SzProvidentAnnualRow
 } from "../../local/szProvidentAnnual";
 
@@ -7324,7 +7343,12 @@ const gzAffordableRaised = computed<GzAffordableProjectsRow | null>(() => {
 });
 const gzAffordableCompleted = computed<GzAffordableProjectsRow | null>(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
-  return city === "广州" ? getLatestGzAffordableCompleted() : null;
+  if (city !== "广州") return null;
+  const raised = gzAffordableRaised.value;
+  return getLatestGzAffordableCompleted({
+    preferYear: raised?.year,
+    preferCategory: raised?.category
+  });
 });
 const gzAffordableTargetRaised = computed<GzAffordableTargetRow | null>(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
@@ -7412,6 +7436,8 @@ const szProvidentAnnual = computed<SzProvidentAnnualRow | null>(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   return city === "深圳" ? getLatestSzProvidentAnnual() : null;
 });
+const szProvidentExtractPct = computed(() => extractToDepositPct(szProvidentAnnual.value));
+const szProvidentLoanBalancePct = computed(() => loanToDepositBalancePct(szProvidentAnnual.value));
 
 function formatMacro100m(v: number) {
   return `${v.toLocaleString()} 亿元`;
@@ -9517,6 +9543,20 @@ onShow(async () => {
 .gz-inventory-value {
   font-size: 30rpx;
   font-weight: 700;
+}
+
+.gz-progress-track {
+  margin-top: 8rpx;
+  height: 8rpx;
+  border-radius: 999rpx;
+  background: rgba(148, 163, 184, 0.28);
+  overflow: hidden;
+}
+
+.gz-progress-fill {
+  height: 100%;
+  border-radius: 999rpx;
+  background: var(--color-accent, #0ea5e9);
 }
 
 .gz-inventory-row {

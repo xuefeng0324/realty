@@ -20,12 +20,13 @@ describe("zh affordable progress", () => {
     expect(latest!.attachmentUrl).toMatch(/\.xls/i);
   });
 
-  it("同年环比可算；跨年不在加载层伪造", () => {
+  it("同年环比可算；跨年相邻月不环比", () => {
     const rows = getZhAffordableProgressRows();
     const mom = getZhAffordableProgressMoM();
     if (rows.length >= 2 && rows[0]!.year === rows[1]!.year) {
       expect(mom).not.toBeNull();
-      expect(mom!.startedDelta).toBe(rows[0]!.startedUnits - rows[1]!.startedUnits);
+      expect(mom!.prev.year).toBe(rows[0]!.year);
+      expect(mom!.startedDelta).toBe(rows[0]!.startedUnits - mom!.prev.startedUnits);
     }
   });
 

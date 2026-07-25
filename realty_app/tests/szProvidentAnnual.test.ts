@@ -2,9 +2,11 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  extractToDepositPct,
   getLatestSzProvidentAnnual,
   getSzProvidentAnnualRows,
-  loadSzProvidentAnnualFromCSV
+  loadSzProvidentAnnualFromCSV,
+  loanToDepositBalancePct
 } from "../src/local/szProvidentAnnual";
 
 describe("sz provident annual", () => {
@@ -20,6 +22,8 @@ describe("sz provident annual", () => {
     expect(latest!.depositBalanceYi).toBe(3388.05);
     expect(latest!.supportPurchaseWanSqm).toBe(367.56);
     expect(latest!.sourceUrl).toMatch(/zjj\.sz\.gov\.cn/);
+    expect(extractToDepositPct(latest)).toBe(91.1);
+    expect(loanToDepositBalancePct(latest)).toBe(75.6);
   });
 
   it("爬虫与仪表盘门禁", () => {

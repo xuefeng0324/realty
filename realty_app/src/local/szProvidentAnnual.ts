@@ -67,6 +67,18 @@ export function getLatestSzProvidentAnnual(): SzProvidentAnnualRow | null {
   return rows[0] || null;
 }
 
+/** 提取额占当年缴存额比例（%） */
+export function extractToDepositPct(row: SzProvidentAnnualRow | null): number | null {
+  if (!row || row.depositAmountYi <= 0) return null;
+  return Math.round((row.extractAmountYi / row.depositAmountYi) * 1000) / 10;
+}
+
+/** 个人住房贷款余额 / 缴存余额（%） */
+export function loanToDepositBalancePct(row: SzProvidentAnnualRow | null): number | null {
+  if (!row || row.depositBalanceYi <= 0) return null;
+  return Math.round((row.loanBalanceYi / row.depositBalanceYi) * 1000) / 10;
+}
+
 export function __setSzProvidentAnnualForTest(next: SzProvidentAnnualRow[]): void {
   rows = [...next].sort((a, b) => b.year - a.year);
 }

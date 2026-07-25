@@ -72,8 +72,51 @@ export function getLatestGzAffordableRaised(): GzAffordableProjectsRow | null {
   );
 }
 
-export function getLatestGzAffordableCompleted(): GzAffordableProjectsRow | null {
-  const done = rows.filter((r) => r.kind === "completed");
+function categoryFamily(category: string): "sale_type" | "affordable" | "shantytown" | "other" {
+  if (category.includes("配售型")) return "sale_type";
+  if (category.includes("棚户")) return "shantytown";
+  if (category.includes("保障")) return "affordable";
+  return "other";
+}
+
+/**
+ * 已竣工优先与已筹建同口径族（配售型/保障房 vs 棚改），避免并排误读。
+ * 同族内再优先 preferYear；配售型可回退到保障性住房竣工。
+ */
+export function getLatestGzAffordableCompleted(opts?: {
+  preferYear?: number;
+  preferCategory?: string;
+}): GzAffordableProjectsRow | null {
+  let done = rows.filter((r) => r.kind === "completed");
+  if (!done.length) return null;
+  const family = opts?.preferCategory ? categoryFamily(opts.preferCategory) : null;
+
+  if (family === "sale_type" || family === "affordable") {
+    const peer = done.filter((r) => {
+      const f = categoryFamily(r.category);
+      return f === "sale_type" || f === "affordable";
+    });
+    if (!peer.length) return null;
+    done = peer;
+  } else if (family === "shantytown") {
+    const peer = done.filter((r) => categoryFamily(r.category) === "shantytown");
+    if (peer.length) done = peer;
+  }
+
+  if (opts?.preferYear) {
+    const sameYear = done.filter((r) => r.year === opts.preferYear);
+    if (sameYear.length) done = sameYear;
+    else if (family) return null;
+  }
+
+  if (family === "sale_type") {
+    return (
+      done.find((r) => r.category.includes("配售型")) ||
+      done.find((r) => r.category === "保障性住房") ||
+      done[0] ||
+      null
+    );
+  }
   return (
     done.find((r) => r.category === "保障性住房") ||
     done.find((r) => r.category.includes("配售型")) ||

@@ -82,7 +82,9 @@ export function getZhAffordableProgressMoM(): {
 } | null {
   if (rows.length < 2) return null;
   const cur = rows[0]!;
-  const prev = rows[1]!;
+  // 环比仅同年相邻月，避免跨年累计口径误比
+  const prev = rows.find((r) => r.year === cur.year && r.month < cur.month) ?? null;
+  if (!prev) return null;
   return {
     prev,
     startedDelta: cur.startedUnits - prev.startedUnits,
