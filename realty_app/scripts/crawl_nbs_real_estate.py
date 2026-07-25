@@ -25,6 +25,8 @@ OUTPUT = Path(__file__).resolve().parents[1] / "static" / "nbs_real_estate.csv"
 
 # 2026 年已发布累计期（1—N），用于回填；后续可继续追加
 BACKFILL_URLS_2026 = [
+    "https://www.stats.gov.cn/sj/zxfb/202603/t20260316_1962785.html",  # 1—2
+    "https://www.stats.gov.cn/sj/zxfb/202604/t20260416_1963327.html",  # 1—3
     "https://www.stats.gov.cn/sj/zxfb/202605/t20260518_1963729.html",  # 1—4
     "https://www.stats.gov.cn/sj/zxfb/202606/t20260616_1963950.html",  # 1—5
     "https://www.stats.gov.cn/sj/zxfb/202607/t20260715_1964126.html",  # 1—6

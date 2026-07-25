@@ -173,7 +173,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 
 ```bash
 cd realty_app
-# 回填已知 2026 归档（1—4 / 1—5 / 1—6）并按 period merge
+# 回填已知 2026 归档（1—2 … 1—6）并按 period merge
 python scripts/crawl_nbs_real_estate.py --backfill --no-latest
 # 仅刷新首页最新一期（merge，不抹掉历史）
 python scripts/crawl_nbs_real_estate.py

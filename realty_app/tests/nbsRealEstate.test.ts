@@ -14,7 +14,7 @@ describe("国家统计局房地产市场数据", () => {
     const rows = loadNbsRealEstateFromCSV(csv);
     const latest = getLatestNbsRealEstate();
 
-    expect(rows.length).toBeGreaterThanOrEqual(3);
+    expect(rows.length).toBeGreaterThanOrEqual(5);
     expect(latest?.publishDate).toBe("2026-07-15");
     expect(latest?.period).toBe("2026-01_to_2026-06");
     expect(latest?.investmentCny100m).toBe(38074);
@@ -27,12 +27,15 @@ describe("国家统计局房地产市场数据", () => {
     expect(history.map((x) => x.period)).toEqual([
       "2026-01_to_2026-06",
       "2026-01_to_2026-05",
-      "2026-01_to_2026-04"
+      "2026-01_to_2026-04",
+      "2026-01_to_2026-03",
+      "2026-01_to_2026-02"
     ]);
 
     const trend = getNbsYoyTrend();
-    expect(trend.map((x) => x.shortLabel)).toEqual(["1—4", "1—5", "1—6"]);
-    expect(trend[2].salesAreaYoyPct).toBe(-11.6);
+    expect(trend.map((x) => x.shortLabel)).toEqual(["1—2", "1—3", "1—4", "1—5", "1—6"]);
+    expect(trend[0].salesAreaYoyPct).toBe(-13.5);
+    expect(trend[4].salesAreaYoyPct).toBe(-11.6);
   });
 
   it("拒绝非国家统计局来源", () => {
