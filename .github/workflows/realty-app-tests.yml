@@ -33,7 +33,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 设 Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           # Node.js 20 已被 GitHub Actions 弃用（2025-09-19），升级到 Node 22 LTS
           node-version: "22"

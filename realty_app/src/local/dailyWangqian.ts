@@ -329,3 +329,128 @@ export function getLatestMonthlyDeal(cityName: string): MonthlyDeal | null {
     districts
   };
 }
+
+export interface MonthlyTrendBucket {
+  /** 该月代表日期（y-m-01） */
+  month: string;
+  /** 该月份日期（含跨月段；同月聚合） */
+  days: number;
+  units: number;
+  area_sqm: number;
+  /** 上一完整月的同期值，用算环比 */
+  prevUnits: number | null;
+  /** 同上 */
+  prevArea: number | null;
+}
+
+/**
+ * 派生：把日级成交聚合成月级时间序列（不做任何外网请求）。
+ * 适合 dashboard 上做 12 月柱图：单看 daily 数据的"最新值"信息不够，
+ * 月度聚合能给出"过去一年成交节奏"的方向感。
+ *
+ * @param cityName 深圳 / 广州 / 其它（按现有 daily_wangqian.csv 中的数据）
+ * @param category 新房 | 二手
+ * @param months  保留几个月（默认 12；从最新完整月开始倒推）
+ */
+export function getMonthlyTrendFromDaily(
+  cityName: string,
+  category: "新房" | "二手",
+  months: number = 12
+): MonthlyTrendBucket[] {
+  const target = (cityName ?? "").replace(/市$/, "");
+  // 仅看走势页/日更的全市住宅口径（granularity=city，district=全市），
+  // 排除分区行（district != 全市）以免重复计算。
+  const rows = getDailyWangqianByCity(target).filter(
+    (r) =>
+      r.granularity === "city" &&
+      r.district === "全市" &&
+      r.category === category &&
+      r.scope === "住宅"
+  );
+  if (rows.length === 0) return [];
+
+  // 同 (yyyy-mm) 聚合
+  const bucket = new Map<string, { days: number; units: number; area_sqm: number }>();
+  for (const r of rows) {
+    const ym = r.date.slice(0, 7);
+    let cur = bucket.get(ym);
+    if (!cur) {
+      cur = { days: 0, units: 0, area_sqm: 0 };
+      bucket.set(ym, cur);
+    }
+    cur.days += 1;
+    cur.units += r.units;
+    cur.area_sqm += r.area_sqm;
+  }
+
+  // 列表：按月份升序
+  const sorted = [...bucket.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1));
+  const series: MonthlyTrendBucket[] = sorted.map(([ym, v], i, arr) => {
+    const prev = i > 0 ? arr[i - 1][1] : null;
+    return {
+      month: `${ym}-01`,
+      days: v.days,
+      units: v.units,
+      area_sqm: Math.round(v.area_sqm),
+      prevUnits: prev ? prev.units : null,
+      prevArea: prev ? Math.round(prev.area_sqm) : null
+    };
+  });
+
+  // 取最近 N 个月；不足 N 个时全保留
+  if (series.length <= months) return series;
+  return series.slice(-months);
+}
+
+/**
+ * 派生：给出"最近 N 个月汇总"+"环比 / 同比"。
+ * 用于 dashboard 摘要卡，能用最少的字段回答"市场冷 / 热"。
+ */
+export interface MonthlyTrendSummary {
+  latest: MonthlyTrendBucket | null;
+  /** 最近一个完整月 + 前一月（含跨段同月聚合）的对比 */
+  momUnits: number | null;
+  momArea: number | null;
+  /** 仅当数据跨越 12 月以上时返回 */
+  yoyUnits: number | null;
+  yoyArea: number | null;
+  /** 完整可用月份数 */
+  total: number;
+}
+
+export function summarizeMonthlyTrend(
+  series: MonthlyTrendBucket[]
+): MonthlyTrendSummary {
+  if (series.length === 0) {
+    return {
+      latest: null,
+      momUnits: null,
+      momArea: null,
+      yoyUnits: null,
+      yoyArea: null,
+      total: 0
+    };
+  }
+  const latest = series[series.length - 1];
+  const prev = series.length >= 2 ? series[series.length - 2] : null;
+  // 同月环比（moM）
+  const momUnits =
+    prev && prev.units > 0 ? (latest.units - prev.units) / prev.units : null;
+  const momArea =
+    prev && prev.area_sqm > 0 ? (latest.area_sqm - prev.area_sqm) / prev.area_sqm : null;
+  // 同比：13 个点前（series[length - 13] 不一定存在，取最近同月存在的）
+  const yoyAnchor =
+    series.length >= 13 ? series[series.length - 13] : null;
+  const yoyUnits =
+    yoyAnchor && yoyAnchor.units > 0 ? (latest.units - yoyAnchor.units) / yoyAnchor.units : null;
+  const yoyArea =
+    yoyAnchor && yoyAnchor.area_sqm > 0 ? (latest.area_sqm - yoyAnchor.area_sqm) / yoyAnchor.area_sqm : null;
+  return {
+    latest,
+    momUnits,
+    momArea,
+    yoyUnits,
+    yoyArea,
+    total: series.length
+  };
+}

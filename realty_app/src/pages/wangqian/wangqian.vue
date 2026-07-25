@@ -166,6 +166,60 @@
         </view>
       </view>
 
+      <!-- 月度成交趋势（从日数据派生；不需要外部抓取） -->
+      <view
+        v-if="newMonthlySummary || secondMonthlySummary"
+        class="card"
+      >
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">月度成交趋势（{{ monthlyMonthsLabel }}）</view>
+          <view class="muted" style="font-size: 22rpx">住宅 · 套数</view>
+        </view>
+        <view class="muted" style="margin-bottom: 12rpx">
+          由日数据聚合：同一自然月求和。最新月可能不完整（仍在爬虫累计中），环比基于"最新完整月 vs 前一完整月"。
+        </view>
+        <view v-if="newMonthlySummary" class="wq-monthly-row">
+          <view class="wq-monthly-label">
+            <text class="muted">新房</text>
+            <text class="wq-monthly-sub muted">
+              {{ monthlyDeltaText(newMonthlySummary.momUnits) }}
+            </text>
+          </view>
+          <view class="spark spark-monthly">
+            <view
+              v-for="(b, i) in newMonthlyTrend"
+              :key="'mn' + i"
+              class="spark-bar new-bar"
+              :style="{ height: monthlyPct(b.units, newMonthlyMax) + '%' }"
+            ></view>
+          </view>
+          <view class="wq-monthly-latest">
+            <text class="cell-value">{{ newMonthlySummary.latest ? formatMonthShort(newMonthlySummary.latest.month) : "—" }}</text>
+            <text class="muted">{{ newMonthlySummary.latest ? newMonthlySummary.latest.units : 0 }} 套</text>
+          </view>
+        </view>
+        <view v-if="secondMonthlySummary" class="wq-monthly-row">
+          <view class="wq-monthly-label">
+            <text class="muted">二手</text>
+            <text class="wq-monthly-sub muted">
+              {{ monthlyDeltaText(secondMonthlySummary.momUnits) }}
+            </text>
+          </view>
+          <view class="spark spark-monthly">
+            <view
+              v-for="(b, i) in secondMonthlyTrend"
+              :key="'ms' + i"
+              class="spark-bar second-bar"
+              :style="{ height: monthlyPct(b.units, secondMonthlyMax) + '%' }"
+            ></view>
+          </view>
+          <view class="wq-monthly-latest">
+            <text class="cell-value">{{ secondMonthlySummary.latest ? formatMonthShort(secondMonthlySummary.latest.month) : "—" }}</text>
+            <text class="muted">{{ secondMonthlySummary.latest ? secondMonthlySummary.latest.units : 0 }} 套</text>
+          </view>
+        </view>
+      </view>
+
       <!-- 深圳预售公示入口 -->
       <view
         v-if="cityName === '深圳'"
@@ -223,9 +277,13 @@ import {
   getLatestMonthlyDeal,
   getSupportedWangqianCities,
   hasDailyWangqian,
+  getMonthlyTrendFromDaily,
+  summarizeMonthlyTrend,
   type CityDailySnapshot,
   type DistrictBreakdown,
-  type MonthlyDeal
+  type MonthlyDeal,
+  type MonthlyTrendBucket,
+  type MonthlyTrendSummary
 } from "../../local/dailyWangqian";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import { openGovWeb } from "../../config/govLinks";
@@ -271,6 +329,60 @@ const newTrend = computed(() => {
 });
 const secondMax = computed(() => Math.max(1, ...secondTrend.value.map((p) => p.units)));
 const newMax = computed(() => Math.max(1, ...newTrend.value.map((p) => p.units)));
+
+// 月度趋势（v0.89.0）：从日数据派生月成交，最近 12 个月。
+// 仅做行内条形图，不强依赖任何外部接口；与已有月度公示接口（getMonthlyTrendFromDaily
+// 也读本月初数据），前者快、后者是"官方本月累计"。
+const newMonthlyTrend = computed<MonthlyTrendBucket[]>(() => {
+  void dataVersion.value;
+  return getMonthlyTrendFromDaily(cityName.value, "新房", 12);
+});
+const secondMonthlyTrend = computed<MonthlyTrendBucket[]>(() => {
+  void dataVersion.value;
+  return getMonthlyTrendFromDaily(cityName.value, "二手", 12);
+});
+const newMonthlySummary = computed<MonthlyTrendSummary>(() =>
+  summarizeMonthlyTrend(newMonthlyTrend.value)
+);
+const secondMonthlySummary = computed<MonthlyTrendSummary>(() =>
+  summarizeMonthlyTrend(secondMonthlyTrend.value)
+);
+const newMonthlyMax = computed(() =>
+  Math.max(1, ...newMonthlyTrend.value.map((b) => b.units))
+);
+const secondMonthlyMax = computed(() =>
+  Math.max(1, ...secondMonthlyTrend.value.map((b) => b.units))
+);
+const monthlyMonthsLabel = computed(() => {
+  const a = newMonthlyTrend.value;
+  const b = secondMonthlyTrend.value;
+  const all = [...a, ...b];
+  if (all.length === 0) return "—";
+  const sorted = all.slice().sort((x, y) => (x.month < y.month ? 1 : -1));
+  return `${formatMonthShort(sorted[sorted.length - 1].month)} 至今 · ${all.length} 月`;
+});
+
+function monthlyPct(units: number, max: number): number {
+  if (!max || max <= 0) return 0;
+  // 单月维度跨度大，用 sqrt 让低值不至于被压平
+  const v = Math.sqrt(Math.max(0, units));
+  const m = Math.sqrt(max);
+  return Math.max(4, Math.round((v / m) * 100));
+}
+
+function monthlyDeltaText(rate: number | null): string {
+  if (rate == null || !Number.isFinite(rate)) return "环比 —";
+  const sign = rate > 0 ? "↑" : rate < 0 ? "↓" : "→";
+  const pct = (Math.abs(rate) * 100).toFixed(1);
+  return `环比 ${sign}${pct}%`;
+}
+
+function formatMonthShort(iso: string): string {
+  // 2026-06-01 → "6月"
+  if (!iso || iso.length < 7) return iso || "—";
+  const m = parseInt(iso.slice(5, 7), 10);
+  return `${m}月`;
+}
 
 const district = computed<DistrictBreakdown | null>(() => {
   void dataVersion.value;
@@ -455,6 +567,42 @@ onLoad((opts?: Record<string, string>) => {
   justify-content: space-between;
   font-size: 20rpx;
   margin-top: 6rpx;
+}
+
+/* v0.89.0 月度趋势 */
+.wq-monthly-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 10rpx 0;
+  border-bottom: 1rpx dashed #1f2937;
+}
+.wq-monthly-row:last-child {
+  border-bottom: 0;
+}
+.wq-monthly-label {
+  width: 110rpx;
+  display: flex;
+  flex-direction: column;
+}
+.wq-monthly-sub {
+  font-size: 20rpx;
+  margin-top: 4rpx;
+}
+.spark.spark-monthly {
+  flex: 1 1 auto;
+  height: 80rpx;
+}
+.wq-monthly-latest {
+  width: 140rpx;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.wq-monthly-latest .cell-value {
+  font-size: 28rpx;
+  font-weight: 700;
 }
 
 .wq-table-head,
