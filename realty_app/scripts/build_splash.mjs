@@ -126,13 +126,10 @@ function genSplash(w, h) {
     }
   }
 
-  // 细绿顶线
-  fillRect(px, w, 0, 0, w, Math.max(2, Math.round(h * 0.0025)), GREEN);
-
-  // 天际线 mark（居中偏上）
-  const markH = Math.round(h * 0.14);
-  const markW = Math.round(w * 0.42);
-  const baseY = Math.round(h * 0.42);
+  // 仅天际线标：不要顶线 / 灰线 / 绿点（这些在真机上很脏）
+  const markH = Math.round(h * 0.16);
+  const markW = Math.round(w * 0.4);
+  const baseY = Math.round(h * 0.46);
   const barW = Math.round(markW * 0.16);
   const gap = Math.round(markW * 0.07);
   const heights = [0.45, 0.68, 1.0, 0.62].map((r) => Math.round(markH * r));
@@ -146,28 +143,10 @@ function genSplash(w, h) {
     const col = blend(BG_BOT, AMBER, alpha);
     fillRect(px, w, x0, y0, x0 + barW, baseY, col, radius);
   });
-  // pin on tallest bar
+  // 最高柱顶一颗琥珀色定位点（不要绿色点缀）
   const pinX = xStart + 2 * (barW + gap) + barW / 2;
-  const pinY = baseY - heights[2] - Math.round(markH * 0.12);
-  fillCircle(px, w, pinX, pinY, Math.max(4, Math.round(w * 0.012)), AMBER);
-  // 绿点缀
-  fillCircle(px, w, pinX + Math.round(w * 0.04), pinY + Math.round(h * 0.01), Math.max(2, Math.round(w * 0.005)), GREEN);
-
-  // 细分割线（无点阵字，更干净大气）
-  const sepY = baseY + Math.round(h * 0.05);
-  const lw = Math.round(w * 0.14);
-  fillRect(
-    px,
-    w,
-    Math.round(w / 2 - lw / 2),
-    sepY,
-    Math.round(w / 2 + lw / 2),
-    sepY + Math.max(2, Math.round(h * 0.0018)),
-    [51, 65, 85]
-  );
-
-  // 底部淡绿点
-  fillCircle(px, w, w / 2, Math.round(h * 0.9), Math.max(3, Math.round(w * 0.006)), blend(BG_BOT, GREEN, 0.55));
+  const pinY = baseY - heights[2] - Math.round(markH * 0.1);
+  fillCircle(px, w, pinX, pinY, Math.max(4, Math.round(w * 0.011)), AMBER);
 
   return encodePng(px, w, h);
 }
