@@ -1,15 +1,15 @@
 {
-  "versionName": "1.121.4",
-  "versionCode": "125",
-  "publishedAt": "2026-07-25T13:12:51Z",
+  "versionName": "1.121.6",
+  "versionCode": "127",
+  "publishedAt": "2026-07-25T13:33:00Z",
   "force": false,
-  "notes": "fix(realty_app): OTA \u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316 (v1.121.4)\n\n2026-07-25-v1.109.0-\u793e\u533a\u603b\u4ef7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f: v1.109.0 \u2014 \u793e\u533a\u603b\u4ef7\u00d7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f\n2026-07-25-v1.110.0-\u89c4\u5212\u5730\u94c1\u6d3e\u751f: v1.110.0 \u2014 \u89c4\u5212\u5730\u94c1\u6d3e\u751f\n2026-07-25-v1.111.0-LPR\u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f: v1.111.0 \u2014 LPR \u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f\n",
+  "notes": "fix(realty_app): splash + OTA fix verify (v1.121.6)\n\nAbout page shows OTA 127 ok. Manifest picks max version across mirrors; wgt prefers raw.githubusercontent.",
   "wgt": {
-    "url": "https://gcore.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/125/app.wgt",
-    "sha256": "12ef12ba9a5627755acf9dbc146e07ec20bc4ccda3959bddb0b59f155f5ce36e"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/127/app.wgt",
+    "sha256": "76cd4d65fe9066187ccfde3d61d6beac9f2dbf43d4a71a3a76afa7c26a637826"
   },
   "ios": {
     "available": false,
-    "note": "iOS 用户请前往 Releases 整包安装（未上架 App Store）"
+    "note": "iOS users: install full package from Releases"
   }
 }

@@ -128,7 +128,7 @@ jobs:
             "force": false,
             "notes": "$NOTES\n\n$CHANGELOG_JSON",
             "wgt": {
-              "url": "https://gcore.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/$VERSION_CODE/app.wgt",
+              "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/$VERSION_CODE/app.wgt",
               "sha256": "$SHA"
             },
             "ios": {

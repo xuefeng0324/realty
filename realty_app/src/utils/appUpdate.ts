@@ -2,40 +2,30 @@
  * App OTA 升级（wgt）
  *
  * 流程：
- *   1. uni.request 拉 UPDATE CDN 上的 app-update.json（多镜像回退）
- *   2. 对比 versionCode：远程 > 本地 → 提示用户升级
- *   3. 用户确认后 plus.downloader 下载 wgt → plus.runtime.install → 重启生效
- *
- * 注意：App-Plus WebView 通常没有全局 fetch（会报 fetch is not a function），
- * 必须走 uni.request；与 remoteFetch.downloadText 同口径。
+ *   1. uni.request 并行/串行拉多镜像 app-update.json（带缓存戳）
+ *   2. **取 versionCode 最高的清单**（防止 jsDelivr @main 返回过期 200）
+ *   3. wgt 优先走 raw.githubusercontent.com（实测可下 ~1MB wgt），jsDelivr 作回退
+ *   4. plus.downloader 下载 → plus.runtime.install → 可选 restart
  */
 
 import { APP_UPDATE_STORAGE_KEY, APP_UPDATE_MANIFEST, UPDATE_BASE_URL } from "../config";
 import { getStaticBases } from "../local/remoteFetch";
 
 export interface AppUpdateManifest {
-  /** 与 src/manifest.json 的 versionName 同步 */
   versionName: string;
-  /** 与 src/manifest.json 的 versionCode 同步，整数字符串 */
   versionCode: string;
-  /** 更新说明（纯文本 / Markdown） */
   notes?: string;
-  /** 发布时间 ISO 8601 */
   publishedAt?: string;
-  /** 是否强制升级（true 时用户不能跳过） */
   force?: boolean;
-  /** Android wgt 资源包 */
   wgt?: {
     url: string;
     sha256?: string;
     silent?: boolean;
   };
-  /** Android 完整 APK 整包（可选；与 wgt 二选一时优先 wgt） */
   apk?: {
     url: string;
     sha256?: string;
   };
-  /** iOS 资源：未上架 App Store 时必须置 false */
   ios?: {
     available: boolean;
     note?: string;
@@ -48,24 +38,25 @@ export interface UpdateCheckResult {
   reason?: string;
 }
 
-/** 候选更新清单 URL：自定义 UPDATE_BASE_URL 优先，再跟 static 多镜像。 */
-function getUpdateManifestUrls(): string[] {
-  const urls: string[] = [];
-  const primary = (UPDATE_BASE_URL || "").replace(/\/+$/, "");
-  // 防 CDN / 浏览器缓存旧清单（尤其是刚 push 后几分钟内）
+/** 候选更新清单 URL：raw / 自定义优先，jsDelivr 垫后（其 @main 常缓存旧清单）。 */
+export function getUpdateManifestUrls(): string[] {
   const bust = `t=${Date.now()}`;
-  if (primary) urls.push(`${primary}/${APP_UPDATE_MANIFEST}?${bust}`);
-  for (const base of getStaticBases()) {
-    const u = `${base.replace(/\/+$/, "")}/update/${APP_UPDATE_MANIFEST}?${bust}`;
+  const urls: string[] = [];
+  const push = (u: string) => {
     if (!urls.includes(u)) urls.push(u);
+  };
+  const primary = (UPDATE_BASE_URL || "").replace(/\/+$/, "");
+  if (primary) push(`${primary}/${APP_UPDATE_MANIFEST}?${bust}`);
+  // 显式保证 raw 在前列（即便 UPDATE_BASE_URL 被改回 jsDelivr）
+  push(
+    `https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/${APP_UPDATE_MANIFEST}?${bust}`
+  );
+  for (const base of getStaticBases()) {
+    push(`${base.replace(/\/+$/, "")}/update/${APP_UPDATE_MANIFEST}?${bust}`);
   }
   return urls;
 }
 
-/**
- * 用 uni.request 拉 JSON（App/H5/小程序通用）；失败返回 null。
- * App-Plus 无 fetch，不能用全局 fetch。
- */
 function requestJson(url: string, timeoutMs = 15000): Promise<unknown | null> {
   return new Promise((resolve) => {
     const u = (typeof uni !== "undefined" ? uni : undefined) as
@@ -76,7 +67,6 @@ function requestJson(url: string, timeoutMs = 15000): Promise<unknown | null> {
         url,
         method: "GET",
         timeout: timeoutMs,
-        // 避免 CDN 缓存旧清单
         header: { "Cache-Control": "no-cache", Pragma: "no-cache" },
         success: (res: { statusCode?: number; data?: unknown }) => {
           if (res.statusCode === 200 && res.data != null) {
@@ -97,7 +87,6 @@ function requestJson(url: string, timeoutMs = 15000): Promise<unknown | null> {
       });
       return;
     }
-    // 非 uni 环境（单测 / Node）兜底：仅当全局有 fetch 时才用
     if (typeof fetch === "function") {
       fetch(url, { cache: "no-cache" })
         .then((r) => (r.ok ? r.json() : null))
@@ -110,68 +99,69 @@ function requestJson(url: string, timeoutMs = 15000): Promise<unknown | null> {
 }
 
 /**
- * 拉到清单的同时记住命中的 update 根目录，方便把 wgt.url 改写到同一镜像。
- *
- * v1.121.2: raw.githubusercontent.com 上**没有** wgt 二进制（GitHub raw 不提供二进制下载），
- * 所以 manifestBase（拉清单的源）≠ wgtBase（下 wgt 的源）。wgtBase 强制走 jsDelivr 系列镜像。
+ * v1.121.5: 拉取**所有**可用清单，选 versionCode 最高者。
+ * 旧逻辑「第一个 200 即返回」会被 jsDelivr 过期缓存骗成「已是最新」。
  */
-async function fetchManifestWithBase(): Promise<{
+export async function fetchManifestWithBase(): Promise<{
   manifest: AppUpdateManifest;
   manifestBase: string;
   wgtBase: string;
 } | null> {
   const urls = getUpdateManifestUrls();
-  for (let i = 0; i < urls.length; i++) {
-    const url = urls[i];
-    const data = await requestJson(url);
-    if (!data || typeof data !== "object") continue;
-    const m = data as AppUpdateManifest;
-    if (!m.versionCode || !m.versionName) continue;
-    // 去掉 ?t= 缓存戳再算 base
-    const cleanUrl = url.split("?")[0];
-    const manifestBase = cleanUrl.slice(0, cleanUrl.lastIndexOf("/") + 1);
-    const candidates = urls.map((u) => {
-      const c = u.split("?")[0];
-      return c.slice(0, c.lastIndexOf("/") + 1);
-    });
-    const wgtBase = selectWgtBase(manifestBase, candidates);
-    return { manifest: m, manifestBase, wgtBase };
-  }
-  return null;
+  const hits: Array<{
+    manifest: AppUpdateManifest;
+    manifestBase: string;
+    code: number;
+  }> = [];
+
+  // 并行拉，总耗时≈最慢镜像，而不是串行累加
+  await Promise.all(
+    urls.map(async (url) => {
+      const data = await requestJson(url);
+      if (!data || typeof data !== "object") return;
+      const m = data as AppUpdateManifest;
+      if (!m.versionCode || !m.versionName) return;
+      const code = parseInt(m.versionCode, 10);
+      if (!Number.isFinite(code)) return;
+      const cleanUrl = url.split("?")[0];
+      const manifestBase = cleanUrl.slice(0, cleanUrl.lastIndexOf("/") + 1);
+      hits.push({ manifest: m, manifestBase, code });
+    })
+  );
+
+  if (!hits.length) return null;
+  hits.sort((a, b) => b.code - a.code);
+  const best = hits[0];
+  const candidateBases = urls.map((u) => {
+    const c = u.split("?")[0];
+    return c.slice(0, c.lastIndexOf("/") + 1);
+  });
+  const wgtBase = selectWgtBase(best.manifestBase, candidateBases);
+  return { manifest: best.manifest, manifestBase: best.manifestBase, wgtBase };
 }
 
-/**
- * 把清单里写死的 cdn.jsdelivr wgt URL 改写到当前命中的镜像根。
- * 例如 .../static/update/93/app.wgt → 用 updateBase + 93/app.wgt
- */
 export function rewriteWgtUrlToBase(wgtUrl: string, updateBase: string): string {
-  const m = wgtUrl.match(/\/update\/(\d+\/[^/?#]+)$/);
+  const bare = wgtUrl.split("?")[0];
+  const m = bare.match(/\/update\/(\d+\/[^/?#]+)$/);
   if (m) return `${updateBase.replace(/\/+$/, "")}/${m[1]}`;
-  // 兜底：若只是文件名
-  const file = wgtUrl.split("/").pop();
+  const file = bare.split("/").pop();
   if (file) return `${updateBase.replace(/\/+$/, "")}/${file}`;
   return wgtUrl;
 }
 
 /**
- * v1.121.2: 给定命中的 manifestBase（拉清单的源），挑出能下 wgt 二进制的镜像 base。
- * raw.githubusercontent.com 不能下二进制，所以必须回退到 jsDelivr 系列。
- * 导出供单测。
+ * v1.121.5: raw.githubusercontent.com **可以**下本仓库 ~1MB 的 wgt（已实测 sha 一致）。
+ * 优先保留 raw；仅当没有 raw 候选时才用 jsDelivr。
  */
 export function selectWgtBase(manifestBase: string, candidateBases: string[]): string {
-  if (!/raw\.githubusercontent\.com/.test(manifestBase)) return manifestBase;
+  const norm = (b: string) => (b.endsWith("/") ? b : `${b}/`);
+  if (/raw\.githubusercontent\.com/.test(manifestBase)) return norm(manifestBase);
   for (const b of candidateBases) {
-    if (!/raw\.githubusercontent\.com/.test(b)) {
-      return b.endsWith("/") ? b : `${b}/`;
-    }
+    if (/raw\.githubusercontent\.com/.test(b)) return norm(b);
   }
-  return manifestBase;
+  return norm(manifestBase);
 }
 
-/**
- * 仅做远程版本探测，不下载不安装。供设置页"检查更新"按钮使用。
- * App-Plus / H5 均走 uni.request（App WebView 无全局 fetch）。
- */
 export async function checkAppUpdate(): Promise<UpdateCheckResult> {
   const hit = await fetchManifestWithBase();
   if (!hit) {
@@ -195,7 +185,6 @@ export async function checkAppUpdate(): Promise<UpdateCheckResult> {
   if (remoteCode <= localInfo.versionCode) {
     return { status: "up-to-date", manifest };
   }
-  // 用户已忽略过的版本不再提示（除非 manifest.force）
   if (!manifest.force) {
     const skipped = uni.getStorageSync(APP_UPDATE_STORAGE_KEY);
     if (skipped === manifest.versionCode) {
@@ -210,9 +199,6 @@ export interface LocalVersionInfo {
   versionCode: number;
 }
 
-/**
- * 读本地版本（仅 APP-PLUS）。其它平台返回 0.0.0/0，由调用方决定如何兜底。
- */
 export function getLocalVersion(): Promise<LocalVersionInfo> {
   return new Promise((resolve) => {
     // #ifdef APP-PLUS
@@ -232,48 +218,40 @@ export function getLocalVersion(): Promise<LocalVersionInfo> {
   });
 }
 
-/**
- * 标记某个版本已被用户忽略。force=true 的版本不允许忽略。
- */
 export function skipVersion(versionCode: string): void {
   uni.setStorageSync(APP_UPDATE_STORAGE_KEY, versionCode);
 }
 
-/**
- * 下载并安装 wgt；成功后提示用户"重启应用"。
- *
- * v1.121.3: 多 URL 回退——依次尝试 primaryUrl → fallbackUrls，任一成功即用其产物 install。
- * 单个 URL 下载失败（DNS 解析失败 / 超时 / 4xx 5xx）→ 自动试下一个。
- *
- * 仅 APP-PLUS 可用，调用方需先 #ifdef APP-PLUS。
- */
 export interface InstallProgress {
   downloaded: number;
   total: number;
 }
 
 /**
- * 把一个 wgt URL 拆出（base, versionDir/file），给同一资源生成多镜像候选 URL。
- * v1.121.4: 候选顺序固定 gcore → fastly → cdn → b-cdn（不再把可能 DNS 失败的
- * cdn.jsdelivr 原 URL 放第一位），原 URL 若已在列表中则不再重复。
+ * v1.121.5: 候选顺序 raw → github raw → gcore → fastly → cdn → b-cdn
  */
 export function buildWgtUrlCandidates(primaryUrl: string): string[] {
-  const u = new URL(primaryUrl);
-  const tail = primaryUrl.slice(primaryUrl.indexOf("/update/"));
-  const pathPrefix = u.pathname.slice(0, u.pathname.indexOf("/update/"));
-  const baseOf = (host: string) => `${u.protocol}//${host}${pathPrefix}`;
-  const jsdelivrHosts = [
+  const bare = primaryUrl.split("?")[0];
+  const m = bare.match(/\/update\/(\d+\/[^/?#]+)$/);
+  const tail = m ? m[1] : bare.split("/").pop() || "app.wgt";
+  const out: string[] = [];
+  const push = (u: string) => {
+    if (u && !out.includes(u)) out.push(u);
+  };
+
+  push(`https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/${tail}`);
+  push(`https://github.com/xuefeng0324/realty/raw/main/realty_app/static/update/${tail}`);
+
+  const jsHosts = [
     "gcore.jsdelivr.net",
     "fastly.jsdelivr.net",
     "cdn.jsdelivr.net",
     "jsdelivr.b-cdn.net"
   ];
-  const out: string[] = [];
-  for (const h of jsdelivrHosts) {
-    const cand = `${baseOf(h)}${tail}`;
-    if (!out.includes(cand)) out.push(cand);
+  for (const h of jsHosts) {
+    push(`https://${h}/gh/xuefeng0324/realty@main/realty_app/static/update/${tail}`);
   }
-  if (!out.includes(primaryUrl)) out.push(primaryUrl);
+  push(bare);
   return out;
 }
 
@@ -313,29 +291,30 @@ export async function downloadAndInstallWgt(
         });
         task.start();
       });
-      // 下载成功 → 安装
-      const installResult = await new Promise<{ ok: true; localPath: string } | { ok: false; reason: string }>((resolve) => {
-        plus.runtime.install(
-          localPath,
-          { force: true },
-          () => resolve({ ok: true, localPath }),
-          (err: { message: string }) => resolve({ ok: false, reason: err?.message ?? "安装失败" })
-        );
-      });
+      const installResult = await new Promise<{ ok: true; localPath: string } | { ok: false; reason: string }>(
+        (resolve) => {
+          plus.runtime.install(
+            localPath,
+            { force: true },
+            () => resolve({ ok: true, localPath }),
+            (err: { message: string }) => resolve({ ok: false, reason: err?.message ?? "安装失败" })
+          );
+        }
+      );
       if (installResult.ok) return installResult;
-      // 安装失败：直接返回（不再试别的 URL，文件已损坏）
       return installResult;
-    } catch (e) {
-      // 当前 URL 下载失败，尝试下一个
+    } catch {
       continue;
     }
   }
-  return { ok: false, reason: `所有 wgt 镜像均失败（已试 ${tried.length} 个：${tried.map((s) => s.slice(8, 30)).join(", ")}...）` };
+  return {
+    ok: false,
+    reason: `所有 wgt 镜像均失败（已试 ${tried.length} 个：${tried.map((s) => s.slice(8, 40)).join(", ")}...）`
+  };
   // #endif
   return { ok: false, reason: "当前平台不支持 OTA 升级（仅 APP-PLUS）" };
 }
 
-/** 安装 wgt 后重启 App（HTML5+ runtime.restart）。失败时返回 false，由 UI 提示手动重启。 */
 export function restartAppAfterUpdate(): boolean {
   // #ifdef APP-PLUS
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

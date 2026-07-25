@@ -10,9 +10,9 @@ describe("appUpdate.rewriteWgtUrlToBase", () => {
     const src =
       "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/93/app.wgt";
     const base =
-      "https://gcore.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/";
+      "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/";
     expect(rewriteWgtUrlToBase(src, base)).toBe(
-      "https://gcore.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/93/app.wgt"
+      "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/93/app.wgt"
     );
   });
 
@@ -20,9 +20,9 @@ describe("appUpdate.rewriteWgtUrlToBase", () => {
     const src =
       "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/120/app.wgt";
     const base =
-      "https://fastly.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update";
+      "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update";
     expect(rewriteWgtUrlToBase(src, base)).toBe(
-      "https://fastly.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/120/app.wgt"
+      "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/120/app.wgt"
     );
   });
 
@@ -30,66 +30,55 @@ describe("appUpdate.rewriteWgtUrlToBase", () => {
     expect(
       rewriteWgtUrlToBase(
         "https://example.com/foo.wgt",
-        "https://gcore.jsdelivr.net/gh/x/y@main/realty_app/static/update/"
+        "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/"
       )
     ).toBe(
-      "https://gcore.jsdelivr.net/gh/x/y@main/realty_app/static/update/foo.wgt"
+      "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/foo.wgt"
     );
   });
 });
 
-describe("appUpdate.selectWgtBase (v1.121.2)", () => {
-  it("manifest 命中 jsDelivr 时 wgtBase = manifestBase", () => {
-    const mb =
-      "https://gcore.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/";
-    expect(selectWgtBase(mb, [mb])).toBe(mb);
-  });
-
-  it("manifest 命中 raw 时 wgtBase 强制走 jsDelivr 镜像", () => {
+describe("appUpdate.selectWgtBase (v1.121.5)", () => {
+  it("manifest 命中 raw 时 wgtBase 保留 raw（可下二进制）", () => {
     const raw =
       "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/";
     const jsd =
       "https://gcore.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/";
-    expect(selectWgtBase(raw, [raw, jsd])).toBe(jsd);
+    expect(selectWgtBase(raw, [raw, jsd])).toBe(raw);
   });
 
-  it("所有 base 都是 raw 时回退 manifestBase", () => {
+  it("manifest 命中 jsDelivr 时若候选有 raw 则改走 raw", () => {
     const raw =
       "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/";
-    expect(selectWgtBase(raw, [raw])).toBe(raw);
+    const jsd =
+      "https://gcore.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/";
+    expect(selectWgtBase(jsd, [jsd, raw])).toBe(raw);
+  });
+
+  it("没有 raw 时回退 manifestBase", () => {
+    const jsd =
+      "https://gcore.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/";
+    expect(selectWgtBase(jsd, [jsd])).toBe(jsd);
   });
 });
 
-describe("appUpdate.buildWgtUrlCandidates (v1.121.4)", () => {
-  it("固定优先 gcore，再 fastly/cdn/b-cdn（不把 cdn 原 URL 硬放第一）", () => {
+describe("appUpdate.buildWgtUrlCandidates (v1.121.5)", () => {
+  it("raw / github raw 优先于 jsDelivr", () => {
     const src =
       "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/93/app.wgt";
     const cands = buildWgtUrlCandidates(src);
-    expect(cands[0]).toBe(
-      "https://gcore.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/93/app.wgt"
-    );
-    expect(cands).toContain(
-      "https://fastly.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/93/app.wgt"
-    );
-    expect(cands).toContain(
-      "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/93/app.wgt"
-    );
-    expect(cands).toContain(
-      "https://jsdelivr.b-cdn.net/gh/xuefeng0324/realty@main/realty_app/static/update/93/app.wgt"
-    );
-    // raw 不会出现在候选里（不能下二进制）
-    expect(cands.every((u) => !u.includes("raw.githubusercontent.com"))).toBe(true);
-    // 不重复
+    expect(cands[0]).toContain("raw.githubusercontent.com");
+    expect(cands[1]).toContain("github.com/xuefeng0324/realty/raw/");
+    expect(cands.some((u) => u.includes("gcore.jsdelivr.net"))).toBe(true);
     expect(new Set(cands).size).toBe(cands.length);
   });
 
-  it("从 gcore 出发时 gcore 仍第一，其它镜像列后", () => {
+  it("从 gcore 出发仍把 raw 放第一", () => {
     const src =
       "https://gcore.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/120/app.wgt";
     const cands = buildWgtUrlCandidates(src);
-    expect(cands[0]).toBe(src);
-    expect(cands).toContain(
-      "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/120/app.wgt"
+    expect(cands[0]).toBe(
+      "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/120/app.wgt"
     );
   });
 });
