@@ -153,7 +153,9 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/seed/metro_planning.csv` | `metroPlanningRanking.ts` + dashboard「🛤️ 规划地铁」 | （公开规划整理） | 线路本体概览；v1.121.14 仪表盘 KPI / 开通年 / 里程 Top |
 | `static/seed/listing_tags_summary.csv` | `listingTagsComparison.ts` + dashboard「🔖 挂牌标签」 | `compute_listing_tags_summary` | 城市级标签渗透；v1.121.14 仪表盘 Top + 特色标签 |
 | `static/seed/listing_keyword.csv` | （未接入 App） | `compute_listing_keyword.py` | 标题关键词热度，仅 ~10 行且与标签摘要重叠，暂不入快照 |
-| `static/education_overview.csv` | `educationOverview.ts`（模块内 `?raw`） | `scripts/crawl_gz_education_overview.py` | 广州教育事业概览；深圳/珠海无数据时返回空，不伪造 |
+| `static/education_overview.csv` | `educationOverview.ts`（模块内 `?raw`）+ dashboard「📚 教育事业」 | `scripts/crawl_gz_education_overview.py` | 广州教育事业概览；深圳/珠海无数据时返回空，不伪造；v1.121.16 仪表盘展示 |
+| `static/seed/admin_districts.csv` | `adminDistrictRanking.ts` + dashboard「🗺️ 行政区划」 | （国标整理） | v1.121.16：主城/郊区/新区与区码列表 |
+| `static/seed/listing_school_premium.csv` | `listingSchoolPremiumRanking.ts` + 高学区房源卡 | `compute_listing_school_premium` | v1.121.16：溢价分桶与分区 Top |
 | `static/school_source_audit.json` | 审计用（测试/脚本） | `scripts/audit_school_sources.py` | 学校来源分级审计结果，不直接驱动 UI 排名 |
 
 ---
@@ -174,6 +176,9 @@ poi_commercial.csv           → poiCommercialRanking  → 周边商业（dashbo
 poi_market.csv               → poiMarketRanking      → 菜市场可达（dashboard v1.121.15）
 metro_planning.csv           → metroPlanningRanking  → 规划地铁概览（dashboard v1.121.14）
 listing_tags_summary.csv     → listingTagsComparison → 挂牌标签热度（dashboard v1.121.14）
+education_overview.csv       → educationOverview.ts  → 教育事业概览（dashboard v1.121.16）
+admin_districts.csv          → adminDistrictRanking  → 行政区划（dashboard v1.121.16）
+listing_school_premium.csv   → listingSchoolPremium  → 学区挂牌溢价分布（dashboard v1.121.16）
 static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务快照
 ```
 

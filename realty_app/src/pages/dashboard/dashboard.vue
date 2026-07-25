@@ -598,6 +598,71 @@
         </view>
       </view>
 
+      <!-- v1.121.16 教育事业概览（educationOverview，学校页已有，仪表盘此前未展示） -->
+      <view v-if="eduOverview" class="card" data-tab="all,school">
+        <view class="row-between">
+          <view class="card-title">📚 教育事业 · {{ eduOverview.city }}</view>
+          <view class="muted">{{ eduOverview.period }} 年</view>
+        </view>
+        <view class="edu-summary">
+          <view class="edu-kpi">
+            <text class="edu-kpi-val">{{ eduOverview.totalSchools }}</text>
+            <text class="edu-kpi-label muted">学校</text>
+          </view>
+          <view class="edu-kpi">
+            <text class="edu-kpi-val">{{ eduOverview.totalStudents10k.toFixed(1) }}</text>
+            <text class="edu-kpi-label muted">在校生万</text>
+          </view>
+          <view class="edu-kpi">
+            <text class="edu-kpi-val">{{ eduOverview.primaryCount }}</text>
+            <text class="edu-kpi-label muted">小学</text>
+          </view>
+          <view class="edu-kpi">
+            <text class="edu-kpi-val">{{ eduOverview.juniorHighCount }}</text>
+            <text class="edu-kpi-label muted">初中</text>
+          </view>
+        </view>
+        <view class="edu-grid">
+          <text class="edu-chip">幼儿园 {{ eduOverview.kindergartenCount }}</text>
+          <text class="edu-chip">高中 {{ eduOverview.seniorHighCount }}</text>
+          <text class="edu-chip">职校 {{ eduOverview.vocationalCount }}</text>
+          <text class="edu-chip">民办 {{ eduOverview.privateCount }}</text>
+          <text class="edu-chip">特殊教育 {{ eduOverview.specialCount }}</text>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          {{ eduOverview.sourceOrg }} · {{ eduOverview.publishDate }} 发布。深圳/珠海暂无同口径公开表，不伪造。
+        </view>
+      </view>
+
+      <!-- v1.121.16 行政区划（adminDistrictRanking） -->
+      <view v-if="adminSummary" class="card" data-tab="all,school">
+        <view class="row-between">
+          <view class="card-title">🗺️ 行政区划 · {{ hospitalCityName }}</view>
+          <view class="muted">{{ adminSummary.districtCount }} 区 · {{ adminSummary.cityCode }}</view>
+        </view>
+        <view class="admin-type-row">
+          <view v-for="t in adminTypeCounts" :key="t.type" class="admin-type-chip">
+            <text class="admin-type-n">{{ t.count }}</text>
+            <text class="admin-type-l muted">{{ t.type }}</text>
+          </view>
+        </view>
+        <view
+          v-for="d in adminDistrictList"
+          :key="d.districtCode"
+          class="admin-dist-row"
+        >
+          <text class="admin-code muted">{{ d.districtCode }}</text>
+          <text class="admin-name">{{ d.districtName }}</text>
+          <text class="admin-type muted">{{ adminSuffixType(d.districtCode) }}</text>
+        </view>
+        <view v-if="!adminGaps.isContiguous" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          区号末两位存在缺号（{{ adminGaps.missingSuffixes.join("、") }}），常见于行政区调整。
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：admin_districts.csv（国家标准区划代码）。主城 01–09 / 郊区 10–19 / 新区 20–49。
+        </view>
+      </view>
+
       <view v-if="nbsMacro" class="card macro-card" data-tab="overview,price">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">全国房地产开发与销售</view>
@@ -2851,6 +2916,41 @@
           <view class="card-title">🏫 高学区评分房源 · {{ listingPremiumOverview.cityName }}</view>
           <view class="muted">Top {{ listingPremiumOverview.items.length }} / 共 {{ listingPremiumOverview.total }}</view>
         </view>
+        <view v-if="lspCitySummary" class="lsp-summary">
+          <view class="lsp-kpi">
+            <text class="lsp-kpi-val">{{ lspCitySummary.avgPremiumPct.toFixed(1) }}%</text>
+            <text class="lsp-kpi-label muted">均溢价</text>
+          </view>
+          <view class="lsp-kpi">
+            <text class="lsp-kpi-val">{{ (lspCitySummary.highPremiumShare * 100).toFixed(0) }}%</text>
+            <text class="lsp-kpi-label muted">>10%</text>
+          </view>
+          <view class="lsp-kpi">
+            <text class="lsp-kpi-val">{{ lspCitySummary.premiumListingCount }}</text>
+            <text class="lsp-kpi-label muted">正溢价套</text>
+          </view>
+        </view>
+        <view v-if="lspDist.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">溢价分布</view>
+        <view v-if="lspDist.length" class="lsp-dist-row">
+          <view v-for="b in lspDist" :key="b.bucket" class="lsp-bucket">
+            <text class="lsp-bucket-n">{{ b.count }}</text>
+            <text class="lsp-bucket-l muted">{{ b.bucket }}%</text>
+            <text class="lsp-bucket-s muted">{{ (b.share * 100).toFixed(0) }}%</text>
+          </view>
+        </view>
+        <view v-if="lspDistrictTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          分区挂牌溢价 Top
+        </view>
+        <view
+          v-for="(d, idx) in lspDistrictTop"
+          :key="'lspd-' + d.districtName"
+          class="lsp-dist-item"
+        >
+          <text class="lsp-rank muted">{{ idx + 1 }}</text>
+          <text class="lsp-dname">{{ d.districtName }}</text>
+          <text class="lsp-meta muted">{{ d.listingCount }} 套 · {{ d.communityCount }} 小区</text>
+          <text class="lsp-pct">{{ d.avgPremiumPct >= 0 ? "+" : "" }}{{ d.avgPremiumPct.toFixed(1) }}%</text>
+        </view>
         <view
           v-for="item in listingPremiumOverview.items"
           :key="item.listingId"
@@ -2880,8 +2980,7 @@
           </view>
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：listings.csv + schools.csv (district_name) + school_indicators.csv (latest_level_score_raw)。
-          每个 listing 拿到其 community 所在区的平均学区评分；区中位单价/全市中位单价 = 板块溢价率。
+          分布/分区派生：listingSchoolPremiumRanking。房源列表同前（listings + schools + school_indicators）。
         </view>
       </view>
 
@@ -3108,7 +3207,27 @@ import {
   type CityTagSummary,
   type TagSignatureEntry
 } from "../../local/listingTagsComparison";
-import type { LocalHospital } from "../../local/types";
+import {
+  summarizeAdminDistrictByCity,
+  summarizeAdminDistrictBySuffixType,
+  getAdminDistrictByCityOrderedByCode,
+  detectAdminDistrictCodeGaps,
+  classifyAdminDistrictSuffix,
+  type CityAdminDistrictSummary,
+  type CitySuffixTypeCount,
+  type AdminDistrictCodeGap,
+  type AdminDistrictSuffixType
+} from "../../local/adminDistrictRanking";
+import {
+  summarizeListingSchoolPremiumByCity,
+  getListingSchoolPremiumDistribution,
+  getListingSchoolPremiumByCityDistrict,
+  type CitySchoolPremiumSummary,
+  type PremiumBucket,
+  type DistrictPremiumSummary
+} from "../../local/listingSchoolPremiumRanking";
+import { getEducationOverview, type EducationOverview } from "../../local/educationOverview";
+import type { LocalHospital, LocalAdminDistrict } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -3242,6 +3361,41 @@ const marketFarTop = computed(() =>
   [...marketSummariesInCity.value]
     .sort((a, b) => (b.nearestDistanceM ?? 0) - (a.nearestDistanceM ?? 0))
     .slice(0, 3)
+);
+
+// v1.121.16 教育事业概览
+const eduOverview = computed<EducationOverview | null>(() => {
+  const name = cityNameForId(app.cityId).replace(/市$/, "");
+  return getEducationOverview(name);
+});
+
+// v1.121.16 行政区划
+const adminSummary = computed<CityAdminDistrictSummary | null>(() => {
+  return summarizeAdminDistrictByCity().find((x) => x.cityId === app.cityId) ?? null;
+});
+const adminTypeCounts = computed<CitySuffixTypeCount[]>(() =>
+  summarizeAdminDistrictBySuffixType().filter((x) => x.cityId === app.cityId)
+);
+const adminDistrictList = computed<LocalAdminDistrict[]>(() =>
+  getAdminDistrictByCityOrderedByCode(app.cityId)
+);
+const adminGaps = computed<AdminDistrictCodeGap>(() =>
+  detectAdminDistrictCodeGaps(app.cityId)
+);
+function adminSuffixType(districtCode: string): AdminDistrictSuffixType {
+  const sfx = parseInt(districtCode.slice(-2), 10);
+  return classifyAdminDistrictSuffix(Number.isFinite(sfx) ? sfx : 0);
+}
+
+// v1.121.16 listing 学区溢价分布 / 分区
+const lspCitySummary = computed<CitySchoolPremiumSummary | null>(() => {
+  return summarizeListingSchoolPremiumByCity().find((x) => x.cityId === app.cityId) ?? null;
+});
+const lspDist = computed<PremiumBucket[]>(() =>
+  getListingSchoolPremiumDistribution(app.cityId)
+);
+const lspDistrictTop = computed<DistrictPremiumSummary[]>(() =>
+  getListingSchoolPremiumByCityDistrict(app.cityId).slice(0, 5)
 );
 
 // v1.121.14 规划地铁线路概览
@@ -7149,6 +7303,141 @@ onShow(async () => {
 }
 .pc-meta {
   font-size: 20rpx;
+}
+
+/* v1.121.16 教育 / 区划 / 学区溢价分布 */
+.edu-summary,
+.lsp-summary {
+  display: flex;
+  gap: 10rpx;
+  margin: 8rpx 0 4rpx;
+}
+.edu-kpi,
+.lsp-kpi {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12rpx 6rpx;
+  border-radius: 12rpx;
+  background: var(--color-soft);
+  border: 1rpx solid var(--color-border);
+}
+.edu-kpi-val,
+.lsp-kpi-val {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--color-heading);
+  font-variant-numeric: tabular-nums;
+}
+.edu-kpi-label,
+.lsp-kpi-label {
+  font-size: 20rpx;
+  margin-top: 2rpx;
+}
+.edu-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-top: 8rpx;
+}
+.edu-chip {
+  font-size: 22rpx;
+  padding: 6rpx 12rpx;
+  border-radius: 999rpx;
+  background: var(--color-panel);
+  border: 1rpx solid var(--color-border);
+  color: var(--color-text);
+}
+.admin-type-row {
+  display: flex;
+  gap: 10rpx;
+  margin: 8rpx 0 4rpx;
+}
+.admin-type-chip {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10rpx 6rpx;
+  border-radius: 12rpx;
+  background: var(--color-soft);
+  border: 1rpx solid var(--color-border);
+}
+.admin-type-n {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--color-heading);
+}
+.admin-type-l {
+  font-size: 20rpx;
+}
+.admin-dist-row,
+.lsp-dist-item {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 8rpx 0;
+  border-bottom: 1rpx solid var(--color-border);
+}
+.admin-dist-row:last-child,
+.lsp-dist-item:last-child {
+  border-bottom: none;
+}
+.admin-code {
+  width: 110rpx;
+  font-size: 20rpx;
+  font-variant-numeric: tabular-nums;
+}
+.admin-name,
+.lsp-dname {
+  flex: 1;
+  font-size: 26rpx;
+  color: var(--color-text);
+}
+.admin-type {
+  font-size: 20rpx;
+  min-width: 100rpx;
+  text-align: right;
+}
+.lsp-dist-row {
+  display: flex;
+  gap: 8rpx;
+}
+.lsp-bucket {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8rpx 4rpx;
+  border-radius: 10rpx;
+  background: var(--color-panel);
+  border: 1rpx solid var(--color-border);
+}
+.lsp-bucket-n {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: var(--color-heading);
+  font-variant-numeric: tabular-nums;
+}
+.lsp-bucket-l,
+.lsp-bucket-s {
+  font-size: 18rpx;
+}
+.lsp-rank {
+  width: 36rpx;
+  font-size: 22rpx;
+  text-align: center;
+}
+.lsp-meta {
+  font-size: 20rpx;
+  min-width: 160rpx;
+}
+.lsp-pct {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--color-heading);
+  font-variant-numeric: tabular-nums;
 }
 
 .lc-score-high {

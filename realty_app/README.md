@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.121.16 | 2026-07-26 | 仪表盘：教育事业概览 + 行政区划 + 学区挂牌溢价分布（education / adminDistrict / listingSchoolPremium） |
 | v1.121.15 | 2026-07-26 | 仪表盘：医疗坐标覆盖 + 周边商业 + 菜市场可达（hospitalGeo / poiCommercial / poiMarket） |
 | v1.121.14 | 2026-07-26 | 仪表盘「规划地铁」+「挂牌标签热度」（metroPlanningRanking / listingTagsComparison） |
 | v1.121.13 | 2026-07-26 | 仪表盘「网签周环比 · 突增区」：WoW 涨跌 Top3 + 异常倍增检测（接 wangqianTrendRanking） |
@@ -470,6 +471,10 @@ gh auth setup-git
 ## 更新日志
 
 详细变更见 [changelog/](./changelog/) 目录。
+
+### v1.121.16 (2026-07-26)
+
+教育事业概览 + 行政区划 + 学区挂牌溢价分布。详见 [changelog/2026-07-26-v1.121.16-教育区划学区溢价分布.md](./changelog/2026-07-26-v1.121.16-教育区划学区溢价分布.md)。
 
 ### v1.121.15 (2026-07-26)
 
