@@ -3521,7 +3521,7 @@
               :y="SCATTER_H - 8"
               text-anchor="middle"
               font-size="13"
-              fill="#0f172a"
+              fill="var(--color-panel)"
               font-weight="600"
             >单价 元/㎡</text>
             <text
@@ -3529,7 +3529,7 @@
               :y="SCATTER_H / 2"
               text-anchor="middle"
               font-size="13"
-              fill="#0f172a"
+              fill="var(--color-panel)"
               font-weight="600"
               :transform="`rotate(-90, 14, ${SCATTER_H / 2})`"
             >总价 万</text>
@@ -9194,7 +9194,7 @@ onShow(async () => {
 }
 
 .picker-value {
-  background: #1e293b;
+  background: var(--color-soft);
   border-radius: 8rpx;
   padding: 12rpx 20rpx;
   color: var(--color-heading);
@@ -9231,7 +9231,7 @@ onShow(async () => {
 .sheet {
   width: 100%;
   max-height: 70vh;
-  background: #111827;
+  background: var(--color-surface);
   border-top-left-radius: 24rpx;
   border-top-right-radius: 24rpx;
   display: flex;
@@ -9245,7 +9245,7 @@ onShow(async () => {
   font-size: 28rpx;
   color: var(--color-muted);
   padding: 16rpx;
-  border-bottom: 1rpx solid #1e293b;
+  border-bottom: 1rpx solid var(--color-soft);
 }
 
 .sheet-list {
@@ -9256,7 +9256,7 @@ onShow(async () => {
 
 .sheet-item {
   padding: 24rpx 16rpx;
-  border-bottom: 1rpx solid #1e293b;
+  border-bottom: 1rpx solid var(--color-soft);
   color: var(--color-heading);
   font-size: 30rpx;
   display: flex;
@@ -9266,7 +9266,7 @@ onShow(async () => {
 
 .sheet-item--active {
   color: #4ade80;
-  background: #1e293b;
+  background: var(--color-soft);
 }
 
 .sheet-check {
@@ -9279,7 +9279,7 @@ onShow(async () => {
   padding: 28rpx 0;
   color: var(--color-muted);
   font-size: 30rpx;
-  border-top: 1rpx solid #1e293b;
+  border-top: 1rpx solid var(--color-soft);
 }
 
 .bar-row {
@@ -9301,7 +9301,7 @@ onShow(async () => {
 .bar-track {
   flex: 1;
   height: 16rpx;
-  background: #1f2937;
+  background: var(--color-soft-strong);
   border-radius: 8rpx;
   overflow: hidden;
 }
@@ -9322,7 +9322,7 @@ onShow(async () => {
 .district-note {
   margin-top: 16rpx;
   padding-top: 12rpx;
-  border-top: 1rpx solid #1f2937;
+  border-top: 1rpx solid var(--color-soft-strong);
   font-size: 22rpx;
   line-height: 1.5;
   color: var(--color-muted);
@@ -9333,7 +9333,7 @@ onShow(async () => {
   align-items: center;
   gap: 16rpx;
   padding: 20rpx 0;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
 }
 
 .community-row:last-child {
@@ -9358,8 +9358,8 @@ onShow(async () => {
 
 /* ---------------- 70 城指数卡片 ---------------- */
 .stats70-card {
-  background: linear-gradient(135deg, #111827 0%, #0c1426 100%);
-  border: 1rpx solid #1f2937;
+  background: linear-gradient(135deg, var(--color-surface) 0%, #0c1426 100%);
+  border: 1rpx solid var(--color-soft-strong);
 }
 
 .stats70-foot {
@@ -9384,7 +9384,7 @@ onShow(async () => {
   align-items: center;
   padding: 6rpx 0;
   font-size: 26rpx;
-  border-bottom: 1rpx dashed #1f2937;
+  border-bottom: 1rpx dashed var(--color-soft-strong);
 }
 .drift-row:last-child {
   border-bottom: 0;
@@ -9449,8 +9449,8 @@ onShow(async () => {
 
 .stats70-cell {
   flex: 1 1 calc(50% - 8rpx);
-  background: #111827;
-  border: 1rpx solid #1f2937;
+  background: var(--color-surface);
+  border: 1rpx solid var(--color-soft-strong);
   border-radius: 12rpx;
   padding: 16rpx 20rpx;
   display: flex;
@@ -9466,8 +9466,8 @@ onShow(async () => {
   margin-top: 16rpx;
 }
 .trend-cell {
-  background: #111827;
-  border: 1rpx solid #1f2937;
+  background: var(--color-surface);
+  border: 1rpx solid var(--color-soft-strong);
   border-radius: 12rpx;
   padding: 14rpx 18rpx;
   display: flex;
@@ -9481,8 +9481,8 @@ onShow(async () => {
   justify-content: space-between;
   margin-top: 16rpx;
   padding: 12rpx 16rpx;
-  background: #0f172a;
-  border: 1rpx solid #1e293b;
+  background: var(--color-panel);
+  border: 1rpx solid var(--color-soft);
   border-radius: 10rpx;
 }
 .rank-val {
@@ -9501,7 +9501,7 @@ onShow(async () => {
   align-items: center;
   justify-content: space-between;
   padding: 8rpx 12rpx;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
   font-size: 26rpx;
 }
 .top-rank {
@@ -9548,7 +9548,7 @@ onShow(async () => {
 }
 
 .wangqian-card {
-  background: linear-gradient(135deg, #111827 0%, #0c1a2e 100%);
+  background: linear-gradient(135deg, var(--color-surface) 0%, #0c1a2e 100%);
   border: 1rpx solid #1e3a5f;
 }
 
@@ -9586,7 +9586,7 @@ onShow(async () => {
 /* v0.8.0 区级近 8 周趋势 */
 .trend-row {
   padding: 12rpx 0;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
 }
 .trend-row:last-child {
   border-bottom: none;
@@ -9695,7 +9695,7 @@ onShow(async () => {
   color: #475569;
 }
 .medal-flat-mini {
-  background: #1e293b;
+  background: var(--color-soft);
   color: var(--color-muted);
 }
 .sp-medal-mini {
@@ -9998,7 +9998,7 @@ onShow(async () => {
 .ld-bar-wrap {
   flex: 1 1 auto;
   height: 16rpx;
-  background: #1f2937;
+  background: var(--color-soft-strong);
   border-radius: 8rpx;
   overflow: hidden;
 }
@@ -10023,7 +10023,7 @@ onShow(async () => {
 /* v0.26.0 trend-11 学区评分小区榜 - 过滤/排序控件 */
 .spc-controls {
   padding: 8rpx 0 12rpx;
-  border-bottom: 1rpx dashed #1f2937;
+  border-bottom: 1rpx dashed var(--color-soft-strong);
   margin-bottom: 6rpx;
 }
 .spc-row {
@@ -10047,7 +10047,7 @@ onShow(async () => {
 .spc-chip {
   padding: 4rpx 12rpx;
   border-radius: 999rpx;
-  background: #0f172a;
+  background: var(--color-panel);
   border: 1rpx solid #334155;
   color: #cbd5e1;
   font-size: 22rpx;
@@ -10069,7 +10069,7 @@ onShow(async () => {
   display: inline-block;
   padding: 6rpx 14rpx;
   border-radius: 999rpx;
-  background: #0f172a;
+  background: var(--color-panel);
   border: 1rpx solid #334155;
   color: #cbd5e1;
   font-weight: 500;
@@ -10089,7 +10089,7 @@ onShow(async () => {
 .tag-size-3 {
   font-size: 30rpx;
   color: #f1f5f9;
-  background: #1e293b;
+  background: var(--color-soft);
 }
 .tag-size-4 {
   font-size: 34rpx;
@@ -10111,7 +10111,7 @@ onShow(async () => {
   align-items: center;
   gap: 12rpx;
   padding: 10rpx 0;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
 }
 .di-mid {
   flex: 1 1 auto;
@@ -10152,7 +10152,7 @@ onShow(async () => {
   align-items: center;
   gap: 12rpx;
   padding: 8rpx 0;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
 }
 .dc-rank {
   flex: 0 0 60rpx;
@@ -10862,7 +10862,7 @@ onShow(async () => {
   margin-bottom: 8rpx;
 }
 .cs-weights {
-  background: #0f172a;
+  background: var(--color-panel);
   border-radius: 8rpx;
   padding: 10rpx 12rpx;
   margin-bottom: 12rpx;
@@ -10877,7 +10877,7 @@ onShow(async () => {
   font-size: 22rpx;
   padding: 6rpx 14rpx;
   border-radius: 999rpx;
-  background: #1e293b;
+  background: var(--color-soft);
   color: #cbd5e1;
   border: 1rpx solid #334155;
 }
@@ -10913,7 +10913,7 @@ onShow(async () => {
   align-items: center;
   gap: 12rpx;
   padding: 8rpx 0;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
 }
 .cs-row:last-child {
   border-bottom: none;
@@ -10965,7 +10965,7 @@ onShow(async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #1e293b;
+  background: var(--color-soft);
   border-radius: 6rpx;
   padding: 2rpx 6rpx;
   min-width: 50rpx;
@@ -11011,7 +11011,7 @@ onShow(async () => {
   align-items: center;
   gap: 16rpx;
   padding: 10rpx 0;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
 }
 .mw-row:last-child {
   border-bottom: none;
@@ -11079,7 +11079,7 @@ onShow(async () => {
   align-items: center;
   gap: 16rpx;
   padding: 10rpx 0;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
 }
 .mb-row:last-child {
   border-bottom: none;
@@ -11159,7 +11159,7 @@ onShow(async () => {
   align-items: center;
   gap: 12rpx;
   padding: 8rpx 0;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
 }
 .wq-row:last-child {
   border-bottom: none;
@@ -11190,7 +11190,7 @@ onShow(async () => {
   color: #fffbeb;
 }
 .wq-rank-normal {
-  background: #1e293b;
+  background: var(--color-soft);
   color: var(--color-muted);
 }
 .wq-name {
@@ -11203,7 +11203,7 @@ onShow(async () => {
 .wq-track {
   flex: 1;
   height: 14rpx;
-  background: #1e293b;
+  background: var(--color-soft);
   border-radius: 4rpx;
   overflow: hidden;
 }
@@ -11925,7 +11925,7 @@ onShow(async () => {
 .map-district-val {
   font-size: 12px;
   font-weight: 700;
-  fill: #1e293b;
+  fill: var(--color-soft);
   paint-order: stroke;
   stroke: rgba(255, 255, 255, 0.85);
   stroke-width: 3;
@@ -11958,7 +11958,7 @@ onShow(async () => {
 .lpr-kpi-val {
   font-size: 30rpx;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--color-soft);
   font-variant-numeric: tabular-nums;
 }
 .lpr-kpi-val--down {
@@ -12063,7 +12063,7 @@ onShow(async () => {
   font-weight: 600;
   font-size: 26rpx;
   margin: 12rpx 0 8rpx;
-  color: #1e293b;
+  color: var(--color-soft);
 }
 .sd-ovr {
   display: flex;
@@ -12122,7 +12122,7 @@ onShow(async () => {
 .sd-score-num {
   font-size: 22rpx;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--color-soft);
 }
 .sd-grid {
   display: grid;
@@ -12161,7 +12161,7 @@ onShow(async () => {
 }
 .sd-val {
   font-weight: 700;
-  color: #1e293b;
+  color: var(--color-soft);
   font-size: 22rpx;
 }
 .sd-pos {
@@ -12205,7 +12205,7 @@ onShow(async () => {
   flex-direction: column;
   gap: 8rpx;
   padding: 16rpx 24rpx 12rpx;
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  background: linear-gradient(135deg, var(--color-soft) 0%, #334155 100%);
   color: #fff;
   border-radius: 16rpx;
   margin: 8rpx 0 0;

@@ -2,13 +2,15 @@
     "name" : "Realty App",
     "appid" : "__UNI__1BB4DA3",
     "description" : "Realty Analytics 手机端 App",
-    "versionName" : "1.121.41",
-    "versionCode" : "162",
+    "versionName" : "1.121.42",
+    "versionCode" : "163",
     "transformPx" : false,
     "app-plus" : {
         "usingComponents" : true,
         "nvueStyleCompiler" : "uni-app",
         "compilerVersion" : 3,
+        "darkmode" : true,
+        "themeLocation" : "theme.json",
         "compatible" : {
             "ignoreVersion" : true
         },
@@ -60,6 +62,8 @@
         }
     },
     "h5" : {
+        "darkmode" : true,
+        "themeLocation" : "theme.json",
         "sdkConfigs" : {
             "maps" : {
                 "amap" : {

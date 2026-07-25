@@ -11,7 +11,10 @@
       <view class="settings-grid">
       <view class="card">
         <view class="card-title">外观</view>
-        <view class="muted">浅色与深色会统一页面、卡片、输入框和按钮的颜色。</view>
+        <view class="muted">
+          浅色 / 深色 / 跟随系统。对齐 uni-app 官方 DarkMode：原生导航栏与 TabBar 随主题切换；页面内容走 CSS 变量。
+          详见 docs/THEME_ACCEPTANCE.md。
+        </view>
         <view class="theme-options" style="margin-top: 16rpx">
           <button
             v-for="option in themeOptions"
@@ -163,7 +166,7 @@
       <view class="card">
         <view class="card-title">关于</view>
         <view class="muted">
-          Realty App v{{ APP_VERSION }} · 启动自动检查；升级交互对齐 uni-upgrade-center / Expo Updates<br />
+          Realty App v{{ APP_VERSION }} · 启动时自动检查热更新；升级交互对齐 uni-upgrade-center / Expo Updates<br />
           默认数据：真实挂牌与公开指标派生样本并存，详情页会明确标注数据等级<br />
           评分规则在手机上实时计算；当前自动化测试为 785 个用例
         </view>

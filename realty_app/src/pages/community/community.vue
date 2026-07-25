@@ -747,7 +747,7 @@ onMounted(() => {
 }
 .sibling-title {
   font-size: 26rpx;
-  color: #1e293b;
+  color: var(--color-soft);
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -796,7 +796,7 @@ onMounted(() => {
 .chart-track {
   flex: 1;
   height: 16rpx;
-  background: #1e293b;
+  background: var(--color-soft);
   border-radius: 8rpx;
   overflow: hidden;
 }
@@ -833,7 +833,7 @@ onMounted(() => {
 .dim-track {
   flex: 1;
   height: 16rpx;
-  background: #1e293b;
+  background: var(--color-soft);
   border-radius: 8rpx;
   overflow: hidden;
 }
@@ -881,7 +881,7 @@ onMounted(() => {
   align-items: center;
   gap: 16rpx;
   padding: 20rpx 0;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
   min-height: 88rpx; /* a11y: 至少 44pt 触摸目标 */
 }
 
@@ -912,7 +912,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   padding: 8rpx 0 8rpx 40rpx;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
   font-size: 24rpx;
   color: var(--color-text);
 }
@@ -932,7 +932,7 @@ onMounted(() => {
   align-items: center;
   gap: 12rpx;
   padding: 10rpx 0;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
 }
 .hosp-row:last-child {
   border-bottom: none;
@@ -982,7 +982,7 @@ onMounted(() => {
   align-items: flex-start;
   gap: 12rpx;
   padding: 10rpx 0;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
 }
 .metro-row:last-child {
   border-bottom: none;
@@ -1041,8 +1041,8 @@ onMounted(() => {
   margin-top: 8rpx;
 }
 .cm-cell {
-  background: #0b1220;
-  border: 1rpx solid #1f2937;
+  background: var(--color-bg);
+  border: 1rpx solid var(--color-soft-strong);
   border-radius: 10rpx;
   padding: 12rpx 10rpx;
   display: flex;
@@ -1065,7 +1065,7 @@ onMounted(() => {
 .cm-track {
   width: 100%;
   height: 8rpx;
-  background: #1f2937;
+  background: var(--color-soft-strong);
   border-radius: 4rpx;
   overflow: hidden;
 }

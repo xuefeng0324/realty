@@ -536,7 +536,7 @@ onMounted(async () => {
 }
 .sibling-title {
   font-size: 26rpx;
-  color: #1e293b;
+  color: var(--color-soft);
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -608,7 +608,7 @@ onMounted(async () => {
 .dim-track {
   flex: 1;
   height: 16rpx;
-  background: #1f2937;
+  background: var(--color-soft-strong);
   border-radius: 8rpx;
   overflow: hidden;
 }
@@ -649,7 +649,7 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   padding: 8rpx 0 8rpx 40rpx;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
   font-size: 24rpx;
   color: var(--color-text);
 }
@@ -669,7 +669,7 @@ onMounted(async () => {
   align-items: center;
   gap: 12rpx;
   padding: 10rpx 0;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
 }
 .hosp-row:last-child {
   border-bottom: none;
@@ -719,7 +719,7 @@ onMounted(async () => {
   align-items: flex-start;
   gap: 12rpx;
   padding: 10rpx 0;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
 }
 .metro-row:last-child {
   border-bottom: none;
@@ -765,8 +765,8 @@ onMounted(async () => {
 .explain-box {
   margin-top: 16rpx;
   padding: 16rpx;
-  background: #111827;
-  border: 1rpx solid #1f2937;
+  background: var(--color-surface);
+  border: 1rpx solid var(--color-soft-strong);
   border-radius: 12rpx;
   font-family: monospace;
   font-size: 22rpx;

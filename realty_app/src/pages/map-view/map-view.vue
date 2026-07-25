@@ -1194,8 +1194,8 @@ onUnmounted(() => {
 .curvature-card {
   margin-top: 16rpx;
   padding: 16rpx 20rpx;
-  background: #0f172a;
-  border: 1rpx solid #1e293b;
+  background: var(--color-panel);
+  border: 1rpx solid var(--color-soft);
   border-radius: 14rpx;
 }
 .curvature-title {
@@ -1213,7 +1213,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 14rpx;
   padding: 12rpx 0;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
 }
 .curvature-row:last-child {
   border-bottom: none;

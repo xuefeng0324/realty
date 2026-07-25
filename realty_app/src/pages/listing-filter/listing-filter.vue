@@ -62,7 +62,7 @@
           <text class="form-label">总价（万）下限</text>
           <slider
             :min="PRICE_MIN" :max="PRICE_MAX" :step="PRICE_STEP" :value="priceRange[0]"
-            activeColor="#22c55e" backgroundColor="#1f2937" block-size="20"
+            activeColor="#22c55e" backgroundColor="var(--color-soft-strong)" block-size="20"
             show-value
             @change="onPriceLoChange"
             @changing="onPriceLoChange"
@@ -70,7 +70,7 @@
           <text class="form-label">总价（万）上限</text>
           <slider
             :min="PRICE_MIN" :max="PRICE_MAX" :step="PRICE_STEP" :value="priceRange[1]"
-            activeColor="#22c55e" backgroundColor="#1f2937" block-size="20"
+            activeColor="#22c55e" backgroundColor="var(--color-soft-strong)" block-size="20"
             show-value
             @change="onPriceHiChange"
             @changing="onPriceHiChange"
@@ -84,7 +84,7 @@
           <text class="form-label">面积（㎡）下限</text>
           <slider
             :min="AREA_MIN" :max="AREA_MAX" :step="AREA_STEP" :value="areaRange[0]"
-            activeColor="#22c55e" backgroundColor="#1f2937" block-size="20"
+            activeColor="#22c55e" backgroundColor="var(--color-soft-strong)" block-size="20"
             show-value
             @change="onAreaLoChange"
             @changing="onAreaLoChange"
@@ -92,7 +92,7 @@
           <text class="form-label">面积（㎡）上限</text>
           <slider
             :min="AREA_MIN" :max="AREA_MAX" :step="AREA_STEP" :value="areaRange[1]"
-            activeColor="#22c55e" backgroundColor="#1f2937" block-size="20"
+            activeColor="#22c55e" backgroundColor="var(--color-soft-strong)" block-size="20"
             show-value
             @change="onAreaHiChange"
             @changing="onAreaHiChange"
@@ -898,7 +898,7 @@ onUnmounted(() => {
 }
 
 .picker-value {
-  background: #1e293b;
+  background: var(--color-soft);
   border-radius: 8rpx;
   padding: 12rpx 16rpx;
   color: var(--color-heading);
@@ -926,7 +926,7 @@ onUnmounted(() => {
   right: 0;
   top: 50%;
   height: 6rpx;
-  background: #1f2937;
+  background: var(--color-soft-strong);
   border-radius: 4rpx;
   transform: translateY(-50%);
 }
@@ -958,14 +958,14 @@ onUnmounted(() => {
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  background: #0f172a;
+  background: var(--color-panel);
   color: var(--color-heading);
   border-radius: 6rpx;
   padding: 2rpx 8rpx;
   font-size: 20rpx;
   white-space: nowrap;
   margin-bottom: 6rpx;
-  border: 1rpx solid #1f2937;
+  border: 1rpx solid var(--color-soft-strong);
 }
 
 .range-meta {
@@ -999,7 +999,7 @@ onUnmounted(() => {
 .sheet {
   width: 100%;
   max-height: 70vh;
-  background: #111827;
+  background: var(--color-surface);
   border-top-left-radius: 24rpx;
   border-top-right-radius: 24rpx;
   display: flex;
@@ -1013,7 +1013,7 @@ onUnmounted(() => {
   font-size: 28rpx;
   color: var(--color-muted);
   padding: 16rpx;
-  border-bottom: 1rpx solid #1e293b;
+  border-bottom: 1rpx solid var(--color-soft);
 }
 
 .sheet-list {
@@ -1024,7 +1024,7 @@ onUnmounted(() => {
 
 .sheet-item {
   padding: 24rpx 16rpx;
-  border-bottom: 1rpx solid #1e293b;
+  border-bottom: 1rpx solid var(--color-soft);
   color: var(--color-heading);
   font-size: 30rpx;
   display: flex;
@@ -1034,7 +1034,7 @@ onUnmounted(() => {
 
 .sheet-item--active {
   color: #4ade80;
-  background: #1e293b;
+  background: var(--color-soft);
 }
 
 .sheet-check {
@@ -1047,7 +1047,7 @@ onUnmounted(() => {
   padding: 28rpx 0;
   color: var(--color-muted);
   font-size: 30rpx;
-  border-top: 1rpx solid #1e293b;
+  border-top: 1rpx solid var(--color-soft);
 }
 
 /* v1.118.0 性价比之选卡 */
@@ -1061,14 +1061,14 @@ onUnmounted(() => {
   align-items: center;
   gap: 16rpx;
   padding: 16rpx 0;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
   cursor: pointer;
 }
 .pareto-row:last-child {
   border-bottom: none;
 }
 .pareto-row:active {
-  background: #1f2937;
+  background: var(--color-soft-strong);
 }
 .pareto-rank {
   width: 44rpx;
@@ -1122,7 +1122,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 16rpx;
   padding: 20rpx 0;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
   min-height: 88rpx; /* a11y: 至少 44pt 触摸目标 */
 }
 
@@ -1179,7 +1179,7 @@ onUnmounted(() => {
 .minidim-track {
   width: 100%;
   height: 6rpx;
-  background: #1f2937;
+  background: var(--color-soft-strong);
   border-radius: 4rpx;
   overflow: hidden;
 }

@@ -618,8 +618,8 @@ onLoad((opts?: Record<string, string>) => {
 .metric-cell {
   flex: 1 1 calc(33% - 12rpx);
   min-width: 180rpx;
-  background: #111827;
-  border: 1rpx solid #1f2937;
+  background: var(--color-surface);
+  border: 1rpx solid var(--color-soft-strong);
   border-radius: 12rpx;
   padding: 16rpx 20rpx;
   display: flex;
@@ -683,7 +683,7 @@ onLoad((opts?: Record<string, string>) => {
   align-items: center;
   gap: 16rpx;
   padding: 10rpx 0;
-  border-bottom: 1rpx dashed #1f2937;
+  border-bottom: 1rpx dashed var(--color-soft-strong);
 }
 .wq-monthly-row:last-child {
   border-bottom: 0;
@@ -722,16 +722,16 @@ onLoad((opts?: Record<string, string>) => {
 }
 .wq-table-head {
   color: var(--color-muted);
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
 }
 .wq-table-row {
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
   color: var(--color-text);
 }
 .wq-total {
   color: var(--color-heading);
   font-weight: 700;
-  border-top: 1rpx solid #1f2937;
+  border-top: 1rpx solid var(--color-soft-strong);
 }
 .wq-col-name {
   flex: 1.2;
@@ -763,7 +763,7 @@ onLoad((opts?: Record<string, string>) => {
 .sheet {
   width: 100%;
   max-height: 70vh;
-  background: #111827;
+  background: var(--color-surface);
   border-top-left-radius: 24rpx;
   border-top-right-radius: 24rpx;
   padding: 16rpx 0 calc(16rpx + var(--safe-area-bottom, 0px));
@@ -773,11 +773,11 @@ onLoad((opts?: Record<string, string>) => {
   font-size: 28rpx;
   color: var(--color-muted);
   padding: 16rpx;
-  border-bottom: 1rpx solid #1e293b;
+  border-bottom: 1rpx solid var(--color-soft);
 }
 .sheet-item {
   padding: 24rpx 32rpx;
-  border-bottom: 1rpx solid #1e293b;
+  border-bottom: 1rpx solid var(--color-soft);
   color: var(--color-heading);
   font-size: 30rpx;
   display: flex;
@@ -786,7 +786,7 @@ onLoad((opts?: Record<string, string>) => {
 }
 .sheet-item--active {
   color: #4ade80;
-  background: #1e293b;
+  background: var(--color-soft);
 }
 .sheet-check {
   color: #4ade80;
@@ -797,7 +797,7 @@ onLoad((opts?: Record<string, string>) => {
   padding: 28rpx 0;
   color: var(--color-muted);
   font-size: 30rpx;
-  border-top: 1rpx solid #1e293b;
+  border-top: 1rpx solid var(--color-soft);
 }
 .trend-up {
   color: #4ade80;

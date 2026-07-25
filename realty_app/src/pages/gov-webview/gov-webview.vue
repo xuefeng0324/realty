@@ -67,7 +67,7 @@ function onWebError() {
 .gov-webview-page {
   width: 100%;
   height: 100vh;
-  background: #0b1020;
+  background: var(--color-bg);
   display: flex;
   flex-direction: column;
 }
@@ -75,7 +75,7 @@ function onWebError() {
 .gov-toolbar {
   flex-shrink: 0;
   padding: 16rpx 24rpx;
-  border-bottom: 1rpx solid #1f2937;
+  border-bottom: 1rpx solid var(--color-soft-strong);
   display: flex;
   align-items: center;
   justify-content: space-between;

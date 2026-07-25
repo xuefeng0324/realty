@@ -13,7 +13,7 @@ import { loadGzInventoryFromCSV } from "./local/gzNewHouseInventory";
 import {
   refreshWangqianFromRemote
 } from "./local/wangqianDataRefresher";
-import { initializeTheme } from "./utils/theme";
+import { initializeTheme, refreshThemeChrome } from "./utils/theme";
 import {
   checkAppUpdate,
   openUpgradePopup,
@@ -171,6 +171,8 @@ onLaunch(() => {
 
 onShow(() => {
   console.log("[realty_app] shown");
+  // 切回前台 / Tab 时重刷导航栏与 TabBar，避免残留深色壳
+  refreshThemeChrome();
   // Expo 建议：回到前台再检查；我们加 6h 冷却，避免反复弹升级页
   if (startupUpdateCheckStarted) {
     void runUpdateCheck({ ignoreSkipped: false, fromForeground: true });
@@ -197,8 +199,8 @@ page {
   --color-primary-contrast: #4ade80;
   --color-primary-text: #052e16;
   --color-danger: #ef4444;
-  --color-accent: #3b82f6;
-  --color-accent-text: #eff6ff;
+  --color-accent: #1d4ed8;
+  --color-accent-text: #ffffff;
   --color-soft: #1e293b;
   --color-soft-strong: #334155;
   --color-panel: #0f172a;
@@ -321,18 +323,18 @@ textarea {
 }
 
 .tag-success {
-  background: rgba(34, 197, 94, 0.18);
-  color: #4ade80;
+  background: var(--color-success-soft);
+  color: var(--color-on-success-soft);
 }
 
 .tag-warn {
-  background: rgba(234, 179, 8, 0.18);
-  color: #facc15;
+  background: var(--color-warn-soft);
+  color: var(--color-on-warn-soft);
 }
 
 .tag-danger {
-  background: rgba(239, 68, 68, 0.18);
-  color: #fca5a5;
+  background: var(--color-danger-soft);
+  color: var(--color-on-danger-soft);
 }
 
 /* 干掉 uni-app button 默认浅灰底/黑字，否则深色模式到处「浅色按键」 */

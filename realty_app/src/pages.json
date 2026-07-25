@@ -86,10 +86,10 @@
     }
   ],
   "tabBar": {
-    "color": "#94a3b8",
-    "selectedColor": "#4ade80",
-    "backgroundColor": "#0b1020",
-    "borderStyle": "black",
+    "color": "@tabFontColor",
+    "selectedColor": "@tabSelectedColor",
+    "backgroundColor": "@tabBgColor",
+    "borderStyle": "@tabBorderStyle",
     "list": [
       {
         "pagePath": "pages/dashboard/dashboard",
@@ -114,9 +114,12 @@
     ]
   },
   "globalStyle": {
-    "navigationBarTextStyle": "white",
+    "navigationBarTextStyle": "@navTxtStyle",
     "navigationBarTitleText": "Realty App",
-    "navigationBarBackgroundColor": "#0b1020",
-    "backgroundColor": "#0b1020"
+    "navigationBarBackgroundColor": "@navBgColor",
+    "backgroundColor": "@bgColor",
+    "backgroundTextStyle": "@bgTxtStyle",
+    "backgroundColorTop": "@bgColorTop",
+    "backgroundColorBottom": "@bgColorBottom"
   }
 }
