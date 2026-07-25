@@ -91,19 +91,39 @@ describe("housing deep link", () => {
     expect(housingAppHint("https://example.test/x")?.label).toBe("打开来源页");
   });
 
-  it("App 端优先 openURL deep link，失败回退 https", () => {
-    const openURL = vi.fn((_url: string, err?: (e?: unknown) => void) => {
-      if (err && String(_url).startsWith("lianjiabeike://")) err(new Error("no app"));
-    });
+  it("App 端弹出选择：点打开 App 走 deep link", () => {
+    const openURL = vi.fn();
+    const showActionSheet = vi.fn(({ success }) => success({ tapIndex: 0 }));
     const showToast = vi.fn();
-    vi.stubGlobal("plus", { runtime: { openURL } });
-    vi.stubGlobal("uni", { showToast, setClipboardData: vi.fn() });
+    vi.stubGlobal("plus", {
+      runtime: {
+        openURL,
+        isApplicationExist: () => true
+      }
+    });
+    vi.stubGlobal("uni", { showToast, showActionSheet, setClipboardData: vi.fn() });
     const url = "https://gz.ke.com/ershoufang/rsFoo/";
     openHousingSourceUrl(url);
+    expect(showActionSheet).toHaveBeenCalled();
     expect(openURL.mock.calls[0][0]).toBe(`lianjiabeike://web/main?url=${encodeURIComponent(url)}`);
-    expect(openURL.mock.calls[1][0]).toBe(url);
+  });
+
+  it("未安装 App 时直接浏览器并提示", () => {
+    const openURL = vi.fn();
+    const showActionSheet = vi.fn(({ success }) => success({ tapIndex: 0 }));
+    const showToast = vi.fn();
+    vi.stubGlobal("plus", {
+      runtime: {
+        openURL,
+        isApplicationExist: () => false
+      }
+    });
+    vi.stubGlobal("uni", { showToast, showActionSheet, setClipboardData: vi.fn() });
+    const url = "https://gz.ke.com/ershoufang/rsFoo/";
+    openHousingSourceUrl(url);
+    expect(openURL.mock.calls[0][0]).toBe(url);
     expect(showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ title: expect.stringContaining("未安装贝壳找房") })
+      expect.objectContaining({ title: expect.stringContaining("未检测到贝壳找房") })
     );
   });
 

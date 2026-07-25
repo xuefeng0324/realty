@@ -471,6 +471,13 @@ export async function filterListings(req: ListingFilterRequest): Promise<Listing
   if (filters.listingType && filters.listingType !== "all") {
     items = items.filter((l) => l.listingType === filters.listingType);
   }
+  if (filters.districtName) {
+    const dn = filters.districtName;
+    items = items.filter((l) => {
+      const c = store.getCommunityById(l.communityId);
+      return c?.districtName === dn;
+    });
+  }
   if (filters.hasElevator != null) {
     items = items.filter((l) => l.hasElevator === filters.hasElevator);
   }

@@ -3099,11 +3099,12 @@ describe("build integrity", () => {
 
     it("dashboard.vue: 全局 style 用 body[data-dash-tab] 隐藏卡片", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/body\[data-dash-tab="price"\] \.card\[data-tab\]:not\(\[data-tab\*="price"\]\)/);
+      expect(dash).toMatch(/body\[data-dash-tab="price"\] \.card\[data-tab\]:not\(\[data-tab\*="price"\]\):not\(\[data-tab\*="all"\]\)/);
       expect(dash).toMatch(/body\[data-dash-tab="overview"\]/);
       expect(dash).toMatch(/body\[data-dash-tab="school"\]/);
       expect(dash).toMatch(/body\[data-dash-tab="transit"\]/);
       expect(dash).toMatch(/body\[data-dash-tab="map"\]/);
+      expect(dash).toMatch(/body\.city-scoped \[data-cross-city\]/);
     });
 
     it("dashboard.vue: applyTabClass + watch 联动", () => {

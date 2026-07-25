@@ -32,6 +32,7 @@ export function openExternalUrl(url: string): void {
 
 type PlusRuntime = {
   openURL: (url: string, errorCB?: (err?: unknown) => void) => void;
+  isApplicationExist?: (opts: { pname?: string; action?: string }) => boolean;
 };
 
 function getPlusRuntime(): PlusRuntime | null {
@@ -59,6 +60,7 @@ export type HousingAppHint = {
   kind: "beike" | "anjuke" | "generic";
   /** 按钮文案 */
   label: string;
+  androidPackage?: string;
 };
 
 /**
@@ -69,33 +71,52 @@ export function housingAppHint(url: string): HousingAppHint | null {
   const host = hostOf(url);
   if (!host) return null;
   if (host === "ke.com" || host.endsWith(".ke.com") || host === "lianjia.com" || host.endsWith(".lianjia.com")) {
-    return { kind: "beike", label: "打开贝壳找房" };
+    return { kind: "beike", label: "打开贝壳找房", androidPackage: "com.lianjia.beike" };
   }
   if (host.includes("anjuke.com")) {
-    return { kind: "anjuke", label: "打开安居客" };
+    return { kind: "anjuke", label: "打开安居客", androidPackage: "com.anjuke.android.app" };
   }
   return { kind: "generic", label: "打开来源页" };
 }
 
 /**
- * 构造优先唤起房产 App 的 deep link（在 App 内 WebView 打开原 URL，保留登录态）。
- * 未识别域名时返回 null。
+ * 构造优先唤起房产 App 的 deep link 候选（scheme + Android Intent）。
+ * 未识别域名时返回空数组。
  */
-export function buildHousingAppDeepLink(url: string): string | null {
-  if (!url) return null;
+export function buildHousingAppDeepLinks(url: string): string[] {
+  if (!url) return [];
   const host = hostOf(url);
-  if (!host) return null;
+  if (!host) return [];
+  const out: string[] = [];
 
   if (host === "ke.com" || host.endsWith(".ke.com") || host === "lianjia.com" || host.endsWith(".lianjia.com")) {
     const pageUrl = host.includes("lianjia.com") ? rewriteLianjiaToKe(url) : url;
-    return `lianjiabeike://web/main?url=${encodeURIComponent(pageUrl)}`;
+    const enc = encodeURIComponent(pageUrl);
+    out.push(`lianjiabeike://web/main?url=${enc}`);
+    out.push(`lianjia://web/main?url=${enc}`);
+    // Android 显式指定包名，避免只落到浏览器
+    out.push(
+      `intent://web/main?url=${enc}#Intent;scheme=lianjiabeike;package=com.lianjia.beike;S.browser_fallback_url=${enc};end`
+    );
+    return out;
   }
 
   if (host.includes("anjuke.com")) {
-    return `openanjuke://app.anjuke.com/m/page/common/webview?url=${encodeURIComponent(url)}`;
+    const enc = encodeURIComponent(url);
+    out.push(`openanjuke://app.anjuke.com/m/page/common/webview?url=${enc}`);
+    out.push(`anjuke://app.anjuke.com/m/page/common/webview?url=${enc}`);
+    out.push(
+      `intent://app.anjuke.com/m/page/common/webview?url=${enc}#Intent;scheme=openanjuke;package=com.anjuke.android.app;S.browser_fallback_url=${enc};end`
+    );
+    return out;
   }
 
-  return null;
+  return out;
+}
+
+/** @deprecated 兼容旧调用：返回第一个 deep link */
+export function buildHousingAppDeepLink(url: string): string | null {
+  return buildHousingAppDeepLinks(url)[0] ?? null;
 }
 
 function copyUrlFallback(url: string, toast: string): void {
@@ -110,30 +131,99 @@ function copyUrlFallback(url: string, toast: string): void {
   uni.showToast({ title: "请复制链接到浏览器打开", icon: "none" });
 }
 
+function tryOpenDeepLinks(
+  runtime: PlusRuntime,
+  links: string[],
+  httpsUrl: string,
+  appName: string,
+  onAllFailed?: () => void
+): void {
+  const pkg = housingAppHint(httpsUrl)?.androidPackage;
+  if (pkg && typeof runtime.isApplicationExist === "function") {
+    try {
+      const installed = runtime.isApplicationExist({ pname: pkg });
+      if (!installed) {
+        runtime.openURL(httpsUrl, () => {
+          copyUrlFallback(httpsUrl, `未安装${appName}，链接已复制`);
+        });
+        uni.showToast({ title: `未检测到${appName}，已用浏览器打开`, icon: "none" });
+        return;
+      }
+    } catch {
+      /* ignore detection errors, still try deep links */
+    }
+  }
+
+  let i = 0;
+  const tryNext = () => {
+    if (i >= links.length) {
+      runtime.openURL(httpsUrl, () => {
+        copyUrlFallback(httpsUrl, `未能打开${appName}，链接已复制`);
+      });
+      onAllFailed?.();
+      return;
+    }
+    const link = links[i++]!;
+    runtime.openURL(link, () => tryNext());
+  };
+  tryNext();
+}
+
 /**
- * 房源「查看参考/源链接」：App 端优先跳对应房产 App；失败再系统浏览器；再失败才复制。
+ * 房源「查看参考/源链接」：App 端弹出选择（打开 App / 浏览器 / 复制），
+ * 避免静默落到浏览器让用户以为「没跳 App」。
  * H5 / 小程序走 openExternalUrl。
  */
 export function openHousingSourceUrl(url: string): void {
   if (!url) return;
 
   const runtime = getPlusRuntime();
-  const deep = buildHousingAppDeepLink(url);
+  const links = buildHousingAppDeepLinks(url);
   const hint = housingAppHint(url);
+  const appName =
+    hint?.kind === "beike" ? "贝壳找房" : hint?.kind === "anjuke" ? "安居客" : "对应 App";
 
-  if (runtime && deep) {
-    runtime.openURL(deep, () => {
-      runtime.openURL(url, () => {
-        const name = hint?.kind === "beike" ? "贝壳找房" : hint?.kind === "anjuke" ? "安居客" : "对应 App";
-        copyUrlFallback(url, `未安装${name}，链接已复制`);
-      });
-      if (typeof uni !== "undefined" && typeof uni.showToast === "function") {
-        const name = hint?.kind === "beike" ? "贝壳找房" : hint?.kind === "anjuke" ? "安居客" : "对应 App";
-        uni.showToast({ title: `未安装${name}，已用浏览器打开`, icon: "none" });
+  if (!runtime) {
+    openExternalUrl(url);
+    return;
+  }
+
+  const itemList =
+    links.length > 0
+      ? [`打开${appName}`, "用系统浏览器打开", "复制链接"]
+      : ["用系统浏览器打开", "复制链接"];
+
+  if (typeof uni !== "undefined" && typeof uni.showActionSheet === "function") {
+    uni.showActionSheet({
+      itemList,
+      success: (res) => {
+        const label = itemList[res.tapIndex] ?? "";
+        if (label.startsWith("打开") && links.length > 0) {
+          tryOpenDeepLinks(runtime, links, url, appName, () => {
+            uni.showToast({ title: `未能唤起${appName}`, icon: "none" });
+          });
+          return;
+        }
+        if (label.includes("浏览器")) {
+          runtime.openURL(url, () => copyUrlFallback(url, "链接已复制"));
+          return;
+        }
+        if (label.includes("复制")) {
+          copyUrlFallback(url, "链接已复制");
+        }
+      },
+      fail: () => {
+        // 用户取消或端能力异常：仍尝试唤起 App
+        if (links.length > 0) tryOpenDeepLinks(runtime, links, url, appName);
+        else runtime.openURL(url);
       }
     });
     return;
   }
 
+  if (links.length > 0) {
+    tryOpenDeepLinks(runtime, links, url, appName);
+    return;
+  }
   openExternalUrl(url);
 }

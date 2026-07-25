@@ -138,6 +138,8 @@ export interface ListingFilterFilters {
   hasElevator?: boolean;
   minQualityScore?: number;
   minSchoolFutureScore?: number;
+  /** 行政区名（与 community.districtName 精确匹配） */
+  districtName?: string;
 }
 
 export interface ListingFilterRequest {

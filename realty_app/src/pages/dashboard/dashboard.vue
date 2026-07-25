@@ -42,8 +42,19 @@
         </view>
         <view class="row-gap filter-actions" style="margin-top: 16rpx">
           <button class="btn" size="mini" @click="reload">刷新</button>
+          <button
+            class="btn btn-ghost"
+            size="mini"
+            :class="{ 'btn-on': !cityScoped }"
+            @click="toggleCityScoped"
+          >
+            {{ cityScoped ? "仅本市" : "含跨城" }}
+          </button>
         </view>
         <text v-if="periodHint" class="muted period-hint">{{ periodHint }}</text>
+        <text class="muted period-hint">
+          默认仅展示本市卡片；点「含跨城」才显示对照块。周切换只刷新「本周速览 / 区对比 / 小区周榜」。
+        </text>
         <text class="muted period-hint">
           数据构成：真实挂牌 {{ sourceKindSummary.real }} / 派生样本 {{ sourceKindSummary.derived }} / 其他 {{ sourceKindSummary.other }}；派生样本不代表逐套成交。
         </text>
@@ -945,7 +956,7 @@
           <text class="admin-name">{{ cityNameForId(d.cityId) }} · {{ d.districtName }}</text>
           <text class="admin-type muted">{{ adminSuffixType(d.districtCode) }}</text>
         </view>
-        <view v-if="adminHaiList.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="adminHaiList.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
           跨城名含「海」
         </view>
         <view
@@ -956,7 +967,7 @@
           <text class="admin-code muted">{{ d.districtCode }}</text>
           <text class="admin-name">{{ cityNameForId(d.cityId) }} · {{ d.districtName }}</text>
         </view>
-        <view v-if="adminSuffixShared.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="adminSuffixShared.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           同末两位区号跨城对照
         </view>
         <view
@@ -1099,6 +1110,38 @@
             :disabled="currentPeriodIdx >= periods.length - 1"
             @click="stepPeriod(1)"
           >下一周 ›</button>
+        </view>
+      </view>
+
+      <!-- 本周速览：切换周时这里数字必须变，避免用户以为控件坏了 -->
+      <view
+        v-if="app.weekEnd"
+        id="week-bound-strip"
+        class="card week-bound-strip"
+        data-tab="all,overview,price"
+      >
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">本周速览 · {{ currentCityLabel }}</view>
+          <view class="muted" style="font-size: 22rpx">{{ app.weekEnd }}</view>
+        </view>
+        <view class="week-bound-grid">
+          <view class="week-bound-kpi">
+            <text class="cell-label">上榜小区</text>
+            <text class="week-bound-value">{{ rankingTotal }}</text>
+          </view>
+          <view class="week-bound-kpi">
+            <text class="cell-label">有数据的区</text>
+            <text class="week-bound-value">{{ districtItems.length }}</text>
+          </view>
+          <view class="week-bound-kpi">
+            <text class="cell-label">周榜 Top1</text>
+            <text class="week-bound-value week-bound-value--sm">
+              {{ ranking[0]?.community_name || "—" }}
+            </text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 20rpx">
+          按 crawl_date 落在本周窗口的挂牌聚合；宏观 / 网签日更 / 地铁规划等快照不随周切换。
         </view>
       </view>
 
@@ -1564,7 +1607,7 @@
             </text>
           </text>
         </view>
-        <view v-if="commuteCitySummaries.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="commuteCitySummaries.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
           跨城通勤均分对照
         </view>
         <view
@@ -1618,7 +1661,7 @@
           数据源：listings.csv 按 (city, dimension, bucket) 聚合。
           户型 / 面积 / 朝向 / 装修 各维度占比，条形比例代表 share。
         </view>
-        <view v-if="distributionCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="distributionCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           跨城分布源聚合（加权中位价）
         </view>
         <view
@@ -1980,7 +2023,7 @@
             <text class="cs-total">{{ it.totalScore.toFixed(0) }}</text>
           </view>
         </view>
-        <view v-if="communityScoreCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="communityScoreCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           跨城综合均分对照
         </view>
         <view
@@ -2226,7 +2269,7 @@
             </text>
           </view>
         </view>
-        <view v-if="metroGeoHighCrossCity.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="metroGeoHighCrossCity.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
           高置信线路跨城对照
         </view>
         <view
@@ -2324,7 +2367,7 @@
             {{ g.straightLineM != null ? (g.straightLineM / 1000).toFixed(1) + " km" : "—" }}
           </text>
         </view>
-        <view v-if="metroCrossYear2028.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="metroCrossYear2028.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
           跨城 2028 预计开通线路
         </view>
         <view
@@ -2456,7 +2499,7 @@
           <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
           <text class="ltk-count muted">{{ r.count }}</text>
         </view>
-        <view v-if="layoutThreeBedCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="layoutThreeBedCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           跨城「3室」占比
         </view>
         <view
@@ -2474,7 +2517,7 @@
           <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
           <text class="ltk-count muted">{{ r.count }}</text>
         </view>
-        <view v-if="layoutDecorateCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="layoutDecorateCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           跨城「精装」占比
         </view>
         <view
@@ -2492,7 +2535,7 @@
           <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
           <text class="ltk-count muted">{{ r.count }}</text>
         </view>
-        <view v-if="bedroomAreaCrossCityPrice.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="bedroomAreaCrossCityPrice.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           跨城「3室 · 80-110㎡」中位单价
         </view>
         <view
@@ -2520,7 +2563,7 @@
           </text>
           <text class="ltk-count muted">{{ r.count }}</text>
         </view>
-        <view v-if="layoutTwoBedShareCross.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="layoutTwoBedShareCross.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           跨城「2室」占比（layout）
         </view>
         <view
@@ -2563,7 +2606,7 @@
           </text>
           <text class="ltk-count muted">×{{ r.count }}</text>
         </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+        <view data-cross-city class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：layout_distribution.csv + bedroom_area.csv。与户型×面积矩阵卡互补（本卡看单维占比与跨城结构）。
         </view>
       </view>
@@ -2670,7 +2713,7 @@
           数据源：listings.csv (中位单价) + cities.csv → scripts/compute_feature_premium.py。<br>
           公式：premium% = (bucket 桶中位单价 ÷ 城市中位单价 − 1) × 100。
         </view>
-        <view v-if="featurePremiumCrossBedrooms.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="featurePremiumCrossBedrooms.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           跨城「户型」最高溢价桶
         </view>
         <view
@@ -2781,7 +2824,7 @@
           <text class="ltk-sig-share">{{ (s.share * 100).toFixed(1) }}%</text>
           <text class="ltk-sig-vs muted">他城均 {{ (s.otherAvg * 100).toFixed(1) }}%</text>
         </view>
-        <view v-if="listingTagPenetrationTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="listingTagPenetrationTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           跨城共有标签渗透（本市）
         </view>
         <view
@@ -2832,7 +2875,7 @@
           <text class="ltk-share">{{ (k.share * 100).toFixed(1) }}%</text>
           <text class="ltk-count muted">{{ k.count }}</text>
         </view>
-        <view v-if="listingKeywordTongtouCross.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="listingKeywordTongtouCross.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
           跨城「南北通透」渗透
         </view>
         <view
@@ -2892,7 +2935,7 @@
           数据源：listing_tags.csv (7518 行) → scripts/compute_tag_combination.py。<br>
           公式：对每个 listing 取 4-7 个 tag, C(2) 算 2-组合, count ≥ 5 才入榜。
         </view>
-        <view v-if="tagComboCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="tagComboCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           跨城共有标签对
         </view>
         <view
@@ -2955,7 +2998,7 @@
             </view>
           </view>
         </view>
-        <view v-if="tagComboMetroPartners" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="tagComboMetroPartners" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           「地铁可达」常搭配（跨城）
         </view>
         <view
@@ -2973,7 +3016,7 @@
             <view class="tc-meta muted">{{ p.cities }} 城 · 合计 {{ p.totalCount }} 套</view>
           </view>
         </view>
-        <view v-if="tagComboCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="tagComboCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           跨城标签组合密度
         </view>
         <view
@@ -3067,7 +3110,7 @@
           · 近4周占比 {{ (freshnessCitySummary.recent4wRate * 100).toFixed(0) }}%
           · 积压占比 {{ (freshnessCitySummary.staleRate * 100).toFixed(0) }}%
         </view>
-        <view v-if="freshnessCrossCityTop.length" class="lf-section-title">
+        <view data-cross-city v-if="freshnessCrossCityTop.length" class="lf-section-title">
           跨城最新鲜 Top
         </view>
         <view
@@ -3087,7 +3130,7 @@
             {{ it.freshnessScore.toFixed(0) }}
           </view>
         </view>
-        <view v-if="freshnessStaleCrossCity.length" class="lf-section-title">
+        <view data-cross-city v-if="freshnessStaleCrossCity.length" class="lf-section-title">
           跨城最积压 Top
         </view>
         <view
@@ -3258,7 +3301,7 @@
           <text class="of-pct">{{ p.premiumPct >= 0 ? "+" : "" }}{{ p.premiumPct.toFixed(1) }}%</text>
           <text class="of-n">×{{ p.count }}</text>
         </view>
-        <view v-if="orientationTongtouPriceTop.length" class="of-section-title">
+        <view data-cross-city v-if="orientationTongtouPriceTop.length" class="of-section-title">
           「南北通透」跨城楼层单价 Top
         </view>
         <view
@@ -3271,7 +3314,7 @@
           <text class="of-px">{{ Math.round(p.medianUnitPrice) }} 元</text>
           <text class="of-n">×{{ p.count }}</text>
         </view>
-        <view v-if="orientationTongtouHighCross.length" class="of-section-title">
+        <view data-cross-city v-if="orientationTongtouHighCross.length" class="of-section-title">
           「南北通透 · 高楼层」跨城溢价
         </view>
         <view
@@ -3287,7 +3330,7 @@
           </text>
           <text class="of-px">{{ Math.round(p.medianUnitPrice) }} 元</text>
         </view>
-        <view v-if="orientationFloorCitySummaries.length" class="of-section-title">
+        <view data-cross-city v-if="orientationFloorCitySummaries.length" class="of-section-title">
           跨城朝向×楼层均溢价
         </view>
         <view
@@ -3606,7 +3649,7 @@
           <text class="scatter-tp">{{ Math.round(p.medianTotalPrice10w) }}万</text>
           <text class="scatter-up">{{ Math.round(p.medianUnitPrice / 1000) }}k</text>
         </view>
-        <view v-if="scatterValueDipCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="scatterValueDipCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           跨城「价值洼地」最高单价代表盘
         </view>
         <view
@@ -3814,7 +3857,7 @@
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：school_indicators.csv (5 原始指标列) → 城市内百分位排名 → 综合分 0-100
         </view>
-        <view v-if="schoolCompositeCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="schoolCompositeCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           跨城综合分冠军校
         </view>
         <view
@@ -4202,7 +4245,7 @@
           </text>
           <text class="hosp-geo-km">{{ p.distanceKm.toFixed(2) }} km</text>
         </view>
-        <view v-if="hospitalGeoCrossCity.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="hospitalGeoCrossCity.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
           跨城最近医院对
         </view>
         <view
@@ -4272,7 +4315,7 @@
             <text class="pc-kpi-label muted">均距 m</text>
           </view>
         </view>
-        <view v-if="poiCommercialCitySummaries.length" class="muted" style="margin: 4rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="poiCommercialCitySummaries.length" class="muted" style="margin: 4rpx 0 4rpx; font-size: 22rpx">
           跨城 POI 密度对照
         </view>
         <view
@@ -4387,7 +4430,7 @@
           </view>
           <text class="pc-dist">{{ Math.round(b.distanceM) }} m</text>
         </view>
-        <view v-if="commercialBankNearestCross.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="commercialBankNearestCross.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           跨城最近银行小区（派生）
         </view>
         <view
@@ -4542,7 +4585,7 @@
           · 菜场近 {{ lifeCitySummary.avgMarketNear.toFixed(1) }}
           <text v-if="lifeCitySummary.top"> · Top {{ lifeCitySummary.top.communityName }}</text>
         </view>
-        <view v-if="lifeCitySummariesCross.length" class="muted" style="margin: 4rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="lifeCitySummariesCross.length" class="muted" style="margin: 4rpx 0 4rpx; font-size: 22rpx">
           跨城便利均分
         </view>
         <view
@@ -4750,7 +4793,7 @@
             </view>
           </view>
         </view>
-        <view v-if="schoolPremiumDistrictCross.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="schoolPremiumDistrictCross.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           同名区跨城对照 · {{ schoolPremiumDistrictCrossName }}
         </view>
         <view
@@ -4768,7 +4811,7 @@
             </view>
           </view>
         </view>
-        <view v-if="schoolPremiumDistrictCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="schoolPremiumDistrictCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           跨城学区分区溢价汇总
         </view>
         <view
@@ -4792,10 +4835,10 @@
         </view>
       </view>
 
-      <!-- 小区排行 -->
-      <view class="card">
+      <!-- 小区排行（随周切换） -->
+      <view id="week-ranking-card" class="card" data-tab="all,overview,price">
         <view class="row-between">
-          <view class="card-title">小区 Top {{ ranking.length }}</view>
+          <view class="card-title">小区周榜 Top {{ ranking.length }} · {{ app.weekEnd }}</view>
           <view class="muted" v-if="rankingTotal">共 {{ rankingTotal }} 条</view>
         </view>
 
@@ -4937,7 +4980,7 @@
             <view class="muted">评分 {{ it.avgSchoolScore.toFixed(1) }} · {{ it.schoolCount }} 所 · {{ it.listingCount }} 套</view>
           </view>
         </view>
-        <view v-if="schoolPremiumCommunityCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="schoolPremiumCommunityCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           跨城学区小区均分
         </view>
         <view
@@ -5235,7 +5278,7 @@
             </text>
           </view>
         </view>
-        <view v-if="commercialCitySummary.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="commercialCitySummary.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           跨城商业均分对照
         </view>
         <view
@@ -5799,7 +5842,7 @@ const hospitalGeoNearest = computed<HospitalGeoNearestPair[]>(() =>
   getHospitalGeoByCityNearestPair(app.cityId, 3)
 );
 const hospitalGeoCrossCity = computed<CrossCityHospitalDistance[]>(() =>
-  getHospitalGeoCrossCityByCityPairDistance(5)
+  crossCityRows(getHospitalGeoCrossCityByCityPairDistance(5))
 );
 const hospitalCbdRef = computed(() => {
   const rows = store.getCommutesByCity(app.cityId);
@@ -5869,7 +5912,7 @@ const commercialBankNear = computed<CommunityBankNearest[]>(() =>
     .slice(0, 5)
 );
 const commercialBankNearestCross = computed<CommunityBankNearest[]>(() =>
-  getPoiCommercialByCityBankNearestByCommunity(8)
+  crossCityRows(getPoiCommercialByCityBankNearestByCommunity(8))
 );
 const commercialRestaurantNear = computed<CommunityBankNearest[]>(() =>
   getPoiCommercialByCityRestaurantNearestByCommunity(80)
@@ -5978,10 +6021,12 @@ const adminXinQuList = computed<LocalAdminDistrict[]>(() =>
   getAdminDistrictByNameLike("新区").filter((d) => d.cityId === app.cityId)
 );
 const adminHaiList = computed<LocalAdminDistrict[]>(() =>
-  getAdminDistrictCrossCityByNameLike("海").slice(0, 8)
+  crossCityRows(getAdminDistrictCrossCityByNameLike("海").slice(0, 8))
 );
 const adminSuffixShared = computed<SuffixUsage[]>(() =>
-  summarizeAdminDistrictBySuffix().filter((s) => s.cities.length > 1).slice(0, 8)
+  crossCityRows(
+    summarizeAdminDistrictBySuffix().filter((s) => s.cities.length > 1).slice(0, 8)
+  )
 );
 
 // v1.121.16 listing 学区溢价分布 / 分区
@@ -6062,7 +6107,7 @@ const metroGeoConfNational = computed<ConfidenceLevelSummary[]>(() =>
   summarizeMetroPlanningGeoByConfidence()
 );
 const metroGeoHighCrossCity = computed<{ cityId: number; lineCount: number }[]>(() =>
-  getMetroPlanningGeoCrossCityByConfidence("high")
+  crossCityRows(getMetroPlanningGeoCrossCityByConfidence("high"))
 );
 const metroGeoManualLines = computed<LocalMetroLineGeo[]>(() =>
   getMetroPlanningGeoByConfidence("manual")
@@ -6086,14 +6131,16 @@ const metroStartEndLines = computed(() =>
 );
 const metroCrossYear2028 = computed(() => {
   const map = getMetroPlanningCrossCityByYear(2028);
-  return Object.entries(map)
-    .map(([cityId, lines]) => ({
-      cityId: Number(cityId),
-      cityName: cityNameForId(Number(cityId)),
-      lines
-    }))
-    .filter((x) => x.lines.length > 0)
-    .sort((a, b) => b.lines.length - a.lines.length);
+  return crossCityRows(
+    Object.entries(map)
+      .map(([cityId, lines]) => ({
+        cityId: Number(cityId),
+        cityName: cityNameForId(Number(cityId)),
+        lines
+      }))
+      .filter((x) => x.lines.length > 0)
+      .sort((a, b) => b.lines.length - a.lines.length)
+  );
 });
 const metroDistrictFocus = computed(() => {
   const fromSchool = schoolPremiumDistrictTop.value[0]?.districtName;
@@ -6137,30 +6184,36 @@ function layoutBucket(r: LocalLayoutDistribution): string {
   return r.bucket;
 }
 const layoutThreeBedCrossCity = computed(() =>
-  store
-    .getLayoutDistributions()
-    .filter((x) => x.dimension === "bedrooms" && x.bucket === "3室")
-    .sort((a, b) => b.share - a.share)
+  crossCityRows(
+    store
+      .getLayoutDistributions()
+      .filter((x) => x.dimension === "bedrooms" && x.bucket === "3室")
+      .sort((a, b) => b.share - a.share)
+  )
 );
 const layoutDecorateCrossCity = computed(() =>
-  store
-    .getLayoutDistributions()
-    .filter((x) => x.dimension === "decorate" && x.bucket === "精装")
-    .sort((a, b) => b.share - a.share)
+  crossCityRows(
+    store
+      .getLayoutDistributions()
+      .filter((x) => x.dimension === "decorate" && x.bucket === "精装")
+      .sort((a, b) => b.share - a.share)
+  )
 );
 const bedroomAreaCrossCityPrice = computed<CrossCityBucketEntry[]>(() =>
-  getDistributionCrossCityLeaderboard("3室", "80-110")
+  crossCityRows(getDistributionCrossCityLeaderboard("3室", "80-110"))
 );
 const layoutTwoBedShareCross = computed<CrossCityShareEntry[]>(() =>
-  getDistributionShareLeaderboard("bedrooms").filter(
-    (x) => x.dimensions[1] === "2室"
+  crossCityRows(
+    getDistributionShareLeaderboard("bedrooms").filter(
+      (x) => x.dimensions[1] === "2室"
+    )
   )
 );
 const layoutMedianPriceTop = computed<DistributionRow[]>(() =>
   getDistributionTopByMedianPrice(app.cityId, 5)
 );
 const distributionCitySummaries = computed<CityDistributionSummary[]>(() =>
-  summarizeDistributionByCity()
+  crossCityRows(summarizeDistributionByCity())
 );
 function distRowLabel(r: DistributionRow): string {
   if ("decorate" in r && "ageBucket" in r) {
@@ -6202,7 +6255,7 @@ const listingKeywordsCity = computed<ListingKeywordRow[]>(() =>
   getListingKeywordsByCity(app.cityId).slice(0, 6)
 );
 const listingKeywordTongtouCross = computed(() =>
-  getListingKeywordsCrossCity("南北通透")
+  crossCityRows(getListingKeywordsCrossCity("南北通透"))
 );
 
 // v0.35.0 map-9: 地铁步行通勤
@@ -6223,8 +6276,8 @@ const orientationFloor = ref<OrientationFloorResponse | null>(null);
 const decorateAge = ref<DecorateAgeResponse | null>(null);
 // v0.45.0 trend-25: 总价 × 单价 双轴散点
 const scatter = ref<CommunityScatterResponse | null>(null);
-const featurePremiumCrossBedrooms = computed(
-  () => getFeaturePremiumCrossCityLeaderboard("bedrooms").rows
+const featurePremiumCrossBedrooms = computed(() =>
+  crossCityRows(getFeaturePremiumCrossCityLeaderboard("bedrooms").rows)
 );
 const featurePremiumAbsTop = computed<LocalFeaturePremium[]>(() =>
   getFeaturePremiumByDimensionCoverage(5)
@@ -6242,7 +6295,7 @@ const featurePremiumDecorateBuckets = computed<LocalFeaturePremium[]>(() =>
   getFeaturePremiumByCityDimension(app.cityId, "decorate").slice(0, 6)
 );
 const tagComboCrossCity = computed<TagPairAggregate[]>(() =>
-  getTagCombinationCrossCityMostCommon(5)
+  crossCityRows(getTagCombinationCrossCityMostCommon(5))
 );
 const tagComboPremiumLocal = computed<LocalTagCombination[]>(() =>
   getTagCombinationPremiumByCity(app.cityId, 5)
@@ -6289,16 +6342,16 @@ const scatterValueDip = computed<LocalCommunityScatter[]>(() =>
     .slice(0, 5)
 );
 const scatterValueDipCrossCity = computed<CrossCityQuadrantEntry[]>(() =>
-  getCommunityScatterCrossCityByQuadrant("价值洼地")
+  crossCityRows(getCommunityScatterCrossCityByQuadrant("价值洼地"))
 );
 const freshnessCitySummary = computed<CityFreshnessSummary | null>(() =>
   summarizeListingFreshnessByCity(app.cityId)[0] ?? null
 );
 const freshnessCrossCityTop = computed<FreshnessRankingEntry[]>(() =>
-  getFreshestCommunityTopN(undefined, 5)
+  crossCityRows(getFreshestCommunityTopN(undefined, 5))
 );
 const freshnessStaleCrossCity = computed<FreshnessRankingEntry[]>(() =>
-  getStalestCommunityTopN(undefined, 5)
+  crossCityRows(getStalestCommunityTopN(undefined, 5))
 );
 const communityScorePareto = computed<LocalCommunityScore[]>(() =>
   getCommunityScorePareto(app.cityId, 80, 5)
@@ -7203,8 +7256,32 @@ function stepPeriod(delta: number) {
   const target = list[next];
   if (!target || target === app.weekEnd) return;
   app.setWeekEnd(target);
-  loadRankingAndDistrict();
-  showToast(`已切到 ${target}`);
+  loadRankingAndDistrict().then(() => {
+    showToast(`已切到 ${target} · 上榜 ${rankingTotal.value} 小区`);
+    // 滚到本周速览，让数字变化可见
+    setTimeout(() => {
+      try {
+        uni.pageScrollTo({ selector: "#week-bound-strip", duration: 280 });
+      } catch (_) {
+        /* H5 / 部分端可能无 selector */
+      }
+    }, 50);
+  });
+}
+
+const cityScoped = ref(true);
+function applyCityScopedClass(on: boolean) {
+  if (typeof document === "undefined") return;
+  document.body.classList.toggle("city-scoped", on);
+}
+function toggleCityScoped() {
+  cityScoped.value = !cityScoped.value;
+  applyCityScopedClass(cityScoped.value);
+  showToast(cityScoped.value ? "已隐藏跨城对照" : "已显示跨城对照");
+}
+/** 仅本市模式下清空跨城数组，列表自然不渲染 */
+function crossCityRows<T>(rows: T[]): T[] {
+  return cityScoped.value ? [] : rows;
 }
 
 // 房源按周聚合，来源可能是真实挂牌或公开指标派生样本。
@@ -8361,7 +8438,7 @@ const dimPolymathCity = computed<SchoolDimensionEntry[]>(() =>
   getSchoolDimensionPolymath(app.cityId, {}).slice(0, 5)
 );
 const schoolCompositeCrossCity = computed<CityTopComposite[]>(() =>
-  getCityByCompositeRank()
+  crossCityRows(getCityByCompositeRank())
 );
 const schoolPremiumTier = computed<ThreeTierConsistency | null>(() =>
   getSchoolPremiumThreeTierConsistency().find((x) => x.cityId === app.cityId) ?? null
@@ -8404,7 +8481,7 @@ const orientationHighFloorBuckets = computed<LocalOrientationFloor[]>(() =>
   getOrientationFloorByCityFloorBucket(app.cityId, "高楼层").slice(0, 5)
 );
 const orientationTongtouHighCross = computed<CrossCityOrientationFloorEntry[]>(() =>
-  getOrientationFloorCrossCityByPair("南北通透", "高楼层")
+  crossCityRows(getOrientationFloorCrossCityByPair("南北通透", "高楼层"))
 );
 const orientationFloorCitySummaries = computed<CityOrientationFloorSummary[]>(() =>
   summarizeOrientationFloorByCity()
@@ -8750,6 +8827,7 @@ watch(activeTab, () => {
 onMounted(async () => {
   uni.$on(SNAPSHOT_UPDATED_EVENT, loadAll);
   applyTabClass();
+  applyCityScopedClass(cityScoped.value);
   const res = await getCities();
   cities.value = res.items || [];
   if (cities.value.length > 0) {
@@ -8764,7 +8842,10 @@ onMounted(async () => {
 
 onUnmounted(() => {
   uni.$off(SNAPSHOT_UPDATED_EVENT, loadAll);
-  if (typeof document !== "undefined") document.body.removeAttribute("data-dash-tab");
+  if (typeof document !== "undefined") {
+    document.body.removeAttribute("data-dash-tab");
+    document.body.classList.remove("city-scoped");
+  }
 });
 
 onPullDownRefresh(async () => {
@@ -12391,15 +12472,55 @@ onShow(async () => {
   font-size: 20rpx;
   opacity: 0.7;
 }
+
+.week-bound-strip {
+  border-color: rgba(244, 63, 94, 0.28);
+  background: linear-gradient(145deg, var(--color-surface) 0%, rgba(244, 63, 94, 0.06) 100%);
+}
+.week-bound-grid {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 12rpx;
+}
+.week-bound-kpi {
+  flex: 1;
+  min-width: 0;
+  padding: 12rpx;
+  border-radius: 12rpx;
+  background: rgba(15, 23, 42, 0.35);
+}
+.week-bound-value {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--color-heading);
+}
+.week-bound-value--sm {
+  font-size: 24rpx;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.btn-on {
+  border-color: #4ade80 !important;
+  color: #4ade80 !important;
+}
 </style>
 
 <!-- v0.48.0 dashboard-tabs: 全局 (非 scoped) for body[data-dash-tab] 选择器 -->
 <style lang="scss">
-body[data-dash-tab="overview"] .card[data-tab]:not([data-tab*="overview"]),
-body[data-dash-tab="price"] .card[data-tab]:not([data-tab*="price"]),
-body[data-dash-tab="school"] .card[data-tab]:not([data-tab*="school"]),
-body[data-dash-tab="transit"] .card[data-tab]:not([data-tab*="transit"]),
-body[data-dash-tab="map"] .card[data-tab]:not([data-tab*="map"]) {
+body[data-dash-tab="overview"] .card[data-tab]:not([data-tab*="overview"]):not([data-tab*="all"]),
+body[data-dash-tab="price"] .card[data-tab]:not([data-tab*="price"]):not([data-tab*="all"]),
+body[data-dash-tab="school"] .card[data-tab]:not([data-tab*="school"]):not([data-tab*="all"]),
+body[data-dash-tab="transit"] .card[data-tab]:not([data-tab*="transit"]):not([data-tab*="all"]),
+body[data-dash-tab="map"] .card[data-tab]:not([data-tab*="map"]):not([data-tab*="all"]) {
+  display: none !important;
+}
+
+/* 默认仅看本市：隐藏标注了跨城对照的区块 */
+body.city-scoped [data-cross-city] {
   display: none !important;
 }
 </style>

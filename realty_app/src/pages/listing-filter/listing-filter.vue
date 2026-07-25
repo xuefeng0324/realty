@@ -14,6 +14,13 @@
             </view>
           </view>
           <view class="form-item">
+            <text class="form-label">行政区</text>
+            <view class="picker-value tap" @click="pickDistrict">
+              {{ districtName || "全部区" }}
+              <text class="picker-caret">▾</text>
+            </view>
+          </view>
+          <view class="form-item">
             <text class="form-label">周期</text>
             <view class="picker-value tap" @click="pickPeriod">
               {{ app.weekEnd || "请选择" }}
@@ -96,7 +103,7 @@
         </view>
 
         <view class="row-gap" style="margin-top: 16rpx">
-          <button class="btn" size="mini" @click="applyFilter">应用筛选</button>
+          <button class="btn" size="mini" @click="() => applyFilter(true)">应用筛选</button>
           <button class="btn btn-ghost" size="mini" @click="resetFilter">重置</button>
         </view>
       </view>
@@ -185,74 +192,31 @@
         </view>
       </view>
 
-      <!-- v0.96.0 三市标签横评（派生：基于 listing_tags_summary.csv） -->
+      <!-- v0.96.0 本市标签特征（不再默认混三市） -->
       <view
-        v-if="tagPenetrationCompare.length > 0"
+        v-if="tagCityLocal && tagCityLocal.topTags.length > 0"
         class="card"
       >
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">🏷️ 三市标签横评</view>
+          <view class="card-title" style="margin-bottom: 0">🏷️ 本市标签特征</view>
           <view class="muted" style="font-size: 22rpx">
-            {{ tagPenetrationCompare.length }} 个标签 ·
-            {{ tagCitySummary.length }} 个城市有标签数据
+            {{ tagCityLocal.cityName }} · {{ tagCityLocal.topTags.length }} 个
           </view>
         </view>
         <view style="margin-top: 10rpx">
           <view
-            v-for="row in tagPenetrationCompare.slice(0, 6)"
-            :key="'tp' + row.tag"
-            class="tag-penetration-row"
-          >
-            <view class="tag-penetration-head">
-              <text class="tag-name">{{ row.tag }}</text>
-              <text class="muted" style="font-size: 20rpx">
-                {{ row.presentIn.length }} 市
-              </text>
-            </view>
-            <view class="tag-penetration-bar">
-              <view
-                v-for="(cell, idx) in tagPenetrationCompareRow(row)"
-                :key="'tpc' + idx"
-                class="tag-penetration-cell"
-              >
-                <view
-                  class="tag-penetration-fill"
-                  :style="{ width: (Math.max(cell.share, 0) * 100).toFixed(1) + '%' }"
-                />
-                <text class="tag-penetration-label muted">
-                  {{ cell.cityName }} {{ formatPct(cell.share) }}
-                </text>
-              </view>
-            </view>
-          </view>
-        </view>
-        <view
-          v-if="cityTagSignature.length"
-          style="margin-top: 14rpx"
-        >
-          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
-            当前城市 ({{ tagCityName }}) 标签特色 · 显著高于其他市
-          </view>
-          <view
-            v-for="(row, i) in cityTagSignature.slice(0, 4)"
-            :key="'cts' + row.tag"
+            v-for="(t, i) in tagCityLocal.topTags.slice(0, 8)"
+            :key="'tt-' + t.tag"
             class="drift-row"
           >
             <text class="drift-rank">{{ i + 1 }}</text>
-            <text class="drift-city">{{ row.tag }}</text>
-            <text class="drift-value drift-up">{{ formatPct(row.share) }}</text>
-            <text class="muted" style="font-size: 20rpx; margin-left: 8rpx">
-              vs {{ formatPct(row.otherAvg) }}
-            </text>
+            <text class="drift-city">{{ t.tag }}</text>
+            <text class="drift-value">{{ (t.share * 100).toFixed(1) }}%</text>
           </view>
-        </view>
-        <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
-          派生：snapshot.listingTagSummaries（{{ tagPenetrationTotalRows }} 条预聚合）。
-          share = 该标签小区数 / 全市所有标签小区数（一位小数 %）。
         </view>
       </view>
 
-      <!-- v1.118.0 性价比之选（社区散点 Pareto 派生） -->
+      <!-- v1.118.0 性价比之选（社区散点 Pareto 派生，仅本市） -->
       <view class="card" v-if="paretoTop.length">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">⭐ 性价比之选</view>
@@ -273,7 +237,7 @@
           <view class="pareto-meta">
             <view class="pareto-name">{{ row.communityName }}</view>
             <view class="pareto-sub muted">
-              {{ row.cityName }} · {{ row.areaCohort }} · {{ row.quadrant }}
+              {{ row.areaCohort }} · {{ row.quadrant }}
             </view>
           </view>
           <view class="pareto-stats">
@@ -287,13 +251,19 @@
       <view class="card">
         <view class="row-between">
           <view class="card-title">结果</view>
-          <view class="muted" v-if="total">共 {{ total }} 条</view>
+          <view class="muted" v-if="total">
+            共 {{ total }} 套 · 已显示 {{ items.length }}
+            <text v-if="districtName"> · {{ districtName }}</text>
+          </view>
+        </view>
+        <view v-if="total" class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
+          {{ currentCityLabel }}筛选命中 {{ total }} 套（样本库本市共 {{ cityListingTotal }} 套）
         </view>
         <EmptyState
           v-if="items.length === 0"
           icon="⌂"
           title="暂无匹配房源"
-          desc="试试放宽面积、总价或朝向条件；下拉或点刷新也可重试。"
+          desc="试试放宽面积、总价、行政区或朝向条件；下拉或点刷新也可重试。"
           action-text="重置筛选"
           @action="resetFilter"
         />
@@ -344,6 +314,14 @@
             {{ it.quality_score.toFixed(1) }}
           </view>
         </view>
+        <view v-if="hasMore" class="row-gap" style="margin-top: 16rpx; justify-content: center">
+          <button class="btn" size="mini" :loading="loadingMore" @click="loadMore">
+            加载更多（还剩 {{ total - items.length }} 套）
+          </button>
+        </view>
+        <view v-else-if="total > 0" class="muted" style="text-align: center; margin-top: 12rpx; font-size: 22rpx">
+          已全部显示 {{ total }} 套
+        </view>
       </view>
     </view>
 
@@ -383,14 +361,10 @@ import {
 } from "../../local/listingFreshnessRanking";
 import {
   summarizeListingTagsByCity,
-  getTagPenetrationCompare,
-  getCityTagSignature,
-  type CityTagSummary,
-  type TagPenetration,
-  type TagSignatureEntry
+  type CityTagSummary
 } from "../../local/listingTagsComparison";
 import { getCities, getPeriods, getSources } from "../../local/queries";
-import { getCommunityScatter } from "../../local/store";
+import { getCommunityScatter, getCommunitiesByCity, getListingsByCity } from "../../local/store";
 import {
   getCommunityScatterPareto,
   type ParetoEntry
@@ -458,10 +432,25 @@ const priceRange = ref<[number, number]>([0, 2000]);
 const areaRange = ref<[number, number]>([0, 300]);
 
 const filterCommunityId = ref<number | null>(null);
+const districtName = ref<string>("");
+const PAGE_SIZE = 30;
+const page = ref(1);
+const loadingMore = ref(false);
+
+const districtOptions = computed(() => {
+  const set = new Set<string>();
+  for (const c of getCommunitiesByCity(app.cityId)) {
+    if (c.districtName) set.add(c.districtName);
+  }
+  return [...set].sort((a, b) => a.localeCompare(b, "zh"));
+});
+
+const cityListingTotal = computed(() => getListingsByCity(app.cityId).length);
 
 const items = ref<ListingItem[]>([]);
 const total = ref(0);
 const errorMsg = ref("");
+const hasMore = computed(() => items.value.length < total.value);
 
 // 内置 popup（替代 uni-app picker，跨平台一致）
 const sheet = ref<{
@@ -498,9 +487,26 @@ function pickCity() {
     const c = cities.value[idx];
     if (c) {
       app.setCityId(c.city_id);
+      districtName.value = "";
       loadMeta();
-      applyFilter();
+      applyFilter(true);
     }
+  });
+}
+
+function pickDistrict() {
+  const opts = districtOptions.value;
+  if (opts.length === 0) {
+    uni.showToast({ title: "本市暂无行政区数据", icon: "none" });
+    return;
+  }
+  const labels = ["全部区", ...opts];
+  const cur = districtName.value
+    ? labels.indexOf(districtName.value)
+    : 0;
+  openSheet("选择行政区", labels, cur >= 0 ? cur : 0, (idx) => {
+    districtName.value = idx === 0 ? "" : labels[idx] || "";
+    applyFilter(true);
   });
 }
 
@@ -621,20 +627,27 @@ async function loadMeta() {
   }
 }
 
-async function applyFilter() {
+async function applyFilter(resetPage = true) {
   errorMsg.value = "";
+  if (resetPage) {
+    page.value = 1;
+    loadingMore.value = false;
+  } else {
+    loadingMore.value = true;
+  }
   try {
     const body: any = {
       cityId: app.cityId,
       periodType: "weekly",
       weekEnd: app.weekEnd,
-      page: 1,
-      pageSize: 20,
+      page: page.value,
+      pageSize: PAGE_SIZE,
       sort: { field: "overall_score", direction: "desc" },
       filters: {
         priceRange: priceRange.value,
         areaRange: areaRange.value,
-        minQualityScore: minQualityScore.value || undefined
+        minQualityScore: minQualityScore.value || undefined,
+        districtName: districtName.value || undefined
       }
     };
     if (filterCommunityId.value) body.communityId = filterCommunityId.value;
@@ -645,13 +658,24 @@ async function applyFilter() {
     if (decorateIndex.value > 0) body.filters.decorateType = decorateOptions[decorateIndex.value];
 
     const res = await filterListings(body);
-    items.value = res.items || [];
-    total.value = res.total || items.value.length;
+    const batch = res.items || [];
+    total.value = res.total || 0;
+    items.value = resetPage ? batch : [...items.value, ...batch];
   } catch (e) {
     errorMsg.value = toErrorMessage(e);
-    items.value = [];
-    total.value = 0;
+    if (resetPage) {
+      items.value = [];
+      total.value = 0;
+    }
+  } finally {
+    loadingMore.value = false;
   }
+}
+
+function loadMore() {
+  if (!hasMore.value || loadingMore.value) return;
+  page.value += 1;
+  applyFilter(false);
 }
 
 function resetFilter() {
@@ -660,7 +684,8 @@ function resetFilter() {
   listingTypeIndex.value = 0;
   decorateIndex.value = 0;
   scoreIndex.value = 0;
-  applyFilter();
+  districtName.value = "";
+  applyFilter(true);
 }
 
 function goListing(id: number) {
@@ -690,41 +715,13 @@ function formatPct(x: number): string {
   return `${(x * 100).toFixed(1)}%`;
 }
 
-// v0.96.0：三市标签横评（listing_tags_summary.csv）
+// v0.96.0：本市标签（不再默认横评三市）
 const tagCitySummary = computed<CityTagSummary[]>(() =>
   summarizeListingTagsByCity(8)
 );
-const tagPenetrationCompare = computed<TagPenetration[]>(() => {
-  const all = getTagPenetrationCompare();
-  // 仅显示至少在 2 城出现且 avgShare ≥ 1% 的标签 —— 排掉零碎 / 噪点
-  return all.filter((p) => p.presentIn.length >= 2 && p.avgShare >= 0.01);
-});
-const tagPenetrationTotalRows = computed<number>(() => {
-  const all = getTagPenetrationCompare();
-  return all.reduce((s, p) => s + p.presentIn.length, 0);
-});
-const cityTagSignature = computed<TagSignatureEntry[]>(() =>
-  getCityTagSignature(app.cityId, 1.5)
+const tagCityLocal = computed<CityTagSummary | null>(
+  () => tagCitySummary.value.find((c) => c.cityId === app.cityId) ?? null
 );
-const tagCityName = computed<string>(
-  () =>
-    tagCitySummary.value.find((c) => c.cityId === app.cityId)?.cityName ?? ""
-);
-
-/** 单行横评的几条 chip，按 presentIn 顺序展示 */
-function tagPenetrationCompareRow(row: TagPenetration): {
-  cityId: number;
-  cityName: string;
-  share: number;
-}[] {
-  const arr: { cityId: number; cityName: string; share: number }[] = [];
-  for (const cid of row.presentIn) {
-    const cell = row.byCity[cid];
-    if (!cell) continue;
-    arr.push({ cityId: cid, cityName: cell.cityName, share: cell.share });
-  }
-  return arr;
-}
 
 // v1.118.0 性价比之选：同面积段 + 价格上限下面积 Top N
 // 价格上限采用"当前城市单价中位数 + 50%" —— 让卡跟随当前城市动态调整
@@ -746,7 +743,10 @@ const paretoPriceCapWan = computed<number>(() => {
 });
 const paretoTop = computed<ParetoEntry[]>(() => {
   const capYuan = paretoPriceCapWan.value * 10000;
-  return getCommunityScatterPareto("改善(60-110)", capYuan, 5);
+  const cityName = cities.value.find((c) => c.city_id === app.cityId)?.city_name;
+  return getCommunityScatterPareto("改善(60-110)", capYuan, 12)
+    .filter((r) => !cityName || r.cityName === cityName)
+    .slice(0, 5);
 });
 
 onLoad((q: any) => {
