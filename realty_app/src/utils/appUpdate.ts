@@ -51,6 +51,9 @@ export function getUpdateManifestUrls(): string[] {
   push(
     `https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/${APP_UPDATE_MANIFEST}?${bust}`
   );
+  push(
+    `https://github.com/xuefeng0324/realty/raw/main/realty_app/static/update/${APP_UPDATE_MANIFEST}?${bust}`
+  );
   for (const base of getStaticBases()) {
     push(`${base.replace(/\/+$/, "")}/update/${APP_UPDATE_MANIFEST}?${bust}`);
   }
