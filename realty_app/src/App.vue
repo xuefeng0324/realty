@@ -4,7 +4,7 @@ import { setSnapshot, isLoaded, hasStats70, hasDailyWangqian } from "./local/sto
 import { buildSeedSnapshot } from "./local/seedSnapshot";
 import { loadSnapshotFromBase } from "./local/snapshotLoader";
 import { getStoredCsvBaseUrl, getStoredDataMode } from "./local/dataMode";
-import { SNAPSHOT_UPDATED_EVENT } from "./config";
+import { SNAPSHOT_UPDATED_EVENT, APP_UPDATE_LAST_CHECK_KEY } from "./config";
 import { loadStats70FromCSV } from "./local/stats70";
 import { loadDailyWangqianFromCSV } from "./local/dailyWangqian";
 import { loadProvidentFundRatesFromCSV } from "./local/providentFund";
@@ -15,12 +15,10 @@ import {
 } from "./local/wangqianDataRefresher";
 import { initializeTheme } from "./utils/theme";
 import {
-  buildUpdatePrompt,
   checkAppUpdate,
-  createDownloadProgressUi,
-  downloadAndInstallWgt,
-  restartAppAfterUpdate,
-  supportsAppUpdateRuntime
+  openUpgradePopup,
+  supportsAppUpdateRuntime,
+  trySilentWgtUpdate
 } from "./utils/appUpdate";
 // 直接以 raw 字符串 import，绕开 app-plus 静态资源下载问题。
 //   H5/小程序：`?raw` query 由 vite 处理返回字符串
@@ -40,78 +38,54 @@ import nbsRealEstateRaw from "../static/nbs_real_estate.csv?raw";
 import gzNewHouseInventoryRaw from "../static/gz_new_house_inventory.csv?raw";
 
 let startupUpdateCheckStarted = false;
-let startupUpdatePromptOpen = false;
+const UPDATE_FOREGROUND_COOLDOWN_MS = 6 * 60 * 60 * 1000;
+
+function markUpdateCheckedNow() {
+  try {
+    uni.setStorageSync(APP_UPDATE_LAST_CHECK_KEY, String(Date.now()));
+  } catch {
+    /* ignore */
+  }
+}
+
+function shouldSkipForegroundCheck(): boolean {
+  try {
+    const raw = uni.getStorageSync(APP_UPDATE_LAST_CHECK_KEY);
+    const last = typeof raw === "string" ? parseInt(raw, 10) : Number(raw);
+    if (!Number.isFinite(last) || last <= 0) return false;
+    return Date.now() - last < UPDATE_FOREGROUND_COOLDOWN_MS;
+  } catch {
+    return false;
+  }
+}
+
+async function runUpdateCheck(opts: { ignoreSkipped: boolean; fromForeground?: boolean }) {
+  if (!supportsAppUpdateRuntime()) return;
+  if (opts.fromForeground && shouldSkipForegroundCheck()) return;
+  try {
+    const result = await checkAppUpdate({ ignoreSkipped: opts.ignoreSkipped });
+    markUpdateCheckedNow();
+    if (result.status !== "available" || !result.manifest) return;
+    const manifest = result.manifest;
+    // Expo / uni-upgrade-center：silent wgt 后台装，不挡首屏
+    if (manifest.wgt?.silent && !manifest.force) {
+      void trySilentWgtUpdate(manifest).then((ok) => {
+        if (ok) {
+          console.log("[realty_app] silent wgt installed; restart to apply");
+        }
+      });
+      return;
+    }
+    openUpgradePopup(manifest);
+  } catch (error) {
+    console.warn("[realty_app] update check failed", error);
+  }
+}
 
 async function checkUpdateOnLaunch() {
-  if (startupUpdateCheckStarted || !supportsAppUpdateRuntime()) return;
+  if (startupUpdateCheckStarted) return;
   startupUpdateCheckStarted = true;
-  try {
-    const result = await checkAppUpdate({ ignoreSkipped: true });
-    if (result.status !== "available" || !result.manifest) return;
-    if (startupUpdatePromptOpen) return;
-    const manifest = result.manifest;
-    const prompt = buildUpdatePrompt(manifest);
-    startupUpdatePromptOpen = true;
-    uni.showModal({
-      ...prompt,
-      showCancel: !manifest.force,
-      success: async (choice) => {
-        if (!choice.confirm) return;
-        const url = manifest.wgt?.url;
-        if (!url) {
-          uni.showModal({
-            title: "暂不支持热更新",
-            content: "新版本没有提供 WGT 更新包，请前往设置页查看整包更新方式。",
-            showCancel: false
-          });
-          return;
-        }
-        const progressUi = createDownloadProgressUi();
-        progressUi.start("下载更新 0%");
-        let installed: Awaited<ReturnType<typeof downloadAndInstallWgt>>;
-        try {
-          installed = await downloadAndInstallWgt(url, (progress) => {
-            progressUi.update(progress);
-          });
-        } catch (error) {
-          installed = {
-            ok: false,
-            reason: error instanceof Error ? error.message : "下载或安装更新时发生未知错误"
-          };
-        } finally {
-          progressUi.close();
-        }
-        if (!installed.ok) {
-          uni.showModal({
-            title: "更新失败",
-            content: installed.reason,
-            showCancel: false
-          });
-          return;
-        }
-        // 等 loading 完全关掉再弹结果，避免原生层抢焦点闪烁
-        setTimeout(() => {
-          uni.showModal({
-            title: "更新已安装",
-            content: "热更新资源已经安装完成，立即重启后生效。",
-            confirmText: "立即重启",
-            cancelText: "稍后",
-            success: (restartChoice) => {
-              if (restartChoice.confirm && !restartAppAfterUpdate()) {
-                uni.showToast({ title: "请手动重启 App", icon: "none", duration: 2500 });
-              }
-            }
-          });
-        }, 200);
-      },
-      complete: () => {
-        startupUpdatePromptOpen = false;
-      }
-    });
-  } catch (error) {
-    // 启动检查失败不阻塞主页面；用户仍可在设置页手动检查并查看具体错误。
-    console.warn("[realty_app] startup update check failed", error);
-  }
+  await runUpdateCheck({ ignoreSkipped: true });
 }
 
 onLaunch(() => {
@@ -197,6 +171,10 @@ onLaunch(() => {
 
 onShow(() => {
   console.log("[realty_app] shown");
+  // Expo 建议：回到前台再检查；我们加 6h 冷却，避免反复弹升级页
+  if (startupUpdateCheckStarted) {
+    void runUpdateCheck({ ignoreSkipped: false, fromForeground: true });
+  }
 });
 </script>
 

@@ -67,6 +67,22 @@
       "style": {
         "navigationBarTitleText": "地图找房"
       }
+    },
+    {
+      "path": "pages/upgrade-popup/upgrade-popup",
+      "style": {
+        "navigationBarTitleText": "应用更新",
+        "disableScroll": true,
+        "app-plus": {
+          "backgroundColorTop": "transparent",
+          "background": "transparent",
+          "titleNView": false,
+          "scrollIndicator": false,
+          "popGesture": "none",
+          "animationType": "fade-in",
+          "animationDuration": 200
+        }
+      }
     }
   ],
   "tabBar": {

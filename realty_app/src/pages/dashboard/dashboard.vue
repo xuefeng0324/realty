@@ -49,6 +49,21 @@
         </text>
       </view>
 
+      <!-- 今日要点：参考贝壳/链家「首页速览」收敛首屏信息密度 -->
+      <view v-if="todayHighlights.length" class="card today-highlights-card">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">今日要点 · {{ hospitalCityName }}</view>
+          <view class="muted" style="font-size: 22rpx">首屏速览</view>
+        </view>
+        <view class="today-grid">
+          <view v-for="(h, i) in todayHighlights" :key="'th' + i" class="today-cell">
+            <text class="today-label muted">{{ h.label }}</text>
+            <text class="today-value" :class="h.toneClass">{{ h.value }}</text>
+            <text v-if="h.sub" class="today-sub muted">{{ h.sub }}</text>
+          </view>
+        </view>
+      </view>
+
       <!-- 全国 70 城指数（顶部第一张卡，入口也是 stats70 页） -->
       <view
         class="card stats70-card tap-target"
@@ -7457,6 +7472,43 @@ const currentCityIndex = computed<LatestIndexForCity | null>(() => {
   return getLatestIndexForCity(city.city_name);
 });
 
+/** 贝壳/链家式首屏速览：把分散 KPI 收成 2×2 */
+const todayHighlights = computed(() => {
+  const items: Array<{ label: string; value: string; sub?: string; toneClass?: string }> = [];
+  const idx = currentCityIndex.value;
+  if (idx?.secondMoM != null) {
+    items.push({
+      label: "二手环比",
+      value: formatIndex(idx.secondMoM),
+      sub: deltaLabel(idx.secondMoM),
+      toneClass: trendClass(idx.secondMoM)
+    });
+  }
+  const wq = wangqianOverview.value;
+  if (wq && wq.totalUnits > 0) {
+    items.push({
+      label: "近4周网签",
+      value: `${wq.totalUnits} 套`,
+      sub: wq.cityName
+    });
+  }
+  if (lprLatest.value) {
+    items.push({
+      label: "LPR 5年",
+      value: `${lprLatest.value.lpr5y.toFixed(2)}%`,
+      sub: lprLatest.value.month
+    });
+  }
+  if (gzInventory.value) {
+    items.push({
+      label: "广州可售",
+      value: formatInventoryUnits(gzInventory.value.availableUnits),
+      sub: gzInventory.value.date
+    });
+  }
+  return items.slice(0, 4);
+});
+
 function formatIndex(v: number | null): string {
   if (v == null) return "—";
   return v.toFixed(1);
@@ -8172,8 +8224,38 @@ onShow(async () => {
   gap: 8rpx;
 }
 
+.today-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 16rpx;
+  gap: 10rpx;
+}
+.today-cell {
+  background: var(--color-soft);
+  border: 1rpx solid var(--color-border);
+  border-radius: 12rpx;
+  padding: 16rpx 18rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.today-label {
+  font-size: 20rpx;
+}
+.today-value {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--color-heading);
+}
+.today-sub {
+  font-size: 20rpx;
+}
+
 @media (min-width: 900px) {
   .stats70-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .today-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }

@@ -8,7 +8,12 @@
  *   4. plus.downloader 下载 → plus.runtime.install → 可选 restart
  */
 
-import { APP_UPDATE_STORAGE_KEY, APP_UPDATE_MANIFEST, UPDATE_BASE_URL } from "../config";
+import {
+  APP_UPDATE_STORAGE_KEY,
+  APP_UPDATE_MANIFEST,
+  APP_UPDATE_PENDING_KEY,
+  UPDATE_BASE_URL
+} from "../config";
 import { getStaticBases } from "../local/remoteFetch";
 
 export interface AppUpdateManifest {
@@ -540,3 +545,33 @@ export function restartAppAfterUpdate(): boolean {
   // #endif
   return false;
 }
+
+/** 写入待升级清单并打开透明升级页（DCloud upgrade-popup 模式）。 */
+export function openUpgradePopup(manifest: AppUpdateManifest): void {
+  try {
+    uni.setStorageSync(APP_UPDATE_PENDING_KEY, JSON.stringify(manifest));
+  } catch {
+    /* ignore */
+  }
+  uni.navigateTo({
+    url: "/pages/upgrade-popup/upgrade-popup",
+    fail: (e) => {
+      console.warn("[realty_app] open upgrade-popup failed", e);
+      uni.showToast({ title: "无法打开升级页", icon: "none" });
+    }
+  });
+}
+
+/**
+ * 静默热更新（Expo / uni-upgrade-center silent）：仅 wgt.silent=true 时后台装，不挡 UI。
+ * 返回是否已开始静默流程。
+ */
+export async function trySilentWgtUpdate(manifest: AppUpdateManifest): Promise<boolean> {
+  if (!manifest.wgt?.silent || !manifest.wgt.url || manifest.force) return false;
+  const url = manifest.wgt.url;
+  // 不 await 太久阻塞调用方：fire-and-forget 由调用方决定；这里仍返回 Promise 方便测试
+  const result = await downloadAndInstallWgt(url);
+  return result.ok;
+}
+
+export { APP_UPDATE_PENDING_KEY };

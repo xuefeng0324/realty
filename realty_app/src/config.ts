@@ -12,7 +12,7 @@ export const DEFAULT_API_BASE_URL = "http://localhost:8000";
 
 export const APP_NAME = "Realty App";
 // 与 src/manifest.json 的 versionName 同步；CI 出包时会自动覆写
-export const APP_VERSION = "1.121.32";
+export const APP_VERSION = "1.121.33";
 
 export const STORAGE_KEYS = {
   apiBaseUrl: "realty_app.apiBaseUrl",
@@ -42,6 +42,12 @@ export const UPDATE_BASE_URL =
 export const APP_UPDATE_MANIFEST = "app-update.json";
 
 export const APP_UPDATE_STORAGE_KEY = "realty_app.update.skippedVersion";
+
+/** 升级弹层页读取的待处理清单（对齐 uni-upgrade-center 用 storage 传参） */
+export const APP_UPDATE_PENDING_KEY = "realty_app.update.pendingManifest";
+
+/** 上次前台检查更新时间戳，用于 onShow 节流（毫秒） */
+export const APP_UPDATE_LAST_CHECK_KEY = "realty_app.update.lastCheckAt";
 
 /**
  * GitHub Release（仅整包 APK 用）

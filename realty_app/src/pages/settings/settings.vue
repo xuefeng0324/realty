@@ -163,9 +163,9 @@
       <view class="card">
         <view class="card-title">关于</view>
         <view class="muted">
-          Realty App v{{ APP_VERSION }} · 启动时自动检查热更新<br />
+          Realty App v{{ APP_VERSION }} · 启动自动检查；升级交互对齐 uni-upgrade-center / Expo Updates<br />
           默认数据：真实挂牌与公开指标派生样本并存，详情页会明确标注数据等级<br />
-          评分规则在手机上实时计算；当前自动化测试为 763 个用例
+          评分规则在手机上实时计算；当前自动化测试为 785 个用例
         </view>
       </view>
 
@@ -179,8 +179,11 @@
         <view v-if="updateStatus" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           {{ updateStatus }}
         </view>
-        <view v-if="updateProgress" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          下载进度：{{ updateProgress }}
+        <view v-if="updateProgress" style="margin-top: 12rpx">
+          <ProgressBar :percent="updateProgressPercent" size="lg" />
+          <view class="muted" style="margin-top: 6rpx; font-size: 22rpx">
+            下载进度：{{ updateProgress }}
+          </view>
         </view>
         <view class="row-gap" style="margin-top: 16rpx">
           <button
@@ -196,9 +199,18 @@
             class="btn"
             size="mini"
             :disabled="updateDownloading"
+            @click="onOpenUpgradePopup"
+          >
+            打开升级页
+          </button>
+          <button
+            v-if="updateAvailable"
+            class="btn btn-ghost"
+            size="mini"
+            :disabled="updateDownloading"
             @click="onDownloadAndInstall"
           >
-            {{ updateDownloading ? "安装中…" : "下载并安装" }}
+            {{ updateDownloading ? "安装中…" : "本页安装" }}
           </button>
           <button
             v-if="updateAvailable && !updateManifest?.force"
@@ -255,11 +267,13 @@ import {
   checkAppUpdate,
   downloadAndInstallWgt,
   getLocalVersion,
+  openUpgradePopup,
   restartAppAfterUpdate,
   skipVersion,
   type AppUpdateManifest
 } from "../../utils/appUpdate";
 import { openExternalUrl } from "../../utils/openExternal";
+import ProgressBar from "../../components/ProgressBar.vue";
 // @ts-ignore
 import dailyWangqianRaw from "../../../static/daily_wangqian.csv?raw";
 
@@ -470,6 +484,7 @@ const localVersion = ref<{ versionName: string; versionCode: number }>({
 });
 const updateStatus = ref<string>("");
 const updateProgress = ref<string>("");
+const updateProgressPercent = ref<number>(0);
 const updateAvailable = ref<boolean>(false);
 const updateChecking = ref<boolean>(false);
 const updateDownloading = ref<boolean>(false);
@@ -495,6 +510,8 @@ async function onCheckUpdate() {
       updateManifest.value = result.manifest;
       updateAvailable.value = true;
       updateStatus.value = `发现新版本 v${result.manifest.versionName}（${result.manifest.versionCode}）`;
+      // 对齐升级中心：检查到后直接进自定义升级页
+      openUpgradePopup(result.manifest);
     } else if (result.status === "up-to-date") {
       updateManifest.value = result.manifest ?? null;
       updateAvailable.value = false;
@@ -513,6 +530,12 @@ async function onCheckUpdate() {
   }
 }
 
+function onOpenUpgradePopup() {
+  const m = updateManifest.value;
+  if (!m) return;
+  openUpgradePopup(m);
+}
+
 async function onDownloadAndInstall() {
   const m = updateManifest.value;
   if (!m) return;
@@ -524,11 +547,13 @@ async function onDownloadAndInstall() {
   updateDownloading.value = true;
   updateStatus.value = "正在下载 wgt…";
   updateProgress.value = "0%";
+  updateProgressPercent.value = 0;
   try {
     const result = await downloadAndInstallWgt(url, (p) => {
       if (p.total > 0) {
         const pct = Math.floor((p.downloaded / p.total) * 100);
         updateProgress.value = `${pct}%`;
+        updateProgressPercent.value = pct;
       } else {
         updateProgress.value = `${(p.downloaded / 1024).toFixed(0)} KB`;
       }
@@ -536,6 +561,7 @@ async function onDownloadAndInstall() {
     if (result.ok) {
       updateStatus.value = "安装成功，请重启生效";
       updateProgress.value = "100%";
+      updateProgressPercent.value = 100;
       // 稍等一帧再弹窗，避免 install 刚结束立刻抢 UI 触发个别机型异常
       setTimeout(() => {
         uni.showModal({

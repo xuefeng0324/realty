@@ -289,7 +289,14 @@
           <view class="card-title">结果</view>
           <view class="muted" v-if="total">共 {{ total }} 条</view>
         </view>
-        <view v-if="items.length === 0" class="empty">暂无数据</view>
+        <EmptyState
+          v-if="items.length === 0"
+          icon="⌂"
+          title="暂无匹配房源"
+          desc="试试放宽面积、总价或朝向条件；下拉或点刷新也可重试。"
+          action-text="重置筛选"
+          @action="resetFilter"
+        />
         <view
           v-for="it in items"
           :key="it.listing_id"
@@ -391,6 +398,7 @@ import {
 import type { CityItem, ListingItem, SourceStatItem } from "../../api/contracts";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { useAppStore } from "../../store/app";
+import EmptyState from "../../components/EmptyState.vue";
 import {
   formatArea,
   formatPrice,

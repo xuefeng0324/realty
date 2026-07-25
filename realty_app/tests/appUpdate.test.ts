@@ -108,6 +108,27 @@ describe("appUpdate startup prompt", () => {
   });
 });
 
+describe("appUpdate silent flag", () => {
+  it("trySilentWgtUpdate 在无 silent 或强制更新时直接返回 false", async () => {
+    const { trySilentWgtUpdate } = await import("../src/utils/appUpdate");
+    expect(
+      await trySilentWgtUpdate({
+        versionName: "1.0.0",
+        versionCode: "1",
+        force: true,
+        wgt: { url: "https://example.com/a.wgt", silent: true }
+      })
+    ).toBe(false);
+    expect(
+      await trySilentWgtUpdate({
+        versionName: "1.0.0",
+        versionCode: "1",
+        wgt: { url: "https://example.com/a.wgt", silent: false }
+      })
+    ).toBe(false);
+  });
+});
+
 describe("appUpdate download progress UI helpers", () => {
   it("formatDownloadProgressTitle 有总量时输出整数百分比", () => {
     expect(formatDownloadProgressTitle({ downloaded: 512, total: 1024 })).toBe("下载更新 50%");
