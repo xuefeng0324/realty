@@ -60,26 +60,36 @@ describe("appUpdate.selectWgtBase (v1.121.2)", () => {
   });
 });
 
-describe("appUpdate.buildWgtUrlCandidates (v1.121.3)", () => {
-  it("从 cdn.jsdelivr 出发，候选 4 个 jsDelivr 镜像 + 原 URL", () => {
+describe("appUpdate.buildWgtUrlCandidates (v1.121.4)", () => {
+  it("固定优先 gcore，再 fastly/cdn/b-cdn（不把 cdn 原 URL 硬放第一）", () => {
     const src =
       "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/93/app.wgt";
     const cands = buildWgtUrlCandidates(src);
-    expect(cands[0]).toBe(src);
-    expect(cands).toContain("https://gcore.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/93/app.wgt");
-    expect(cands).toContain("https://fastly.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/93/app.wgt");
-    expect(cands).toContain("https://jsdelivr.b-cdn.net/gh/xuefeng0324/realty@main/realty_app/static/update/93/app.wgt");
+    expect(cands[0]).toBe(
+      "https://gcore.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/93/app.wgt"
+    );
+    expect(cands).toContain(
+      "https://fastly.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/93/app.wgt"
+    );
+    expect(cands).toContain(
+      "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/93/app.wgt"
+    );
+    expect(cands).toContain(
+      "https://jsdelivr.b-cdn.net/gh/xuefeng0324/realty@main/realty_app/static/update/93/app.wgt"
+    );
     // raw 不会出现在候选里（不能下二进制）
     expect(cands.every((u) => !u.includes("raw.githubusercontent.com"))).toBe(true);
     // 不重复
     expect(new Set(cands).size).toBe(cands.length);
   });
 
-  it("从 gcore.jsdelivr 出发，原 URL 优先，其他镜像列后", () => {
+  it("从 gcore 出发时 gcore 仍第一，其它镜像列后", () => {
     const src =
       "https://gcore.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/120/app.wgt";
     const cands = buildWgtUrlCandidates(src);
     expect(cands[0]).toBe(src);
-    expect(cands).toContain("https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/120/app.wgt");
+    expect(cands).toContain(
+      "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/120/app.wgt"
+    );
   });
 });

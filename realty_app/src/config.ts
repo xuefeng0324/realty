@@ -12,7 +12,7 @@ export const DEFAULT_API_BASE_URL = "http://localhost:8000";
 
 export const APP_NAME = "Realty App";
 // 与 src/manifest.json 的 versionName 同步；CI 出包时会自动覆写
-export const APP_VERSION = "1.121.3";
+export const APP_VERSION = "1.121.4";
 
 export const STORAGE_KEYS = {
   apiBaseUrl: "realty_app.apiBaseUrl",
@@ -35,8 +35,9 @@ export const DEFAULT_PAGE_SIZE = 20;
  * - APP_UPDATE_MANIFEST：相对路径下的 app-update.json
  * - APP_UPDATE_STORAGE_KEY：本地记录"已忽略的版本"，避免每次启动都弹升级
  */
+// 清单优先走 raw（JSON 文本稳）；wgt 二进制仍由 appUpdate 改写到 jsDelivr。
 export const UPDATE_BASE_URL =
-  "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/";
+  "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/";
 
 export const APP_UPDATE_MANIFEST = "app-update.json";
 

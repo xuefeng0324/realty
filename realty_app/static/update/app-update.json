@@ -1,12 +1,12 @@
 {
-  "versionName": "1.121.3",
-  "versionCode": "124",
-  "publishedAt": "2026-07-25T09:55:30Z",
+  "versionName": "1.121.4",
+  "versionCode": "125",
+  "publishedAt": "2026-07-25T13:11:05Z",
   "force": false,
-  "notes": "\ufefffix(realty_app): wgt \u4e0b\u8f7d\u591a\u955c\u50cf\u56de\u9000 (v1.121.3)\n\n2026-07-25-v1.112.0-\u5468\u8fb9\u5546\u4e1aPOI\u63a5\u5165\u4e0e\u6d3e\u751f: v1.112.0 \u2014 \u5468\u8fb9\u5546\u4e1a POI \u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.113.0-\u884c\u653f\u533a\u5212\u63a5\u5165\u4e0e\u6d3e\u751f: v1.113.0 \u2014 \u884c\u653f\u533a\u5212\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.114.0-\u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f: v1.114.0 \u2014 \u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f\n",
+  "notes": "fix(realty_app): OTA 热更新验证与优化 (v1.121.4)\n\n关闭 SDK 版本弹窗；清单缓存戳；wgt gcore 优先；安装后可立即重启。设置页关于文案变为「热更新通道已开」。",
   "wgt": {
-    "url": "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/124/app.wgt",
-    "sha256": "cb8bb4198c18f995e302506d72ab373106555c63cde20e6cd5a987f00b0b4236"
+    "url": "https://gcore.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/125/app.wgt",
+    "sha256": "b167de3dbb35c0552f178109ba34f928ef2bec41fa6500d569b819aa92f8d3c6"
   },
   "ios": {
     "available": false,

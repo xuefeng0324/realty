@@ -163,7 +163,7 @@
       <view class="card">
         <view class="card-title">关于</view>
         <view class="muted">
-          Realty App v{{ APP_VERSION }} · 纯本地快照模式<br />
+          Realty App v{{ APP_VERSION }} · 纯本地快照 · 热更新通道已开<br />
           默认数据：真实挂牌与公开指标派生样本并存，详情页会明确标注数据等级<br />
           评分规则在手机上实时计算；当前自动化测试为 458 个用例
         </view>
@@ -255,6 +255,7 @@ import {
   checkAppUpdate,
   downloadAndInstallWgt,
   getLocalVersion,
+  restartAppAfterUpdate,
   skipVersion,
   type AppUpdateManifest
 } from "../../utils/appUpdate";
@@ -533,13 +534,22 @@ async function onDownloadAndInstall() {
       }
     });
     if (result.ok) {
-      updateStatus.value = "已下载，请关闭并重启 App 生效";
+      updateStatus.value = "已安装，正在重启…";
       updateProgress.value = "100%";
-      // 提示用户手动重启（uni-app 无 API 直接重启）
       uni.showModal({
         title: "升级完成",
-        content: "新版本已安装，请手动关闭并重新打开 App 以生效。",
-        showCancel: false
+        content: "新版本已安装。点「立即重启」生效；若无反应请手动关掉 App 再打开。",
+        confirmText: "立即重启",
+        cancelText: "稍后",
+        success: (res) => {
+          if (res.confirm) {
+            if (!restartAppAfterUpdate()) {
+              updateStatus.value = "自动重启失败，请手动关闭并重新打开 App";
+            }
+          } else {
+            updateStatus.value = "已下载，请手动关闭并重新打开 App 生效";
+          }
+        }
       });
     } else {
       updateStatus.value = `升级失败：${result.reason}`;

@@ -52,9 +52,11 @@ export interface UpdateCheckResult {
 function getUpdateManifestUrls(): string[] {
   const urls: string[] = [];
   const primary = (UPDATE_BASE_URL || "").replace(/\/+$/, "");
-  if (primary) urls.push(`${primary}/${APP_UPDATE_MANIFEST}`);
+  // 防 CDN / 浏览器缓存旧清单（尤其是刚 push 后几分钟内）
+  const bust = `t=${Date.now()}`;
+  if (primary) urls.push(`${primary}/${APP_UPDATE_MANIFEST}?${bust}`);
   for (const base of getStaticBases()) {
-    const u = `${base.replace(/\/+$/, "")}/update/${APP_UPDATE_MANIFEST}`;
+    const u = `${base.replace(/\/+$/, "")}/update/${APP_UPDATE_MANIFEST}?${bust}`;
     if (!urls.includes(u)) urls.push(u);
   }
   return urls;
@@ -125,8 +127,13 @@ async function fetchManifestWithBase(): Promise<{
     if (!data || typeof data !== "object") continue;
     const m = data as AppUpdateManifest;
     if (!m.versionCode || !m.versionName) continue;
-    const manifestBase = url.slice(0, url.lastIndexOf("/") + 1);
-    const candidates = urls.map((u) => u.slice(0, u.lastIndexOf("/") + 1));
+    // 去掉 ?t= 缓存戳再算 base
+    const cleanUrl = url.split("?")[0];
+    const manifestBase = cleanUrl.slice(0, cleanUrl.lastIndexOf("/") + 1);
+    const candidates = urls.map((u) => {
+      const c = u.split("?")[0];
+      return c.slice(0, c.lastIndexOf("/") + 1);
+    });
     const wgtBase = selectWgtBase(manifestBase, candidates);
     return { manifest: m, manifestBase, wgtBase };
   }
@@ -247,25 +254,26 @@ export interface InstallProgress {
 
 /**
  * 把一个 wgt URL 拆出（base, versionDir/file），给同一资源生成多镜像候选 URL。
- * 例如 https://gcore.jsdelivr.net/gh/x/y@main/realty_app/static/update/93/app.wgt
- *   → base=gcore.jsdelivr.net, tail=/update/93/app.wgt
- * 候选顺序：原 URL 的 base 优先，其余 jsDelivr 镜像；raw.githubusercontent 不可下二进制所以排除。
+ * v1.121.4: 候选顺序固定 gcore → fastly → cdn → b-cdn（不再把可能 DNS 失败的
+ * cdn.jsdelivr 原 URL 放第一位），原 URL 若已在列表中则不再重复。
  */
 export function buildWgtUrlCandidates(primaryUrl: string): string[] {
   const u = new URL(primaryUrl);
   const tail = primaryUrl.slice(primaryUrl.indexOf("/update/"));
-  const baseOf = (host: string) => `${u.protocol}//${host}${u.pathname.slice(0, u.pathname.indexOf("/update/"))}`;
+  const pathPrefix = u.pathname.slice(0, u.pathname.indexOf("/update/"));
+  const baseOf = (host: string) => `${u.protocol}//${host}${pathPrefix}`;
   const jsdelivrHosts = [
-    "cdn.jsdelivr.net",
     "gcore.jsdelivr.net",
     "fastly.jsdelivr.net",
+    "cdn.jsdelivr.net",
     "jsdelivr.b-cdn.net"
   ];
-  const out: string[] = [primaryUrl];
+  const out: string[] = [];
   for (const h of jsdelivrHosts) {
     const cand = `${baseOf(h)}${tail}`;
-    if (cand !== primaryUrl && !out.includes(cand)) out.push(cand);
+    if (!out.includes(cand)) out.push(cand);
   }
+  if (!out.includes(primaryUrl)) out.push(primaryUrl);
   return out;
 }
 
@@ -325,4 +333,21 @@ export async function downloadAndInstallWgt(
   return { ok: false, reason: `所有 wgt 镜像均失败（已试 ${tried.length} 个：${tried.map((s) => s.slice(8, 30)).join(", ")}...）` };
   // #endif
   return { ok: false, reason: "当前平台不支持 OTA 升级（仅 APP-PLUS）" };
+}
+
+/** 安装 wgt 后重启 App（HTML5+ runtime.restart）。失败时返回 false，由 UI 提示手动重启。 */
+export function restartAppAfterUpdate(): boolean {
+  // #ifdef APP-PLUS
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const plus = (globalThis as any).plus;
+  if (plus?.runtime?.restart) {
+    try {
+      plus.runtime.restart();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  // #endif
+  return false;
 }
