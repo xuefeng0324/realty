@@ -163,7 +163,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 ## 5. 数据与 App 模块关系
 
 ```
-stats_70.csv                 → stats70.ts            → 70 城价格指数（月度）
+stats_70.csv                 → stats70.ts / TrendAnalysis → 70 城指数 + 近月序列/离散度（v1.121.17）
 daily_wangqian.csv           → dailyWangqian.ts      → 深广网签（日更）
 wangqian_district_weekly.csv → wangqianTrendRanking  → 周环比 / 突增（dashboard v1.121.13）
 provident_fund_rates.csv     → providentFund.ts      → 公积金利率 / 月供
@@ -180,7 +180,6 @@ admin_districts.csv          → adminDistrictRanking  → 行政区划（dashbo
 listing_school_premium.csv   → listingSchoolPremium  → 学区挂牌溢价分布（dashboard v1.121.16）
 school_dimensions.csv        → schoolDimensionRanking → 重点学校维度（dashboard v1.121.17）
 community_commercial.csv     → communityCommercial   → 分区商业均分（dashboard v1.121.17）
-stats_70.csv                 → stats70TrendAnalysis  → 近月序列/离散度（dashboard v1.121.17）
 static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务快照
 ```
 
