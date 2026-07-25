@@ -389,6 +389,18 @@
           <text class="top-val">5Y {{ row.lpr5y.toFixed(2) }}% · 首套 {{ row.mortgageFirst.toFixed(2) }}%</text>
         </view>
 
+        <view v-if="lprRange12m.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          近 12 月 LPR（getLprRange）
+        </view>
+        <view
+          v-for="row in lprRange12m"
+          :key="'lprr-' + row.month"
+          class="top-row"
+        >
+          <text class="top-name">{{ row.month }}</text>
+          <text class="top-val">5Y {{ row.lpr5y.toFixed(2) }}%</text>
+        </view>
+
         <view v-if="lprRecentCycles.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           近期调息节点（5Y LPR）
         </view>
@@ -2086,6 +2098,20 @@
             {{ ln.lengthKm != null ? ln.lengthKm.toFixed(1) + " km" : "—" }}
           </text>
         </view>
+        <view v-if="metroPhaseSummary.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          全国建设分期结构
+        </view>
+        <view
+          v-for="ph in metroPhaseSummary"
+          :key="'mph-' + ph.phase"
+          class="mp-year-chip"
+          style="margin-right: 8rpx; margin-bottom: 6rpx"
+        >
+          <text class="mp-year-y">{{ ph.phase }}</text>
+          <text class="mp-year-n muted">
+            {{ ph.lineCount }} 条 · {{ ph.totalLengthKm.toFixed(0) }}km · {{ ph.totalStations }} 站
+          </text>
+        </view>
         <view v-if="metroOpenYear2028.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
           全国 2028 开通线路（按里程）
         </view>
@@ -2416,6 +2442,40 @@
             {{ r.premiumPct >= 0 ? '+' : '' }}{{ r.premiumPct.toFixed(1) }}%
           </view>
         </view>
+        <view v-if="featurePremiumCitySummary" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          本市极值桶摘要（派生 summarizeFeaturePremiumByCity）
+        </view>
+        <view v-if="featurePremiumCitySummary?.topBucket" class="fp-row">
+          <view class="fp-bucket">
+            最高 · {{ fpDimLabel(featurePremiumCitySummary.topBucket.dimension) }} ·
+            {{ featurePremiumCitySummary.topBucket.bucket }}
+          </view>
+          <view :class="['fp-pct', fpPctClass(featurePremiumCitySummary.topBucket.premiumPct)]">
+            +{{ featurePremiumCitySummary.topBucket.premiumPct.toFixed(1) }}%
+          </view>
+        </view>
+        <view v-if="featurePremiumCitySummary?.bottomBucket" class="fp-row">
+          <view class="fp-bucket">
+            最低 · {{ fpDimLabel(featurePremiumCitySummary.bottomBucket.dimension) }} ·
+            {{ featurePremiumCitySummary.bottomBucket.bucket }}
+          </view>
+          <view :class="['fp-pct', fpPctClass(featurePremiumCitySummary.bottomBucket.premiumPct)]">
+            {{ featurePremiumCitySummary.bottomBucket.premiumPct.toFixed(1) }}%
+          </view>
+        </view>
+        <view v-if="featurePremiumDecorateBuckets.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          本市装修维全部桶
+        </view>
+        <view
+          v-for="r in featurePremiumDecorateBuckets"
+          :key="'fpd-' + r.bucket"
+          class="fp-row"
+        >
+          <view class="fp-bucket">{{ r.bucket }} · {{ r.count }} 套</view>
+          <view :class="['fp-pct', fpPctClass(r.premiumPct)]">
+            {{ r.premiumPct >= 0 ? '+' : '' }}{{ r.premiumPct.toFixed(1) }}%
+          </view>
+        </view>
       </view>
 
       <!-- v1.121.14 挂牌标签热度（listingTagsComparison，筛选项页已用，仪表盘此前未展示） -->
@@ -2716,6 +2776,11 @@
           数据源：listings.csv (crawl_date) → scripts/compute_listing_freshness.py。<br>
           公式：freshness = (近 4 周 × 1 + 近 2 周 × 2) ÷ 总数 × 100，min_listings=5。
         </view>
+        <view v-if="freshnessCitySummary" class="lf-section-title">
+          本市聚合：均鲜 {{ freshnessCitySummary.avgFreshness.toFixed(0) }}
+          · 近4周占比 {{ (freshnessCitySummary.recent4wRate * 100).toFixed(0) }}%
+          · 积压占比 {{ (freshnessCitySummary.staleRate * 100).toFixed(0) }}%
+        </view>
         <view v-if="freshnessCrossCityTop.length" class="lf-section-title">
           跨城最新鲜 Top
         </view>
@@ -2894,6 +2959,19 @@
           <text class="of-pct">{{ p.premiumPct >= 0 ? "+" : "" }}{{ p.premiumPct.toFixed(1) }}%</text>
           <text class="of-n">×{{ p.count }}</text>
         </view>
+        <view v-if="orientationHighFloorBuckets.length" class="of-section-title">
+          「高楼层」本市各朝向溢价
+        </view>
+        <view
+          v-for="(p, idx) in orientationHighFloorBuckets"
+          :key="'ohf-' + p.orientation"
+          class="of-row"
+        >
+          <text class="of-rank">#{{ idx + 1 }}</text>
+          <text class="of-key">{{ p.orientation }}</text>
+          <text class="of-pct">{{ p.premiumPct >= 0 ? "+" : "" }}{{ p.premiumPct.toFixed(1) }}%</text>
+          <text class="of-n">×{{ p.count }}</text>
+        </view>
         <view v-if="orientationTongtouPriceTop.length" class="of-section-title">
           「南北通透」跨城楼层单价 Top
         </view>
@@ -2985,6 +3063,18 @@
           数据源：listings.csv (decorate_type + build_year) → scripts/compute_decorate_age.py。<br>
           楼龄段：≤1999/2000-2004/2005-2009/2010-2014/2015-2019/2020+<br>
           颜色：深绿=溢价 ≥10%, 浅绿=≥3%, 深红=折价 ≤-10%, 浅红=≤-3%
+        </view>
+        <view v-if="decorateAgeDistBuckets.length" class="of-section-title">
+          精装 × 楼龄分布桶（派生 getDistributionByCityDimension）
+        </view>
+        <view
+          v-for="(r, idx) in decorateAgeDistBuckets"
+          :key="'dad-' + idx"
+          class="of-row"
+        >
+          <text class="of-rank">#{{ idx + 1 }}</text>
+          <text class="of-key">{{ distRowLabel(r) }}</text>
+          <text class="of-n">{{ r.count }} 套 · {{ (r.share * 100).toFixed(0) }}%</text>
         </view>
       </view>
 
@@ -3185,6 +3275,19 @@
         >
           <text class="scatter-rank">#{{ i + 1 }}</text>
           <text class="scatter-name">{{ p.communityName }}</text>
+          <text class="scatter-tp">{{ Math.round(p.medianTotalPrice10w) }}万</text>
+          <text class="scatter-up">{{ Math.round(p.medianUnitPrice / 1000) }}k</text>
+        </view>
+        <view v-if="scatterValueDipCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城「价值洼地」最高单价代表盘
+        </view>
+        <view
+          v-for="(p, i) in scatterValueDipCrossCity"
+          :key="'svdx-' + p.cityId"
+          class="scatter-qrow"
+        >
+          <text class="scatter-rank">#{{ i + 1 }}</text>
+          <text class="scatter-name">{{ p.cityName }} · {{ p.communityName }}</text>
           <text class="scatter-tp">{{ Math.round(p.medianTotalPrice10w) }}万</text>
           <text class="scatter-up">{{ Math.round(p.medianUnitPrice / 1000) }}k</text>
         </view>
@@ -4681,6 +4784,7 @@ import {
   summarizeLprCurrentVsYearAgo,
   getLprMonthlyAverage,
   getLprByYear,
+  getLprRange,
   type LprSpreadSnapshot,
   type LprCycle
 } from "../../local/lprHistoryAnalysis";
@@ -4784,10 +4888,12 @@ import {
   getMetroPlanningByDistrict,
   getMetroPlanningByOpenYear,
   getMetroPlanningByStatus,
+  summarizeMetroPlanningByPhase,
   type CityMetroPlanningSummary,
   type OpenYearMetroPlanningSummary,
   type TopByMetric,
-  type CityStatusStations
+  type CityStatusStations,
+  type PhaseMetroPlanningSummary
 } from "../../local/metroPlanningRanking";
 import {
   getMetroPlanningGeoByCityCrossReference,
@@ -4804,6 +4910,7 @@ import {
   getDistributionCrossCityLeaderboard,
   getDistributionShareLeaderboard,
   getDistributionTopByMedianPrice,
+  getDistributionByCityDimension,
   type CrossCityBucketEntry,
   type CrossCityShareEntry,
   type DistributionRow
@@ -4811,7 +4918,10 @@ import {
 import {
   getFeaturePremiumCrossCityLeaderboard,
   getFeaturePremiumByDimensionCoverage,
-  getFeaturePremiumTopByDimension
+  getFeaturePremiumTopByDimension,
+  summarizeFeaturePremiumByCity,
+  getFeaturePremiumByCityDimension,
+  type CityPremiumSummary
 } from "../../local/featurePremiumRanking";
 import {
   getTagCombinationCrossCityMostCommon,
@@ -4836,8 +4946,10 @@ import {
   getCommunityScatterPareto,
   getCommunityScatterByAreaCohort,
   getCommunityScatterByQuadrant,
+  getCommunityScatterCrossCityByQuadrant,
   type TotalPriceExtreme,
-  type ParetoEntry as ScatterParetoEntry
+  type ParetoEntry as ScatterParetoEntry,
+  type CrossCityQuadrantEntry
 } from "../../local/communityScatterRanking";
 import {
   getCommuteByCityFastestSlowestCompare,
@@ -4848,7 +4960,9 @@ import {
 import {
   getFreshestCommunityTopN,
   getStalestCommunityTopN,
-  type FreshnessRankingEntry
+  summarizeListingFreshnessByCity,
+  type FreshnessRankingEntry,
+  type CityFreshnessSummary
 } from "../../local/listingFreshnessRanking";
 import {
   getCommunityScorePareto,
@@ -4921,6 +5035,7 @@ import {
   getOrientationFloorByOrientationLeaderboard,
   getOrientationFloorCrossCityByPair,
   getOrientationFloorByCityOrientation,
+  getOrientationFloorByCityFloorBucket,
   type CityOrientationFloorTopEntry,
   type CrossCityOrientationFloorEntry
 } from "../../local/orientationFloorRanking";
@@ -5287,6 +5402,9 @@ const metroDistrictLines = computed<LocalMetroLine[]>(() => {
 const metroOpenYear2028 = computed<LocalMetroLine[]>(() =>
   getMetroPlanningByOpenYear(2028).slice(0, 6)
 );
+const metroPhaseSummary = computed<PhaseMetroPlanningSummary[]>(() =>
+  summarizeMetroPlanningByPhase().slice(0, 6)
+);
 const metroBuildingLines = computed<LocalMetroLine[]>(() =>
   getMetroPlanningByStatus("在建").filter((x) => x.cityId === app.cityId).slice(0, 5)
 );
@@ -5405,6 +5523,12 @@ const featurePremiumCityTops = computed<LocalFeaturePremium[]>(() => {
     .map((d) => getFeaturePremiumTopByDimension(app.cityId, d))
     .filter((x): x is LocalFeaturePremium => x != null);
 });
+const featurePremiumCitySummary = computed<CityPremiumSummary | null>(() =>
+  summarizeFeaturePremiumByCity().find((x) => x.cityId === app.cityId) ?? null
+);
+const featurePremiumDecorateBuckets = computed<LocalFeaturePremium[]>(() =>
+  getFeaturePremiumByCityDimension(app.cityId, "decorate").slice(0, 6)
+);
 const tagComboCrossCity = computed<TagPairAggregate[]>(() =>
   getTagCombinationCrossCityMostCommon(5)
 );
@@ -5435,6 +5559,12 @@ const scatterValueDip = computed<LocalCommunityScatter[]>(() =>
   [...getCommunityScatterByQuadrant("价值洼地", app.cityId)]
     .sort((a, b) => a.medianUnitPrice - b.medianUnitPrice)
     .slice(0, 5)
+);
+const scatterValueDipCrossCity = computed<CrossCityQuadrantEntry[]>(() =>
+  getCommunityScatterCrossCityByQuadrant("价值洼地")
+);
+const freshnessCitySummary = computed<CityFreshnessSummary | null>(() =>
+  summarizeListingFreshnessByCity(app.cityId)[0] ?? null
 );
 const freshnessCrossCityTop = computed<FreshnessRankingEntry[]>(() =>
   getFreshestCommunityTopN(undefined, 5)
@@ -7496,6 +7626,9 @@ const orientationTongtouPriceTop = computed<LocalOrientationFloor[]>(() =>
 const orientationTongtouFloors = computed<LocalOrientationFloor[]>(() =>
   getOrientationFloorByCityOrientation(app.cityId, "南北通透").slice(0, 5)
 );
+const orientationHighFloorBuckets = computed<LocalOrientationFloor[]>(() =>
+  getOrientationFloorByCityFloorBucket(app.cityId, "高楼层").slice(0, 5)
+);
 const orientationTongtouHighCross = computed<CrossCityOrientationFloorEntry[]>(() =>
   getOrientationFloorCrossCityByPair("南北通透", "高楼层")
 );
@@ -7506,6 +7639,9 @@ const commercialDistrictTop = computed<DistrictCommercialSummary[]>(() =>
 );
 const commercialNearestRestaurant = computed<LocalCommunityCommercial[]>(() =>
   getCommunityCommercialByNearest("restaurant", app.cityId, 5)
+);
+const decorateAgeDistBuckets = computed<DistributionRow[]>(() =>
+  getDistributionByCityDimension(app.cityId, "精装").slice(0, 6)
 );
 const commercialDensityCity = computed<DensityDistanceBucket[]>(() => {
   const cityId = app.cityId;
@@ -7539,6 +7675,19 @@ const lprYearSeries = computed<LocalLprRow[]>(() => {
   const y = parseInt(lprYearLabel.value, 10);
   if (!Number.isFinite(y)) return [];
   return getLprByYear(y).slice(-6);
+});
+const lprRange12m = computed<LocalLprRow[]>(() => {
+  const latest = lprLatest.value;
+  if (!latest) return [];
+  const parts = latest.month.split("-");
+  if (parts.length < 2) return [];
+  const y = parseInt(parts[0]!, 10);
+  const m = parseInt(parts[1]!, 10);
+  if (!y || !m) return [];
+  const from = new Date(y, m - 1, 1);
+  from.setMonth(from.getMonth() - 11);
+  const minMonth = `${from.getFullYear()}-${String(from.getMonth() + 1).padStart(2, "0")}`;
+  return getLprRange(minMonth, latest.month);
 });
 const lprDelta12m = computed(() => {
   const latest = lprLatest.value;
