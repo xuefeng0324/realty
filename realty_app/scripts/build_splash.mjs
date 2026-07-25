@@ -153,20 +153,16 @@ function genSplash(w, h) {
   // 绿点缀
   fillCircle(px, w, pinX + Math.round(w * 0.04), pinY + Math.round(h * 0.01), Math.max(2, Math.round(w * 0.005)), GREEN);
 
-  // 品牌名
-  const scale = Math.max(3, Math.round(w / 180));
-  drawText(px, w, "REALTY", w / 2, baseY + Math.round(h * 0.08), scale, [226, 232, 240]);
-
-  // 细分割线（不用点阵小字，避免糊成残缺字母）
-  const lineY = baseY + Math.round(h * 0.14);
-  const lw = Math.round(w * 0.16);
+  // 细分割线（无点阵字，更干净大气）
+  const sepY = baseY + Math.round(h * 0.05);
+  const lw = Math.round(w * 0.14);
   fillRect(
     px,
     w,
     Math.round(w / 2 - lw / 2),
-    lineY,
+    sepY,
     Math.round(w / 2 + lw / 2),
-    lineY + Math.max(2, Math.round(h * 0.0018)),
+    sepY + Math.max(2, Math.round(h * 0.0018)),
     [51, 65, 85]
   );
 
