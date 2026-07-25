@@ -6,7 +6,8 @@ import {
   getLatestGzLandDeals,
   landSurfaceUnitPriceYuan,
   loadGzLandDealsFromCSV,
-  summarizeGzLandDeals
+  summarizeGzLandDeals,
+  summarizeGzLandDealsByMonth
 } from "../src/local/gzLandDeals";
 
 describe("gz residential land deals", () => {
@@ -29,7 +30,7 @@ describe("gz residential land deals", () => {
     expect(unit).toBeCloseTo((d.priceWan * 10000) / d.areaSqm, 5);
   });
 
-  it("爬虫默认扩页；用途字段门禁；仪表盘有卡", () => {
+  it("爬虫默认扩页；用途字段门禁；仪表盘有卡与分月汇总", () => {
     const script = readFileSync(resolve(process.cwd(), "scripts/crawl_gz_land_deals.py"), "utf8");
     expect(script).toContain("ghzyj.gz.gov.cn");
     expect(script).toContain("RESIDENTIAL_RE");
@@ -39,6 +40,18 @@ describe("gz residential land deals", () => {
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     expect(dash).toContain("data-gz-land-deals");
     expect(dash).toContain("getLatestGzLandDeals");
+    expect(dash).toContain("summarizeGzLandDealsByMonth");
+    expect(dash).toContain("gzLandByMonth");
+  });
+
+  it("分月汇总按成交月聚合", () => {
+    const months = summarizeGzLandDealsByMonth(12);
+    expect(months.length).toBeGreaterThan(0);
+    expect(months.every((m) => /^\d{4}-\d{2}$/.test(m.month))).toBe(true);
+    expect(months.every((m) => m.count > 0)).toBe(true);
+    if (months.length >= 2) {
+      expect(months[0]!.month >= months[1]!.month).toBe(true);
+    }
   });
 
   it("CSV 解析", () => {
@@ -62,11 +75,14 @@ describe("adversarial city sync for stats70/wangqian/listing-filter", () => {
     expect(dash).not.toMatch(
       /stats70CurrentCityRank[\s\S]{0,200}cities\.value\.find\(\(c\) => c\.city_id === app\.cityId\)/
     );
+    expect(dash).toContain("store.getCityById(app.cityId)?.cityName");
     const filter = readFileSync(resolve(process.cwd(), "src/pages/listing-filter/listing-filter.vue"), "utf8");
     expect(filter).toContain("syncCityName");
     expect(filter).toContain("store.getCityById(app.cityId)");
     expect(filter).not.toMatch(
       /paretoPriceCapWan[\s\S]{0,180}cities\.value\.find\(\(c\) => c\.city_id === app\.cityId\)\?\.city_name/
     );
+    const school = readFileSync(resolve(process.cwd(), "src/pages/school/school.vue"), "utf8");
+    expect(school).toContain("store.getCityById(app.cityId)?.cityName");
   });
 });

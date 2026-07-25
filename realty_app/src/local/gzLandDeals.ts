@@ -69,6 +69,31 @@ export function summarizeGzLandDeals(): {
   };
 }
 
+export interface GzLandMonthSummary {
+  month: string; // YYYY-MM
+  count: number;
+  totalAreaSqm: number;
+  totalPriceWan: number;
+}
+
+/** 按成交月汇总（缺 dealDate 则用 publishDate） */
+export function summarizeGzLandDealsByMonth(limit = 6): GzLandMonthSummary[] {
+  const map = new Map<string, GzLandMonthSummary>();
+  for (const r of rows) {
+    const raw = r.dealDate || r.publishDate;
+    const month = raw.slice(0, 7);
+    if (!/^\d{4}-\d{2}$/.test(month)) continue;
+    const cur = map.get(month) ?? { month, count: 0, totalAreaSqm: 0, totalPriceWan: 0 };
+    cur.count += 1;
+    cur.totalAreaSqm += r.areaSqm;
+    cur.totalPriceWan += r.priceWan;
+    map.set(month, cur);
+  }
+  return [...map.values()]
+    .sort((a, b) => b.month.localeCompare(a.month))
+    .slice(0, Math.max(0, limit));
+}
+
 /** 楼面地价粗算：成交价(万元)×10000 / 面积㎡ → 元/㎡（不含容积率，仅地表单价参考） */
 export function landSurfaceUnitPriceYuan(deal: GzLandDeal): number | null {
   if (deal.areaSqm <= 0 || deal.priceWan <= 0) return null;

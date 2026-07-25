@@ -235,7 +235,7 @@ const cityLabels = computed(() => cities.value.map((c) => c.city_name));
 const cityIndex = computed(() => cities.value.findIndex((c) => c.city_id === app.cityId));
 const currentCityLabel = computed(() => {
   const c = cities.value.find((c) => c.city_id === app.cityId);
-  return c?.city_name || "";
+  return c?.city_name || store.getCityById(app.cityId)?.cityName || "";
 });
 /** 教育概览必须走同步 store，不能等异步 getCities，否则首屏无卡 */
 const educationCityLabel = computed(

@@ -1189,8 +1189,67 @@
             {{ landSurfaceUnitPriceYuan(d) != null ? Math.round(landSurfaceUnitPriceYuan(d)!).toLocaleString() + " 元/㎡地" : "" }}
           </text>
         </view>
+        <view v-if="gzLandByMonth.length" style="margin-top: 12rpx">
+          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">分月汇总（样本库）</view>
+          <view v-for="m in gzLandByMonth" :key="m.month" class="gz-inventory-row">
+            <text class="gz-inventory-district">{{ m.month }}</text>
+            <text>{{ m.count }} 宗</text>
+            <text class="muted">{{ formatLandArea(m.totalAreaSqm) }}</text>
+            <text class="muted">{{ formatLandPrice(m.totalPriceWan) }}</text>
+          </view>
+        </view>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
-          来源：广州市规划和自然资源局成交公示；仅统计居住/R2 等住宅用途。成交价为土地出让价款，不是房价均价；地表单价未除容积率。
+          来源：广州市规划和自然资源局成交公示；仅统计居住/R2 等住宅用途。成交价为土地出让价款，不是房价均价；地表单价未除容积率。分月为样本库内公示，非全市全量。
+        </view>
+      </view>
+
+      <view v-if="szLandSummary" class="card" data-tab="overview,price" data-sz-land-deals>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🗺️ 深圳居住用地（已成交）</view>
+          <view class="muted" style="font-size: 22rpx">近 {{ szLandSummary.count }} 宗 · {{ szLandSummary.latestDate }}</view>
+        </view>
+        <view class="gz-inventory-grid">
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">成交面积</text>
+            <text class="gz-inventory-value">{{ formatLandArea(szLandSummary.totalAreaSqm) }}</text>
+          </view>
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">起始价合计</text>
+            <text class="gz-inventory-value">{{ formatLandPrice(szLandSummary.totalStartPriceWan) }}</text>
+          </view>
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">最新一宗</text>
+            <text class="gz-inventory-value" style="font-size: 28rpx">
+              {{ szLandLatest[0]?.district || "—" }}
+            </text>
+            <text class="cell-sub muted">
+              {{ szLandLatest[0] ? formatLandPrice(szLandLatest[0].startPriceWan) : "" }}
+            </text>
+          </view>
+        </view>
+        <view v-for="d in szLandLatest" :key="d.landNo || d.sourceUrl" class="gz-inventory-row" style="margin-top: 8rpx">
+          <text class="gz-inventory-district">{{ d.district || "深圳" }}</text>
+          <text>{{ formatLandPrice(d.startPriceWan) }}</text>
+          <text class="muted">{{ formatLandArea(d.areaSqm) }}</text>
+          <text class="muted">
+            {{
+              landStartSurfaceUnitPriceYuan(d) != null
+                ? Math.round(landStartSurfaceUnitPriceYuan(d)!).toLocaleString() + " 元/㎡地"
+                : ""
+            }}
+          </text>
+        </view>
+        <view v-if="szLandByMonth.length" style="margin-top: 12rpx">
+          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">分月汇总（样本库）</view>
+          <view v-for="m in szLandByMonth" :key="m.month" class="gz-inventory-row">
+            <text class="gz-inventory-district">{{ m.month }}</text>
+            <text>{{ m.count }} 宗</text>
+            <text class="muted">{{ formatLandArea(m.totalAreaSqm) }}</text>
+            <text class="muted">{{ formatLandPrice(m.totalStartPriceWan) }}</text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：深圳公共资源交易中心土地矿业主页列表 API；用途含「居住」。金额为公开列表「起始价」（万元），不是成交总价、不是房价均价；地表单价未除容积率。
         </view>
       </view>
 
@@ -5891,9 +5950,17 @@ import {
 import {
   getLatestGzLandDeals,
   summarizeGzLandDeals,
+  summarizeGzLandDealsByMonth,
   landSurfaceUnitPriceYuan,
   type GzLandDeal
 } from "../../local/gzLandDeals";
+import {
+  getLatestSzLandDeals,
+  summarizeSzLandDeals,
+  summarizeSzLandDealsByMonth,
+  landStartSurfaceUnitPriceYuan,
+  type SzLandDeal
+} from "../../local/szLandDeals";
 import { assessGzInventoryFreshness } from "../../local/gzInventoryFreshness";
 import { getLatestProvidentFundRate, monthlyPayment } from "../../local/providentFund";
 
@@ -7053,6 +7120,13 @@ const gzLandSummary = computed(() => {
   return city === "广州" ? summarizeGzLandDeals() : null;
 });
 const gzLandLatest = computed<GzLandDeal[]>(() => (gzLandSummary.value ? getLatestGzLandDeals(3) : []));
+const gzLandByMonth = computed(() => (gzLandSummary.value ? summarizeGzLandDealsByMonth(6) : []));
+const szLandSummary = computed(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "深圳" ? summarizeSzLandDeals() : null;
+});
+const szLandLatest = computed<SzLandDeal[]>(() => (szLandSummary.value ? getLatestSzLandDeals(3) : []));
+const szLandByMonth = computed(() => (szLandSummary.value ? summarizeSzLandDealsByMonth(6) : []));
 function formatLandPrice(wan: number): string {
   return wan >= 10000 ? `${(wan / 10000).toFixed(2)} 亿元` : `${wan.toLocaleString()} 万元`;
 }
@@ -7487,7 +7561,7 @@ const cityLabels = computed(() => cities.value.map((c) => c.city_name));
 const cityIndex = computed(() => cities.value.findIndex((c) => c.city_id === app.cityId));
 const currentCityLabel = computed(() => {
   const c = cities.value.find((c) => c.city_id === app.cityId);
-  return c?.city_name || "";
+  return c?.city_name || store.getCityById(app.cityId)?.cityName || "";
 });
 
 const periodIndex = computed(() => {
