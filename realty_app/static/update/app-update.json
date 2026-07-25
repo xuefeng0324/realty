@@ -1,12 +1,12 @@
 {
-  "versionName": "0.90.0",
-  "versionCode": "91",
-  "publishedAt": "2026-07-25T01:25:44Z",
+  "versionName": "0.91.0",
+  "versionCode": "92",
+  "publishedAt": "2026-07-25T01:30:18Z",
   "force": false,
-  "notes": "\ufefffix(realty_app): \u6d88\u9664 dart-sass legacy JS API deprecation \u8b66\u544a (v0.90.0)\n\n2026-07-25-v0.88.0-wgt-OTA\u4e0e\u81ea\u52a8\u6253\u5305: v0.88.0\uff1awgt OTA \u5347\u7ea7 + GitHub Actions \u81ea\u52a8\u51fa\u5305\n2026-07-25-v0.89.0-\u6708\u5ea6\u6210\u4ea4\u8d8b\u52bf\u4e0eOTA\u63a8\u9001\u4fee\u590d: v0.89.0 \u2014\u2014 \u6708\u5ea6\u6210\u4ea4\u8d8b\u52bf\u6d3e\u751f + \u672c\u5730\u4e00\u952e APK + CI \u63a8\u9001\u4fee\u590d\n2026-07-25-v0.90.0-dart-sass-modern-api: v0.90.0 \u2014\u2014 \u6d88\u9664 dart-sass legacy JS API deprecation \u8b66\u544a\n",
+  "notes": "\ufefffeat(realty_app): 70 \u57ce\u8fd1 12 \u6708\u540c\u6bd4\u8d8b\u52bf\u6d3e\u751f + dashboard mini \u5361 (v0.91.0)\n\n2026-07-25-v0.84.0-\u5b66\u6821\u8be6\u60c5\u4e0e\u8bc4\u5206\u89e3\u91ca: v0.84.0 \u5b66\u6821\u8be6\u60c5\u4e0e\u8bc4\u5206\u89e3\u91ca\n2026-07-25-v0.85.0-\u5730\u56fe\u52a0\u8f7d\u72b6\u6001\u4e0e\u91cd\u8bd5: v0.85.0 \u5730\u56fe\u52a0\u8f7d\u72b6\u6001\u4e0e\u91cd\u8bd5\n2026-07-25-v0.86.0-\u5b66\u6821\u6765\u6e90\u5206\u7ea7\u4e0e\u5b98\u65b9\u76ee\u5f55\u5ba1\u8ba1: v0.86.0 \u5b66\u6821\u6765\u6e90\u5206\u7ea7\u4e0e\u5b98\u65b9\u76ee\u5f55\u5ba1\u8ba1\n",
   "wgt": {
-    "url": "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/91/app.wgt",
-    "sha256": "f1d284c73b46304d6dd368788e5ac852d3182a1a9f5d8886acb67f1c7aafb47f"
+    "url": "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/update/92/app.wgt",
+    "sha256": "3901bb3d8a9b206bf11a81b302c1d6b2a1d4946a440b3efacde7e640500cf706"
   },
   "ios": {
     "available": false,
