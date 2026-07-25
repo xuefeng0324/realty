@@ -4441,6 +4441,36 @@
             <view class="pf-rate-cell"><text>二套 ≤5年</text><text class="pf-rate-value">不低于 {{ providentRate.second5yOrLess }}%</text></view>
             <view class="pf-rate-cell"><text>二套 ＞5年</text><text class="pf-rate-value">不低于 {{ providentRate.secondOver5y }}%</text></view>
           </view>
+          <view v-if="gdProvidentAnnual" class="gz-inventory-grid" style="margin-top: 12rpx" data-gd-provident-annual>
+            <view class="gz-inventory-kpi">
+              <text class="cell-label">广东 {{ gdProvidentAnnual.year }} 缴存额</text>
+              <text class="gz-inventory-value">{{ gdProvidentAnnual.depositAmountYi.toLocaleString() }} 亿</text>
+              <text class="cell-sub muted">
+                实缴 {{ gdProvidentAnnual.paidPersonsWan.toLocaleString() }} 万人
+                <template v-if="gdProvidentExtractPct != null">
+                  · 提取/缴存 {{ gdProvidentExtractPct }}%
+                </template>
+              </text>
+            </view>
+            <view class="gz-inventory-kpi">
+              <text class="cell-label">全省发放贷款</text>
+              <text class="gz-inventory-value">{{ gdProvidentAnnual.loanIssuedWan }} 万笔</text>
+              <text class="cell-sub muted">{{ gdProvidentAnnual.loanIssuedYi.toLocaleString() }} 亿元</text>
+            </view>
+            <view class="gz-inventory-kpi">
+              <text class="cell-label">全省缴存余额</text>
+              <text class="gz-inventory-value">{{ gdProvidentAnnual.depositBalanceYi.toLocaleString() }} 亿</text>
+              <text class="cell-sub muted">
+                贷款余额 {{ gdProvidentAnnual.loanBalanceYi.toLocaleString() }} 亿
+                <template v-if="gdProvidentLoanBalancePct != null">
+                  · 个贷/缴存 {{ gdProvidentLoanBalancePct }}%
+                </template>
+              </text>
+            </view>
+          </view>
+          <view v-if="gdProvidentAnnual" class="muted" style="margin-top: 8rpx; font-size: 21rpx">
+            省年报：{{ gdProvidentAnnual.sourceOrg }} · {{ gdProvidentAnnual.publishDate || gdProvidentAnnual.year }}；全省口径，非城市挂牌/网签均价。官方 HTML 无稳定分市表，分市细节仍以各市年报/动态为准。
+          </view>
           <view v-if="szProvidentAnnual" class="gz-inventory-grid" style="margin-top: 12rpx" data-sz-provident-annual>
             <view class="gz-inventory-kpi">
               <text class="cell-label">{{ szProvidentAnnual.year }} 发放贷款</text>
@@ -4537,6 +4567,27 @@
               发放贷款 {{ zhProvidentFullYear.loanIssuedYi.toLocaleString() }} 亿。
             </template>
             非成交均价、非挂牌价；完整年报正文若未公开则以本动态为准。
+          </view>
+          <view
+            v-if="zhProvidentSamePeriodDelta"
+            class="muted"
+            style="margin-top: 8rpx; font-size: 21rpx"
+            data-zh-provident-same-period
+          >
+            同月末对照（{{ formatZhProvidentPeriod(zhProvidentSamePeriodDelta.prior) }}）：缴存
+            {{ zhProvidentSamePeriodDelta.prior.depositAmountYi.toLocaleString() }} 亿 → 今年
+            <text :class="macroTrendClass(zhProvidentSamePeriodDelta.depositDeltaYi)">
+              {{ formatInvDelta(zhProvidentSamePeriodDelta.depositDeltaYi) }} 亿
+            </text>
+            ；贷款 {{ zhProvidentSamePeriodDelta.prior.loanIssuedYi.toLocaleString() }} 亿 → 今年
+            <text :class="macroTrendClass(zhProvidentSamePeriodDelta.loanDeltaYi)">
+              {{ formatInvDelta(zhProvidentSamePeriodDelta.loanDeltaYi) }} 亿
+            </text>
+            ；个贷率 {{ zhProvidentSamePeriodDelta.prior.loanRatioPct }}% →
+            <text :class="macroTrendClass(zhProvidentSamePeriodDelta.loanRatioDeltaPct)">
+              {{ formatMacroPct(zhProvidentSamePeriodDelta.loanRatioDeltaPct) }}
+            </text>
+            。
           </view>
           <view class="pf-saving">
             贷款 100 万、30 年、等额本息：公积金首套月供约 {{ pfMonthly100w().toLocaleString() }} 元；
@@ -6391,9 +6442,16 @@ import {
   type GzProvidentAnnualRow
 } from "../../local/gzProvidentAnnual";
 import {
+  getLatestGdProvidentAnnual,
+  gdExtractToDepositPct,
+  gdLoanToDepositBalancePct,
+  type GdProvidentAnnualRow
+} from "../../local/gdProvidentAnnual";
+import {
   getLatestZhProvidentDynamics,
   getLatestZhProvidentFullYear,
   formatZhProvidentPeriod,
+  getZhProvidentSamePeriodDelta,
   type ZhProvidentDynamicsRow
 } from "../../local/zhProvidentDynamics";
 
@@ -7670,6 +7728,9 @@ const gzProvidentAnnual = computed<GzProvidentAnnualRow | null>(() => {
 });
 const gzProvidentExtractPct = computed(() => gzExtractToDepositPct(gzProvidentAnnual.value));
 const gzProvidentLoanBalancePct = computed(() => gzLoanToDepositBalancePct(gzProvidentAnnual.value));
+const gdProvidentAnnual = computed<GdProvidentAnnualRow | null>(() => getLatestGdProvidentAnnual());
+const gdProvidentExtractPct = computed(() => gdExtractToDepositPct(gdProvidentAnnual.value));
+const gdProvidentLoanBalancePct = computed(() => gdLoanToDepositBalancePct(gdProvidentAnnual.value));
 const zhProvidentDynamics = computed<ZhProvidentDynamicsRow | null>(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   return city === "珠海" ? getLatestZhProvidentDynamics() : null;
@@ -7679,6 +7740,7 @@ const zhProvidentFullYear = computed<ZhProvidentDynamicsRow | null>(() => {
   return city === "珠海" ? getLatestZhProvidentFullYear() : null;
 });
 const zhProvidentPeriodLabel = computed(() => formatZhProvidentPeriod(zhProvidentDynamics.value));
+const zhProvidentSamePeriodDelta = computed(() => getZhProvidentSamePeriodDelta(zhProvidentDynamics.value));
 
 function formatMacro100m(v: number) {
   return `${v.toLocaleString()} 亿元`;

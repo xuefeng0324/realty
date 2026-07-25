@@ -6,6 +6,8 @@ import {
   getLatestZhProvidentDynamics,
   getLatestZhProvidentFullYear,
   getZhProvidentDynamicsRows,
+  getZhProvidentSamePeriodDelta,
+  getZhProvidentSamePeriodPriorYear,
   loadZhProvidentDynamicsFromCSV
 } from "../src/local/zhProvidentDynamics";
 
@@ -30,6 +32,17 @@ describe("zh provident dynamics", () => {
     expect(full!.depositAmountYi).toBe(144.742);
     expect(full!.paidPersons).toBe(897248);
     expect(formatZhProvidentPeriod(full)).toBe("2025 全年");
+
+    const prior = getZhProvidentSamePeriodPriorYear(latest);
+    expect(prior).not.toBeNull();
+    expect(prior!.year).toBe(2025);
+    expect(prior!.monthEnd).toBe(3);
+    expect(prior!.depositAmountYi).toBe(34.629);
+    const delta = getZhProvidentSamePeriodDelta(latest);
+    expect(delta).not.toBeNull();
+    expect(delta!.depositDeltaYi).toBe(1.0595);
+    expect(delta!.loanDeltaYi).toBe(6.5203);
+    expect(delta!.loanRatioDeltaPct).toBe(-6);
   });
 
   it("爬虫与仪表盘门禁", () => {
@@ -39,6 +52,8 @@ describe("zh provident dynamics", () => {
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     expect(dash).toContain("getLatestZhProvidentDynamics");
     expect(dash).toContain("data-zh-provident-dynamics");
+    expect(dash).toContain("data-zh-provident-same-period");
+    expect(dash).toContain("getZhProvidentSamePeriodDelta");
   });
 
   it("CSV 解析", () => {

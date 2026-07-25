@@ -85,6 +85,41 @@ export function formatZhProvidentPeriod(row: ZhProvidentDynamicsRow | null): str
   return row.monthEnd === 12 ? `${row.year} 全年` : `${row.year} 年 1—${row.monthEnd} 月`;
 }
 
+/** 同月末上一自然年（如 2026-1—3 ↔ 2025-1—3） */
+export function getZhProvidentSamePeriodPriorYear(
+  row?: ZhProvidentDynamicsRow | null
+): ZhProvidentDynamicsRow | null {
+  const cur = row === undefined ? getLatestZhProvidentDynamics() : row;
+  if (!cur) return null;
+  return (
+    rows.find((r) => r.year === cur.year - 1 && r.monthEnd === cur.monthEnd) || null
+  );
+}
+
+export type ZhProvidentSamePeriodDelta = {
+  prior: ZhProvidentDynamicsRow;
+  depositDeltaYi: number;
+  loanDeltaYi: number;
+  loanRatioDeltaPct: number;
+  paidPersonsDelta: number;
+};
+
+/** 最新期 vs 同月末上年的绝对差额（亿元/百分点/人） */
+export function getZhProvidentSamePeriodDelta(
+  row?: ZhProvidentDynamicsRow | null
+): ZhProvidentSamePeriodDelta | null {
+  const cur = row === undefined ? getLatestZhProvidentDynamics() : row;
+  const prior = getZhProvidentSamePeriodPriorYear(cur);
+  if (!cur || !prior) return null;
+  return {
+    prior,
+    depositDeltaYi: Math.round((cur.depositAmountYi - prior.depositAmountYi) * 10000) / 10000,
+    loanDeltaYi: Math.round((cur.loanIssuedYi - prior.loanIssuedYi) * 10000) / 10000,
+    loanRatioDeltaPct: Math.round((cur.loanRatioPct - prior.loanRatioPct) * 10) / 10,
+    paidPersonsDelta: cur.paidPersons - prior.paidPersons
+  };
+}
+
 export function __setZhProvidentDynamicsForTest(next: ZhProvidentDynamicsRow[]): void {
   rows = [...next].sort((a, b) => b.year - a.year || b.monthEnd - a.monthEnd);
 }

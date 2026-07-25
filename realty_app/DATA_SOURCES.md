@@ -154,7 +154,8 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/provident_fund_rates.csv` | `providentFund.ts` | （人工维护 / 国务院公告） | 住房公积金贷款利率档位；`App.vue` 启动 `?raw` 加载 |
 | `static/sz_provident_annual.csv` | `szProvidentAnnual.ts` + 公积金卡「深圳年报」KPI | `crawl_sz_provident_annual.py`（**周更 CI**） | 深圳市住房公积金**年度报告**正文：发放贷款笔数/金额、支持购建房面积、缴存余额等；**非成交均价** |
 | `static/gz_provident_annual.csv` | `gzProvidentAnnual.ts` + 公积金卡「广州年报」KPI | `crawl_gz_provident_annual.py`（**周更 CI**；本机常 SSL 失败则保留种子） | 广州市住房公积金**年度报告**正文（2023/2024 种子已核；公租房计提 2024=42.46 亿）；字段对齐深圳年报；**非成交均价** |
-| `static/zh_provident_dynamics.csv` | `zhProvidentDynamics.ts` + 公积金卡「珠海动态」KPI | `crawl_zh_provident_dynamics.py`（**周更 CI**） | 珠海公积金中心「住房公积金动态(YYYY年1-N月)」：缴存/提取/发放贷款/个贷率；含 2025 全年；完整年报正文若未公开则以动态为准；**非成交均价** |
+| `static/zh_provident_dynamics.csv` | `zhProvidentDynamics.ts` + 公积金卡「珠海动态」KPI | `crawl_zh_provident_dynamics.py`（**周更 CI**） | 珠海公积金中心「住房公积金动态(YYYY年1-N月)」：缴存/提取/发放贷款/个贷率；含 2025 全年 + **同月末对照**；完整年报正文若未公开则以动态为准；**非成交均价** |
+| `static/gd_provident_annual.csv` | `gdProvidentAnnual.ts` + 公积金卡「省年报」KPI | `crawl_gd_provident_annual.py`（**周更 CI**） | 广东省住房公积金年报全省指标；官方 HTML **无稳定分市表**（分市见媒体解读）；**非成交均价** |
 | `static/seed/lpr_history.csv` | LPR 卡 / 组合贷 | `compute_lpr_history.py`（基线）+ `crawl_lpr_history.py`（**月更 CI**） | 央行 PBOC 公告 1Y/5Y LPR；房贷加点沿用示意 bp |
 | `static/nbs_real_estate.csv` | `nbsRealEstate.ts` | `scripts/crawl_nbs_real_estate.py`（**月更 CI** 随 `crawl-monthly-stats70`） | 国家统计局全国房地产市场基本情况；**多期 merge**（`period` 主键）；来源须为 `stats.gov.cn`；仪表盘展示销售面积/销售额/投资/到位资金同比多期、**销售额÷面积派生全国合同均价（多期）**、以及 **待售÷销售节奏粗算可售月数（多期）**（均 ≠城市挂牌/网签均价、≠70城指数、≠城市去化周期） |
 
@@ -207,6 +208,7 @@ provident_fund_rates.csv     → providentFund.ts      → 公积金利率 / 月
 sz_provident_annual.csv      → szProvidentAnnual.ts  → 深圳公积金年报
 gz_provident_annual.csv      → gzProvidentAnnual.ts  → 广州公积金年报
 zh_provident_dynamics.csv    → zhProvidentDynamics.ts → 珠海公积金动态
+gd_provident_annual.csv      → gdProvidentAnnual.ts  → 广东全省公积金年报
 nbs_real_estate.csv          → nbsRealEstate.ts      → 全国房地产开销宏观
 gz_new_house_inventory.csv   → gzNewHouseInventory.ts → 广州新房库存
 education_overview.csv       → educationOverview.ts  → 教育事业概览（dashboard v1.121.16）
