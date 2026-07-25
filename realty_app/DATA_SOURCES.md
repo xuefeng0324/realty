@@ -169,14 +169,13 @@ wangqian_district_weekly.csv → wangqianTrendRanking  → 周环比 / 突增（
 provident_fund_rates.csv     → providentFund.ts      → 公积金利率 / 月供
 nbs_real_estate.csv          → nbsRealEstate.ts      → 全国房地产开销宏观
 gz_new_house_inventory.csv   → gzNewHouseInventory.ts → 广州新房库存
-education_overview.csv       → educationOverview.ts  → 广州教育事业概览
+education_overview.csv       → educationOverview.ts  → 教育事业概览（dashboard v1.121.16）
 hospitals.csv                → hospitalRanking.ts    → 医疗资源榜（dashboard v1.121.12）
 hospitals_geo.csv            → hospitalGeoAnalysis   → 医疗坐标覆盖（dashboard v1.121.15）
 poi_commercial.csv           → poiCommercialRanking  → 周边商业（dashboard v1.121.15）
 poi_market.csv               → poiMarketRanking      → 菜市场可达（dashboard v1.121.15）
 metro_planning.csv           → metroPlanningRanking  → 规划地铁概览（dashboard v1.121.14）
 listing_tags_summary.csv     → listingTagsComparison → 挂牌标签热度（dashboard v1.121.14）
-education_overview.csv       → educationOverview.ts  → 教育事业概览（dashboard v1.121.16）
 admin_districts.csv          → adminDistrictRanking  → 行政区划（dashboard v1.121.16）
 listing_school_premium.csv   → listingSchoolPremium  → 学区挂牌溢价分布（dashboard v1.121.16）
 static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务快照
