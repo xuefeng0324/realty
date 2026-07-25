@@ -153,6 +153,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 |-----|----------|------|------|
 | `static/provident_fund_rates.csv` | `providentFund.ts` | （人工维护 / 国务院公告） | 住房公积金贷款利率档位；`App.vue` 启动 `?raw` 加载 |
 | `static/sz_provident_annual.csv` | `szProvidentAnnual.ts` + 公积金卡「深圳年报」KPI | `crawl_sz_provident_annual.py`（**周更 CI**） | 深圳市住房公积金**年度报告**正文：发放贷款笔数/金额、支持购建房面积、缴存余额等；**非成交均价** |
+| `static/gz_provident_annual.csv` | `gzProvidentAnnual.ts` + 公积金卡「广州年报」KPI | `crawl_gz_provident_annual.py`（**周更 CI**；本机常 SSL 失败则保留种子） | 广州市住房公积金**年度报告**正文（2023/2024 种子已核）；字段对齐深圳年报；**非成交均价** |
 | `static/seed/lpr_history.csv` | LPR 卡 / 组合贷 | `compute_lpr_history.py`（基线）+ `crawl_lpr_history.py`（**月更 CI**） | 央行 PBOC 公告 1Y/5Y LPR；房贷加点沿用示意 bp |
 | `static/nbs_real_estate.csv` | `nbsRealEstate.ts` | `scripts/crawl_nbs_real_estate.py`（**月更 CI** 随 `crawl-monthly-stats70`） | 国家统计局全国房地产市场基本情况；**多期 merge**（`period` 主键）；来源须为 `stats.gov.cn`；仪表盘展示销售面积/销售额/投资/到位资金同比多期、**销售额÷面积派生全国合同均价（多期）**、以及 **待售÷销售节奏粗算可售月数（多期）**（均 ≠城市挂牌/网签均价、≠70城指数、≠城市去化周期） |
 
@@ -181,7 +182,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | （珠海不动产公开页） | （未接入） | `bdc.zhuhai.gov.cn/zwgk/sjfb/` | 季度登记统计页仅为 **PNG**（已探针确认无 HTML 表/XLSX）；暂不 OCR |
 | （珠海预售专网） | （未接入） | `zhfc.zhszjj.com` | TLS handshake 超时（HTTPS/HTTP 均失败，2026-07-26 复测）；暂无可用结构化 endpoint |
 | （广州月度批准预售专栏） | （未接入明细） | `zfcj.gz.gov.cn/.../xjspfpzystjxx/` | 月度正文多为 **PNG**；专栏路径 2026-07-26 复测 **404**；年更计划已由 `gz_housing_plan.csv` 覆盖核心指标 |
-| （广州公积金年报） | （未接入） | `gjj.gz.gov.cn` 年报正文 | 公开年报有缴存/贷款指标（可对齐深圳年报字段）；本机 2026-07-26 复测 **HTTPS SSL EOF / HTTP 断连**，暂不接 |
+| （广州公积金年报） | `static/gz_provident_annual.csv` | `gjj.gz.gov.cn` 年报正文 | **已接入**（v1.121.72）；本机 SSL 常失败，CI/可达网络用 `crawl_gz_provident_annual.py` 刷新；种子来自官方年报正文 |
 
 #### 4.1 国家统计局房地产多期回填
 
@@ -202,6 +203,8 @@ stats_70.csv                 → stats70.ts / TrendAnalysis → 70 城指数 + �
 daily_wangqian.csv           → dailyWangqian.ts      → 深广网签（日更）
 wangqian_district_weekly.csv → wangqianTrendRanking  → 周环比 / 突增（dashboard v1.121.13）
 provident_fund_rates.csv     → providentFund.ts      → 公积金利率 / 月供
+sz_provident_annual.csv      → szProvidentAnnual.ts  → 深圳公积金年报
+gz_provident_annual.csv      → gzProvidentAnnual.ts  → 广州公积金年报
 nbs_real_estate.csv          → nbsRealEstate.ts      → 全国房地产开销宏观
 gz_new_house_inventory.csv   → gzNewHouseInventory.ts → 广州新房库存
 education_overview.csv       → educationOverview.ts  → 教育事业概览（dashboard v1.121.16）

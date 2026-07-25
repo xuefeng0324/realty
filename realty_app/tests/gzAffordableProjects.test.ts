@@ -57,6 +57,7 @@ describe("gz affordable projects", () => {
     expect(dash).toContain("getNbsImpliedUnitPriceTrend");
     expect(dash).toContain("getNbsImpliedInventoryMonths");
     expect(dash).toContain("getNbsImpliedInventoryMonthsTrend");
+    expect(dash).toContain("data-nbs-series-toggle");
     expect(dash).toContain("销售额同比（多期）");
     expect(dash).toContain("到位资金同比（多期）");
   });

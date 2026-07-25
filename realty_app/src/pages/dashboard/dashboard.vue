@@ -1053,42 +1053,54 @@
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
           国家统计局累计口径：{{ nbsMacro.period.replace("_to_", " 至 ") }}。销售面积和销售额为新建商品房合同口径；上方均价为销售额÷面积派生值；可售月数 = 待售面积÷（累计销售面积/月数），不是城市去化周期，也不是 70 城价格指数。
         </view>
-        <view v-if="nbsUnitPriceTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx">
-          合同均价（多期，累计口径勿直接环比）：
-          <text v-for="(p, i) in nbsUnitPriceTrend" :key="'up-' + p.period">
-            {{ p.shortLabel }} {{ p.unitPriceYuanPerSqm.toLocaleString() }}<text v-if="i < nbsUnitPriceTrend.length - 1"> · </text>
-          </text>
-        </view>
-        <view v-if="nbsInventoryMonthsTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx">
-          粗算可售月数（多期，累计口径勿直接环比）：
-          <text v-for="(p, i) in nbsInventoryMonthsTrend" :key="'im-' + p.period">
-            {{ p.shortLabel }} {{ p.inventoryMonths }}月<template v-if="i < nbsInventoryMonthsTrend.length - 1"> · </template>
-          </text>
-        </view>
-        <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx">
-          销售面积同比（多期）：
-          <text v-for="(p, i) in nbsYoyTrend" :key="p.period">
-            {{ p.shortLabel }} {{ formatMacroPct(p.salesAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
-          </text>
-        </view>
-        <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx">
-          销售额同比（多期）：
-          <text v-for="(p, i) in nbsYoyTrend" :key="'sa-' + p.period">
-            {{ p.shortLabel }} {{ formatMacroPct(p.salesAmountYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
-          </text>
-        </view>
-        <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx">
-          开发投资同比（多期）：
-          <text v-for="(p, i) in nbsYoyTrend" :key="'inv-' + p.period">
-            {{ p.shortLabel }} {{ formatMacroPct(p.investmentYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
-          </text>
-        </view>
-        <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx">
-          到位资金同比（多期）：
-          <text v-for="(p, i) in nbsYoyTrend" :key="'fund-' + p.period">
-            {{ p.shortLabel }} {{ formatMacroPct(p.fundsYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
-          </text>
-        </view>
+        <button
+          v-if="nbsHasSeriesDetail"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-nbs-series-toggle
+          :aria-expanded="nbsSeriesExpanded"
+          @click="nbsSeriesExpanded = !nbsSeriesExpanded"
+        >
+          {{ nbsSeriesExpanded ? "收起多期序列" : "展开多期序列" }}
+        </button>
+        <template v-if="nbsSeriesExpanded">
+          <view v-if="nbsUnitPriceTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-nbs-series-detail>
+            合同均价（多期，累计口径勿直接环比）：
+            <text v-for="(p, i) in nbsUnitPriceTrend" :key="'up-' + p.period">
+              {{ p.shortLabel }} {{ p.unitPriceYuanPerSqm.toLocaleString() }}<text v-if="i < nbsUnitPriceTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view v-if="nbsInventoryMonthsTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-nbs-series-detail>
+            粗算可售月数（多期，累计口径勿直接环比）：
+            <text v-for="(p, i) in nbsInventoryMonthsTrend" :key="'im-' + p.period">
+              {{ p.shortLabel }} {{ p.inventoryMonths }}月<template v-if="i < nbsInventoryMonthsTrend.length - 1"> · </template>
+            </text>
+          </view>
+          <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-nbs-series-detail>
+            销售面积同比（多期）：
+            <text v-for="(p, i) in nbsYoyTrend" :key="p.period">
+              {{ p.shortLabel }} {{ formatMacroPct(p.salesAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-nbs-series-detail>
+            销售额同比（多期）：
+            <text v-for="(p, i) in nbsYoyTrend" :key="'sa-' + p.period">
+              {{ p.shortLabel }} {{ formatMacroPct(p.salesAmountYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-nbs-series-detail>
+            开发投资同比（多期）：
+            <text v-for="(p, i) in nbsYoyTrend" :key="'inv-' + p.period">
+              {{ p.shortLabel }} {{ formatMacroPct(p.investmentYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-nbs-series-detail>
+            到位资金同比（多期）：
+            <text v-for="(p, i) in nbsYoyTrend" :key="'fund-' + p.period">
+              {{ p.shortLabel }} {{ formatMacroPct(p.fundsYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
       </view>
 
       <view v-if="gzInventory" class="card gz-inventory-card" data-tab="overview,price">
@@ -4458,6 +4470,38 @@
             </template>
             公租房建设补充资金计提 {{ szProvidentAnnual.publicRentalSupplementYi }} 亿元。非成交均价、非挂牌价。
           </view>
+          <view v-if="gzProvidentAnnual" class="gz-inventory-grid" style="margin-top: 12rpx" data-gz-provident-annual>
+            <view class="gz-inventory-kpi">
+              <text class="cell-label">{{ gzProvidentAnnual.year }} 发放贷款</text>
+              <text class="gz-inventory-value">{{ gzProvidentAnnual.loanIssuedWan }} 万笔</text>
+              <text class="cell-sub muted">{{ gzProvidentAnnual.loanIssuedYi.toLocaleString() }} 亿元</text>
+            </view>
+            <view class="gz-inventory-kpi">
+              <text class="cell-label">支持购建房</text>
+              <text class="gz-inventory-value">{{ gzProvidentAnnual.supportPurchaseWanSqm.toLocaleString() }} 万㎡</text>
+              <text class="cell-sub muted">贷款余额 {{ gzProvidentAnnual.loanBalanceYi.toLocaleString() }} 亿</text>
+            </view>
+            <view class="gz-inventory-kpi">
+              <text class="cell-label">缴存余额</text>
+              <text class="gz-inventory-value">{{ gzProvidentAnnual.depositBalanceYi.toLocaleString() }} 亿</text>
+              <text class="cell-sub muted">
+                实缴 {{ gzProvidentAnnual.paidPersonsWan.toLocaleString() }} 万人
+                <template v-if="gzProvidentExtractPct != null">
+                  · 提取/缴存 {{ gzProvidentExtractPct }}%
+                </template>
+              </text>
+            </view>
+          </view>
+          <view v-if="gzProvidentAnnual" class="muted" style="margin-top: 8rpx; font-size: 21rpx">
+            广州年报：{{ gzProvidentAnnual.sourceOrg }} · {{ gzProvidentAnnual.publishDate || gzProvidentAnnual.year }}；
+            <template v-if="gzProvidentLoanBalancePct != null">
+              个贷余额/缴存余额 {{ gzProvidentLoanBalancePct }}%；
+            </template>
+            <template v-if="gzProvidentAnnual.publicRentalSupplementYi > 0">
+              公租房建设补充资金计提 {{ gzProvidentAnnual.publicRentalSupplementYi }} 亿元；
+            </template>
+            非成交均价、非挂牌价。
+          </view>
           <view class="pf-saving">
             贷款 100 万、30 年、等额本息：公积金首套月供约 {{ pfMonthly100w().toLocaleString() }} 元；
             比当前商业首套参考少约 {{ pfSavingVsCommercial100w().toLocaleString() }} 元/月。
@@ -6304,6 +6348,12 @@ import {
   loanToDepositBalancePct,
   type SzProvidentAnnualRow
 } from "../../local/szProvidentAnnual";
+import {
+  getLatestGzProvidentAnnual,
+  gzExtractToDepositPct,
+  gzLoanToDepositBalancePct,
+  type GzProvidentAnnualRow
+} from "../../local/gzProvidentAnnual";
 
 const app = useAppStore();
 
@@ -7421,6 +7471,7 @@ const districtCompareResp = ref<DistrictCommunityCompareResponse | null>(null);
 const errorMsg = ref<string>("");
 const loading = ref<boolean>(false);
 const gzInventoryExpanded = ref(false);
+const nbsSeriesExpanded = ref(false);
 
 const nbsMacro = computed(() => getLatestNbsRealEstate());
 const nbsYoyTrend = computed(() => getNbsYoyTrend(6));
@@ -7428,6 +7479,12 @@ const nbsImpliedUnitPrice = computed(() => getNbsImpliedContractUnitPrice(nbsMac
 const nbsUnitPriceTrend = computed(() => getNbsImpliedUnitPriceTrend(6));
 const nbsImpliedInventoryMonths = computed(() => getNbsImpliedInventoryMonths(nbsMacro.value));
 const nbsInventoryMonthsTrend = computed(() => getNbsImpliedInventoryMonthsTrend(6));
+const nbsHasSeriesDetail = computed(
+  () =>
+    nbsUnitPriceTrend.value.length > 1 ||
+    nbsInventoryMonthsTrend.value.length > 1 ||
+    nbsYoyTrend.value.length > 1
+);
 const gzInventory = computed(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   return city === "广州" ? getGzInventoryOverview() : null;
@@ -7565,6 +7622,12 @@ const szProvidentAnnual = computed<SzProvidentAnnualRow | null>(() => {
 });
 const szProvidentExtractPct = computed(() => extractToDepositPct(szProvidentAnnual.value));
 const szProvidentLoanBalancePct = computed(() => loanToDepositBalancePct(szProvidentAnnual.value));
+const gzProvidentAnnual = computed<GzProvidentAnnualRow | null>(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "广州" ? getLatestGzProvidentAnnual() : null;
+});
+const gzProvidentExtractPct = computed(() => gzExtractToDepositPct(gzProvidentAnnual.value));
+const gzProvidentLoanBalancePct = computed(() => gzLoanToDepositBalancePct(gzProvidentAnnual.value));
 
 function formatMacro100m(v: number) {
   return `${v.toLocaleString()} 亿元`;
