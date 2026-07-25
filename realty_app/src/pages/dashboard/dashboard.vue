@@ -1179,14 +1179,46 @@
               {{ gzAffordableCompleted.projectCount }} 个项目 · 截至 {{ gzAffordableCompleted.asOfMonth }} 月底
             </text>
           </view>
-          <view v-if="!gzAffordableCompleted && gzAffordableRaised" class="gz-inventory-kpi">
+          <view v-if="gzAffordableTargetRaised && gzAffordableTargetRaised.targetUnits > 0" class="gz-inventory-kpi">
+            <text class="cell-label">筹集目标进度 · {{ gzAffordableTargetRaised.category.replace("保障性住房", "保障房") }}</text>
+            <text class="gz-inventory-value">{{ gzAffordableTargetPct }}%</text>
+            <text class="cell-sub muted">
+              {{ gzAffordableTargetRaised.actualUnits.toLocaleString() }} /
+              {{ gzAffordableTargetRaised.targetUnits.toLocaleString() }} 套 · 截至
+              {{ gzAffordableTargetRaised.asOfMonth }} 月底
+            </text>
+          </view>
+          <view
+            v-else-if="gzAffordableTargetCompleted && gzAffordableTargetCompleted.targetUnits > 0"
+            class="gz-inventory-kpi"
+          >
+            <text class="cell-label">竣工目标进度 · {{ gzAffordableTargetCompleted.category.replace("保障性住房", "保障房") }}</text>
+            <text class="gz-inventory-value">{{ gzAffordableTargetCompletedPct }}%</text>
+            <text class="cell-sub muted">
+              {{ gzAffordableTargetCompleted.actualUnits.toLocaleString() }} /
+              {{ gzAffordableTargetCompleted.targetUnits.toLocaleString() }} 套 · 截至
+              {{ gzAffordableTargetCompleted.asOfMonth }} 月底
+            </text>
+          </view>
+          <view v-else-if="!gzAffordableCompleted && gzAffordableRaised" class="gz-inventory-kpi">
             <text class="cell-label">口径</text>
             <text class="gz-inventory-value" style="font-size: 26rpx">清单汇总</text>
             <text class="cell-sub muted">非销售、非网签</text>
           </view>
         </view>
+        <view
+          v-if="gzAffordableTargetCompleted && gzAffordableTargetCompleted.targetUnits > 0 && gzAffordableTargetRaised && gzAffordableTargetRaised.targetUnits > 0"
+          class="muted"
+          style="margin-top: 8rpx; font-size: 21rpx"
+        >
+          竣工目标进度 {{ gzAffordableTargetCompletedPct }}%（{{
+            gzAffordableTargetCompleted.actualUnits.toLocaleString()
+          }}
+          / {{ gzAffordableTargetCompleted.targetUnits.toLocaleString() }} 套，截至
+          {{ gzAffordableTargetCompleted.asOfMonth }} 月底任务量完成表）。
+        </view>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
-          来源：广州市住建局保障性住房项目公开 XLS；已筹建/已竣工套数为项目清单合计，不是商品房成交量、不是房价均价。
+          来源：广州市住建局保障性住房项目公开 XLS；已筹建/已竣工为项目清单合计；目标进度来自「任务量完成」表。均非商品房成交、非房价均价。
         </view>
       </view>
 
@@ -6073,6 +6105,12 @@ import {
   type GzAffordableProjectsRow
 } from "../../local/gzAffordableProjects";
 import {
+  getLatestGzAffordableTargetRaised,
+  getLatestGzAffordableTargetCompleted,
+  progressPct,
+  type GzAffordableTargetRow
+} from "../../local/gzAffordableTargets";
+import {
   getLatestGzLandDeals,
   summarizeGzLandDeals,
   summarizeGzLandDealsByMonth,
@@ -7253,6 +7291,16 @@ const gzAffordableCompleted = computed<GzAffordableProjectsRow | null>(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   return city === "广州" ? getLatestGzAffordableCompleted() : null;
 });
+const gzAffordableTargetRaised = computed<GzAffordableTargetRow | null>(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "广州" ? getLatestGzAffordableTargetRaised() : null;
+});
+const gzAffordableTargetCompleted = computed<GzAffordableTargetRow | null>(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "广州" ? getLatestGzAffordableTargetCompleted() : null;
+});
+const gzAffordableTargetPct = computed(() => progressPct(gzAffordableTargetRaised.value) ?? 0);
+const gzAffordableTargetCompletedPct = computed(() => progressPct(gzAffordableTargetCompleted.value) ?? 0);
 function formatWan(v: number, unit: string): string {
   if (!v) return "—";
   return `${v.toLocaleString()}${unit}`;
