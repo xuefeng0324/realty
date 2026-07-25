@@ -67,6 +67,40 @@ export function getLatestSzProvidentAnnual(): SzProvidentAnnualRow | null {
   return rows[0] || null;
 }
 
+export function getSzProvidentAnnualByYear(year: number): SzProvidentAnnualRow | null {
+  return rows.find((r) => r.year === year) || null;
+}
+
+/** 最新年报的上一年（用于同比对照） */
+export function getSzProvidentPriorYear(
+  cur: SzProvidentAnnualRow | null = getLatestSzProvidentAnnual()
+): SzProvidentAnnualRow | null {
+  if (!cur) return null;
+  return getSzProvidentAnnualByYear(cur.year - 1);
+}
+
+export interface SzProvidentYearDelta {
+  prior: SzProvidentAnnualRow;
+  depositDeltaYi: number;
+  loanDeltaYi: number;
+  supportDeltaWanSqm: number;
+  loanIssuedWanDelta: number;
+}
+
+export function getSzProvidentYearDelta(
+  cur: SzProvidentAnnualRow | null = getLatestSzProvidentAnnual()
+): SzProvidentYearDelta | null {
+  const prior = getSzProvidentPriorYear(cur);
+  if (!cur || !prior) return null;
+  return {
+    prior,
+    depositDeltaYi: Math.round((cur.depositAmountYi - prior.depositAmountYi) * 100) / 100,
+    loanDeltaYi: Math.round((cur.loanIssuedYi - prior.loanIssuedYi) * 100) / 100,
+    supportDeltaWanSqm: Math.round((cur.supportPurchaseWanSqm - prior.supportPurchaseWanSqm) * 100) / 100,
+    loanIssuedWanDelta: Math.round((cur.loanIssuedWan - prior.loanIssuedWan) * 100) / 100
+  };
+}
+
 /** 提取额占当年缴存额比例（%） */
 export function extractToDepositPct(row: SzProvidentAnnualRow | null): number | null {
   if (!row || row.depositAmountYi <= 0) return null;

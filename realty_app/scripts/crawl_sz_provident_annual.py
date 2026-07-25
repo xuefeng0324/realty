@@ -179,6 +179,14 @@ def atomic_write(path: Path, rows: list[dict]) -> None:
     tmp_path.replace(path)
 
 
+def load_existing(path: Path) -> dict[str, dict]:
+    """保留公开列表暂缺的年份种子（如 2024 完整 HTML 未上架时）。"""
+    if not path.exists():
+        return {}
+    with path.open("r", encoding="utf-8-sig", newline="") as f:
+        return {r["year"]: r for r in csv.DictReader(f) if r.get("year")}
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--max", type=int, default=6)
@@ -188,9 +196,10 @@ def main() -> int:
 
     reports = list_reports(args.list_pages)
     print(f"found {len(reports)} annual reports", flush=True)
-    best: dict[str, dict] = {}
+    best = load_existing(args.out)
+    crawled = 0
     for url, title in reports:
-        if len(best) >= args.max:
+        if crawled >= args.max:
             break
         try:
             html = fetch_text(url)
@@ -199,8 +208,10 @@ def main() -> int:
                 print(f"skip parse {title}", flush=True)
                 continue
             prev = best.get(row["year"])
-            if prev is None or (row["publish_date"] >= prev.get("publish_date", "")):
+            # 正文抓取优先覆盖同年份种子；无 publish_date 的种子不挡新正文
+            if prev is None or (row["publish_date"] and row["publish_date"] >= prev.get("publish_date", "")):
                 best[row["year"]] = row
+            crawled += 1
             print(
                 f"ok {row['year']} loan={row['loan_issued_wan']}万笔/{row['loan_issued_yi']}亿 "
                 f"area={row['support_purchase_wan_sqm']}万㎡",

@@ -1103,6 +1103,49 @@
         </template>
       </view>
 
+      <view v-if="gdRealEstateBrief" class="card macro-card" data-tab="overview,price" data-gd-real-estate-brief>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">广东房地产市场运行</view>
+          <view class="muted" style="font-size: 22rpx">{{ gdRealEstateBrief.periodLabel }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <view class="stats70-cell">
+            <text class="cell-label">开发投资</text>
+            <text class="cell-value">{{ formatMacro100m(gdRealEstateBrief.investmentYi) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(gdRealEstateBrief.investmentYoyPct)">
+              同比 {{ formatMacroPct(gdRealEstateBrief.investmentYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">新房销售额</text>
+            <text class="cell-value">{{ formatMacro100m(gdRealEstateBrief.salesAmountYi) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(gdRealEstateBrief.salesAmountYoyPct)">
+              同比 {{ formatMacroPct(gdRealEstateBrief.salesAmountYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">新房销售面积</text>
+            <text class="cell-value">{{ formatMacroArea(gdRealEstateBrief.salesAreaWanSqm) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(gdRealEstateBrief.salesAreaYoyPct)">
+              同比 {{ formatMacroPct(gdRealEstateBrief.salesAreaYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">珠三角销售面积</text>
+            <text class="cell-value">{{ formatMacroArea(gdRealEstateBrief.prSalesAreaWanSqm) }}</text>
+            <text class="cell-sub muted">投资 {{ gdRealEstateBrief.prInvestmentYi.toLocaleString() }} 亿</text>
+          </view>
+        </view>
+        <view v-if="gdBriefUnitPrice != null" class="rank-row" style="margin-top: 12rpx">
+          <text class="muted" style="font-size: 22rpx">全省合同均价（销售额÷面积）</text>
+          <text class="rank-val">{{ gdBriefUnitPrice.toLocaleString() }} 元/㎡</text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          省住建厅简况：{{ gdRealEstateBrief.sourceOrg }} · {{ gdRealEstateBrief.publishDate || gdRealEstateBrief.periodLabel }}。
+          全省累计合同口径；均价为派生值；≠城市挂牌/网签均价、≠70城指数。
+        </view>
+      </view>
+
       <view v-if="gzInventory" class="card gz-inventory-card" data-tab="overview,price">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 广州新房库存</view>
@@ -4441,36 +4484,49 @@
             <view class="pf-rate-cell"><text>二套 ≤5年</text><text class="pf-rate-value">不低于 {{ providentRate.second5yOrLess }}%</text></view>
             <view class="pf-rate-cell"><text>二套 ＞5年</text><text class="pf-rate-value">不低于 {{ providentRate.secondOver5y }}%</text></view>
           </view>
-          <view v-if="gdProvidentAnnual" class="gz-inventory-grid" style="margin-top: 12rpx" data-gd-provident-annual>
-            <view class="gz-inventory-kpi">
-              <text class="cell-label">广东 {{ gdProvidentAnnual.year }} 缴存额</text>
-              <text class="gz-inventory-value">{{ gdProvidentAnnual.depositAmountYi.toLocaleString() }} 亿</text>
-              <text class="cell-sub muted">
-                实缴 {{ gdProvidentAnnual.paidPersonsWan.toLocaleString() }} 万人
-                <template v-if="gdProvidentExtractPct != null">
-                  · 提取/缴存 {{ gdProvidentExtractPct }}%
-                </template>
-              </text>
+          <button
+            v-if="gdProvidentAnnual"
+            class="gz-inventory-toggle"
+            size="mini"
+            style="margin-top: 12rpx"
+            data-gd-provident-toggle
+            :aria-expanded="gdProvidentExpanded"
+            @click="gdProvidentExpanded = !gdProvidentExpanded"
+          >
+            {{ gdProvidentExpanded ? "收起广东全省年报" : "展开广东全省年报" }}
+          </button>
+          <template v-if="gdProvidentAnnual && gdProvidentExpanded">
+            <view class="gz-inventory-grid" style="margin-top: 12rpx" data-gd-provident-annual>
+              <view class="gz-inventory-kpi">
+                <text class="cell-label">广东 {{ gdProvidentAnnual.year }} 缴存额</text>
+                <text class="gz-inventory-value">{{ gdProvidentAnnual.depositAmountYi.toLocaleString() }} 亿</text>
+                <text class="cell-sub muted">
+                  实缴 {{ gdProvidentAnnual.paidPersonsWan.toLocaleString() }} 万人
+                  <template v-if="gdProvidentExtractPct != null">
+                    · 提取/缴存 {{ gdProvidentExtractPct }}%
+                  </template>
+                </text>
+              </view>
+              <view class="gz-inventory-kpi">
+                <text class="cell-label">全省发放贷款</text>
+                <text class="gz-inventory-value">{{ gdProvidentAnnual.loanIssuedWan }} 万笔</text>
+                <text class="cell-sub muted">{{ gdProvidentAnnual.loanIssuedYi.toLocaleString() }} 亿元</text>
+              </view>
+              <view class="gz-inventory-kpi">
+                <text class="cell-label">全省缴存余额</text>
+                <text class="gz-inventory-value">{{ gdProvidentAnnual.depositBalanceYi.toLocaleString() }} 亿</text>
+                <text class="cell-sub muted">
+                  贷款余额 {{ gdProvidentAnnual.loanBalanceYi.toLocaleString() }} 亿
+                  <template v-if="gdProvidentLoanBalancePct != null">
+                    · 个贷/缴存 {{ gdProvidentLoanBalancePct }}%
+                  </template>
+                </text>
+              </view>
             </view>
-            <view class="gz-inventory-kpi">
-              <text class="cell-label">全省发放贷款</text>
-              <text class="gz-inventory-value">{{ gdProvidentAnnual.loanIssuedWan }} 万笔</text>
-              <text class="cell-sub muted">{{ gdProvidentAnnual.loanIssuedYi.toLocaleString() }} 亿元</text>
+            <view class="muted" style="margin-top: 8rpx; font-size: 21rpx">
+              省年报：{{ gdProvidentAnnual.sourceOrg }} · {{ gdProvidentAnnual.publishDate || gdProvidentAnnual.year }}；全省口径，非城市挂牌/网签均价。官方 HTML 无稳定分市表，分市细节仍以各市年报/动态为准。
             </view>
-            <view class="gz-inventory-kpi">
-              <text class="cell-label">全省缴存余额</text>
-              <text class="gz-inventory-value">{{ gdProvidentAnnual.depositBalanceYi.toLocaleString() }} 亿</text>
-              <text class="cell-sub muted">
-                贷款余额 {{ gdProvidentAnnual.loanBalanceYi.toLocaleString() }} 亿
-                <template v-if="gdProvidentLoanBalancePct != null">
-                  · 个贷/缴存 {{ gdProvidentLoanBalancePct }}%
-                </template>
-              </text>
-            </view>
-          </view>
-          <view v-if="gdProvidentAnnual" class="muted" style="margin-top: 8rpx; font-size: 21rpx">
-            省年报：{{ gdProvidentAnnual.sourceOrg }} · {{ gdProvidentAnnual.publishDate || gdProvidentAnnual.year }}；全省口径，非城市挂牌/网签均价。官方 HTML 无稳定分市表，分市细节仍以各市年报/动态为准。
-          </view>
+          </template>
           <view v-if="szProvidentAnnual" class="gz-inventory-grid" style="margin-top: 12rpx" data-sz-provident-annual>
             <view class="gz-inventory-kpi">
               <text class="cell-label">{{ szProvidentAnnual.year }} 发放贷款</text>
@@ -4498,7 +4554,31 @@
             <template v-if="szProvidentLoanBalancePct != null">
               个贷余额/缴存余额 {{ szProvidentLoanBalancePct }}%；
             </template>
-            公租房建设补充资金计提 {{ szProvidentAnnual.publicRentalSupplementYi }} 亿元。非成交均价、非挂牌价。
+            <template v-if="szProvidentAnnual.publicRentalSupplementYi > 0">
+              公租房建设补充资金计提 {{ szProvidentAnnual.publicRentalSupplementYi }} 亿元；
+            </template>
+            非成交均价、非挂牌价。
+          </view>
+          <view
+            v-if="szProvidentYearDelta"
+            class="muted"
+            style="margin-top: 8rpx; font-size: 21rpx"
+            data-sz-provident-yoy
+          >
+            对照上年年报（{{ szProvidentYearDelta.prior.year }}）：缴存
+            {{ szProvidentYearDelta.prior.depositAmountYi.toLocaleString() }} 亿 → 今年
+            <text :class="macroTrendClass(szProvidentYearDelta.depositDeltaYi)">
+              {{ formatInvDelta(szProvidentYearDelta.depositDeltaYi) }} 亿
+            </text>
+            ；发放贷款 {{ szProvidentYearDelta.prior.loanIssuedYi.toLocaleString() }} 亿 →
+            <text :class="macroTrendClass(szProvidentYearDelta.loanDeltaYi)">
+              {{ formatInvDelta(szProvidentYearDelta.loanDeltaYi) }} 亿
+            </text>
+            ；购建房 {{ szProvidentYearDelta.prior.supportPurchaseWanSqm.toLocaleString() }} 万㎡ →
+            <text :class="macroTrendClass(szProvidentYearDelta.supportDeltaWanSqm)">
+              {{ formatInvDelta(szProvidentYearDelta.supportDeltaWanSqm) }} 万㎡
+            </text>
+            。
           </view>
           <view v-if="gzProvidentAnnual" class="gz-inventory-grid" style="margin-top: 12rpx" data-gz-provident-annual>
             <view class="gz-inventory-kpi">
@@ -6431,6 +6511,7 @@ import { assessGzInventoryFreshness } from "../../local/gzInventoryFreshness";
 import { getLatestProvidentFundRate, monthlyPayment } from "../../local/providentFund";
 import {
   getLatestSzProvidentAnnual,
+  getSzProvidentYearDelta,
   extractToDepositPct,
   loanToDepositBalancePct,
   type SzProvidentAnnualRow
@@ -6454,6 +6535,11 @@ import {
   getZhProvidentSamePeriodDelta,
   type ZhProvidentDynamicsRow
 } from "../../local/zhProvidentDynamics";
+import {
+  getLatestGdRealEstateBrief,
+  gdBriefImpliedUnitPrice,
+  type GdRealEstateBriefRow
+} from "../../local/gdRealEstateBrief";
 
 const app = useAppStore();
 
@@ -7572,6 +7658,7 @@ const errorMsg = ref<string>("");
 const loading = ref<boolean>(false);
 const gzInventoryExpanded = ref(false);
 const nbsSeriesExpanded = ref(false);
+const gdProvidentExpanded = ref(false);
 
 const nbsMacro = computed(() => getLatestNbsRealEstate());
 const nbsYoyTrend = computed(() => getNbsYoyTrend(6));
@@ -7722,6 +7809,11 @@ const szProvidentAnnual = computed<SzProvidentAnnualRow | null>(() => {
 });
 const szProvidentExtractPct = computed(() => extractToDepositPct(szProvidentAnnual.value));
 const szProvidentLoanBalancePct = computed(() => loanToDepositBalancePct(szProvidentAnnual.value));
+const szProvidentYearDelta = computed(() =>
+  szProvidentAnnual.value ? getSzProvidentYearDelta(szProvidentAnnual.value) : null
+);
+const gdRealEstateBrief = computed<GdRealEstateBriefRow | null>(() => getLatestGdRealEstateBrief());
+const gdBriefUnitPrice = computed(() => gdBriefImpliedUnitPrice(gdRealEstateBrief.value));
 const gzProvidentAnnual = computed<GzProvidentAnnualRow | null>(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   return city === "广州" ? getLatestGzProvidentAnnual() : null;

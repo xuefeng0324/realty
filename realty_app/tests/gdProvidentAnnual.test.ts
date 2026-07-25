@@ -33,6 +33,8 @@ describe("gd provident annual", () => {
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     expect(dash).toContain("getLatestGdProvidentAnnual");
     expect(dash).toContain("data-gd-provident-annual");
+    expect(dash).toContain("data-gd-provident-toggle");
+    expect(dash).toContain("gdProvidentExpanded");
   });
 
   it("CSV 解析", () => {

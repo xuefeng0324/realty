@@ -5,6 +5,7 @@ import {
   extractToDepositPct,
   getLatestSzProvidentAnnual,
   getSzProvidentAnnualRows,
+  getSzProvidentYearDelta,
   loadSzProvidentAnnualFromCSV,
   loanToDepositBalancePct
 } from "../src/local/szProvidentAnnual";
@@ -12,7 +13,7 @@ import {
 describe("sz provident annual", () => {
   it("加载深圳公积金年报摘要", () => {
     const rows = getSzProvidentAnnualRows();
-    expect(rows.length).toBeGreaterThanOrEqual(1);
+    expect(rows.length).toBeGreaterThanOrEqual(2);
     const latest = getLatestSzProvidentAnnual();
     expect(latest).not.toBeNull();
     expect(latest!.year).toBe(2025);
@@ -24,6 +25,14 @@ describe("sz provident annual", () => {
     expect(latest!.sourceUrl).toMatch(/zjj\.sz\.gov\.cn/);
     expect(extractToDepositPct(latest)).toBe(91.1);
     expect(loanToDepositBalancePct(latest)).toBe(75.6);
+    const y2024 = rows.find((r) => r.year === 2024);
+    expect(y2024).toBeTruthy();
+    expect(y2024!.depositAmountYi).toBe(1227.15);
+    expect(y2024!.loanIssuedYi).toBe(382.34);
+    const delta = getSzProvidentYearDelta(latest);
+    expect(delta).not.toBeNull();
+    expect(delta!.prior.year).toBe(2024);
+    expect(delta!.depositDeltaYi).toBe(73.8);
   });
 
   it("爬虫与仪表盘门禁", () => {
@@ -31,12 +40,14 @@ describe("sz provident annual", () => {
     expect(script).toContain("住房公积金");
     expect(script).toContain("年度报告");
     expect(script).toContain("pubdata/qtsj");
+    expect(script).toContain("load_existing");
     const lpr = readFileSync(resolve(process.cwd(), "scripts/crawl_lpr_history.py"), "utf8");
     expect(lpr).toContain("pbc.gov.cn");
     expect(lpr).toContain("1年期LPR");
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     expect(dash).toContain("getLatestSzProvidentAnnual");
     expect(dash).toContain("data-sz-provident-annual");
+    expect(dash).toContain("data-sz-provident-yoy");
   });
 
   it("CSV 解析", () => {
