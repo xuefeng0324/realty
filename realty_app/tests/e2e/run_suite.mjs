@@ -20,6 +20,7 @@ const suites = {
     "smoke_responsive_layout.mjs",
     "smoke_theme_buttons.mjs",
     "smoke_theme_visual.mjs",
+    "smoke_dashboard_feed_seam.mjs",
     "smoke_full_interactions.mjs",
     "smoke_full_pages.mjs",
     "smoke_edge_cases.mjs"

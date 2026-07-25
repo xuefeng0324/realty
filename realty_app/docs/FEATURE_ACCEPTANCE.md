@@ -134,6 +134,7 @@ node tests/e2e/smoke_theme_buttons.mjs
 | 专题 | 文档 |
 |------|------|
 | 浅色 / 深色 / 跟随系统 | [THEME_ACCEPTANCE.md](./THEME_ACCEPTANCE.md) |
+| 总览长页信息流去分割缝 | [DASHBOARD_FEED_ACCEPTANCE.md](./DASHBOARD_FEED_ACCEPTANCE.md) |
 
 ---
 

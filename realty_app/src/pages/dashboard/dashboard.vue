@@ -8906,14 +8906,41 @@ onShow(async () => {
 </script>
 
 <style lang="scss" scoped>
+/* 总览信息流：同色连续表面 + hairline（对照 MD3 Lists / 贝壳首页 Feed）
+ * 验收：docs/DASHBOARD_FEED_ACCEPTANCE.md
+ */
 .page {
   min-height: 100vh;
+  /* 与卡片表面同色，避免 margin 露「对比色沟」 */
+  background-color: var(--color-surface);
+  background-image: none;
 }
 
+.container {
+  /* 侧向留白保留；纵向靠 hairline 分块，不再靠大块 gutter */
+  padding-top: 16rpx;
+  padding-bottom: 32rpx;
+}
+
+.card {
+  margin-bottom: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  border-bottom: 1rpx solid var(--color-border);
+  background: var(--color-surface);
+}
+
+/* 页头筛选：允许轻微抬起，作为唯一「浮层」锚点 */
 .filter-card {
   position: relative;
   overflow: hidden;
-  border-color: rgba(34, 197, 94, 0.24);
+  margin-bottom: 16rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid rgba(34, 197, 94, 0.24);
+  box-shadow: var(--shadow-card);
   background: linear-gradient(145deg, var(--color-surface) 0%, rgba(22, 163, 74, 0.055) 100%);
 }
 
@@ -9009,11 +9036,12 @@ onShow(async () => {
   display: flex;
   flex-direction: column;
   gap: 12rpx;
-  margin-bottom: 16rpx;
+  margin-bottom: 0;
   padding: 16rpx 20rpx;
-  border-radius: 16rpx;
+  border-radius: 0;
   background: var(--color-surface);
-  border: 1rpx solid var(--color-border);
+  border: none;
+  border-bottom: 1rpx solid var(--color-border);
 }
 
 .overview-jump-row {
@@ -9152,10 +9180,6 @@ onShow(async () => {
 .combo-result-saving {
   color: var(--color-primary);
   font-weight: 700;
-}
-
-.page {
-  min-height: 100vh;
 }
 
 .form-row {
@@ -12199,17 +12223,20 @@ onShow(async () => {
   fill: #ef4444;
 }
 
-/* v0.49.0 topnav-1: 周次切换 sticky bar */
+/* v0.49.0 topnav-1: 周次切换 sticky bar
+ * 信息流同色表面（对照贝壳/链家顶栏：浅底+细分隔，非深色浮岛）
+ */
 .topnav-period {
   display: flex;
   flex-direction: column;
   gap: 8rpx;
   padding: 16rpx 24rpx 12rpx;
-  background: linear-gradient(135deg, var(--color-soft) 0%, #334155 100%);
-  color: #fff;
-  border-radius: 16rpx;
-  margin: 8rpx 0 0;
-  box-shadow: 0 4rpx 16rpx rgba(15, 23, 42, 0.15);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: 0;
+  margin: 0;
+  box-shadow: none;
+  border-bottom: 1rpx solid var(--color-border);
   position: sticky;
   top: 0;
   z-index: 50;
@@ -12221,12 +12248,12 @@ onShow(async () => {
   align-items: center;
   justify-content: center;
   gap: 6rpx;
-  color: #f1f5f9;
+  color: var(--color-text-secondary);
 }
 .topnav-p-num {
   font-size: 36rpx;
   font-weight: 700;
-  color: #fbbf24;
+  color: var(--color-primary);
   font-family: "SF Mono", Consolas, monospace;
 }
 .topnav-p-btns {
@@ -12237,16 +12264,16 @@ onShow(async () => {
   flex: 1;
   padding: 10rpx 0;
   border-radius: 10rpx;
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
+  background: var(--color-soft);
+  color: var(--color-text);
   font-size: 24rpx;
   font-weight: 600;
   text-align: center;
-  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  border: 1rpx solid var(--color-border);
   transition: background 0.15s, transform 0.1s;
 }
 .topnav-p-btn:active {
-  background: rgba(99, 102, 241, 0.35);
+  background: var(--color-primary-soft, rgba(29, 78, 216, 0.12));
   transform: scale(0.97);
 }
 .topnav-p-btn--disabled {
@@ -12256,7 +12283,9 @@ onShow(async () => {
 
 /* v0.55.0 hero-1: 顶部大盘轮播 + 快捷入口 */
 .hero-section {
-  margin: 8rpx 0 16rpx;
+  margin: 0;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid var(--color-border);
 }
 .hero-carousel {
   position: relative;
@@ -12428,14 +12457,15 @@ onShow(async () => {
   font-weight: 500;
 }
 
-/* v0.48.0 dashboard-tabs */
+/* v0.48.0 dashboard-tabs：同色条，去浮岛圆角与 gutter */
 .dash-tabs {
   display: flex;
   gap: 8rpx;
   padding: 8rpx 12rpx;
-  background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
-  border-radius: 16rpx;
-  margin: 8rpx 0 16rpx;
+  background: var(--color-surface);
+  border-radius: 0;
+  margin: 0;
+  border-bottom: 1rpx solid var(--color-border);
   overflow-x: auto;
   scrollbar-width: none;
 }
