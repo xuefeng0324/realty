@@ -1,0 +1,46 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { describe, expect, it } from "vitest";
+import {
+  getGzAffordableProjectsRows,
+  getLatestGzAffordableCompleted,
+  getLatestGzAffordableRaised,
+  loadGzAffordableProjectsFromCSV
+} from "../src/local/gzAffordableProjects";
+
+describe("gz affordable projects", () => {
+  it("加载广州保障房已筹建/已竣工汇总", () => {
+    const rows = getGzAffordableProjectsRows();
+    expect(rows.length).toBeGreaterThanOrEqual(2);
+    expect(rows.every((r) => r.city === "广州")).toBe(true);
+    const raised = getLatestGzAffordableRaised();
+    expect(raised).not.toBeNull();
+    expect(raised!.kind).toBe("raised");
+    expect(raised!.totalUnits).toBeGreaterThan(0);
+    expect(raised!.attachmentUrl).toMatch(/\.xls/i);
+    const done = getLatestGzAffordableCompleted();
+    expect(done).not.toBeNull();
+    expect(done!.kind).toBe("completed");
+  });
+
+  it("爬虫与仪表盘门禁", () => {
+    const script = readFileSync(resolve(process.cwd(), "scripts/crawl_gz_affordable_projects.py"), "utf8");
+    expect(script).toContain("zfcj.gz.gov.cn");
+    expect(script).toContain("bzxzfxm");
+    expect(script).toContain("建设套数");
+    expect(script).toContain("xlrd");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    expect(dash).toContain("data-gz-affordable-projects");
+    expect(dash).toContain("getLatestGzAffordableRaised");
+  });
+
+  it("CSV 解析", () => {
+    const rows = loadGzAffordableProjectsFromCSV(
+      [
+        "city,year,as_of_month,kind,category,project_count,total_units,title,source_org,source_url,attachment_url",
+        "广州,2099,9,raised,配售型保障性住房,2,100,测试,广州市住建局,https://zfcj.gz.gov.cn/a,https://zfcj.gz.gov.cn/a.xls"
+      ].join("\n")
+    );
+    expect(rows[0]!.totalUnits).toBe(100);
+  });
+});

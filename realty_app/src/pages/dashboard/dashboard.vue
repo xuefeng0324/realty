@@ -1157,6 +1157,39 @@
         </view>
       </view>
 
+      <view v-if="gzAffordableRaised || gzAffordableCompleted" class="card" data-tab="overview,price" data-gz-affordable-projects>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🏗️ 广州保障房项目清单</view>
+          <view class="muted" style="font-size: 22rpx">
+            {{ (gzAffordableRaised || gzAffordableCompleted)?.year }} 年
+          </view>
+        </view>
+        <view class="gz-inventory-grid">
+          <view v-if="gzAffordableRaised" class="gz-inventory-kpi">
+            <text class="cell-label">已筹建 · {{ gzAffordableRaised.category.replace("保障性住房", "保障房") }}</text>
+            <text class="gz-inventory-value">{{ gzAffordableRaised.totalUnits.toLocaleString() }} 套</text>
+            <text class="cell-sub muted">
+              {{ gzAffordableRaised.projectCount }} 个项目 · 截至 {{ gzAffordableRaised.asOfMonth }} 月底
+            </text>
+          </view>
+          <view v-if="gzAffordableCompleted" class="gz-inventory-kpi">
+            <text class="cell-label">已竣工 · {{ gzAffordableCompleted.category.replace("保障性住房", "保障房") }}</text>
+            <text class="gz-inventory-value">{{ gzAffordableCompleted.totalUnits.toLocaleString() }} 套</text>
+            <text class="cell-sub muted">
+              {{ gzAffordableCompleted.projectCount }} 个项目 · 截至 {{ gzAffordableCompleted.asOfMonth }} 月底
+            </text>
+          </view>
+          <view v-if="!gzAffordableCompleted && gzAffordableRaised" class="gz-inventory-kpi">
+            <text class="cell-label">口径</text>
+            <text class="gz-inventory-value" style="font-size: 26rpx">清单汇总</text>
+            <text class="cell-sub muted">非销售、非网签</text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：广州市住建局保障性住房项目公开 XLS；已筹建/已竣工套数为项目清单合计，不是商品房成交量、不是房价均价。
+        </view>
+      </view>
+
       <view v-if="gzLandSummary" class="card" data-tab="overview,price" data-gz-land-deals>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🗺️ 广州居住用地成交</view>
@@ -5994,6 +6027,11 @@ import {
   type GzHousingPlanRow
 } from "../../local/gzHousingPlan";
 import {
+  getLatestGzAffordableRaised,
+  getLatestGzAffordableCompleted,
+  type GzAffordableProjectsRow
+} from "../../local/gzAffordableProjects";
+import {
   getLatestGzLandDeals,
   summarizeGzLandDeals,
   summarizeGzLandDealsByMonth,
@@ -7161,6 +7199,14 @@ const gzHousingPlan = computed<GzHousingPlanRow | null>(() => {
   return city === "广州" ? getLatestGzHousingPlan() : null;
 });
 const gzHousingPlanYoY = computed(() => (gzHousingPlan.value ? getGzHousingPlanYoY() : null));
+const gzAffordableRaised = computed<GzAffordableProjectsRow | null>(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "广州" ? getLatestGzAffordableRaised() : null;
+});
+const gzAffordableCompleted = computed<GzAffordableProjectsRow | null>(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "广州" ? getLatestGzAffordableCompleted() : null;
+});
 function formatWan(v: number, unit: string): string {
   if (!v) return "—";
   return `${v.toLocaleString()}${unit}`;
