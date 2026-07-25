@@ -39,6 +39,7 @@ jobs:
           python scripts/check_stats70_freshness.py --csv static/stats_70.csv
           # Phase E：首页最新一期 merge，不抹掉已回填历史
           python scripts/crawl_nbs_real_estate.py 2>&1 | tee nbs.log
+          python scripts/crawl_lpr_history.py --max 24 2>&1 | tee lpr.log
 
       - name: 看结果
         working-directory: realty_app
@@ -56,9 +57,9 @@ jobs:
           cd realty_app
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet HEAD -- static/stats_70.csv static/nbs_real_estate.csv; then
-            git add static/stats_70.csv static/nbs_real_estate.csv
-            git commit -m "data(stats70+nbs): 月更 70城指数与全国房地产 $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          if ! git diff --quiet HEAD -- static/stats_70.csv static/nbs_real_estate.csv static/seed/lpr_history.csv; then
+            git add static/stats_70.csv static/nbs_real_estate.csv static/seed/lpr_history.csv
+            git commit -m "data(stats70+nbs+lpr): 月更 70城/全国房地产/LPR $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
             git push
           else
             echo "stats_70 / nbs_real_estate 无变化，跳过 commit"

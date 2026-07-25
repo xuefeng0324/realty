@@ -152,6 +152,8 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | CSV | 加载模块 | 脚本 | 说明 |
 |-----|----------|------|------|
 | `static/provident_fund_rates.csv` | `providentFund.ts` | （人工维护 / 国务院公告） | 住房公积金贷款利率档位；`App.vue` 启动 `?raw` 加载 |
+| `static/sz_provident_annual.csv` | `szProvidentAnnual.ts` + 公积金卡「深圳年报」KPI | `crawl_sz_provident_annual.py`（**周更 CI**） | 深圳市住房公积金**年度报告**正文：发放贷款笔数/金额、支持购建房面积、缴存余额等；**非成交均价** |
+| `static/seed/lpr_history.csv` | LPR 卡 / 组合贷 | `compute_lpr_history.py`（基线）+ `crawl_lpr_history.py`（**月更 CI**） | 央行 PBOC 公告 1Y/5Y LPR；房贷加点沿用示意 bp |
 | `static/nbs_real_estate.csv` | `nbsRealEstate.ts` | `scripts/crawl_nbs_real_estate.py`（**月更 CI** 随 `crawl-monthly-stats70`） | 国家统计局全国房地产市场基本情况；**多期 merge**（`period` 主键）；来源须为 `stats.gov.cn`；仪表盘展示销售面积同比多期，**不是成交均价** |
 
 | `static/gz_new_house_inventory.csv` | `gzNewHouseInventory.ts` + `gzInventoryFreshness.ts` | `scripts/crawl_gz_new_house_inventory.py`（**日更 CI** 随 `crawl-daily-wangqian`） | 广州新房可售/未售/签约分区库存；>3 天未更新时总览标明滞后 |

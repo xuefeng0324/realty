@@ -4315,6 +4315,27 @@
             <view class="pf-rate-cell"><text>二套 ≤5年</text><text class="pf-rate-value">不低于 {{ providentRate.second5yOrLess }}%</text></view>
             <view class="pf-rate-cell"><text>二套 ＞5年</text><text class="pf-rate-value">不低于 {{ providentRate.secondOver5y }}%</text></view>
           </view>
+          <view v-if="szProvidentAnnual" class="gz-inventory-grid" style="margin-top: 12rpx" data-sz-provident-annual>
+            <view class="gz-inventory-kpi">
+              <text class="cell-label">{{ szProvidentAnnual.year }} 发放贷款</text>
+              <text class="gz-inventory-value">{{ szProvidentAnnual.loanIssuedWan }} 万笔</text>
+              <text class="cell-sub muted">{{ szProvidentAnnual.loanIssuedYi.toLocaleString() }} 亿元</text>
+            </view>
+            <view class="gz-inventory-kpi">
+              <text class="cell-label">支持购建房</text>
+              <text class="gz-inventory-value">{{ szProvidentAnnual.supportPurchaseWanSqm.toLocaleString() }} 万㎡</text>
+              <text class="cell-sub muted">贷款余额 {{ szProvidentAnnual.loanBalanceYi.toLocaleString() }} 亿</text>
+            </view>
+            <view class="gz-inventory-kpi">
+              <text class="cell-label">缴存余额</text>
+              <text class="gz-inventory-value">{{ szProvidentAnnual.depositBalanceYi.toLocaleString() }} 亿</text>
+              <text class="cell-sub muted">实缴 {{ szProvidentAnnual.paidPersonsWan.toLocaleString() }} 万人</text>
+            </view>
+          </view>
+          <view v-if="szProvidentAnnual" class="muted" style="margin-top: 8rpx; font-size: 21rpx">
+            深圳年报：{{ szProvidentAnnual.sourceOrg }} · {{ szProvidentAnnual.publishDate || szProvidentAnnual.year }}；
+            公租房建设补充资金计提 {{ szProvidentAnnual.publicRentalSupplementYi }} 亿元。非成交均价、非挂牌价。
+          </view>
           <view class="pf-saving">
             贷款 100 万、30 年、等额本息：公积金首套月供约 {{ pfMonthly100w().toLocaleString() }} 元；
             比当前商业首套参考少约 {{ pfSavingVsCommercial100w().toLocaleString() }} 元/月。
@@ -6146,6 +6167,10 @@ import {
 } from "../../local/zhAffordableProgress";
 import { assessGzInventoryFreshness } from "../../local/gzInventoryFreshness";
 import { getLatestProvidentFundRate, monthlyPayment } from "../../local/providentFund";
+import {
+  getLatestSzProvidentAnnual,
+  type SzProvidentAnnualRow
+} from "../../local/szProvidentAnnual";
 
 const app = useAppStore();
 
@@ -7383,6 +7408,10 @@ function rateDeltaArrow(v: number): string {
   return "·";
 }
 const providentRate = computed(() => getLatestProvidentFundRate());
+const szProvidentAnnual = computed<SzProvidentAnnualRow | null>(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "深圳" ? getLatestSzProvidentAnnual() : null;
+});
 
 function formatMacro100m(v: number) {
   return `${v.toLocaleString()} 亿元`;

@@ -89,14 +89,15 @@ jobs:
           python scripts/crawl_sz_land_deals.py --pages 4 --page-size 50
           python scripts/crawl_sz_affordable_projects.py --max 8
           python scripts/crawl_zh_affordable_progress.py --max 8
+          python scripts/crawl_sz_provident_annual.py --max 6
 
       - name: 提交 CSV
         run: |
           cd realty_app
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet HEAD -- static/seed/listings.csv static/education_overview.csv static/sz_planned_supply.csv static/gz_housing_plan.csv static/gz_affordable_projects.csv static/gz_affordable_targets.csv static/gz_land_deals.csv static/sz_land_deals.csv static/sz_affordable_projects.csv static/zh_affordable_progress.csv; then
-            git add static/seed/*.csv static/seed/crawl_meta.json static/education_overview.csv static/sz_planned_supply.csv static/gz_housing_plan.csv static/gz_affordable_projects.csv static/gz_affordable_targets.csv static/gz_land_deals.csv static/sz_land_deals.csv static/sz_affordable_projects.csv static/zh_affordable_progress.csv
+          if ! git diff --quiet HEAD -- static/seed/listings.csv static/education_overview.csv static/sz_planned_supply.csv static/gz_housing_plan.csv static/gz_affordable_projects.csv static/gz_affordable_targets.csv static/gz_land_deals.csv static/sz_land_deals.csv static/sz_affordable_projects.csv static/zh_affordable_progress.csv static/sz_provident_annual.csv; then
+            git add static/seed/*.csv static/seed/crawl_meta.json static/education_overview.csv static/sz_planned_supply.csv static/gz_housing_plan.csv static/gz_affordable_projects.csv static/gz_affordable_targets.csv static/gz_land_deals.csv static/sz_land_deals.csv static/sz_affordable_projects.csv static/zh_affordable_progress.csv static/sz_provident_annual.csv
             git commit -m "data(anjuke): 刷新二手房挂牌 $(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
               || echo "no commit needed"
             git push
