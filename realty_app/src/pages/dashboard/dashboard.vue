@@ -2,8 +2,14 @@
   <view class="page">
     <view class="container">
       <!-- 顶部筛选：用 view+tap 触发 action sheet，避开 picker 兼容问题 -->
-      <view class="card">
-        <view class="card-title">筛选</view>
+      <view class="card filter-card">
+        <view class="filter-card-head">
+          <view>
+            <view class="dashboard-eyebrow">REALTY ANALYTICS</view>
+            <view class="card-title" style="margin-bottom: 0">市场数据工作台</view>
+          </view>
+          <view class="data-trust-badge">官方与公开数据</view>
+        </view>
         <view class="row-gap">
           <button class="form-row tap-row" hover-class="tap-row--active" @click="pickCity">
             <text class="form-label">城市</text>
@@ -34,7 +40,7 @@
             </view>
           </button>
         </view>
-        <view class="row-gap" style="margin-top: 16rpx">
+        <view class="row-gap filter-actions" style="margin-top: 16rpx">
           <button class="btn" size="mini" @click="reload">刷新</button>
         </view>
         <text v-if="periodHint" class="muted period-hint">{{ periodHint }}</text>
@@ -157,6 +163,81 @@
         <view class="stats70-foot">点击查看 90 日趋势与分区 ›</view>
       </view>
 
+      <view v-if="nbsMacro" class="card macro-card" data-tab="overview,price">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">全国房地产开发与销售</view>
+          <view class="muted" style="font-size: 22rpx">{{ nbsMacro.publishDate }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <view class="stats70-cell">
+            <text class="cell-label">开发投资</text>
+            <text class="cell-value">{{ formatMacro100m(nbsMacro.investmentCny100m) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.investmentYoyPct)">同比 {{ formatMacroPct(nbsMacro.investmentYoyPct) }}</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">新房销售额</text>
+            <text class="cell-value">{{ formatMacro100m(nbsMacro.salesAmountCny100m) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.salesAmountYoyPct)">同比 {{ formatMacroPct(nbsMacro.salesAmountYoyPct) }}</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">新房销售面积</text>
+            <text class="cell-value">{{ formatMacroArea(nbsMacro.salesArea10kSqm) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.salesAreaYoyPct)">同比 {{ formatMacroPct(nbsMacro.salesAreaYoyPct) }}</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">商品房待售面积</text>
+            <text class="cell-value">{{ formatMacroArea(nbsMacro.inventoryArea10kSqm) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.inventoryAreaYoyPct)">同比 {{ formatMacroPct(nbsMacro.inventoryAreaYoyPct) }}</text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          国家统计局累计口径：{{ nbsMacro.period.replace("_to_", " 至 ") }}。销售面积和销售额为新建商品房合同口径。
+        </view>
+      </view>
+
+      <view v-if="gzInventory" class="card gz-inventory-card" data-tab="overview,price">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🏗️ 广州新房库存</view>
+          <view class="muted" style="font-size: 22rpx">{{ gzInventory.date }}</view>
+        </view>
+        <view class="gz-inventory-grid">
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">可售住宅</text>
+            <text class="gz-inventory-value">{{ formatInventoryUnits(gzInventory.availableUnits) }}</text>
+          </view>
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">未售住宅</text>
+            <text class="gz-inventory-value">{{ formatInventoryUnits(gzInventory.unsoldUnits) }}</text>
+          </view>
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">当日签约</text>
+            <text class="gz-inventory-value gz-inventory-value--signed">{{ gzInventory.signedUnits }} 套</text>
+          </view>
+        </view>
+        <view v-if="gzInventory.districts[0]" class="overview-card-summary">
+          可售量最高：{{ gzInventory.districts[0].district }} {{ gzInventory.districts[0].availableUnits.toLocaleString() }} 套
+        </view>
+        <template v-if="gzInventoryExpanded">
+          <view
+            v-for="row in gzInventory.districts"
+            :key="row.district"
+            class="gz-inventory-row"
+            data-gz-inventory-detail
+          >
+            <text class="gz-inventory-district">{{ row.district }}</text>
+            <text>可售 {{ row.availableUnits.toLocaleString() }}</text>
+            <text class="muted">未售 {{ row.unsoldUnits.toLocaleString() }}</text>
+            <text class="muted">签约 {{ row.signedUnits }}</text>
+          </view>
+        </template>
+        <button class="gz-inventory-toggle" size="mini" :aria-expanded="gzInventoryExpanded" @click="gzInventoryExpanded = !gzInventoryExpanded">
+          {{ gzInventoryExpanded ? "收起分区" : "查看 11 区" }}
+        </button>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          数据源：广州市住建局商品房销售统计。可售与未售为不同官方口径，不以单日签约直接推算去化周期。
+        </view>
+      </view>
+
       <view v-if="runtime" class="card muted">
         <text>DB: {{ runtime.database_file || runtime.database_url }}</text>
         <text> · 规则: {{ runtime.rule_version_listing }}</text>
@@ -265,12 +346,38 @@
         </view>
       </view>
 
+      <!-- v0.59.0 概览渐进式布局：快捷导航 + 全部展开/收起 -->
+      <view v-if="activeTab === 'overview'" class="overview-toolbar">
+        <view class="overview-jump-row">
+          <button
+            v-for="j in OVERVIEW_JUMPS"
+            :key="j.key"
+            class="overview-jump"
+            size="mini"
+            @click.stop="jumpOverviewGroup(j.key)"
+          >{{ j.label }}</button>
+        </view>
+        <button class="overview-toggle-all" size="mini" @click.stop="toggleOverviewAll">
+          {{ overviewAllExpanded ? "全部收起" : "全部展开" }}
+        </button>
+      </view>
+
       <!-- 区/板块对比 -->
-      <view class="card" data-tab="overview,price">
+      <view
+        id="overview-region"
+        class="card overview-card"
+        :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('region') }"
+        data-tab="overview,price"
+        @click="onOverviewCardClick('region')"
+      >
         <view class="row-between">
           <view class="card-title">区/板块对比</view>
           <view class="muted">{{ app.metric === "listing_count" ? "挂牌数" : "均价(元/㎡)" }}</view>
         </view>
+        <view v-if="isOverviewGroupCollapsed('region')" data-overview-summary class="overview-card-summary muted">
+          {{ overviewRegionSummary }}
+        </view>
+        <template v-else>
         <view v-if="districtItems.length === 0" class="empty">暂无数据</view>
         <view v-else>
           <view
@@ -297,6 +404,7 @@
           仅显示有挂牌房源的区（{{ districtItems.length }} / 全市 {{ coverage.total_districts }} 区）。
           挂牌来自安居客周度抓取，覆盖有限；全市各区成交见「政府每日网签」›
         </view>
+        </template>
       </view>
 
       <!-- v0.8.0 区级近 8 周价格趋势 -->
@@ -373,7 +481,14 @@
       </view>
 
       <!-- v0.23.0 trend-9: 全品类区级网签热度榜 (新房/二手/全部 tab 切换) -->
-      <view v-if="districtWangqianRank && districtWangqianRank.items.length > 0" class="card" data-tab="overview,price">
+      <view
+        v-if="districtWangqianRank && districtWangqianRank.items.length > 0"
+        id="overview-wangqian"
+        class="card overview-card"
+        :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('wangqian') }"
+        data-tab="overview,price"
+        @click="onOverviewCardClick('wangqian')"
+      >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">
             🔥 全品类区级网签热度榜 · {{ districtWangqianRank.cityName }}
@@ -382,6 +497,10 @@
             累计 {{ districtWangqianRank.totalUnits }} 套 · {{ districtWangqianRank.totalDistricts }} 区
           </view>
         </view>
+        <view v-if="isOverviewGroupCollapsed('wangqian')" data-overview-summary class="overview-card-summary muted">
+          {{ overviewWangqianSummary }}
+        </view>
+        <template v-else>
         <!-- tab 切换: 新房 / 二手 / 全部 -->
         <view class="wq-cat-tabs">
           <view
@@ -420,10 +539,18 @@
           数据源：{{ districtWangqianRank.weeksBack }} 周内 {{ districtWangqianRank.cityName }} 住建局网签，按区聚合。
           「全部」= 新房+二手合并；切 tab 实时刷新。
         </view>
+        </template>
       </view>
 
       <!-- v0.24.0 new-5: 通勤时长榜 (community → 城市 CBD 公交通勤) -->
-      <view v-if="commuteRanking && commuteRanking.fastest.length > 0" class="card" data-tab="overview,transit">
+      <view
+        v-if="commuteRanking && commuteRanking.fastest.length > 0"
+        id="overview-transit"
+        class="card overview-card"
+        :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('transit') }"
+        data-tab="overview,transit"
+        @click="onOverviewCardClick('transit')"
+      >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">
             🚇 通勤时长榜 · {{ commuteRanking.cityName }} → {{ commuteRanking.cbdName }}
@@ -433,6 +560,10 @@
             · {{ commuteRanking.totalCommunities }} 小区
           </view>
         </view>
+        <view v-if="isOverviewGroupCollapsed('transit')" data-overview-summary class="overview-card-summary muted">
+          {{ overviewTransitSummary }}
+        </view>
+        <template v-else>
         <view
           v-for="(it, idx) in commuteRanking.fastest"
           :key="it.communityId"
@@ -461,6 +592,7 @@
           深圳 → 福田CBD (30 小区, 38 次 API)；广州 → 珠江新城 (8 小区, 10 次 API)。
           行可点 → 小区详情。
         </view>
+        </template>
       </view>
 
       <!-- v0.25.0 户型/面积/朝向/装修分布 -->
@@ -604,11 +736,22 @@
       </view>
 
       <!-- v0.33.0 trend-15 小区综合评分榜 (生活+学区+通勤 加权) -->
-      <view v-if="communityScore && communityScore.items.length > 0" class="card" data-tab="overview,price">
+      <view
+        v-if="communityScore && communityScore.items.length > 0"
+        id="overview-community"
+        class="card overview-card"
+        :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('community') }"
+        data-tab="overview,price"
+        @click="onOverviewCardClick('community')"
+      >
         <view class="row-between">
           <view class="card-title">🏅 小区综合评分 Top 小区 · {{ communityScore.cityName }}</view>
           <view class="muted">Top {{ communityScore.items.length }}</view>
         </view>
+        <view v-if="isOverviewGroupCollapsed('community')" data-overview-summary class="overview-card-summary muted">
+          {{ overviewCommunitySummary }}
+        </view>
+        <template v-else>
         <view v-if="communityScore.items.length === 0" class="empty">暂无数据</view>
         <view class="cs-summary muted">
           城市均分 {{ communityScore.avgScore }} · 最高 {{ communityScore.maxScore }}
@@ -717,6 +860,7 @@
           数据源：life_convenience.csv (50%) + school_premium_community.csv (30%) + commute.csv (20%) → community_score.csv。
           综合分 0-100，按总分降序；金色前 3 名。
         </view>
+        </template>
       </view>
 
       <!-- v0.35.0 map-9 地铁步行通勤榜 (community → 最近地铁站, 步行时长) -->
@@ -1404,11 +1548,22 @@
       </view>
 
       <!-- v0.47.0 school-4 学区指标加权细分 -->
-      <view v-if="schoolDims && schoolDims.total > 0" class="card" data-tab="overview,school">
+      <view
+        v-if="schoolDims && schoolDims.total > 0"
+        id="overview-school"
+        class="card overview-card"
+        :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('school') }"
+        data-tab="overview,school"
+        @click="onOverviewCardClick('school')"
+      >
         <view class="row-between">
           <view class="card-title">🏫 学区 5 维评分 · {{ schoolDims.cityName }}</view>
           <view class="muted">{{ schoolDims.total }} 校</view>
         </view>
+        <view v-if="isOverviewGroupCollapsed('school')" data-overview-summary class="overview-card-summary muted">
+          {{ overviewSchoolSummary }}
+        </view>
+        <template v-else>
         <view class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
           综合 = 评级(40%) + 集团实力(20%) + 区域均衡(15%) + 趋势(10%) + 是否集团(5%)
         </view>
@@ -1478,14 +1633,26 @@
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：school_indicators.csv (5 原始指标列) → 城市内百分位排名 → 综合分 0-100
         </view>
+        </template>
       </view>
 
       <!-- v0.53.0 macro-1 LPR + 房贷利率 -->
-      <view v-if="lpr && lpr.total > 0" class="card" data-tab="overview,price">
+      <view
+        v-if="lpr && lpr.total > 0"
+        id="overview-lpr"
+        class="card overview-card"
+        :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('lpr') }"
+        data-tab="overview,price"
+        @click="onOverviewCardClick('lpr')"
+      >
         <view class="row-between">
           <view class="card-title">💰 LPR + 房贷利率 · 全国</view>
           <view class="muted">{{ lpr.total }} 月历史 · 最新 {{ lpr.latest?.month }}</view>
         </view>
+        <view v-if="isOverviewGroupCollapsed('lpr')" data-overview-summary class="overview-card-summary muted">
+          {{ overviewLprSummary }}
+        </view>
+        <template v-else>
 
         <!-- 当前利率 KPI -->
         <view class="lpr-kpi">
@@ -1555,6 +1722,80 @@
           首套房贷 = 5Y LPR + 加点 (-30bp), 二套 = 5Y LPR + 35bp (一线城市普遍加点)。
           房贷利率直接影响月供：100w 贷 30 年等额本息，每 25bp 约影响月供 ¥150。
         </view>
+
+        <view v-if="providentRate" class="pf-card" data-provident-fund-rate>
+          <view class="row-between">
+            <view class="lpr-chart-title" style="margin: 0">🏦 住房公积金贷款</view>
+            <view class="muted" style="font-size: 21rpx">{{ providentRate.effectiveDate }} 起</view>
+          </view>
+          <view class="pf-rate-grid">
+            <view class="pf-rate-cell"><text>首套 ≤5年</text><text class="pf-rate-value">{{ providentRate.first5yOrLess }}%</text></view>
+            <view class="pf-rate-cell"><text>首套 ＞5年</text><text class="pf-rate-value">{{ providentRate.firstOver5y }}%</text></view>
+            <view class="pf-rate-cell"><text>二套 ≤5年</text><text class="pf-rate-value">不低于 {{ providentRate.second5yOrLess }}%</text></view>
+            <view class="pf-rate-cell"><text>二套 ＞5年</text><text class="pf-rate-value">不低于 {{ providentRate.secondOver5y }}%</text></view>
+          </view>
+          <view class="pf-saving">
+            贷款 100 万、30 年、等额本息：公积金首套月供约 {{ pfMonthly100w().toLocaleString() }} 元；
+            比当前商业首套参考少约 {{ pfSavingVsCommercial100w().toLocaleString() }} 元/月。
+          </view>
+          <view class="combo-loan" data-combo-loan>
+            <view class="combo-title">组合贷月供试算</view>
+            <view class="combo-input-grid">
+              <label class="combo-field">
+                <text>公积金贷款（万元）</text>
+                <input
+                  class="combo-input"
+                  type="number"
+                  data-combo-input="fund"
+                  :value="String(comboFundWan)"
+                  @input="onComboFundInput"
+                  @blur="onComboFundBlur"
+                />
+              </label>
+              <label class="combo-field">
+                <text>商业贷款（万元）</text>
+                <input
+                  class="combo-input"
+                  type="number"
+                  data-combo-input="commercial"
+                  :value="String(comboCommercialWan)"
+                  @input="onComboCommercialInput"
+                  @blur="onComboCommercialBlur"
+                />
+              </label>
+            </view>
+            <view class="combo-years">
+              <button
+                v-for="y in COMBO_YEAR_OPTIONS"
+                :key="y"
+                class="combo-year-btn"
+                :class="{ 'combo-year-btn--active': comboYears === y }"
+                size="mini"
+                :data-combo-years="y"
+                @click.stop="comboYears = y"
+              >{{ y }} 年</button>
+              <button class="combo-reset" size="mini" @click.stop="resetCombo">重置</button>
+            </view>
+            <view class="combo-result" aria-live="polite">
+              <view>
+                <text>组合贷月供</text>
+                <text class="combo-result-main" data-combo-monthly>{{ comboMonthly.toLocaleString() }} 元</text>
+              </view>
+              <view>
+                <text>相比全部商贷</text>
+                <text class="combo-result-saving">少 {{ comboSavingMonthly.toLocaleString() }} 元/月</text>
+              </view>
+              <view>
+                <text>预计总利息</text>
+                <text>{{ comboTotalInterestWan }} 万元</text>
+              </view>
+            </view>
+          </view>
+          <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+            仅比较利率，不考虑当地贷款额度、组合贷、公积金缴存资格和银行实际加点。
+          </view>
+        </view>
+        </template>
       </view>
 
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
@@ -2004,6 +2245,9 @@ import type {
 } from "../../api/contracts";
 import { coverageText, formatUnitPrice, showToast, daysAgoFromToday } from "../../utils/format";
 import { SNAPSHOT_UPDATED_EVENT } from "../../config";
+import { getLatestNbsRealEstate } from "../../local/nbsRealEstate";
+import { getGzInventoryOverview } from "../../local/gzNewHouseInventory";
+import { getLatestProvidentFundRate, monthlyPayment } from "../../local/providentFund";
 
 const app = useAppStore();
 
@@ -2502,10 +2746,200 @@ const districtCompareResp = ref<DistrictCommunityCompareResponse | null>(null);
 
 const errorMsg = ref<string>("");
 const loading = ref<boolean>(false);
+const gzInventoryExpanded = ref(false);
+
+const nbsMacro = computed(() => getLatestNbsRealEstate());
+const gzInventory = computed(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "广州" ? getGzInventoryOverview() : null;
+});
+const providentRate = computed(() => getLatestProvidentFundRate());
+
+function formatMacro100m(v: number) {
+  return `${v.toLocaleString()} 亿元`;
+}
+function formatMacroArea(v: number) {
+  return `${v.toLocaleString()} 万㎡`;
+}
+function formatMacroPct(v: number) {
+  return `${v > 0 ? "+" : ""}${v.toFixed(1)}%`;
+}
+function macroTrendClass(v: number) {
+  if (v > 0) return "stats70-up";
+  if (v < 0) return "stats70-down";
+  return "stats70-flat";
+}
+function formatInventoryUnits(v: number) {
+  return v >= 10000 ? `${(v / 10000).toFixed(1)} 万套` : `${v.toLocaleString()} 套`;
+}
+function pfMonthly100w() {
+  const rate = providentRate.value?.firstOver5y ?? 0;
+  return Math.round(monthlyPayment(1_000_000, rate, 30));
+}
+
+function pfSavingVsCommercial100w() {
+  const commRate = lpr.value?.latest?.mortgageFirst ?? 0;
+  const commercial = Math.round(monthlyPayment(1_000_000, commRate, 30));
+  return Math.max(0, commercial - pfMonthly100w());
+}
+
+const COMBO_YEAR_OPTIONS = [10, 20, 30] as const;
+const comboFundWan = ref(50);
+const comboCommercialWan = ref(50);
+const comboYears = ref(30);
+
+function clampComboWan(raw: unknown): number {
+  const n = typeof raw === "number" ? raw : Number(String(raw ?? "").trim());
+  if (!Number.isFinite(n) || n < 0) return 0;
+  if (n > 1000) return 1000;
+  return n;
+}
+
+function comboInputValue(e: Event | { detail?: { value?: string } }) {
+  const maybeUni = e as { detail?: { value?: string } };
+  if (maybeUni.detail?.value != null) return maybeUni.detail.value;
+  const target = (e as Event).target as HTMLInputElement | null;
+  return target?.value ?? "";
+}
+
+function onComboFundInput(e: Event) {
+  comboFundWan.value = clampComboWan(comboInputValue(e));
+}
+function onComboCommercialInput(e: Event) {
+  comboCommercialWan.value = clampComboWan(comboInputValue(e));
+}
+function onComboFundBlur(e: Event) {
+  comboFundWan.value = clampComboWan(comboInputValue(e));
+}
+function onComboCommercialBlur(e: Event) {
+  comboCommercialWan.value = clampComboWan(comboInputValue(e));
+}
+
+const comboFundRatePct = computed(() => {
+  const rate = providentRate.value;
+  if (!rate) return 0;
+  return comboYears.value <= 5 ? rate.first5yOrLess : rate.firstOver5y;
+});
+
+const comboCommercialRatePct = computed(() => lpr.value?.latest?.mortgageFirst ?? 0);
+
+const comboMonthly = computed(() => {
+  const years = comboYears.value;
+  const fund = comboFundWan.value * 10_000;
+  const commercial = comboCommercialWan.value * 10_000;
+  return Math.round(
+    monthlyPayment(fund, comboFundRatePct.value, years)
+    + monthlyPayment(commercial, comboCommercialRatePct.value, years)
+  );
+});
+
+const comboSavingMonthly = computed(() => {
+  const totalPrincipal = (comboFundWan.value + comboCommercialWan.value) * 10_000;
+  if (totalPrincipal <= 0) return 0;
+  const allCommercial = Math.round(
+    monthlyPayment(totalPrincipal, comboCommercialRatePct.value, comboYears.value)
+  );
+  return Math.max(0, allCommercial - comboMonthly.value);
+});
+
+const comboTotalInterestWan = computed(() => {
+  const principal = (comboFundWan.value + comboCommercialWan.value) * 10_000;
+  if (principal <= 0) return "0";
+  const months = comboYears.value * 12;
+  const interest = comboMonthly.value * months - principal;
+  return (Math.round(interest / 1000) / 10).toFixed(1);
+});
+
+function resetCombo() {
+  comboFundWan.value = 50;
+  comboCommercialWan.value = 50;
+  comboYears.value = 30;
+}
 
 // v0.48.0 dashboard-tabs: 顶部 tab 切换
 type DashTabKey = "overview" | "price" | "school" | "transit" | "map";
 const activeTab = ref<DashTabKey>("overview");
+
+type OverviewGroupKey = "region" | "wangqian" | "transit" | "community" | "school" | "lpr";
+const OVERVIEW_GROUP_KEYS: OverviewGroupKey[] = ["region", "wangqian", "transit", "community", "school", "lpr"];
+const OVERVIEW_JUMPS: { key: OverviewGroupKey; label: string }[] = [
+  { key: "region", label: "区域" },
+  { key: "wangqian", label: "网签" },
+  { key: "transit", label: "通勤" },
+  { key: "community", label: "小区" },
+  { key: "school", label: "学校" },
+  { key: "lpr", label: "利率" }
+];
+
+const overviewOpenGroups = ref<Set<OverviewGroupKey>>(new Set());
+
+const overviewAllExpanded = computed(() =>
+  OVERVIEW_GROUP_KEYS.every((k) => overviewOpenGroups.value.has(k))
+);
+
+function isOverviewGroupCollapsed(key: OverviewGroupKey): boolean {
+  if (activeTab.value !== "overview") return false;
+  return !overviewOpenGroups.value.has(key);
+}
+
+function expandOverviewGroup(key: OverviewGroupKey) {
+  overviewOpenGroups.value = new Set([...overviewOpenGroups.value, key]);
+}
+
+function jumpOverviewGroup(key: OverviewGroupKey) {
+  expandOverviewGroup(key);
+  if (typeof document !== "undefined") {
+    document.getElementById(`overview-${key}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+function toggleOverviewAll() {
+  if (overviewAllExpanded.value) {
+    overviewOpenGroups.value = new Set();
+  } else {
+    overviewOpenGroups.value = new Set(OVERVIEW_GROUP_KEYS);
+  }
+}
+
+function onOverviewCardClick(key: OverviewGroupKey) {
+  if (isOverviewGroupCollapsed(key)) expandOverviewGroup(key);
+}
+
+const overviewRegionSummary = computed(() => {
+  const top = districtItems.value[0];
+  if (!top) return "暂无区级对比数据";
+  return `领先：${top.district_name} · ${formatBarValue(top)}`;
+});
+
+const overviewWangqianSummary = computed(() => {
+  const top = districtWangqianRank.value?.items[0];
+  if (!top) return "暂无网签热度数据";
+  return `最热：${top.district} · ${top.totalUnits} 套`;
+});
+
+const overviewTransitSummary = computed(() => {
+  const top = commuteRanking.value?.fastest[0];
+  if (!top) return "暂无通勤数据";
+  return `最快：${top.communityName} · ${Math.round(top.transitMinutes)} 分钟`;
+});
+
+const overviewCommunitySummary = computed(() => {
+  const top = communityScore.value?.items[0];
+  if (!top) return "暂无小区评分";
+  return `榜首：${top.communityName} · ${top.totalScore.toFixed(0)} 分`;
+});
+
+const overviewSchoolSummary = computed(() => {
+  const top = schoolDims.value?.topOverall[0];
+  if (!top) return "暂无学校评分";
+  return `综合第一：${top.schoolName} · ${top.compositeScore.toFixed(0)} 分`;
+});
+
+const overviewLprSummary = computed(() => {
+  const latest = lpr.value?.latest;
+  if (!latest) return "暂无 LPR 数据";
+  return `首套参考 ${latest.mortgageFirst.toFixed(2)}% · 5Y LPR ${latest.lpr5y.toFixed(2)}%`;
+});
 
 // v0.55.0 hero-1: 顶部大盘轮播 — 城市级聚合 (从 snapshot 实时计算)
 const listingCount = computed<number>(() => store.getListingsByCity(app.cityId).length);
@@ -3869,6 +4303,254 @@ onShow(async () => {
   min-height: 100vh;
 }
 
+.filter-card {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(34, 197, 94, 0.24);
+  background: linear-gradient(145deg, var(--color-surface) 0%, rgba(22, 163, 74, 0.055) 100%);
+}
+
+.filter-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin-bottom: 22rpx;
+}
+
+.dashboard-eyebrow {
+  color: var(--color-primary);
+  font-size: 19rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  margin-bottom: 5rpx;
+}
+
+.data-trust-badge {
+  flex: 0 0 auto;
+  padding: 8rpx 14rpx;
+  border: 1rpx solid rgba(34, 197, 94, 0.28);
+  border-radius: 999rpx;
+  background: rgba(34, 197, 94, 0.1);
+  color: #4ade80;
+  font-size: 21rpx;
+}
+
+.filter-actions {
+  justify-content: flex-end;
+}
+
+.gz-inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8rpx;
+  margin-top: 16rpx;
+}
+
+.gz-inventory-kpi {
+  background: var(--color-surface-raised);
+  border-radius: 12rpx;
+  padding: 16rpx;
+}
+
+.gz-inventory-value {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.gz-inventory-row {
+  display: grid;
+  grid-template-columns: 1.2fr repeat(3, 1fr);
+  gap: 8rpx;
+  padding: 10rpx 0;
+  font-size: 22rpx;
+  border-bottom: 1rpx solid var(--color-border);
+}
+
+.pf-card {
+  margin-top: 20rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx dashed var(--color-border);
+}
+
+.pf-rate-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8rpx;
+  margin-top: 12rpx;
+}
+
+.pf-rate-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  font-size: 22rpx;
+}
+
+.pf-rate-value {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.pf-saving {
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  color: var(--color-muted);
+}
+
+.overview-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+  padding: 16rpx 20rpx;
+  border-radius: 16rpx;
+  background: var(--color-surface);
+  border: 1rpx solid var(--color-border);
+}
+
+.overview-jump-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+
+.overview-jump,
+.overview-toggle-all {
+  margin: 0;
+  border: 1rpx solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 22rpx;
+}
+
+.overview-toggle-all {
+  align-self: flex-start;
+}
+
+.overview-card--collapsed {
+  position: relative;
+  overflow: hidden;
+  max-height: 220rpx;
+}
+
+.overview-card--collapsed::after {
+  content: "展开完整数据";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 28rpx 0 12rpx;
+  text-align: center;
+  font-size: 21rpx;
+  color: var(--color-primary);
+  background: linear-gradient(180deg, transparent, var(--color-surface) 55%);
+  pointer-events: none;
+}
+
+.overview-card-summary {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  line-height: 1.5;
+}
+
+.combo-loan {
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx dashed var(--color-border);
+}
+
+.combo-title {
+  color: var(--color-heading);
+  font-size: 25rpx;
+  font-weight: 700;
+}
+
+.combo-input-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12rpx;
+  margin-top: 12rpx;
+}
+
+.combo-field {
+  display: flex;
+  min-width: 0;
+  color: var(--color-muted);
+  font-size: 20rpx;
+  flex-direction: column;
+  gap: 7rpx;
+}
+
+.combo-input {
+  height: 66rpx;
+  padding: 0 14rpx;
+  border: 1rpx solid var(--color-border);
+  border-radius: 10rpx;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 26rpx;
+}
+
+.combo-years {
+  display: flex;
+  gap: 8rpx;
+  margin-top: 12rpx;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.combo-year-btn,
+.combo-reset {
+  margin: 0;
+  border: 1rpx solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 21rpx;
+}
+
+.combo-year-btn--active {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+}
+
+.combo-reset {
+  margin-left: auto;
+}
+
+.combo-result {
+  display: grid;
+  gap: 8rpx;
+  margin-top: 14rpx;
+  padding: 14rpx 16rpx;
+  border-radius: 12rpx;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 21rpx;
+}
+
+.combo-result > view {
+  display: flex;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.combo-result-main {
+  color: var(--color-heading);
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.combo-result-saving {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.page {
+  min-height: 100vh;
+}
+
 .form-row {
   display: flex;
   align-items: center;
@@ -3947,7 +4629,7 @@ onShow(async () => {
   border-top-right-radius: 24rpx;
   display: flex;
   flex-direction: column;
-  padding: 16rpx 0;
+  padding: 16rpx 0 calc(16rpx + var(--safe-area-bottom, 0px));
   box-sizing: border-box;
 }
 
@@ -4081,10 +4763,16 @@ onShow(async () => {
 }
 
 .stats70-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-top: 16rpx;
   gap: 8rpx;
+}
+
+@media (min-width: 900px) {
+  .stats70-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .stats70-cell {

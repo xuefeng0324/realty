@@ -607,7 +607,7 @@ onUnmounted(() => {
   border-top-right-radius: 24rpx;
   display: flex;
   flex-direction: column;
-  padding: 16rpx 0;
+  padding: 16rpx 0 calc(16rpx + var(--safe-area-bottom, 0px));
   box-sizing: border-box;
 }
 

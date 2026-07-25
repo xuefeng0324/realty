@@ -1,19 +1,42 @@
 <template>
   <view class="page">
-    <view class="card">
+    <view class="card map-control-card">
       <view class="row-between">
-        <view class="card-title" style="margin-bottom: 0">地图找房</view>
-        <view class="muted" style="font-size: 22rpx">
+        <view>
+          <view class="control-eyebrow">MAP EXPLORER</view>
+          <view class="card-title map-title" style="margin-bottom: 0">地图找房</view>
+        </view>
+        <view class="map-summary">
           {{ citiesReady ? `${totalMarkers} 个小区 · ${totalListings} 套挂牌` : "加载中…" }}
         </view>
       </view>
-      <view class="row-gap" style="margin-top: 12rpx">
-        <button class="btn" size="mini" @click="zoomToCity(2)">深圳</button>
-        <button class="btn" size="mini" @click="zoomToCity(1)">广州</button>
-        <button class="btn" size="mini" @click="zoomToCity(3)">珠海</button>
-        <button class="btn" size="mini" @click="toggleType">
-          {{ modeLabel }}
-        </button>
+      <view class="control-section">
+        <view class="control-label">城市</view>
+        <view class="city-segment">
+          <button class="btn city-option" :class="{ 'city-option--active': app.cityId === 2 }" size="mini" @click="zoomToCity(2)">深圳</button>
+          <button class="btn city-option" :class="{ 'city-option--active': app.cityId === 1 }" size="mini" @click="zoomToCity(1)">广州</button>
+          <button class="btn city-option" :class="{ 'city-option--active': app.cityId === 3 }" size="mini" @click="zoomToCity(3)">珠海</button>
+        </view>
+      </view>
+      <view class="control-label layer-label">图层模式</view>
+      <scroll-view scroll-x class="map-mode-scroll">
+        <view class="map-mode-list">
+          <button
+            v-for="item in mapModeItems"
+            :key="item.key"
+            class="map-mode-btn"
+            :class="{ 'map-mode-btn--active': mode === item.key }"
+            size="mini"
+            @click="setMapMode(item.key)"
+          >
+            {{ item.icon }} {{ item.label }}
+          </button>
+        </view>
+      </scroll-view>
+      <view class="mode-summary-row">
+        <view class="mode-summary-dot"></view>
+        <text>当前：{{ modeLabel }}</text>
+        <button class="cycle-btn" size="mini" @click="toggleType">切换下一图层</button>
       </view>
       <view class="muted legend">
         <text v-if="mode === 'price'">
@@ -60,7 +83,22 @@
         :enable-zoom="true"
         :enable-scroll="true"
         @markertap="onMarkerTap"
+        @updated="onMapUpdated"
+        @error="onMapError"
       ></map>
+      <view v-if="mapStatus !== 'ready'" class="map-status" :class="{ 'map-status--slow': mapStatus === 'slow' }" data-map-status>
+        <view v-if="mapStatus === 'loading'" class="map-status-content">
+          <view class="map-spinner"></view>
+          <text>正在连接地图服务…</text>
+        </view>
+        <view v-else class="map-status-content map-status-content--slow">
+          <view>
+            <view class="map-status-title">底图加载较慢</view>
+            <view class="map-status-hint">图层数据仍可切换；请检查网络或地图服务配置后重试。</view>
+          </view>
+          <button class="map-retry-btn" size="mini" data-map-retry @click="retryMap">重新加载</button>
+        </view>
+      </view>
     </view>
 
     <!-- v0.21.0 map-7: 价格热力 5 档分位 legend -->
@@ -211,6 +249,36 @@ const errorMsg = ref<string>("");
 type MapMode = "count" | "price" | "listings" | "poi" | "metro";
 type PoiCat = "subway" | "school" | "hospital" | "mall" | "park";
 const mode = ref<MapMode>("count");
+const mapStatus = ref<"loading" | "slow" | "ready">("loading");
+const mapReloadKey = ref(0);
+
+const mapModeItems: { key: MapMode; icon: string; label: string }[] = [
+  { key: "count", icon: "🔴", label: "挂牌热力" },
+  { key: "price", icon: "💰", label: "成交价" },
+  { key: "listings", icon: "📍", label: "挂牌点" },
+  { key: "poi", icon: "🏫", label: "POI" },
+  { key: "metro", icon: "🚇", label: "地铁" }
+];
+
+function setMapMode(next: MapMode) {
+  mode.value = next;
+  selectedPoi.value = null;
+  selectedMetroLineId.value = null;
+}
+
+function onMapUpdated() {
+  mapStatus.value = "ready";
+}
+
+function onMapError() {
+  mapStatus.value = "slow";
+}
+
+function retryMap() {
+  mapStatus.value = "loading";
+  mapReloadKey.value += 1;
+  mapScale.value = mapScale.value;
+}
 const poiFilter = ref<Set<PoiCat>>(new Set(["subway", "school", "hospital", "mall", "park"]));
 const selectedCommunityId = ref<number | null>(null);
 const selectedPoi = ref<{ poiName: string; poiCategory: PoiCat; poiType: string | null; distanceM: number; address: string | null; communityId: number } | null>(null);
@@ -224,11 +292,8 @@ function closeMetroCard() {
 }
 
 const modeLabel = computed(() => {
-  if (mode.value === "count") return "切到成交价热力";
-  if (mode.value === "price") return "切到挂牌点";
-  if (mode.value === "listings") return "切到 POI";
-  if (mode.value === "poi") return "切到地铁规划";
-  return "切到挂牌数热力";
+  const item = mapModeItems.find((m) => m.key === mode.value);
+  return item ? `${item.icon} ${item.label}` : mode.value;
 });
 
 function togglePoiCategory(cat: PoiCat) {
@@ -1019,7 +1084,7 @@ onUnmounted(() => {
   position: fixed;
   left: 16rpx;
   right: 16rpx;
-  bottom: 24rpx;
+  bottom: calc(24rpx + var(--window-bottom, 0px) + var(--safe-area-bottom, 0px));
   background: rgba(15, 23, 42, 0.95);
   border: 1rpx solid #334155;
   border-radius: 12rpx;
@@ -1109,5 +1174,123 @@ onUnmounted(() => {
   background: rgba(148, 163, 184, 0.1);
   border-color: #475569;
   color: #94a3b8;
+}
+
+.map-control-card {
+  padding: 26rpx;
+  border-radius: 22rpx;
+}
+
+.control-eyebrow {
+  color: #0ea5e9;
+  font-size: 19rpx;
+  font-weight: 700;
+  letter-spacing: 3rpx;
+}
+
+.map-summary {
+  padding: 7rpx 14rpx;
+  border-radius: 999rpx;
+  background: var(--color-surface-raised);
+  color: var(--color-text-secondary, var(--color-muted));
+  font-size: 20rpx;
+}
+
+.control-section {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  margin-top: 20rpx;
+}
+
+.control-label {
+  flex: 0 0 auto;
+  color: var(--color-muted);
+  font-size: 21rpx;
+  font-weight: 650;
+}
+
+.layer-label {
+  margin-top: 18rpx;
+}
+
+.city-segment {
+  display: inline-flex;
+  padding: 5rpx;
+  border: 1rpx solid var(--color-border);
+  border-radius: 14rpx;
+  background: var(--color-surface-raised);
+}
+
+.city-option {
+  min-width: 96rpx;
+  margin: 0;
+  padding: 6rpx 18rpx;
+  background: transparent;
+}
+
+.city-option--active {
+  background: var(--color-primary);
+  color: var(--color-primary-text, #052e16);
+}
+
+.map-mode-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.map-mode-list {
+  display: inline-flex;
+  gap: 8rpx;
+  padding: 8rpx 0;
+}
+
+.map-mode-btn {
+  background: var(--color-surface-raised);
+}
+
+.map-mode-btn--active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.mode-summary-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-top: 12rpx;
+  font-size: 22rpx;
+}
+
+.map-status {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.72);
+  z-index: 2;
+}
+
+.map-status-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  padding: 24rpx;
+  text-align: center;
+}
+
+.map-status-content--slow {
+  flex-direction: row;
+  text-align: left;
+}
+
+.map-retry-btn {
+  margin-left: 12rpx;
+}
+
+.map-wrap {
+  position: relative;
 }
 </style>

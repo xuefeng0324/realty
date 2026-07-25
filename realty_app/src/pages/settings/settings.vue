@@ -1,6 +1,32 @@
 <template>
   <view class="page">
     <view class="container">
+      <view class="settings-hero">
+        <view>
+          <view class="hero-eyebrow">APP CONTROL CENTER</view>
+          <view class="hero-title">设置与数据管理</view>
+        </view>
+      </view>
+
+      <view class="settings-grid">
+      <view class="card">
+        <view class="card-title">外观</view>
+        <view class="muted">浅色与深色会统一页面、卡片、输入框和按钮的颜色。</view>
+        <view class="theme-options" style="margin-top: 16rpx">
+          <button
+            v-for="option in themeOptions"
+            :key="option.value"
+            class="theme-option"
+            :class="{ 'theme-option--active': themeMode === option.value }"
+            size="mini"
+            @click="pickTheme(option.value)"
+          >
+            <text class="theme-option-icon">{{ option.icon }}</text>
+            <text>{{ option.label }}</text>
+          </button>
+        </view>
+      </view>
+
       <!-- 主卡片：当前状态 + 一键重置回种子数据 -->
       <view class="card">
         <view class="card-title">数据源</view>
@@ -142,6 +168,7 @@
           评分规则在手机上实时计算；当前自动化测试为 458 个用例
         </view>
       </view>
+      </view>
     </view>
   </view>
 </template>
@@ -172,6 +199,7 @@ import {
   clearWangqianRemoteCache
 } from "../../local/wangqianDataRefresher";
 import { loadDailyWangqianFromCSV } from "../../local/dailyWangqian";
+import { getStoredThemeMode, setThemeMode, type ThemeMode } from "../../utils/theme";
 import { GOV_WEB_LINKS, openGovWeb, type GovWebLinkKey } from "../../config/govLinks";
 // @ts-ignore
 import dailyWangqianRaw from "../../../static/daily_wangqian.csv?raw";
@@ -188,6 +216,19 @@ const advancedOpen = ref<boolean>(false);
 const refreshing = ref<boolean>(false);
 const lastRefresh = ref<{ sha?: string; at?: string }>(getLastRefreshInfo());
 const wangqianRefreshing = ref<boolean>(false);
+const themeMode = ref<ThemeMode>(getStoredThemeMode());
+const themeOptions = [
+  { value: "system" as const, label: "跟随系统", icon: "◐" },
+  { value: "light" as const, label: "浅色", icon: "☀" },
+  { value: "dark" as const, label: "深色", icon: "☾" }
+];
+
+function pickTheme(mode: ThemeMode) {
+  themeMode.value = mode;
+  setThemeMode(mode);
+  showToast(mode === "system" ? "已跟随系统外观" : `已切换为${mode === "light" ? "浅色" : "深色"}模式`);
+}
+
 const lastWangqianRefresh = ref<{ sha?: string; at?: string }>(getLastWangqianRefreshInfo());
 
 const errorMsg = ref<string>("");
@@ -365,6 +406,55 @@ function restoreSeed() {
 </script>
 
 <style lang="scss" scoped>
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16rpx;
+}
+
+@media (max-width: 760px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.settings-hero {
+  margin-bottom: 16rpx;
+}
+
+.hero-eyebrow {
+  color: var(--color-primary);
+  font-size: 19rpx;
+  font-weight: 700;
+  letter-spacing: 3rpx;
+}
+
+.hero-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  margin-top: 8rpx;
+}
+
+.theme-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+
+.theme-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  border: 1rpx solid var(--color-border);
+}
+
+.theme-option--active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
 .form-item {
   display: flex;
   flex-direction: column;

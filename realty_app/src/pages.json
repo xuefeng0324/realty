@@ -32,6 +32,12 @@
       }
     },
     {
+      "path": "pages/school-detail/school-detail",
+      "style": {
+        "navigationBarTitleText": "学校详情"
+      }
+    },
+    {
       "path": "pages/stats70/stats70",
       "style": {
         "navigationBarTitleText": "全国 70 城指数"

@@ -510,7 +510,7 @@ onLoad((opts?: Record<string, string>) => {
   background: #111827;
   border-top-left-radius: 24rpx;
   border-top-right-radius: 24rpx;
-  padding: 16rpx 0;
+  padding: 16rpx 0 calc(16rpx + var(--safe-area-bottom, 0px));
 }
 .sheet-title {
   text-align: center;

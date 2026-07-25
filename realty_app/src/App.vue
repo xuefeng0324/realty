@@ -7,9 +7,13 @@ import { getStoredCsvBaseUrl, getStoredDataMode } from "./local/dataMode";
 import { SNAPSHOT_UPDATED_EVENT } from "./config";
 import { loadStats70FromCSV } from "./local/stats70";
 import { loadDailyWangqianFromCSV } from "./local/dailyWangqian";
+import { loadProvidentFundRatesFromCSV } from "./local/providentFund";
+import { loadNbsRealEstateFromCSV } from "./local/nbsRealEstate";
+import { loadGzInventoryFromCSV } from "./local/gzNewHouseInventory";
 import {
   refreshWangqianFromRemote
 } from "./local/wangqianDataRefresher";
+import { initializeTheme } from "./utils/theme";
 // 直接以 raw 字符串 import，绕开 app-plus 静态资源下载问题。
 //   H5/小程序：`?raw` query 由 vite 处理返回字符串
 //   app-plus：在 webpack/vite 阶段把文件内联进来
@@ -20,8 +24,15 @@ import {
 import stats70Raw from "../static/stats_70.csv?raw";
 // @ts-ignore
 import dailyWangqianRaw from "../static/daily_wangqian.csv?raw";
+// @ts-ignore
+import providentFundRaw from "../static/provident_fund_rates.csv?raw";
+// @ts-ignore
+import nbsRealEstateRaw from "../static/nbs_real_estate.csv?raw";
+// @ts-ignore
+import gzNewHouseInventoryRaw from "../static/gz_new_house_inventory.csv?raw";
 
 onLaunch(() => {
+  initializeTheme();
   // 启动时加载种子"真数据"快照（来自国家统计局 70 城指数 + 公开政策派生）
   // 替代原本的内置随机 demo。
   if (!isLoaded()) {
@@ -64,6 +75,30 @@ onLaunch(() => {
       console.warn("[realty_app] daily_wangqian parse failed", e);
     }
   }
+  if (typeof providentFundRaw === "string" && providentFundRaw.length > 0) {
+    try {
+      const rows = loadProvidentFundRatesFromCSV(providentFundRaw);
+      console.log("[realty_app] provident_fund_rates loaded:", rows.length);
+    } catch (e) {
+      console.warn("[realty_app] provident_fund_rates parse failed", e);
+    }
+  }
+  if (typeof nbsRealEstateRaw === "string" && nbsRealEstateRaw.length > 0) {
+    try {
+      const rows = loadNbsRealEstateFromCSV(nbsRealEstateRaw);
+      console.log("[realty_app] nbs_real_estate loaded:", rows.length);
+    } catch (e) {
+      console.warn("[realty_app] nbs_real_estate parse failed", e);
+    }
+  }
+  if (typeof gzNewHouseInventoryRaw === "string" && gzNewHouseInventoryRaw.length > 0) {
+    try {
+      const rows = loadGzInventoryFromCSV(gzNewHouseInventoryRaw);
+      console.log("[realty_app] gz_new_house_inventory loaded:", rows.length);
+    } catch (e) {
+      console.warn("[realty_app] gz_new_house_inventory parse failed", e);
+    }
+  }
   // 静默尝试从 jsDelivr 拉最新网签（失败则保留包内数据）
   void refreshWangqianFromRemote().then((r) => {
     if (r.ok && r.changed) {
@@ -79,13 +114,45 @@ onShow(() => {
 </script>
 
 <style lang="scss">
-/* 全局样式 - 移动端友好 */
 page {
-  background-color: #0b1020;
-  color: #e2e8f0;
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --color-bg: #080d18;
+  --color-surface: #111827;
+  --color-surface-raised: #182235;
+  --color-border: rgba(148, 163, 184, 0.16);
+  --color-text: #e2e8f0;
+  --color-heading: #f3f4f6;
+  --color-muted: #94a3b8;
+  --color-primary: #22c55e;
+  --color-primary-strong: #16a34a;
+  --color-primary-text: #052e16;
+  --color-danger: #ef4444;
+  --shadow-card: 0 12rpx 34rpx rgba(0, 0, 0, 0.2);
+  background-color: var(--color-bg);
+  background-image:
+    radial-gradient(circle at 12% -10%, rgba(34, 197, 94, 0.09), transparent 34%),
+    radial-gradient(circle at 92% 0%, rgba(59, 130, 246, 0.08), transparent 30%);
+  color: var(--color-text);
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC",
     "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
   font-size: 28rpx;
+}
+
+html[data-realty-theme="light"],
+html[data-realty-theme="light"] page {
+  --color-bg: #f4f7fb;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f6f8fb;
+  --color-border: #dfe6ef;
+  --color-text: #1f2937;
+  --color-heading: #0f172a;
+  --color-muted: #64748b;
+  --color-primary: #16a34a;
+  --color-primary-strong: #15803d;
+  --shadow-card: 0 10rpx 30rpx rgba(15, 23, 42, 0.065);
 }
 
 view,
@@ -95,14 +162,19 @@ text {
 
 .container {
   padding: 24rpx;
+  padding-left: calc(24rpx + var(--safe-area-left));
+  padding-right: calc(24rpx + var(--safe-area-right));
+  max-width: 1180px;
+  margin: 0 auto;
 }
 
 .card {
-  background: #111827;
-  border: 1rpx solid #1f2937;
+  background: var(--color-surface);
+  border: 1rpx solid var(--color-border);
   border-radius: 16rpx;
   padding: 24rpx;
   margin-bottom: 24rpx;
+  box-shadow: var(--shadow-card);
 }
 
 .card-title {

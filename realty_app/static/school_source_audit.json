@@ -1,0 +1,88 @@
+{
+  "audited_at": "2026-07-25",
+  "source_platform": "深圳市政府数据开放平台",
+  "source_domain": "opendata.sz.gov.cn",
+  "policy": "仅元数据审计通过不能自动导入；仍需核验字段定义与逐行内容。",
+  "datasets": [
+    {
+      "res_id": "29200/03700831",
+      "title": "盐田区-公办中小学",
+      "publisher": "盐田区人民政府",
+      "updated_at": "2020-11-06 14:49",
+      "record_total": 32,
+      "formats": [
+        "csv",
+        "json",
+        "rdf",
+        "xlsx",
+        "xml"
+      ],
+      "open_level": "无条件开放",
+      "detail_url": "https://opendata.sz.gov.cn/data/dataSet/toDataDetails/29200_03700831",
+      "abstract": "公办中小学",
+      "issues": [
+        "stale_over_730_days"
+      ],
+      "eligible_for_import": false
+    },
+    {
+      "res_id": "29200/03700756",
+      "title": "盐田区-公办中小学办学情况数据",
+      "publisher": "盐田区人民政府",
+      "updated_at": "2021-05-17 17:03",
+      "record_total": 32,
+      "formats": [
+        "csv",
+        "json",
+        "rdf",
+        "xlsx",
+        "xml"
+      ],
+      "open_level": "无条件开放",
+      "detail_url": "https://opendata.sz.gov.cn/data/dataSet/toDataDetails/29200_03700756",
+      "abstract": "盐田区-公办中小学办学情况数据",
+      "issues": [
+        "stale_over_730_days"
+      ],
+      "eligible_for_import": false
+    },
+    {
+      "res_id": "29200/04003918",
+      "title": "深圳市南山区中小学学校信息表",
+      "publisher": "南山区人民政府",
+      "updated_at": "2026-01-28 17:12",
+      "record_total": 11,
+      "formats": [
+        "xlsx"
+      ],
+      "open_level": "无条件开放",
+      "detail_url": "https://opendata.sz.gov.cn/data/dataSet/toDataDetails/29200_04003918",
+      "abstract": "该信息汇编系统整理了深圳市南山区沙河街道办事处辖区范围内全部托育机构的完整名录。内容详实收录了各托育园（中心）的法定登记名称、所在地址等关键信息，旨在为辖区居民提供可靠的入托指南，并为相关部门实施规范化管理与服务监督提供精准的数据支持。",
+      "issues": [
+        "title_abstract_mismatch"
+      ],
+      "eligible_for_import": false
+    },
+    {
+      "res_id": "29200/03803658",
+      "title": "龙岗区-民办中小学数据统计基本汇总",
+      "publisher": "龙岗区人民政府",
+      "updated_at": "2019-08-05 18:05",
+      "record_total": 90,
+      "formats": [
+        "csv",
+        "json",
+        "rdf",
+        "xlsx",
+        "xml"
+      ],
+      "open_level": "无条件开放",
+      "detail_url": "https://opendata.sz.gov.cn/data/dataSet/toDataDetails/29200_03803658",
+      "abstract": "龙岗区-民办中小学数据统计基本汇总",
+      "issues": [
+        "stale_over_730_days"
+      ],
+      "eligible_for_import": false
+    }
+  ]
+}

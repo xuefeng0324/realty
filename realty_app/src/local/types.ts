@@ -24,6 +24,10 @@ export interface LocalSchool {
   schoolType: string | null;
   provinceKeyFlag: boolean | null;
   cityKeyFlag: boolean | null;
+  /** 政府逐校目录或整理样本，来自 school_source_audit / 导入快照 */
+  sourceKind?: "OFFICIAL" | "CURATED" | "UNKNOWN" | string | null;
+  sourceUrl?: string | null;
+  verifiedAt?: string | null;
 }
 
 export interface LocalSchoolIndicator {

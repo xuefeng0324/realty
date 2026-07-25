@@ -55,10 +55,21 @@ export function showToast(title: string, icon: "success" | "error" | "none" = "n
  */
 export function daysAgoFromToday(isoDate: string | null | undefined): number | null {
   if (!isoDate) return null;
-  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(isoDate.trim());
+  const trimmed = isoDate.trim();
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(trimmed);
   if (!m) return null;
-  const then = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-  if (Number.isNaN(then.getTime())) return null;
+  const year = Number(m[1]);
+  const month = Number(m[2]);
+  const day = Number(m[3]);
+  if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+  const then = new Date(year, month - 1, day);
+  if (
+    then.getFullYear() !== year ||
+    then.getMonth() !== month - 1 ||
+    then.getDate() !== day
+  ) {
+    return null;
+  }
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   return Math.round((today.getTime() - then.getTime()) / 86400000);

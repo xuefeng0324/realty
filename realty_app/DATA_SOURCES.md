@@ -139,18 +139,34 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 
 ---
 
-## 4. 数据与 App 模块关系
+## 4. 其他官方宏观 CSV（v0.60+）
 
-```
-stats_70.csv          → stats70.ts      → 70 城价格指数（月度）
-daily_wangqian.csv    → dailyWangqian.ts → 深广网签（日更）
-static/seed/*.csv      → seedSnapshot / snapshotLoader → 完整业务快照
-```
-
-宏观数据与业务快照相互独立，在 `App.vue` 启动时分别注入内存 store。
+| CSV | 加载模块 | 脚本 | 说明 |
+|-----|----------|------|------|
+| `static/provident_fund_rates.csv` | `providentFund.ts` | （人工维护 / 国务院公告） | 住房公积金贷款利率档位；`App.vue` 启动 `?raw` 加载 |
+| `static/nbs_real_estate.csv` | `nbsRealEstate.ts` | `scripts/crawl_nbs_real_estate.py` | 国家统计局房地产开发投资与销售；来源须为 `stats.gov.cn` |
+| `static/gz_new_house_inventory.csv` | `gzNewHouseInventory.ts` | `scripts/crawl_gz_new_house_inventory.py` | 广州新房可售/未售/签约分区库存 |
+| `static/education_overview.csv` | `educationOverview.ts`（模块内 `?raw`） | `scripts/crawl_gz_education_overview.py` | 广州教育事业概览；深圳/珠海无数据时返回空，不伪造 |
+| `static/school_source_audit.json` | 审计用（测试/脚本） | `scripts/audit_school_sources.py` | 学校来源分级审计结果，不直接驱动 UI 排名 |
 
 ---
 
-## 5. 免责声明
+## 5. 数据与 App 模块关系
+
+```
+stats_70.csv                 → stats70.ts            → 70 城价格指数（月度）
+daily_wangqian.csv           → dailyWangqian.ts      → 深广网签（日更）
+provident_fund_rates.csv     → providentFund.ts      → 公积金利率 / 月供
+nbs_real_estate.csv          → nbsRealEstate.ts      → 全国房地产开销宏观
+gz_new_house_inventory.csv   → gzNewHouseInventory.ts → 广州新房库存
+education_overview.csv       → educationOverview.ts  → 广州教育事业概览
+static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务快照
+```
+
+宏观数据与业务快照相互独立，在 `App.vue` 启动时分别注入内存（教育概览由模块 import 时解析）。
+
+---
+
+## 6. 免责声明
 
 政府数据以官网公布为准；真实挂牌以来源页面当时展示为准；`DERIVED` / `ESTIMATED` 数据仅用于产品演示和方法研究，不构成真实房源、成交记录或投资建议。请遵守数据来源网站使用条款。

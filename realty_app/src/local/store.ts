@@ -52,6 +52,35 @@ import type {
 
 let snapshot: DataSnapshot | null = null;
 
+let cityById = new Map<number, LocalCity>();
+let communityById = new Map<number, LocalCommunity>();
+let listingById = new Map<number, LocalListing>();
+let communitiesByCity = new Map<number, LocalCommunity[]>();
+let schoolsByCity = new Map<number, LocalSchool[]>();
+let listingsByCity = new Map<number, LocalListing[]>();
+let listingsByCommunity = new Map<number, LocalListing[]>();
+
+function groupByKey<T, K>(items: T[], keyFn: (item: T) => K): Map<K, T[]> {
+  const out = new Map<K, T[]>();
+  for (const item of items) {
+    const key = keyFn(item);
+    const bucket = out.get(key);
+    if (bucket) bucket.push(item);
+    else out.set(key, [item]);
+  }
+  return out;
+}
+
+function rebuildIndexes(s: DataSnapshot) {
+  cityById = new Map(s.cities.map((c) => [c.cityId, c]));
+  communityById = new Map(s.communities.map((c) => [c.communityId, c]));
+  listingById = new Map(s.listings.map((l) => [l.listingId, l]));
+  communitiesByCity = groupByKey(s.communities, (c) => c.cityId);
+  schoolsByCity = groupByKey(s.schools, (c) => c.cityId);
+  listingsByCity = groupByKey(s.listings, (l) => l.cityId);
+  listingsByCommunity = groupByKey(s.listings, (l) => l.communityId);
+}
+
 /** 国家统计局 70 城价格指数，独立于 business 数据快照。 */
 let stats70: LocalStats70Row[] = [];
 
@@ -60,6 +89,7 @@ let dailyWangqian: LocalDailyWangqianRow[] = [];
 
 export function setSnapshot(s: DataSnapshot) {
   snapshot = s;
+  rebuildIndexes(s);
 }
 
 export function getSnapshot(): DataSnapshot | null {
@@ -129,19 +159,19 @@ export function getCities(): LocalCity[] {
 }
 
 export function getCityById(cityId: number): LocalCity | undefined {
-  return snapshot?.cities.find((c) => c.cityId === cityId);
+  return cityById.get(cityId);
 }
 
 export function getCommunitiesByCity(cityId: number): LocalCommunity[] {
-  return (snapshot?.communities ?? []).filter((c) => c.cityId === cityId);
+  return communitiesByCity.get(cityId) ?? [];
 }
 
 export function getCommunityById(communityId: number): LocalCommunity | undefined {
-  return snapshot?.communities.find((c) => c.communityId === communityId);
+  return communityById.get(communityId);
 }
 
 export function getSchoolsByCity(cityId: number): LocalSchool[] {
-  return (snapshot?.schools ?? []).filter((s) => s.cityId === cityId);
+  return schoolsByCity.get(cityId) ?? [];
 }
 
 export function getSchoolById(schoolId: number): LocalSchool | undefined {
@@ -153,15 +183,15 @@ export function getIndicatorsBySchool(schoolId: number) {
 }
 
 export function getListingsByCity(cityId: number): LocalListing[] {
-  return (snapshot?.listings ?? []).filter((l) => l.cityId === cityId);
+  return listingsByCity.get(cityId) ?? [];
 }
 
 export function getListingById(listingId: number): LocalListing | undefined {
-  return snapshot?.listings.find((l) => l.listingId === listingId);
+  return listingById.get(listingId);
 }
 
 export function getListingsByCommunity(communityId: number): LocalListing[] {
-  return (snapshot?.listings ?? []).filter((l) => l.communityId === communityId);
+  return listingsByCommunity.get(communityId) ?? [];
 }
 
 /**
