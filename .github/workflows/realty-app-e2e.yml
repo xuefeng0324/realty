@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - "realty_app/**"
-      - ".github/workflows/realty_app-e2e.yml"
+      - ".github/workflows/realty-app-e2e.yml"
   # 每日凌晨 02:00 北京时间 = 18:00 UTC（错开 crawl-daily-wangqian 01:30 UTC）
   schedule:
     - cron: "0 18 * * *"
