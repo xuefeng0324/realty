@@ -16,8 +16,14 @@
             {{ refreshing ? "刷新中" : "刷新" }}
           </button>
         </view>
-        <view v-else class="empty" style="padding: 24rpx 0">
-          {{ ready ? "该城市暂无网签日更（仅深圳 / 广州）" : "网签数据未加载" }}
+        <view v-else>
+          <EmptyState
+            icon="📋"
+            :title="ready ? '该城市暂无网签日更' : '网签数据未加载'"
+            :desc="ready ? '当前仅深圳 / 广州有每日网签。可切换城市或点刷新重试。' : '请确认启动时已加载 daily_wangqian，或下拉/点刷新。'"
+            action-text="刷新"
+            @action="doRefresh"
+          />
         </view>
       </view>
 
@@ -288,6 +294,7 @@ import {
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import { openGovWeb } from "../../config/govLinks";
 import { showToast, daysAgoFromToday } from "../../utils/format";
+import EmptyState from "../../components/EmptyState.vue";
 
 const cityName = ref<string>("深圳");
 const sheetOpen = ref(false);

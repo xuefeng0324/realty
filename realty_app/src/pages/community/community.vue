@@ -225,7 +225,15 @@
           <view class="card-title">该小区房源</view>
           <view class="muted" v-if="listingsTotal">共 {{ listingsTotal }} 条</view>
         </view>
-        <view v-if="listings.length === 0" class="empty">暂无房源评分数据</view>
+        <view v-if="listings.length === 0">
+          <EmptyState
+            icon="⌂"
+            title="暂无房源评分数据"
+            desc="该小区样本可能尚未入库。可去房源页按小区筛选，或换一个有挂牌的小区。"
+            action-text="去房源筛选"
+            @action="openFilter"
+          />
+        </view>
         <view
           v-for="it in listings"
           :key="it.listing_id"
@@ -303,6 +311,7 @@ import type {
   TopTagsResponse
 } from "../../api/contracts";
 import { useAppStore } from "../../store/app";
+import EmptyState from "../../components/EmptyState.vue";
 import {
   formatArea,
   formatPrice,

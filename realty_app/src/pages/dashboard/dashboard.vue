@@ -377,6 +377,18 @@
           </view>
         </view>
 
+        <view v-if="lprYearSeries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          {{ lprYearLabel }} 年 LPR 序列（派生 getLprByYear）
+        </view>
+        <view
+          v-for="row in lprYearSeries"
+          :key="'lpry-' + row.month"
+          class="top-row"
+        >
+          <text class="top-name">{{ row.month }}</text>
+          <text class="top-val">5Y {{ row.lpr5y.toFixed(2) }}% · 首套 {{ row.mortgageFirst.toFixed(2) }}%</text>
+        </view>
+
         <view v-if="lprRecentCycles.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
           近期调息节点（5Y LPR）
         </view>
@@ -1469,6 +1481,27 @@
             </text>
           </text>
         </view>
+        <view v-if="commuteFastestTop.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          通勤时长最短 Top（派生）
+        </view>
+        <view
+          v-for="(it, idx) in commuteFastestTop"
+          :key="'cft-' + it.communityId"
+          class="wq-row tap-target"
+          role="button"
+          tabindex="0"
+          hover-class="row-active"
+          @click="goCommunity(it.communityId)"
+        >
+          <text class="wq-rank" :class="rankClass(idx + 1)">{{ idx + 1 }}</text>
+          <text class="wq-name">{{ communityDisplayName(it.communityId) }}</text>
+          <text class="wq-units">
+            {{ it.transitMinutes != null ? Math.round(it.transitMinutes) + " 分" : "—" }}
+            <text v-if="it.transitDistanceM != null" class="muted" style="font-size: 20rpx; margin-left: 4rpx">
+              · {{ (it.transitDistanceM / 1000).toFixed(1) }}km
+            </text>
+          </text>
+        </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：高德 /v3/direction/transit/integrated (公交通勤方案 1, 早 08:30)。
           深圳 → 福田CBD (30 小区, 38 次 API)；广州 → 珠江新城 (8 小区, 10 次 API)。
@@ -1765,6 +1798,29 @@
             </text>
           </view>
         </view>
+        <view v-if="communityScoreCommuteFast.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          综合分库 · 通勤最短（不限总分）
+        </view>
+        <view
+          v-for="(it, idx) in communityScoreCommuteFast"
+          :key="'cscf-' + it.communityId"
+          class="cs-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(it.communityId)"
+        >
+          <view class="cs-rank">
+            <text class="cs-medal">{{ idx + 1 }}</text>
+          </view>
+          <view class="cs-mid">
+            <view class="cs-name">{{ it.communityName }}</view>
+            <view class="cs-dist muted">{{ it.districtName }} · 总分 {{ it.totalScore.toFixed(0) }}</view>
+          </view>
+          <view class="cs-right">
+            <text class="cs-total">
+              {{ it.commuteMinutes != null ? Math.round(it.commuteMinutes) + " 分" : "—" }}
+            </text>
+          </view>
+        </view>
         </template>
       </view>
 
@@ -1973,6 +2029,21 @@
             <text class="mp-line-meta muted">{{ ln.status }} · {{ ln.stationCount }} 站</text>
           </view>
           <text class="mp-line-km">{{ ln.maxSpeedKmh }} km/h</text>
+        </view>
+        <view v-if="metroStraightLineTop.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          起终点直线距离 Top（派生）
+        </view>
+        <view
+          v-for="(ln, idx) in metroStraightLineTop"
+          :key="'msl-' + ln.lineId"
+          class="mp-line-row"
+        >
+          <text class="mp-line-rank muted">{{ idx + 1 }}</text>
+          <view class="mp-line-mid">
+            <text class="mp-line-name">{{ ln.lineName }}</text>
+            <text class="mp-line-meta muted">{{ ln.startStation }} → {{ ln.endStation }}</text>
+          </view>
+          <text class="mp-line-km">{{ ln.straightLineKm.toFixed(1) }} km</text>
         </view>
         <view v-if="metroStatusStations.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
           本市状态 × 站数
@@ -2809,6 +2880,19 @@
           <text class="of-rank">↓{{ idx + 1 }}</text>
           <text class="of-key">{{ p.orientation }} · {{ p.floorBucket }}</text>
           <text class="of-pct">{{ p.premiumPct.toFixed(1) }}%</text>
+        </view>
+        <view v-if="orientationTongtouFloors.length" class="of-section-title">
+          「南北通透」本市各楼层溢价
+        </view>
+        <view
+          v-for="(p, idx) in orientationTongtouFloors"
+          :key="'oftf-' + p.floorBucket"
+          class="of-row"
+        >
+          <text class="of-rank">#{{ idx + 1 }}</text>
+          <text class="of-key">{{ p.floorBucket }}</text>
+          <text class="of-pct">{{ p.premiumPct >= 0 ? "+" : "" }}{{ p.premiumPct.toFixed(1) }}%</text>
+          <text class="of-n">×{{ p.count }}</text>
         </view>
         <view v-if="orientationTongtouPriceTop.length" class="of-section-title">
           「南北通透」跨城楼层单价 Top
@@ -3676,6 +3760,22 @@
           </text>
           <text class="hosp-geo-km">{{ p.distanceKm.toFixed(2) }} km</text>
         </view>
+        <view v-if="hospitalGeoCrossCity.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          跨城最近医院对
+        </view>
+        <view
+          v-for="(p, idx) in hospitalGeoCrossCity"
+          :key="'hxc-' + p.hospitalIdA + '-' + p.hospitalIdB"
+          class="hosp-geo-pair"
+        >
+          <text class="hosp-geo-rank muted">{{ idx + 1 }}</text>
+          <text class="hosp-geo-names">
+            {{ cityNameForId(p.cityIdA) }} {{ hospitalDisplayName(p.hospitalIdA) }}
+            ·
+            {{ cityNameForId(p.cityIdB) }} {{ hospitalDisplayName(p.hospitalIdB) }}
+          </text>
+          <text class="hosp-geo-km">{{ p.distanceKm.toFixed(1) }} km</text>
+        </view>
         <view v-if="hospitalCbdRadius" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
           CBD {{ hospitalCbdRadius.radiusKm }}km 内医院
           {{ hospitalCbdRadius.withinCount }} 家
@@ -3722,6 +3822,22 @@
           银行覆盖小区
           {{ commercialBankCoverage.bankCoveredCommunities }}/{{ commercialBankCoverage.totalCommunities }}
           （{{ (commercialBankCoverage.coverageRatio * 100).toFixed(0) }}%）
+        </view>
+        <view v-if="commercialCategoryStats.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          全国品类均距（派生）
+        </view>
+        <view
+          v-for="c in commercialCategoryStats"
+          :key="'pcc-' + c.category"
+          class="pc-row"
+        >
+          <text class="pc-rank muted">{{ categoryLabel(c.category) }}</text>
+          <view class="pc-mid">
+            <text class="pc-name">{{ c.poiCount }} POI · {{ c.communityCount }} 小区</text>
+            <text class="pc-meta muted">
+              均 {{ Math.round(c.avgTopDistanceM) }} m · 最近 {{ Math.round(c.minTopDistanceM) }} m
+            </text>
+          </view>
         </view>
         <view class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">步行便利 Top（≤500m 加权）</view>
         <view
@@ -4564,6 +4680,7 @@ import {
   detectLprCutCycles,
   summarizeLprCurrentVsYearAgo,
   getLprMonthlyAverage,
+  getLprByYear,
   type LprSpreadSnapshot,
   type LprCycle
 } from "../../local/lprHistoryAnalysis";
@@ -4625,12 +4742,14 @@ import {
   getHospitalGeoCoverageStats,
   detectHospitalGeoDuplicateAmapPoi,
   getHospitalGeoByCityWithinRadius,
+  getHospitalGeoCrossCityByCityPairDistance,
   type CityHospitalGeoSummary,
   type HospitalGeoHighConfidenceRatio,
   type HospitalGeoNearestPair,
   type HospitalGeoDistrictSummary,
   type HospitalGeoCoverageStats,
-  type HospitalGeoWithinRadius
+  type HospitalGeoWithinRadius,
+  type CrossCityHospitalDistance
 } from "../../local/hospitalGeoAnalysis";
 import {
   getPoiCommercialByCommunityWalkScore,
@@ -4639,10 +4758,12 @@ import {
   getPoiCommercialByCityConvenienceLeaderboard,
   getPoiCommercialByCityRestaurantNearestByCommunity,
   getPoiCommercialByPoiTypeLeaderboard,
+  summarizePoiCommercialByCategory,
   type WalkScore,
   type CommunityBankNearest,
   type CityBankCoverage,
-  type PoiTypeLeaderboardEntry
+  type PoiTypeLeaderboardEntry,
+  type CategoryPoiCommercialSummary
 } from "../../local/poiCommercialRanking";
 import {
   summarizePoiMarketByCommunity,
@@ -4673,9 +4794,11 @@ import {
   getMetroPlanningGeoCoverageStats,
   getMetroPlanningGeoManualFallbackRate,
   getMetroPlanningGeoByCityMissingEndpoints,
+  getMetroPlanningGeoByCityStraightLineTop,
   type CurvatureEntry,
   type CoverageStats,
-  type ManualFallbackRate
+  type ManualFallbackRate,
+  type StraightLineTop
 } from "../../local/metroPlanningGeoAnalysis";
 import {
   getDistributionCrossCityLeaderboard,
@@ -4719,6 +4842,7 @@ import {
 import {
   getCommuteByCityFastestSlowestCompare,
   getCommuteSpeedLeaderboard,
+  getCommuteFastestTopN,
   type FastestSlowestCompare
 } from "../../local/commuteRanking";
 import {
@@ -4727,7 +4851,8 @@ import {
   type FreshnessRankingEntry
 } from "../../local/listingFreshnessRanking";
 import {
-  getCommunityScorePareto
+  getCommunityScorePareto,
+  getCommunityScoreByCommuteFastest
 } from "../../local/communityScoreRanking";
 import {
   summarizeListingTagsByCity,
@@ -4795,10 +4920,11 @@ import {
   getOrientationFloorBestWorstByCity,
   getOrientationFloorByOrientationLeaderboard,
   getOrientationFloorCrossCityByPair,
+  getOrientationFloorByCityOrientation,
   type CityOrientationFloorTopEntry,
   type CrossCityOrientationFloorEntry
 } from "../../local/orientationFloorRanking";
-import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict, LocalMetroLine, LocalCommunityScatter, LocalCommunityCommercial } from "../../local/types";
+import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict, LocalMetroLine, LocalCommunityScatter, LocalCommunityCommercial, LocalCommute, LocalLprRow } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -4841,6 +4967,9 @@ const commuteSpeedTop = computed(() =>
     ...x,
     communityName: store.getCommunityById(x.communityId)?.communityName ?? `#${x.communityId}`
   }))
+);
+const commuteFastestTop = computed<LocalCommute[]>(() =>
+  getCommuteFastestTopN(app.cityId, 5)
 );
 const layoutDistribution = ref<LayoutDistributionResponse | null>(null);
 const tagCloud = ref<TagCloudResponse | null>(null);
@@ -4901,6 +5030,9 @@ const hospitalGeoDupCount = computed(
 );
 const hospitalGeoNearest = computed<HospitalGeoNearestPair[]>(() =>
   getHospitalGeoByCityNearestPair(app.cityId, 3)
+);
+const hospitalGeoCrossCity = computed<CrossCityHospitalDistance[]>(() =>
+  getHospitalGeoCrossCityByCityPairDistance(5)
 );
 const hospitalCbdRef = computed(() => {
   const rows = store.getCommutesByCity(app.cityId);
@@ -4981,6 +5113,15 @@ const commercialSevenElevenNear = computed<PoiTypeLeaderboardEntry[]>(() =>
 const commercialBankCoverage = computed<CityBankCoverage | null>(() =>
   getPoiCommercialByCityBankCoverage().find((x) => x.cityId === app.cityId) ?? null
 );
+const commercialCategoryStats = computed<CategoryPoiCommercialSummary[]>(() =>
+  summarizePoiCommercialByCategory()
+);
+function categoryLabel(cat: string): string {
+  if (cat === "restaurant") return "餐饮";
+  if (cat === "bank") return "银行";
+  if (cat === "convenience") return "便利";
+  return cat;
+}
 
 // v1.121.15 菜市场可达
 const marketSummariesInCity = computed<CommunityPoiMarketSummary[]>(() =>
@@ -5107,6 +5248,9 @@ const metroCurvatureTop = computed<CurvatureEntry[]>(() =>
     .slice(0, 5)
 );
 const metroPlanGeoCoverage = computed<CoverageStats>(() => getMetroPlanningGeoCoverageStats());
+const metroStraightLineTop = computed<StraightLineTop[]>(() =>
+  getMetroPlanningGeoByCityStraightLineTop(app.cityId, 5)
+);
 const metroManualFallback = computed<ManualFallbackRate | null>(() =>
   getMetroPlanningGeoManualFallbackRate().find((x) => x.cityId === app.cityId) ?? null
 );
@@ -5300,6 +5444,9 @@ const freshnessStaleCrossCity = computed<FreshnessRankingEntry[]>(() =>
 );
 const communityScorePareto = computed<LocalCommunityScore[]>(() =>
   getCommunityScorePareto(app.cityId, 80, 5)
+);
+const communityScoreCommuteFast = computed<LocalCommunityScore[]>(() =>
+  getCommunityScoreByCommuteFastest(app.cityId, 5)
 );
 const lifeConvenienceParetoSubway = computed<ParetoEntry[]>(() => {
   const ids = new Set(
@@ -7346,6 +7493,9 @@ const orientationFloorCityWorst = computed<CityOrientationFloorTopEntry[]>(() =>
 const orientationTongtouPriceTop = computed<LocalOrientationFloor[]>(() =>
   getOrientationFloorByOrientationLeaderboard("南北通透", 5)
 );
+const orientationTongtouFloors = computed<LocalOrientationFloor[]>(() =>
+  getOrientationFloorByCityOrientation(app.cityId, "南北通透").slice(0, 5)
+);
 const orientationTongtouHighCross = computed<CrossCityOrientationFloorEntry[]>(() =>
   getOrientationFloorCrossCityByPair("南北通透", "高楼层")
 );
@@ -7380,6 +7530,16 @@ function goSchool(schoolId: number) {
 
 // v1.117.0 LPR 与房贷利率信号
 const lprLatest = computed(() => getLprLatest());
+const lprYearLabel = computed(() => {
+  const m = lprLatest.value?.month;
+  if (!m) return String(new Date().getFullYear());
+  return m.slice(0, 4);
+});
+const lprYearSeries = computed<LocalLprRow[]>(() => {
+  const y = parseInt(lprYearLabel.value, 10);
+  if (!Number.isFinite(y)) return [];
+  return getLprByYear(y).slice(-6);
+});
 const lprDelta12m = computed(() => {
   const latest = lprLatest.value;
   if (!latest) return null;

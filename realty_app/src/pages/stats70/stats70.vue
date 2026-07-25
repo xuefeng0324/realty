@@ -35,9 +35,13 @@
       </view>
 
       <view v-if="!hasData" class="card">
-        <view class="empty">
-          数据未加载或为空。请确认网络通畅，且 app 启动时已尝试加载 stats_70.csv
-        </view>
+        <EmptyState
+          icon="📊"
+          title="70 城指数未加载"
+          desc="请确认网络通畅，且 App 启动时已尝试加载 stats_70.csv。返回总览下拉刷新后再进来。"
+          action-text="返回总览"
+          @action="goDashboard"
+        />
       </view>
 
       <view v-else class="card">
@@ -147,6 +151,7 @@ import {
   getRanking,
   getCityTrend
 } from "../../local/stats70";
+import EmptyState from "../../components/EmptyState.vue";
 
 type Base = "同比" | "环比";
 type Kind = "new" | "second";
@@ -166,6 +171,10 @@ const ranking = computed(() => {
 const sortLabel = computed(() => (sortDir.value === "desc" ? "降序" : "升序"));
 
 const hasData = computed(() => ranking.value.length > 0);
+
+function goDashboard() {
+  uni.switchTab({ url: "/pages/dashboard/dashboard" });
+}
 
 function setKind(k: Kind) {
   kind.value = k;
