@@ -1093,6 +1093,88 @@
         </view>
       </view>
 
+      <!-- 外管局国际收支平衡表（季度流量；≠房价；与月度货服贸易口径不同） -->
+      <view v-if="safeBopLatest" class="card" data-safe-bop data-tab="overview,price">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🌐 国际收支平衡表</view>
+          <view class="muted" style="font-size: 22rpx">
+            {{ safeBopLatest.date.slice(0, 7) }}
+            {{ safeBopLatest.isPreliminary ? "初步" : "" }}
+          </view>
+        </view>
+        <view class="trend-summary" style="margin-top: 12rpx">
+          <view class="trend-cell">
+            <text class="cell-label">经常账户</text>
+            <text class="cell-value" :class="macroTrendClass(safeBopLatest.currentAccountUsdYi)">
+              {{ formatInvDelta(safeBopLatest.currentAccountUsdYi) }}
+            </text>
+            <text
+              v-if="safeBopDelta"
+              class="cell-sub"
+              :class="macroTrendClass(safeBopDelta.currentAccountDelta)"
+            >
+              较上季 {{ formatInvDelta(safeBopDelta.currentAccountDelta) }}
+            </text>
+            <text v-else class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">货物顺差</text>
+            <text class="cell-value" :class="macroTrendClass(safeBopLatest.goodsSurplusUsdYi)">
+              {{ formatInvDelta(safeBopLatest.goodsSurplusUsdYi) }}
+            </text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">服务顺差</text>
+            <text class="cell-value" :class="macroTrendClass(safeBopLatest.servicesSurplusUsdYi)">
+              {{ formatInvDelta(safeBopLatest.servicesSurplusUsdYi) }}
+            </text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+        </view>
+        <view class="trend-summary" style="margin-top: 8rpx">
+          <view class="trend-cell">
+            <text class="cell-label">资本和金融账户</text>
+            <text
+              class="cell-value"
+              :class="macroTrendClass(safeBopLatest.capitalFinancialUsdYi)"
+            >
+              {{ formatInvDelta(safeBopLatest.capitalFinancialUsdYi) }}
+            </text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">初次收入</text>
+            <text class="cell-value" :class="macroTrendClass(safeBopLatest.primaryIncomeUsdYi)">
+              {{ formatInvDelta(safeBopLatest.primaryIncomeUsdYi) }}
+            </text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">二次收入</text>
+            <text class="cell-value" :class="macroTrendClass(safeBopLatest.secondaryIncomeUsdYi)">
+              {{ formatInvDelta(safeBopLatest.secondaryIncomeUsdYi) }}
+            </text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+        </view>
+        <view
+          v-for="row in safeBopRecent.slice(0, 3)"
+          :key="'safe-bop-' + row.date"
+          class="rank-row"
+          style="margin-top: 6rpx"
+        >
+          <text class="muted" style="font-size: 22rpx">{{ row.date.slice(0, 7) }}</text>
+          <text class="rank-val" style="font-size: 22rpx">
+            经常 {{ formatInvDelta(row.currentAccountUsdYi) }}
+            · 资金 {{ formatInvDelta(row.capitalFinancialUsdYi) }}
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：国家外汇管理局「国际收支平衡表」季度通稿（流量口径；正式数优先于初步数）。经常账户顺差 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数；与「货物与服务贸易」月度卡口径不同，勿直接环比。
+        </view>
+      </view>
+
       <!-- 外管局银行结售汇 + 涉外收付款（月度流量；≠房价） -->
       <view v-if="safeSettleLatest" class="card" data-safe-settle data-tab="overview,price">
         <view class="row-between">
@@ -8025,6 +8107,12 @@ import {
   type SafeIipRow
 } from "../../local/safeIip";
 import {
+  getLatestSafeBop,
+  getSafeBop,
+  getSafeBopDeltaVsPrev,
+  type SafeBopRow
+} from "../../local/safeBop";
+import {
   getLatestSafeSettle,
   getSafeSettle,
   getSafeSettleDeltaVsPrev,
@@ -11732,6 +11820,9 @@ const safeIipLatest = computed(() => getLatestSafeIip());
 const safeIipDelta = computed(() => getSafeIipDeltaVsPrev());
 const safeIipRecent = computed<SafeIipRow[]>(() => getSafeIip().slice(0, 5));
 const safeIipNetShare = computed(() => getSafeIipNetShare(safeIipLatest.value));
+const safeBopLatest = computed(() => getLatestSafeBop());
+const safeBopDelta = computed(() => getSafeBopDeltaVsPrev());
+const safeBopRecent = computed<SafeBopRow[]>(() => getSafeBop().slice(0, 5));
 const safeSettleLatest = computed(() => getLatestSafeSettle());
 const safeSettleDelta = computed(() => getSafeSettleDeltaVsPrev());
 const safeSettleRecent = computed<SafeSettleRow[]>(() => getSafeSettle().slice(0, 5));
