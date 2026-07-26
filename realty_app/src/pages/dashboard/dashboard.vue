@@ -937,6 +937,80 @@
         </view>
       </view>
 
+      <!-- 外管局外汇市场交易概况（月度成交量；≠房价） -->
+      <view v-if="safeFxMarketLatest" class="card" data-safe-fx-market data-tab="overview,price">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">📈 外汇市场成交</view>
+          <view class="muted" style="font-size: 22rpx">{{ safeFxMarketLatest.date.slice(0, 7) }}</view>
+        </view>
+        <view class="trend-summary" style="margin-top: 12rpx">
+          <view class="trend-cell">
+            <text class="cell-label">总成交</text>
+            <text class="cell-value">{{ safeFxMarketLatest.totalRmbWanYi.toFixed(2) }}</text>
+            <text
+              v-if="safeFxMarketDelta"
+              class="cell-sub"
+              :class="macroTrendClass(safeFxMarketDelta.totalRmbDeltaWanYi)"
+            >
+              较上月 {{ formatInvDelta(safeFxMarketDelta.totalRmbDeltaWanYi) }}
+            </text>
+            <text v-else class="cell-sub muted">万亿元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">即期</text>
+            <text class="cell-value">
+              {{
+                safeFxMarketLatest.spotRmbWanYi
+                  ? safeFxMarketLatest.spotRmbWanYi.toFixed(2)
+                  : "—"
+              }}
+            </text>
+            <text class="cell-sub muted">万亿元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">衍生品</text>
+            <text class="cell-value">
+              {{
+                safeFxMarketLatest.derivativeRmbWanYi
+                  ? safeFxMarketLatest.derivativeRmbWanYi.toFixed(2)
+                  : "—"
+              }}
+            </text>
+            <text class="cell-sub muted">万亿元</text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          等值 {{ safeFxMarketLatest.totalUsdWanYi.toFixed(2) }} 万亿美元 · 对客
+          {{
+            safeFxMarketLatest.clientRmbWanYi
+              ? safeFxMarketLatest.clientRmbWanYi.toFixed(2)
+              : "—"
+          }}
+          · 银行间
+          {{
+            safeFxMarketLatest.interbankRmbWanYi
+              ? safeFxMarketLatest.interbankRmbWanYi.toFixed(2)
+              : "—"
+          }}
+          万亿元
+        </view>
+        <view
+          v-for="row in safeFxMarketRecent.slice(0, 3)"
+          :key="'safe-fxm-' + row.date"
+          class="rank-row"
+          style="margin-top: 6rpx"
+        >
+          <text class="muted" style="font-size: 22rpx">{{ row.date.slice(0, 7) }}</text>
+          <text class="rank-val">
+            {{ row.totalRmbWanYi.toFixed(2) }} 万亿 · 即期
+            {{ row.spotRmbWanYi ? row.spotRmbWanYi.toFixed(2) : "—" }}
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：国家外汇管理局「中国外汇市场交易概况」月度通稿（不含外币对市场）。成交量为市场活跃度背景 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数；可与结售汇/外储对照。
+        </view>
+      </view>
+
       <!-- 政府每日网签（摘要；有日更则可进子页） -->
       <view
         class="card wangqian-card"
@@ -7620,6 +7694,12 @@ import {
   type SafeSettleRow
 } from "../../local/safeSettle";
 import {
+  getLatestSafeFxMarket,
+  getSafeFxMarket,
+  getSafeFxMarketDeltaVsPrev,
+  type SafeFxMarketRow
+} from "../../local/safeFxMarket";
+import {
   getLatestCityDaily,
   type CityDailySnapshot
 } from "../../local/dailyWangqian";
@@ -11273,6 +11353,9 @@ const safeForexRecent = computed<SafeForexRow[]>(() => getSafeForex().slice(0, 5
 const safeSettleLatest = computed(() => getLatestSafeSettle());
 const safeSettleDelta = computed(() => getSafeSettleDeltaVsPrev());
 const safeSettleRecent = computed<SafeSettleRow[]>(() => getSafeSettle().slice(0, 5));
+const safeFxMarketLatest = computed(() => getLatestSafeFxMarket());
+const safeFxMarketDelta = computed(() => getSafeFxMarketDeltaVsPrev());
+const safeFxMarketRecent = computed<SafeFxMarketRow[]>(() => getSafeFxMarket().slice(0, 5));
 const lprYearLabel = computed(() => {
   const m = lprLatest.value?.month;
   if (!m) return String(new Date().getFullYear());

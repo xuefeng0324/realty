@@ -11,7 +11,7 @@ import {
 describe("safe forex", () => {
   it("加载外管局外储样本", () => {
     const rows = getSafeForex();
-    expect(rows.length).toBeGreaterThanOrEqual(24);
+    expect(rows.length).toBeGreaterThanOrEqual(36);
     const latest = getLatestSafeForex();
     expect(latest).not.toBeNull();
     expect(latest!.forexUsdYi).toBeGreaterThan(20000);

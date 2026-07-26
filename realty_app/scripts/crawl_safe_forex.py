@@ -11,7 +11,7 @@
 
 用法：
   python scripts/crawl_safe_forex.py
-  python scripts/crawl_safe_forex.py --max 40 --news-pages 20
+  python scripts/crawl_safe_forex.py --max 50 --news-pages 30
 """
 from __future__ import annotations
 
@@ -77,8 +77,8 @@ def list_notices(*htmls: str) -> list[tuple[str, str]]:
                 continue
             if "规模" not in title and "月末" not in title:
                 continue
-            # 排除经营访谈等非规模数据稿
-            if "经营" in title or "访谈" in title or "人员" in title:
+            # 排除经营访谈等非规模数据稿、答记者问
+            if any(k in title for k in ("经营", "访谈", "人员", "答记者", "负责人")):
                 continue
             out.append((abs_url(m.group(1)), title))
     seen: set[str] = set()
@@ -295,8 +295,8 @@ def merge_prefer_richer(existing: dict[str, str], fresh: dict[str, str]) -> dict
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--max", type=int, default=40)
-    ap.add_argument("--news-pages", type=int, default=20)
+    ap.add_argument("--max", type=int, default=50)
+    ap.add_argument("--news-pages", type=int, default=30)
     ap.add_argument("--sleep", type=float, default=0.35)
     ap.add_argument("--skip-xlsx", action="store_true")
     args = ap.parse_args()
