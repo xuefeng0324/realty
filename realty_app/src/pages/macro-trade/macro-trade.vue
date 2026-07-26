@@ -11,77 +11,32 @@
           <view class="muted" style="font-size: 22rpx">{{ nbsTrade.month }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
-          <view class="stats70-cell">
-            <text class="cell-label">{{ nbsTrade.totalMonthYi != null ? "进出口当月" : "进出口累计" }}</text>
-            <text class="cell-value">
-              {{
-                formatMacro100m(
-                  (nbsTrade.totalMonthYi != null ? nbsTrade.totalMonthYi : nbsTrade.totalCumYi) || 0
-                )
-              }}
-            </text>
-            <text
-              class="cell-sub"
-              :class="
-                macroTrendClass(
-                  (nbsTrade.totalMonthYi != null
-                    ? nbsTrade.totalMonthYoyPct
-                    : nbsTrade.totalCumYoyPct) || 0
-                )
-              "
-            >
-              同比
-              {{
-                formatMacroPct(
-                  (nbsTrade.totalMonthYi != null
-                    ? nbsTrade.totalMonthYoyPct
-                    : nbsTrade.totalCumYoyPct) || 0
-                )
-              }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">出口当月</text>
-            <text class="cell-value">
-              {{ nbsTrade.exportMonthYi != null ? formatMacro100m(nbsTrade.exportMonthYi) : "—" }}
-            </text>
-            <text
-              v-if="nbsTrade.exportMonthYoyPct != null"
-              class="cell-sub"
-              :class="macroTrendClass(nbsTrade.exportMonthYoyPct)"
-            >
-              同比 {{ formatMacroPct(nbsTrade.exportMonthYoyPct) }}
-            </text>
-            <text v-else class="cell-sub muted">亿元</text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">进口当月</text>
-            <text class="cell-value">
-              {{ nbsTrade.importMonthYi != null ? formatMacro100m(nbsTrade.importMonthYi) : "—" }}
-            </text>
-            <text
-              v-if="nbsTrade.importMonthYoyPct != null"
-              class="cell-sub"
-              :class="macroTrendClass(nbsTrade.importMonthYoyPct)"
-            >
-              同比 {{ formatMacroPct(nbsTrade.importMonthYoyPct) }}
-            </text>
-            <text v-else class="cell-sub muted">亿元</text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">当月顺差</text>
-            <text
-              class="cell-value"
-              :class="macroTrendClass(nbsTrade.surplusMonthYi || 0)"
-            >
-              {{
-                nbsTrade.surplusMonthYi != null
-                  ? formatMacro100m(nbsTrade.surplusMonthYi)
-                  : "—"
-              }}
-            </text>
-            <text class="cell-sub muted">出口−进口</text>
-          </view>
+          <MacroKpiCell
+            :label="nbsTrade.totalMonthYi != null ? '进出口当月' : '进出口累计'"
+            :value="formatMacro100m((nbsTrade.totalMonthYi != null ? nbsTrade.totalMonthYi : nbsTrade.totalCumYi) || 0)"
+            :sub="`同比 ${formatMacroPct((nbsTrade.totalMonthYi != null ? nbsTrade.totalMonthYoyPct : nbsTrade.totalCumYoyPct) || 0)}`"
+            :subTrendClass="macroTrendBand((nbsTrade.totalMonthYi != null ? nbsTrade.totalMonthYoyPct : nbsTrade.totalCumYoyPct) || 0)"
+          />
+          <MacroKpiCell
+            label="出口当月"
+            :value="nbsTrade.exportMonthYi != null ? formatMacro100m(nbsTrade.exportMonthYi) : '—'"
+            :sub="nbsTrade.exportMonthYoyPct != null ? `同比 ${formatMacroPct(nbsTrade.exportMonthYoyPct)}` : '亿元'"
+            :subClass="nbsTrade.exportMonthYoyPct == null ? 'muted' : undefined"
+            :subTrendClass="nbsTrade.exportMonthYoyPct != null ? macroTrendBand(nbsTrade.exportMonthYoyPct) : 'flat'"
+          />
+          <MacroKpiCell
+            label="进口当月"
+            :value="nbsTrade.importMonthYi != null ? formatMacro100m(nbsTrade.importMonthYi) : '—'"
+            :sub="nbsTrade.importMonthYoyPct != null ? `同比 ${formatMacroPct(nbsTrade.importMonthYoyPct)}` : '亿元'"
+            :subClass="nbsTrade.importMonthYoyPct == null ? 'muted' : undefined"
+            :subTrendClass="nbsTrade.importMonthYoyPct != null ? macroTrendBand(nbsTrade.importMonthYoyPct) : 'flat'"
+          />
+          <MacroKpiCell
+            label="当月顺差"
+            :value="nbsTrade.surplusMonthYi != null ? formatMacro100m(nbsTrade.surplusMonthYi) : '—'"
+            sub="出口−进口"
+            subClass="muted"
+          />
         </view>
         <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
           国家统计局国民经济通稿转载海关总署口径（人民币）。海关货物贸易 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城；与外管局货服贸易（美元、居民/非居民）口径不同。
@@ -119,8 +74,9 @@
  * 1 张全国海关货物贸易卡从 dashboard 总览迁入（详见 docs/DASHBOARD_OVERVIEW_BUDGET.md §2）。
  */
 import { computed, ref } from "vue";
+import MacroKpiCell from "../../components/MacroKpiCell.vue";
 import MacroTabNav from "../../components/MacroTabNav.vue";
-import { formatMacro100m, formatMacroPct, macroTrendClass } from "../../utils/format";
+import { formatMacro100m, formatMacroPct, macroTrendBand } from "../../utils/format";
 import {
   getLatestNbsTrade,
   getNbsTradeTrend,

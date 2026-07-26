@@ -11,39 +11,26 @@
           <view class="muted" style="font-size: 22rpx">{{ nbsFaInvestment.publishDate }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
-          <view class="stats70-cell">
-            <text class="cell-label">固投累计</text>
-            <text class="cell-value">{{ formatMacro100m(nbsFaInvestment.faCny100m) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsFaInvestment.faYoyPct)">
-              同比 {{ formatMacroPct(nbsFaInvestment.faYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">民间投资同比</text>
-            <text class="cell-value" :class="macroTrendClass(nbsFaInvestment.privateYoyPct)">
-              {{ formatMacroPct(nbsFaInvestment.privateYoyPct) }}
-            </text>
-            <text class="cell-sub muted">国有控股 {{ formatMacroPct(nbsFaInvestment.stateYoyPct) }}</text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">制造业同比</text>
-            <text class="cell-value" :class="macroTrendClass(nbsFaInvestment.manufacturingYoyPct)">
-              {{ formatMacroPct(nbsFaInvestment.manufacturingYoyPct) }}
-            </text>
-            <text class="cell-sub muted">设备工器具 {{ formatMacroPct(nbsFaInvestment.equipmentYoyPct) }}</text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">第三产业同比</text>
-            <text class="cell-value" :class="macroTrendClass(nbsFaInvestment.tertiaryYoyPct)">
-              {{ formatMacroPct(nbsFaInvestment.tertiaryYoyPct) }}
-            </text>
-            <text class="cell-sub muted">
-              二产 {{ formatMacroPct(nbsFaInvestment.secondaryYoyPct) }}
-              <template v-if="nbsFaInvestment.ipYoyPct != null">
-                · 知产 {{ formatMacroPct(nbsFaInvestment.ipYoyPct) }}
-              </template>
-            </text>
-          </view>
+          <MacroKpiCell
+            label="固投累计"
+            :value="formatMacro100m(nbsFaInvestment.faCny100m)"
+            :sub="formatMacroPct(nbsFaInvestment.faYoyPct)"
+            :subTrendClass="macroTrendBand(nbsFaInvestment.faYoyPct)" />
+          <MacroKpiCell
+            label="民间投资同比"
+            :value="formatMacroPct(nbsFaInvestment.privateYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsFaInvestment.privateYoyPct)"
+            :sub="formatMacroPct(nbsFaInvestment.stateYoyPct)" />
+          <MacroKpiCell
+            label="制造业同比"
+            :value="formatMacroPct(nbsFaInvestment.manufacturingYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsFaInvestment.manufacturingYoyPct)"
+            :sub="formatMacroPct(nbsFaInvestment.equipmentYoyPct)" />
+          <MacroKpiCell
+            label="第三产业同比"
+            :value="formatMacroPct(nbsFaInvestment.tertiaryYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsFaInvestment.tertiaryYoyPct)"
+            :sub="formatMacroPct(nbsFaInvestment.secondaryYoyPct)" />
         </view>
         <view class="macro-note">
           {{ nbsFaInvestment.period.replace("_to_", "–") }} · 不含农户 · 国家统计局 · 非房价；房开投资见上方房地产卡
@@ -91,37 +78,26 @@
           <view class="muted" style="font-size: 22rpx">{{ nbsIncome.periodLabel }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
-          <view class="stats70-cell">
-            <text class="cell-label">人均可支配收入</text>
-            <text class="cell-value">{{ formatMacroYuan(nbsIncome.disposableYuan) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsIncome.disposableNominalYoyPct)">
-              名义 {{ formatMacroPct(nbsIncome.disposableNominalYoyPct) }}
-              · 实际 {{ formatMacroPct(nbsIncome.disposableRealYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">城镇可支配收入</text>
-            <text class="cell-value">{{ formatMacroYuan(nbsIncome.urbanDisposableYuan) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsIncome.urbanNominalYoyPct)">
-              名义 {{ formatMacroPct(nbsIncome.urbanNominalYoyPct) }}
-              · 实际 {{ formatMacroPct(nbsIncome.urbanRealYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">人均消费支出</text>
-            <text class="cell-value">{{ formatMacroYuan(nbsIncome.consumptionYuan) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsIncome.consumptionNominalYoyPct)">
-              名义 {{ formatMacroPct(nbsIncome.consumptionNominalYoyPct) }}
-              · 实际 {{ formatMacroPct(nbsIncome.consumptionRealYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">居住消费</text>
-            <text class="cell-value">{{ formatMacroYuan(nbsIncome.housingConsumptionYuan) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsIncome.housingConsumptionYoyPct)">
-              同比 {{ formatMacroPct(nbsIncome.housingConsumptionYoyPct) }}
-            </text>
-          </view>
+          <MacroKpiCell
+            label="人均可支配收入"
+            :value="formatMacroYuan(nbsIncome.disposableYuan)"
+            :sub="formatMacroPct(nbsIncome.disposableNominalYoyPct)"
+            :subTrendClass="macroTrendBand(nbsIncome.disposableNominalYoyPct)" />
+          <MacroKpiCell
+            label="城镇可支配收入"
+            :value="formatMacroYuan(nbsIncome.urbanDisposableYuan)"
+            :sub="formatMacroPct(nbsIncome.urbanNominalYoyPct)"
+            :subTrendClass="macroTrendBand(nbsIncome.urbanNominalYoyPct)" />
+          <MacroKpiCell
+            label="人均消费支出"
+            :value="formatMacroYuan(nbsIncome.consumptionYuan)"
+            :sub="formatMacroPct(nbsIncome.consumptionNominalYoyPct)"
+            :subTrendClass="macroTrendBand(nbsIncome.consumptionNominalYoyPct)" />
+          <MacroKpiCell
+            label="居住消费"
+            :value="formatMacroYuan(nbsIncome.housingConsumptionYuan)"
+            :sub="formatMacroPct(nbsIncome.housingConsumptionYoyPct)"
+            :subTrendClass="macroTrendBand(nbsIncome.housingConsumptionYoyPct)" />
         </view>
         <view class="macro-note">
           国家统计局 · {{ nbsIncome.publishDate }} · 居住消费 · 非房价；可与广东收入对照
@@ -168,32 +144,25 @@
           <view class="muted" style="font-size: 22rpx">{{ nbsCpi.month }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
-          <view class="stats70-cell">
-            <text class="cell-label">CPI 同比</text>
-            <text class="cell-value" :class="macroTrendClass(nbsCpi.cpiYoyPct)">
-              {{ formatMacroPct(nbsCpi.cpiYoyPct) }}
-            </text>
-            <text class="cell-sub muted">环比 {{ formatMacroPct(nbsCpi.cpiMomPct) }}</text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">居住同比</text>
-            <text class="cell-value" :class="macroTrendClass(nbsCpi.residenceYoyPct)">
-              {{ formatMacroPct(nbsCpi.residenceYoyPct) }}
-            </text>
-            <text class="cell-sub muted">CPI 居住类</text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">租赁房房租同比</text>
-            <text class="cell-value" :class="macroTrendClass(nbsCpi.rentYoyPct)">
-              {{ formatMacroPct(nbsCpi.rentYoyPct) }}
-            </text>
-            <text class="cell-sub muted">房租 ≠ 房价</text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">发布日</text>
-            <text class="cell-value" style="font-size: 28rpx">{{ nbsCpi.publishDate }}</text>
-            <text class="cell-sub muted">国家统计局</text>
-          </view>
+          <MacroKpiCell
+            label="CPI 同比"
+            :value="formatMacroPct(nbsCpi.cpiYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsCpi.cpiYoyPct)"
+            :sub="formatMacroPct(nbsCpi.cpiMomPct)" />
+          <MacroKpiCell
+            label="居住同比"
+            :value="formatMacroPct(nbsCpi.residenceYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsCpi.residenceYoyPct)"
+            sub="CPI 居住类" />
+          <MacroKpiCell
+            label="租赁房房租同比"
+            :value="formatMacroPct(nbsCpi.rentYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsCpi.rentYoyPct)"
+            sub="房租 ≠ 房价" />
+          <MacroKpiCell
+            label="发布日"
+            :value="nbsCpi.publishDate"
+            sub="国家统计局" />
         </view>
         <view class="macro-note">
           月度 CPI · 居住/房租为消费价格指数分项 · 非挂牌/网签/70城
@@ -234,52 +203,26 @@
           <view class="muted" style="font-size: 22rpx">{{ nbsPmi.month }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
-          <view class="stats70-cell">
-            <text class="cell-label">制造业 PMI</text>
-            <text class="cell-value" :class="macroTrendClass(pmiVsThreshold(nbsPmi.mfgPmi))">
-              {{ nbsPmi.mfgPmi.toFixed(1) }}
-            </text>
-            <text class="cell-sub muted">临界点 50</text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">非制造业</text>
-            <text
-              class="cell-value"
-              :class="macroTrendClass(pmiVsThreshold(nbsPmi.nonMfgBusiness))"
-            >
-              {{ nbsPmi.nonMfgBusiness != null ? nbsPmi.nonMfgBusiness.toFixed(1) : "—" }}
-            </text>
-            <text class="cell-sub muted">商务活动</text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">建筑业</text>
-            <text
-              class="cell-value"
-              :class="macroTrendClass(pmiVsThreshold(nbsPmi.constructionBusiness))"
-            >
-              {{
-                nbsPmi.constructionBusiness != null
-                  ? nbsPmi.constructionBusiness.toFixed(1)
-                  : "—"
-              }}
-            </text>
-            <text class="cell-sub muted">景气 ≠ 房价</text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">综合产出</text>
-            <text
-              class="cell-value"
-              :class="macroTrendClass(pmiVsThreshold(nbsPmi.compositePmi))"
-            >
-              {{ nbsPmi.compositePmi != null ? nbsPmi.compositePmi.toFixed(1) : "—" }}
-            </text>
-            <text class="cell-sub muted">
-              生产
-              {{ nbsPmi.production != null ? nbsPmi.production.toFixed(1) : "—" }}
-              · 订单
-              {{ nbsPmi.newOrders != null ? nbsPmi.newOrders.toFixed(1) : "—" }}
-            </text>
-          </view>
+          <MacroKpiCell
+            label="制造业 PMI"
+            :value="nbsPmi.mfgPmi.toFixed(1)"
+            :valueTrendClass="macroTrendBand(pmiVsThreshold(nbsPmi.mfgPmi))"
+            sub="临界点 50" />
+          <MacroKpiCell
+            label="非制造业"
+            :value='nbsPmi.nonMfgBusiness != null ? nbsPmi.nonMfgBusiness.toFixed(1) : "—"'
+            :valueTrendClass="macroTrendBand(pmiVsThreshold(nbsPmi.nonMfgBusiness))"
+            sub="商务活动" />
+          <MacroKpiCell
+            label="建筑业"
+            :value='nbsPmi.constructionBusiness != null ? nbsPmi.constructionBusiness.toFixed(1) : "—"'
+            :valueTrendClass="macroTrendBand(pmiVsThreshold(nbsPmi.constructionBusiness))"
+            sub="景气 ≠ 房价" />
+          <MacroKpiCell
+            label="综合产出"
+            :value='nbsPmi.compositePmi != null ? nbsPmi.compositePmi.toFixed(1) : "—"'
+            :valueTrendClass="macroTrendBand(pmiVsThreshold(nbsPmi.compositePmi))"
+            :sub='nbsPmi.production != null ? nbsPmi.production.toFixed(1) : "—"' />
         </view>
         <view class="macro-note">
           国家统计局采购经理调查 · &gt;50 扩张 / &lt;50 收缩 · 建筑业商务活动 ≠ 挂牌/成交/网签/70城
@@ -322,68 +265,27 @@
           <view class="muted" style="font-size: 22rpx">{{ nbsIndustrial.month }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
-          <view class="stats70-cell">
-            <text class="cell-label">当月同比</text>
-            <text class="cell-value" :class="macroTrendClass(nbsIndustrial.yoyPct)">
-              {{ formatMacroPct(nbsIndustrial.yoyPct) }}
-            </text>
-            <text
-              v-if="nbsIndustrialDelta"
-              class="cell-sub"
-              :class="macroTrendClass(nbsIndustrialDelta.yoyDeltaPp)"
-            >
-              较上月 {{ nbsIndustrialDelta.yoyDeltaPp > 0 ? "+" : "" }}{{ nbsIndustrialDelta.yoyDeltaPp }} pp
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">环比</text>
-            <text
-              class="cell-value"
-              :class="macroTrendClass(nbsIndustrial.momPct ?? 0)"
-            >
-              {{ nbsIndustrial.momPct != null ? formatMacroPct(nbsIndustrial.momPct) : "—" }}
-            </text>
-            <text class="cell-sub muted">季节调整后</text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">累计同比</text>
-            <text
-              class="cell-value"
-              :class="macroTrendClass(nbsIndustrial.ytdYoyPct ?? 0)"
-            >
-              {{
-                nbsIndustrial.ytdYoyPct != null ? formatMacroPct(nbsIndustrial.ytdYoyPct) : "—"
-              }}
-            </text>
-            <text class="cell-sub muted">年初至今</text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">制造业</text>
-            <text
-              class="cell-value"
-              :class="macroTrendClass(nbsIndustrial.manufacturingYoyPct ?? 0)"
-            >
-              {{
-                nbsIndustrial.manufacturingYoyPct != null
-                  ? formatMacroPct(nbsIndustrial.manufacturingYoyPct)
-                  : "—"
-              }}
-            </text>
-            <text class="cell-sub muted">
-              采矿
-              {{
-                nbsIndustrial.miningYoyPct != null
-                  ? formatMacroPct(nbsIndustrial.miningYoyPct)
-                  : "—"
-              }}
-              · 公用
-              {{
-                nbsIndustrial.utilitiesYoyPct != null
-                  ? formatMacroPct(nbsIndustrial.utilitiesYoyPct)
-                  : "—"
-              }}
-            </text>
-          </view>
+          <MacroKpiCell
+            label="当月同比"
+            :value="formatMacroPct(nbsIndustrial.yoyPct)"
+            :valueTrendClass="macroTrendBand(nbsIndustrial.yoyPct)"
+            :sub='nbsIndustrialDelta != null && nbsIndustrialDelta.yoyDeltaPp > 0 ? "+" : ""'
+            :subTrendClass="macroTrendBand(nbsIndustrialDelta?.yoyDeltaPp ?? 0)" />
+          <MacroKpiCell
+            label="环比"
+            :value='nbsIndustrial.momPct != null ? formatMacroPct(nbsIndustrial.momPct) : "—"'
+            :valueTrendClass="macroTrendBand(nbsIndustrial.momPct ?? 0)"
+            sub="季节调整后" />
+          <MacroKpiCell
+            label="累计同比"
+            :value='nbsIndustrial.ytdYoyPct != null ? formatMacroPct(nbsIndustrial.ytdYoyPct) : "—"'
+            :valueTrendClass="macroTrendBand(nbsIndustrial.ytdYoyPct ?? 0)"
+            sub="年初至今" />
+          <MacroKpiCell
+            label="制造业"
+            :value='nbsIndustrial.manufacturingYoyPct != null ? formatMacroPct(nbsIndustrial.manufacturingYoyPct) : "—"'
+            :valueTrendClass="macroTrendBand(nbsIndustrial.manufacturingYoyPct ?? 0)"
+            :sub='nbsIndustrial.miningYoyPct != null ? formatMacroPct(nbsIndustrial.miningYoyPct) : "—"' />
         </view>
         <view class="macro-note">
           国家统计局规模以上工业增加值（扣除价格因素）· ≠ 挂牌/成交/网签/70城；可与 PMI 对照
@@ -423,81 +325,26 @@
           </view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
-          <view class="stats70-cell">
-            <text class="cell-label">利润总额</text>
-            <text class="cell-value" :class="macroTrendClass(nbsIndustrialProfit.profitYoyPct)">
-              {{ formatMacroPct(nbsIndustrialProfit.profitYoyPct) }}
-            </text>
-            <text class="cell-sub muted">
-              {{ nbsIndustrialProfit.profitYi.toLocaleString() }} 亿元累计
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">营收同比</text>
-            <text
-              class="cell-value"
-              :class="macroTrendClass(nbsIndustrialProfit.revenueYoyPct ?? 0)"
-            >
-              {{
-                nbsIndustrialProfit.revenueYoyPct != null
-                  ? formatMacroPct(nbsIndustrialProfit.revenueYoyPct)
-                  : "—"
-              }}
-            </text>
-            <text class="cell-sub muted">
-              {{
-                nbsIndustrialProfit.revenueWanYi != null
-                  ? nbsIndustrialProfit.revenueWanYi.toFixed(2) + " 万亿"
-                  : "—"
-              }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">营收利润率</text>
-            <text class="cell-value">
-              {{
-                nbsIndustrialProfit.marginPct != null
-                  ? nbsIndustrialProfit.marginPct.toFixed(2) + "%"
-                  : "—"
-              }}
-            </text>
-            <text
-              v-if="nbsIndustrialProfitDelta && nbsIndustrialProfitDelta.marginDeltaPp != null"
-              class="cell-sub"
-              :class="macroTrendClass(nbsIndustrialProfitDelta.marginDeltaPp)"
-            >
-              较上期
-              {{ nbsIndustrialProfitDelta.marginDeltaPp > 0 ? "+" : ""
-              }}{{ nbsIndustrialProfitDelta.marginDeltaPp }} pp
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">制造业利润</text>
-            <text
-              class="cell-value"
-              :class="macroTrendClass(nbsIndustrialProfit.manufacturingYoyPct ?? 0)"
-            >
-              {{
-                nbsIndustrialProfit.manufacturingYoyPct != null
-                  ? formatMacroPct(nbsIndustrialProfit.manufacturingYoyPct)
-                  : "—"
-              }}
-            </text>
-            <text class="cell-sub muted">
-              采矿
-              {{
-                nbsIndustrialProfit.miningYoyPct != null
-                  ? formatMacroPct(nbsIndustrialProfit.miningYoyPct)
-                  : "—"
-              }}
-              · 公用
-              {{
-                nbsIndustrialProfit.utilitiesYoyPct != null
-                  ? formatMacroPct(nbsIndustrialProfit.utilitiesYoyPct)
-                  : "—"
-              }}
-            </text>
-          </view>
+          <MacroKpiCell
+            label="利润总额"
+            :value="formatMacroPct(nbsIndustrialProfit.profitYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsIndustrialProfit.profitYoyPct)"
+            :sub="nbsIndustrialProfit.profitYi.toLocaleString()" />
+          <MacroKpiCell
+            label="营收同比"
+            :value='nbsIndustrialProfit.revenueYoyPct != null ? formatMacroPct(nbsIndustrialProfit.revenueYoyPct) : "—"'
+            :valueTrendClass="macroTrendBand(nbsIndustrialProfit.revenueYoyPct ?? 0)"
+            :sub='nbsIndustrialProfit.revenueWanYi != null ? nbsIndustrialProfit.revenueWanYi.toFixed(2) + " 万亿" : "—"' />
+          <MacroKpiCell
+            label="营收利润率"
+            :value='nbsIndustrialProfit.marginPct != null ? nbsIndustrialProfit.marginPct.toFixed(2) + "%" : "—"'
+            :sub='(nbsIndustrialProfitDelta?.marginDeltaPp ?? 0) > 0 ? "+" : ""'
+            :subTrendClass="macroTrendBand(nbsIndustrialProfitDelta?.marginDeltaPp ?? 0)" />
+          <MacroKpiCell
+            label="制造业利润"
+            :value='nbsIndustrialProfit.manufacturingYoyPct != null ? formatMacroPct(nbsIndustrialProfit.manufacturingYoyPct) : "—"'
+            :valueTrendClass="macroTrendBand(nbsIndustrialProfit.manufacturingYoyPct ?? 0)"
+            :sub='nbsIndustrialProfit.miningYoyPct != null ? formatMacroPct(nbsIndustrialProfit.miningYoyPct) : "—"' />
         </view>
         <view class="macro-note">
           国家统计局规上工业企业利润（累计口径，通常滞后约 1 个月）· ≠ 挂牌/成交/网签/70城；可与工业增加值 / PMI 对照
@@ -532,32 +379,25 @@
           <view class="muted" style="font-size: 22rpx">{{ nbsPpi.month }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
-          <view class="stats70-cell">
-            <text class="cell-label">PPI 同比</text>
-            <text class="cell-value" :class="macroTrendClass(nbsPpi.ppiYoyPct)">
-              {{ formatMacroPct(nbsPpi.ppiYoyPct) }}
-            </text>
-            <text class="cell-sub muted">环比 {{ formatMacroPct(nbsPpi.ppiMomPct) }}</text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">购进同比</text>
-            <text class="cell-value" :class="macroTrendClass(nbsPpi.purchaseYoyPct)">
-              {{ formatMacroPct(nbsPpi.purchaseYoyPct) }}
-            </text>
-            <text class="cell-sub muted">工业生产者购进</text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">非金属矿物制品业</text>
-            <text class="cell-value" :class="macroTrendClass(nbsPpi.nonMetalYoyPct)">
-              {{ formatMacroPct(nbsPpi.nonMetalYoyPct) }}
-            </text>
-            <text class="cell-sub muted">建材相关 · ≠房价</text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">发布日</text>
-            <text class="cell-value" style="font-size: 28rpx">{{ nbsPpi.publishDate }}</text>
-            <text class="cell-sub muted">国家统计局</text>
-          </view>
+          <MacroKpiCell
+            label="PPI 同比"
+            :value="formatMacroPct(nbsPpi.ppiYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsPpi.ppiYoyPct)"
+            :sub="formatMacroPct(nbsPpi.ppiMomPct)" />
+          <MacroKpiCell
+            label="购进同比"
+            :value="formatMacroPct(nbsPpi.purchaseYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsPpi.purchaseYoyPct)"
+            sub="工业生产者购进" />
+          <MacroKpiCell
+            label="非金属矿物制品业"
+            :value="formatMacroPct(nbsPpi.nonMetalYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsPpi.nonMetalYoyPct)"
+            sub="建材相关 · ≠房价" />
+          <MacroKpiCell
+            label="发布日"
+            :value="nbsPpi.publishDate"
+            sub="国家统计局" />
         </view>
         <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
           月度 PPI · 出厂/购进/建材分项 · 非挂牌/网签/70城
@@ -598,34 +438,26 @@
           <view class="muted" style="font-size: 22rpx">{{ nbsRetail.month }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
-          <view class="stats70-cell">
-            <text class="cell-label">装潢材料当月</text>
-            <text class="cell-value">{{ formatMacro100m(nbsRetail.buildingMonthCny100m) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsRetail.buildingMonthYoyPct)">
-              同比 {{ formatMacroPct(nbsRetail.buildingMonthYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">装潢材料累计</text>
-            <text class="cell-value">{{ formatMacro100m(nbsRetail.buildingCumCny100m) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsRetail.buildingCumYoyPct)">
-              同比 {{ formatMacroPct(nbsRetail.buildingCumYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">家具当月</text>
-            <text class="cell-value">{{ formatMacro100m(nbsRetail.furnitureMonthCny100m) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsRetail.furnitureMonthYoyPct)">
-              同比 {{ formatMacroPct(nbsRetail.furnitureMonthYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">社消总额当月</text>
-            <text class="cell-value">{{ formatMacro100m(nbsRetail.retailMonthCny100m) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsRetail.retailMonthYoyPct)">
-              同比 {{ formatMacroPct(nbsRetail.retailMonthYoyPct) }}
-            </text>
-          </view>
+          <MacroKpiCell
+            label="装潢材料当月"
+            :value="formatMacro100m(nbsRetail.buildingMonthCny100m)"
+            :sub="formatMacroPct(nbsRetail.buildingMonthYoyPct)"
+            :subTrendClass="macroTrendBand(nbsRetail.buildingMonthYoyPct)" />
+          <MacroKpiCell
+            label="装潢材料累计"
+            :value="formatMacro100m(nbsRetail.buildingCumCny100m)"
+            :sub="formatMacroPct(nbsRetail.buildingCumYoyPct)"
+            :subTrendClass="macroTrendBand(nbsRetail.buildingCumYoyPct)" />
+          <MacroKpiCell
+            label="家具当月"
+            :value="formatMacro100m(nbsRetail.furnitureMonthCny100m)"
+            :sub="formatMacroPct(nbsRetail.furnitureMonthYoyPct)"
+            :subTrendClass="macroTrendBand(nbsRetail.furnitureMonthYoyPct)" />
+          <MacroKpiCell
+            label="社消总额当月"
+            :value="formatMacro100m(nbsRetail.retailMonthCny100m)"
+            :sub="formatMacroPct(nbsRetail.retailMonthYoyPct)"
+            :subTrendClass="macroTrendBand(nbsRetail.retailMonthYoyPct)" />
         </view>
         <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
           限额以上商品零售 · 装潢/家具 ≠ 房价 · 国家统计局
@@ -669,8 +501,9 @@
  *   - 固定资产投资 / 居民收支 / CPI / PMI / 工业增加值 / 工业企业利润 / PPI / 社消商品类
  */
 import { computed, ref } from "vue";
+import MacroKpiCell from "../../components/MacroKpiCell.vue";
 import MacroTabNav from "../../components/MacroTabNav.vue";
-import { formatMacro100m, formatMacroPct, formatMacroYuan, macroTrendClass } from "../../utils/format";
+import { formatMacro100m, formatMacroPct, formatMacroYuan, macroTrendClass, macroTrendBand } from "../../utils/format";
 import {
   getLatestNbsFaInvestment,
   getNbsFaInvestmentTrend,
