@@ -23,7 +23,13 @@ from pathlib import Path
 INDEX_URL = "https://www.stats.gov.cn/sj/"
 OUTPUT = Path(__file__).resolve().parents[1] / "static" / "nbs_income.csv"
 
-BACKFILL_URLS_2026 = [
+BACKFILL_URLS = [
+    # 2025
+    "https://www.stats.gov.cn/sj/zxfb/202504/t20250416_1959322.html",  # 一季度
+    "https://www.stats.gov.cn/sj/zxfb/202507/t20250715_1960406.html",  # 上半年
+    "https://www.stats.gov.cn/sj/zxfb/202510/t20251020_1961604.html",  # 前三季度
+    "https://www.stats.gov.cn/sj/zxfb/202601/t20260119_1962321.html",  # 全年
+    # 2026
     "https://www.stats.gov.cn/sj/zxfb/202604/t20260416_1963323.html",  # 一季度
     "https://www.stats.gov.cn/sj/zxfb/202607/t20260715_1964129.html",  # 上半年
 ]
@@ -229,7 +235,7 @@ def main() -> int:
     if args.url:
         touched.append(merge_one(args.url, by_period))
     if args.backfill:
-        for url in BACKFILL_URLS_2026:
+        for url in BACKFILL_URLS:
             try:
                 touched.append(merge_one(url, by_period))
             except Exception as e:  # noqa: BLE001

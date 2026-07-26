@@ -5,6 +5,7 @@ name: crawl-monthly-stats70
 # - 国家统计局全国房地产 → nbs_real_estate.csv（period merge）
 # - 国家统计局全国固投 → nbs_fa_investment.csv（period merge）
 # - 国家统计局居民收入消费 → nbs_income.csv（季/半年 merge）
+# - 国家统计局月度 CPI（含居住/房租）→ nbs_cpi.csv
 # 对照：realty_app/docs/HOUSING_PRICE_ACCEPTANCE.md
 # 统计局通常 15–17 日发布上月指数 / 房地产月报；16–20 日 UTC 02:00 ≈ 北京 10:00
 
@@ -33,7 +34,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: 下载 70 城指数 + merge NBS 全国房地产/固投/居民收入
+      - name: 下载 70 城指数 + merge NBS 全国房地产/固投/居民收入/CPI
         working-directory: realty_app
         run: |
           set -o pipefail
@@ -43,6 +44,7 @@ jobs:
           python scripts/crawl_nbs_real_estate.py 2>&1 | tee nbs.log
           python scripts/crawl_nbs_fa_investment.py 2>&1 | tee nbs_fa.log
           python scripts/crawl_nbs_income.py 2>&1 | tee nbs_income.log || true
+          python scripts/crawl_nbs_cpi.py 2>&1 | tee nbs_cpi.log || true
           python scripts/crawl_lpr_history.py --max 24 2>&1 | tee lpr.log
 
       - name: 看结果
@@ -57,20 +59,23 @@ jobs:
           cut -d, -f1,2 static/nbs_fa_investment.csv | tail -8
           echo "===== nbs income periods ====="
           cut -d, -f1,2 static/nbs_income.csv | tail -8
+          echo "===== nbs cpi months ====="
+          cut -d, -f1,2 static/nbs_cpi.csv | tail -8
           cat stats70.log
           cat nbs.log || true
           cat nbs_fa.log || true
           cat nbs_income.log || true
+          cat nbs_cpi.log || true
 
       - name: 有变更则提交
         run: |
           cd realty_app
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet HEAD -- static/stats_70.csv static/nbs_real_estate.csv static/nbs_fa_investment.csv static/nbs_income.csv static/seed/lpr_history.csv; then
-            git add static/stats_70.csv static/nbs_real_estate.csv static/nbs_fa_investment.csv static/nbs_income.csv static/seed/lpr_history.csv
-            git commit -m "data(stats70+nbs+lpr): 月更 70城/全国房地产/固投/居民收入/LPR $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          if ! git diff --quiet HEAD -- static/stats_70.csv static/nbs_real_estate.csv static/nbs_fa_investment.csv static/nbs_income.csv static/nbs_cpi.csv static/seed/lpr_history.csv; then
+            git add static/stats_70.csv static/nbs_real_estate.csv static/nbs_fa_investment.csv static/nbs_income.csv static/nbs_cpi.csv static/seed/lpr_history.csv
+            git commit -m "data(stats70+nbs+lpr): 月更 70城/全国房地产/固投/居民收入/CPI/LPR $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
             git push
           else
-            echo "stats_70 / nbs / nbs_fa / nbs_income / lpr 无变化，跳过 commit"
+            echo "stats_70 / nbs / nbs_fa / nbs_income / nbs_cpi / lpr 无变化，跳过 commit"
           fi

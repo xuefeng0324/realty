@@ -21,7 +21,7 @@ describe("nbs income", () => {
     expect(latest!.housingConsumptionYuan).toBe(3135);
     expect(latest!.housingConsumptionYoyPct).toBe(1.4);
     expect(latest!.sourceUrl).toMatch(/stats\.gov\.cn/);
-    expect(getNbsIncomeTrend(2).length).toBe(2);
+    expect(getNbsIncomeTrend(8).length).toBeGreaterThanOrEqual(6);
   });
 
   it("爬虫与仪表盘门禁", () => {

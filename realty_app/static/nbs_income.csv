@@ -1,3 +1,7 @@
 period,period_label,publish_date,sort_key,disposable_yuan,disposable_nominal_yoy_pct,disposable_real_yoy_pct,urban_disposable_yuan,urban_nominal_yoy_pct,urban_real_yoy_pct,rural_disposable_yuan,rural_nominal_yoy_pct,rural_real_yoy_pct,consumption_yuan,consumption_nominal_yoy_pct,consumption_real_yoy_pct,housing_consumption_yuan,housing_consumption_yoy_pct,source_url
 2026_H1,2026年上半年,2026-07-15,2026-06,22981.0,5.2,4.2,30126.0,4.4,3.4,12699.0,6.4,5.5,14836.0,3.7,2.7,3135.0,1.4,https://www.stats.gov.cn/sj/zxfb/202607/t20260715_1964129.html
 2026_Q1,2026年一季度,2026-04-16,2026-03,12782.0,4.9,4.0,16549.0,4.2,3.2,7433.0,6.1,5.4,7955.0,3.6,2.6,1611.0,1.0,https://www.stats.gov.cn/sj/zxfb/202604/t20260416_1963323.html
+2025,2025年,2026-01-19,2025-12,43377.0,5.0,5.0,56502.0,4.3,4.2,24456.0,5.8,6.0,29476.0,4.4,4.4,6397.0,2.1,https://www.stats.gov.cn/sj/zxfb/202601/t20260119_1962321.html
+2025_Q3,2025年前三季度,2025-10-20,2025-09,32509.0,5.1,5.2,42991.0,4.4,4.5,17686.0,5.7,6.0,21575.0,4.6,4.7,4665.0,2.3,https://www.stats.gov.cn/sj/zxfb/202510/t20251020_1961604.html
+2025_H1,2025年上半年,2025-07-15,2025-06,21840.0,5.3,5.4,28844.0,4.7,4.7,11936.0,5.9,6.2,14309.0,5.2,5.3,3092.0,2.9,https://www.stats.gov.cn/sj/zxfb/202507/t20250715_1960406.html
+2025_Q1,2025年一季度,2025-04-16,2025-03,12179.0,5.5,5.6,15887.0,4.9,5.0,7003.0,6.2,6.5,7681.0,5.2,5.3,1595.0,2.1,https://www.stats.gov.cn/sj/zxfb/202504/t20250416_1959322.html
