@@ -574,6 +574,10 @@ gh auth setup-git
 
 详细变更见 [changelog/](./changelog/) 目录。
 
+### v1.121.117 (2026-07-26)
+
+总览金刚区「价格」/专业 Tab 在 App 端无反应：改为 `.page[data-dash-tab]` 过滤、Tab 条上移、切换 toast；新增 [DASHBOARD_TABS_ACCEPTANCE](./docs/DASHBOARD_TABS_ACCEPTANCE.md) 与 `dashboardTabs.test.ts` 对照验收。详见 [changelog/2026-07-26-v1.121.117-价格Tab验收与App修复.md](./changelog/2026-07-26-v1.121.117-价格Tab验收与App修复.md)。
+
 ### v1.121.116 (2026-07-26)
 
 外管局 RMBQuery 中间价扩欧元/港元/日元/英镑列；仪表盘卡改名「汇率中间价」。详见 [changelog/2026-07-26-v1.121.116-汇率中间价多币种.md](./changelog/2026-07-26-v1.121.116-汇率中间价多币种.md)。
