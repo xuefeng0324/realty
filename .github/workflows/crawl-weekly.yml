@@ -96,7 +96,7 @@ jobs:
           python scripts/crawl_gd_real_estate_brief.py --max 12
           python scripts/crawl_gd_fa_investment.py --max 8
           python scripts/crawl_gd_construction.py --max 8
-          python scripts/crawl_gd_economy.py --max 8
+          python scripts/crawl_gd_economy.py --max 12
 
       - name: 提交 CSV
         run: |

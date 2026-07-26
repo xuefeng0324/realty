@@ -2,7 +2,7 @@ import { parseCSV, rowsToObjects } from "./csv";
 // @ts-ignore
 import rawCsv from "../../static/gd_economy.csv?raw";
 
-/** 广东经济运行简况（含 GDP；月度无 GDP 的简况不入库） */
+/** 广东经济运行简况（含 GDP；月度无 GDP 的简况不入库；人口多为年报） */
 export interface GdEconomyRow {
   region: string;
   period: string;
@@ -29,6 +29,10 @@ export interface GdEconomyRow {
   urbanNominalYoyPct: number;
   ruralDisposableYuan: number;
   ruralNominalYoyPct: number;
+  permanentPopWan: number;
+  permanentPopDeltaWan: number;
+  urbanizationRatePct: number;
+  urbanizationRatePp: number;
   title: string;
   sourceOrg: string;
   sourceUrl: string;
@@ -68,6 +72,10 @@ function mapRow(row: Record<string, string>): GdEconomyRow | null {
     urbanNominalYoyPct: n(row.urban_nominal_yoy_pct),
     ruralDisposableYuan: n(row.rural_disposable_yuan),
     ruralNominalYoyPct: n(row.rural_nominal_yoy_pct),
+    permanentPopWan: n(row.permanent_pop_wan),
+    permanentPopDeltaWan: n(row.permanent_pop_delta_wan),
+    urbanizationRatePct: n(row.urbanization_rate_pct),
+    urbanizationRatePp: n(row.urbanization_rate_pp),
     title: String(row.title ?? "").trim(),
     sourceOrg: String(row.source_org ?? "").trim(),
     sourceUrl: String(row.source_url ?? "").trim()
@@ -89,6 +97,11 @@ export function getGdEconomyRows(): GdEconomyRow[] {
 
 export function getLatestGdEconomy(): GdEconomyRow | null {
   return rows[0] || null;
+}
+
+/** 最近一期含常住人口的简况（多为年报；半年/季度通常无） */
+export function getLatestGdEconomyPopulation(): GdEconomyRow | null {
+  return rows.find((r) => r.permanentPopWan > 0) || null;
 }
 
 export function getGdEconomyTrend(limit = 6): GdEconomyRow[] {

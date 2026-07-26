@@ -1220,6 +1220,16 @@
             · 农村 {{ formatMacroYuan(gdEconomy.ruralDisposableYuan) }}（{{ formatMacroPct(gdEconomy.ruralNominalYoyPct) }}）；
             CPI {{ formatMacroPct(gdEconomy.cpiYoyPct) }}。
           </template>
+          <template v-if="gdEconomyPopulation">
+            {{ gdEconomyPopulation.periodLabel }}末常住人口
+            {{ gdEconomyPopulation.permanentPopWan.toLocaleString() }} 万人
+            （{{ gdEconomyPopulation.permanentPopDeltaWan > 0 ? "+" : "" }}{{ gdEconomyPopulation.permanentPopDeltaWan }}）
+            · 城镇化率 {{ gdEconomyPopulation.urbanizationRatePct }}%
+            <template v-if="gdEconomyPopulation.urbanizationRatePp">
+              （+{{ gdEconomyPopulation.urbanizationRatePp }} pct）
+            </template>
+            。
+          </template>
         </view>
         <button
           v-if="gdEconomyTrend.length > 1"
@@ -6788,6 +6798,7 @@ import {
 } from "../../local/gdConstruction";
 import {
   getLatestGdEconomy,
+  getLatestGdEconomyPopulation,
   getGdEconomyTrend,
   type GdEconomyRow
 } from "../../local/gdEconomy";
@@ -8077,6 +8088,7 @@ const gdConstructionTrend = computed(() => getGdConstructionTrend(6));
 const gdConstructionHousingShare = computed(() => gdHousingSharePct(gdConstruction.value));
 const gdEconomy = computed<GdEconomyRow | null>(() => getLatestGdEconomy());
 const gdEconomyTrend = computed(() => getGdEconomyTrend(6));
+const gdEconomyPopulation = computed<GdEconomyRow | null>(() => getLatestGdEconomyPopulation());
 const gzProvidentAnnual = computed<GzProvidentAnnualRow | null>(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   return city === "广州" ? getLatestGzProvidentAnnual() : null;

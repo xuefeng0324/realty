@@ -3,7 +3,8 @@
 """抓取广东省统计局「经济运行简况」中含地区生产总值的期次。
 
 列表：http://stats.gd.gov.cn/tjkx185/
-口径：GDP/三产增加值；附规上工业、社消零、固投、房开投资、CPI 同比。
+口径：GDP/三产增加值；附规上工业、社消零、固投、房开投资、CPI、人均可支配收入；
+年报期次另含常住人口/城镇化率。
 **GDP ≠ 城市挂牌/网签均价、≠70城指数**；月度简况常无 GDP 则跳过。
 
 用法：
@@ -29,6 +30,7 @@ LIST_PAGES = [
     "http://stats.gd.gov.cn/tjkx185/index.html",
     "http://stats.gd.gov.cn/tjkx185/index_2.html",
     "http://stats.gd.gov.cn/tjkx185/index_3.html",
+    "http://stats.gd.gov.cn/tjkx185/index_4.html",
 ]
 UA = {"User-Agent": "Mozilla/5.0 (compatible; realty-crawler/1.0)"}
 CTX = ssl.create_default_context()
@@ -37,6 +39,7 @@ SEED_BRIEFS: list[tuple[str, str]] = [
     ("http://stats.gd.gov.cn/tjkx185/content/post_4927626.html", "2026年上半年广东经济运行简况"),
     ("http://stats.gd.gov.cn/tjkx185/content/post_4887418.html", "2026年一季度广东经济运行简况"),
     ("http://stats.gd.gov.cn/tjkx185/content/post_4850449.html", "2025年广东经济运行简况"),
+    ("http://stats.gd.gov.cn/tjkx185/content/post_4788929.html", "2025年前三季度广东经济运行简况"),
 ]
 
 FIELDS = [
@@ -65,6 +68,10 @@ FIELDS = [
     "urban_nominal_yoy_pct",
     "rural_disposable_yuan",
     "rural_nominal_yoy_pct",
+    "permanent_pop_wan",
+    "permanent_pop_delta_wan",
+    "urbanization_rate_pct",
+    "urbanization_rate_pp",
     "title",
     "source_org",
     "source_url",
@@ -277,6 +284,27 @@ def parse_brief(url: str, title: str, html: str) -> dict | None:
         rural_yuan = fnum(m_rural.group(1))
         rural_nom = signed_yoy(m_rural.group(2), m_rural.group(3))
 
+    permanent_pop = pop_delta = 0.0
+    m_pop = re.search(
+        r"全省常住人口([\d.]+)万人，比上年末(增加|减少)([\d.]+)万人",
+        text,
+    )
+    if m_pop:
+        permanent_pop = fnum(m_pop.group(1))
+        pop_delta = fnum(m_pop.group(3))
+        if m_pop.group(2) == "减少":
+            pop_delta = -pop_delta
+
+    urbanization = urbanization_pp = 0.0
+    m_urb = re.search(
+        r"(?:城镇化率）为|城镇化率为)([\d.]+)%(?:，比上年末提高([\d.]+)个百分点)?",
+        text,
+    )
+    if m_urb:
+        urbanization = fnum(m_urb.group(1))
+        if m_urb.group(2):
+            urbanization_pp = fnum(m_urb.group(2))
+
     pub = ""
     pm = re.search(r"(20\d{2}-\d{2}-\d{2})", html)
     if pm:
@@ -308,6 +336,10 @@ def parse_brief(url: str, title: str, html: str) -> dict | None:
         "urban_nominal_yoy_pct": fmt(urban_nom),
         "rural_disposable_yuan": fmt(rural_yuan),
         "rural_nominal_yoy_pct": fmt(rural_nom),
+        "permanent_pop_wan": fmt(permanent_pop),
+        "permanent_pop_delta_wan": fmt(pop_delta),
+        "urbanization_rate_pct": fmt(urbanization),
+        "urbanization_rate_pp": fmt(urbanization_pp),
         "title": title,
         "source_org": "广东省统计局",
         "source_url": url,
@@ -335,7 +367,7 @@ def atomic_write(path: Path, rows: list[dict]) -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--max", type=int, default=8)
+    ap.add_argument("--max", type=int, default=12)
     ap.add_argument("--out", type=Path, default=OUT)
     args = ap.parse_args()
 
