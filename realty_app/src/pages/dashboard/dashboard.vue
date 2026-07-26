@@ -2646,6 +2646,93 @@
         </template>
       </view>
 
+      <view v-if="nbsPmi" class="card macro-card" data-tab="overview,price" data-nbs-pmi>
+        <view class="macro-kicker">全国 · 采购经理指数</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">PMI（含建筑业）</view>
+          <view class="muted" style="font-size: 22rpx">{{ nbsPmi.month }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <view class="stats70-cell">
+            <text class="cell-label">制造业 PMI</text>
+            <text class="cell-value" :class="macroTrendClass(pmiVsThreshold(nbsPmi.mfgPmi))">
+              {{ nbsPmi.mfgPmi.toFixed(1) }}
+            </text>
+            <text class="cell-sub muted">临界点 50</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">非制造业</text>
+            <text
+              class="cell-value"
+              :class="macroTrendClass(pmiVsThreshold(nbsPmi.nonMfgBusiness))"
+            >
+              {{ nbsPmi.nonMfgBusiness != null ? nbsPmi.nonMfgBusiness.toFixed(1) : "—" }}
+            </text>
+            <text class="cell-sub muted">商务活动</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">建筑业</text>
+            <text
+              class="cell-value"
+              :class="macroTrendClass(pmiVsThreshold(nbsPmi.constructionBusiness))"
+            >
+              {{
+                nbsPmi.constructionBusiness != null
+                  ? nbsPmi.constructionBusiness.toFixed(1)
+                  : "—"
+              }}
+            </text>
+            <text class="cell-sub muted">景气 ≠ 房价</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">综合产出</text>
+            <text
+              class="cell-value"
+              :class="macroTrendClass(pmiVsThreshold(nbsPmi.compositePmi))"
+            >
+              {{ nbsPmi.compositePmi != null ? nbsPmi.compositePmi.toFixed(1) : "—" }}
+            </text>
+            <text class="cell-sub muted">
+              生产
+              {{ nbsPmi.production != null ? nbsPmi.production.toFixed(1) : "—" }}
+              · 订单
+              {{ nbsPmi.newOrders != null ? nbsPmi.newOrders.toFixed(1) : "—" }}
+            </text>
+          </view>
+        </view>
+        <view class="macro-note">
+          国家统计局采购经理调查 · &gt;50 扩张 / &lt;50 收缩 · 建筑业商务活动 ≠ 挂牌/成交/网签/70城
+        </view>
+        <button
+          v-if="nbsPmiTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-nbs-pmi-series-toggle
+          :aria-expanded="nbsPmiSeriesExpanded"
+          @click="nbsPmiSeriesExpanded = !nbsPmiSeriesExpanded"
+        >
+          {{ nbsPmiSeriesExpanded ? "收起多期" : "多期序列" }}
+        </button>
+        <template v-if="nbsPmiSeriesExpanded">
+          <view class="macro-series" data-nbs-pmi-series-detail>
+            制造业 PMI
+            <text v-for="(p, i) in nbsPmiTrend" :key="'pmi-mfg-' + p.month">
+              {{ shortNbsPurchasingPmiMonthLabel(p.month) }} {{ p.mfgPmi.toFixed(1)
+              }}<text v-if="i < nbsPmiTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view class="macro-series" data-nbs-pmi-series-detail>
+            建筑业
+            <text v-for="(p, i) in nbsPmiTrend" :key="'pmi-con-' + p.month">
+              {{ shortNbsPurchasingPmiMonthLabel(p.month) }}
+              {{
+                p.constructionBusiness != null ? p.constructionBusiness.toFixed(1) : "—"
+              }}<text v-if="i < nbsPmiTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
+
       <view v-if="nbsPpi" class="card macro-card" data-tab="overview,price" data-nbs-ppi>
         <view class="macro-kicker">全国 · 工业生产者价格</view>
         <view class="row-between">
@@ -8702,6 +8789,13 @@ import {
   type NbsPpiRow
 } from "../../local/nbsPpi";
 import {
+  getLatestNbsPmi,
+  getNbsPmiTrend,
+  pmiVsThreshold,
+  shortNbsPmiMonthLabel as shortNbsPurchasingPmiMonthLabel,
+  type NbsPmiRow
+} from "../../local/nbsPmi";
+import {
   getLatestNbsRetail,
   getNbsRetailTrend,
   shortNbsRetailMonthLabel,
@@ -9874,6 +9968,9 @@ const nbsCpi = computed<NbsCpiRow | null>(() => getLatestNbsCpi());
 const nbsCpiTrend = computed(() => getNbsCpiTrend(6));
 const nbsPpi = computed<NbsPpiRow | null>(() => getLatestNbsPpi());
 const nbsPpiTrend = computed(() => getNbsPpiTrend(6));
+const nbsPmi = computed<NbsPmiRow | null>(() => getLatestNbsPmi());
+const nbsPmiTrend = computed(() => getNbsPmiTrend(6));
+const nbsPmiSeriesExpanded = ref(false);
 const nbsRetail = computed<NbsRetailRow | null>(() => getLatestNbsRetail());
 const nbsRetailTrend = computed(() => getNbsRetailTrend(6));
 const nbsTrade = computed<NbsTradeRow | null>(() => getLatestNbsTrade());
