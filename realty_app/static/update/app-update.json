@@ -1,12 +1,12 @@
 {
   "versionName": "1.121.128",
   "versionCode": "249",
-  "publishedAt": "2026-07-26T13:58:14Z",
+  "publishedAt": "2026-07-26T14:18:41Z",
   "force": false,
-  "notes": "feat(realty_app): v1.121.128 \u89c4\u4e0a\u5de5\u4e1a\u4f01\u4e1a\u5229\u6da6\n\n2026-07-25-v1.121.4-OTA\u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316: v1.121.4 \u2014 OTA \u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316\n2026-07-25-v1.121.5-\u542f\u52a8\u9875\u4e0eOTA\u6839\u6cbb: v1.121.5 / v1.121.6 \u2014 \u542f\u52a8\u9875 + OTA \u6839\u6cbb\u4e0e\u9a8c\u8bc1\n2026-07-25-v1.121.7-\u623f\u6e90\u6253\u5f00\u8d1d\u58f3App: v1.121.7 \u2014 \u623f\u6e90\u8df3\u8d1d\u58f3 + \u79bb\u7ebf APK \u8865 zip4j\uff08\u4fee OTA 100% \u95ea\u9000\uff09\n",
+  "notes": "docs+test: \u603b\u89c8\u957f\u5ea6\u9884\u7b97\uff08DASHBOARD_OVERVIEW_BUDGET\uff09\n\n2026-07-25-v1.109.0-\u793e\u533a\u603b\u4ef7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f: v1.109.0 \u2014 \u793e\u533a\u603b\u4ef7\u00d7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f\n2026-07-25-v1.110.0-\u89c4\u5212\u5730\u94c1\u6d3e\u751f: v1.110.0 \u2014 \u89c4\u5212\u5730\u94c1\u6d3e\u751f\n2026-07-25-v1.111.0-LPR\u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f: v1.111.0 \u2014 LPR \u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f\n",
   "wgt": {
     "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/249/app.wgt",
-    "sha256": "21b0a8865447b28c6fb2d8ee1bf505db7e5d7b306076b965f31ce5562d782034"
+    "sha256": "3d489e6e114078ef2576e1d90cd3d51a696a000d385750e2f8a450f14090fbd3"
   },
   "ios": {
     "available": false,
