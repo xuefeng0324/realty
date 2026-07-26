@@ -1,12 +1,12 @@
 {
-  "versionName": "1.121.130",
-  "versionCode": "251",
-  "publishedAt": "2026-07-26T16:15:55Z",
+  "versionName": "1.121.131",
+  "versionCode": "252",
+  "publishedAt": "2026-07-26T16:27:24Z",
   "force": false,
-  "notes": "refactor(realty_app): \u7b2c\u4e8c\u6279\u8fc1\u79fb 13 \u5f20\u5b8f\u5361 + \u9884\u7b97\u6536\u7d27\uff08v1.121.130\uff09\n\n2026-07-25-v1.115.0-\u533b\u9662\u5750\u6807\u63a5\u5165\u4e0e\u6d3e\u751f: v1.115.0 \u2014 \u533b\u9662\u5750\u6807\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n",
+  "notes": "\u7b2c\u4e09\u6279\u7626\u8eab\uff1aMacroKpiCell \u7ec4\u4ef6\u5316 + nbs-macro 16 KPI \u6539\u7ec4\u4ef6 + \u591a\u671f\u5e8f\u5217\u7cbe\u7b80\n\n2026-07-25-v1.121.4-OTA\u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316: v1.121.4 \u2014 OTA \u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316\n2026-07-25-v1.121.5-\u542f\u52a8\u9875\u4e0eOTA\u6839\u6cbb: v1.121.5 / v1.121.6 \u2014 \u542f\u52a8\u9875 + OTA \u6839\u6cbb\u4e0e\u9a8c\u8bc1\n2026-07-25-v1.121.7-\u623f\u6e90\u6253\u5f00\u8d1d\u58f3App: v1.121.7 \u2014 \u623f\u6e90\u8df3\u8d1d\u58f3 + \u79bb\u7ebf APK \u8865 zip4j\uff08\u4fee OTA 100% \u95ea\u9000\uff09\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/251/app.wgt",
-    "sha256": "1b54da5ce1b558a08a5af052f3d9b95549e9d173094d46dad1451bf37dfc345b"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/252/app.wgt",
+    "sha256": "711aa92c06d2e17a2294dd1d03d473dd7b919ac9d8a2583f621c54dbf6c265c9"
   },
   "ios": {
     "available": false,
