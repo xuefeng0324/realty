@@ -1204,16 +1204,22 @@
             <text class="cell-sub muted">社消零 {{ formatMacroPct(gdEconomy.retailYoyPct) }}</text>
           </view>
           <view class="stats70-cell">
-            <text class="cell-label">CPI 同比</text>
-            <text class="cell-value" :class="macroTrendClass(gdEconomy.cpiYoyPct)">
-              {{ formatMacroPct(gdEconomy.cpiYoyPct) }}
+            <text class="cell-label">人均可支配收入</text>
+            <text class="cell-value">{{ formatMacroYuan(gdEconomy.disposableYuan) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(gdEconomy.disposableNominalYoyPct)">
+              名义 {{ formatMacroPct(gdEconomy.disposableNominalYoyPct) }}
+              · 实际 {{ formatMacroPct(gdEconomy.disposableRealYoyPct) }}
             </text>
-            <text class="cell-sub muted">三产 {{ formatMacroPct(gdEconomy.tertiaryYoyPct) }}</text>
           </view>
         </view>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
           {{ gdEconomy.sourceOrg }} · {{ gdEconomy.publishDate || gdEconomy.periodLabel }}。
-          不变价 GDP；房开投资≠房价均价；月度无 GDP 的简况不入库。
+          不变价 GDP；房开投资≠房价均价；人均可支配收入为全省住户调查口径；月度无 GDP 的简况不入库。
+          <template v-if="gdEconomy.urbanDisposableYuan > 0">
+            城镇 {{ formatMacroYuan(gdEconomy.urbanDisposableYuan) }}（{{ formatMacroPct(gdEconomy.urbanNominalYoyPct) }}）
+            · 农村 {{ formatMacroYuan(gdEconomy.ruralDisposableYuan) }}（{{ formatMacroPct(gdEconomy.ruralNominalYoyPct) }}）；
+            CPI {{ formatMacroPct(gdEconomy.cpiYoyPct) }}。
+          </template>
         </view>
         <button
           v-if="gdEconomyTrend.length > 1"
@@ -1236,6 +1242,12 @@
             房开投资同比：
             <text v-for="(p, i) in gdEconomyTrend" :key="'econ-re-' + p.period">
               {{ p.periodLabel }} {{ formatMacroPct(p.reInvestmentYoyPct) }}<text v-if="i < gdEconomyTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view class="muted" style="margin-top: 6rpx; font-size: 22rpx">
+            人均可支配收入名义同比：
+            <text v-for="(p, i) in gdEconomyTrend" :key="'econ-disp-' + p.period">
+              {{ p.periodLabel }} {{ formatMacroPct(p.disposableNominalYoyPct) }}<text v-if="i < gdEconomyTrend.length - 1"> · </text>
             </text>
           </view>
         </template>
@@ -8087,6 +8099,9 @@ const zhProvidentSamePeriodDelta = computed(() => getZhProvidentSamePeriodDelta(
 
 function formatMacro100m(v: number) {
   return `${v.toLocaleString()} 亿元`;
+}
+function formatMacroYuan(v: number) {
+  return `${Math.round(v).toLocaleString()} 元`;
 }
 function formatMacroArea(v: number) {
   return `${v.toLocaleString()} 万㎡`;

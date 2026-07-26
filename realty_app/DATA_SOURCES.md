@@ -159,7 +159,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/gd_real_estate_brief.csv` | `gdRealEstateBrief.ts` + 仪表盘「广东房地产市场运行」卡（**多期默认折叠**） | `crawl_gd_real_estate_brief.py`（**周更 CI**；住建厅 tjxx + **统计局 tjkx185** 双列表；正文偶发断连则保留种子） | 省住建厅/统计局「房地产市场运行简况」多期：全省/珠三角投资与新建商品房销售面积·销售额及同比；派生全省合同均价；**≠城市挂牌/网签均价、≠70城指数** |
 | `static/gd_fa_investment.csv` | `gdFaInvestment.ts` + 仪表盘「广东固定资产投资」卡（**多期默认折叠**） | `crawl_gd_fa_investment.py`（**周更 CI**） | 省统计局「固定资产投资运行简况」：全省/产业/工业·制造/分区域 **名义同比**（正文通常无绝对额）；统计范围含全部房地产开发项目投资；**≠房价均价** |
 | `static/gd_construction.csv` | `gdConstruction.ts` + 仪表盘「广东建筑业生产运行」卡（**多期默认折叠**） | `crawl_gd_construction.py`（**周更 CI**） | 省住建厅「建筑业生产运行简况」：资质企业总产值/房屋建筑业/土木/珠三角产值及同比；**房屋建筑业产值 ≠ 商品房销售/挂牌均价** |
-| `static/gd_economy.csv` | `gdEconomy.ts` + 仪表盘「广东经济运行」卡（**多期默认折叠**） | `crawl_gd_economy.py`（**周更 CI**；多页列表；仅入库含 GDP 的期次） | 省统计局「经济运行简况」：不变价 GDP/三产增加值；附规上工业、社消零、固投、**房开投资**、CPI 同比；**GDP/房开投资 ≠ 城市挂牌/网签均价**；月度无 GDP 则跳过 |
+| `static/gd_economy.csv` | `gdEconomy.ts` + 仪表盘「广东经济运行」卡（**多期默认折叠**） | `crawl_gd_economy.py`（**周更 CI**；多页列表；仅入库含 GDP 的期次） | 省统计局「经济运行简况」：不变价 GDP/三产增加值；附规上工业、社消零、固投、**房开投资**、CPI；**居民人均可支配收入**（全省/城镇/农村 · 名义/实际同比）；**GDP/房开/收入 ≠ 城市挂牌/网签均价**；月度无 GDP 则跳过 |
 | `static/seed/lpr_history.csv` | LPR 卡 / 组合贷 | `compute_lpr_history.py`（基线）+ `crawl_lpr_history.py`（**月更 CI**） | 央行 PBOC 公告 1Y/5Y LPR；房贷加点沿用示意 bp |
 | `static/nbs_real_estate.csv` | `nbsRealEstate.ts` | `scripts/crawl_nbs_real_estate.py`（**月更 CI** 随 `crawl-monthly-stats70`） | 国家统计局全国房地产市场基本情况；**多期 merge**（`period` 主键）；来源须为 `stats.gov.cn`；仪表盘展示销售面积/销售额/投资/到位资金同比多期、**销售额÷面积派生全国合同均价（多期）**、以及 **待售÷销售节奏粗算可售月数（多期）**（均 ≠城市挂牌/网签均价、≠70城指数、≠城市去化周期） |
 
@@ -192,7 +192,8 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | （广州房屋租赁登记备案月报） | （未接入） | `zfcj.gz.gov.cn/.../fwzldjbatjxx/` + 阳光租房 | 2026-07-26 探针：专栏正文为 **PNG**（如 `.../10899179.png`）；阳光租房首页无稳定公开统计 API；暂不 OCR |
 | （珠海不动产登记季度统计表） | （未接入） | `bdc.zhuhai.gov.cn/zwgk/sjfb/` | 2026-07-26 复测：新增商品房/存量房转移等仍为 **PNG**；暂不 OCR |
 | （深圳二手房上月成交量专栏） | （未接入独立源） | `zjj.sz.gov.cn/.../sjcx/ersfsy/` | 2026-07-26 探针本机 **403**；深圳二手成交已由 `daily_wangqian` 覆盖 |
-| （广东规上工业/消费品单独简况） | （未单独建卡） | `stats.gd.gov.cn/tjkx185/` | 2026-07-26：工业/社消零 HTML 可解析，但与「经济运行」重叠且与房价弱相关；GDP/房开投资已由 `gd_economy.csv` 覆盖核心宏观 |
+| （广东规上工业/消费品单独简况） | （未单独建卡） | `stats.gd.gov.cn/tjkx185/` | 2026-07-26：工业/社消零 HTML 可解析，但与「经济运行」重叠且与房价弱相关；GDP/房开/人均可支配收入已由 `gd_economy.csv` 覆盖核心宏观 |
+| （佛山/东莞住建公开页） | （未接入） | `fszj.foshan.gov.cn` / `zjj.dg.gov.cn` | 2026-07-26 探针本机 **Timeout**；暂无可用结构化 endpoint |
 | （广州公积金年报） | `static/gz_provident_annual.csv` | `gjj.gz.gov.cn` 年报正文 | **已接入**（v1.121.72）；本机 SSL 常失败，CI/可达网络用 `crawl_gz_provident_annual.py` 刷新；种子来自官方年报正文 |
 
 #### 4.1 国家统计局房地产多期回填
@@ -221,7 +222,7 @@ gd_provident_annual.csv      → gdProvidentAnnual.ts  → 广东全省公积金
 gd_real_estate_brief.csv     → gdRealEstateBrief.ts  → 广东房地产运行简况
 gd_fa_investment.csv         → gdFaInvestment.ts     → 广东固定资产投资简况
 gd_construction.csv          → gdConstruction.ts     → 广东建筑业生产运行
-gd_economy.csv               → gdEconomy.ts          → 广东经济运行（GDP）
+gd_economy.csv               → gdEconomy.ts          → 广东经济运行（GDP/可支配收入）
 nbs_real_estate.csv          → nbsRealEstate.ts      → 全国房地产开销宏观
 gz_new_house_inventory.csv   → gzNewHouseInventory.ts → 广州新房库存
 education_overview.csv       → educationOverview.ts  → 教育事业概览（dashboard v1.121.16）

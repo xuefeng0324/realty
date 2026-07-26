@@ -58,6 +58,13 @@ FIELDS = [
     "fa_yoy_pct",
     "re_investment_yoy_pct",
     "cpi_yoy_pct",
+    "disposable_yuan",
+    "disposable_nominal_yoy_pct",
+    "disposable_real_yoy_pct",
+    "urban_disposable_yuan",
+    "urban_nominal_yoy_pct",
+    "rural_disposable_yuan",
+    "rural_nominal_yoy_pct",
     "title",
     "source_org",
     "source_url",
@@ -241,6 +248,35 @@ def parse_brief(url: str, title: str, html: str) -> dict | None:
         r"居民消费价格(?:指数)?(?:同比|比上年)(上涨|下降)([\d.]+)%",
     )
 
+    disposable_yuan = disposable_nom = disposable_real = 0.0
+    m_disp = re.search(
+        r"居民人均可支配收入([\d.]+)元，(?:同比|比上年)名义(增长|下降)([\d.]+)%[；;，,]?"
+        r"\s*扣除价格因素，实际(增长|下降)([\d.]+)%",
+        text,
+    )
+    if m_disp:
+        disposable_yuan = fnum(m_disp.group(1))
+        disposable_nom = signed_yoy(m_disp.group(2), m_disp.group(3))
+        disposable_real = signed_yoy(m_disp.group(4), m_disp.group(5))
+
+    urban_yuan = urban_nom = 0.0
+    m_urban = re.search(
+        r"城镇居民人均可支配收入([\d.]+)元，(?:同比|比上年)(?:名义)?(增长|下降)([\d.]+)%",
+        text,
+    )
+    if m_urban:
+        urban_yuan = fnum(m_urban.group(1))
+        urban_nom = signed_yoy(m_urban.group(2), m_urban.group(3))
+
+    rural_yuan = rural_nom = 0.0
+    m_rural = re.search(
+        r"农村居民人均可支配收入([\d.]+)元，(?:同比|比上年)(?:名义)?(增长|下降)([\d.]+)%",
+        text,
+    )
+    if m_rural:
+        rural_yuan = fnum(m_rural.group(1))
+        rural_nom = signed_yoy(m_rural.group(2), m_rural.group(3))
+
     pub = ""
     pm = re.search(r"(20\d{2}-\d{2}-\d{2})", html)
     if pm:
@@ -265,6 +301,13 @@ def parse_brief(url: str, title: str, html: str) -> dict | None:
         "fa_yoy_pct": fmt(fa),
         "re_investment_yoy_pct": fmt(re_inv),
         "cpi_yoy_pct": fmt(cpi),
+        "disposable_yuan": fmt(disposable_yuan),
+        "disposable_nominal_yoy_pct": fmt(disposable_nom),
+        "disposable_real_yoy_pct": fmt(disposable_real),
+        "urban_disposable_yuan": fmt(urban_yuan),
+        "urban_nominal_yoy_pct": fmt(urban_nom),
+        "rural_disposable_yuan": fmt(rural_yuan),
+        "rural_nominal_yoy_pct": fmt(rural_nom),
         "title": title,
         "source_org": "广东省统计局",
         "source_url": url,
@@ -322,7 +365,7 @@ def main() -> int:
             n_ok += 1
             print(
                 f"ok {row['period']} gdp={row['gdp_yi']}亿 yoy={row['gdp_yoy_pct']}% "
-                f"re_inv={row['re_investment_yoy_pct']}%",
+                f"disp={row['disposable_yuan']}元 re_inv={row['re_investment_yoy_pct']}%",
                 flush=True,
             )
         except Exception as e:

@@ -22,6 +22,13 @@ export interface GdEconomyRow {
   faYoyPct: number;
   reInvestmentYoyPct: number;
   cpiYoyPct: number;
+  disposableYuan: number;
+  disposableNominalYoyPct: number;
+  disposableRealYoyPct: number;
+  urbanDisposableYuan: number;
+  urbanNominalYoyPct: number;
+  ruralDisposableYuan: number;
+  ruralNominalYoyPct: number;
   title: string;
   sourceOrg: string;
   sourceUrl: string;
@@ -54,6 +61,13 @@ function mapRow(row: Record<string, string>): GdEconomyRow | null {
     faYoyPct: n(row.fa_yoy_pct),
     reInvestmentYoyPct: n(row.re_investment_yoy_pct),
     cpiYoyPct: n(row.cpi_yoy_pct),
+    disposableYuan: n(row.disposable_yuan),
+    disposableNominalYoyPct: n(row.disposable_nominal_yoy_pct),
+    disposableRealYoyPct: n(row.disposable_real_yoy_pct),
+    urbanDisposableYuan: n(row.urban_disposable_yuan),
+    urbanNominalYoyPct: n(row.urban_nominal_yoy_pct),
+    ruralDisposableYuan: n(row.rural_disposable_yuan),
+    ruralNominalYoyPct: n(row.rural_nominal_yoy_pct),
     title: String(row.title ?? "").trim(),
     sourceOrg: String(row.source_org ?? "").trim(),
     sourceUrl: String(row.source_url ?? "").trim()
