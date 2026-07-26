@@ -651,6 +651,73 @@
         </view>
       </view>
 
+      <!-- 中债国债收益率（≠房价） -->
+      <view v-if="chinabondYieldLatest" class="card" data-chinabond-yield data-tab="overview,price">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">📈 国债收益率</view>
+          <view class="muted" style="font-size: 22rpx">{{ chinabondYieldLatest.date }}</view>
+        </view>
+        <view class="trend-summary" style="margin-top: 12rpx">
+          <view class="trend-cell">
+            <text class="cell-label">10 年期</text>
+            <text class="cell-value">{{ chinabondYieldLatest.y10y.toFixed(2) }}%</text>
+            <text
+              v-if="chinabondYieldDelta"
+              class="cell-sub"
+              :class="rateDeltaClass(chinabondYieldDelta.y10yDeltaPp)"
+            >
+              较上日 {{ chinabondYieldDelta.y10yDeltaPp > 0 ? "+" : "" }}{{ chinabondYieldDelta.y10yDeltaPp }} pp
+            </text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">1 年期</text>
+            <text class="cell-value">{{ chinabondYieldLatest.y1y.toFixed(2) }}%</text>
+            <text
+              v-if="chinabondYieldDelta"
+              class="cell-sub"
+              :class="rateDeltaClass(chinabondYieldDelta.y1yDeltaPp)"
+            >
+              较上日 {{ chinabondYieldDelta.y1yDeltaPp > 0 ? "+" : "" }}{{ chinabondYieldDelta.y1yDeltaPp }} pp
+            </text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">10Y−1Y</text>
+            <text class="cell-value">
+              {{ chinabondYieldLatest.spread10y1y > 0 ? "+" : "" }}{{ chinabondYieldLatest.spread10y1y.toFixed(2) }}
+            </text>
+            <text class="cell-sub muted">pp 期限利差</text>
+          </view>
+        </view>
+        <view class="trend-summary" style="margin-top: 8rpx">
+          <view class="trend-cell">
+            <text class="cell-label">3 月</text>
+            <text class="cell-value" style="font-size: 28rpx">{{ chinabondYieldLatest.y3m.toFixed(2) }}%</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">5 年</text>
+            <text class="cell-value" style="font-size: 28rpx">{{ chinabondYieldLatest.y5y.toFixed(2) }}%</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">30 年</text>
+            <text class="cell-value" style="font-size: 28rpx">{{ chinabondYieldLatest.y30y.toFixed(2) }}%</text>
+          </view>
+        </view>
+        <view
+          v-for="row in chinabondYieldRecent.slice(0, 3)"
+          :key="'cby-' + row.date"
+          class="rank-row"
+          style="margin-top: 6rpx"
+        >
+          <text class="muted" style="font-size: 22rpx">{{ row.date }}</text>
+          <text class="rank-val">
+            10Y {{ row.y10y.toFixed(2) }}% · 1Y {{ row.y1y.toFixed(2) }}%
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：中国债券信息网「中债国债收益率曲线」。市场利率 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数；可与 LPR / MLF / 逆回购对照。
+        </view>
+      </view>
+
       <!-- 央行金融统计（社融/M2/住户贷款；≠房价） -->
       <view v-if="pbcFinLatest" class="card" data-pbc-fin-stats data-tab="overview,price">
         <view class="row-between">
@@ -8258,6 +8325,12 @@ import {
   type OmoRrRow
 } from "../../local/omoRrHistory";
 import {
+  getChinaBondYieldDeltaVsPrev,
+  getChinaBondYieldHistory,
+  getLatestChinaBondYield,
+  type ChinaBondYieldRow
+} from "../../local/chinaBondYield";
+import {
   getLatestPbcFinStats,
   getPbcFinStats,
   getPbcFinStatsDeltaVsPrev,
@@ -12008,6 +12081,9 @@ const mlfRecent = computed<MlfRow[]>(() => getMlfHistory().slice(0, 5));
 const omoRrLatest = computed(() => getLatestOmoRr());
 const omoRrDelta = computed(() => getOmoRrDeltaVsPrev());
 const omoRrRecent = computed<OmoRrRow[]>(() => getOmoRrHistory().slice(0, 5));
+const chinabondYieldLatest = computed(() => getLatestChinaBondYield());
+const chinabondYieldDelta = computed(() => getChinaBondYieldDeltaVsPrev());
+const chinabondYieldRecent = computed<ChinaBondYieldRow[]>(() => getChinaBondYieldHistory().slice(0, 5));
 const pbcFinLatest = computed(() => getLatestPbcFinStats());
 const pbcFinDelta = computed(() => getPbcFinStatsDeltaVsPrev());
 const pbcFinRecent = computed<PbcFinStatsRow[]>(() => getPbcFinStats().slice(0, 5));

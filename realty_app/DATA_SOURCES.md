@@ -163,6 +163,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/seed/lpr_history.csv` | LPR 卡 / 组合贷 | `compute_lpr_history.py`（基线）+ `crawl_lpr_history.py`（**月更 CI**） | 央行 PBOC 公告 1Y/5Y LPR；房贷加点沿用示意 bp |
 | `static/seed/mlf_history.csv` | `mlfHistory.ts` + dashboard「🏛️ 中期借贷便利（MLF）」 | `crawl_mlf_history.py`（**周/月更 CI**） | 央行「开展情况」公告：中标利率/操作量/余额；**2025-03 起多重价位中标，专栏多为招标量无单一利率**；**≠房价**；与 LPR 对照 |
 | `static/seed/omo_rr_history.csv` | `omoRrHistory.ts` + dashboard「🏦 公开市场逆回购」 | `crawl_omo_rr.py`（**周/月更 CI**） | 央行「公开市场业务交易公告」7 天期逆回购利率/中标量；**≠房价**；可与 LPR/MLF 对照 |
+| `static/seed/chinabond_yield.csv` | `chinaBondYield.ts` + dashboard「📈 国债收益率」 | `crawl_chinabond_yield.py`（**周/月更 CI**） | 中债国债收益率曲线关键期限（最新以监管展示表 HTML 覆盖）；**≠房价**；可与 LPR/MLF/逆回购对照 |
 | `static/seed/pbc_fin_stats.csv` | `pbcFinStats.ts` + dashboard「📊 金融统计（社融/M2）」 | `crawl_pbc_fin_stats.py`（**周/月更 CI**） | 央行「金融统计数据报告」：社融存量/增量、M2/M1、人民币贷款、住户及中长期贷款、质押式回购利率、**外汇储备/美元兑人民币**；早期月报可无社融段；**≠房价**；住户中长期贷≠按揭成交 |
 | `static/seed/pbc_region_sf.csv` | `pbcRegionSf.ts` + dashboard「🗺️ 广东社融增量」 | `crawl_pbc_region_sf.py`（**周/月更 CI**；XLSX zip+xml） | 央行「地区社会融资规模增量统计表」：**广东 + 苏浙京沪**；UI 派生占全国%与同期对照；**省级流量 ≠ 城市挂牌/网签/70城** |
 | `static/seed/safe_forex.csv` | `safeForex.ts` + dashboard「💱 外汇储备」 | `crawl_safe_forex.py`（**周/月更 CI**；新闻分页 + 官方储备 XLSX） | 外管局「外汇储备规模」月度通稿：月末规模/环比；可与「官方储备资产」表交叉；**≠房价**；可与金融统计外储字段对照 |
@@ -258,6 +259,7 @@ nbs_ppi.csv                  → nbsPpi.ts             → 全国 PPI/购进/建
 nbs_retail.csv               → nbsRetail.ts          → 社消装潢/家具零售
 nbs_trade.csv                → nbsTrade.ts           → 海关货物进出口（NBS 转载）
 nbs_pmi.csv                  → nbsPmi.ts             → 采购经理指数（含建筑业）
+chinabond_yield.csv          → chinaBondYield.ts     → 中债国债收益率
 gz_new_house_inventory.csv   → gzNewHouseInventory.ts → 广州新房库存
 education_overview.csv       → educationOverview.ts  → 教育事业概览（dashboard v1.121.16）
 hospitals.csv                → hospitalRanking.ts    → 医疗资源榜（dashboard v1.121.12）
