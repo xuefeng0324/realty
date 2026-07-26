@@ -527,6 +527,10 @@
 
 | 日期 | ID | 标题 | 发版 version | 备注 |
 |------|-----|------|--------------|------|
+| 2026-07-26 | F-PAGES-MACRO-06 | 第二批迁移：迁 4 张广东卡 → macro-region | 1.121.130 | gd-real-estate-brief / gd-economy / gd-fa-investment / gd-construction |
+| 2026-07-26 | F-PAGES-MACRO-07 | 第二批迁移：迁 8 张产业卡 → macro-industry | 1.121.130 | nbs-fa-investment / nbs-income / nbs-cpi / nbs-pmi / nbs-industrial / nbs-industrial-profit / nbs-ppi / nbs-retail |
+| 2026-07-26 | F-PAGES-MACRO-08 | 第二批迁移：迁 1 张贸易卡 → macro-trade | 1.121.130 | nbs-trade |
+| 2026-07-26 | F-PAGES-MACRO-09 | 预算硬规则收紧到 ≤ 8 / ≤ 16k；dashboard 16,746 → 15,555 行 | 1.121.130 | overview 14 张 → 1 张（nbsMacro） |
 | 2026-07-26 | F-PAGES-MACRO-01 | 宏观 5 子页骨架 + MacroTabNav 共用 tab + 金刚区「宏观」入口改 navigate | 1.121.129 | 本轮仅骨架；下轮按子页分批迁 12 张宏卡（14 → 8） |
 | 2026-07-26 | F-PAGES-MACRO-02 | pages.json 注册 macro-rates/fx/industry/region/trade 5 路由 | 1.121.129 | 与 skeleton 同包 |
 | 2026-07-26 | F-PAGES-MACRO-03 | tests/macroPages.test.ts 子页骨架 smoke 测试（5 文件存在 + active prop + 路由注册 + 入口 navigate） | 1.121.129 | 锁住：后续迁卡 → 重跑绿 |

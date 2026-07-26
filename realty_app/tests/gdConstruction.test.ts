@@ -25,7 +25,7 @@ describe("gd construction", () => {
     const script = readFileSync(resolve(process.cwd(), "scripts/crawl_gd_construction.py"), "utf8");
     expect(script).toContain("建筑业生产运行简况");
     expect(script).toContain("zfcxjst.gd.gov.cn");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-region/macro-region.vue"), "utf8");
     expect(dash).toContain("getLatestGdConstruction");
     expect(dash).toContain("data-gd-construction");
   });

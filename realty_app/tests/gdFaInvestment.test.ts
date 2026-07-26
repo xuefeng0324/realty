@@ -24,7 +24,7 @@ describe("gd fa investment", () => {
     const script = readFileSync(resolve(process.cwd(), "scripts/crawl_gd_fa_investment.py"), "utf8");
     expect(script).toContain("固定资产投资运行简况");
     expect(script).toContain("stats.gd.gov.cn");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-region/macro-region.vue"), "utf8");
     expect(dash).toContain("getLatestGdFaInvestment");
     expect(dash).toContain("data-gd-fa-investment");
   });

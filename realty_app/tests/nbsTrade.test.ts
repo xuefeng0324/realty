@@ -35,14 +35,18 @@ describe("nbs goods trade (customs via NBS)", () => {
     expect(feb!.exportCumYi).toBe(46178);
   });
 
-  it("爬虫与仪表盘接线", () => {
+  it("爬虫与仪表盘接线（v1.121.130 起迁至 macro-trade 子页）", () => {
     const script = readFileSync(resolve(process.cwd(), "scripts/crawl_nbs_trade.py"), "utf8");
     expect(script).toContain("进出口总额");
     expect(script).toContain("海关总署");
     expect(script).toContain("≠");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
-    expect(dash).toContain("data-nbs-trade");
-    expect(dash).toContain("getLatestNbsTrade");
+    // v1.121.130 起：dashboard 总览迁出至 pages/macro-trade/macro-trade.vue
+    const subpage = readFileSync(
+      resolve(process.cwd(), "src/pages/macro-trade/macro-trade.vue"),
+      "utf8"
+    );
+    expect(subpage).toContain("data-nbs-trade");
+    expect(subpage).toContain("getLatestNbsTrade");
   });
 
   it("CSV 解析拒绝非 stats.gov.cn", () => {

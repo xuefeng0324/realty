@@ -29,7 +29,7 @@ describe("nbs fa investment", () => {
     expect(script).toContain("全国固定资产投资基本情况");
     expect(script).toContain("stats.gov.cn");
     expect(script).toContain("--backfill");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-industry/macro-industry.vue"), "utf8");
     expect(dash).toContain("getLatestNbsFaInvestment");
     expect(dash).toContain("data-nbs-fa-investment");
     expect(dash).not.toMatch(/全国固投[\s\S]{0,40}成交均价/);

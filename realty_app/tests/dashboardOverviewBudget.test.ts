@@ -17,10 +17,8 @@ describe("总览长度预算 DASHBOARD_OVERVIEW_BUDGET", () => {
   const lines = src.split("\n").length;
 
   // 与 docs/DASHBOARD_OVERVIEW_BUDGET.md §1 同源
-  const MAX_OVERVIEW_CARDS_HARD = 14; // 当前 baseline = 14；下轮迁完后收紧到 8
-  const MAX_TOTAL_LINES_HARD = 25_000; // 16 746 → 不再涨
-  const TARGET_OVERVIEW_CARDS = 8; // 远期硬目标
-  const TARGET_TOTAL_LINES = 16_000; // 远期硬目标
+  const MAX_OVERVIEW_CARDS_HARD = 8; // v1.121.129 第二批迁移后：当前 1 张（nbsMacro）；硬规则 ≤ 8 锁死
+  const MAX_TOTAL_LINES_HARD = 16_000; // v1.121.129 第二批迁移后：当前 15 555；硬规则 ≤ 16k 锁死
 
   const overviewCards = (src.match(
     /class="card[^"]*macro-card[^"]*"\s+data-tab="overview,price"/g
@@ -35,12 +33,13 @@ describe("总览长度预算 DASHBOARD_OVERVIEW_BUDGET", () => {
     expect(lines).toBeLessThanOrEqual(MAX_TOTAL_LINES_HARD);
   });
 
-  it("远期目标：macro-card ≤ 8 + 行数 ≤ 16 000（提示当前离目标距离）", () => {
-    // 仅 console 提示，不 fail；迁完后再开启硬规则。
-    if (overviewCards > TARGET_OVERVIEW_CARDS || lines > TARGET_TOTAL_LINES) {
+  it("远期目标：macro-card ≤ 4 + 行数 ≤ 12 000（提示下一轮缩页目标）", () => {
+    // 下一轮进一步压：macro-card ≤ 4 + dashboard 总行数 ≤ 12 000。
+    // 当前已达成硬规则，远期仅 console 提示。
+    if (overviewCards > 4 || lines > 12_000) {
       // eslint-disable-next-line no-console
       console.warn(
-        `[budget-target] macro-card = ${overviewCards}（目标 ≤ ${TARGET_OVERVIEW_CARDS}）/ lines = ${lines}（目标 ≤ ${TARGET_TOTAL_LINES}）`
+        `[budget-target-next] macro-card = ${overviewCards}（远期 ≤ 4）/ lines = ${lines}（远期 ≤ 12 000）`
       );
     }
   });

@@ -37,7 +37,7 @@ describe("nbs industrial enterprise profit", () => {
     );
     expect(script).toContain("规模以上工业企业利润");
     expect(script).toContain("≠");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-industry/macro-industry.vue"), "utf8");
     expect(dash).toContain("data-nbs-industrial-profit");
     expect(dash).toContain("getLatestNbsIndustrialProfit");
   });

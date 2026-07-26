@@ -30,7 +30,7 @@ describe("nbs retail", () => {
     expect(script).toContain("建筑及装潢材料类");
     expect(script).toContain("家具类");
     expect(script).toContain("社会消费品零售总额");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-industry/macro-industry.vue"), "utf8");
     expect(dash).toContain("getLatestNbsRetail");
     expect(dash).toContain("data-nbs-retail");
     expect(dash).toContain("装潢/家具 ≠ 房价");

@@ -40,7 +40,7 @@ describe("nbs purchasing managers index", () => {
     expect(script).toContain("采购经理指数");
     expect(script).toContain("construction_business");
     expect(script).toContain("≠");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-industry/macro-industry.vue"), "utf8");
     expect(dash).toContain("data-nbs-pmi");
     expect(dash).toContain("getLatestNbsPmi");
   });

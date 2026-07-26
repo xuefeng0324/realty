@@ -29,7 +29,7 @@ describe("nbs income", () => {
     expect(script).toContain("居民收入和消费支出情况");
     expect(script).toContain("housing_consumption");
     expect(script).toContain("stats.gov.cn");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-industry/macro-industry.vue"), "utf8");
     expect(dash).toContain("getLatestNbsIncome");
     expect(dash).toContain("data-nbs-income");
     expect(dash).toContain("居住消费 · 非房价");

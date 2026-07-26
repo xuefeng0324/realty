@@ -39,7 +39,7 @@ describe("gd economy", () => {
     expect(script).toContain("常住人口");
     expect(script).toContain("城镇化率");
     expect(script).toContain("index_4.html");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-region/macro-region.vue"), "utf8");
     expect(dash).toContain("getLatestGdEconomyPopulation");
     expect(dash).toContain("data-gd-economy");
     expect(dash).toContain("macro-kicker");

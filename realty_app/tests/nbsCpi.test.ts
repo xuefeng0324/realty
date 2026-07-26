@@ -28,7 +28,7 @@ describe("nbs cpi", () => {
     expect(script).toContain("居民消费价格");
     expect(script).toContain("租赁房房租");
     expect(script).toContain("三、居住");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-industry/macro-industry.vue"), "utf8");
     expect(dash).toContain("getLatestNbsCpi");
     expect(dash).toContain("data-nbs-cpi");
     expect(dash).toContain("房租 ≠ 房价");

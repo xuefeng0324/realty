@@ -27,7 +27,7 @@ describe("nbs ppi", () => {
     expect(script).toContain("工业生产者出厂价格");
     expect(script).toContain("非金属矿物制品业");
     expect(script).toContain("二、工业生产者购进价格");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-industry/macro-industry.vue"), "utf8");
     expect(dash).toContain("getLatestNbsPpi");
     expect(dash).toContain("data-nbs-ppi");
     expect(dash).toContain("建材相关 · ≠房价");

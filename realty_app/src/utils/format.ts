@@ -88,3 +88,32 @@ export async function copyText(text: string): Promise<void> {
   uni.setClipboardData({ data: text, success: () => showToast("已复制") });
   // #endif
 }
+
+/**
+ * 宏观卡渲染 helper。
+ *
+ * 原位于 dashboard.vue 内（v1.121.129 起拆出），供 macro-* 子页复用。
+ * 与 trend-* / stats70-* 颜色约定一致：涨红跌绿。
+ */
+
+export function formatMacro100m(v: number): string {
+  return `${v.toLocaleString()} 亿元`;
+}
+
+export function formatMacroYuan(v: number): string {
+  return `${Math.round(v).toLocaleString()} 元`;
+}
+
+export function formatMacroArea(v: number): string {
+  return `${v.toLocaleString()} 万㎡`;
+}
+
+export function formatMacroPct(v: number): string {
+  return `${v > 0 ? "+" : ""}${v.toFixed(1)}%`;
+}
+
+export function macroTrendClass(v: number): "stats70-up" | "stats70-down" | "stats70-flat" {
+  if (v > 0) return "stats70-up";
+  if (v < 0) return "stats70-down";
+  return "stats70-flat";
+}

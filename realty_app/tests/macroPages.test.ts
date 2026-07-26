@@ -65,4 +65,43 @@ describe("宏观 5 子页骨架 PAGES_MACRO_*", () => {
       /key:\s*"macro"[\s\S]{0,200}kind:\s*"navigate"[\s\S]{0,200}macro-region/
     );
   });
+
+  it("macro-region 子页迁入了 4 张广东卡（数据 + 模板）", () => {
+    const src = readFileSync(
+      resolve(pagesDir, "macro-region/macro-region.vue"),
+      "utf8"
+    );
+    expect(src).toContain("data-gd-real-estate-brief");
+    expect(src).toContain("data-gd-economy");
+    expect(src).toContain("data-gd-fa-investment");
+    expect(src).toContain("data-gd-construction");
+    expect(src).toContain("getLatestGdRealEstateBrief");
+    expect(src).toContain("getLatestGdEconomy");
+  });
+
+  it("macro-industry 子页迁入了 8 张产业卡（数据 + 模板）", () => {
+    const src = readFileSync(
+      resolve(pagesDir, "macro-industry/macro-industry.vue"),
+      "utf8"
+    );
+    expect(src).toContain("data-nbs-fa-investment");
+    expect(src).toContain("data-nbs-income");
+    expect(src).toContain("data-nbs-cpi");
+    expect(src).toContain("data-nbs-pmi");
+    expect(src).toContain("data-nbs-industrial");
+    expect(src).toContain("data-nbs-industrial-profit");
+    expect(src).toContain("data-nbs-ppi");
+    expect(src).toContain("data-nbs-retail");
+    expect(src).toContain("getLatestNbsIndustrialProfit");
+    expect(src).toContain("getLatestNbsPmi");
+  });
+
+  it("macro-trade 子页迁入了 1 张贸易卡（数据 + 模板）", () => {
+    const src = readFileSync(
+      resolve(pagesDir, "macro-trade/macro-trade.vue"),
+      "utf8"
+    );
+    expect(src).toContain("data-nbs-trade");
+    expect(src).toContain("getLatestNbsTrade");
+  });
 });

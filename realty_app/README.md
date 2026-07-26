@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.121.130 | 2026-07-26 | 第二批迁移：迁 13 张宏卡到 3 个子页（macro-region 4 + macro-industry 8 + macro-trade 1）；dashboard 16,746 → 15,555 行；总览预算收紧到 ≤ 8 / ≤ 16k |
 | v1.121.129 | 2026-07-26 | 5 个宏观子页骨架 + MacroTabNav 共用 tab + 总览预算门禁硬规则 ≤ 14（远期 ≤ 8） |
 | v1.121.128 | 2026-07-26 | 规上工业企业利润 |
 | v1.121.127 | 2026-07-26 | 规上工业增加值 |
@@ -585,6 +586,10 @@ gh auth setup-git
 ## 更新日志
 
 详细变更见 [changelog/](./changelog/) 目录。
+
+### v1.121.130 (2026-07-26)
+
+第二批迁移完成：13 张宏卡从 dashboard 总览迁出到 3 个独立子页（macro-region 4 张广东 + macro-industry 8 张产业 + macro-trade 1 张贸易）。dashboard 从 16,746 行缩到 15,555 行（-7.1%），overview 宏卡从 14 张降到 1 张（nbsMacro）。预算测试硬规则收紧到 ≤ 8 / ≤ 16k（远期 ≤ 4 / ≤ 12k）。5 个 macro helper（formatMacro100m / formatMacroPct / formatMacroArea / formatMacroYuan / macroTrendClass）从 dashboard 内私有抽出到 `utils/format.ts` 复用。
 
 ### v1.121.129 (2026-07-26)
 

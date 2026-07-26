@@ -39,7 +39,7 @@ describe("gd real estate brief", () => {
     expect(script).toContain("zfcxjst.gd.gov.cn");
     expect(script).toContain("stats.gd.gov.cn");
     expect(script).toContain("STATS_LIST_URL");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-region/macro-region.vue"), "utf8");
     expect(dash).toContain("getLatestGdRealEstateBrief");
     expect(dash).toContain("data-gd-real-estate-brief");
     expect(dash).toContain("data-gd-brief-series-toggle");
