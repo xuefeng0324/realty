@@ -54,6 +54,7 @@ jobs:
           python scripts/crawl_omo_rr.py --max 40 2>&1 | tee omo_rr.log || true
           python scripts/crawl_pbc_fin_stats.py --max 18 2>&1 | tee pbc_fin.log || true
           python scripts/crawl_pbc_region_sf.py --max 8 2>&1 | tee pbc_region_sf.log || true
+          python scripts/crawl_safe_forex.py --max 24 --news-pages 8 2>&1 | tee safe_forex.log || true
 
       - name: 看结果
         working-directory: realty_app
@@ -86,10 +87,10 @@ jobs:
           cd realty_app
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet HEAD -- static/stats_70.csv static/nbs_real_estate.csv static/nbs_fa_investment.csv static/nbs_income.csv static/nbs_cpi.csv static/nbs_ppi.csv static/nbs_retail.csv static/seed/lpr_history.csv static/seed/mlf_history.csv static/seed/omo_rr_history.csv static/seed/pbc_fin_stats.csv static/seed/pbc_region_sf.csv; then
-            git add static/stats_70.csv static/nbs_real_estate.csv static/nbs_fa_investment.csv static/nbs_income.csv static/nbs_cpi.csv static/nbs_ppi.csv static/nbs_retail.csv static/seed/lpr_history.csv static/seed/mlf_history.csv static/seed/omo_rr_history.csv static/seed/pbc_fin_stats.csv static/seed/pbc_region_sf.csv
-            git commit -m "data(stats70+nbs+lpr+mlf+omo+fin): 月更 70城/全国房地产/固投/居民收入/CPI/PPI/社消/LPR/MLF/逆回购/金融统计/地区社融 $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          if ! git diff --quiet HEAD -- static/stats_70.csv static/nbs_real_estate.csv static/nbs_fa_investment.csv static/nbs_income.csv static/nbs_cpi.csv static/nbs_ppi.csv static/nbs_retail.csv static/seed/lpr_history.csv static/seed/mlf_history.csv static/seed/omo_rr_history.csv static/seed/pbc_fin_stats.csv static/seed/pbc_region_sf.csv static/seed/safe_forex.csv; then
+            git add static/stats_70.csv static/nbs_real_estate.csv static/nbs_fa_investment.csv static/nbs_income.csv static/nbs_cpi.csv static/nbs_ppi.csv static/nbs_retail.csv static/seed/lpr_history.csv static/seed/mlf_history.csv static/seed/omo_rr_history.csv static/seed/pbc_fin_stats.csv static/seed/pbc_region_sf.csv static/seed/safe_forex.csv
+            git commit -m "data(stats70+nbs+lpr+mlf+omo+fin+safe): 月更 70城/全国房地产/固投/居民收入/CPI/PPI/社消/LPR/MLF/逆回购/金融统计/地区社融/外储 $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
             git push
           else
-            echo "stats_70 / nbs / nbs_fa / nbs_income / nbs_cpi / nbs_ppi / nbs_retail / lpr / mlf / omo / fin / region_sf 无变化，跳过 commit"
+            echo "stats_70 / nbs / nbs_fa / nbs_income / nbs_cpi / nbs_ppi / nbs_retail / lpr / mlf / omo / fin / region_sf / safe_forex 无变化，跳过 commit"
           fi

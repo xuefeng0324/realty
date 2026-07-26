@@ -14,11 +14,12 @@
 | 🟡 | bug-edu-1 | dashboard/school 教育事业 lookup 依赖异步 cities（应用 store） | ✅ 已修 | store.getCityById；adversarial 门禁 |
 | 🟡 | bug-school-1 | school.vue 重点学校头部跨城汇总，应按 cityId 过滤 | ✅ 本轮 | dimCityCurrent / Polymath(cityId) |
 | 🟡 | ux-list-beike | 房源详情进一步学贝壳：图集/挂牌标签 pill/经纪人区（本产品不做经纪） | 🟡 部分 | 封面接线已做；安居客 m 站 SPA 无静态 sale 链、链家 CAPTCHA；真图仍空 |
-| 🟢 | test-entry-1 | E2E 覆盖金刚区库存点击 → `#entry-supply` | 🟡 部分 | unit+smoke 已备；2026-07-26 本机 5174 连接拒绝未跑通 |
+| 🟢 | test-entry-1 | E2E 覆盖金刚区库存点击 → `#entry-supply` | ✅ 本轮 | smoke 改 home-king-tile + 视口相交；2026-07-26 本机 5174 通过 |
 | 🟢 | data-mlf | 央行 MLF 操作利率 | ✅ v1.121.105 | 公告「开展情况」；2025-03+ 多重价位无单一利率；与 LPR 对照；≠房价 |
 | 🟢 | data-omo-rr | 央行公开市场 7 天期逆回购 | ✅ v1.121.105 | 交易公告利率/中标量；周月更 CI；≠房价 |
 | 🟢 | data-pbc-fin | 央行金融统计（社融/M2/住户贷款） | ✅ v1.121.106–107 | 含无社融段旧月报；住户中长期≠按揭成交 |
 | 🟢 | data-pbc-region-sf | 广东地区社融增量 | ✅ v1.121.107–109 | 广东+苏浙京沪；占全国派生；省级≠城市房价 |
+| 🟢 | data-safe-forex | 外管局月末外汇储备规模 | ✅ v1.121.110 | 通稿+官方储备 XLSX；周/月更 CI；≠房价 |
 | 🟡 | data-zh-wq | 珠海网签/预售专网日更接入 | ✅ 季报备选 | 日更仍超时；`zh_bdc_registration` 2025Q1–2026Q2 合计已上线 |
 | 🟢 | data-zh-price-filing | 珠海商品房价格备案公示 | ✅ v1.121.104 | 全量 336 条；周更 CI；预售专网仍超时 |
 

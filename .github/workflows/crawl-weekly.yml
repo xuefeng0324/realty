@@ -102,14 +102,15 @@ jobs:
           python scripts/crawl_omo_rr.py --max 36 || true
           python scripts/crawl_pbc_fin_stats.py --max 18 || true
           python scripts/crawl_pbc_region_sf.py --max 8 || true
+          python scripts/crawl_safe_forex.py --max 24 --news-pages 8 || true
 
       - name: 提交 CSV
         run: |
           cd realty_app
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet HEAD -- static/seed/listings.csv static/education_overview.csv static/sz_planned_supply.csv static/gz_housing_plan.csv static/gz_affordable_projects.csv static/gz_affordable_targets.csv static/gz_land_deals.csv static/sz_land_deals.csv static/sz_affordable_projects.csv static/zh_affordable_progress.csv static/zh_price_filing.csv static/sz_provident_annual.csv static/gz_provident_annual.csv static/zh_provident_dynamics.csv static/gd_provident_annual.csv static/gd_real_estate_brief.csv static/gd_fa_investment.csv static/gd_construction.csv static/seed/mlf_history.csv static/seed/omo_rr_history.csv static/seed/pbc_fin_stats.csv static/seed/pbc_region_sf.csv; then
-            git add static/seed/*.csv static/seed/crawl_meta.json static/education_overview.csv static/sz_planned_supply.csv static/gz_housing_plan.csv static/gz_affordable_projects.csv static/gz_affordable_targets.csv static/gz_land_deals.csv static/sz_land_deals.csv static/sz_affordable_projects.csv static/zh_affordable_progress.csv static/zh_price_filing.csv static/sz_provident_annual.csv static/gz_provident_annual.csv static/zh_provident_dynamics.csv static/gd_provident_annual.csv static/gd_real_estate_brief.csv static/gd_fa_investment.csv static/gd_construction.csv static/seed/mlf_history.csv static/seed/omo_rr_history.csv static/seed/pbc_fin_stats.csv static/seed/pbc_region_sf.csv
+          if ! git diff --quiet HEAD -- static/seed/listings.csv static/education_overview.csv static/sz_planned_supply.csv static/gz_housing_plan.csv static/gz_affordable_projects.csv static/gz_affordable_targets.csv static/gz_land_deals.csv static/sz_land_deals.csv static/sz_affordable_projects.csv static/zh_affordable_progress.csv static/zh_price_filing.csv static/sz_provident_annual.csv static/gz_provident_annual.csv static/zh_provident_dynamics.csv static/gd_provident_annual.csv static/gd_real_estate_brief.csv static/gd_fa_investment.csv static/gd_construction.csv static/seed/mlf_history.csv static/seed/omo_rr_history.csv static/seed/pbc_fin_stats.csv static/seed/pbc_region_sf.csv static/seed/safe_forex.csv; then
+            git add static/seed/*.csv static/seed/crawl_meta.json static/education_overview.csv static/sz_planned_supply.csv static/gz_housing_plan.csv static/gz_affordable_projects.csv static/gz_affordable_targets.csv static/gz_land_deals.csv static/sz_land_deals.csv static/sz_affordable_projects.csv static/zh_affordable_progress.csv static/zh_price_filing.csv static/sz_provident_annual.csv static/gz_provident_annual.csv static/zh_provident_dynamics.csv static/gd_provident_annual.csv static/gd_real_estate_brief.csv static/gd_fa_investment.csv static/gd_construction.csv static/seed/mlf_history.csv static/seed/omo_rr_history.csv static/seed/pbc_fin_stats.csv static/seed/pbc_region_sf.csv static/seed/safe_forex.csv
             git commit -m "data(anjuke): 刷新二手房挂牌 $(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
               || echo "no commit needed"
             git push

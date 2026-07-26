@@ -14,22 +14,27 @@ try {
   await page.goto(`${BASE_URL}/#/pages/dashboard/dashboard`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.waitForTimeout(1800);
 
-  // 金刚区库存按钮（文案「库存」）
-  const inv = page.locator(".home-kingkong-item, .kingkong-item, [data-kingkong]").filter({ hasText: "库存" }).first();
-  const invAlt = page.getByText("库存", { exact: true }).first();
-  const target = (await inv.count()) > 0 ? inv : invAlt;
-  if ((await target.count()) < 1) {
+  // 金刚区库存按钮（home-king-tile / data-home-king）
+  const inv = page.locator(".home-king-tile, [data-home-king]").filter({ hasText: "库存" }).first();
+  if ((await inv.count()) < 1) {
     issues.push("找不到金刚区「库存」入口");
   } else {
-    await target.click();
-    await page.waitForTimeout(800);
+    await inv.click();
+    await page.waitForTimeout(1500);
     const supply = page.locator("#entry-supply");
     if ((await supply.count()) < 1) {
       issues.push("点击库存后页面无 #entry-supply（当前城市可能无供需卡）");
     } else {
-      const box = await supply.boundingBox();
-      if (!box) issues.push("#entry-supply 无布局盒");
-      else if (box.y > 900) issues.push(`#entry-supply 未进入视口附近 (y=${Math.round(box.y)})`);
+      // 视口相交即可（sticky 头 / block:center 可能导致 y 略负）
+      const visible = await supply.evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        const vh = window.innerHeight || 900;
+        return r.bottom > 40 && r.top < vh - 40;
+      });
+      if (!visible) {
+        const box = await supply.boundingBox();
+        issues.push(`#entry-supply 未进入视口附近 (y=${box ? Math.round(box.y) : "?"})`);
+      }
     }
   }
 

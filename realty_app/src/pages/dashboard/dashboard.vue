@@ -790,6 +790,66 @@
         </view>
       </view>
 
+      <!-- 外管局外汇储备（月末规模；≠房价） -->
+      <view v-if="safeForexLatest" class="card" data-safe-forex data-tab="overview,price">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">💱 外汇储备</view>
+          <view class="muted" style="font-size: 22rpx">{{ safeForexLatest.date.slice(0, 7) }} 末</view>
+        </view>
+        <view class="trend-summary" style="margin-top: 12rpx">
+          <view class="trend-cell">
+            <text class="cell-label">外储规模</text>
+            <text class="cell-value">{{ Math.round(safeForexLatest.forexUsdYi).toLocaleString() }}</text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">较上月末</text>
+            <text
+              class="cell-value"
+              :class="macroTrendClass(safeForexDelta ? safeForexDelta.deltaUsdYi : safeForexLatest.momDeltaUsdYi)"
+            >
+              {{
+                formatInvDelta(
+                  safeForexDelta ? safeForexDelta.deltaUsdYi : safeForexLatest.momDeltaUsdYi
+                )
+              }}
+            </text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">环比</text>
+            <text
+              class="cell-value"
+              :class="macroTrendClass(safeForexDelta ? safeForexDelta.deltaPct : safeForexLatest.momPct)"
+            >
+              {{
+                (safeForexDelta ? safeForexDelta.deltaPct : safeForexLatest.momPct) > 0 ? "+" : ""
+              }}{{
+                (safeForexDelta ? safeForexDelta.deltaPct : safeForexLatest.momPct).toFixed(2)
+              }}%
+            </text>
+            <text class="cell-sub muted">通稿/派生</text>
+          </view>
+        </view>
+        <view
+          v-for="row in safeForexRecent.slice(0, 3)"
+          :key="'safe-fx-' + row.date"
+          class="rank-row"
+          style="margin-top: 6rpx"
+        >
+          <text class="muted" style="font-size: 22rpx">{{ row.date.slice(0, 7) }}</text>
+          <text class="rank-val">
+            {{ Math.round(row.forexUsdYi).toLocaleString() }} 亿$
+            <template v-if="row.momDeltaUsdYi">
+              · {{ formatInvDelta(row.momDeltaUsdYi) }}
+            </template>
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：国家外汇管理局「外汇储备规模」月度通稿（可与「官方储备资产」表交叉）。外储规模 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数；可与上方金融统计外储字段对照。
+        </view>
+      </view>
+
       <!-- 政府每日网签（摘要；有日更则可进子页） -->
       <view
         class="card wangqian-card"
@@ -7461,6 +7521,12 @@ import {
   type PbcRegionSfRow
 } from "../../local/pbcRegionSf";
 import {
+  getLatestSafeForex,
+  getSafeForex,
+  getSafeForexDeltaVsPrev,
+  type SafeForexRow
+} from "../../local/safeForex";
+import {
   getLatestCityDaily,
   type CityDailySnapshot
 } from "../../local/dailyWangqian";
@@ -9447,7 +9513,14 @@ function jumpHomeAnchor(anchor: string) {
     if (typeof document !== "undefined") {
       const el = document.getElementById(target);
       if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        el.scrollIntoView({ behavior: "auto", block: "start" });
+        // 避开顶部 sticky 入口条，避免滚过头
+        window.setTimeout(() => {
+          const top = el.getBoundingClientRect().top;
+          if (top < 72 || top > 160) {
+            window.scrollBy({ top: top - 96, left: 0, behavior: "auto" });
+          }
+        }, 40);
         return;
       }
       showToast("未找到对应区块");
@@ -9459,7 +9532,9 @@ function jumpHomeAnchor(anchor: string) {
       fail: () => showToast("未找到对应区块")
     });
   };
-  nextTick(doScroll);
+  nextTick(() => {
+    nextTick(doScroll);
+  });
 }
 function submitHomeSearch() {
   const resolved = resolveHomeSearch(homeSearchMode.value, homeSearchText.value);
@@ -11099,6 +11174,9 @@ const pbcRegionSfRecent = computed<PbcRegionSfRow[]>(() => getPbcRegionSfByRegio
 const pbcRegionSfVsNat = computed(() => getPbcRegionSfVsNational());
 const pbcRegionSfVsNatRecent = computed(() => listPbcRegionSfVsNational().slice(0, 5));
 const pbcRegionSfPeers = computed(() => getPbcRegionSfPeerRanking());
+const safeForexLatest = computed(() => getLatestSafeForex());
+const safeForexDelta = computed(() => getSafeForexDeltaVsPrev());
+const safeForexRecent = computed<SafeForexRow[]>(() => getSafeForex().slice(0, 5));
 const lprYearLabel = computed(() => {
   const m = lprLatest.value?.month;
   if (!m) return String(new Date().getFullYear());
