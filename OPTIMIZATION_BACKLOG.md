@@ -16,7 +16,7 @@
 | 🟡 | ux-list-beike | 房源详情进一步学贝壳：图集/挂牌标签 pill/经纪人区（本产品不做经纪） | 🟡 部分 | 标签+价区+图集空态+列表缩略图位+`cover_url` 接线已做；链家 REAL 本机 CAPTCHA，封面仍空；安居客 enrich 脚本已备 |
 | 🟢 | test-entry-1 | E2E 覆盖金刚区库存点击 → `#entry-supply` | 🟡 部分 | unit 门禁已加；真 E2E 待 H5 |
 | 🟡 | data-zh-wq | 珠海网签/预售专网日更接入 | ✅ 季报备选 | 日更仍超时；`zh_bdc_registration` 2025Q1–2026Q2 合计已上线 |
-| 🟢 | data-zh-price-filing | 珠海商品房价格备案公示 | ✅ v1.121.103 | 144 条+分区；周更 CI；预售专网仍超时 |
+| 🟢 | data-zh-price-filing | 珠海商品房价格备案公示 | ✅ v1.121.104 | 全量 336 条；周更 CI；预售专网仍超时 |
 
 ### 执行策略（用户确认）
 

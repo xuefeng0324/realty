@@ -12,7 +12,7 @@ import {
 describe("zh price filing", () => {
   it("加载珠海价格备案样本", () => {
     const rows = getZhPriceFilingRows();
-    expect(rows.length).toBeGreaterThanOrEqual(5);
+    expect(rows.length).toBeGreaterThanOrEqual(100);
     expect(rows.every((r) => r.postId)).toBe(true);
     expect(rows.every((r) => r.district)).toBe(true);
     const summary = getZhPriceFilingSummary();
