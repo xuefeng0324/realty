@@ -637,6 +637,69 @@
         </view>
       </view>
 
+      <!-- 央行金融统计（社融/M2/住户贷款；≠房价） -->
+      <view v-if="pbcFinLatest" class="card" data-pbc-fin-stats data-tab="overview,price">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">📊 金融统计（社融/M2）</view>
+          <view class="muted" style="font-size: 22rpx">{{ pbcFinLatest.label || pbcFinLatest.period }}</view>
+        </view>
+        <view class="trend-summary" style="margin-top: 12rpx">
+          <view class="trend-cell">
+            <text class="cell-label">社融存量同比</text>
+            <text class="cell-value">{{ pbcFinLatest.sfStockYoyPct.toFixed(1) }}%</text>
+            <text
+              v-if="pbcFinDelta"
+              class="cell-sub"
+              :class="rateDeltaClass(pbcFinDelta.sfYoyDeltaPp)"
+            >
+              较上期 {{ pbcFinDelta.sfYoyDeltaPp > 0 ? "+" : "" }}{{ pbcFinDelta.sfYoyDeltaPp }} pp
+            </text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">M2 同比</text>
+            <text class="cell-value">{{ pbcFinLatest.m2YoyPct.toFixed(1) }}%</text>
+            <text
+              v-if="pbcFinDelta"
+              class="cell-sub"
+              :class="rateDeltaClass(pbcFinDelta.m2YoyDeltaPp)"
+            >
+              较上期 {{ pbcFinDelta.m2YoyDeltaPp > 0 ? "+" : "" }}{{ pbcFinDelta.m2YoyDeltaPp }} pp
+            </text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">住户中长期贷</text>
+            <text
+              class="cell-value"
+              :class="macroTrendClass(pbcFinLatest.hhMlLoanYtdYi)"
+            >
+              {{ formatInvDelta(pbcFinLatest.hhMlLoanYtdYi) }}
+            </text>
+            <text class="cell-sub muted">亿元（累计）</text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          社融存量 {{ pbcFinLatest.sfStockWanYi.toFixed(2) }} 万亿 · M2
+          {{ pbcFinLatest.m2WanYi.toFixed(2) }} 万亿
+          <template v-if="pbcFinLatest.rmbLoanYtdWanYi">
+            · 人民币贷款累计 +{{ pbcFinLatest.rmbLoanYtdWanYi.toFixed(2) }} 万亿
+          </template>
+        </view>
+        <view
+          v-for="row in pbcFinRecent.slice(0, 3)"
+          :key="'pbc-fin-' + row.period"
+          class="rank-row"
+          style="margin-top: 6rpx"
+        >
+          <text class="muted" style="font-size: 22rpx">{{ row.label || row.period }}</text>
+          <text class="rank-val">
+            社融 {{ row.sfStockYoyPct.toFixed(1) }}% · M2 {{ row.m2YoyPct.toFixed(1) }}%
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：中国人民银行「金融统计数据报告」。全国社融/货币/贷款结构 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数；住户中长期贷款仅为结构代理，非按揭成交。
+        </view>
+      </view>
+
       <!-- 政府每日网签（摘要；有日更则可进子页） -->
       <view
         class="card wangqian-card"
@@ -7293,6 +7356,12 @@ import {
   type OmoRrRow
 } from "../../local/omoRrHistory";
 import {
+  getLatestPbcFinStats,
+  getPbcFinStats,
+  getPbcFinStatsDeltaVsPrev,
+  type PbcFinStatsRow
+} from "../../local/pbcFinStats";
+import {
   getLatestCityDaily,
   type CityDailySnapshot
 } from "../../local/dailyWangqian";
@@ -10922,6 +10991,9 @@ const mlfRecent = computed<MlfRow[]>(() => getMlfHistory().slice(0, 5));
 const omoRrLatest = computed(() => getLatestOmoRr());
 const omoRrDelta = computed(() => getOmoRrDeltaVsPrev());
 const omoRrRecent = computed<OmoRrRow[]>(() => getOmoRrHistory().slice(0, 5));
+const pbcFinLatest = computed(() => getLatestPbcFinStats());
+const pbcFinDelta = computed(() => getPbcFinStatsDeltaVsPrev());
+const pbcFinRecent = computed<PbcFinStatsRow[]>(() => getPbcFinStats().slice(0, 5));
 const lprYearLabel = computed(() => {
   const m = lprLatest.value?.month;
   if (!m) return String(new Date().getFullYear());
