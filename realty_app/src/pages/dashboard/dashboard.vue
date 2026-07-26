@@ -1015,6 +1015,84 @@
         </view>
       </view>
 
+      <!-- 外管局国际投资头寸（季末存量；≠房价） -->
+      <view v-if="safeIipLatest" class="card" data-safe-iip data-tab="overview,price">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🌍 国际投资头寸</view>
+          <view class="muted" style="font-size: 22rpx">{{ safeIipLatest.date.slice(0, 7) }} 末</view>
+        </view>
+        <view class="trend-summary" style="margin-top: 12rpx">
+          <view class="trend-cell">
+            <text class="cell-label">对外净资产</text>
+            <text class="cell-value">{{ Math.round(safeIipLatest.netUsdYi).toLocaleString() }}</text>
+            <text
+              v-if="safeIipDelta"
+              class="cell-sub"
+              :class="macroTrendClass(safeIipDelta.netDelta)"
+            >
+              较上期末 {{ formatInvDelta(safeIipDelta.netDelta) }}
+            </text>
+            <text v-else class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">对外金融资产</text>
+            <text class="cell-value">{{ Math.round(safeIipLatest.assetsUsdYi).toLocaleString() }}</text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">对外负债</text>
+            <text class="cell-value">{{ Math.round(safeIipLatest.liabilitiesUsdYi).toLocaleString() }}</text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+        </view>
+        <view class="trend-summary" style="margin-top: 8rpx">
+          <view class="trend-cell">
+            <text class="cell-label">净资产/总资产</text>
+            <text class="cell-value">
+              {{ safeIipNetShare != null ? safeIipNetShare.toFixed(1) + "%" : "—" }}
+            </text>
+            <text class="cell-sub muted">派生</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">直接投资资产</text>
+            <text class="cell-value">
+              {{
+                safeIipLatest.fdiAssetsUsdYi
+                  ? Math.round(safeIipLatest.fdiAssetsUsdYi).toLocaleString()
+                  : "—"
+              }}
+            </text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">储备资产</text>
+            <text class="cell-value">
+              {{
+                safeIipLatest.reserveAssetsUsdYi
+                  ? Math.round(safeIipLatest.reserveAssetsUsdYi).toLocaleString()
+                  : "—"
+              }}
+            </text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+        </view>
+        <view
+          v-for="row in safeIipRecent.slice(0, 3)"
+          :key="'safe-iip-' + row.date"
+          class="rank-row"
+          style="margin-top: 6rpx"
+        >
+          <text class="muted" style="font-size: 22rpx">{{ row.date.slice(0, 7) }}</text>
+          <text class="rank-val" style="font-size: 22rpx">
+            净资产 {{ Math.round(row.netUsdYi).toLocaleString() }}
+            · 资产 {{ Math.round(row.assetsUsdYi).toLocaleString() }}
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：国家外汇管理局「国际投资头寸表」季末通稿（存量口径，采用修订机制）。对外净资产 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数；储备资产可与官方储备资产卡交叉。
+        </view>
+      </view>
+
       <!-- 外管局银行结售汇 + 涉外收付款（月度流量；≠房价） -->
       <view v-if="safeSettleLatest" class="card" data-safe-settle data-tab="overview,price">
         <view class="row-between">
@@ -7940,6 +8018,13 @@ import {
   type SafeBopTradeRow
 } from "../../local/safeBopTrade";
 import {
+  getLatestSafeIip,
+  getSafeIip,
+  getSafeIipDeltaVsPrev,
+  getSafeIipNetShare,
+  type SafeIipRow
+} from "../../local/safeIip";
+import {
   getLatestSafeSettle,
   getSafeSettle,
   getSafeSettleDeltaVsPrev,
@@ -11643,6 +11728,10 @@ const safeOraGoldShare = computed(() => getSafeOraGoldShare(safeOraLatest.value)
 const safeBopTradeLatest = computed(() => getLatestSafeBopTrade());
 const safeBopTradeDelta = computed(() => getSafeBopTradeDeltaVsPrev());
 const safeBopTradeRecent = computed<SafeBopTradeRow[]>(() => getSafeBopTrade().slice(0, 5));
+const safeIipLatest = computed(() => getLatestSafeIip());
+const safeIipDelta = computed(() => getSafeIipDeltaVsPrev());
+const safeIipRecent = computed<SafeIipRow[]>(() => getSafeIip().slice(0, 5));
+const safeIipNetShare = computed(() => getSafeIipNetShare(safeIipLatest.value));
 const safeSettleLatest = computed(() => getLatestSafeSettle());
 const safeSettleDelta = computed(() => getSafeSettleDeltaVsPrev());
 const safeSettleRecent = computed<SafeSettleRow[]>(() => getSafeSettle().slice(0, 5));
