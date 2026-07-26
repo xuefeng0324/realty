@@ -1550,6 +1550,13 @@
             @click.stop="jumpOverviewGroup(j.key)"
           >{{ j.label }}</button>
         </view>
+        <button
+          class="overview-mode-toggle"
+          size="mini"
+          hover-class="tap-row--active"
+          data-dash-mode-toggle
+          @click.stop="toggleFeaturedMode"
+        >{{ featuredMode ? "📊 完整模式" : "🏠 精简模式" }}</button>
         <button class="overview-toggle-all" size="mini" @click.stop="toggleOverviewAll">
           {{ overviewAllExpanded ? "全部收起" : "全部展开" }}
         </button>
@@ -4868,6 +4875,48 @@
         </view>
       </view>
 
+      <!-- v1.121.147 进阶分析区块（精简模式下默认折叠，可一键展开） -->
+      <view v-if="activeTab === 'overview'" class="card advanced-section" data-dash-advanced-section>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">📊 进阶分析</view>
+          <view class="muted">
+            {{ advancedCardCount }} 张 · {{ advancedExpanded ? "已展开" : "默认折叠" }}
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据可视化矩阵、双轴散点、地图、学区加权等深度分析卡。精简模式下默认隐藏，{{ "点这里" }}展开。
+        </view>
+        <view class="advanced-list" v-if="advancedExpanded">
+          <view
+            v-for="c in ADVANCED_CARDS"
+            :key="c.key"
+            class="advanced-row"
+            :class="{ 'advanced-row--hidden': hiddenCards.has(c.key) }"
+          >
+            <view class="advanced-info">
+              <view class="advanced-name">{{ c.label }}</view>
+              <view class="muted" style="font-size: 20rpx">{{ c.hint }}</view>
+            </view>
+            <button
+              class="advanced-toggle"
+              size="mini"
+              hover-class="tap-row--active"
+              :data-dash-advanced-toggle="c.key"
+              @click.stop="toggleCardHidden(c.key)"
+            >{{ hiddenCards.has(c.key) ? "显示" : "隐藏" }}</button>
+          </view>
+        </view>
+        <view class="advanced-actions" v-else>
+          <button
+            class="advanced-expand-btn"
+            size="mini"
+            hover-class="tap-row--active"
+            data-dash-advanced-expand
+            @click.stop="expandAdvancedCards"
+          >展开 {{ advancedCardCount }} 张进阶分析卡 ▼</button>
+        </view>
+      </view>
+
     <!-- 内置 popup：城市/周期/来源/指标选择 -->
     <view v-if="sheet.open" class="sheet-mask" @click="closeSheet">
       <view class="sheet" @click.stop>
@@ -5336,6 +5385,59 @@ function toggleCardHidden(key: string) {
   else s.add(key);
   hiddenCards.value = s;
   saveHiddenCards();
+}
+
+// v1.121.147 Batch 8: 精简/完整模式 + 进阶分析区块
+const FEATURED_MODE_KEY = "realty_dashboard_featured_mode";
+const ADVANCED_EXPANDED_KEY = "realty_dashboard_advanced_expanded";
+const featuredMode = ref<boolean>(true);  // 默认精简模式
+const advancedExpanded = ref<boolean>(false);  // 默认折叠
+const ADVANCED_CARDS: { key: string; label: string; hint: string }[] = [
+  { key: "bedroom-area-heatmap", label: "户型×面积 热图", hint: "bedroomAreaDistribution 联合分布" },
+  { key: "orientation-floor-matrix", label: "朝向×楼层 溢价", hint: "orientationFloorMatrix 朝向×楼层溢价" },
+  { key: "decorate-age-matrix", label: "装修×楼龄 溢价", hint: "decorateAgeMatrix 装修×楼龄溢价" },
+  { key: "community-scatter", label: "总价×单价 散点", hint: "communityScatter 双轴散点可视化" },
+  { key: "district-map", label: "行政区+社区 地图", hint: "districtMap 地图聚合 marker/count/price/school/metro 模式" },
+  { key: "school-dim-weighted", label: "学区指标加权", hint: "schoolDimensions 加权细分明细" },
+  { key: "macro-lpr-card", label: "LPR+房贷利率", hint: "LPR 1y/5y + 房贷利率快照" },
+  { key: "hospital-rank", label: "医疗资源榜", hint: "hospitalRanking 周边医院" },
+  { key: "commercial-heat", label: "商业热度榜", hint: "commercialRanking 小区维度" },
+  { key: "school-top-community", label: "学区评分 Top 小区", hint: "schoolPremiumCommunityItems Top 评分小区" },
+  { key: "listing-school-premium", label: "Listing 学区溢价", hint: "listingPremiumOverview 房源学区溢价" },
+  { key: "stats70-drift", label: "70 城涨跌 Top", hint: "stats70 城市 12 月同比趋势" },
+  { key: "lpr-mortgage-signal", label: "LPR 与房贷利率信号", hint: "lprOverview 信号卡" },
+  { key: "district-wangqian-3cat", label: "区级网签 (新房/二手/全部)", hint: "districtWangqianRank 三品类 tab" }
+];
+const advancedCardCount = computed(() => ADVANCED_CARDS.length);
+function toggleFeaturedMode() {
+  featuredMode.value = !featuredMode.value;
+  try {
+    uni.setStorageSync(FEATURED_MODE_KEY, JSON.stringify(featuredMode.value));
+  } catch (e) {
+    console.warn("saveFeaturedMode failed:", e);
+  }
+}
+function expandAdvancedCards() {
+  advancedExpanded.value = true;
+  try {
+    uni.setStorageSync(ADVANCED_EXPANDED_KEY, JSON.stringify(true));
+  } catch (e) {
+    console.warn("saveAdvancedExpanded failed:", e);
+  }
+}
+function loadUiState() {
+  try {
+    const raw = uni.getStorageSync(FEATURED_MODE_KEY);
+    if (typeof raw === "string" && raw.length > 0) {
+      featuredMode.value = JSON.parse(raw) as boolean;
+    }
+    const raw2 = uni.getStorageSync(ADVANCED_EXPANDED_KEY);
+    if (typeof raw2 === "string" && raw2.length > 0) {
+      advancedExpanded.value = JSON.parse(raw2) as boolean;
+    }
+  } catch (e) {
+    console.warn("loadUiState failed:", e);
+  }
 }
 
 const cities = ref<CityItem[]>([]);
@@ -8257,6 +8359,7 @@ watch(activeTab, () => {
 onMounted(async () => {
   uni.$on(SNAPSHOT_UPDATED_EVENT, loadAll);
   loadHiddenCards();
+  loadUiState();
   applyTabClass();
   applyCityScopedClass(cityScoped.value);
   const res = await getCities();
@@ -8352,6 +8455,70 @@ onShow(async () => {
   border-radius: 999px !important;
   background: var(--color-soft, #f5f5f5) !important;
   color: var(--color-text, #333) !important;
+}
+.overview-mode-toggle {
+  margin: 0 8rpx;
+  font-size: 22rpx;
+  padding: 0 18rpx;
+  border-radius: 999px !important;
+  background: var(--color-primary, #4f46e5) !important;
+  color: #fff !important;
+}
+.advanced-section {
+  background: var(--color-panel-soft, #fafafa);
+}
+.advanced-list {
+  margin-top: 16rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+.advanced-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10rpx 14rpx;
+  background: var(--color-surface, #fff);
+  border-radius: 8rpx;
+  border: 1rpx solid var(--color-border-soft, #eee);
+}
+.advanced-row--hidden {
+  opacity: 0.6;
+}
+.advanced-info {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+  min-width: 0;
+}
+.advanced-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--color-text, #333);
+}
+.advanced-toggle {
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: 22rpx;
+  padding: 0 22rpx;
+  border-radius: 999px !important;
+  background: var(--color-soft, #f5f5f5) !important;
+  color: var(--color-text, #333) !important;
+}
+.advanced-actions {
+  margin-top: 16rpx;
+  display: flex;
+  justify-content: center;
+}
+.advanced-expand-btn {
+  margin: 0;
+  font-size: 24rpx;
+  padding: 0 28rpx;
+  border-radius: 999px !important;
+  background: var(--color-soft, #f5f5f5) !important;
+  color: var(--color-primary, #4f46e5) !important;
+  font-weight: 600;
 }
 .page {
   min-height: 100vh;

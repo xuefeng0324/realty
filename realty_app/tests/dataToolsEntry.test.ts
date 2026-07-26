@@ -228,4 +228,30 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     const cardKeyAttrMatches = dashSrc.match(/data-card-key="[a-z][a-z0-9-]+"/g) || [];
     expect(cardKeyAttrMatches.length).toBeGreaterThanOrEqual(15);
   });
+
+  it("dashboard.vue v1.121.147 Batch 8：精简/完整模式 + 进阶分析区块", () => {
+    // 1. 切换按钮存在
+    expect(dashSrc).toContain("data-dash-mode-toggle");
+    expect(dashSrc).toContain("toggleFeaturedMode");
+    expect(dashSrc).toContain("featuredMode");
+    expect(dashSrc).toContain("🏠 精简模式");
+    expect(dashSrc).toContain("📊 完整模式");
+    // 2. 进阶分析区块
+    expect(dashSrc).toContain("data-dash-advanced-section");
+    expect(dashSrc).toContain("ADVANCED_CARDS");
+    expect(dashSrc).toContain("advancedExpanded");
+    expect(dashSrc).toContain("expandAdvancedCards");
+    expect(dashSrc).toContain("data-dash-advanced-expand");
+    // 3. 至少 10 张进阶卡配置
+    const advKeyMatches = dashSrc.match(/key:\s+"[a-z][a-z0-9-]+",\s+label:\s+"[^"]+"/g) || [];
+    expect(advKeyMatches.length).toBeGreaterThanOrEqual(10);
+    // 4. CSS 样式
+    expect(dashSrc).toContain(".advanced-section");
+    expect(dashSrc).toContain(".advanced-row");
+    expect(dashSrc).toContain(".advanced-expand-btn");
+    // 5. localStorage 键
+    expect(dashSrc).toContain("FEATURED_MODE_KEY");
+    expect(dashSrc).toContain("ADVANCED_EXPANDED_KEY");
+    expect(dashSrc).toContain("loadUiState");
+  });
 });
