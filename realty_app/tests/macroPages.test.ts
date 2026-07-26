@@ -104,4 +104,31 @@ describe("宏观 5 子页骨架 PAGES_MACRO_*", () => {
     expect(src).toContain("data-nbs-trade");
     expect(src).toContain("getLatestNbsTrade");
   });
+
+  it("macro-fx 子页迁入了 8 张汇市卡（数据 + 模板 + 字段）", () => {
+    const src = readFileSync(
+      resolve(pagesDir, "macro-fx/macro-fx.vue"),
+      "utf8"
+    );
+    // 8 张卡的 data-* 属性
+    expect(src).toContain("data-safe-forex");
+    expect(src).toContain("data-safe-ora");
+    expect(src).toContain("data-safe-usd-mid");
+    expect(src).toContain("data-safe-fx-market");
+    expect(src).toContain("data-safe-settle");
+    expect(src).toContain("data-safe-bop");
+    expect(src).toContain("data-safe-iip");
+    expect(src).toContain("data-safe-bop-trade");
+    // 8 个 getter 引用
+    expect(src).toContain("getLatestSafeForex");
+    expect(src).toContain("getLatestSafeOra");
+    expect(src).toContain("getLatestSafeUsdMid");
+    expect(src).toContain("getLatestSafeFxMarket");
+    expect(src).toContain("getLatestSafeSettle");
+    expect(src).toContain("getLatestSafeBop");
+    expect(src).toContain("getLatestSafeIip");
+    expect(src).toContain("getLatestSafeBopTrade");
+    // KPI 卡片组件
+    expect(src).toContain("MacroKpiCell");
+  });
 });

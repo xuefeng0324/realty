@@ -325,6 +325,24 @@ dashboard 与 macro-* 子页内重复的 `<view class="stats70-cell">` 模板已
 本轮已替换：dashboard nbs-macro 卡 16 KPI（5 组 stats70-grid）。
 后续 todo（T-001 ~ T-006）见 [docs/DASHBOARD_OVERVIEW_BUDGET.md](./docs/DASHBOARD_OVERVIEW_BUDGET.md) §8。
 
+## 9. macro-fx 子页汇市卡（v1.121.134）
+
+`pages/macro-fx/macro-fx.vue` 从 23 行骨架升级为 8 张完整汇市卡：
+
+| 子卡 | 数据源 | 字段数 |
+|------|--------|--------|
+| 月末外汇储备 | `safeForex.ts` | 1 + 环比 3 |
+| 官方储备资产分项 | `safeOra.ts` | 8（储备合计 + 7 分项） |
+| USD/CNY 中间价 | `safeUsdMid.ts` | 4（中间价 + 较前日 + 当月均价 + EUR 100） |
+| 外汇市场成交概况 | `safeFxMarket.ts` | 4（总成交 + 即期 + 衍生品 + 客户/银行间比） |
+| 银行结售汇月度 | `safeSettle.ts` | 4（结汇 + 售汇 + 顺差 + 涉外收付款顺差） |
+| 国际收支平衡表 | `safeBop.ts` | 8（经常 + 货物 + 服务 + 初次/二次收入 + 资本金融 + 初步口径 + 数据源） |
+| 国际投资头寸 | `safeIip.ts` | 8（资产 + 负债 + 净头寸 + 储备 + FDI + 证券 + FDI 负债 + 数据源） |
+| 货物服务贸易 | `safeBopTrade.ts` | 8（货物进出口/顺差 + 服务进出口/顺差 + 总出口/总顺差） |
+
+合计 **47 个 KPI**，全部用 MacroKpiCell 组件渲染。  
+新增 5 个 inline helper：`formatForexYi` / `formatPctDelta` / `formatDelta` / `bandFromDelta` / `safeOraPct`。
+
 ### 5.1 已知缺口（下一优先）
 
 | 缺口 | 候选源 | 状态 |
