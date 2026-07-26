@@ -48,7 +48,7 @@
 | 模块 | 能力摘要 |
 |------|----------|
 | 学校 | 列表检索、维度评分、与房源关联 |
-| 地图 | 挂牌热力 / 挂牌均价 / 挂牌点 / POI / 地铁（见 [MAP_ACCEPTANCE.md](./MAP_ACCEPTANCE.md)、F-MAP-01/03） |
+| 地图 | 找房主路径（筛/底栏/详情）+ 挂牌热力/均价/POI/地铁（[MAP_ACCEPTANCE.md](./MAP_ACCEPTANCE.md)、F-MAP-01/03/04） |
 | 设置 | 主题（浅/深/跟随系统，见 [THEME_ACCEPTANCE.md](./THEME_ACCEPTANCE.md)）、关于、检查更新 / OTA |
 | 网签子页 | 深广政府网签明细 |
 

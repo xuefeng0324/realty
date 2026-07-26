@@ -1092,8 +1092,9 @@ describe("build integrity", () => {
     it("map-view.vue 用 listingClusterMarkers (非 listingMarkers)", () => {
       const content = readFileSync(resolve(ROOT, "src/pages/map-view/map-view.vue"), "utf8");
       expect(content).toMatch(/listingClusterMarkers/);
-      // markers prop 应指向新 computed
-      expect(content).toMatch(/:markers="mode === 'listings' \? listingClusterMarkers/);
+      // 找房主路径经 activeMarkers 统一绑定
+      expect(content).toMatch(/:markers="activeMarkers"/);
+      expect(content).toMatch(/mode\.value === "listings".*listingClusterMarkers|listings.*listingClusterMarkers/);
     });
 
     it("map-view.vue 引入 cluster.ts", () => {
@@ -1299,12 +1300,13 @@ describe("build integrity", () => {
       expect(content).toMatch(/if \(markerId <= -1000000\)/);
     });
 
-    it("map-view.vue POI 模式 legend 含 v0.22.0 聚合说明", () => {
+    it("map-view.vue POI 模式仍走 clusterMarkers 聚合", () => {
       const content = readFileSync(
         resolve(ROOT, "src/pages/map-view/map-view.vue"),
         "utf8"
       );
-      expect(content).toMatch(/v0\.22\.0 \u805a\u5408/);
+      expect(content).toMatch(/clusterMarkers\(inputs, Math\.round\(mapScale\.value\)\)/);
+      expect(content).toMatch(/poiMarkers/);
     });
   });
 
@@ -1551,9 +1553,13 @@ describe("build integrity", () => {
       expect(content).toMatch(/listing_count >= 2|>= 2/);
     });
 
-    it("map-view.vue legend 含 v0.27.0 密度过滤说明", () => {
+    it("map-view.vue 找房图层保留密度过滤逻辑", () => {
       const content = readFileSync(resolve(ROOT, "src/pages/map-view/map-view.vue"), "utf8");
-      expect(content).toMatch(/v0\.27\.0 密度过滤/);
+      expect(content).toMatch(/scale <= 10/);
+      expect(content).toMatch(/scale <= 11/);
+      expect(content).toMatch(/>= 5/);
+      expect(content).toMatch(/>= 2/);
+      expect(content).toMatch(/找房/);
     });
 
     it("cluster.ts 仍存在 (密度过滤复用 grid 聚合)", () => {

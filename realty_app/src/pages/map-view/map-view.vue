@@ -3,11 +3,11 @@
     <view class="card map-control-card">
       <view class="row-between">
         <view>
-          <view class="control-eyebrow">MAP EXPLORER</view>
+          <view class="control-eyebrow">MAP FIND</view>
           <view class="card-title map-title" style="margin-bottom: 0">地图找房</view>
         </view>
-        <view class="map-summary">
-          {{ citiesReady ? `${totalMarkers} 个小区 · ${totalListings} 套挂牌` : "加载中…" }}
+        <view class="map-summary" data-map-summary>
+          {{ citiesReady ? `${visibleListingCount} 套 · ${visibleCommunityCount} 小区` : "加载中…" }}
         </view>
       </view>
       <view class="control-section">
@@ -18,6 +18,39 @@
           <button class="btn city-option" :class="{ 'city-option--active': app.cityId === 3, 'btn--active': app.cityId === 3 }" size="mini" @click="zoomToCity(3)">珠海</button>
         </view>
       </view>
+
+      <view class="control-label layer-label">找房筛选</view>
+      <scroll-view scroll-x class="map-mode-scroll" data-map-price-filters>
+        <view class="map-mode-list">
+          <button
+            v-for="item in priceBandItems"
+            :key="item.key"
+            class="map-filter-btn"
+            :class="{ 'map-filter-btn--active': priceBand === item.key }"
+            :data-price-band="item.key"
+            size="mini"
+            @click="setPriceBand(item.key)"
+          >
+            {{ item.label }}
+          </button>
+        </view>
+      </scroll-view>
+      <scroll-view scroll-x class="map-mode-scroll" data-map-bedroom-filters>
+        <view class="map-mode-list">
+          <button
+            v-for="item in bedroomBandItems"
+            :key="item.key"
+            class="map-filter-btn"
+            :class="{ 'map-filter-btn--active': bedroomBand === item.key }"
+            :data-bedroom-band="item.key"
+            size="mini"
+            @click="setBedroomBand(item.key)"
+          >
+            {{ item.label }}
+          </button>
+        </view>
+      </scroll-view>
+
       <view class="control-label layer-label">图层模式</view>
       <scroll-view scroll-x class="map-mode-scroll">
         <view class="map-mode-list">
@@ -36,43 +69,36 @@
       </scroll-view>
       <view class="mode-summary-row">
         <view class="mode-summary-dot"></view>
-        <text>当前：{{ modeLabel }}</text>
+        <text>当前：{{ modeLabel }} · 点小区看盘，点房源进详情</text>
         <button class="cycle-btn" size="mini" @click="toggleType">切换下一图层</button>
       </view>
       <view class="muted legend">
-        <text v-if="mode === 'price'">
-          挂牌均价热力：5 档价格分位 (P0/P20/P40/P60/P80) + 半径按价格×挂牌数综合 (大=贵+多)；图例卡片见下方（卖方挂牌均价，非成交价）
+        <text v-if="mode === 'listings'">
+          找房（对照贝壳/链家）：气泡=房源聚合；点单点进挂牌详情；点小区气泡看本小区房源列表；上方可筛总价/户型。
+        </text>
+        <text v-else-if="mode === 'price'">
+          挂牌均价热力：点地图/小区气泡打开本小区房源底栏（卖方挂牌均价，非成交价）
         </text>
         <text v-else-if="mode === 'count'">
-          挂牌数热力：圆点 = 挂牌数 (颜色: 红=多 / 蓝=少)
-        </text>
-        <text v-else-if="mode === 'listings'">
-          挂牌点 (v0.18.0 聚合 + v0.27.0 密度过滤)：每点 = 该小区 1 套挂牌 (单点)；多套聚合显示数字 (红气泡)，点击放大；点击单点 → 小区详情。当前 zoom {{ Math.round(mapScale) }} — 城市级过滤只显示 ≥5 套的社区，区级过滤 ≥2 套。
+          挂牌数热力：点地图/小区气泡打开本小区房源底栏
         </text>
         <text v-else-if="mode === 'poi'">
-          POI overlay (v0.22.0 聚合)：5 类配套图标 (🚇地铁 / 🏫学校 / 🏥医院 / 🛍商场 / 🌳公园)，同类按 grid 聚合；单点=该 POI，聚合=带数字气泡，点击聚合放大
+          POI overlay：5 类配套；找房请切回「找房」图层
         </text>
         <text v-else>
-          地铁规划：21 条规划/在建线路（绿=即将开通 / 橙=在建 / 灰=规划）；按 status 着色
+          地铁规划线；找房请切回「找房」图层
         </text>
       </view>
 
-      <!-- v1.119.0 弯曲系数 Top 5（仅 metro 模式） -->
       <view v-if="mode === 'metro'" class="curvature-card">
         <view class="row-between">
           <view class="curvature-title">🌀 弯曲系数 Top 5</view>
-          <view class="muted" style="font-size: 22rpx">
-            actual / straight · 越高越曲折
-          </view>
+          <view class="muted" style="font-size: 22rpx">actual / straight · 越高越曲折</view>
         </view>
         <view class="curvature-desc muted">
           同等直线距离下，实际线路长度比值。比值高 → 站点更多 / 拐弯更多 → 覆盖广
         </view>
-        <view
-          v-for="(row, i) in curvatureTop5"
-          :key="row.lineId"
-          class="curvature-row"
-        >
+        <view v-for="(row, i) in curvatureTop5" :key="row.lineId" class="curvature-row">
           <view class="curvature-rank">{{ i + 1 }}</view>
           <view class="curvature-meta">
             <view class="curvature-name">{{ row.lineName }}</view>
@@ -87,7 +113,6 @@
         </view>
       </view>
 
-      <!-- v0.13.0 POI 模式下显示 5 类 toggle -->
       <view v-if="mode === 'poi'" class="poi-toggles">
         <view
           v-for="cat in (['subway', 'school', 'hospital', 'mall', 'park'] as PoiCat[])"
@@ -108,16 +133,18 @@
         :data-map-mode="mode"
         :data-overlay-count="currentOverlayCount"
         :data-map-reload-key="mapReloadKey"
+        :data-find-listing-count="visibleListingCount"
         :latitude="mapCenter.lat"
         :longitude="mapCenter.lng"
         :scale="mapScale"
-        :markers="mode === 'listings' ? listingClusterMarkers : (mode === 'poi' ? poiMarkers : (mode === 'metro' ? metroLineMarkers : []))"
-        :circles="(mode === 'listings' || mode === 'poi' || mode === 'metro') ? [] : heatCircles"
+        :markers="activeMarkers"
+        :circles="heatMode ? heatCircles : []"
         :polyline="mode === 'metro' ? metroPolylines : []"
         :show-location="true"
         :enable-zoom="true"
         :enable-scroll="true"
         @markertap="onMarkerTap"
+        @tap="onMapTap"
         @updated="onMapUpdated"
         @error="onMapError"
       ></map>
@@ -136,17 +163,16 @@
       </view>
     </view>
 
-    <!-- v0.21.0 map-7: 价格热力 5 档分位 legend -->
     <view v-if="mode === 'price' && priceBuckets.length > 0" class="card legend-card">
       <view class="card-title" style="margin-bottom: 4rpx">🎨 挂牌价格分位图例</view>
       <view class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
         颜色 = 5 档挂牌单价分位 (绿便宜 → 红贵)；半径 = 价格×挂牌数 (大=贵+多)；非成交价
       </view>
-          <view class="legend-row" v-for="b in priceBuckets" :key="b.label" data-price-bucket>
-            <view class="legend-swatch" :style="{ background: b.color }" data-legend-swatch></view>
-            <text class="legend-text">{{ b.label }}</text>
-            <text class="legend-range" data-legend-range>{{ formatPriceRange(b.min, b.max) }} 元/㎡</text>
-          </view>
+      <view class="legend-row" v-for="b in priceBuckets" :key="b.label" data-price-bucket>
+        <view class="legend-swatch" :style="{ background: b.color }" data-legend-swatch></view>
+        <text class="legend-text">{{ b.label }}</text>
+        <text class="legend-range" data-legend-range>{{ formatPriceRange(b.min, b.max) }} 元/㎡</text>
+      </view>
       <view class="legend-summary">
         <text class="muted">
           城市均价 {{ cityAvgPrice ? Math.round(cityAvgPrice).toLocaleString() : "—" }} 元/㎡
@@ -155,7 +181,42 @@
       </view>
     </view>
 
-    <!-- v0.13.0 POI info card -->
+    <view v-if="findSheetOpen" class="find-sheet" data-find-sheet>
+      <view class="find-sheet-head">
+        <view class="find-sheet-title-wrap">
+          <text class="find-sheet-title">{{ findSheetTitle }}</text>
+          <text class="find-sheet-sub muted">{{ sheetListings.length }} 套符合筛选 · 挂牌价</text>
+        </view>
+        <text class="info-close" data-find-sheet-close @click="closeFindSheet">✕</text>
+      </view>
+      <scroll-view scroll-y class="find-sheet-list">
+        <view
+          v-for="row in sheetListings"
+          :key="row.listingId"
+          class="find-listing-row"
+          :data-find-listing-id="row.listingId"
+          @click="goListingDetail(row.listingId)"
+        >
+          <view class="find-listing-main">
+            <text class="find-listing-title">{{ row.title || `挂牌 #${row.listingId}` }}</text>
+            <text class="find-listing-meta muted">{{ listingCardLine(row) }}</text>
+          </view>
+          <text class="find-listing-go">详情</text>
+        </view>
+        <view v-if="sheetListings.length === 0" class="find-empty muted">
+          当前筛选下本小区暂无挂牌，试试放宽总价/户型
+        </view>
+      </scroll-view>
+      <view class="find-sheet-actions">
+        <button class="btn find-sheet-btn" size="mini" data-find-all @click="goCommunityListings">
+          本小区全部房源 →
+        </button>
+        <button class="btn-ghost find-sheet-btn" size="mini" data-find-community @click="goCommunity">
+          小区详情
+        </button>
+      </view>
+    </view>
+
     <view v-if="selectedPoi" class="info-card">
       <view class="row-between">
         <text class="info-name">
@@ -177,41 +238,11 @@
         </view>
       </view>
       <text v-if="selectedPoi.address" class="info-line">{{ selectedPoi.address }}</text>
+      <button class="btn" size="mini" data-find-poi-community @click="openCommunitySheet(selectedPoi.communityId)">
+        看该小区房源 →
+      </button>
     </view>
 
-    <!-- 选中 marker 浮层 -->
-    <view v-if="selectedCommunity" class="info-card">
-      <view class="row-between">
-        <text class="info-name">{{ selectedCommunity.communityName }}</text>
-        <text class="info-close" @click="selectedCommunity = null">✕</text>
-      </view>
-      <text class="info-line">
-        {{ selectedCommunity.district || "" }} · {{ formatCoord(selectedCommunity.lat, selectedCommunity.lng) }}
-      </text>
-      <view class="info-row">
-        <view class="info-stat">
-          <text class="info-stat-label">挂牌</text>
-          <text class="info-stat-value">{{ selectedCommunity.listingCount }}</text>
-        </view>
-        <view class="info-stat">
-          <text class="info-stat-label">均价</text>
-          <text class="info-stat-value">
-            {{ selectedCommunity.avgUnitPrice
-              ? Math.round(selectedCommunity.avgUnitPrice).toLocaleString()
-              : "—" }} 元/㎡
-          </text>
-        </view>
-        <view v-if="selectedCommunity.priceLevel" class="info-stat">
-          <text class="info-stat-label">价位</text>
-          <text :class="['info-stat-value', 'price-tag', priceLevelClass]">
-            {{ priceLevelText }}
-          </text>
-        </view>
-      </view>
-      <button class="btn" size="mini" @click="goCommunity">查看小区详情 →</button>
-    </view>
-
-    <!-- v0.15.0 Metro line info card -->
     <view v-if="selectedMetro" class="info-card">
       <view class="row-between">
         <text class="info-name">🚇 {{ selectedMetro.lineName }}</text>
@@ -264,6 +295,17 @@ import {
   formatPriceRangeK,
   priceColorRamp5
 } from "../../local/mapMath";
+import {
+  MAP_BEDROOM_BANDS,
+  MAP_PRICE_BANDS,
+  filterMapListings,
+  formatListingCardLine,
+  nearestCommunityId,
+  sortMapListingsForSheet,
+  type MapBedroomBand,
+  type MapFindListing,
+  type MapPriceBand
+} from "../../local/mapFind";
 
 // v0.18.0 高德 H5 marker 必须有 iconPath, 否则 console 报 "Marker.iconPath is required"
 // 用 inline SVG data URI 兜底 (16x16 蓝色圆点)
@@ -286,28 +328,40 @@ const CLUSTER_MARKER_ICON_LARGE =
 
 const app = useAppStore();
 const errorMsg = ref<string>("");
-/** 三种模式: count=挂牌数热力, price=挂牌均价热力, listings=挂牌点
- *  v0.13.0 加 poi 模式: 5 类 POI marker overlay
- *  v0.15.0 加 metro 模式: 地铁规划线 polyline overlay
- */
+/** 模式: listings=找房主路径; count/price=热力; poi/metro=配套 */
 type MapMode = "count" | "price" | "listings" | "poi" | "metro";
 type PoiCat = "subway" | "school" | "hospital" | "mall" | "park";
-const mode = ref<MapMode>("count");
+const mode = ref<MapMode>("listings");
 const mapStatus = ref<"loading" | "slow" | "ready">("loading");
 const mapReloadKey = ref(0);
+const priceBand = ref<MapPriceBand>("all");
+const bedroomBand = ref<MapBedroomBand>("all");
+const findSheetOpen = ref(false);
+
+const priceBandItems = MAP_PRICE_BANDS;
+const bedroomBandItems = MAP_BEDROOM_BANDS;
 
 const mapModeItems: { key: MapMode; icon: string; label: string }[] = [
+  { key: "listings", icon: "🏠", label: "找房" },
   { key: "count", icon: "🔴", label: "挂牌热力" },
   { key: "price", icon: "💰", label: "挂牌均价" },
-  { key: "listings", icon: "📍", label: "挂牌点" },
   { key: "poi", icon: "🏫", label: "POI" },
   { key: "metro", icon: "🚇", label: "地铁" }
 ];
+
+function setPriceBand(next: MapPriceBand) {
+  priceBand.value = next;
+}
+
+function setBedroomBand(next: MapBedroomBand) {
+  bedroomBand.value = next;
+}
 
 function setMapMode(next: MapMode) {
   mode.value = next;
   selectedPoi.value = null;
   selectedMetroLineId.value = null;
+  if (next === "poi" || next === "metro") findSheetOpen.value = false;
 }
 
 function onMapUpdated() {
@@ -344,8 +398,93 @@ const currentOverlayCount = computed(() => {
   if (mode.value === "listings") return listingClusterMarkers.value.length;
   if (mode.value === "poi") return poiMarkers.value.length;
   if (mode.value === "metro") return metroPolylines.value.length + metroLineMarkers.value.length;
-  return heatCircles.value.length;
+  return heatCircles.value.length + communityBubbleMarkers.value.length;
 });
+
+const heatMode = computed(() => mode.value === "count" || mode.value === "price");
+
+const filteredCityListings = computed<MapFindListing[]>(() => {
+  if (!app.cityId) return [];
+  return filterMapListings(getListingsByCity(app.cityId), {
+    priceBand: priceBand.value,
+    bedroomBand: bedroomBand.value
+  });
+});
+
+const visibleListingCount = computed(() => filteredCityListings.value.length);
+
+const filteredCommunityIds = computed(() => {
+  const set = new Set<number>();
+  for (const l of filteredCityListings.value) set.add(l.communityId);
+  return set;
+});
+
+const visibleCommunityCount = computed(() => {
+  return communityMarkers.value.filter(
+    (c) => c.cityId === app.cityId && filteredCommunityIds.value.has(c.communityId)
+  ).length;
+});
+
+const sheetListings = computed(() => {
+  if (selectedCommunityId.value == null) return [];
+  return sortMapListingsForSheet(
+    filterMapListings(filteredCityListings.value, { communityId: selectedCommunityId.value }),
+    40
+  );
+});
+
+const findSheetTitle = computed(() => {
+  const c = communityMarkers.value.find((x) => x.communityId === selectedCommunityId.value);
+  return c ? c.communityName : "本小区房源";
+});
+
+function listingCardLine(row: MapFindListing): string {
+  return formatListingCardLine(row);
+}
+
+function openCommunitySheet(communityId: number) {
+  selectedCommunityId.value = communityId;
+  selectedPoi.value = null;
+  findSheetOpen.value = true;
+  const c = communityMarkers.value.find((x) => x.communityId === communityId);
+  if (c) {
+    mapCenter.value = { lat: c.lat, lng: c.lng };
+    if (mapScale.value < 13) mapScale.value = 14;
+  }
+}
+
+function closeFindSheet() {
+  findSheetOpen.value = false;
+  selectedCommunityId.value = null;
+}
+
+function goListingDetail(id: number) {
+  uni.navigateTo({
+    url: `/pages/listing-detail/listing-detail?id=${id}`,
+    fail: (e: any) => showToast(`跳转失败: ${toErrorMessage(e)}`)
+  });
+}
+
+function goCommunityListings() {
+  if (selectedCommunityId.value == null) return;
+  uni.navigateTo({
+    url: `/pages/listing-filter/listing-filter?communityId=${selectedCommunityId.value}`,
+    fail: (e: any) => showToast(`跳转失败: ${toErrorMessage(e)}`)
+  });
+}
+
+function onMapTap(e: any) {
+  if (mode.value === "poi" || mode.value === "metro") return;
+  const detail = e?.detail ?? {};
+  const lat = Number(detail.latitude);
+  const lng = Number(detail.longitude);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+  const candidates = communityMarkers.value.filter(
+    (c) => c.cityId === app.cityId && filteredCommunityIds.value.has(c.communityId)
+  );
+  const id = nearestCommunityId(lat, lng, candidates, 1.5);
+  if (id != null) openCommunitySheet(id);
+}
 
 function togglePoiCategory(cat: PoiCat) {
   const next = new Set(poiFilter.value);
@@ -637,8 +776,7 @@ const poiCategoryCounts = computed(() => {
 //   - 输出 cluster markers (单点保留原 id, 多点用负 id + count)
 const listingMarkerInputs = computed<ClusterInputPoint[]>(() => {
   if (!app.cityId) return [];
-  const listings = getListingsByCity(app.cityId);
-  // 按 community 索引 lat/lng
+  const listings = filteredCityListings.value;
   const cidToGeo = new Map<number, { lat: number; lng: number; name: string; district: string }>();
   for (const c of communityMarkers.value) {
     if (c.cityId === app.cityId) {
@@ -651,7 +789,6 @@ const listingMarkerInputs = computed<ClusterInputPoint[]>(() => {
     }
   }
   const out: ClusterInputPoint[] = [];
-  // 上限 600 (城市级一次性渲染过多 marker 会卡)
   for (let i = 0; i < listings.length && i < 600; i++) {
     const l = listings[i];
     const geo = cidToGeo.get(l.communityId);
@@ -660,10 +797,54 @@ const listingMarkerInputs = computed<ClusterInputPoint[]>(() => {
       id: l.listingId,
       latitude: geo.lat,
       longitude: geo.lng,
-      payload: { listingId: l.listingId, communityId: l.communityId, name: geo.name, totalPrice10k: l.totalPrice10k }
+      payload: {
+        listingId: l.listingId,
+        communityId: l.communityId,
+        name: geo.name,
+        totalPrice10k: l.totalPrice10k
+      }
     });
   }
   return out;
+});
+
+/** 热力模式下可点的小区气泡（对照贝壳：点气泡出房源） */
+const COMMUNITY_MARKER_BASE = 8000000;
+const communityBubbleMarkers = computed(() => {
+  if (!app.cityId || !heatMode.value) return [];
+  const list = communityMarkers.value.filter(
+    (c) => c.cityId === app.cityId && filteredCommunityIds.value.has(c.communityId)
+  );
+  return list.slice(0, 80).map((c) => {
+    const count = filteredCityListings.value.filter((l) => l.communityId === c.communityId).length;
+    const price =
+      c.avgUnitPrice != null ? `${Math.round(c.avgUnitPrice / 1000)}k` : `${count}套`;
+    return {
+      id: COMMUNITY_MARKER_BASE + c.communityId,
+      latitude: c.lat,
+      longitude: c.lng,
+      width: 28,
+      height: 28,
+      iconPath: DEFAULT_MARKER_ICON,
+      title: c.communityName,
+      callout: {
+        content: `${c.communityName}\n${count}套 · ${price}`,
+        color: "#0f172a",
+        bgColor: "#ffffff",
+        padding: 6,
+        borderRadius: 8,
+        fontSize: 11,
+        display: "ALWAYS"
+      }
+    };
+  });
+});
+
+const activeMarkers = computed(() => {
+  if (mode.value === "listings") return listingClusterMarkers.value;
+  if (mode.value === "poi") return poiMarkers.value;
+  if (mode.value === "metro") return metroLineMarkers.value;
+  return communityBubbleMarkers.value;
 });
 
 const listingClusterMarkers = computed<any[]>(() => {
@@ -744,17 +925,18 @@ const listingClusterMarkers = computed<any[]>(() => {
 
 // 热力图：uni-app map circles（fillColor 必须 8 位 hex；price 模式只画有均价社区）
 const heatCircles = computed(() => {
-  if (!app.cityId || mode.value === "listings" || mode.value === "poi" || mode.value === "metro") {
-    return [];
-  }
+  if (!app.cityId || !heatMode.value) return [];
   const cm = communityMarkers.value
-    .filter((c) => c.cityId === app.cityId)
-    .map((c) => ({
-      lat: c.lat,
-      lng: c.lng,
-      listingCount: c.listingCount,
-      avgUnitPrice: c.avgUnitPrice
-    }));
+    .filter((c) => c.cityId === app.cityId && filteredCommunityIds.value.has(c.communityId))
+    .map((c) => {
+      const count = filteredCityListings.value.filter((l) => l.communityId === c.communityId).length;
+      return {
+        lat: c.lat,
+        lng: c.lng,
+        listingCount: count || c.listingCount,
+        avgUnitPrice: c.avgUnitPrice
+      };
+    });
   if (cm.length === 0) return [];
   if (mode.value === "price") return buildPriceHeatCircles(cm);
   return buildCountHeatCircles(cm);
@@ -797,16 +979,21 @@ function onMarkerTap(e: any) {
   const detail = e?.detail ?? {};
   const markerId = detail.markerId ?? detail.id;
   if (markerId == null) return;
+  // 热力模式小区气泡
+  if (markerId >= COMMUNITY_MARKER_BASE && markerId < 9000000) {
+    openCommunitySheet(markerId - COMMUNITY_MARKER_BASE);
+    return;
+  }
   // v0.15.0 metro line markers: 9000000 = start, 9100000 = end
   if (markerId >= 9000000 && markerId < 9200000) {
     const base = markerId >= 9100000 ? markerId - 9100000 : markerId - 9000000;
     selectedMetroLineId.value = base;
     selectedCommunityId.value = null;
     selectedPoi.value = null;
+    findSheetOpen.value = false;
     return;
   }
   if (markerId < 0) {
-    // v0.22.0 POI cluster markers: syntheticIdBase = -1000000
     if (markerId <= -1000000) {
       const clusters = poiMarkers.value;
       const clusterHit = clusters.find((c) => c.id === markerId);
@@ -817,30 +1004,31 @@ function onMarkerTap(e: any) {
         return;
       }
     }
-    // v0.18.0 listing cluster markers: 负 id + count > 1 → zoom in +1
-    // 优先判断 cluster marker (callout 是 "N 套" 格式)
     const clusters = listingClusterMarkers.value;
     const clusterHit = clusters.find((c) => c.id === markerId);
     if (clusterHit && typeof clusterHit.callout?.content === "string") {
       const m = clusterHit.callout.content.match(/^(\d+)\s*套$/);
       if (m && Number(m[1]) > 1) {
+        // 聚合：先放大；同时若能解析社区则打开底栏
         mapScale.value = Math.min(17, Math.round(mapScale.value) + 1);
         mapCenter.value = { lat: clusterHit.latitude, lng: clusterHit.longitude };
-        showToast(`放大到 zoom ${mapScale.value} (聚合 ${m[1]} 套)`);
+        const near = nearestCommunityId(
+          clusterHit.latitude,
+          clusterHit.longitude,
+          communityMarkers.value.filter((c) => c.cityId === app.cityId),
+          2
+        );
+        if (near != null) openCommunitySheet(near);
+        else showToast(`放大到 zoom ${mapScale.value} (聚合 ${m[1]} 套)`);
         return;
       }
     }
-    // 否则走 POI 流程
     const absId = -markerId;
     const cats: PoiCat[] = ["subway", "school", "hospital", "mall", "park"];
     for (const cat of cats) {
       const cc = catCode(cat);
-      const candidates = getPoisByCity(app.cityId).filter(
-        (p) => p.poiCategory === cat
-      );
-      const match = candidates.find(
-        (p) => absId === p.communityId * 1000 + p.poiRank * 10 + cc
-      );
+      const candidates = getPoisByCity(app.cityId).filter((p) => p.poiCategory === cat);
+      const match = candidates.find((p) => absId === p.communityId * 1000 + p.poiRank * 10 + cc);
       if (match) {
         selectedPoi.value = {
           poiName: match.poiName,
@@ -850,43 +1038,42 @@ function onMarkerTap(e: any) {
           address: match.address,
           communityId: match.communityId
         };
-        selectedCommunityId.value = match.communityId;
+        findSheetOpen.value = false;
         return;
       }
     }
     return;
   }
-  // listingMarkers 用 listingId 作 id, 需要找到其 communityId
+  // 找房主路径：点单套房源 → 进详情（对照贝壳）
   const listing = getListingsByCity(app.cityId).find((l) => l.listingId === markerId);
   if (listing) {
-    selectedCommunityId.value = listing.communityId;
+    goListingDetail(listing.listingId);
     return;
   }
-  // 兜底：communityMarkers 用 communityId
-  selectedCommunityId.value = markerId;
+  openCommunitySheet(markerId);
 }
 
 function toggleType() {
-  // count → price → listings → poi → metro → count
-  if (mode.value === "count") {
+  if (mode.value === "listings") {
+    mode.value = "count";
+    showToast("挂牌数热力（点小区看盘）");
+  } else if (mode.value === "count") {
     mode.value = "price";
-    showToast("挂牌均价热力（绿=便宜/红=贵；非成交价）");
+    showToast("挂牌均价热力（非成交价）");
   } else if (mode.value === "price") {
-    mode.value = "listings";
-    showToast("挂牌点模式");
-  } else if (mode.value === "listings") {
     mode.value = "poi";
     selectedPoi.value = null;
-    selectedMetroLineId.value = null;
-    showToast("POI 模式（5 类配套图标）");
+    findSheetOpen.value = false;
+    showToast("POI 模式");
   } else if (mode.value === "poi") {
     mode.value = "metro";
     selectedPoi.value = null;
-    showToast("地铁规划模式（21 条线路）");
+    findSheetOpen.value = false;
+    showToast("地铁规划模式");
   } else {
-    mode.value = "count";
+    mode.value = "listings";
     selectedMetroLineId.value = null;
-    showToast("挂牌数热力（红=多/蓝=少）");
+    showToast("找房模式（点房源进详情）");
   }
 }
 
@@ -897,20 +1084,20 @@ function closePoiCard() {
 function zoomToCity(cityId: number) {
   app.setCityId(cityId);
   selectedPoi.value = null;
+  findSheetOpen.value = false;
+  selectedCommunityId.value = null;
   const city = getCities().find((c) => c.cityId === cityId);
   if (!city) return;
-  // 用城市中心点 (硬编码)
   const centers: Record<number, { lat: number; lng: number }> = {
-    1: { lat: 23.129, lng: 113.264 }, // 广州
-    2: { lat: 22.543, lng: 114.06 }, // 深圳
-    3: { lat: 22.271, lng: 113.576 } // 珠海
+    1: { lat: 23.129, lng: 113.264 },
+    2: { lat: 22.543, lng: 114.06 },
+    3: { lat: 22.271, lng: 113.576 }
   };
   const c = centers[cityId];
   if (c) {
     mapCenter.value = c;
     mapScale.value = 11;
   }
-  // 重新加载该城市的 markers
   loadCommunityMarkers();
 }
 
@@ -980,10 +1167,21 @@ function _parseGeoCsvRemoved_v1_121_0() {
 onMounted(() => {
   uni.$on(SNAPSHOT_UPDATED_EVENT, loadCommunityMarkers);
   loadCommunityMarkers();
+  // H5 E2E 钩子：模拟「点小区」打开找房底栏（地图 marker 非 DOM）
+  if (typeof window !== "undefined") {
+    (window as unknown as { __realtyMapFind?: Record<string, unknown> }).__realtyMapFind = {
+      openCommunitySheet,
+      closeFindSheet,
+      goListingDetail
+    };
+  }
 });
 
 onUnmounted(() => {
   uni.$off(SNAPSHOT_UPDATED_EVENT, loadCommunityMarkers);
+  if (typeof window !== "undefined") {
+    delete (window as unknown as { __realtyMapFind?: unknown }).__realtyMapFind;
+  }
 });
 </script>
 
@@ -1292,6 +1490,103 @@ onUnmounted(() => {
 .map-mode-btn--active {
   border-color: var(--color-primary);
   color: var(--color-primary-contrast);
+}
+
+.map-filter-btn {
+  background: var(--color-soft) !important;
+  color: var(--color-text) !important;
+  border: 1rpx solid var(--color-border) !important;
+  font-size: 22rpx;
+}
+.map-filter-btn--active {
+  background: var(--color-primary) !important;
+  color: var(--color-primary-text) !important;
+  border-color: var(--color-primary-strong) !important;
+}
+
+.find-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--window-bottom, 0px) + var(--safe-area-bottom, 0px));
+  z-index: 120;
+  max-height: 46vh;
+  background: var(--color-surface);
+  border-top: 1rpx solid var(--color-border);
+  border-radius: 24rpx 24rpx 0 0;
+  box-shadow: 0 -8rpx 28rpx rgba(15, 23, 42, 0.12);
+  padding: 16rpx 20rpx calc(16rpx + var(--safe-area-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+}
+.find-sheet-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12rpx;
+  margin-bottom: 8rpx;
+}
+.find-sheet-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  min-width: 0;
+}
+.find-sheet-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--color-heading);
+}
+.find-sheet-sub {
+  font-size: 22rpx;
+}
+.find-sheet-list {
+  flex: 1;
+  max-height: 28vh;
+}
+.find-listing-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 14rpx 4rpx;
+  border-bottom: 1rpx solid var(--color-border);
+}
+.find-listing-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.find-listing-title {
+  font-size: 26rpx;
+  color: var(--color-heading);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.find-listing-meta {
+  font-size: 22rpx;
+}
+.find-listing-go {
+  color: var(--color-primary);
+  font-size: 24rpx;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.find-empty {
+  padding: 32rpx 8rpx;
+  text-align: center;
+  font-size: 24rpx;
+}
+.find-sheet-actions {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 12rpx;
+}
+.find-sheet-btn {
+  flex: 1;
 }
 
 .mode-summary-row {
