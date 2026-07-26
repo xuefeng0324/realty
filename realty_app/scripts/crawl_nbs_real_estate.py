@@ -37,6 +37,8 @@ FIELDS = [
     "publish_date",
     "investment_cny_100m",
     "investment_yoy_pct",
+    "residential_investment_cny_100m",
+    "residential_investment_yoy_pct",
     "construction_area_10k_sqm",
     "construction_area_yoy_pct",
     "new_starts_area_10k_sqm",
@@ -45,12 +47,20 @@ FIELDS = [
     "completed_area_yoy_pct",
     "sales_area_10k_sqm",
     "sales_area_yoy_pct",
+    "residential_sales_area_10k_sqm",
+    "residential_sales_area_yoy_pct",
     "sales_amount_cny_100m",
     "sales_amount_yoy_pct",
+    "residential_sales_amount_cny_100m",
+    "residential_sales_amount_yoy_pct",
     "inventory_area_10k_sqm",
     "inventory_area_yoy_pct",
+    "residential_inventory_area_10k_sqm",
+    "residential_inventory_area_yoy_pct",
     "funds_cny_100m",
     "funds_yoy_pct",
+    "mortgage_funds_cny_100m",
+    "mortgage_funds_yoy_pct",
     "source_url",
 ]
 
@@ -135,7 +145,7 @@ def parse_release(url: str, body: str) -> dict[str, str | float]:
 
     parser = TableParser()
     parser.feed(body)
-    wanted = {
+    parent_wanted = {
         "房地产开发投资（亿元）": ("investment_cny_100m", "investment_yoy_pct"),
         "房屋施工面积（万平方米）": ("construction_area_10k_sqm", "construction_area_yoy_pct"),
         "房屋新开工面积（万平方米）": ("new_starts_area_10k_sqm", "new_starts_area_yoy_pct"),
@@ -145,17 +155,60 @@ def parse_release(url: str, body: str) -> dict[str, str | float]:
         "商品房待售面积（万平方米）": ("inventory_area_10k_sqm", "inventory_area_yoy_pct"),
         "房地产开发企业本年到位资金（亿元）": ("funds_cny_100m", "funds_yoy_pct"),
     }
+    residential_under = {
+        "房地产开发投资（亿元）": (
+            "residential_investment_cny_100m",
+            "residential_investment_yoy_pct",
+        ),
+        "新建商品房销售面积（万平方米）": (
+            "residential_sales_area_10k_sqm",
+            "residential_sales_area_yoy_pct",
+        ),
+        "新建商品房销售额（亿元）": (
+            "residential_sales_amount_cny_100m",
+            "residential_sales_amount_yoy_pct",
+        ),
+        "商品房待售面积（万平方米）": (
+            "residential_inventory_area_10k_sqm",
+            "residential_inventory_area_yoy_pct",
+        ),
+    }
     result: dict[str, str | float] = {
         "period": f"{title_match.group(1)}-01_to_{title_match.group(1)}-{int(title_match.group(2)):02d}",
         "publish_date": "-".join(publish_match.groups()),
         "source_url": url,
     }
+    current_parent = ""
     for row in parser.rows:
-        if len(row) >= 3 and row[0] in wanted:
-            value_key, yoy_key = wanted[row[0]]
+        if len(row) < 3:
+            continue
+        label = row[0].replace(" ", "")
+        if row[0] in parent_wanted:
+            value_key, yoy_key = parent_wanted[row[0]]
             result[value_key] = float(row[1].replace(",", ""))
             result[yoy_key] = float(row[2].replace(",", ""))
-    missing = [key for pair in wanted.values() for key in pair if key not in result]
+            current_parent = row[0]
+            continue
+        if label in {"其中：住宅", "其中:住宅"} and current_parent in residential_under:
+            value_key, yoy_key = residential_under[current_parent]
+            if value_key not in result:
+                result[value_key] = float(row[1].replace(",", ""))
+                result[yoy_key] = float(row[2].replace(",", ""))
+            continue
+        if label == "个人按揭贷款":
+            result["mortgage_funds_cny_100m"] = float(row[1].replace(",", ""))
+            result["mortgage_funds_yoy_pct"] = float(row[2].replace(",", ""))
+            current_parent = ""
+            continue
+        if row[0] not in parent_wanted and not label.startswith("其中"):
+            # 办公楼/商业等打断「其中：住宅」上下文
+            if current_parent and label not in {"办公楼", "商业营业用房"}:
+                current_parent = ""
+
+    required = [key for pair in parent_wanted.values() for key in pair]
+    required += [key for pair in residential_under.values() for key in pair]
+    required += ["mortgage_funds_cny_100m", "mortgage_funds_yoy_pct"]
+    missing = [key for key in required if key not in result]
     if missing:
         raise RuntimeError(f"国家统计局表格缺少字段：{', '.join(missing)} @ {url}")
     return result

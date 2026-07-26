@@ -1140,10 +1140,43 @@
             </text>
           </view>
         </view>
+        <view class="stats70-grid" style="margin-top: 12rpx" data-nbs-residential>
+          <view class="stats70-cell">
+            <text class="cell-label">住宅销售面积</text>
+            <text class="cell-value">{{ formatMacroArea(nbsMacro.residentialSalesArea10kSqm) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.residentialSalesAreaYoyPct)">
+              同比 {{ formatMacroPct(nbsMacro.residentialSalesAreaYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">住宅销售额</text>
+            <text class="cell-value">{{ formatMacro100m(nbsMacro.residentialSalesAmountCny100m) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.residentialSalesAmountYoyPct)">
+              同比 {{ formatMacroPct(nbsMacro.residentialSalesAmountYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">住宅待售</text>
+            <text class="cell-value">{{ formatMacroArea(nbsMacro.residentialInventoryArea10kSqm) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.residentialInventoryAreaYoyPct)">
+              同比 {{ formatMacroPct(nbsMacro.residentialInventoryAreaYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">个人按揭贷款</text>
+            <text class="cell-value">{{ formatMacro100m(nbsMacro.mortgageFundsCny100m) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.mortgageFundsYoyPct)">
+              同比 {{ formatMacroPct(nbsMacro.mortgageFundsYoyPct) }}
+            </text>
+          </view>
+        </view>
         <view v-if="nbsImpliedUnitPrice != null" class="rank-row macro-derived" style="margin-top: 12rpx">
           <text class="muted" style="font-size: 22rpx">派生合同均价</text>
           <text class="rank-val">
             {{ nbsImpliedUnitPrice.toLocaleString() }} 元/㎡
+            <template v-if="nbsImpliedResidentialUnitPrice != null">
+              · 住宅 {{ nbsImpliedResidentialUnitPrice.toLocaleString() }} 元/㎡
+            </template>
             <template v-if="nbsImpliedInventoryMonths != null">
               · 粗算可售 {{ nbsImpliedInventoryMonths }} 月
             </template>
@@ -1215,6 +1248,18 @@
             竣工同比
             <text v-for="(p, i) in nbsYoyTrend" :key="'cmp-' + p.period">
               {{ p.shortLabel }} {{ formatMacroPct(p.completedAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
+            住宅面积同比
+            <text v-for="(p, i) in nbsYoyTrend" :key="'rsa-' + p.period">
+              {{ p.shortLabel }} {{ formatMacroPct(p.residentialSalesAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
+            按揭同比
+            <text v-for="(p, i) in nbsYoyTrend" :key="'mtg-' + p.period">
+              {{ p.shortLabel }} {{ formatMacroPct(p.mortgageFundsYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
             </text>
           </view>
         </template>
@@ -7086,6 +7131,7 @@ import { SNAPSHOT_UPDATED_EVENT } from "../../config";
 import {
   getLatestNbsRealEstate,
   getNbsImpliedContractUnitPrice,
+  getNbsImpliedResidentialUnitPrice,
   getNbsImpliedInventoryMonths,
   getNbsImpliedInventoryMonthsTrend,
   getNbsImpliedUnitPriceTrend,
@@ -8364,6 +8410,9 @@ const nbsPpi = computed<NbsPpiRow | null>(() => getLatestNbsPpi());
 const nbsPpiTrend = computed(() => getNbsPpiTrend(6));
 const nbsYoyTrend = computed(() => getNbsYoyTrend(6));
 const nbsImpliedUnitPrice = computed(() => getNbsImpliedContractUnitPrice(nbsMacro.value));
+const nbsImpliedResidentialUnitPrice = computed(() =>
+  getNbsImpliedResidentialUnitPrice(nbsMacro.value)
+);
 const nbsUnitPriceTrend = computed(() => getNbsImpliedUnitPriceTrend(6));
 const nbsImpliedInventoryMonths = computed(() => getNbsImpliedInventoryMonths(nbsMacro.value));
 const nbsInventoryMonthsTrend = computed(() => getNbsImpliedInventoryMonthsTrend(6));
