@@ -2936,6 +2936,100 @@
         </template>
       </view>
 
+      <view v-if="nbsIndustrial" class="card macro-card" data-tab="overview,price" data-nbs-industrial>
+        <view class="macro-kicker">全国 · 工业生产</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">工业增加值</view>
+          <view class="muted" style="font-size: 22rpx">{{ nbsIndustrial.month }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <view class="stats70-cell">
+            <text class="cell-label">当月同比</text>
+            <text class="cell-value" :class="macroTrendClass(nbsIndustrial.yoyPct)">
+              {{ formatMacroPct(nbsIndustrial.yoyPct) }}
+            </text>
+            <text
+              v-if="nbsIndustrialDelta"
+              class="cell-sub"
+              :class="macroTrendClass(nbsIndustrialDelta.yoyDeltaPp)"
+            >
+              较上月 {{ nbsIndustrialDelta.yoyDeltaPp > 0 ? "+" : "" }}{{ nbsIndustrialDelta.yoyDeltaPp }} pp
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">环比</text>
+            <text
+              class="cell-value"
+              :class="macroTrendClass(nbsIndustrial.momPct ?? 0)"
+            >
+              {{ nbsIndustrial.momPct != null ? formatMacroPct(nbsIndustrial.momPct) : "—" }}
+            </text>
+            <text class="cell-sub muted">季节调整后</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">累计同比</text>
+            <text
+              class="cell-value"
+              :class="macroTrendClass(nbsIndustrial.ytdYoyPct ?? 0)"
+            >
+              {{
+                nbsIndustrial.ytdYoyPct != null ? formatMacroPct(nbsIndustrial.ytdYoyPct) : "—"
+              }}
+            </text>
+            <text class="cell-sub muted">年初至今</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">制造业</text>
+            <text
+              class="cell-value"
+              :class="macroTrendClass(nbsIndustrial.manufacturingYoyPct ?? 0)"
+            >
+              {{
+                nbsIndustrial.manufacturingYoyPct != null
+                  ? formatMacroPct(nbsIndustrial.manufacturingYoyPct)
+                  : "—"
+              }}
+            </text>
+            <text class="cell-sub muted">
+              采矿
+              {{
+                nbsIndustrial.miningYoyPct != null
+                  ? formatMacroPct(nbsIndustrial.miningYoyPct)
+                  : "—"
+              }}
+              · 公用
+              {{
+                nbsIndustrial.utilitiesYoyPct != null
+                  ? formatMacroPct(nbsIndustrial.utilitiesYoyPct)
+                  : "—"
+              }}
+            </text>
+          </view>
+        </view>
+        <view class="macro-note">
+          国家统计局规模以上工业增加值（扣除价格因素）· ≠ 挂牌/成交/网签/70城；可与 PMI 对照
+        </view>
+        <button
+          v-if="nbsIndustrialTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-nbs-industrial-series-toggle
+          :aria-expanded="nbsIndustrialSeriesExpanded"
+          @click="nbsIndustrialSeriesExpanded = !nbsIndustrialSeriesExpanded"
+        >
+          {{ nbsIndustrialSeriesExpanded ? "收起多期" : "多期序列" }}
+        </button>
+        <template v-if="nbsIndustrialSeriesExpanded">
+          <view class="macro-series" data-nbs-industrial-series-detail>
+            当月同比
+            <text v-for="(p, i) in nbsIndustrialTrend" :key="'ind-yoy-' + p.month">
+              {{ shortNbsIndustrialMonthLabel(p.month) }} {{ formatMacroPct(p.yoyPct)
+              }}<text v-if="i < nbsIndustrialTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
+
       <view v-if="nbsPpi" class="card macro-card" data-tab="overview,price" data-nbs-ppi>
         <view class="macro-kicker">全国 · 工业生产者价格</view>
         <view class="row-between">
@@ -9017,6 +9111,13 @@ import {
   type NbsPmiRow
 } from "../../local/nbsPmi";
 import {
+  getLatestNbsIndustrial,
+  getNbsIndustrialDeltaVsPrev,
+  getNbsIndustrialTrend,
+  shortNbsIndustrialMonthLabel,
+  type NbsIndustrialRow
+} from "../../local/nbsIndustrial";
+import {
   getLatestNbsRetail,
   getNbsRetailTrend,
   shortNbsRetailMonthLabel,
@@ -10192,6 +10293,10 @@ const nbsPpiTrend = computed(() => getNbsPpiTrend(6));
 const nbsPmi = computed<NbsPmiRow | null>(() => getLatestNbsPmi());
 const nbsPmiTrend = computed(() => getNbsPmiTrend(6));
 const nbsPmiSeriesExpanded = ref(false);
+const nbsIndustrial = computed<NbsIndustrialRow | null>(() => getLatestNbsIndustrial());
+const nbsIndustrialTrend = computed(() => getNbsIndustrialTrend(6));
+const nbsIndustrialDelta = computed(() => getNbsIndustrialDeltaVsPrev());
+const nbsIndustrialSeriesExpanded = ref(false);
 const nbsRetail = computed<NbsRetailRow | null>(() => getLatestNbsRetail());
 const nbsRetailTrend = computed(() => getNbsRetailTrend(6));
 const nbsTrade = computed<NbsTradeRow | null>(() => getLatestNbsTrade());

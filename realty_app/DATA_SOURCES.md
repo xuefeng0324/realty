@@ -184,6 +184,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/nbs_retail.csv` | `nbsRetail.ts` + 仪表盘「社消装潢/家具」卡（**多期默认折叠**） | `scripts/crawl_nbs_retail.py`（**月更 CI**） | 国家统计局社消：限额以上 **建筑及装潢材料类**、**家具类**（当月+累计）；**装潢/家具零售 ≠ 房价** |
 | `static/nbs_trade.csv` | `nbsTrade.ts` + 仪表盘「货物进出口」 | `scripts/crawl_nbs_trade.py`（**月更 CI**；国民经济通稿） | 海关口径货物进出口（亿元，当月+累计）；海关官网 WAF 不可直抓，取 NBS 转载；**≠房价**；与 SAFE 货服美元口径不同 |
 | `static/nbs_pmi.csv` | `nbsPmi.ts` + 仪表盘「PMI（含建筑业）」 | `scripts/crawl_nbs_pmi.py`（**月更 CI**） | 制造业/非制造业/建筑业/综合 PMI；临界点 50；建筑业商务活动 **≠房价** |
+| `static/nbs_industrial.csv` | `nbsIndustrial.ts` + 仪表盘「工业增加值」 | `scripts/crawl_nbs_industrial.py`（**月更 CI**） | 规上工业增加值当月同比/环比/累计同比 + 采矿/制造/公用分项；**≠房价**；可与 PMI 对照 |
 
 | `static/gz_new_house_inventory.csv` | `gzNewHouseInventory.ts` + `gzInventoryFreshness.ts` | `scripts/crawl_gz_new_house_inventory.py`（**日更 CI** 随 `crawl-daily-wangqian`） | 广州新房可售/未售/签约分区库存；>3 天未更新时总览标明滞后 |
 | `static/seed/hospitals.csv` | `hospitalRanking.ts` + dashboard「🏥 医疗资源」 | （名录整理） | 三城医院名录；v1.121.12 起仪表盘展示三甲占比 / 分区密度 / 等级 Top |
@@ -261,6 +262,7 @@ nbs_ppi.csv                  → nbsPpi.ts             → 全国 PPI/购进/建
 nbs_retail.csv               → nbsRetail.ts          → 社消装潢/家具零售
 nbs_trade.csv                → nbsTrade.ts           → 海关货物进出口（NBS 转载）
 nbs_pmi.csv                  → nbsPmi.ts             → 采购经理指数（含建筑业）
+nbs_industrial.csv           → nbsIndustrial.ts      → 规上工业增加值
 chinabond_yield.csv          → chinaBondYield.ts     → 中债国债收益率
 shibor.csv                   → shibor.ts             → 上海银行间同业拆放利率
 repo_fixing.csv             → repoFixing.ts         → 回购定盘/银银间定盘（FR/FDR）
