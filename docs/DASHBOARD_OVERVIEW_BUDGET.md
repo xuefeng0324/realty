@@ -28,8 +28,9 @@
 | `pages/macro-rates/*.vue` | LPR / MLF / 逆回购 / 国债 / Shibor / 回购 FR/FDR | 新建 |
 | `pages/macro-fx/*.vue` | 外储 / 官方储备 / 美元中间价 / 外汇市场 / 外汇结售汇 / BOP / IIP / 安全货服贸易 | 新建 |
 | `pages/macro-industry/*.vue` | NBS 工业增加值 / 工业利润 / CPI / PPI / 固投 / 居民收支 / PMI | 新建 |
-| `pages/macro-trade/*.vue` | NBS 货服贸易（已知）/ NBS PMI 已迁到 industry | 待合并 |
-| 金刚区入口 | 「宏观·利率 / 宏观·汇市 / 宏观·产业」三个新增 | `home-kingkong` |
+| `pages/macro-trade/*.vue` | NBS 货服贸易（货物进出口） | 新建 |
+| `pages/macro-region/*.vue` | 广东 房地产简况 / 经济运行 / 固投 / 施工产值 | 新建（2026-07-26 补） |
+| 金刚区入口 | 「宏观·利率 / 宏观·汇市 / 宏观·产业 / 宏观·区域」四个新增 | `home-kingkong` |
 
 ---
 
@@ -92,11 +93,13 @@ describe("总览长度预算 DASHBOARD_OVERVIEW_BUDGET", () => {
 - 担保房/库存（广州新房库存）
 - ...剩余 ≤ 4 个口子留给后续真三轴衍生
 
-### 移到子页（`pages/macro-rates`/`fx`/`industry`）
+### 移到子页（`pages/macro-rates`/`fx`/`industry`/`trade`/`region`）
 
 - LPR / MLF / 逆回购 / 国债 / Shibor / 回购 FR/FDR → `pages/macro-rates/index.vue`
 - 外储 / 官方储备 / 美元中间价 / 外汇市场 / 结售汇 / BOP / IIP / 货服贸易 → `pages/macro-fx/index.vue`
 - 工业增加值 / 工业利润 / CPI / PPI / 固投 / 居民收支 / PMI → `pages/macro-industry/index.vue`
+- 货物进出口 → `pages/macro-trade/index.vue`
+- 广东 房地产简况 / 经济运行 / 固投 / 施工产值 → `pages/macro-region/index.vue`
 
 ---
 

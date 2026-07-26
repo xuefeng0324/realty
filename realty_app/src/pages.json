@@ -83,6 +83,36 @@
           "animationDuration": 200
         }
       }
+    },
+    {
+      "path": "pages/macro-rates/macro-rates",
+      "style": {
+        "navigationBarTitleText": "宏观 · 利率"
+      }
+    },
+    {
+      "path": "pages/macro-fx/macro-fx",
+      "style": {
+        "navigationBarTitleText": "宏观 · 汇市"
+      }
+    },
+    {
+      "path": "pages/macro-industry/macro-industry",
+      "style": {
+        "navigationBarTitleText": "宏观 · 产业"
+      }
+    },
+    {
+      "path": "pages/macro-region/macro-region",
+      "style": {
+        "navigationBarTitleText": "宏观 · 区域"
+      }
+    },
+    {
+      "path": "pages/macro-trade/macro-trade",
+      "style": {
+        "navigationBarTitleText": "宏观 · 贸易"
+      }
     }
   ],
   "tabBar": {

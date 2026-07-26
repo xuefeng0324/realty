@@ -527,6 +527,11 @@
 
 | 日期 | ID | 标题 | 发版 version | 备注 |
 |------|-----|------|--------------|------|
+| 2026-07-26 | F-PAGES-MACRO-01 | 宏观 5 子页骨架 + MacroTabNav 共用 tab + 金刚区「宏观」入口改 navigate | 1.121.129 | 本轮仅骨架；下轮按子页分批迁 12 张宏卡（14 → 8） |
+| 2026-07-26 | F-PAGES-MACRO-02 | pages.json 注册 macro-rates/fx/industry/region/trade 5 路由 | 1.121.129 | 与 skeleton 同包 |
+| 2026-07-26 | F-PAGES-MACRO-03 | tests/macroPages.test.ts 子页骨架 smoke 测试（5 文件存在 + active prop + 路由注册 + 入口 navigate） | 1.121.129 | 锁住：后续迁卡 → 重跑绿 |
+| 2026-07-26 | F-PAGES-MACRO-04 | tests/dashboardOverviewBudget.test.ts 硬规则收紧（≤ 14 锁 + 远期 ≤ 8 + ≤ 25k 行） | 1.121.129 | 下轮迁完收紧 |
+| 2026-07-26 | F-PAGES-MACRO-05 | docs/DASHBOARD_OVERVIEW_BUDGET.md §2 补 macro-region 子页路由 | 1.121.129 | 消除文档漏洞 |
 | 2026-07-26 | F-DASH-11 | 采购经理指数（含建筑业） | 1.121.123 | 临界点50；建筑业≠房价 |
 | 2026-07-26 | F-DASH-11 | 海关货物进出口（经 NBS） | 1.121.122 | 海关 WAF；国民经济通稿；≠房价 |
 | 2026-07-26 | F-DASH-11 | 国际收支平衡表季报 | 1.121.121 | 经常账户+资本金融；≠房价 |

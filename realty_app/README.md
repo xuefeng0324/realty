@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.121.129 | 2026-07-26 | 5 个宏观子页骨架 + MacroTabNav 共用 tab + 总览预算门禁硬规则 ≤ 14（远期 ≤ 8） |
 | v1.121.128 | 2026-07-26 | 规上工业企业利润 |
 | v1.121.127 | 2026-07-26 | 规上工业增加值 |
 | v1.121.126 | 2026-07-26 | 回购定盘利率 FR / 银银间 FDR |
@@ -584,6 +585,10 @@ gh auth setup-git
 ## 更新日志
 
 详细变更见 [changelog/](./changelog/) 目录。
+
+### v1.121.129 (2026-07-26)
+
+5 个宏观子页骨架落地（`macro-rates` / `macro-fx` / `macro-industry` / `macro-region` / `macro-trade`）+ 共用 `components/MacroTabNav.vue`（顶部 5 tab 切换）。dashboard 金刚区「宏观」tile 改 navigate → `macro-region`。`tests/dashboardOverviewBudget.test.ts` 锁住 14 张宏卡 + 25k 行（禁止再涨），远期目标 ≤ 8 / 16k。`tests/macroPages.test.ts` 锁住 5 子页骨架。
 
 ### v1.121.128 (2026-07-26)
 

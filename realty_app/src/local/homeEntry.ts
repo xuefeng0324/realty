@@ -58,7 +58,7 @@ export const HOME_KINGKONG: HomeKingkongItem[] = [
   { key: "map", icon: "🗺️", label: "地图", tone: "blue", action: { kind: "switchTab", path: "/pages/map-view/map-view" } },
   { key: "wangqian", icon: "📋", label: "网签", tone: "red", action: { kind: "navigate", path: "/pages/wangqian/wangqian" } },
   { key: "stats70", icon: "📈", label: "70城", tone: "violet", action: { kind: "navigate", path: "/pages/stats70/stats70" } },
-  { key: "macro", icon: "🏛️", label: "宏观", tone: "slate", action: { kind: "scroll", anchor: "entry-macro" } },
+  { key: "macro", icon: "🏛️", label: "宏观", tone: "slate", action: { kind: "navigate", path: "/pages/macro-region/macro-region" } },
   { key: "inventory", icon: "🏗️", label: "库存", tone: "amber", action: { kind: "scroll", anchor: "entry-supply" } },
   { key: "land", icon: "🗺️", label: "土地", tone: "green", action: { kind: "scroll", anchor: "entry-land" } },
   { key: "price-tab", icon: "💰", label: "价格", tone: "red", action: { kind: "tab", tab: "price" } },

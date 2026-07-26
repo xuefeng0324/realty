@@ -297,6 +297,23 @@ static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务�
 
 宏观数据与业务快照相互独立，在 `App.vue` 启动时分别注入内存（教育概览由模块 import 时解析）。
 
+---
+
+## 7. 宏观子页路由（dashboard 总览长度预算）
+
+为避免 `dashboard.vue` 继续加长（16,746 行 / 14 张宏卡 → 预算 ≤ 8 张），宏观数据卡按主题拆为 5 个独立子页：
+
+| 子页路径 | 承载卡（待迁入） | 数据源 |
+|----------|------------------|--------|
+| `pages/macro-rates/macro-rates` | LPR / MLF / 逆回购 / Shibor / 国债 / 回购 FR/FDR（6 张） | lprHistoryAnalysis + mlfData + repoFixing + bondYield |
+| `pages/macro-fx/macro-fx` | 外储 / 官方储备 / 美元中间价 / 外汇市场 / 结售汇 / BOP / IIP（7 张） | foreignReserves + officialReservesAssets + rmbQuery + fxMarketMonthly + bankForex + bopQuery + iipQuery |
+| `pages/macro-industry/macro-industry` | 工业增加值 / 工业利润 / CPI / PPI / 固投 / 居民收支 / PMI（7 张） | nbsIndustrial + nbsIndustrialProfit + nbsCpi + nbsPpi + nbsFaInvestment + nbsIncome + nbsPmi |
+| `pages/macro-region/macro-region` | 广东 房地产简况 / 经济运行 / 固投 / 施工产值（4 张） | gdRealEstateBrief + gdEconomy + gdFaInvestment + gdConstruction |
+| `pages/macro-trade/macro-trade` | 海关货物进出口（1 张） | nbsTrade |
+
+> 5 个子页共用 `components/MacroTabNav.vue`（顶部 5 tab 切换）。dashboard 金刚区「宏观」tile 已 navigate → `macro-region`。
+> 详细流程与硬规则见 [docs/DASHBOARD_OVERVIEW_BUDGET.md](./docs/DASHBOARD_OVERVIEW_BUDGET.md)。
+
 ### 5.1 已知缺口（下一优先）
 
 | 缺口 | 候选源 | 状态 |
