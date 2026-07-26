@@ -6,14 +6,17 @@
  *
  * 分层：
  * 1) manifest darkmode + theme.json + pages.json @变量 → 导航栏 / TabBar 原生壳
- * 2) 本模块解析用户偏好 → CSS 变量（data-realty-theme）→ 页面内容
+ * 2) 本模块解析用户偏好 → CSS 变量（data-realty-theme + 内联 setProperty）→ 页面内容
  * 3) App 端 plus.nativeUI.setUIStyle + uni.onThemeChange → 真正跟随系统
  *
  * 禁止：仅用 window.matchMedia 当 App 主路径（Android WebView 常不可靠）。
+ * 禁止：浅色只改 data 属性、不写 CSS 变量（App 上 page 选择器经常不级联）。
  */
 
+import { THEME_CSS_VARS, type ResolvedTheme } from "./themeTokens";
+
 export type ThemeMode = "system" | "light" | "dark";
-export type ResolvedTheme = Exclude<ThemeMode, "system">;
+export type { ResolvedTheme };
 
 export const THEME_STORAGE_KEY = "realty:themeMode";
 
@@ -79,14 +82,52 @@ function applyNativeUiStyle(mode: ThemeMode): void {
   }
 }
 
+function applyCssVarsToElement(el: Element, resolved: ResolvedTheme): void {
+  const style = (el as HTMLElement).style;
+  if (!style?.setProperty) return;
+  const vars = THEME_CSS_VARS[resolved];
+  for (const [key, value] of Object.entries(vars)) {
+    style.setProperty(key, value);
+  }
+  style.setProperty("color-scheme", resolved);
+  // 根节点直接刷底色，避免透明 body 读到系统默认深底
+  if (keyIsRoot(el)) {
+    style.backgroundColor = vars["--color-bg"];
+    style.color = vars["--color-text"];
+    if (resolved === "light") style.backgroundImage = "none";
+  }
+}
+
+function keyIsRoot(el: Element): boolean {
+  const tag = el.tagName?.toLowerCase?.() ?? "";
+  return (
+    el === document.documentElement ||
+    el === document.body ||
+    tag === "page" ||
+    tag === "uni-page-body" ||
+    tag === "uni-app" ||
+    (el as HTMLElement).classList?.contains?.("uni-page-body")
+  );
+}
+
 function paintDom(resolved: ResolvedTheme): void {
   if (typeof document === "undefined") return;
-  document.documentElement.dataset.realtyTheme = resolved;
-  document.documentElement.style.colorScheme = resolved;
-  document.body?.setAttribute("data-realty-theme", resolved);
-  document.querySelectorAll?.("page, uni-page-body, .uni-page-body, uni-app").forEach((el) => {
+  const mark = (el: Element | null | undefined) => {
+    if (!el) return;
     el.setAttribute("data-realty-theme", resolved);
-  });
+    if ((el as HTMLElement).dataset) {
+      (el as HTMLElement).dataset.realtyTheme = resolved;
+    }
+    el.classList?.remove?.("realty-theme-light", "realty-theme-dark");
+    el.classList?.add?.(`realty-theme-${resolved}`);
+    applyCssVarsToElement(el, resolved);
+  };
+
+  mark(document.documentElement);
+  mark(document.body);
+  document
+    .querySelectorAll?.("page, uni-page-body, .uni-page-body, uni-app, uni-page, .uni-page")
+    .forEach((el) => mark(el));
 }
 
 function paintChrome(resolved: ResolvedTheme): void {
@@ -95,7 +136,7 @@ function paintChrome(resolved: ResolvedTheme): void {
   try {
     uni.setNavigationBarColor?.({
       frontColor: dark ? "#ffffff" : "#000000",
-      backgroundColor: dark ? "#0b1020" : "#f8fafc",
+      backgroundColor: dark ? "#0b1020" : "#f2f4f7",
       animation: { duration: 0, timingFunc: "linear" }
     });
   } catch {

@@ -24,6 +24,13 @@ const page = await context.newPage();
 const issues = [];
 const snapshots = new Map();
 
+const parseHex = (value) => {
+  const raw = value?.replace("#", "").trim();
+  if (!raw || (raw.length !== 6 && raw.length !== 3)) return null;
+  const full = raw.length === 3 ? raw.split("").map((c) => c + c).join("") : raw;
+  return [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16));
+};
+
 const parseRgb = (value, backdrop = null) => {
   const match = value?.match(/rgba?\((\d+)[, ]+(\d+)[, ]+(\d+)(?:[, /]+([\d.]+))?/i);
   if (!match) return null;
@@ -74,6 +81,8 @@ try {
         };
         return {
           theme: document.documentElement.dataset.realtyTheme,
+          cssBg: getComputedStyle(document.documentElement).getPropertyValue("--color-bg").trim(),
+          cssText: getComputedStyle(document.documentElement).getPropertyValue("--color-text").trim(),
           page: describe(document.body),
           card: describe(firstVisible(".card, [class$='-card'], [class*='-card ']")),
           title: describe(firstVisible(".card-title, [class$='-title'], [class*='-title ']")),
@@ -93,13 +102,14 @@ try {
       snapshots.set(key, audit);
       if (audit.theme !== mode) issues.push(`${key} 主题未生效: ${audit.theme}`);
 
-      const pageBg = parseRgb(audit.page?.backgroundColor);
+      const tokenBg = parseHex(audit.cssBg) || parseRgb(audit.page?.backgroundColor);
+      const pageBg = tokenBg || parseRgb(audit.page?.backgroundColor);
       if (!pageBg) {
-        issues.push(`${key} 页面背景色无法解析: ${audit.page?.backgroundColor}`);
+        issues.push(`${key} 页面背景色无法解析: css=${audit.cssBg} body=${audit.page?.backgroundColor}`);
       } else {
         const pageLum = luminance(pageBg);
-        if (mode === "light" && pageLum < 0.75) issues.push(`${key} 浅色页面过暗: ${pageLum.toFixed(3)}`);
-        if (mode === "dark" && pageLum > 0.2) issues.push(`${key} 深色页面过亮: ${pageLum.toFixed(3)}`);
+        if (mode === "light" && pageLum < 0.85) issues.push(`${key} 浅色页面过暗: ${pageLum.toFixed(3)}（期望≥0.85）`);
+        if (mode === "dark" && pageLum > 0.12) issues.push(`${key} 深色页面过亮: ${pageLum.toFixed(3)}（期望≤0.12）`);
       }
 
       for (const role of ["card", "title", "muted", "input"]) {
@@ -128,10 +138,12 @@ try {
   }
 
   for (const target of pages) {
-    const light = parseRgb(snapshots.get(`${target.name}:light`)?.page?.backgroundColor);
-    const dark = parseRgb(snapshots.get(`${target.name}:dark`)?.page?.backgroundColor);
-    if (light && dark && luminance(light) - luminance(dark) < 0.55) {
-      issues.push(`${target.name} 浅色/深色页面背景区分不足`);
+    const lightSnap = snapshots.get(`${target.name}:light`);
+    const darkSnap = snapshots.get(`${target.name}:dark`);
+    const light = parseHex(lightSnap?.cssBg) || parseRgb(lightSnap?.page?.backgroundColor);
+    const dark = parseHex(darkSnap?.cssBg) || parseRgb(darkSnap?.page?.backgroundColor);
+    if (light && dark && luminance(light) - luminance(dark) < 0.7) {
+      issues.push(`${target.name} 浅色/深色页面背景区分不足（差=${(luminance(light) - luminance(dark)).toFixed(3)}，期望≥0.7）`);
     }
   }
 

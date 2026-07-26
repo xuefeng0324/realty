@@ -10,6 +10,44 @@ import {
   resolveTheme,
   setThemeMode
 } from "../src/utils/theme";
+import { THEME_CSS_VARS } from "../src/utils/themeTokens";
+
+function makeStyleBag() {
+  const props = new Map<string, string>();
+  return {
+    colorScheme: "",
+    backgroundColor: "",
+    color: "",
+    backgroundImage: "",
+    setProperty(key: string, value: string) {
+      props.set(key, value);
+      if (key === "color-scheme") this.colorScheme = value;
+    },
+    getPropertyValue(key: string) {
+      return props.get(key) ?? "";
+    },
+    _props: props
+  };
+}
+
+function makeDomStub() {
+  const htmlStyle = makeStyleBag();
+  const bodyStyle = makeStyleBag();
+  const html = {
+    dataset: {} as Record<string, string>,
+    style: htmlStyle,
+    classList: { remove: vi.fn(), add: vi.fn() },
+    setAttribute: vi.fn(),
+    tagName: "HTML"
+  };
+  const body = {
+    setAttribute: vi.fn(),
+    style: bodyStyle,
+    classList: { remove: vi.fn(), add: vi.fn() },
+    tagName: "BODY"
+  };
+  return { html, body, htmlStyle, bodyStyle };
+}
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -43,16 +81,19 @@ describe("theme", () => {
     expect(getSystemPrefersDark()).toBe(false);
   });
 
-  it("读取、保存并应用主题到 H5 根节点", () => {
+  it("读取、保存并应用主题到 H5 根节点（含内联 CSS 变量）", () => {
     const storage = new Map([[THEME_STORAGE_KEY, "dark"]]);
-    const html = { dataset: {} as Record<string, string>, style: {} as Record<string, string> };
-    const body = { setAttribute: vi.fn() };
+    const { html, body, htmlStyle } = makeDomStub();
     vi.stubGlobal("uni", {
       getStorageSync: (key: string) => storage.get(key),
       setStorageSync: (key: string, value: string) => storage.set(key, value),
       getSystemInfoSync: () => ({ theme: "dark" })
     });
-    vi.stubGlobal("document", { documentElement: html, body, querySelectorAll: () => [] });
+    vi.stubGlobal("document", {
+      documentElement: html,
+      body,
+      querySelectorAll: () => []
+    });
 
     expect(getStoredThemeMode()).toBe("dark");
     expect(setThemeMode("light")).toBe("light");
@@ -60,12 +101,17 @@ describe("theme", () => {
     expect(html.dataset.realtyTheme).toBe("light");
     expect(html.style.colorScheme).toBe("light");
     expect(body.setAttribute).toHaveBeenCalledWith("data-realty-theme", "light");
+    expect(htmlStyle.getPropertyValue("--color-bg")).toBe(THEME_CSS_VARS.light["--color-bg"]);
+    expect(htmlStyle.getPropertyValue("--color-text")).toBe(THEME_CSS_VARS.light["--color-text"]);
+    expect(htmlStyle.backgroundColor).toBe(THEME_CSS_VARS.light["--color-bg"]);
+    expect(html.classList.add).toHaveBeenCalledWith("realty-theme-light");
   });
 
   it("原生端 setUIStyle + 同步导航栏与 TabBar", () => {
     const setNavigationBarColor = vi.fn();
     const setTabBarStyle = vi.fn();
     const setUIStyle = vi.fn();
+    const { html, body } = makeDomStub();
     vi.stubGlobal("plus", { nativeUI: { setUIStyle } });
     vi.stubGlobal("uni", {
       setNavigationBarColor,
@@ -73,8 +119,8 @@ describe("theme", () => {
       getSystemInfoSync: () => ({ theme: "dark" })
     });
     vi.stubGlobal("document", {
-      documentElement: { dataset: {}, style: {} },
-      body: { setAttribute: vi.fn() },
+      documentElement: html,
+      body,
       querySelectorAll: () => []
     });
 
@@ -90,7 +136,7 @@ describe("theme", () => {
     expect(applyTheme("light")).toBe("light");
     expect(setUIStyle).toHaveBeenCalledWith("light");
     expect(setNavigationBarColor).toHaveBeenCalledWith(
-      expect.objectContaining({ frontColor: "#000000", backgroundColor: "#f8fafc" })
+      expect.objectContaining({ frontColor: "#000000", backgroundColor: "#f2f4f7" })
     );
 
     expect(applyTheme("system")).toBe("dark");
@@ -99,6 +145,7 @@ describe("theme", () => {
 
   it("跟随系统时绑定 uni.onThemeChange", () => {
     const onThemeChange = vi.fn();
+    const { html, body } = makeDomStub();
     vi.stubGlobal("uni", {
       getStorageSync: vi.fn(() => "system"),
       getSystemInfoSync: () => ({ theme: "dark" }),
@@ -107,8 +154,8 @@ describe("theme", () => {
       setTabBarStyle: vi.fn()
     });
     vi.stubGlobal("document", {
-      documentElement: { dataset: {}, style: {} },
-      body: { setAttribute: vi.fn() },
+      documentElement: html,
+      body,
       querySelectorAll: () => []
     });
     vi.stubGlobal("window", {
@@ -117,11 +164,12 @@ describe("theme", () => {
 
     initializeTheme();
     expect(onThemeChange).toHaveBeenCalledWith(expect.any(Function));
-    expect(document.documentElement.dataset.realtyTheme).toBe("dark");
+    expect(html.dataset.realtyTheme).toBe("dark");
   });
 
   it("refreshThemeChrome 按存储值重刷", () => {
     const storage = new Map([[THEME_STORAGE_KEY, "light"]]);
+    const { html, body, htmlStyle } = makeDomStub();
     vi.stubGlobal("uni", {
       getStorageSync: (key: string) => storage.get(key),
       getSystemInfoSync: () => ({ theme: "dark" }),
@@ -129,11 +177,12 @@ describe("theme", () => {
       setTabBarStyle: vi.fn()
     });
     vi.stubGlobal("document", {
-      documentElement: { dataset: {} as Record<string, string>, style: {} as Record<string, string> },
-      body: { setAttribute: vi.fn() },
+      documentElement: html,
+      body,
       querySelectorAll: () => []
     });
     expect(refreshThemeChrome()).toBeUndefined();
-    expect(document.documentElement.dataset.realtyTheme).toBe("light");
+    expect(html.dataset.realtyTheme).toBe("light");
+    expect(htmlStyle.getPropertyValue("--color-bg")).toBe(THEME_CSS_VARS.light["--color-bg"]);
   });
 });

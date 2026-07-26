@@ -204,6 +204,7 @@ page {
   --color-soft: #1e293b;
   --color-soft-strong: #334155;
   --color-panel: #0f172a;
+  --color-card: #111827;
   --color-chip-text: #cbd5e1;
   --color-success-soft: rgba(34, 197, 94, 0.16);
   --color-danger-soft: rgba(239, 68, 68, 0.16);
@@ -224,27 +225,37 @@ page {
   font-size: 28rpx;
 }
 
+/* 浅色：对照 MD3 / 微信 / 贝壳 — 浅灰底 + 白卡片 + 深正文，必须肉眼可辨 */
 html[data-realty-theme="light"],
+html.realty-theme-light,
 html[data-realty-theme="light"] page,
 body[data-realty-theme="light"],
+body.realty-theme-light,
 body[data-realty-theme="light"] page,
-page[data-realty-theme="light"] {
-  --color-bg: #f4f7fb;
+page[data-realty-theme="light"],
+page.realty-theme-light,
+uni-page-body[data-realty-theme="light"],
+uni-page-body.realty-theme-light,
+.uni-page-body[data-realty-theme="light"],
+uni-app[data-realty-theme="light"] {
+  --color-bg: #f2f4f7;
   --color-surface: #ffffff;
-  --color-surface-raised: #f6f8fb;
-  --color-border: #dfe6ef;
-  --color-text: #1f2937;
+  --color-surface-raised: #ffffff;
+  --color-border: #d8dee8;
+  --color-text: #1e293b;
   --color-heading: #0f172a;
   --color-muted: #64748b;
   --color-primary: #16a34a;
   --color-primary-strong: #15803d;
   --color-primary-contrast: #15803d;
   --color-primary-text: #ffffff;
+  --color-danger: #dc2626;
   --color-accent: #2563eb;
   --color-accent-text: #ffffff;
-  --color-soft: #f1f5f9;
+  --color-soft: #eef2f7;
   --color-soft-strong: #e2e8f0;
   --color-panel: #f8fafc;
+  --color-card: #ffffff;
   --color-chip-text: #334155;
   --color-success-soft: #ecfdf5;
   --color-danger-soft: #fef2f2;
@@ -254,8 +265,30 @@ page[data-realty-theme="light"] {
   --color-on-success-soft: #166534;
   --color-on-danger-soft: #991b1b;
   --color-on-warn-soft: #92400e;
-  --shadow-card: 0 10rpx 30rpx rgba(15, 23, 42, 0.065);
-  background-image: none;
+  --shadow-card: 0 8rpx 24rpx rgba(15, 23, 42, 0.08);
+  background-color: var(--color-bg) !important;
+  background-image: none !important;
+  color: var(--color-text);
+}
+
+/* 浅色下分数胶囊不用「深色霓虹字」 */
+html[data-realty-theme="light"] .score-high,
+page[data-realty-theme="light"] .score-high,
+.realty-theme-light .score-high {
+  background: #ecfdf5;
+  color: #166534;
+}
+html[data-realty-theme="light"] .score-mid,
+page[data-realty-theme="light"] .score-mid,
+.realty-theme-light .score-mid {
+  background: #fef3c7;
+  color: #92400e;
+}
+html[data-realty-theme="light"] .score-low,
+page[data-realty-theme="light"] .score-low,
+.realty-theme-light .score-low {
+  background: #fef2f2;
+  color: #991b1b;
 }
 
 /* 表单控件默认跟主题，避免深色模式下冒出系统浅色输入框 */

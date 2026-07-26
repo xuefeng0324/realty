@@ -676,8 +676,9 @@ function openGithubReleases() {
 }
 
 .theme-option--active {
-  border-color: var(--color-primary);
-  color: var(--color-primary-contrast);
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary-strong);
+  color: var(--color-primary-text) !important;
 }
 
 .form-item {

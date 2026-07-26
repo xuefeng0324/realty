@@ -747,7 +747,7 @@ onMounted(() => {
 }
 .sibling-title {
   font-size: 26rpx;
-  color: var(--color-soft);
+  color: var(--color-heading);
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;

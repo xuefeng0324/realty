@@ -548,7 +548,7 @@ onMounted(async () => {
   gap: 12rpx;
   padding: 12rpx 8rpx;
   margin: 8rpx 0 24rpx;
-  background: color-mix(in srgb, var(--color-card, #1e293b) 92%, transparent);
+  background: color-mix(in srgb, var(--color-card, var(--color-surface)) 92%, transparent);
   backdrop-filter: blur(8px);
   border-radius: 16rpx;
   border: 1rpx solid var(--color-border, rgba(148, 163, 184, 0.25));
@@ -655,7 +655,7 @@ button.source-dock-ghost {
 }
 .sibling-title {
   font-size: 26rpx;
-  color: var(--color-soft);
+  color: var(--color-heading);
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;

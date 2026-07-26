@@ -11409,8 +11409,8 @@ onShow(async () => {
 
 /* ---------------- 70 城指数卡片 ---------------- */
 .stats70-card {
-  background: linear-gradient(135deg, var(--color-surface) 0%, #0c1426 100%);
-  border: 1rpx solid var(--color-soft-strong);
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-panel) 100%);
+  border: 1rpx solid var(--color-border);
 }
 
 .stats70-foot {
@@ -11763,8 +11763,8 @@ onShow(async () => {
 }
 
 .wangqian-card {
-  background: linear-gradient(135deg, var(--color-surface) 0%, #0c1a2e 100%);
-  border: 1rpx solid #1e3a5f;
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-panel) 100%);
+  border: 1rpx solid var(--color-border);
 }
 
 .wangqian-up {
@@ -14177,7 +14177,7 @@ onShow(async () => {
 .lpr-kpi-val {
   font-size: 30rpx;
   font-weight: 700;
-  color: var(--color-soft);
+  color: var(--color-heading);
   font-variant-numeric: tabular-nums;
 }
 .lpr-kpi-val--down {
@@ -14282,7 +14282,7 @@ onShow(async () => {
   font-weight: 600;
   font-size: 26rpx;
   margin: 12rpx 0 8rpx;
-  color: var(--color-soft);
+  color: var(--color-heading);
 }
 .sd-ovr {
   display: flex;
@@ -14341,7 +14341,7 @@ onShow(async () => {
 .sd-score-num {
   font-size: 22rpx;
   font-weight: 700;
-  color: var(--color-soft);
+  color: var(--color-heading);
 }
 .sd-grid {
   display: grid;
@@ -14380,7 +14380,7 @@ onShow(async () => {
 }
 .sd-val {
   font-weight: 700;
-  color: var(--color-soft);
+  color: var(--color-heading);
   font-size: 22rpx;
 }
 .sd-pos {

@@ -1,26 +1,44 @@
 # 主题（浅色 / 深色 / 跟随系统）验收标准
 
-> 对照：[uni-app DarkMode 适配指南](https://uniapp.dcloud.net.cn/tutorial/darkmode.html)  
+> 对照：
+> - [uni-app DarkMode 适配指南](https://uniapp.dcloud.net.cn/tutorial/darkmode.html)
+> - [Material Design 3 · Color roles](https://m3.material.io/styles/color/roles)（Surface / On-surface）
+> - [Apple HIG · Dark Mode](https://developer.apple.com/design/human-interface-guidelines/dark-mode)（浅色 = 浅分组底 + 深 label）
+> - 微信 / 支付宝 / 贝壳 App：强制「浅色」= **白/浅灰底 + 深灰黑字**，不是「略提亮的夜景」
+>
 > 流程总则：[FEATURE_ACCEPTANCE.md](./FEATURE_ACCEPTANCE.md)
 
-## 1. 背景与根因（为何以前像「闹着玩」）
+## 0. 一句话合格线（给产品/测试）
 
-旧实现问题（已在 v1.121.42 起按官网纠正）：
+> 设置里点「浅色」后，**不看导航栏、只看内容区**，任何人都能在 1 秒内说出「这是浅色界面」；  
+> 若需要盯着对比深色截图才能分辨 → **不合格，按缺陷重开**。
+
+相对亮度硬门槛（与 `themeTokens.ts` / smoke 一致）：
+
+| 指标 | 浅色 | 深色 |
+|------|------|------|
+| 页面背景 `--color-bg` | ≥ **0.85** | ≤ **0.12** |
+| 正文 `--color-text` | ≤ **0.25**（够深） | ≥ **0.65**（够浅） |
+| 卡片 `--color-surface` | ≥ **0.90**（近白） | — |
+
+## 1. 背景与根因（为何会「跟没选差不多」）
 
 | 问题 | 后果 |
 |------|------|
-| 未开 `manifest.darkmode` / 无 `theme.json` | 拿不到 `uni.getSystemInfoSync().theme`，Tab/导航栏写死深色 |
-| 「跟随系统」主要靠 `matchMedia` | Android App WebView 经常无效 → 跟随系统名存实亡 |
-| 未调用 `plus.nativeUI.setUIStyle` | 官网明确：App 上不开则听不到主题变化 |
-| 大量页面硬编码 `#111827` / `#1e293b` 等 | CSS 变量切了浅色，控件仍是深色块 → 「浅色模式坏了」 |
-| 验收靠肉眼猜测 | 无对比度 / 无主题属性断言，回归靠运气 |
+| 未开 `manifest.darkmode` / 无 `theme.json` | 拿不到系统 theme，Tab/导航栏写死深色 |
+| 「跟随系统」主要靠 `matchMedia` | Android App WebView 经常无效 |
+| 未调用 `plus.nativeUI.setUIStyle` | App 听不到主题变化 |
+| **只改 `data-realty-theme`，CSS 变量挂在 `page[...]` 选择器** | 部分 App WebView 不级联 → 页面仍用默认深色 token |
+| **首页卡片硬编码 `#0c1426` / `#0c1a2e` 渐变** | 变量切了浅色，70城/网签卡仍是黑蓝块 → 「浅色坏了」 |
+| 把 `--color-soft`（底色）当**文字色** | 浅色下近白字写在白底上，更像「坏了」而不是浅色 |
+| 验收靠肉眼猜测 | 无亮度 / 对比度门禁 |
 
-正确分层（与官网 + 常见 App 一致）：
+正确分层：
 
-1. **原生壳**：`darkmode` + `theme.json` + `pages.json` 的 `@变量`（导航栏 / TabBar / 窗口背景）  
-2. **系统跟随**：`plus.nativeUI.setUIStyle('auto'|'light'|'dark')` + `uni.onThemeChange`  
-3. **页面内容**：`data-realty-theme` + CSS 变量（可强制浅/深，不单绑系统）  
-4. **门禁**：unit + H5 主题视觉 smoke + 真机三点路径
+1. **原生壳**：`darkmode` + `theme.json` + `pages.json` `@变量`
+2. **系统跟随**：`setUIStyle` + `uni.onThemeChange`
+3. **页面内容**：**JS `style.setProperty('--color-*')` + `data-realty-theme` + class**（双保险）
+4. **门禁**：token 亮度 unit + H5 主题视觉 smoke + 真机三点路径
 
 ## 2. 验收标准
 
@@ -28,67 +46,63 @@
 
 | # | 操作 | 期望 | 不期望 |
 |---|------|------|--------|
-| A1 | 打开「设置 → 外观」点「浅色」 | 页面背景明显变亮；卡片近白；正文深色；TabBar 浅底深字 | 大块仍留黑底白字控件 |
-| A2 | 点「深色」 | 背景回到深色体系；TabBar 深底 | 导航栏仍浅色刺眼 |
-| A3 | 点「跟随系统」且系统为浅色 | 表现同 A1 | 无视系统仍深色 |
-| A4 | 点「跟随系统」且系统为深色 | 表现同 A2 | 无视系统仍浅色 |
-| A5 | 杀进程重开 | 仍为上次选择的模式 | 丢失偏好 |
+| A1 | 「设置 → 外观」点「浅色」 | 内容区浅灰底；卡片近白；正文深色；选中按钮绿底白字；TabBar 浅底 | 大块仍黑底白字；或只导航栏变、内容区不变 |
+| A2 | 点「深色」 | 回到深色体系 | 导航栏仍浅刺眼 |
+| A3 | 「跟随系统」+ 系统浅色 | 同 A1 | 仍深色 |
+| A4 | 「跟随系统」+ 系统深色 | 同 A2 | 仍浅色 |
+| A5 | 杀进程重开 | 记住上次模式 | 丢偏好 |
 
 ### 2.2 原生壳
 
 | # | 期望 |
 |---|------|
-| B1 | 浅色：导航栏浅底 + 深色标题字；TabBar 白底 |
-| B2 | 深色：导航栏/TabBar 深底 + 浅色字 |
-| B3 | 切换 Tab 后壳层颜色不「串色残留」 |
+| B1 | 浅色：导航栏浅底深字；TabBar 白底 |
+| B2 | 深色：导航栏/TabBar 深底浅字 |
+| B3 | 切 Tab 不串色残留 |
 
-### 2.3 内容可读性（自动化已覆盖的部分）
+### 2.3 内容可读性
 
 | # | 期望 |
 |---|------|
-| C1 | `document.documentElement.dataset.realtyTheme` 等于当前解析主题 |
-| C2 | 浅色页面背景相对亮度足够高；深色足够低（见 `smoke_theme_visual.mjs`） |
-| C3 | 主按钮 / 标题对比度不低于门禁阈值 |
+| C1 | `dataset.realtyTheme` = 当前解析主题 |
+| C2 | 根节点内联 `--color-bg` 已写入且通过亮度门禁 |
+| C3 | 首页 70城 / 网签卡**不得**再硬编码 `#0c1426` 一类深色渐变终点 |
+| C4 | 主按钮 / 标题对比度 ≥ 门禁（见 smoke） |
 
 ## 3. 自动化门禁
 
 ```powershell
-# 单元（解析、存储、setUIStyle、onThemeChange、DOM 标记）
-npx vitest run tests/theme.test.ts
-
-# 全量
+npx vitest run tests/theme.test.ts tests/themeTokens.test.ts
 npm run type-check
 npm test
-
-# H5 主题视觉（需 dev server；默认 E2E_BASE_URL）
 node tests/e2e/smoke_theme_buttons.mjs
 node tests/e2e/smoke_theme_visual.mjs
 ```
 
-通过准则：上述命令 exit code = 0。失败则**阻断发版**。
+失败则**阻断发版**。
 
-## 4. 真机手工最短路径（App 包）
+## 4. 真机最短路径
 
-1. 安装含本改动的包（或 OTA 到对应 versionCode）  
-2. 设置 → 外观 → 浅色：截图总览 + 房源 + 设置  
-3. 外观 → 深色：再截同样三页  
-4. 手机系统改为浅色，App 选「跟随系统」：确认与步骤 2 一致  
-5. 系统改深色，仍「跟随系统」：确认与步骤 3 一致  
+1. 装含本改动的包（或 OTA 到对应 versionCode）
+2. 设置 → 浅色：截总览 + 房源 + 设置（**必须能一眼看出浅色**）
+3. 深色：同三页
+4. 系统浅/深 +「跟随系统」各一遍
 
-记录：三组截图入库或贴到 issue；任一步失败开缺陷，不发版。
+任一步「跟没选差不多」→ 缺陷，不发版。
 
-## 5. 实现要点（给后续改动）
+## 5. 实现要点
 
-- 配置：`src/theme.json`、`manifest.json` 的 `darkmode`/`themeLocation`、`pages.json` `@` 引用  
-- 逻辑：`src/utils/theme.ts`（禁止删掉 `setUIStyle` / `onThemeChange` 只留 matchMedia）  
-- 样式：新增颜色优先 `var(--color-*)`；禁止再引入裸 `#111827` 一类深色硬编码（unit/视觉门禁会打回）
+- Token 单一来源：`src/utils/themeTokens.ts`
+- 逻辑：`src/utils/theme.ts`（`setUIStyle` / `onThemeChange` / **内联 CSS 变量**）
+- 样式：`App.vue` 同步选择器；页面禁止裸深色底硬编码
+- 文字色禁止用 `--color-soft`（那是 soft **背景**）
 
 ## 6. 已知边界
 
-- 第三方 WebView / 地图 SDK 自带配色可能不跟主题（需单独评估）  
-- 系统弹窗（如 Runtime 提示）不受 App CSS 控制  
-- `theme.json` 的 `@` 变量随**系统**暗黑能力切换；**强制浅/深**仍依赖本模块 `setUIStyle` + `setTabBarStyle` + CSS 变量
+- 第三方 WebView / 地图 SDK 配色可能不跟主题
+- 系统弹窗不受 App CSS 控制
+- `theme.json` `@` 随系统暗黑；强制浅/深仍靠本模块
 
 ---
 
-最后更新：2026-07-26（v1.121.42）
+最后更新：2026-07-26（浅色「一眼可辨」强化）
