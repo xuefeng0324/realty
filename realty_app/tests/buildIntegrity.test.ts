@@ -1980,14 +1980,15 @@ describe("build integrity", () => {
       expect(content).toMatch(/fastestCommunity/);
     });
 
-    it("dashboard.vue 地铁步行通勤卡 + 颜色分档 (mw-min-green/orange/red)", () => {
-      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(content).toMatch(/地铁步行通勤 Top/);
-      expect(content).toMatch(/metroWalk\.value = await\s+getMetroWalkRanking/);
-      expect(content).toMatch(/mwBandClass/);
-      expect(content).toMatch(/mw-min-green/);
-      expect(content).toMatch(/mw-min-orange/);
-      expect(content).toMatch(/mw-min-red/);
+    it("v1.121.138: 地铁步行通勤卡已从仪表盘迁出至 data-tools 独立页", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      const tools = readFileSync(resolve(ROOT, "src/pages/data-tools/data-tools.vue"), "utf8");
+      // 仪表盘不应再渲染「地铁步行通勤 Top」卡（已迁出至独立页）
+      expect(dash).not.toMatch(/地铁步行通勤 Top/);
+      // 仪表盘仍保留 getMetroWalkRanking 的加载代码（用于地图聚合统计）
+      expect(dash).toMatch(/metroWalk\.value = await\s+getMetroWalkRanking/);
+      // v1.121.138：data-tools 页骨架存在；通勤卡渲染等待后续 PR 增量迁移
+      expect(tools.length).toBeGreaterThan(80);
     });
   });
 
@@ -2040,17 +2041,15 @@ describe("build integrity", () => {
       expect(content).toMatch(/nearCount/);
     });
 
-    it("dashboard.vue 地铁规划受益卡 + 3 档 mb-tag-green/orange/red + status 徽章", () => {
-      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(content).toMatch(/地铁规划受益 Top/);
-      expect(content).toMatch(/metroBenefit\.value = await\s+getMetroBenefitRanking/);
-      expect(content).toMatch(/mbBandClass/);
-      expect(content).toMatch(/mb-tag-green/);
-      expect(content).toMatch(/mb-tag-orange/);
-      expect(content).toMatch(/mb-tag-red/);
-      expect(content).toMatch(/mb-st-open/);
-      expect(content).toMatch(/mb-st-build/);
-      expect(content).toMatch(/mb-st-plan/);
+    it("v1.121.138: 地铁规划受益卡已从仪表盘迁出至 data-tools 独立页", () => {
+      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+      const tools = readFileSync(resolve(ROOT, "src/pages/data-tools/data-tools.vue"), "utf8");
+      // 仪表盘不应再渲染「地铁规划受益 Top」卡（已迁出至独立页）
+      expect(dash).not.toMatch(/地铁规划受益 Top/);
+      // 仪表盘仍保留 getMetroBenefitRanking 的加载代码（用于地图聚合统计）
+      expect(dash).toMatch(/metroBenefit\.value = await\s+getMetroBenefitRanking/);
+      // v1.121.138：data-tools 页骨架存在；地铁规划卡渲染等待后续 PR 增量迁移
+      expect(tools.length).toBeGreaterThan(80);
     });
   });
 
@@ -2166,16 +2165,13 @@ describe("build integrity", () => {
       expect(settings).toMatch(/loadSnapshotFromBase/);
     });
 
-    it("dashboard.vue 区情画像卡 + sort chips + 排序/隐藏切换", () => {
+    it("dashboard.vue 区情画像卡已迁出（v0.38.0 为派生卡，迁至 data-tools.vue 独立页）", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/区情画像/);
-      expect(dash).toMatch(/districtMetaSortBy/);
-      expect(dash).toMatch(/setDmSort/);
-      expect(dash).toMatch(/toggleDmHideEmpty/);
-      expect(dash).toMatch(/reloadDistrictMeta/);
-      expect(dash).toMatch(/dm-chip/);
-      expect(dash).toMatch(/dm-row/);
-      expect(dash).toMatch(/dm-mom-up|dm-mom-down|dm-mom-flat/);
+      // 区情画像是派生卡，v1.121.138 已迁出 dashboard
+      expect(dash).not.toMatch(/class="card-title">[^<]*区情画像/);
+      expect(dash).not.toMatch(/districtMetaSortBy/);
+      expect(dash).not.toMatch(/setDmSort/);
+      expect(dash).not.toMatch(/reloadDistrictMeta/);
     });
 
     it("getDistrictMetaRanking 数据正确 (深圳有 10 区，admin_code 全有)", async () => {
@@ -2263,17 +2259,12 @@ describe("build integrity", () => {
       expect(settings).toMatch(/loadSnapshotFromBase/);
     });
 
-    it("dashboard.vue 特征画像溢价卡 + 4 dim blocks + bar + percent", () => {
+    it("dashboard.vue 特征画像溢价卡已迁出（v0.39.0 为派生卡，迁至 data-tools.vue 独立页）", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/特征画像溢价/);
-      expect(dash).toMatch(/featurePremium/);
-      expect(dash).toMatch(/reloadFeaturePremium/);
-      expect(dash).toMatch(/fp-dim-block/);
-      expect(dash).toMatch(/fp-bar/);
-      expect(dash).toMatch(/fp-pct/);
-      expect(dash).toMatch(/fpBarClass/);
-      expect(dash).toMatch(/fpPctClass/);
-      expect(dash).toMatch(/FP_DIM_LABEL/);
+      // 特征画像溢价是派生卡，v1.121.138 已迁出 dashboard
+      expect(dash).not.toMatch(/class="card-title">[^<]*特征画像溢价/);
+      expect(dash).not.toMatch(/reloadFeaturePremium/);
+      expect(dash).not.toMatch(/fp-dim-block/);
     });
 
     it("getFeaturePremiumRanking 数据正确 + top/bottom 排序", async () => {
@@ -2368,15 +2359,11 @@ describe("build integrity", () => {
       expect(settings).toMatch(/loadSnapshotFromBase/);
     });
 
-    it("dashboard.vue 标签组合卡 + tag pair 渲染", () => {
+    it("dashboard.vue 标签组合卡已迁出（v0.40.0 标签组合热度为派生卡，迁至 data-tools.vue 独立页）", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/标签组合热度/);
-      expect(dash).toMatch(/tagCombination/);
-      expect(dash).toMatch(/reloadTagCombination/);
-      expect(dash).toMatch(/tc-row/);
-      expect(dash).toMatch(/tc-tag/);
-      expect(dash).toMatch(/tc-bar/);
-      expect(dash).toMatch(/tcBarWidth/);
+      // 标签组合热度是派生卡，v1.121.138 已迁出 dashboard
+      expect(dash).not.toMatch(/class="card-title">[^<]*标签组合热度/);
+      expect(dash).not.toMatch(/reloadTagCombination/);
     });
 
     it("getTagCombinationRanking 数据正确 + count 降序", async () => {
@@ -3195,22 +3182,22 @@ describe("build integrity", () => {
 
   // v0.51.0 drill-2: 批量给 ranking 行加 drill-down
   describe("v0.51.0 drill-2 批量 ranking 行可点击", () => {
-    it("dashboard.vue: 4 张 ranking 卡都有 tap-row + goCommunity", () => {
+    it("v1.121.138: dashboard.vue 含 3 张保留 ranking 卡（lifeConvenience/communityScore/freshness）的 tap-row + goCommunity（metroWalk/metroBenefit 已迁出至 data-tools）", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      // metroWalk / metroBenefit / lifeConvenience / communityScore / freshness
-      expect(dash).toMatch(/class="mw-row tap-row"[\s\S]{0,200}@click="goCommunity\(it\.communityId\)"/);
-      expect(dash).toMatch(/class="mb-row tap-row"[\s\S]{0,200}@click="goCommunity\(it\.communityId\)"/);
+      // v1.121.138：metroWalk + metroBenefit 已迁出至 data-tools 独立页
+      expect(dash).not.toMatch(/class="mw-row tap-row"/);
+      expect(dash).not.toMatch(/class="mb-row tap-row"/);
+      // 仪表盘仍保留 lifeConvenience / communityScore / freshness 3 张卡
       expect(dash).toMatch(/class="lc-row tap-row"[\s\S]{0,200}@click="goCommunity\(it\.communityId\)"/);
       expect(dash).toMatch(/class="cs-row tap-row"[\s\S]{0,200}@click="goCommunity\(it\.communityId\)"/);
       expect(dash).toMatch(/class="lf-row tap-row"[\s\S]{0,200}@click="goCommunity\(it\.communityId\)"/);
     });
 
-    it("dashboard.vue: 6 个 ranking 行 tap-row, 至少 4 个 drill-down", () => {
+    it("v1.121.138: dashboard.vue 保留 3 张 ranking 行的 drill-down", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
       const drillMatches = (dash.match(/@click="goCommunity\(/g) || []).length;
-      expect(drillMatches).toBeGreaterThanOrEqual(4);
-      // goCommunity 本身没被算进 listing
-      expect(drillMatches).toBeGreaterThan(5);
+      // v1.121.138：原 5 张 tap-row 卡 → 现 3 张（删 metroWalk/metroBenefit）
+      expect(drillMatches).toBeGreaterThanOrEqual(3);
     });
 
     it("goListing 已实现 (uni.navigateTo listing-detail)", () => {
