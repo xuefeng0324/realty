@@ -1014,9 +1014,11 @@
         </view>
       </view>
 
-      <view v-if="nbsMacro" class="card macro-card" data-tab="overview,price">
+      <!-- 官方宏观对照：全国 / 广东分组；≠城市挂牌·网签均价 -->
+      <view v-if="nbsMacro" class="card macro-card" data-tab="overview,price" data-nbs-macro>
+        <view class="macro-kicker">全国 · 官方累计</view>
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">全国房地产开发与销售</view>
+          <view class="card-title" style="margin-bottom: 0">房地产开发与销售</view>
           <view class="muted" style="font-size: 22rpx">{{ nbsMacro.publishDate }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
@@ -1036,22 +1038,22 @@
             <text class="cell-sub" :class="macroTrendClass(nbsMacro.salesAreaYoyPct)">同比 {{ formatMacroPct(nbsMacro.salesAreaYoyPct) }}</text>
           </view>
           <view class="stats70-cell">
-            <text class="cell-label">商品房待售面积</text>
+            <text class="cell-label">商品房待售</text>
             <text class="cell-value">{{ formatMacroArea(nbsMacro.inventoryArea10kSqm) }}</text>
             <text class="cell-sub" :class="macroTrendClass(nbsMacro.inventoryAreaYoyPct)">同比 {{ formatMacroPct(nbsMacro.inventoryAreaYoyPct) }}</text>
           </view>
         </view>
-        <view v-if="nbsImpliedUnitPrice != null" class="rank-row" style="margin-top: 12rpx">
-          <text class="muted" style="font-size: 22rpx">全国合同均价（销售额÷面积）</text>
+        <view v-if="nbsImpliedUnitPrice != null" class="rank-row macro-derived" style="margin-top: 12rpx">
+          <text class="muted" style="font-size: 22rpx">派生合同均价</text>
           <text class="rank-val">
             {{ nbsImpliedUnitPrice.toLocaleString() }} 元/㎡
             <template v-if="nbsImpliedInventoryMonths != null">
-              · 粗算可售约 {{ nbsImpliedInventoryMonths }} 个月
+              · 粗算可售 {{ nbsImpliedInventoryMonths }} 月
             </template>
           </text>
         </view>
-        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
-          国家统计局累计口径：{{ nbsMacro.period.replace("_to_", " 至 ") }}。销售面积和销售额为新建商品房合同口径；上方均价为销售额÷面积派生值；可售月数 = 待售面积÷（累计销售面积/月数），不是城市去化周期，也不是 70 城价格指数。
+        <view class="macro-note">
+          {{ nbsMacro.period.replace("_to_", "–") }} 累计 · 国家统计局 · 非城市均价 / 非70城
         </view>
         <button
           v-if="nbsHasSeriesDetail"
@@ -1061,41 +1063,41 @@
           :aria-expanded="nbsSeriesExpanded"
           @click="nbsSeriesExpanded = !nbsSeriesExpanded"
         >
-          {{ nbsSeriesExpanded ? "收起多期序列" : "展开多期序列" }}
+          {{ nbsSeriesExpanded ? "收起多期" : "多期序列" }}
         </button>
         <template v-if="nbsSeriesExpanded">
-          <view v-if="nbsUnitPriceTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-nbs-series-detail>
-            合同均价（多期，累计口径勿直接环比）：
+          <view v-if="nbsUnitPriceTrend.length > 1" class="macro-series" data-nbs-series-detail>
+            均价
             <text v-for="(p, i) in nbsUnitPriceTrend" :key="'up-' + p.period">
               {{ p.shortLabel }} {{ p.unitPriceYuanPerSqm.toLocaleString() }}<text v-if="i < nbsUnitPriceTrend.length - 1"> · </text>
             </text>
           </view>
-          <view v-if="nbsInventoryMonthsTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-nbs-series-detail>
-            粗算可售月数（多期，累计口径勿直接环比）：
+          <view v-if="nbsInventoryMonthsTrend.length > 1" class="macro-series" data-nbs-series-detail>
+            可售月
             <text v-for="(p, i) in nbsInventoryMonthsTrend" :key="'im-' + p.period">
-              {{ p.shortLabel }} {{ p.inventoryMonths }}月<template v-if="i < nbsInventoryMonthsTrend.length - 1"> · </template>
+              {{ p.shortLabel }} {{ p.inventoryMonths }}<text v-if="i < nbsInventoryMonthsTrend.length - 1"> · </text>
             </text>
           </view>
-          <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-nbs-series-detail>
-            销售面积同比（多期）：
+          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
+            面积同比
             <text v-for="(p, i) in nbsYoyTrend" :key="p.period">
               {{ p.shortLabel }} {{ formatMacroPct(p.salesAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
             </text>
           </view>
-          <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-nbs-series-detail>
-            销售额同比（多期）：
+          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
+            销售额同比
             <text v-for="(p, i) in nbsYoyTrend" :key="'sa-' + p.period">
               {{ p.shortLabel }} {{ formatMacroPct(p.salesAmountYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
             </text>
           </view>
-          <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-nbs-series-detail>
-            开发投资同比（多期）：
+          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
+            投资同比
             <text v-for="(p, i) in nbsYoyTrend" :key="'inv-' + p.period">
               {{ p.shortLabel }} {{ formatMacroPct(p.investmentYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
             </text>
           </view>
-          <view v-if="nbsYoyTrend.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-nbs-series-detail>
-            到位资金同比（多期）：
+          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
+            资金同比
             <text v-for="(p, i) in nbsYoyTrend" :key="'fund-' + p.period">
               {{ p.shortLabel }} {{ formatMacroPct(p.fundsYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
             </text>
@@ -1104,8 +1106,9 @@
       </view>
 
       <view v-if="gdRealEstateBrief" class="card macro-card" data-tab="overview,price" data-gd-real-estate-brief>
+        <view class="macro-kicker">广东 · 房地产</view>
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">广东房地产市场运行</view>
+          <view class="card-title" style="margin-bottom: 0">市场运行简况</view>
           <view class="muted" style="font-size: 22rpx">{{ gdRealEstateBrief.periodLabel }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
@@ -1136,13 +1139,12 @@
             <text class="cell-sub muted">投资 {{ gdRealEstateBrief.prInvestmentYi.toLocaleString() }} 亿</text>
           </view>
         </view>
-        <view v-if="gdBriefUnitPrice != null" class="rank-row" style="margin-top: 12rpx">
-          <text class="muted" style="font-size: 22rpx">全省合同均价（销售额÷面积）</text>
+        <view v-if="gdBriefUnitPrice != null" class="rank-row macro-derived" style="margin-top: 12rpx">
+          <text class="muted" style="font-size: 22rpx">派生合同均价</text>
           <text class="rank-val">{{ gdBriefUnitPrice.toLocaleString() }} 元/㎡</text>
         </view>
-        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
-          {{ gdRealEstateBrief.sourceOrg }} · {{ gdRealEstateBrief.publishDate || gdRealEstateBrief.periodLabel }}。
-          全省累计合同口径；均价为派生值；≠城市挂牌/网签均价、≠70城指数。
+        <view class="macro-note">
+          {{ gdRealEstateBrief.sourceOrg }} · {{ gdRealEstateBrief.publishDate || gdRealEstateBrief.periodLabel }} · 全省合同累计 · 非挂牌/网签
         </view>
         <button
           v-if="gdBriefTrend.length > 1"
@@ -1152,23 +1154,23 @@
           :aria-expanded="gdBriefSeriesExpanded"
           @click="gdBriefSeriesExpanded = !gdBriefSeriesExpanded"
         >
-          {{ gdBriefSeriesExpanded ? "收起多期序列" : "展开多期序列" }}
+          {{ gdBriefSeriesExpanded ? "收起多期" : "多期序列" }}
         </button>
         <template v-if="gdBriefSeriesExpanded">
-          <view class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-gd-brief-series-detail>
-            销售面积同比（累计口径勿直接环比）：
+          <view class="macro-series" data-gd-brief-series-detail>
+            面积同比
             <text v-for="(p, i) in gdBriefTrend" :key="'gd-a-' + p.period">
               {{ p.periodLabel }} {{ formatMacroPct(p.salesAreaYoyPct) }}<text v-if="i < gdBriefTrend.length - 1"> · </text>
             </text>
           </view>
-          <view class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-gd-brief-series-detail>
-            销售额同比：
+          <view class="macro-series" data-gd-brief-series-detail>
+            销售额同比
             <text v-for="(p, i) in gdBriefTrend" :key="'gd-s-' + p.period">
               {{ p.periodLabel }} {{ formatMacroPct(p.salesAmountYoyPct) }}<text v-if="i < gdBriefTrend.length - 1"> · </text>
             </text>
           </view>
-          <view class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-gd-brief-series-detail>
-            开发投资同比：
+          <view class="macro-series" data-gd-brief-series-detail>
+            投资同比
             <text v-for="(p, i) in gdBriefTrend" :key="'gd-i-' + p.period">
               {{ p.periodLabel }} {{ formatMacroPct(p.investmentYoyPct) }}<text v-if="i < gdBriefTrend.length - 1"> · </text>
             </text>
@@ -1177,8 +1179,9 @@
       </view>
 
       <view v-if="gdEconomy" class="card macro-card" data-tab="overview,price" data-gd-economy>
+        <view class="macro-kicker">广东 · 宏观经济</view>
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">广东经济运行</view>
+          <view class="card-title" style="margin-bottom: 0">经济运行</view>
           <view class="muted" style="font-size: 22rpx">{{ gdEconomy.periodLabel }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
@@ -1212,50 +1215,48 @@
             </text>
           </view>
         </view>
-        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
-          {{ gdEconomy.sourceOrg }} · {{ gdEconomy.publishDate || gdEconomy.periodLabel }}。
-          不变价 GDP；房开投资≠房价均价；人均可支配收入为全省住户调查口径；月度无 GDP 的简况不入库。
-          <template v-if="gdEconomy.urbanDisposableYuan > 0">
-            城镇 {{ formatMacroYuan(gdEconomy.urbanDisposableYuan) }}（{{ formatMacroPct(gdEconomy.urbanNominalYoyPct) }}）
-            · 农村 {{ formatMacroYuan(gdEconomy.ruralDisposableYuan) }}（{{ formatMacroPct(gdEconomy.ruralNominalYoyPct) }}）；
-            CPI {{ formatMacroPct(gdEconomy.cpiYoyPct) }}。
-          </template>
-          <template v-if="gdEconomyPopulation">
-            {{ gdEconomyPopulation.periodLabel }}末常住人口
-            {{ gdEconomyPopulation.permanentPopWan.toLocaleString() }} 万人
-            （{{ gdEconomyPopulation.permanentPopDeltaWan > 0 ? "+" : "" }}{{ gdEconomyPopulation.permanentPopDeltaWan }}）
-            · 城镇化率 {{ gdEconomyPopulation.urbanizationRatePct }}%
-            <template v-if="gdEconomyPopulation.urbanizationRatePp">
-              （+{{ gdEconomyPopulation.urbanizationRatePp }} pct）
-            </template>
-            。
-          </template>
+        <view class="macro-note">
+          {{ gdEconomy.sourceOrg }} · {{ gdEconomy.publishDate || gdEconomy.periodLabel }} · 不变价 GDP · 非房价
         </view>
         <button
-          v-if="gdEconomyTrend.length > 1"
+          v-if="gdEconomyHasDetail"
           class="gz-inventory-toggle"
           size="mini"
           data-gd-economy-series-toggle
           :aria-expanded="gdEconomySeriesExpanded"
           @click="gdEconomySeriesExpanded = !gdEconomySeriesExpanded"
         >
-          {{ gdEconomySeriesExpanded ? "收起多期序列" : "展开多期序列" }}
+          {{ gdEconomySeriesExpanded ? "收起细节" : "城乡·人口·多期" }}
         </button>
         <template v-if="gdEconomySeriesExpanded">
-          <view class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-gd-economy-series-detail>
-            GDP 同比（累计口径勿直接环比）：
+          <view v-if="gdEconomy.urbanDisposableYuan > 0" class="macro-series">
+            城镇 {{ formatMacroYuan(gdEconomy.urbanDisposableYuan) }}（{{ formatMacroPct(gdEconomy.urbanNominalYoyPct) }}）
+            · 农村 {{ formatMacroYuan(gdEconomy.ruralDisposableYuan) }}（{{ formatMacroPct(gdEconomy.ruralNominalYoyPct) }}）
+            · CPI {{ formatMacroPct(gdEconomy.cpiYoyPct) }}
+          </view>
+          <view v-if="gdEconomyPopulation" class="macro-series">
+            {{ gdEconomyPopulation.periodLabel }}末常住
+            {{ gdEconomyPopulation.permanentPopWan.toLocaleString() }} 万人
+            （{{ gdEconomyPopulation.permanentPopDeltaWan > 0 ? "+" : "" }}{{ gdEconomyPopulation.permanentPopDeltaWan }}）
+            · 城镇化 {{ gdEconomyPopulation.urbanizationRatePct }}%
+            <template v-if="gdEconomyPopulation.urbanizationRatePp">
+              （+{{ gdEconomyPopulation.urbanizationRatePp }} pct）
+            </template>
+          </view>
+          <view v-if="gdEconomyTrend.length > 1" class="macro-series" data-gd-economy-series-detail>
+            GDP 同比
             <text v-for="(p, i) in gdEconomyTrend" :key="'econ-' + p.period">
               {{ p.periodLabel }} {{ formatMacroPct(p.gdpYoyPct) }}<text v-if="i < gdEconomyTrend.length - 1"> · </text>
             </text>
           </view>
-          <view class="muted" style="margin-top: 6rpx; font-size: 22rpx">
-            房开投资同比：
+          <view v-if="gdEconomyTrend.length > 1" class="macro-series">
+            房开同比
             <text v-for="(p, i) in gdEconomyTrend" :key="'econ-re-' + p.period">
               {{ p.periodLabel }} {{ formatMacroPct(p.reInvestmentYoyPct) }}<text v-if="i < gdEconomyTrend.length - 1"> · </text>
             </text>
           </view>
-          <view class="muted" style="margin-top: 6rpx; font-size: 22rpx">
-            人均可支配收入名义同比：
+          <view v-if="gdEconomyTrend.length > 1" class="macro-series">
+            收入名义同比
             <text v-for="(p, i) in gdEconomyTrend" :key="'econ-disp-' + p.period">
               {{ p.periodLabel }} {{ formatMacroPct(p.disposableNominalYoyPct) }}<text v-if="i < gdEconomyTrend.length - 1"> · </text>
             </text>
@@ -1264,8 +1265,9 @@
       </view>
 
       <view v-if="gdFaInvestment" class="card macro-card" data-tab="overview,price" data-gd-fa-investment>
+        <view class="macro-kicker">广东 · 投资结构</view>
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">广东固定资产投资</view>
+          <view class="card-title" style="margin-bottom: 0">固定资产投资</view>
           <view class="muted" style="font-size: 22rpx">{{ gdFaInvestment.periodLabel }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
@@ -1274,7 +1276,7 @@
             <text class="cell-value" :class="macroTrendClass(gdFaInvestment.faYoyPct)">
               {{ formatMacroPct(gdFaInvestment.faYoyPct) }}
             </text>
-            <text class="cell-sub muted">名义增速 · 不含农户</text>
+            <text class="cell-sub muted">名义 · 不含农户</text>
           </view>
           <view class="stats70-cell">
             <text class="cell-label">工业投资同比</text>
@@ -1298,9 +1300,8 @@
             <text class="cell-sub muted">粤东 {{ formatMacroPct(gdFaInvestment.eastYoyPct) }}</text>
           </view>
         </view>
-        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
-          {{ gdFaInvestment.sourceOrg }} · {{ gdFaInvestment.publishDate || gdFaInvestment.periodLabel }}。
-          官方简况多为同比、无绝对额；含全部房地产开发项目投资，≠城市挂牌/网签均价。
+        <view class="macro-note">
+          {{ gdFaInvestment.sourceOrg }} · {{ gdFaInvestment.publishDate || gdFaInvestment.periodLabel }} · 同比为主 · 含房开投资
         </view>
         <button
           v-if="gdFaTrend.length > 1"
@@ -1310,11 +1311,11 @@
           :aria-expanded="gdFaSeriesExpanded"
           @click="gdFaSeriesExpanded = !gdFaSeriesExpanded"
         >
-          {{ gdFaSeriesExpanded ? "收起多期序列" : "展开多期序列" }}
+          {{ gdFaSeriesExpanded ? "收起多期" : "多期序列" }}
         </button>
         <template v-if="gdFaSeriesExpanded">
-          <view class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-gd-fa-series-detail>
-            固投同比（累计口径勿直接环比）：
+          <view class="macro-series" data-gd-fa-series-detail>
+            固投同比
             <text v-for="(p, i) in gdFaTrend" :key="'fa-' + p.period">
               {{ p.periodLabel }} {{ formatMacroPct(p.faYoyPct) }}<text v-if="i < gdFaTrend.length - 1"> · </text>
             </text>
@@ -1323,8 +1324,9 @@
       </view>
 
       <view v-if="gdConstruction" class="card macro-card" data-tab="overview,price" data-gd-construction>
+        <view class="macro-kicker">广东 · 施工产值</view>
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">广东建筑业生产运行</view>
+          <view class="card-title" style="margin-bottom: 0">建筑业生产运行</view>
           <view class="muted" style="font-size: 22rpx">{{ gdConstruction.periodLabel }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
@@ -1336,7 +1338,7 @@
             </text>
           </view>
           <view class="stats70-cell">
-            <text class="cell-label">房屋建筑业产值</text>
+            <text class="cell-label">房屋建筑业</text>
             <text class="cell-value">{{ formatMacro100m(gdConstruction.housingOutputYi) }}</text>
             <text class="cell-sub" :class="macroTrendClass(gdConstruction.housingOutputYoyPct)">
               同比 {{ formatMacroPct(gdConstruction.housingOutputYoyPct) }}
@@ -1346,23 +1348,22 @@
             </text>
           </view>
           <view class="stats70-cell">
-            <text class="cell-label">土木工程产值</text>
+            <text class="cell-label">土木工程</text>
             <text class="cell-value">{{ formatMacro100m(gdConstruction.civilOutputYi) }}</text>
             <text class="cell-sub" :class="macroTrendClass(gdConstruction.civilOutputYoyPct)">
               同比 {{ formatMacroPct(gdConstruction.civilOutputYoyPct) }}
             </text>
           </view>
           <view class="stats70-cell">
-            <text class="cell-label">珠三角总产值</text>
+            <text class="cell-label">珠三角产值</text>
             <text class="cell-value">{{ formatMacro100m(gdConstruction.prOutputYi) }}</text>
             <text class="cell-sub" :class="macroTrendClass(gdConstruction.prOutputYoyPct)">
               同比 {{ formatMacroPct(gdConstruction.prOutputYoyPct) }}
             </text>
           </view>
         </view>
-        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
-          {{ gdConstruction.sourceOrg }} · {{ gdConstruction.publishDate || gdConstruction.periodLabel }}。
-          资质建筑业企业产值口径；房屋建筑业 ≠ 商品房销售/挂牌均价。
+        <view class="macro-note">
+          {{ gdConstruction.sourceOrg }} · {{ gdConstruction.publishDate || gdConstruction.periodLabel }} · 资质企业产值 ≠ 商品房成交
         </view>
         <button
           v-if="gdConstructionTrend.length > 1"
@@ -1372,17 +1373,17 @@
           :aria-expanded="gdConstructionSeriesExpanded"
           @click="gdConstructionSeriesExpanded = !gdConstructionSeriesExpanded"
         >
-          {{ gdConstructionSeriesExpanded ? "收起多期序列" : "展开多期序列" }}
+          {{ gdConstructionSeriesExpanded ? "收起多期" : "多期序列" }}
         </button>
         <template v-if="gdConstructionSeriesExpanded">
-          <view class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-gd-construction-series-detail>
-            总产值同比：
+          <view class="macro-series" data-gd-construction-series-detail>
+            总产值同比
             <text v-for="(p, i) in gdConstructionTrend" :key="'gc-' + p.period">
               {{ p.periodLabel }} {{ formatMacroPct(p.totalOutputYoyPct) }}<text v-if="i < gdConstructionTrend.length - 1"> · </text>
             </text>
           </view>
-          <view class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-gd-construction-series-detail>
-            房屋建筑业同比：
+          <view class="macro-series" data-gd-construction-series-detail>
+            房屋建筑业同比
             <text v-for="(p, i) in gdConstructionTrend" :key="'gh-' + p.period">
               {{ p.periodLabel }} {{ formatMacroPct(p.housingOutputYoyPct) }}<text v-if="i < gdConstructionTrend.length - 1"> · </text>
             </text>
@@ -8089,6 +8090,15 @@ const gdConstructionHousingShare = computed(() => gdHousingSharePct(gdConstructi
 const gdEconomy = computed<GdEconomyRow | null>(() => getLatestGdEconomy());
 const gdEconomyTrend = computed(() => getGdEconomyTrend(6));
 const gdEconomyPopulation = computed<GdEconomyRow | null>(() => getLatestGdEconomyPopulation());
+const gdEconomyHasDetail = computed(() => {
+  const e = gdEconomy.value;
+  if (!e) return false;
+  return (
+    gdEconomyTrend.value.length > 1 ||
+    e.urbanDisposableYuan > 0 ||
+    !!gdEconomyPopulation.value
+  );
+});
 const gzProvidentAnnual = computed<GzProvidentAnnualRow | null>(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   return city === "广州" ? getLatestGzProvidentAnnual() : null;
@@ -10673,6 +10683,31 @@ onShow(async () => {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-top: 16rpx;
   gap: 8rpx;
+}
+
+.macro-kicker {
+  font-size: 20rpx;
+  color: var(--color-muted, #888);
+  letter-spacing: 0.06em;
+  margin-bottom: 6rpx;
+}
+.macro-note {
+  margin-top: 10rpx;
+  font-size: 20rpx;
+  line-height: 1.45;
+  color: var(--color-muted, #888);
+}
+.macro-series {
+  margin-top: 8rpx;
+  font-size: 21rpx;
+  line-height: 1.5;
+  color: var(--color-muted, #888);
+}
+.macro-derived .rank-val {
+  font-size: 26rpx;
+}
+.macro-card .gz-inventory-toggle {
+  margin-top: 8rpx;
 }
 
 .today-grid {

@@ -42,6 +42,8 @@ describe("gd economy", () => {
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     expect(dash).toContain("getLatestGdEconomyPopulation");
     expect(dash).toContain("data-gd-economy");
+    expect(dash).toContain("macro-kicker");
+    expect(dash).toContain("广东 · 宏观经济");
   });
 
   it("CSV 解析", () => {
