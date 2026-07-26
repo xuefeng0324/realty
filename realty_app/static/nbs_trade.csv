@@ -1,0 +1,6 @@
+month,publish_date,total_month_yi,total_month_yoy_pct,export_month_yi,export_month_yoy_pct,import_month_yi,import_month_yoy_pct,surplus_month_yi,total_cum_yi,total_cum_yoy_pct,export_cum_yi,export_cum_yoy_pct,import_cum_yi,import_cum_yoy_pct,surplus_cum_yi,source_url
+2026-06,2026-07-15,47823,24.2,28207,20.8,19616,29.4,8591,254686,16.9,147314,13.4,107372,22.1,39942,https://www.stats.gov.cn/sj/zxfb/202607/t20260715_1964121.html
+2026-05,2026-06-16,44516,16.9,25878,13.8,18638,21.5,7240,206827,15.3,119137,11.8,87691,20.5,31446,https://www.stats.gov.cn/sj/zxfbhjd/202606/t20260616_1963954.html
+2026-04,2026-05-18,43778,14.2,24817,9.8,18960,20.6,5857,162252,14.9,93280,11.3,68972,20,24308,https://www.stats.gov.cn/sj/zxfb/202605/t20260518_1963732.html
+2026-03,2026-04-16,41046,9.2,22297,-0.7,18749,23.8,3548,118380,15,68467,11.9,49913,19.6,18554,https://www.stats.gov.cn/sj/zxfb/202604/t20260416_1963330.html
+2026-02,2026-03-16,,,,,,,,77321,18.3,46178,19.2,31143,17.1,15035,https://www.stats.gov.cn/sj/zxfb/202603/t20260316_1962780.html
