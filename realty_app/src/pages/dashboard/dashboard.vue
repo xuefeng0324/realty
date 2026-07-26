@@ -789,6 +789,71 @@
         </view>
       </view>
 
+      <!-- 回购定盘利率 FR/FDR（≠房价） -->
+      <view v-if="repoFixingLatest" class="card" data-repo-fixing data-tab="overview,price">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🔁 回购定盘利率</view>
+          <view class="muted" style="font-size: 22rpx">{{ repoFixingLatest.date }}</view>
+        </view>
+        <view class="trend-summary" style="margin-top: 12rpx">
+          <view class="trend-cell">
+            <text class="cell-label">FR007</text>
+            <text class="cell-value">{{ repoFixingLatest.fr007.toFixed(2) }}%</text>
+            <text
+              v-if="repoFixingDelta"
+              class="cell-sub"
+              :class="rateDeltaClass(repoFixingDelta.fr007DeltaPp)"
+            >
+              较上日 {{ repoFixingDelta.fr007DeltaPp > 0 ? "+" : "" }}{{ repoFixingDelta.fr007DeltaPp }} pp
+            </text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">FDR007</text>
+            <text class="cell-value">{{ repoFixingLatest.fdr007.toFixed(2) }}%</text>
+            <text
+              v-if="repoFixingDelta"
+              class="cell-sub"
+              :class="rateDeltaClass(repoFixingDelta.fdr007DeltaPp)"
+            >
+              较上日 {{ repoFixingDelta.fdr007DeltaPp > 0 ? "+" : "" }}{{ repoFixingDelta.fdr007DeltaPp }} pp
+            </text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">FR001</text>
+            <text class="cell-value">{{ repoFixingLatest.fr001.toFixed(2) }}%</text>
+            <text class="cell-sub muted">隔夜定盘</text>
+          </view>
+        </view>
+        <view class="trend-summary" style="margin-top: 8rpx">
+          <view class="trend-cell">
+            <text class="cell-label">FDR001</text>
+            <text class="cell-value" style="font-size: 28rpx">{{ repoFixingLatest.fdr001.toFixed(2) }}%</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">FR014</text>
+            <text class="cell-value" style="font-size: 28rpx">{{ repoFixingLatest.fr014.toFixed(2) }}%</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">FDR014</text>
+            <text class="cell-value" style="font-size: 28rpx">{{ repoFixingLatest.fdr014.toFixed(2) }}%</text>
+          </view>
+        </view>
+        <view
+          v-for="row in repoFixingRecent.slice(0, 3)"
+          :key="'repo-fix-' + row.date"
+          class="rank-row"
+          style="margin-top: 6rpx"
+        >
+          <text class="muted" style="font-size: 22rpx">{{ row.date }}</text>
+          <text class="rank-val">
+            FR007 {{ row.fr007.toFixed(2) }}% · FDR007 {{ row.fdr007.toFixed(2) }}%
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：中国货币网「回购定盘利率」。FR 为回购定盘，FDR 为银银间回购定盘（基于 DR 加权成交）；≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数；可与 Shibor / 逆回购对照。
+        </view>
+      </view>
+
       <!-- 央行金融统计（社融/M2/住户贷款；≠房价） -->
       <view v-if="pbcFinLatest" class="card" data-pbc-fin-stats data-tab="overview,price">
         <view class="row-between">
@@ -8408,6 +8473,12 @@ import {
   type ShiborRow
 } from "../../local/shibor";
 import {
+  getLatestRepoFixing,
+  getRepoFixingDeltaVsPrev,
+  getRepoFixingHistory,
+  type RepoFixingRow
+} from "../../local/repoFixing";
+import {
   getLatestPbcFinStats,
   getPbcFinStats,
   getPbcFinStatsDeltaVsPrev,
@@ -12164,6 +12235,9 @@ const chinabondYieldRecent = computed<ChinaBondYieldRow[]>(() => getChinaBondYie
 const shiborLatest = computed(() => getLatestShibor());
 const shiborDelta = computed(() => getShiborDeltaVsPrev());
 const shiborRecent = computed<ShiborRow[]>(() => getShiborHistory().slice(0, 5));
+const repoFixingLatest = computed(() => getLatestRepoFixing());
+const repoFixingDelta = computed(() => getRepoFixingDeltaVsPrev());
+const repoFixingRecent = computed<RepoFixingRow[]>(() => getRepoFixingHistory().slice(0, 5));
 const pbcFinLatest = computed(() => getLatestPbcFinStats());
 const pbcFinDelta = computed(() => getPbcFinStatsDeltaVsPrev());
 const pbcFinRecent = computed<PbcFinStatsRow[]>(() => getPbcFinStats().slice(0, 5));
