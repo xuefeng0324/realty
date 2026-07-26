@@ -2,11 +2,19 @@ import { parseCSV, rowsToObjects } from "./csv";
 // @ts-ignore
 import rawCsv from "../../static/seed/safe_usd_mid.csv?raw";
 
-/** 外管局人民币对美元中间价（日度）；≠房价/挂牌/网签/70城 */
+/** 外管局人民币汇率中间价（日度；含美元/欧元/港元等）；≠房价/挂牌/网签/70城 */
 export interface SafeUsdMidRow {
   date: string;
   usdCny: number;
   usdPer100: number;
+  /** 100 欧元折合人民币（官网原标价） */
+  eurPer100: number;
+  /** 100 日元折合人民币 */
+  jpyPer100: number;
+  /** 100 港元折合人民币 */
+  hkdPer100: number;
+  /** 100 英镑折合人民币 */
+  gbpPer100: number;
   sourceUrl: string;
 }
 
@@ -23,6 +31,10 @@ function mapRow(row: Record<string, string>): SafeUsdMidRow {
     date: String(row.date ?? "").trim(),
     usdCny,
     usdPer100: usdPer100 || usdCny * 100,
+    eurPer100: n(row.eur_per100),
+    jpyPer100: n(row.jpy_per100),
+    hkdPer100: n(row.hkd_per100),
+    gbpPer100: n(row.gbp_per100),
     sourceUrl: String(row.source_url ?? "").trim()
   };
 }
@@ -52,6 +64,17 @@ export function getSafeUsdMidDeltaVsPrev(): {
   const cur = rows[0]!;
   const prev = rows[1]!;
   return { prev, delta: Math.round((cur.usdCny - prev.usdCny) * 10000) / 10000 };
+}
+
+/** 任意币种较上日变动（官网 100 外币标价） */
+export function getSafeFxMidDelta(
+  key: "eurPer100" | "hkdPer100" | "jpyPer100" | "gbpPer100"
+): { prev: number; delta: number } | null {
+  if (rows.length < 2) return null;
+  const cur = rows[0]![key];
+  const prev = rows[1]![key];
+  if (!(cur > 0 && prev > 0)) return null;
+  return { prev, delta: Math.round((cur - prev) * 10000) / 10000 };
 }
 
 /** 最近一个月交易日简单算术平均（按最新日期所在自然月） */

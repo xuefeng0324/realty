@@ -1011,10 +1011,10 @@
         </view>
       </view>
 
-      <!-- 外管局人民币对美元中间价（日度；≠房价） -->
+      <!-- 外管局人民币汇率中间价（日度；≠房价） -->
       <view v-if="safeUsdMidLatest" class="card" data-safe-usd-mid data-tab="overview,price">
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">💱 美元中间价</view>
+          <view class="card-title" style="margin-bottom: 0">💱 汇率中间价</view>
           <view class="muted" style="font-size: 22rpx">{{ safeUsdMidLatest.date }}</view>
         </view>
         <view class="trend-summary" style="margin-top: 12rpx">
@@ -1030,12 +1030,49 @@
             </text>
           </view>
           <view class="trend-cell">
+            <text class="cell-label">100 欧元</text>
+            <text class="cell-value">
+              {{ safeUsdMidLatest.eurPer100 ? safeUsdMidLatest.eurPer100.toFixed(2) : "—" }}
+            </text>
+            <text
+              v-if="safeEurMidDelta"
+              class="cell-sub"
+              :class="rateDeltaClass(safeEurMidDelta.delta)"
+            >
+              较上日 {{ safeEurMidDelta.delta > 0 ? "+" : "" }}{{ safeEurMidDelta.delta.toFixed(2) }}
+            </text>
+            <text v-else class="cell-sub muted">官网原标价</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">100 港元</text>
+            <text class="cell-value">
+              {{ safeUsdMidLatest.hkdPer100 ? safeUsdMidLatest.hkdPer100.toFixed(3) : "—" }}
+            </text>
+            <text
+              v-if="safeHkdMidDelta"
+              class="cell-sub"
+              :class="rateDeltaClass(safeHkdMidDelta.delta)"
+            >
+              较上日 {{ safeHkdMidDelta.delta > 0 ? "+" : "" }}{{ safeHkdMidDelta.delta.toFixed(3) }}
+            </text>
+            <text v-else class="cell-sub muted">官网原标价</text>
+          </view>
+        </view>
+        <view class="trend-summary" style="margin-top: 8rpx">
+          <view class="trend-cell">
             <text class="cell-label">100 美元</text>
             <text class="cell-value">{{ safeUsdMidLatest.usdPer100.toFixed(2) }}</text>
             <text class="cell-sub muted">官网原标价</text>
           </view>
           <view class="trend-cell">
-            <text class="cell-label">本月均价</text>
+            <text class="cell-label">100 日元</text>
+            <text class="cell-value">
+              {{ safeUsdMidLatest.jpyPer100 ? safeUsdMidLatest.jpyPer100.toFixed(4) : "—" }}
+            </text>
+            <text class="cell-sub muted">官网原标价</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">本月美元均价</text>
             <text class="cell-value">
               {{ safeUsdMidMonthAvg ? safeUsdMidMonthAvg.avg.toFixed(4) : "—" }}
             </text>
@@ -1051,7 +1088,11 @@
           style="margin-top: 6rpx"
         >
           <text class="muted" style="font-size: 22rpx">{{ row.date }}</text>
-          <text class="rank-val">{{ row.usdCny.toFixed(4) }}</text>
+          <text class="rank-val" style="font-size: 22rpx">
+            美 {{ row.usdCny.toFixed(4) }}
+            <text v-if="row.eurPer100" class="muted"> · 欧 {{ row.eurPer100.toFixed(1) }}</text>
+            <text v-if="row.hkdPer100" class="muted"> · 港 {{ row.hkdPer100.toFixed(2) }}</text>
+          </text>
         </view>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
           来源：国家外汇管理局人民币汇率中间价查询（中国外汇交易中心受权公布）。中间价 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数；可与金融统计月末汇率字段对照。
@@ -7750,6 +7791,7 @@ import {
   getLatestSafeUsdMid,
   getSafeUsdMid,
   getSafeUsdMidDeltaVsPrev,
+  getSafeFxMidDelta,
   getSafeUsdMidMonthAverage,
   type SafeUsdMidRow
 } from "../../local/safeUsdMid";
@@ -11412,6 +11454,8 @@ const safeFxMarketDelta = computed(() => getSafeFxMarketDeltaVsPrev());
 const safeFxMarketRecent = computed<SafeFxMarketRow[]>(() => getSafeFxMarket().slice(0, 5));
 const safeUsdMidLatest = computed(() => getLatestSafeUsdMid());
 const safeUsdMidDelta = computed(() => getSafeUsdMidDeltaVsPrev());
+const safeEurMidDelta = computed(() => getSafeFxMidDelta("eurPer100"));
+const safeHkdMidDelta = computed(() => getSafeFxMidDelta("hkdPer100"));
 const safeUsdMidRecent = computed<SafeUsdMidRow[]>(() => getSafeUsdMid().slice(0, 5));
 const safeUsdMidMonthAvg = computed(() => getSafeUsdMidMonthAverage(safeUsdMidLatest.value));
 const lprYearLabel = computed(() => {
