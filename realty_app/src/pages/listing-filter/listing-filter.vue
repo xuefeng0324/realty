@@ -47,7 +47,7 @@
             </view>
           </view>
           <view class="form-item">
-            <text class="form-label">挂牌类型</text>
+            <text class="form-label">房屋类型</text>
             <view class="picker-value tap" @click="pickListingType">
               {{ listingTypeLabels[listingTypeIndex] }}
               <text class="picker-caret">▾</text>
@@ -276,7 +276,7 @@
           v-if="items.length === 0"
           icon="⌂"
           title="暂无匹配房源"
-          desc="试试换关键字，或放宽面积、总价、行政区条件；下拉或点刷新也可重试。"
+          :desc="emptyFilterHint"
           action-text="重置筛选"
           @action="resetFilter"
         />
@@ -422,7 +422,7 @@ const sourceIndex = computed(() => {
   return idx >= 0 ? idx + 1 : 0;
 });
 
-const listingTypeLabels = ["全部", "在售", "成交"];
+const listingTypeLabels = ["全部", "二手房", "新房", "成交"];
 const listingTypeIndex = ref(0);
 
 // v0.37.0 trend-17: 5 维度迷你评分条
@@ -439,7 +439,7 @@ function minidimBandClass(v: number) {
   return "minidim-fill-red";
 }
 
-const decorateOptions = ["不限", "精装", "简装", "毛坯"];
+const decorateOptions = ["不限", "精装", "豪装", "普装", "简装", "毛坯"];
 const decorateIndex = ref(0);
 
 const scoreThresholds = [0, 40, 50, 60, 70, 80, 90];
@@ -466,6 +466,25 @@ const districtOptions = computed(() => {
 });
 
 const cityListingTotal = computed(() => getListingsByCity(app.cityId).length);
+
+/** 空结果时说明是哪个筛选项导致（避免「在售」字面量对不上种子「二手房」时用户以为坏了） */
+const emptyFilterHint = computed(() => {
+  const bits: string[] = [];
+  if (listingTypeIndex.value === 1) {
+    bits.push("类型=二手房");
+  } else if (listingTypeIndex.value === 2) {
+    bits.push("类型=新房");
+  } else if (listingTypeIndex.value === 3) {
+    bits.push("类型=成交（当前样本库几乎无成交套房源，请改回「全部/二手房/新房」）");
+  }
+  if (decorateIndex.value > 0) {
+    bits.push(`装修=${decorateOptions[decorateIndex.value]}`);
+  }
+  if (districtName.value) bits.push(`区=${districtName.value}`);
+  if (keyword.value.trim()) bits.push(`关键字「${keyword.value.trim()}」`);
+  const head = bits.length ? `当前条件：${bits.join(" · ")}。` : "";
+  return `${head}可点重置，或放宽总价/面积/装修；「成交」需有成交样本数据才会有结果。`;
+});
 
 const items = ref<ListingItem[]>([]);
 const total = ref(0);
@@ -561,7 +580,7 @@ function pickSource() {
 }
 
 function pickListingType() {
-  openSheet("挂牌类型", listingTypeLabels, listingTypeIndex.value, (idx) => {
+  openSheet("房屋类型", listingTypeLabels, listingTypeIndex.value, (idx) => {
     listingTypeIndex.value = idx;
     applyFilter();
   });
@@ -673,8 +692,9 @@ async function applyFilter(resetPage = true) {
     };
     if (filterCommunityId.value) body.communityId = filterCommunityId.value;
 
-    if (listingTypeIndex.value === 1) body.filters.listingType = "在售";
-    else if (listingTypeIndex.value === 2) body.filters.listingType = "成交";
+    if (listingTypeIndex.value === 1) body.filters.listingType = "二手房";
+    else if (listingTypeIndex.value === 2) body.filters.listingType = "新房";
+    else if (listingTypeIndex.value === 3) body.filters.listingType = "成交";
 
     if (decorateIndex.value > 0) body.filters.decorateType = decorateOptions[decorateIndex.value];
 

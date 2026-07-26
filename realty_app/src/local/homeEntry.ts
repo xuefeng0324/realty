@@ -128,3 +128,63 @@ export function resolveHomeSearch(mode: HomeSearchMode, raw: string): HomeSearch
 export function homeKingkongCount(): number {
   return HOME_KINGKONG.length;
 }
+
+/** 首页滚动锚点在当前城市下的可达性（库存/土地按城挂 id） */
+export type HomeScrollAvailability = {
+  hasGzInventory: boolean;
+  hasSzPlannedSupply: boolean;
+  hasGzHousingPlan: boolean;
+  hasZhAffordable: boolean;
+  hasGzLand: boolean;
+  hasSzLand: boolean;
+};
+
+export type HomeScrollResolve =
+  | { kind: "ok"; id: string }
+  | { kind: "missing"; reason: string };
+
+/**
+ * 将配置锚点解析为实际 DOM id。
+ * entry-supply / entry-land 在深圳原先只绑广州卡，导致金刚区「库存」「土地」空点。
+ */
+export function resolveHomeScrollAnchor(
+  anchor: string,
+  avail: HomeScrollAvailability
+): HomeScrollResolve {
+  if (anchor === "entry-supply") {
+    if (
+      avail.hasGzInventory ||
+      avail.hasSzPlannedSupply ||
+      avail.hasGzHousingPlan ||
+      avail.hasZhAffordable
+    ) {
+      return { kind: "ok", id: "entry-supply" };
+    }
+    return { kind: "missing", reason: "当前城市暂无库存/供应数据卡" };
+  }
+  if (anchor === "entry-land") {
+    if (avail.hasGzLand || avail.hasSzLand) {
+      return { kind: "ok", id: "entry-land" };
+    }
+    return { kind: "missing", reason: "当前城市暂无土地成交卡" };
+  }
+  return { kind: "ok", id: anchor };
+}
+
+/** 哪张卡挂 entry-supply（互斥，避免重复 id） */
+export function homeSupplyEntryOwner(
+  avail: HomeScrollAvailability
+): "gz" | "sz" | "gz-plan" | "zh" | null {
+  if (avail.hasGzInventory) return "gz";
+  if (avail.hasSzPlannedSupply) return "sz";
+  if (avail.hasGzHousingPlan) return "gz-plan";
+  if (avail.hasZhAffordable) return "zh";
+  return null;
+}
+
+/** 哪张卡挂 entry-land */
+export function homeLandEntryOwner(avail: HomeScrollAvailability): "gz" | "sz" | null {
+  if (avail.hasGzLand) return "gz";
+  if (avail.hasSzLand) return "sz";
+  return null;
+}

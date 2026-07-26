@@ -1993,7 +1993,12 @@
         </template>
       </view>
 
-      <view v-if="gzInventory" id="entry-supply" class="card gz-inventory-card" data-tab="overview,price">
+      <view
+        v-if="gzInventory"
+        :id="supplyEntryOwner === 'gz' ? 'entry-supply' : undefined"
+        class="card gz-inventory-card"
+        data-tab="overview,price"
+      >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 广州新房库存</view>
           <view class="muted" style="font-size: 22rpx">{{ gzInventoryFresh.label }}</view>
@@ -2063,7 +2068,13 @@
         </view>
       </view>
 
-      <view v-if="szPlannedSupply" class="card" data-tab="overview,price" data-sz-planned-supply>
+      <view
+        v-if="szPlannedSupply"
+        :id="supplyEntryOwner === 'sz' ? 'entry-supply' : undefined"
+        class="card"
+        data-tab="overview,price"
+        data-sz-planned-supply
+      >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 深圳计划入市</view>
           <view class="muted" style="font-size: 22rpx">{{ formatSzSupplyPeriod(szPlannedSupply) }}</view>
@@ -2099,7 +2110,13 @@
         </view>
       </view>
 
-      <view v-if="gzHousingPlan" class="card" data-tab="overview,price" data-gz-housing-plan>
+      <view
+        v-if="gzHousingPlan"
+        :id="supplyEntryOwner === 'gz-plan' ? 'entry-supply' : undefined"
+        class="card"
+        data-tab="overview,price"
+        data-gz-housing-plan
+      >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">📋 广州住房发展计划</view>
           <view class="muted" style="font-size: 22rpx">{{ gzHousingPlan.year }} 年</view>
@@ -2225,7 +2242,13 @@
         </view>
       </view>
 
-      <view v-if="gzLandSummary" id="entry-land" class="card" data-tab="overview,price" data-gz-land-deals>
+      <view
+        v-if="gzLandSummary"
+        :id="landEntryOwner === 'gz' ? 'entry-land' : undefined"
+        class="card"
+        data-tab="overview,price"
+        data-gz-land-deals
+      >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🗺️ 广州居住用地成交</view>
           <view class="muted" style="font-size: 22rpx">近 {{ gzLandSummary.count }} 宗 · {{ gzLandSummary.latestDate }}</view>
@@ -2282,7 +2305,13 @@
         </view>
       </view>
 
-      <view v-if="szLandSummary" class="card" data-tab="overview,price" data-sz-land-deals>
+      <view
+        v-if="szLandSummary"
+        :id="landEntryOwner === 'sz' ? 'entry-land' : undefined"
+        class="card"
+        data-tab="overview,price"
+        data-sz-land-deals
+      >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🗺️ 深圳居住用地（已成交）</view>
           <view class="muted" style="font-size: 22rpx">近 {{ szLandSummary.count }} 宗 · {{ szLandSummary.latestDate }}</view>
@@ -2372,7 +2401,13 @@
         </view>
       </view>
 
-      <view v-if="zhAffordable" class="card" data-tab="overview,price" data-zh-affordable-progress>
+      <view
+        v-if="zhAffordable"
+        :id="supplyEntryOwner === 'zh' ? 'entry-supply' : undefined"
+        class="card"
+        data-tab="overview,price"
+        data-zh-affordable-progress
+      >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 珠海安居工程进展</view>
           <view class="muted" style="font-size: 22rpx">
@@ -6904,7 +6939,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
@@ -7350,10 +7385,14 @@ import {
   HOME_CHANNELS,
   HOME_KINGKONG,
   HOME_SEARCH_MODES,
+  homeLandEntryOwner,
+  homeSupplyEntryOwner,
+  resolveHomeScrollAnchor,
   resolveHomeSearch,
   setPendingSchoolQuery,
   setPendingListingQuery,
   type HomeKingkongItem,
+  type HomeScrollAvailability,
   type HomeSearchMode
 } from "../../local/homeEntry";
 import { getLatestProvidentFundRate, monthlyPayment } from "../../local/providentFund";
@@ -8887,19 +8926,45 @@ const homeSearchPlaceholder = computed(
 function onHomeSearchInput(e: any) {
   homeSearchText.value = String(e?.detail?.value ?? e?.target?.value ?? "");
 }
+const homeScrollAvailability = computed<HomeScrollAvailability>(() => ({
+  hasGzInventory: !!gzInventory.value,
+  hasSzPlannedSupply: !!szPlannedSupply.value,
+  hasGzHousingPlan: !!gzHousingPlan.value,
+  hasZhAffordable: !!zhAffordable.value,
+  hasGzLand: !!gzLandSummary.value,
+  hasSzLand: !!szLandSummary.value
+}));
+const supplyEntryOwner = computed(() => homeSupplyEntryOwner(homeScrollAvailability.value));
+const landEntryOwner = computed(() => homeLandEntryOwner(homeScrollAvailability.value));
+
 function jumpHomeAnchor(anchor: string) {
-  if (typeof document !== "undefined") {
-    const el = document.getElementById(anchor);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
+  const resolved = resolveHomeScrollAnchor(anchor, homeScrollAvailability.value);
+  if (resolved.kind === "missing") {
+    showToast(resolved.reason);
+    return;
+  }
+  const target = resolved.id;
+  // 供需/土地等卡挂在 overview|price；从学校/通勤/地图 tab 点金刚区需先切回可见 tab
+  if (activeTab.value === "school" || activeTab.value === "transit" || activeTab.value === "map") {
+    activeTab.value = "overview";
+  }
+  const doScroll = () => {
+    if (typeof document !== "undefined") {
+      const el = document.getElementById(target);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      showToast("未找到对应区块");
       return;
     }
-  }
-  try {
-    uni.pageScrollTo({ selector: `#${anchor}`, duration: 280 });
-  } catch {
-    showToast("未找到对应区块");
-  }
+    uni.pageScrollTo({
+      selector: `#${target}`,
+      duration: 280,
+      fail: () => showToast("未找到对应区块")
+    });
+  };
+  nextTick(doScroll);
 }
 function submitHomeSearch() {
   const resolved = resolveHomeSearch(homeSearchMode.value, homeSearchText.value);

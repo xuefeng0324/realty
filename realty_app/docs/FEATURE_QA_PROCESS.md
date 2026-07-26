@@ -129,13 +129,17 @@ Fix：最小修复 + adversarial*.test.ts / smoke 门禁钉死错误行为
 
 | 文档 | 职责 |
 |------|------|
+| [TEST_ACCEPTANCE.md](./TEST_ACCEPTANCE.md) | **测试验收总册** + 关键路径矩阵 |
+| [FEATURES.md](./FEATURES.md) | 功能清单（用户/Agent 索引） |
 | **本文件** | 强制流程 + Bug 分类 + DoD + 对抗式找 bug |
 | [FEATURE_CATALOG.md](./FEATURE_CATALOG.md) | **全部功能**验收标准与测试流程总表 |
 | [FEATURE_ACCEPTANCE.md](./FEATURE_ACCEPTANCE.md) | 简版总则 + 专题索引 |
+| [LISTING_FILTER_ACCEPTANCE.md](./LISTING_FILTER_ACCEPTANCE.md) | 房源类型/装修筛选 |
 | 专题 `*_ACCEPTANCE.md` | 深挖某一横切能力（主题/房价/信息流…） |
 | `changelog/…` | 单次发版的验收快照与验证记录 |
 
-新增横切能力（影响多页）→ **必须**新建或扩展专题 ACCEPTANCE，并在 CATALOG 链过去。
+新增横切能力（影响多页）→ **必须**新建或扩展专题 ACCEPTANCE，并在 CATALOG 链过去。  
+会清空列表的筛选 → **必须**按 [TEST_ACCEPTANCE.md](./TEST_ACCEPTANCE.md) §3/§4 补路径与单测（禁止只测 mock 字面相等）。
 
 ---
 

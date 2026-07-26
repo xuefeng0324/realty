@@ -13,7 +13,7 @@
 
         <view class="row-gap" style="margin-top: 12rpx" v-if="latestMonth">
           <text
-            class="tag tap-target"
+            class="tag chip-btn"
             :class="kind === 'new' ? 'tag-success' : ''"
             role="button"
             tabindex="0"
@@ -23,7 +23,7 @@
             新建
           </text>
           <text
-            class="tag tap-target"
+            class="tag chip-btn"
             :class="kind === 'second' ? 'tag-success' : ''"
             role="button"
             tabindex="0"
@@ -52,7 +52,7 @@
         </view>
         <view class="ranking-tabs">
           <text
-            class="tab tap-target"
+            class="tab chip-btn"
             :class="base === '同比' ? 'tab-on' : ''"
             role="button"
             tabindex="0"
@@ -60,7 +60,7 @@
             @click="setBase('同比')"
           >同比</text>
           <text
-            class="tab tap-target"
+            class="tab chip-btn"
             :class="base === '环比' ? 'tab-on' : ''"
             role="button"
             tabindex="0"
@@ -69,7 +69,7 @@
           >环比</text>
           <view class="ranking-tabs-spacer"></view>
           <text
-            class="tab sort-toggle tap-target"
+            class="tab sort-toggle chip-btn"
             role="button"
             tabindex="0"
             hover-class="row-active"
@@ -343,6 +343,18 @@ function onPickCity(city: string) {
 </script>
 
 <style lang="scss" scoped>
+/* 紧凑芯片：勿套全局 .tap-target(min-height:88rpx)，否则竖椭圆 */
+.chip-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 56rpx;
+  padding: 8rpx 22rpx;
+  line-height: 1.2;
+  vertical-align: middle;
+}
+
 .ranking-tabs {
   display: flex;
   gap: 12rpx;
@@ -359,7 +371,7 @@ function onPickCity(city: string) {
 }
 
 .tab {
-  padding: 6rpx 16rpx;
+  padding: 8rpx 22rpx;
   border-radius: 999rpx;
   background: var(--color-soft);
   color: #cbd5e1;

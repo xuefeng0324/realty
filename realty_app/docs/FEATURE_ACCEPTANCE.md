@@ -5,9 +5,11 @@
 
 ## 必读（按顺序）
 
-1. **[FEATURE_QA_PROCESS.md](./FEATURE_QA_PROCESS.md)** — 加功能→验收→测试的**强制 8 步**；UI / 功能 / 逻辑三类 bug 怎么挡  
-2. **[FEATURE_CATALOG.md](./FEATURE_CATALOG.md)** — **全部功能**的验收标准与测试流程总目录（改前先搜功能 ID）  
-3. 下方「专题」— 横切能力的深挖标准  
+1. **[TEST_ACCEPTANCE.md](./TEST_ACCEPTANCE.md)** — **测试与验收总册**（路径矩阵 + 流程）  
+2. **[FEATURES.md](./FEATURES.md)** — 功能清单（用户可读索引）  
+3. **[FEATURE_QA_PROCESS.md](./FEATURE_QA_PROCESS.md)** — 加功能→验收→测试的**强制 8 步**；UI / 功能 / 逻辑三类 bug 怎么挡  
+4. **[FEATURE_CATALOG.md](./FEATURE_CATALOG.md)** — **全部功能**的验收标准与测试流程总目录（改前先搜功能 ID）  
+5. 下方「专题」— 横切能力的深挖标准  
 
 参考：本仓库 `AGENTS.md`、`scripts/check.ps1`、uni-app 官网（涉及平台能力时）。
 
@@ -59,8 +61,11 @@
 
 | 文档 | 用途 |
 |------|------|
+| [TEST_ACCEPTANCE.md](./TEST_ACCEPTANCE.md) | 测试验收总册 + 关键路径矩阵 |
+| [FEATURES.md](./FEATURES.md) | 功能清单（索引） |
 | [FEATURE_QA_PROCESS.md](./FEATURE_QA_PROCESS.md) | 强制流程 + DoD + Bug 分类 |
 | [FEATURE_CATALOG.md](./FEATURE_CATALOG.md) | 全功能验收与测试流程 |
+| [LISTING_FILTER_ACCEPTANCE.md](./LISTING_FILTER_ACCEPTANCE.md) | 房源类型/装修筛选 |
 | [THEME_ACCEPTANCE.md](./THEME_ACCEPTANCE.md) | 浅色 / 深色 / 跟随系统 |
 | [DASHBOARD_FEED_ACCEPTANCE.md](./DASHBOARD_FEED_ACCEPTANCE.md) | 总览长页去分割缝 |
 | [DASHBOARD_ENTRY_IA.md](./DASHBOARD_ENTRY_IA.md) | 总览多入口（搜索/频道/金刚区）F-ENTRY-01 |

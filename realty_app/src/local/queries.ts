@@ -35,6 +35,7 @@ import {
 } from "../rules/snapshot";
 import { computeSchoolFutureScoreV1 } from "../rules/schoolScoring";
 import { computeListingQualityScoreV1, type SchoolFutureForListing } from "../rules/listingScoring";
+import { matchesDecorateTypeFilter, matchesListingTypeFilter } from "./listingFilterMatch";
 
 function weekEndFromDate(iso: string): string {
   const d = new Date(iso + "T00:00:00Z");
@@ -466,10 +467,10 @@ export async function filterListings(req: ListingFilterRequest): Promise<Listing
     items = items.filter((l) => l.orientation === o);
   }
   if (filters.decorateType) {
-    items = items.filter((l) => l.decorateType === filters.decorateType);
+    items = items.filter((l) => matchesDecorateTypeFilter(l.decorateType, filters.decorateType));
   }
   if (filters.listingType && filters.listingType !== "all") {
-    items = items.filter((l) => l.listingType === filters.listingType);
+    items = items.filter((l) => matchesListingTypeFilter(l.listingType, filters.listingType));
   }
   if (filters.districtName) {
     const dn = filters.districtName;

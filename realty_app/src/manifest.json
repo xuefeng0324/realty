@@ -2,8 +2,8 @@
     "name" : "Realty App",
     "appid" : "__UNI__1BB4DA3",
     "description" : "Realty Analytics 手机端 App",
-    "versionName" : "1.121.93",
-    "versionCode" : "214",
+    "versionName" : "1.121.94",
+    "versionCode" : "215",
     "transformPx" : false,
     "app-plus" : {
         "usingComponents" : true,
@@ -33,8 +33,10 @@
                 ],
                 "queries" : [
                     "<package android:name=\"com.lianjia.beike\"/>",
+                    "<package android:name=\"com.homelink.android\"/>",
                     "<package android:name=\"com.anjuke.android.app\"/>",
                     "<intent><action android:name=\"android.intent.action.VIEW\"/><data android:scheme=\"lianjiabeike\"/></intent>",
+                    "<intent><action android:name=\"android.intent.action.VIEW\"/><data android:scheme=\"lianjia\"/></intent>",
                     "<intent><action android:name=\"android.intent.action.VIEW\"/><data android:scheme=\"openanjuke\"/></intent>"
                 ]
             },

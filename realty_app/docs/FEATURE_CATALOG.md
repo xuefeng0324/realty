@@ -205,17 +205,20 @@
 |----|------|
 | 入口 | Tab「房源」 |
 | 风险 | F, L, U |
+| 专题 | [LISTING_FILTER_ACCEPTANCE.md](./LISTING_FILTER_ACCEPTANCE.md) · [TEST_ACCEPTANCE.md](./TEST_ACCEPTANCE.md) P-LIST-* |
 
 **期望**
-1. （F）区/总价/面积/关键字等条件应用后列表变化  
+1. （F）区/总价/面积/关键字/类型/装修应用后列表变化  
 2. （L）「共 N 套」与列表一致；分页可加载更多（有数据时）  
-3. （U）筛选条可点、可重置；关键字输入框可见  
+3. （U）筛选条可点、可重置；关键字输入框可见；空结果有条件说明  
 4. （L）`districtName` 过滤后 total ≤ 全市，且条目属该区  
 5. （L）`keyword` 匹配标题/小区名/行政区后 total ≤ 全市；首页「房源」搜索可写入 pending 并自动应用  
+6. （L）「二手房」「新房」与种子 `listing_type` 对齐且互斥；二者筛选均须有命中  
+7. （L）装修选项含精装/豪装/普装/简装/毛坯；高频装修选中后 total>0  
 
-**不期望**：选了区仍显示全区且计数不变；有关键字却等于全市全量。  
-**自动化**：unit `listingFilterDistrict.test.ts` / `listingFilterKeyword.test.ts` / `homeEntry.test.ts`；page；`smoke_listings.mjs`  
-**手工**：深圳→选一区→看 N 变小→重置恢复；首页搜房源关键字→房源 Tab 命中缩小。
+**不期望**：只有二手没有新房分类；选类型无故清空；装修缺豪装/普装。  
+**自动化**：`listingFilterTypeDecorate.test.ts` / `listingFilterDistrict.test.ts` / `listingFilterKeyword.test.ts` / `homeEntry.test.ts`；`smoke_listings.mjs`  
+**手工**：见 LISTING_FILTER_ACCEPTANCE §4。
 
 ---
 
@@ -250,13 +253,14 @@
 
 | 项 | 内容 |
 |----|------|
-| 入口 | 详情参考来源 |
+| 入口 | 详情底栏「去贝壳查看」 |
 | 风险 | F |
-| 对照 | FEATURE 外链惯例；`openExternal` |
+| 对照 | 贝壳/链家 Android：`Intent.ACTION_VIEW` + `setPackage(com.lianjia.beike)` 打开 `https://*.ke.com`；渗透公开 scheme `lianjiabeike://web/main?url=`；详情底栏主 CTA |
 
-**期望**：ActionSheet 选项清晰；未装 App 时有降级。  
+**期望**：单击直接唤起 App（https+包名 → 原生 scheme → App WebView）；失败再选浏览器/复制；详情有贝壳式价区+底栏。  
+**不期望**：默认复制链接或静默只开系统浏览器。  
 **自动化**：unit `openExternal.test.ts`  
-**手工**：真机点「在浏览器/App 打开」看是否唤起或提示。
+**手工**：真机装贝壳后点底栏「去贝壳查看」。
 
 ---
 
@@ -501,6 +505,7 @@
 | 2026-07-26 | F-DASH-11 | NBS 居民消费价格（含居住/房租） | 1.121.88 | 房租≠房价；收入回填2025 |
 | 2026-07-26 | F-DASH-11 | 国家统计局全国居民收入消费 | 1.121.87 | 含居住消费；≠房价 |
 | 2026-07-26 | F-DASH-11 | NBS 房地产补施工/新开工/竣工 | 1.121.86 | 同源表扩展 |
+| 2026-07-26 | F-LIST-01 | 二手房/新房分类 + 筛选别名 + 验收总册 | 1.121.94 | enrich + TEST/FEATURES MD |
 | 2026-07-26 | F-DASH-11 | 国家统计局全国固定资产投资 | 1.121.85 | 与广东固投对照；≠房价 |
 | 2026-07-26 | F-LIST-01 | 房源关键字筛选 + 首页搜索贯通 | 1.121.84 | pending listing query |
 | 2026-07-26 | F-ENTRY-01 | 总览多入口（搜索+频道+金刚区） | 1.121.83 | 见 DASHBOARD_ENTRY_IA |

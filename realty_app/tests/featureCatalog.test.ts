@@ -33,6 +33,9 @@ describe("FEATURE QA 文档门禁", () => {
     expect(existsSync(resolve(root, "docs/FEATURE_QA_PROCESS.md"))).toBe(true);
     expect(existsSync(resolve(root, "docs/FEATURE_CATALOG.md"))).toBe(true);
     expect(existsSync(resolve(root, "docs/FEATURE_ACCEPTANCE.md"))).toBe(true);
+    expect(existsSync(resolve(root, "docs/TEST_ACCEPTANCE.md"))).toBe(true);
+    expect(existsSync(resolve(root, "docs/FEATURES.md"))).toBe(true);
+    expect(existsSync(resolve(root, "docs/LISTING_FILTER_ACCEPTANCE.md"))).toBe(true);
   });
 
   it("QA_PROCESS 含三类 bug 与 8 步 / DoD", () => {
@@ -43,6 +46,7 @@ describe("FEATURE QA 文档门禁", () => {
     expect(text).toMatch(/8\s*步|固定 8 步/);
     expect(text).toContain("Definition of Done");
     expect(text).toContain("FEATURE_CATALOG");
+    expect(text).toContain("TEST_ACCEPTANCE");
   });
 
   it("CATALOG 登记关键功能 ID 与三类风险标记", () => {
@@ -54,12 +58,21 @@ describe("FEATURE QA 文档门禁", () => {
     expect(text).toContain("期望");
     expect(text).toContain("手工");
     expect(text).toContain("自动化");
+    expect(text).toContain("LISTING_FILTER_ACCEPTANCE");
   });
 
-  it("FEATURE_ACCEPTANCE 指向 PROCESS 与 CATALOG", () => {
-    const text = read("docs/FEATURE_ACCEPTANCE.md");
-    expect(text).toContain("FEATURE_QA_PROCESS.md");
-    expect(text).toContain("FEATURE_CATALOG.md");
+  it("FEATURE_ACCEPTANCE / TEST_ACCEPTANCE / FEATURES 交叉引用", () => {
+    const acc = read("docs/FEATURE_ACCEPTANCE.md");
+    expect(acc).toContain("FEATURE_QA_PROCESS.md");
+    expect(acc).toContain("FEATURE_CATALOG.md");
+    expect(acc).toContain("TEST_ACCEPTANCE.md");
+    expect(acc).toContain("FEATURES.md");
+    const testAcc = read("docs/TEST_ACCEPTANCE.md");
+    expect(testAcc).toContain("P-LIST-01");
+    expect(testAcc).toContain("listingFilterTypeDecorate");
+    const features = read("docs/FEATURES.md");
+    expect(features).toContain("F-LIST-01");
+    expect(features).toContain("在售");
   });
 
   it("CATALOG 引用的核心 smoke / 单测文件存在", () => {
@@ -72,9 +85,11 @@ describe("FEATURE QA 文档门禁", () => {
       "tests/priceSemantics.test.ts",
       "tests/theme.test.ts",
       "tests/stats70Freshness.test.ts",
+      "tests/listingFilterTypeDecorate.test.ts",
       "scripts/check.ps1",
       "scripts/check_stats70_freshness.py",
-      "src/local/stats70Freshness.ts"
+      "src/local/stats70Freshness.ts",
+      "src/local/listingFilterMatch.ts"
     ];
     for (const rel of mustExist) {
       expect(existsSync(resolve(root, rel)), `缺失 ${rel}`).toBe(true);

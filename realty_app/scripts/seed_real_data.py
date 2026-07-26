@@ -235,25 +235,38 @@ def make_listings_csv() -> int:
                     unit_price = int(public_price * mult * random.uniform(0.85, 1.15))
                     area = random.uniform(60, 130)
                     total_price_10k = int(unit_price * area / 10000)
+                    is_new = (lid % 4 == 0)
+                    listing_type = "新房" if is_new else "二手房"
+                    orient_label = random.choice(["南向", "南北通透", "北向", "东南", "西向"])
+                    title = (
+                        f"新盘·{community_name} {int(area)}㎡ {orient_label}"
+                        if is_new
+                        else f"{community_name} {int(area)}㎡ {orient_label}"
+                    )
+                    source_name = (
+                        f"{CITY_SOURCE_NAMES[city_id]}·新房样本"
+                        if is_new
+                        else CITY_SOURCE_NAMES[city_id]
+                    )
                     row = [
                         lid, city_id, cid,
-                        f"{community_name} {int(area)}㎡ {random.choice(['南向', '南北通透', '北向', '东南', '西向'])}",
-                        CITY_SOURCE_NAMES[city_id],
+                        title,
+                        source_name,
                         "DERIVED",
                         f"{csv_name}-LS-{lid:06d}",
-                        _source_url_for_city(city_id, lid, community_name),
+                        _source_url_for_city(city_id, lid, community_name, listing_type),
                         total_price_10k, unit_price, round(area, 1),
-                        "二手房",
+                        listing_type,
                         random.choice([2, 3, 3, 4]),
                         random.choice([1, 1, 2]),
                         random.choice(["南", "南北通透", "东南", "西"]),
                         random.choice(["低楼层", "中楼层", "高楼层", "顶层"]),
                         random.choice([True, True, False]),
-                        random.choice(["精装", "豪装", "普装", "毛坯"]),
-                        random.randint(2005, 2024),
+                        random.choice(["毛坯", "精装", "豪装", "普装"]) if is_new else random.choice(["精装", "豪装", "普装", "毛坯"]),
+                        random.randint(2021, 2026) if is_new else random.randint(2005, 2024),
                         random.choice([200, 400, 600, 800, 1200, 2000]),
                         json.dumps([]),
-                        json.dumps([]),
+                        json.dumps(["新房", "期房"] if is_new else []),
                         crawl_week.isoformat(),
                     ]
                     rows.append(row)
@@ -280,7 +293,9 @@ def make_listings_csv() -> int:
     return lid - 1
 
 
-def _source_url_for_city(city_id: int, listing_id: int, community_name: str) -> str:
+def _source_url_for_city(
+    city_id: int, listing_id: int, community_name: str, listing_type: str = "二手房"
+) -> str:
     """
     给每条 listing 生成一个真实可达的"源链接"。
 
@@ -290,20 +305,13 @@ def _source_url_for_city(city_id: int, listing_id: int, community_name: str) -> 
       - 深圳/广州/珠海住建局月度发布
       - 链家找房 / 贝壳 在住建局数据基础上做的小区搜索页（公开可达）
 
-    链接策略：指向对应城市 + 社区名的链家找房搜索结果页。
-    不同平台链接模板不同，但腾讯 / 链家 公开允许。
+    链接策略：二手 → ershoufang 搜索；新房 → loupan 搜索。
     """
     import urllib.parse
-    city = CITY_SOURCE_NAMES.get(city_id, "城市")
     q = urllib.parse.quote(community_name)
-    if city_id == 2:        # 深圳
-        return f"https://sz.ke.com/ershoufang/rs{q}/"
-    if city_id == 1:        # 广州
-        return f"https://gz.ke.com/ershoufang/rs{q}/"
-    if city_id == 3:        # 珠海
-        return f"https://zh.ke.com/ershoufang/rs{q}/"
-    # 兜底：贝壳全网搜索
-    return f"https://www.ke.com/ershoufang/rs{q}/"
+    sub = {1: "gz", 2: "sz", 3: "zh"}.get(city_id, "sz")
+    path = "loupan" if listing_type == "新房" else "ershoufang"
+    return f"https://{sub}.ke.com/{path}/rs{q}/"
 
 
 def main():

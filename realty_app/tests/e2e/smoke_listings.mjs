@@ -73,7 +73,7 @@ try {
   const hasRealTitle = LJSampleTitle.test(bodyText);
   // 价格、单位、户型格式都跟 raw CSV 一致
   const hasNumericFacts = /230万|44,231 元\/㎡|44231/.test(bodyText);
-  const hasSourceBtn = /打开贝壳找房|查看源链接|查看参考页面|复制链接/.test(bodyText);
+  const hasSourceBtn = /去贝壳查看|打开贝壳找房|去安居客查看|查看源链接|查看参考页面|复制链接/.test(bodyText);
   const hasReal = hasRealTitle && (hasNumericFacts || hasSourceBtn);
   result.lianjiaSourceMatches = hasReal ? 1 : 0;
   result.hasRealTitle = hasRealTitle;

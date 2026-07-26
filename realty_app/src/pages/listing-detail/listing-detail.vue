@@ -13,17 +13,24 @@
 
       <view v-if="errorMsg" class="error">{{ errorMsg }}</view>
 
-      <view v-if="data" class="card">
+      <view v-if="data" class="card listing-hero">
         <view class="row-between">
-          <view class="card-title">{{ data.listing.title }}</view>
+          <view class="card-title listing-title">{{ data.listing.title }}</view>
           <view class="score-pill" :class="scoreClass(data.score.overall_score_0_100)">
             {{ data.score.overall_score_0_100.toFixed(1) }}
           </view>
         </view>
 
+        <!-- 对照贝壳/链家：总价大字 + 单价辅文 + 一行户型摘要 -->
         <view class="price-row">
           <view class="price-main">{{ formatPrice(data.listing.total_price_10k) }}</view>
-          <view class="muted">{{ formatUnitPrice(data.listing.unit_price) }}</view>
+          <view class="price-unit muted">{{ formatUnitPrice(data.listing.unit_price) }}</view>
+        </view>
+        <view class="fact-strip muted">{{ listingFactStrip }}</view>
+        <view class="community-chip tap-row" hover-class="tap-row--active" @click="goCommunity">
+          <text class="community-chip-label">小区</text>
+          <text class="community-chip-name">{{ sameCommunityName || "查看小区" }}</text>
+          <text class="community-chip-caret">›</text>
         </view>
 
         <view class="source-trust-row">
@@ -70,12 +77,14 @@
             <text>{{ data.listing.nearest_metro_distance_m ? data.listing.nearest_metro_distance_m + "m" : "-" }}</text>
           </view>
         </view>
+      </view>
 
-        <view class="row-gap" style="margin-top: 24rpx">
-          <button v-if="data.listing.source_url" class="btn" size="mini" @click="openSource">{{ sourceLinkLabel }}</button>
-          <button v-if="data.listing.source_url" class="btn btn-ghost" size="mini" @click="copyUrl">复制链接</button>
-          <button class="btn btn-ghost" size="mini" @click="goCommunity">小区详情</button>
-        </view>
+      <!-- 对照贝壳底栏：主 CTA 去竞品 App，辅操作复制 -->
+      <view v-if="data?.listing.source_url" class="source-dock">
+        <button class="source-dock-primary" @click="openSource" @longpress="openSourceMenu">
+          {{ sourceLinkLabel }}
+        </button>
+        <button class="source-dock-ghost" @click="copyUrl">复制链接</button>
       </view>
 
       <!-- 维度分 -->
@@ -287,6 +296,20 @@ const sourceLinkLabel = computed(() => {
   return data.value?.listing.source_kind === "DERIVED" ? "查看参考页面" : "查看源链接";
 });
 
+/** 贝壳式一行摘要：户型 · 面积 · 朝向 · 装修 · 楼龄 */
+const listingFactStrip = computed(() => {
+  const l = data.value?.listing;
+  if (!l) return "";
+  const parts: string[] = [];
+  if (l.bedrooms != null || l.bathrooms != null) {
+    parts.push(`${l.bedrooms ?? "-"}室${l.bathrooms ?? "-"}卫`);
+  }
+  if (l.area_sqm) parts.push(formatArea(l.area_sqm));
+  if (l.orientation) parts.push(l.orientation);
+  if (l.decorate_type) parts.push(l.decorate_type);
+  if (l.build_year) parts.push(`${l.build_year}年建`);
+  return parts.join(" · ");
+});
 // v0.54.0 detail-1: 同小区其他 listings
 const sameCommunityAll = ref<ReturnType<typeof getListingsByCommunity>>([]);
 const sameCommunityListings = computed(() => {
@@ -372,8 +395,14 @@ const explainText = computed(() => {
 function openSource() {
   const url = data.value?.listing.source_url;
   if (!url) return;
-  // App：优先唤起贝壳/安居客等（保留登录态）；H5/其它走浏览器或复制回退
-  openHousingSourceUrl(url);
+  // App：直接唤起贝壳/链家/安居客；失败再选浏览器/复制。长按见 openSourceMenu。
+  openHousingSourceUrl(url, { mode: "app" });
+}
+
+function openSourceMenu() {
+  const url = data.value?.listing.source_url;
+  if (!url) return;
+  openHousingSourceUrl(url, { mode: "sheet" });
 }
 
 function copyUrl() {
@@ -458,6 +487,96 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
+.listing-hero {
+  margin-bottom: 16rpx;
+}
+.listing-title {
+  flex: 1;
+  padding-right: 12rpx;
+  line-height: 1.35;
+}
+.price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 16rpx;
+  margin-top: 12rpx;
+}
+.price-main {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #e11d48;
+  line-height: 1.1;
+}
+.price-unit {
+  font-size: 24rpx;
+}
+.fact-strip {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  line-height: 1.4;
+}
+.community-chip {
+  margin-top: 16rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 14rpx 16rpx;
+  border-radius: 12rpx;
+  background: var(--color-soft);
+}
+.community-chip-label {
+  font-size: 22rpx;
+  color: var(--color-muted);
+}
+.community-chip-name {
+  flex: 1;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--color-heading);
+}
+.community-chip-caret {
+  color: var(--color-muted);
+  font-size: 28rpx;
+}
+
+/* 对照贝壳详情底栏：主色 CTA 占满、辅操作次之 */
+.source-dock {
+  position: sticky;
+  bottom: calc(12rpx + var(--safe-area-bottom, 0px));
+  z-index: 20;
+  display: flex;
+  gap: 12rpx;
+  padding: 12rpx 8rpx;
+  margin: 8rpx 0 24rpx;
+  background: color-mix(in srgb, var(--color-card, #1e293b) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-radius: 16rpx;
+  border: 1rpx solid var(--color-border, rgba(148, 163, 184, 0.25));
+}
+.source-dock-primary,
+button.source-dock-primary {
+  flex: 1.4;
+  min-height: 80rpx;
+  padding: 0 24rpx;
+  border-radius: 12rpx;
+  background: #00ae66 !important;
+  color: #fff !important;
+  font-size: 28rpx;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.source-dock-ghost,
+button.source-dock-ghost {
+  flex: 0.8;
+  min-height: 80rpx;
+  padding: 0 16rpx;
+  border-radius: 12rpx;
+  background: var(--color-soft) !important;
+  color: var(--color-text) !important;
+  border: 1rpx solid var(--color-border) !important;
+  font-size: 26rpx;
+}
+
 .source-trust-row {
   display: flex;
   align-items: center;
@@ -562,19 +681,6 @@ onMounted(async () => {
 .sibling-unit {
   font-size: 20rpx;
   margin-top: 2rpx;
-}
-
-.price-row {
-  display: flex;
-  align-items: baseline;
-  gap: 16rpx;
-  margin: 16rpx 0;
-}
-
-.price-main {
-  font-size: 44rpx;
-  font-weight: 700;
-  color: #fbbf24;
 }
 
 .info-grid {
