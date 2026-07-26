@@ -5,6 +5,8 @@ import {
   getLatestPbcRegionSf,
   getPbcRegionSf,
   getPbcRegionSfDeltaVsPrev,
+  getPbcRegionSfVsNational,
+  listPbcRegionSfVsNational,
   loadPbcRegionSfFromCSV
 } from "../src/local/pbcRegionSf";
 
@@ -26,6 +28,15 @@ describe("pbc region social financing (Guangdong)", () => {
     expect(typeof delta!.sfFlowDeltaYi).toBe("number");
   });
 
+  it("可与全国社融增量对齐算占比", () => {
+    const vs = getPbcRegionSfVsNational();
+    expect(vs).not.toBeNull();
+    expect(vs!.sharePct).toBeGreaterThan(1);
+    expect(vs!.sharePct).toBeLessThan(30);
+    expect(vs!.nationalFlowYi).toBeGreaterThan(vs!.region.sfFlowYi);
+    expect(listPbcRegionSfVsNational().length).toBeGreaterThanOrEqual(2);
+  });
+
   it("爬虫与仪表盘接线", () => {
     const script = readFileSync(resolve(process.cwd(), "scripts/crawl_pbc_region_sf.py"), "utf8");
     expect(script).toContain("地区社会融资");
@@ -33,7 +44,8 @@ describe("pbc region social financing (Guangdong)", () => {
     expect(script).toContain("≠ 房价");
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     expect(dash).toContain("data-pbc-region-sf");
-    expect(dash).toContain("getLatestPbcRegionSf");
+    expect(dash).toContain("getPbcRegionSfVsNational");
+    expect(dash).toContain("占全国社融");
   });
 
   it("CSV 解析", () => {

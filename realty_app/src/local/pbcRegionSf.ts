@@ -1,4 +1,5 @@
 import { parseCSV, rowsToObjects } from "./csv";
+import { getPbcFinStats } from "./pbcFinStats";
 // @ts-ignore
 import rawCsv from "../../static/seed/pbc_region_sf.csv?raw";
 
@@ -14,6 +15,14 @@ export interface PbcRegionSfRow {
   equityYi: number;
   sourceUrl: string;
   xlsxUrl: string;
+}
+
+/** 广东社融增量 ÷ 全国同期社融增量（金融统计报告累计） */
+export interface PbcRegionSfVsNational {
+  region: PbcRegionSfRow;
+  nationalFlowYi: number;
+  nationalLabel: string;
+  sharePct: number;
 }
 
 function n(v: string | undefined): number {
@@ -66,6 +75,30 @@ export function getPbcRegionSfDeltaVsPrev(): {
     sfFlowDeltaYi: Math.round((cur.sfFlowYi - prev.sfFlowYi) * 100) / 100,
     rmbLoanDeltaYi: Math.round((cur.rmbLoanYi - prev.rmbLoanYi) * 100) / 100
   };
+}
+
+function vsNationalFor(row: PbcRegionSfRow): PbcRegionSfVsNational | null {
+  const nat = getPbcFinStats().find((r) => r.period === row.period && r.sfFlowYtdWanYi > 0);
+  if (!nat) return null;
+  const nationalFlowYi = Math.round(nat.sfFlowYtdWanYi * 10000 * 100) / 100;
+  if (nationalFlowYi <= 0) return null;
+  const sharePct = Math.round((row.sfFlowYi / nationalFlowYi) * 1000) / 10;
+  return {
+    region: row,
+    nationalFlowYi,
+    nationalLabel: nat.label || nat.period,
+    sharePct
+  };
+}
+
+export function getPbcRegionSfVsNational(period?: string): PbcRegionSfVsNational | null {
+  const row = period ? rows.find((r) => r.period === period) : rows[0];
+  if (!row) return null;
+  return vsNationalFor(row);
+}
+
+export function listPbcRegionSfVsNational(): PbcRegionSfVsNational[] {
+  return rows.map(vsNationalFor).filter((x): x is PbcRegionSfVsNational => x != null);
 }
 
 export function __setPbcRegionSfForTest(next: PbcRegionSfRow[]): void {

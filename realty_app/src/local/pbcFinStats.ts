@@ -17,6 +17,8 @@ export interface PbcFinStatsRow {
   hhLoanYtdYi: number;
   hhMlLoanYtdYi: number;
   ibRepoPct: number;
+  forexUsdWanYi: number;
+  usdCny: number;
   sourceUrl: string;
 }
 
@@ -40,6 +42,8 @@ function mapRow(row: Record<string, string>): PbcFinStatsRow {
     hhLoanYtdYi: n(row.hh_loan_ytd_yi),
     hhMlLoanYtdYi: n(row.hh_ml_loan_ytd_yi),
     ibRepoPct: n(row.ib_repo_pct),
+    forexUsdWanYi: n(row.forex_usd_wan_yi),
+    usdCny: n(row.usd_cny),
     sourceUrl: String(row.source_url ?? "").trim()
   };
 }

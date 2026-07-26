@@ -687,6 +687,12 @@
           <template v-if="pbcFinLatest.rmbLoanYtdWanYi">
             · 人民币贷款累计 +{{ pbcFinLatest.rmbLoanYtdWanYi.toFixed(2) }} 万亿
           </template>
+          <template v-if="pbcFinLatest.forexUsdWanYi">
+            · 外储 {{ pbcFinLatest.forexUsdWanYi.toFixed(2) }} 万亿美元
+          </template>
+          <template v-if="pbcFinLatest.usdCny">
+            · 美元兑人民币 {{ pbcFinLatest.usdCny.toFixed(4) }}
+          </template>
         </view>
         <view
           v-for="row in pbcFinRecent.slice(0, 3)"
@@ -729,26 +735,49 @@
             <text class="cell-sub muted">亿元</text>
           </view>
           <view class="trend-cell">
-            <text class="cell-label">政府债券</text>
+            <text class="cell-label">占全国社融</text>
             <text class="cell-value">
-              {{ pbcRegionSfLatest.govBondYi ? pbcRegionSfLatest.govBondYi.toLocaleString() : "—" }}
+              {{ pbcRegionSfVsNat ? pbcRegionSfVsNat.sharePct.toFixed(1) + "%" : "—" }}
             </text>
-            <text class="cell-sub muted">亿元</text>
+            <text class="cell-sub muted">同期累计</text>
           </view>
         </view>
-        <view
-          v-for="row in pbcRegionSfRecent.slice(0, 3)"
-          :key="'pbc-rsf-' + row.period"
-          class="rank-row"
-          style="margin-top: 6rpx"
-        >
-          <text class="muted" style="font-size: 22rpx">{{ row.label || row.period }}</text>
-          <text class="rank-val">
-            {{ row.sfFlowYi.toLocaleString() }} 亿 · 贷款 {{ row.rmbLoanYi.toLocaleString() }}
-          </text>
+        <view v-if="pbcRegionSfVsNat" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          全国 {{ pbcRegionSfVsNat.nationalLabel }} 社融增量
+          {{ pbcRegionSfVsNat.nationalFlowYi.toLocaleString() }} 亿元 · 广东
+          {{ pbcRegionSfLatest.sfFlowYi.toLocaleString() }} 亿元
+          <template v-if="pbcRegionSfLatest.govBondYi">
+            · 政府债 {{ pbcRegionSfLatest.govBondYi.toLocaleString() }} 亿
+          </template>
         </view>
+        <template v-if="pbcRegionSfVsNatRecent.length">
+          <view
+            v-for="row in pbcRegionSfVsNatRecent.slice(0, 3)"
+            :key="'pbc-rsf-' + row.region.period"
+            class="rank-row"
+            style="margin-top: 6rpx"
+          >
+            <text class="muted" style="font-size: 22rpx">{{ row.region.label || row.region.period }}</text>
+            <text class="rank-val">
+              {{ row.region.sfFlowYi.toLocaleString() }} 亿 · 占全国 {{ row.sharePct.toFixed(1) }}%
+            </text>
+          </view>
+        </template>
+        <template v-else>
+          <view
+            v-for="row in pbcRegionSfRecent.slice(0, 3)"
+            :key="'pbc-rsf-plain-' + row.period"
+            class="rank-row"
+            style="margin-top: 6rpx"
+          >
+            <text class="muted" style="font-size: 22rpx">{{ row.label || row.period }}</text>
+            <text class="rank-val">
+              {{ row.sfFlowYi.toLocaleString() }} 亿 · 贷款 {{ row.rmbLoanYi.toLocaleString() }}
+            </text>
+          </view>
+        </template>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
-          来源：中国人民银行「地区社会融资规模增量统计表」XLSX（广东行）。省级累计流量 ≠ 城市挂牌/网签/70 城，亦非成交均价。
+          来源：地区社融 XLSX（广东）÷ 全国「金融统计数据报告」同期社融增量。占比为派生指标；省级累计 ≠ 城市挂牌/网签/70 城，亦非成交均价。
         </view>
       </view>
 
@@ -7417,6 +7446,8 @@ import {
   getLatestPbcRegionSf,
   getPbcRegionSf,
   getPbcRegionSfDeltaVsPrev,
+  getPbcRegionSfVsNational,
+  listPbcRegionSfVsNational,
   type PbcRegionSfRow
 } from "../../local/pbcRegionSf";
 import {
@@ -11055,6 +11086,8 @@ const pbcFinRecent = computed<PbcFinStatsRow[]>(() => getPbcFinStats().slice(0, 
 const pbcRegionSfLatest = computed(() => getLatestPbcRegionSf());
 const pbcRegionSfDelta = computed(() => getPbcRegionSfDeltaVsPrev());
 const pbcRegionSfRecent = computed<PbcRegionSfRow[]>(() => getPbcRegionSf().slice(0, 5));
+const pbcRegionSfVsNat = computed(() => getPbcRegionSfVsNational());
+const pbcRegionSfVsNatRecent = computed(() => listPbcRegionSfVsNational().slice(0, 5));
 const lprYearLabel = computed(() => {
   const m = lprLatest.value?.month;
   if (!m) return String(new Date().getFullYear());

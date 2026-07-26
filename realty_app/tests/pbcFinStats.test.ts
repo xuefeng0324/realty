@@ -40,12 +40,13 @@ describe("pbc financial statistics", () => {
   it("CSV 解析", () => {
     const rows = loadPbcFinStatsFromCSV(
       [
-        "period,label,sf_stock_wan_yi,sf_stock_yoy_pct,sf_flow_ytd_wan_yi,m2_wan_yi,m2_yoy_pct,m1_wan_yi,m1_yoy_pct,rmb_loan_ytd_wan_yi,hh_loan_ytd_yi,hh_ml_loan_ytd_yi,ib_repo_pct,source_url",
-        "2099-01,2099年1月,400,8,10,300,9,100,5,5,100,50,1.4,http://www.pbc.gov.cn/a",
-        "2099-02,2099年2月,410,7.5,12,310,8.5,105,4.5,6,-200,80,1.5,http://www.pbc.gov.cn/b"
+        "period,label,sf_stock_wan_yi,sf_stock_yoy_pct,sf_flow_ytd_wan_yi,m2_wan_yi,m2_yoy_pct,m1_wan_yi,m1_yoy_pct,rmb_loan_ytd_wan_yi,hh_loan_ytd_yi,hh_ml_loan_ytd_yi,ib_repo_pct,forex_usd_wan_yi,usd_cny,source_url",
+        "2099-01,2099年1月,400,8,10,300,9,100,5,5,100,50,1.4,3.2,7.1,http://www.pbc.gov.cn/a",
+        "2099-02,2099年2月,410,7.5,12,310,8.5,105,4.5,6,-200,80,1.5,3.3,7.0,http://www.pbc.gov.cn/b"
       ].join("\n")
     );
     expect(rows[0]!.period).toBe("2099-02");
     expect(rows[0]!.hhLoanYtdYi).toBe(-200);
+    expect(rows[0]!.forexUsdWanYi).toBe(3.3);
   });
 });

@@ -40,6 +40,8 @@ FIELDS = [
     "hh_loan_ytd_yi",
     "hh_ml_loan_ytd_yi",
     "ib_repo_pct",
+    "forex_usd_wan_yi",
+    "usd_cny",
     "source_url",
 ]
 
@@ -146,6 +148,8 @@ def parse_body(html: str, title: str, source_url: str) -> dict[str, str] | None:
         text,
     )
     repo = re.search(r"质押式(?:债券)?回购(?:月)?加权平均利率为\s*([\d.]+)\s*%", text)
+    forex = re.search(r"国家外汇储备余额\s*([\d.]+)\s*万亿美元", text)
+    usdcny = re.search(r"1美元兑\s*([\d.]+)\s*元", text)
 
     # 2025 中段部分报告无社融存量段，仅有 M2/贷款；有社融或有 M2 即可入库
     if not (sf or m2):
@@ -165,6 +169,8 @@ def parse_body(html: str, title: str, source_url: str) -> dict[str, str] | None:
         "hh_loan_ytd_yi": _signed_amount(hh.group(1), hh.group(2), hh.group(3)) if hh else "",
         "hh_ml_loan_ytd_yi": _signed_amount(hh.group(4), hh.group(5), hh.group(6)) if hh else "",
         "ib_repo_pct": _num(repo.group(1)) if repo else "",
+        "forex_usd_wan_yi": _num(forex.group(1)) if forex else "",
+        "usd_cny": _num(usdcny.group(1)) if usdcny else "",
         "source_url": source_url,
     }
 
