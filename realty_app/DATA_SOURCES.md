@@ -314,6 +314,17 @@ static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务�
 > 5 个子页共用 `components/MacroTabNav.vue`（顶部 5 tab 切换）。dashboard 金刚区「宏观」tile 已 navigate → `macro-region`。
 > 详细流程与硬规则见 [docs/DASHBOARD_OVERVIEW_BUDGET.md](./docs/DASHBOARD_OVERVIEW_BUDGET.md)。
 
+## 8. MacroKpiCell 共用组件（v1.121.131）
+
+dashboard 与 macro-* 子页内重复的 `<view class="stats70-cell">` 模板已抽到共用组件：
+
+- 组件路径：`src/components/MacroKpiCell.vue`
+- props：`label` / `value` / `sub` / `subTrendClass("up"|"down"|"flat")`
+- 配套 helper：`utils/format.ts → macroTrendBand(v)`（与 `macroTrendClass(v)` 同源）
+
+本轮已替换：dashboard nbs-macro 卡 16 KPI（5 组 stats70-grid）。
+后续 todo（T-001 ~ T-006）见 [docs/DASHBOARD_OVERVIEW_BUDGET.md](./docs/DASHBOARD_OVERVIEW_BUDGET.md) §8。
+
 ### 5.1 已知缺口（下一优先）
 
 | 缺口 | 候选源 | 状态 |

@@ -117,3 +117,13 @@ export function macroTrendClass(v: number): "stats70-up" | "stats70-down" | "sta
   if (v < 0) return "stats70-down";
   return "stats70-flat";
 }
+
+/**
+ * 把趋势 class 简化为 3 档 band（供 MacroKpiCell 等子组件接收 up/down/flat）。
+ * 与 macroTrendClass 同源；v1.121.131 起供 MacroKpiCell 复用。
+ */
+export function macroTrendBand(v: number): "up" | "down" | "flat" {
+  if (v > 0) return "up";
+  if (v < 0) return "down";
+  return "flat";
+}

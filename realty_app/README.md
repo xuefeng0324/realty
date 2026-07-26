@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.121.131 | 2026-07-27 | 第三批瘦身：MacroKpiCell.vue 抽 KPI 单元格组件 + nbs-macro 卡 16 KPI 改组件 + macroTrendBand helper；dashboard 15,555 → 15,404 行 |
 | v1.121.130 | 2026-07-26 | 第二批迁移：迁 13 张宏卡到 3 个子页（macro-region 4 + macro-industry 8 + macro-trade 1）；dashboard 16,746 → 15,555 行；总览预算收紧到 ≤ 8 / ≤ 16k |
 | v1.121.129 | 2026-07-26 | 5 个宏观子页骨架 + MacroTabNav 共用 tab + 总览预算门禁硬规则 ≤ 14（远期 ≤ 8） |
 | v1.121.128 | 2026-07-26 | 规上工业企业利润 |

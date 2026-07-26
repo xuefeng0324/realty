@@ -530,6 +530,7 @@
 | 2026-07-26 | F-PAGES-MACRO-06 | 第二批迁移：迁 4 张广东卡 → macro-region | 1.121.130 | gd-real-estate-brief / gd-economy / gd-fa-investment / gd-construction |
 | 2026-07-26 | F-PAGES-MACRO-07 | 第二批迁移：迁 8 张产业卡 → macro-industry | 1.121.130 | nbs-fa-investment / nbs-income / nbs-cpi / nbs-pmi / nbs-industrial / nbs-industrial-profit / nbs-ppi / nbs-retail |
 | 2026-07-26 | F-PAGES-MACRO-08 | 第二批迁移：迁 1 张贸易卡 → macro-trade | 1.121.130 | nbs-trade |
+| 2026-07-27 | F-COMP-KPI-01 | MacroKpiCell.vue 单 KPI 单元格组件（label/value/sub/subTrendClass）；dashboard nbs-macro 卡 16 KPI 改用组件；nbs-macro 多期序列精简 14 → 6 块 | 1.121.131 | dashboard 15,555 → 15,404 行；累计两轮 -8.0%；后续 T-001 ~ T-006 |
 | 2026-07-26 | F-PAGES-MACRO-09 | 预算硬规则收紧到 ≤ 8 / ≤ 16k；dashboard 16,746 → 15,555 行 | 1.121.130 | overview 14 张 → 1 张（nbsMacro） |
 | 2026-07-26 | F-PAGES-MACRO-01 | 宏观 5 子页骨架 + MacroTabNav 共用 tab + 金刚区「宏观」入口改 navigate | 1.121.129 | 本轮仅骨架；下轮按子页分批迁 12 张宏卡（14 → 8） |
 | 2026-07-26 | F-PAGES-MACRO-02 | pages.json 注册 macro-rates/fx/industry/region/trade 5 路由 | 1.121.129 | 与 skeleton 同包 |

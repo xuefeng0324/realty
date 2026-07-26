@@ -2363,146 +2363,54 @@
           <view class="muted" style="font-size: 22rpx">{{ nbsMacro.publishDate }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
-          <view class="stats70-cell">
-            <text class="cell-label">开发投资</text>
-            <text class="cell-value">{{ formatMacro100m(nbsMacro.investmentCny100m) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.investmentYoyPct)">同比 {{ formatMacroPct(nbsMacro.investmentYoyPct) }}</text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">新房销售额</text>
-            <text class="cell-value">{{ formatMacro100m(nbsMacro.salesAmountCny100m) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.salesAmountYoyPct)">同比 {{ formatMacroPct(nbsMacro.salesAmountYoyPct) }}</text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">新房销售面积</text>
-            <text class="cell-value">{{ formatMacroArea(nbsMacro.salesArea10kSqm) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.salesAreaYoyPct)">同比 {{ formatMacroPct(nbsMacro.salesAreaYoyPct) }}</text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">商品房待售</text>
-            <text class="cell-value">{{ formatMacroArea(nbsMacro.inventoryArea10kSqm) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.inventoryAreaYoyPct)">同比 {{ formatMacroPct(nbsMacro.inventoryAreaYoyPct) }}</text>
-          </view>
+          <MacroKpiCell
+            label="开发投资"
+            :value="formatMacro100m(nbsMacro.investmentCny100m)"
+            :sub="`同比 ${formatMacroPct(nbsMacro.investmentYoyPct)}`"
+            :subTrendClass="macroTrendClass(nbsMacro.investmentYoyPct) === 'stats70-up' ? 'up' : macroTrendClass(nbsMacro.investmentYoyPct) === 'stats70-down' ? 'down' : 'flat'"
+          />
+          <MacroKpiCell
+            label="新房销售额"
+            :value="formatMacro100m(nbsMacro.salesAmountCny100m)"
+            :sub="`同比 ${formatMacroPct(nbsMacro.salesAmountYoyPct)}`"
+            :subTrendClass="macroTrendClass(nbsMacro.salesAmountYoyPct) === 'stats70-up' ? 'up' : macroTrendClass(nbsMacro.salesAmountYoyPct) === 'stats70-down' ? 'down' : 'flat'"
+          />
+          <MacroKpiCell
+            label="新房销售面积"
+            :value="formatMacroArea(nbsMacro.salesArea10kSqm)"
+            :sub="`同比 ${formatMacroPct(nbsMacro.salesAreaYoyPct)}`"
+            :subTrendClass="macroTrendClass(nbsMacro.salesAreaYoyPct) === 'stats70-up' ? 'up' : macroTrendClass(nbsMacro.salesAreaYoyPct) === 'stats70-down' ? 'down' : 'flat'"
+          />
+          <MacroKpiCell
+            label="商品房待售"
+            :value="formatMacroArea(nbsMacro.inventoryArea10kSqm)"
+            :sub="`同比 ${formatMacroPct(nbsMacro.inventoryAreaYoyPct)}`"
+            :subTrendClass="macroTrendClass(nbsMacro.inventoryAreaYoyPct) === 'stats70-up' ? 'up' : macroTrendClass(nbsMacro.inventoryAreaYoyPct) === 'stats70-down' ? 'down' : 'flat'"
+          />
         </view>
         <view class="stats70-grid" style="margin-top: 12rpx" data-nbs-pipeline>
-          <view class="stats70-cell">
-            <text class="cell-label">房屋施工</text>
-            <text class="cell-value">{{ formatMacroArea(nbsMacro.constructionArea10kSqm) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.constructionAreaYoyPct)">
-              同比 {{ formatMacroPct(nbsMacro.constructionAreaYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">新开工</text>
-            <text class="cell-value">{{ formatMacroArea(nbsMacro.newStartsArea10kSqm) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.newStartsAreaYoyPct)">
-              同比 {{ formatMacroPct(nbsMacro.newStartsAreaYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">竣工</text>
-            <text class="cell-value">{{ formatMacroArea(nbsMacro.completedArea10kSqm) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.completedAreaYoyPct)">
-              同比 {{ formatMacroPct(nbsMacro.completedAreaYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">到位资金</text>
-            <text class="cell-value">{{ formatMacro100m(nbsMacro.fundsCny100m) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.fundsYoyPct)">
-              同比 {{ formatMacroPct(nbsMacro.fundsYoyPct) }}
-            </text>
-          </view>
+          <MacroKpiCell label="房屋施工" :value="formatMacroArea(nbsMacro.constructionArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.constructionAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.constructionAreaYoyPct)" />
+          <MacroKpiCell label="新开工" :value="formatMacroArea(nbsMacro.newStartsArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.newStartsAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.newStartsAreaYoyPct)" />
+          <MacroKpiCell label="竣工" :value="formatMacroArea(nbsMacro.completedArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.completedAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.completedAreaYoyPct)" />
+          <MacroKpiCell label="到位资金" :value="formatMacro100m(nbsMacro.fundsCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.fundsYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.fundsYoyPct)" />
         </view>
         <view class="stats70-grid" style="margin-top: 12rpx" data-nbs-res-pipeline>
-          <view class="stats70-cell">
-            <text class="cell-label">住宅施工</text>
-            <text class="cell-value">{{ formatMacroArea(nbsMacro.residentialConstructionArea10kSqm) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.residentialConstructionAreaYoyPct)">
-              同比 {{ formatMacroPct(nbsMacro.residentialConstructionAreaYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">住宅新开工</text>
-            <text class="cell-value">{{ formatMacroArea(nbsMacro.residentialNewStartsArea10kSqm) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.residentialNewStartsAreaYoyPct)">
-              同比 {{ formatMacroPct(nbsMacro.residentialNewStartsAreaYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">住宅竣工</text>
-            <text class="cell-value">{{ formatMacroArea(nbsMacro.residentialCompletedArea10kSqm) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.residentialCompletedAreaYoyPct)">
-              同比 {{ formatMacroPct(nbsMacro.residentialCompletedAreaYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">住宅施工占比</text>
-            <text class="cell-value">
-              {{ nbsResidentialConstructionSharePct != null ? nbsResidentialConstructionSharePct + "%" : "—" }}
-            </text>
-            <text class="cell-sub muted">占全部房屋施工</text>
-          </view>
+          <MacroKpiCell label="住宅施工" :value="formatMacroArea(nbsMacro.residentialConstructionArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialConstructionAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialConstructionAreaYoyPct)" />
+          <MacroKpiCell label="住宅新开工" :value="formatMacroArea(nbsMacro.residentialNewStartsArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialNewStartsAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialNewStartsAreaYoyPct)" />
+          <MacroKpiCell label="住宅竣工" :value="formatMacroArea(nbsMacro.residentialCompletedArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialCompletedAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialCompletedAreaYoyPct)" />
+          <MacroKpiCell label="住宅施工占比" :value="(nbsResidentialConstructionSharePct != null ? nbsResidentialConstructionSharePct + '%' : '—')" sub-muted="占全部房屋施工" />
         </view>
         <view class="stats70-grid" style="margin-top: 12rpx" data-nbs-residential>
-          <view class="stats70-cell">
-            <text class="cell-label">住宅销售面积</text>
-            <text class="cell-value">{{ formatMacroArea(nbsMacro.residentialSalesArea10kSqm) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.residentialSalesAreaYoyPct)">
-              同比 {{ formatMacroPct(nbsMacro.residentialSalesAreaYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">住宅销售额</text>
-            <text class="cell-value">{{ formatMacro100m(nbsMacro.residentialSalesAmountCny100m) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.residentialSalesAmountYoyPct)">
-              同比 {{ formatMacroPct(nbsMacro.residentialSalesAmountYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">住宅待售</text>
-            <text class="cell-value">{{ formatMacroArea(nbsMacro.residentialInventoryArea10kSqm) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.residentialInventoryAreaYoyPct)">
-              同比 {{ formatMacroPct(nbsMacro.residentialInventoryAreaYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">住宅投资</text>
-            <text class="cell-value">{{ formatMacro100m(nbsMacro.residentialInvestmentCny100m) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.residentialInvestmentYoyPct)">
-              同比 {{ formatMacroPct(nbsMacro.residentialInvestmentYoyPct) }}
-            </text>
-          </view>
+          <MacroKpiCell label="住宅销售面积" :value="formatMacroArea(nbsMacro.residentialSalesArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialSalesAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialSalesAreaYoyPct)" />
+          <MacroKpiCell label="住宅销售额" :value="formatMacro100m(nbsMacro.residentialSalesAmountCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialSalesAmountYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialSalesAmountYoyPct)" />
+          <MacroKpiCell label="住宅待售" :value="formatMacroArea(nbsMacro.residentialInventoryArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialInventoryAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialInventoryAreaYoyPct)" />
+          <MacroKpiCell label="住宅投资" :value="formatMacro100m(nbsMacro.residentialInvestmentCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialInvestmentYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialInvestmentYoyPct)" />
         </view>
         <view class="stats70-grid" style="margin-top: 12rpx" data-nbs-funds>
-          <view class="stats70-cell">
-            <text class="cell-label">国内贷款</text>
-            <text class="cell-value">{{ formatMacro100m(nbsMacro.domesticLoanFundsCny100m) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.domesticLoanFundsYoyPct)">
-              同比 {{ formatMacroPct(nbsMacro.domesticLoanFundsYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">定金及预收款</text>
-            <text class="cell-value">{{ formatMacro100m(nbsMacro.depositFundsCny100m) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.depositFundsYoyPct)">
-              同比 {{ formatMacroPct(nbsMacro.depositFundsYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">个人按揭贷款</text>
-            <text class="cell-value">{{ formatMacro100m(nbsMacro.mortgageFundsCny100m) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.mortgageFundsYoyPct)">
-              同比 {{ formatMacroPct(nbsMacro.mortgageFundsYoyPct) }}
-            </text>
-          </view>
-          <view class="stats70-cell">
-            <text class="cell-label">自筹资金</text>
-            <text class="cell-value">{{ formatMacro100m(nbsMacro.selfRaisedFundsCny100m) }}</text>
-            <text class="cell-sub" :class="macroTrendClass(nbsMacro.selfRaisedFundsYoyPct)">
-              同比 {{ formatMacroPct(nbsMacro.selfRaisedFundsYoyPct) }}
-            </text>
-          </view>
+          <MacroKpiCell label="国内贷款" :value="formatMacro100m(nbsMacro.domesticLoanFundsCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.domesticLoanFundsYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.domesticLoanFundsYoyPct)" />
+          <MacroKpiCell label="定金及预收款" :value="formatMacro100m(nbsMacro.depositFundsCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.depositFundsYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.depositFundsYoyPct)" />
+          <MacroKpiCell label="个人按揭贷款" :value="formatMacro100m(nbsMacro.mortgageFundsCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.mortgageFundsYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.mortgageFundsYoyPct)" />
+          <MacroKpiCell label="自筹资金" :value="formatMacro100m(nbsMacro.selfRaisedFundsCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.selfRaisedFundsYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.selfRaisedFundsYoyPct)" />
         </view>
         <view v-if="nbsImpliedUnitPrice != null" class="rank-row macro-derived" style="margin-top: 12rpx">
           <text class="muted" style="font-size: 22rpx">派生合同均价</text>
@@ -2564,66 +2472,6 @@
             资金同比
             <text v-for="(p, i) in nbsYoyTrend" :key="'fund-' + p.period">
               {{ p.shortLabel }} {{ formatMacroPct(p.fundsYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
-            </text>
-          </view>
-          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
-            施工同比
-            <text v-for="(p, i) in nbsYoyTrend" :key="'cst-' + p.period">
-              {{ p.shortLabel }} {{ formatMacroPct(p.constructionAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
-            </text>
-          </view>
-          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
-            新开工同比
-            <text v-for="(p, i) in nbsYoyTrend" :key="'nst-' + p.period">
-              {{ p.shortLabel }} {{ formatMacroPct(p.newStartsAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
-            </text>
-          </view>
-          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
-            竣工同比
-            <text v-for="(p, i) in nbsYoyTrend" :key="'cmp-' + p.period">
-              {{ p.shortLabel }} {{ formatMacroPct(p.completedAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
-            </text>
-          </view>
-          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
-            住宅施工同比
-            <text v-for="(p, i) in nbsYoyTrend" :key="'rcst-' + p.period">
-              {{ p.shortLabel }} {{ formatMacroPct(p.residentialConstructionAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
-            </text>
-          </view>
-          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
-            住宅新开工同比
-            <text v-for="(p, i) in nbsYoyTrend" :key="'rnst-' + p.period">
-              {{ p.shortLabel }} {{ formatMacroPct(p.residentialNewStartsAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
-            </text>
-          </view>
-          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
-            住宅竣工同比
-            <text v-for="(p, i) in nbsYoyTrend" :key="'rcmp-' + p.period">
-              {{ p.shortLabel }} {{ formatMacroPct(p.residentialCompletedAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
-            </text>
-          </view>
-          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
-            住宅面积同比
-            <text v-for="(p, i) in nbsYoyTrend" :key="'rsa-' + p.period">
-              {{ p.shortLabel }} {{ formatMacroPct(p.residentialSalesAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
-            </text>
-          </view>
-          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
-            按揭同比
-            <text v-for="(p, i) in nbsYoyTrend" :key="'mtg-' + p.period">
-              {{ p.shortLabel }} {{ formatMacroPct(p.mortgageFundsYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
-            </text>
-          </view>
-          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
-            定金预收款同比
-            <text v-for="(p, i) in nbsYoyTrend" :key="'dep-' + p.period">
-              {{ p.shortLabel }} {{ formatMacroPct(p.depositFundsYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
-            </text>
-          </view>
-          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
-            国内贷款同比
-            <text v-for="(p, i) in nbsYoyTrend" :key="'dl-' + p.period">
-              {{ p.shortLabel }} {{ formatMacroPct(p.domesticLoanFundsYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
             </text>
           </view>
         </template>
@@ -7562,6 +7410,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import MacroKpiCell from "../../components/MacroKpiCell.vue";
 import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
@@ -8037,7 +7886,7 @@ import type {
   RuntimeMetaResponse,
   SourceStatItem
 } from "../../api/contracts";
-import { coverageText, formatMacro100m, formatMacroArea, formatMacroPct, formatMacroYuan, formatUnitPrice, macroTrendClass, showToast, daysAgoFromToday } from "../../utils/format";
+import { coverageText, formatMacro100m, formatMacroArea, formatMacroPct, formatMacroYuan, formatUnitPrice, macroTrendBand, macroTrendClass, showToast, daysAgoFromToday } from "../../utils/format";
 import { SNAPSHOT_UPDATED_EVENT } from "../../config";
 import {
   getLatestNbsRealEstate,
