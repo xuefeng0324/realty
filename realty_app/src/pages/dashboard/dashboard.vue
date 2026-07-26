@@ -1299,6 +1299,82 @@
         </template>
       </view>
 
+      <view v-if="nbsIncome" class="card macro-card" data-tab="overview,price" data-nbs-income>
+        <view class="macro-kicker">全国 · 居民收支</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">收入和消费支出</view>
+          <view class="muted" style="font-size: 22rpx">{{ nbsIncome.periodLabel }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <view class="stats70-cell">
+            <text class="cell-label">人均可支配收入</text>
+            <text class="cell-value">{{ formatMacroYuan(nbsIncome.disposableYuan) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsIncome.disposableNominalYoyPct)">
+              名义 {{ formatMacroPct(nbsIncome.disposableNominalYoyPct) }}
+              · 实际 {{ formatMacroPct(nbsIncome.disposableRealYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">城镇可支配收入</text>
+            <text class="cell-value">{{ formatMacroYuan(nbsIncome.urbanDisposableYuan) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsIncome.urbanNominalYoyPct)">
+              名义 {{ formatMacroPct(nbsIncome.urbanNominalYoyPct) }}
+              · 实际 {{ formatMacroPct(nbsIncome.urbanRealYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">人均消费支出</text>
+            <text class="cell-value">{{ formatMacroYuan(nbsIncome.consumptionYuan) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsIncome.consumptionNominalYoyPct)">
+              名义 {{ formatMacroPct(nbsIncome.consumptionNominalYoyPct) }}
+              · 实际 {{ formatMacroPct(nbsIncome.consumptionRealYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">居住消费</text>
+            <text class="cell-value">{{ formatMacroYuan(nbsIncome.housingConsumptionYuan) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsIncome.housingConsumptionYoyPct)">
+              同比 {{ formatMacroPct(nbsIncome.housingConsumptionYoyPct) }}
+            </text>
+          </view>
+        </view>
+        <view class="macro-note">
+          国家统计局 · {{ nbsIncome.publishDate }} · 居住消费 · 非房价；可与广东收入对照
+        </view>
+        <button
+          v-if="nbsIncomeTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-nbs-income-series-toggle
+          :aria-expanded="nbsIncomeSeriesExpanded"
+          @click="nbsIncomeSeriesExpanded = !nbsIncomeSeriesExpanded"
+        >
+          {{ nbsIncomeSeriesExpanded ? "收起多期" : "多期序列" }}
+        </button>
+        <template v-if="nbsIncomeSeriesExpanded">
+          <view class="macro-series">
+            农村收入
+            {{ formatMacroYuan(nbsIncome.ruralDisposableYuan) }}
+            （名义 {{ formatMacroPct(nbsIncome.ruralNominalYoyPct) }}
+            · 实际 {{ formatMacroPct(nbsIncome.ruralRealYoyPct) }}）
+          </view>
+          <view class="macro-series" data-nbs-income-series-detail>
+            可支配收入名义同比
+            <text v-for="(p, i) in nbsIncomeTrend" :key="'ni-' + p.period">
+              {{ p.periodLabel }} {{ formatMacroPct(p.disposableNominalYoyPct)
+              }}<text v-if="i < nbsIncomeTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view class="macro-series" data-nbs-income-series-detail>
+            居住消费同比
+            <text v-for="(p, i) in nbsIncomeTrend" :key="'nih-' + p.period">
+              {{ p.periodLabel }} {{ formatMacroPct(p.housingConsumptionYoyPct)
+              }}<text v-if="i < nbsIncomeTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
+
       <view v-if="gdRealEstateBrief" class="card macro-card" data-tab="overview,price" data-gd-real-estate-brief>
         <view class="macro-kicker">广东 · 房地产</view>
         <view class="row-between">
@@ -6980,6 +7056,11 @@ import {
   type NbsFaInvestmentRow
 } from "../../local/nbsFaInvestment";
 import {
+  getLatestNbsIncome,
+  getNbsIncomeTrend,
+  type NbsIncomeRow
+} from "../../local/nbsIncome";
+import {
   getLatestGdRealEstateBrief,
   getGdRealEstateBriefTrend,
   gdBriefImpliedUnitPrice,
@@ -8121,6 +8202,7 @@ const loading = ref<boolean>(false);
 const gzInventoryExpanded = ref(false);
 const nbsSeriesExpanded = ref(false);
 const nbsFaSeriesExpanded = ref(false);
+const nbsIncomeSeriesExpanded = ref(false);
 const gdBriefSeriesExpanded = ref(false);
 const gdFaSeriesExpanded = ref(false);
 const gdConstructionSeriesExpanded = ref(false);
@@ -8130,6 +8212,8 @@ const gdProvidentExpanded = ref(false);
 const nbsMacro = computed(() => getLatestNbsRealEstate());
 const nbsFaInvestment = computed<NbsFaInvestmentRow | null>(() => getLatestNbsFaInvestment());
 const nbsFaTrend = computed(() => getNbsFaInvestmentTrend(6));
+const nbsIncome = computed<NbsIncomeRow | null>(() => getLatestNbsIncome());
+const nbsIncomeTrend = computed(() => getNbsIncomeTrend(6));
 const nbsYoyTrend = computed(() => getNbsYoyTrend(6));
 const nbsImpliedUnitPrice = computed(() => getNbsImpliedContractUnitPrice(nbsMacro.value));
 const nbsUnitPriceTrend = computed(() => getNbsImpliedUnitPriceTrend(6));
