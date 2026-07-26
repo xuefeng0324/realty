@@ -54,9 +54,22 @@ async function main() {
   await page.screenshot({ path: "tests/e2e/screenshots/v0.57.0_tabs_overview.png", fullPage: false });
   console.log(`📸 v0.57.0_tabs_overview.png`);
 
-  // 切换 price
+  // 金刚区「价格」也必须切到 price（F-DASH-04 / U4）
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(400);
+  await page.locator('[data-home-king="price-tab"]').click();
+  await page.waitForTimeout(800);
+  const kingAttr = await page.locator(".page").first().getAttribute("data-dash-tab");
+  if (kingAttr !== "price") throw new Error(`金刚区价格后 data-dash-tab=${kingAttr}`);
+  const kingActive = await page.locator(".dash-tab.dash-tab--active").first().textContent();
+  if (!kingActive.includes("价格画像")) throw new Error(`金刚区价格后 active=${kingActive}`);
+  console.log(`✓ 金刚区价格 → data-dash-tab=price`);
+
+  // 切换 price（Tab 条）
   await page.locator(".dash-tab", { hasText: "价格画像" }).click();
   await page.waitForTimeout(800);
+  const pageTab = await page.locator(".page").first().getAttribute("data-dash-tab");
+  if (pageTab !== "price") throw new Error(`.page data-dash-tab=${pageTab}`);
   const priceVisible = await page.$$eval(".card", (nodes) => nodes.filter((n) => {
     const s = window.getComputedStyle(n);
     return s.display !== "none" && n.offsetHeight > 0;

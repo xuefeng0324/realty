@@ -87,10 +87,10 @@
 | 入口 | `dash-tabs` |
 | 风险 | F, U |
 
-**期望**：点 Tab 后仅相关卡可见；`data-dash-tab` 过滤正确。  
-**不期望**：切到「价格」仍堆满无关卡且无法滚动到目标。  
-**自动化**：`smoke_dashboard_tabs.mjs`；core `smoke_dashboard_feature_matrix.mjs`  
-**手工**：五 Tab 各点一次，确认标题集合符合矩阵。
+**期望**：点 Tab / 金刚区「价格」后仅相关卡可见；`.page[data-dash-tab]` 在 App 与 H5 均过滤正确；有 toast + Tab 高亮。  
+**不期望**：切到「价格」无反应（仅写 document.body）；Tab 条埋在长页中部。  
+**自动化**：`tests/dashboardTabs.test.ts`（对照 [DASHBOARD_TABS_ACCEPTANCE.md](./DASHBOARD_TABS_ACCEPTANCE.md)）；`smoke_dashboard_tabs.mjs`；core `smoke_dashboard_feature_matrix.mjs`  
+**手工**：见 DASHBOARD_TABS_ACCEPTANCE §3。
 
 ---
 
@@ -515,6 +515,7 @@
 |------|------|----------------|
 | 强制流程 | [FEATURE_QA_PROCESS.md](./FEATURE_QA_PROCESS.md) | 全部 |
 | 主题 | [THEME_ACCEPTANCE.md](./THEME_ACCEPTANCE.md) | F-SET-01 |
+| 总览专业 Tab | [DASHBOARD_TABS_ACCEPTANCE.md](./DASHBOARD_TABS_ACCEPTANCE.md) | F-DASH-04 |
 | 总览去缝 | [DASHBOARD_FEED_ACCEPTANCE.md](./DASHBOARD_FEED_ACCEPTANCE.md) | F-DASH-02 |
 | 房价三轴 | [HOUSING_PRICE_ACCEPTANCE.md](./HOUSING_PRICE_ACCEPTANCE.md) | F-DASH-03/05/06/07, F-MAP-01, F-X-01, F-S70, F-WQ |
 
@@ -526,6 +527,7 @@
 
 | 日期 | ID | 标题 | 发版 version | 备注 |
 |------|-----|------|--------------|------|
+| 2026-07-26 | F-DASH-04 / F-ENTRY-01 | 价格 Tab/金刚区 App 可达 + 验收用例 | 1.121.117 | DASHBOARD_TABS_ACCEPTANCE |
 | 2026-07-26 | F-DASH-11 | 汇率中间价扩欧元/港元/日元 | 1.121.116 | RMBQuery 多列；≠房价 |
 | 2026-07-26 | F-LIST-01 / F-LIST-03 | 搜索框与详情底栏垂直居中 + 门禁 | 1.121.115 | uiVerticalAlign |
 | 2026-07-26 | F-MAP-04 | 地图找房主路径（筛/底栏/详情） | 1.121.97 | 对照贝壳；mapFind |

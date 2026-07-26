@@ -38,6 +38,7 @@ describe("FEATURE QA 文档门禁", () => {
     expect(existsSync(resolve(root, "docs/TEST_ACCEPTANCE.md"))).toBe(true);
     expect(existsSync(resolve(root, "docs/FEATURES.md"))).toBe(true);
     expect(existsSync(resolve(root, "docs/LISTING_FILTER_ACCEPTANCE.md"))).toBe(true);
+    expect(existsSync(resolve(root, "docs/DASHBOARD_TABS_ACCEPTANCE.md"))).toBe(true);
     expect(existsSync(resolve(root, "docs/MAP_ACCEPTANCE.md"))).toBe(true);
     expect(existsSync(resolve(root, "docs/THEME_ACCEPTANCE.md"))).toBe(true);
   });

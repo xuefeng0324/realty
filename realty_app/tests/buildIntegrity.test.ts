@@ -3082,13 +3082,14 @@ describe("build integrity", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
       expect(dash).toMatch(/DASHBOARD_TABS/);
       expect(dash).toMatch(/activeTab = ref<DashTabKey>\("overview"\)/);
-      expect(dash).toMatch(/activeTab = t\.key/);
+      expect(dash).toMatch(/setDashTab\(t\.key\)|@click="setDashTab/);
       // 5 tab labels
       expect(dash).toMatch(/"概览"/);
       expect(dash).toMatch(/"价格画像"/);
       expect(dash).toMatch(/"学区配套"/);
       expect(dash).toMatch(/"通勤地铁"/);
       expect(dash).toMatch(/"地图视图"/);
+      expect(dash).toContain('id="dash-tabs"');
     });
 
     it("dashboard.vue: 至少 25 个 card 有 data-tab 属性", () => {
@@ -3103,14 +3104,15 @@ describe("build integrity", () => {
       expect(dash).toMatch(/data-tab="all,map"/);
     });
 
-    it("dashboard.vue: 全局 style 用 body[data-dash-tab] 隐藏卡片", () => {
+    it("dashboard.vue: 全局 style 用 .page[data-dash-tab] 隐藏卡片（App 可达）", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/body\[data-dash-tab="price"\] \.card\[data-tab\]:not\(\[data-tab\*="price"\]\):not\(\[data-tab\*="all"\]\)/);
-      expect(dash).toMatch(/body\[data-dash-tab="overview"\]/);
-      expect(dash).toMatch(/body\[data-dash-tab="school"\]/);
-      expect(dash).toMatch(/body\[data-dash-tab="transit"\]/);
-      expect(dash).toMatch(/body\[data-dash-tab="map"\]/);
-      expect(dash).toMatch(/body\.city-scoped \[data-cross-city\]/);
+      expect(dash).toMatch(/\.page\[data-dash-tab="price"\] \.card\[data-tab\]:not\(\[data-tab\*="price"\]\):not\(\[data-tab\*="all"\]\)/);
+      expect(dash).toMatch(/\.page\[data-dash-tab="overview"\]/);
+      expect(dash).toMatch(/\.page\[data-dash-tab="school"\]/);
+      expect(dash).toMatch(/\.page\[data-dash-tab="transit"\]/);
+      expect(dash).toMatch(/\.page\[data-dash-tab="map"\]/);
+      expect(dash).toMatch(/\.page\.city-scoped \[data-cross-city\]/);
+      expect(dash).toMatch(/:data-dash-tab="activeTab"/);
     });
 
     it("dashboard.vue: applyTabClass + watch 联动", () => {

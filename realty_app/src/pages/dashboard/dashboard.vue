@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :data-dash-tab="activeTab" :class="{ 'city-scoped': cityScoped }">
     <view class="container">
       <!-- F-ENTRY-01：定位 + 搜索 + 频道 + 金刚区（美团/淘宝式多入口） -->
       <view class="card home-entry-card" data-home-entry data-tab="all,overview,price,school,transit,map">
@@ -56,6 +56,20 @@
         </view>
         <view class="home-entry-hint muted">
           房价看挂牌 / 网签量 / 70城指数；官方宏观≠城市成交均价。点频道或金刚区直达数据。
+        </view>
+      </view>
+
+      <!-- F-DASH-04：专业 Tab 置于入口下方（App/H5 均靠 .page[data-dash-tab] 过滤） -->
+      <view id="dash-tabs" class="dash-tabs" data-dash-tabs>
+        <view
+          v-for="t in DASHBOARD_TABS"
+          :key="t.key"
+          :class="['dash-tab', { 'dash-tab--active': activeTab === t.key }]"
+          @click="setDashTab(t.key)"
+          :data-tab="t.key"
+        >
+          <text class="dash-tab-icon">{{ t.icon }}</text>
+          <text class="dash-tab-label">{{ t.label }}</text>
         </view>
       </view>
 
@@ -3284,20 +3298,6 @@
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 20rpx">
           按 crawl_date 落在本周窗口的挂牌聚合；宏观 / 网签日更 / 地铁规划等快照不随周切换。
-        </view>
-      </view>
-
-      <!-- v0.48.0 dashboard-tabs: 顶部 tab 切换 -->
-      <view class="dash-tabs">
-        <view
-          v-for="t in DASHBOARD_TABS"
-          :key="t.key"
-          :class="['dash-tab', { 'dash-tab--active': activeTab === t.key }]"
-          @click="activeTab = t.key"
-          :data-tab="t.key"
-        >
-          <text class="dash-tab-icon">{{ t.icon }}</text>
-          <text class="dash-tab-label">{{ t.label }}</text>
         </view>
       </view>
 
@@ -8205,6 +8205,10 @@ import {
   type HomeScrollAvailability,
   type HomeSearchMode
 } from "../../local/homeEntry";
+import {
+  dashTabSwitchFeedback,
+  type DashTabKey
+} from "../../local/dashTabs";
 import { getLatestProvidentFundRate, monthlyPayment } from "../../local/providentFund";
 import {
   getLatestSzProvidentAnnual,
@@ -9834,7 +9838,7 @@ function submitHomeSearch() {
 function onHomeKingkong(k: HomeKingkongItem) {
   const a = k.action;
   if (a.kind === "tab") {
-    activeTab.value = a.tab;
+    setDashTab(a.tab);
     return;
   }
   if (a.kind === "city") {
@@ -9879,8 +9883,29 @@ function onHomeKingkong(k: HomeKingkongItem) {
 }
 
 // v0.48.0 dashboard-tabs: 顶部 tab 切换
-type DashTabKey = "overview" | "price" | "school" | "transit" | "map";
 const activeTab = ref<DashTabKey>("overview");
+
+function setDashTab(tab: DashTabKey) {
+  activeTab.value = tab;
+  const fb = dashTabSwitchFeedback(tab);
+  showToast(fb.toast);
+  nextTick(() => {
+    if (typeof document !== "undefined") {
+      const el = document.getElementById("dash-tabs");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+    }
+    uni.pageScrollTo({
+      selector: fb.scrollSelector,
+      duration: 280,
+      fail: () => {
+        /* App 部分端无 selector 时仍保留 toast + data-dash-tab */
+      }
+    });
+  });
+}
 
 type OverviewGroupKey = "region" | "wangqian" | "transit" | "community" | "school" | "lpr";
 const OVERVIEW_GROUP_KEYS: OverviewGroupKey[] = ["region", "wangqian", "transit", "community", "school", "lpr"];
@@ -10085,7 +10110,7 @@ function onHeroChange(e: any) {
 }
 function heroClick(i: number) {
   const s = heroSlides.value[i];
-  if (s?.tab) activeTab.value = s.tab;
+  if (s?.tab) setDashTab(s.tab);
 }
 
 const DASHBOARD_TABS: Array<{ key: DashTabKey; icon: string; label: string }> = [
@@ -10125,6 +10150,7 @@ function stepPeriod(delta: number) {
 
 const cityScoped = ref(true);
 function applyCityScopedClass(on: boolean) {
+  // .page.city-scoped 已由模板 :class 绑定（App 可达）；H5 双写 body 兼容旧 e2e
   if (typeof document === "undefined") return;
   document.body.classList.toggle("city-scoped", on);
 }
@@ -15587,14 +15613,17 @@ onShow(async () => {
   font-weight: 500;
 }
 
-/* v0.48.0 dashboard-tabs：同色条，去浮岛圆角与 gutter */
+/* v0.48.0 dashboard-tabs：入口下方 sticky，App/H5 均可见 */
 .dash-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   display: flex;
   gap: 8rpx;
   padding: 8rpx 12rpx;
   background: var(--color-surface);
   border-radius: 0;
-  margin: 0;
+  margin: 0 0 12rpx;
   border-bottom: 1rpx solid var(--color-border);
   overflow-x: auto;
   scrollbar-width: none;
@@ -15669,17 +15698,23 @@ onShow(async () => {
 }
 </style>
 
-<!-- v0.48.0 dashboard-tabs: 全局 (非 scoped) for body[data-dash-tab] 选择器 -->
+<!-- v0.48.0 / v1.121.117：App+H5 用 .page[data-dash-tab]；H5 双写 body 兼容旧 smoke -->
 <style lang="scss">
+.page[data-dash-tab="overview"] .card[data-tab]:not([data-tab*="overview"]):not([data-tab*="all"]),
 body[data-dash-tab="overview"] .card[data-tab]:not([data-tab*="overview"]):not([data-tab*="all"]),
+.page[data-dash-tab="price"] .card[data-tab]:not([data-tab*="price"]):not([data-tab*="all"]),
 body[data-dash-tab="price"] .card[data-tab]:not([data-tab*="price"]):not([data-tab*="all"]),
+.page[data-dash-tab="school"] .card[data-tab]:not([data-tab*="school"]):not([data-tab*="all"]),
 body[data-dash-tab="school"] .card[data-tab]:not([data-tab*="school"]):not([data-tab*="all"]),
+.page[data-dash-tab="transit"] .card[data-tab]:not([data-tab*="transit"]):not([data-tab*="all"]),
 body[data-dash-tab="transit"] .card[data-tab]:not([data-tab*="transit"]):not([data-tab*="all"]),
+.page[data-dash-tab="map"] .card[data-tab]:not([data-tab*="map"]):not([data-tab*="all"]),
 body[data-dash-tab="map"] .card[data-tab]:not([data-tab*="map"]):not([data-tab*="all"]) {
   display: none !important;
 }
 
 /* 默认仅看本市：隐藏标注了跨城对照的区块 */
+.page.city-scoped [data-cross-city],
 body.city-scoped [data-cross-city] {
   display: none !important;
 }
