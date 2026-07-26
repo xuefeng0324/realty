@@ -33,7 +33,7 @@ describe("safe forex", () => {
     expect(script).toContain("forex_usd_yi");
     expect(script).toContain("≠ 房价");
     expect(script).toContain("(?<=\\d)\\s+(?=\\d)");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-fx/macro-fx.vue"), "utf8");
     expect(dash).toContain("data-safe-forex");
     expect(dash).toContain("getLatestSafeForex");
   });

@@ -35,7 +35,7 @@ describe("repo fixing FR/FDR (chinamoney)", () => {
     expect(script).toContain("FrrHis");
     expect(script).toContain("fdr.json");
     expect(script).toContain("≠");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-rates/macro-rates.vue"), "utf8");
     expect(dash).toContain("data-repo-fixing");
     expect(dash).toContain("getLatestRepoFixing");
   });

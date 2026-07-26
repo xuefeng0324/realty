@@ -41,7 +41,7 @@ describe("safe bop goods/services trade", () => {
     expect(script).toContain("货物和服务贸易");
     expect(script).toContain("goods_export_usd_yi");
     expect(script).toContain("≠ 房价");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-fx/macro-fx.vue"), "utf8");
     expect(dash).toContain("data-safe-bop-trade");
     expect(dash).toContain("getLatestSafeBopTrade");
   });

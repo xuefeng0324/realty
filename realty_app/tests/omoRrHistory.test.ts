@@ -31,7 +31,7 @@ describe("omo reverse-repo history", () => {
     expect(script).toContain("逆回购");
     expect(script).toContain("rate_pct");
     expect(script).toContain("≠ 房价");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-rates/macro-rates.vue"), "utf8");
     expect(dash).toContain("data-omo-rr-history");
     expect(dash).toContain("getLatestOmoRr");
   });

@@ -42,7 +42,7 @@ describe("safe balance of payments quarterly", () => {
     expect(script).toContain("国际收支平衡表");
     expect(script).toContain("current_account_usd_yi");
     expect(script).toContain("≠ 房价");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-fx/macro-fx.vue"), "utf8");
     expect(dash).toContain("data-safe-bop");
     expect(dash).toContain("getLatestSafeBop");
   });

@@ -54,7 +54,7 @@ describe("pbc region social financing (Guangdong)", () => {
     expect(script).toContain("地区社会融资");
     expect(script).toContain("PEER_REGIONS");
     expect(script).toContain("≠ 房价");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-fx/macro-fx.vue"), "utf8");
     expect(dash).toContain("data-pbc-region-sf");
     expect(dash).toContain("getPbcRegionSfPeerRanking");
     expect(dash).toContain("占全国社融");

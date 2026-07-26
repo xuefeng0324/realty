@@ -53,7 +53,7 @@ describe("safe usd mid", () => {
     expect(script).toContain("eur_per100");
     expect(script).toContain("hkd_per100");
     expect(script).toContain("≠ 房价");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-fx/macro-fx.vue"), "utf8");
     expect(dash).toContain("data-safe-usd-mid");
     expect(dash).toContain("getLatestSafeUsdMid");
     expect(dash).toContain("eurPer100");

@@ -47,7 +47,7 @@ describe("safe international investment position", () => {
     expect(script).toContain("国际投资头寸");
     expect(script).toContain("assets_usd_yi");
     expect(script).toContain("≠ 房价");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-fx/macro-fx.vue"), "utf8");
     expect(dash).toContain("data-safe-iip");
     expect(dash).toContain("getLatestSafeIip");
   });

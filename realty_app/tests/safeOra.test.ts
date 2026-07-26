@@ -46,7 +46,7 @@ describe("safe official reserve assets", () => {
     expect(script).toContain("gfcbzc");
     expect(script).toContain("gold_oz_wan");
     expect(script).toContain("≠ 房价");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-fx/macro-fx.vue"), "utf8");
     expect(dash).toContain("data-safe-ora");
     expect(dash).toContain("getLatestSafeOra");
   });

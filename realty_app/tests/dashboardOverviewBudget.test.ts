@@ -6,10 +6,10 @@ import { describe, expect, it } from "vitest";
  * 总览长度预算（详见 docs/DASHBOARD_OVERVIEW_BUDGET.md）。
  *
  * 硬规则（防止再涨）：
- *  - overview tab 下 macro-card 数 ≤ 14（当前 14 张；下一轮迁完后收紧到 ≤ 8）
- *  - dashboard.vue 总行数 ≤ 25 000（当前 16 746）
+ *  - overview tab 下 macro-card 数 ≤ 4（v1.121.136 进一步收紧：派生卡移设置/工具页）
+ *  - dashboard.vue 总行数 ≤ 14 500（v1.121.136 当前 14 186；硬规则锁死）
  *
- * 当 overviewCards ≤ 8 且 lines ≤ 16 000 时为「最终态」；当前为「中间态：禁止再涨」。
+ * 当 overviewCards ≤ 4 且 lines ≤ 12 000 时为「最终态」；当前为「中间态：禁止再涨」。
  */
 describe("总览长度预算 DASHBOARD_OVERVIEW_BUDGET", () => {
   const root = resolve(__dirname, "../src/pages/dashboard/dashboard.vue");
@@ -17,29 +17,29 @@ describe("总览长度预算 DASHBOARD_OVERVIEW_BUDGET", () => {
   const lines = src.split("\n").length;
 
   // 与 docs/DASHBOARD_OVERVIEW_BUDGET.md §1 同源
-  const MAX_OVERVIEW_CARDS_HARD = 8; // v1.121.129 第二批迁移后：当前 1 张（nbsMacro）；硬规则 ≤ 8 锁死
-  const MAX_TOTAL_LINES_HARD = 16_000; // v1.121.129 第二批迁移后：当前 15 555；硬规则 ≤ 16k 锁死
+  const MAX_OVERVIEW_CARDS_HARD = 4; // v1.121.136 第三批迁移后：当前 1 张（nbsMacro）；硬规则 ≤ 4 锁死
+  const MAX_TOTAL_LINES_HARD = 14_500; // v1.121.136 第三批迁移后：当前 14 186；硬规则 ≤ 14.5k 锁死
 
   const overviewCards = (src.match(
     /class="card[^"]*macro-card[^"]*"\s+data-tab="overview,price"/g
   ) ?? []).length;
 
-  it("overview tab 下 macro-card 数 ≤ 14（硬规则：禁止再涨）", () => {
-    // 远期目标 ≤ 8；当前为 baseline 14。本轮任何新增卡 → 立刻 fail。
+  it("overview tab 下 macro-card 数 ≤ 4（硬规则：禁止再涨）", () => {
+    // 远期目标 ≤ 4；本轮任何新增卡 → 立刻 fail。
     expect(overviewCards).toBeLessThanOrEqual(MAX_OVERVIEW_CARDS_HARD);
   });
 
-  it("dashboard.vue 总行数 ≤ 25 000（硬规则：禁止再涨）", () => {
+  it("dashboard.vue 总行数 ≤ 14 500（硬规则：禁止再涨）", () => {
     expect(lines).toBeLessThanOrEqual(MAX_TOTAL_LINES_HARD);
   });
 
-  it("远期目标：macro-card ≤ 4 + 行数 ≤ 12 000（提示下一轮缩页目标）", () => {
-    // 下一轮进一步压：macro-card ≤ 4 + dashboard 总行数 ≤ 12 000。
+  it("远期目标：macro-card ≤ 2 + 行数 ≤ 10 000（提示下一轮缩页目标）", () => {
+    // 下一轮进一步压：macro-card ≤ 2 + dashboard 总行数 ≤ 10 000。
     // 当前已达成硬规则，远期仅 console 提示。
-    if (overviewCards > 4 || lines > 12_000) {
+    if (overviewCards > 2 || lines > 10_000) {
       // eslint-disable-next-line no-console
       console.warn(
-        `[budget-target-next] macro-card = ${overviewCards}（远期 ≤ 4）/ lines = ${lines}（远期 ≤ 12 000）`
+        `[budget-target-next] macro-card = ${overviewCards}（远期 ≤ 2）/ lines = ${lines}（远期 ≤ 10 000）`
       );
     }
   });

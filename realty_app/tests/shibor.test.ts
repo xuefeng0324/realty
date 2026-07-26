@@ -29,7 +29,7 @@ describe("shibor (chinamoney)", () => {
     expect(script).toContain("ShiborHis");
     expect(script).toContain("shibor.json");
     expect(script).toContain("≠");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-rates/macro-rates.vue"), "utf8");
     expect(dash).toContain("data-shibor");
     expect(dash).toContain("getLatestShibor");
   });

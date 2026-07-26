@@ -154,4 +154,33 @@ describe("宏观 5 子页骨架 PAGES_MACRO_*", () => {
     // KPI 卡片组件
     expect(src).toContain("MacroKpiCell");
   });
+
+  it("macro-rates 子页 T-009 聚合趋势卡（6 项指标 + 6 期序列）", () => {
+    const src = readFileSync(
+      resolve(pagesDir, "macro-rates/macro-rates.vue"),
+      "utf8"
+    );
+    // 聚合卡 data 属性 + computed 名
+    expect(src).toContain("data-rates-trend-summary");
+    expect(src).toContain("rateTrendRows");
+    expect(src).toContain("trendWindowLabel");
+    // 6 个 history getter（聚合卡用）
+    expect(src).toContain("getLprHistory");
+    expect(src).toContain("getMlfHistory");
+    expect(src).toContain("getOmoRrHistory");
+    expect(src).toContain("getShiborHistory");
+    expect(src).toContain("getChinaBondYieldHistory");
+    expect(src).toContain("getRepoFixingHistory");
+    // 6 项指标 label
+    expect(src).toContain("LPR 5y");
+    expect(src).toContain("MLF 1y");
+    expect(src).toContain("OMO 7d");
+    expect(src).toContain("Shibor ON");
+    expect(src).toContain("国债 10y");
+    expect(src).toContain("FR007");
+    // 样式块（rate-trend-grid）
+    expect(src).toContain(".rate-trend-grid");
+    expect(src).toContain(".rate-trend-row");
+    expect(src).toContain(".rate-trend-cells");
+  });
 });

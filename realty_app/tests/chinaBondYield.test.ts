@@ -34,8 +34,8 @@ describe("china bond yield (chinabond)", () => {
     expect(script).toContain("中债国债收益率曲线");
     expect(script).toContain("showCbrc");
     expect(script).toContain("≠");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
-    expect(dash).toContain("data-chinabond-yield");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-rates/macro-rates.vue"), "utf8");
+    expect(dash).toContain("data-china-bond-yield");
     expect(dash).toContain("getLatestChinaBondYield");
   });
 

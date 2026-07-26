@@ -3,6 +3,35 @@
     <view class="container">
       <MacroTabNav active="rates" data-macro-tab-nav />
 
+      <!-- 聚合 · 近 6 期 利率变化趋势（T-009） -->
+      <view class="card macro-card" data-rates-trend-summary>
+        <view class="macro-kicker">聚合 · 6 项指标</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">近 6 期 利率变化趋势</view>
+          <view class="muted" style="font-size: 22rpx">{{ trendWindowLabel }}</view>
+        </view>
+        <view class="rate-trend-grid" style="margin-top: 16rpx">
+          <view class="rate-trend-row" v-for="row in rateTrendRows" :key="row.label">
+            <text class="rate-trend-label">{{ row.label }}</text>
+            <view class="rate-trend-cells">
+              <text
+                v-for="(v, i) in row.series"
+                :key="i"
+                class="rate-trend-cell"
+                :class="v.kind"
+              >{{ v.text }}</text>
+            </view>
+            <text
+              class="rate-trend-band"
+              :class="row.bandKind"
+            >{{ row.bandText }}</text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+          6 张主卡的关键利率最近 6 期序列 · 升 / 持平 / 降 · 红涨绿跌（人民币利率反向）；≠房价/挂牌/网签/70城。
+        </view>
+      </view>
+
       <!-- 全国 · LPR（lprHistoryAnalysis） -->
       <view v-if="lprLatest" class="card macro-card" data-lpr-history>
         <view class="macro-kicker">全国 · 人民银行</view>
@@ -319,26 +348,31 @@ import { getLprHistory } from "../../local/store";
 import {
   getLatestMlf,
   getMlfDeltaVsPrev,
+  getMlfHistory,
   type MlfRow
 } from "../../local/mlfHistory";
 import {
   getLatestOmoRr,
   getOmoRrDeltaVsPrev,
+  getOmoRrHistory,
   type OmoRrRow
 } from "../../local/omoRrHistory";
 import {
   getLatestShibor,
   getShiborDeltaVsPrev,
+  getShiborHistory,
   type ShiborRow
 } from "../../local/shibor";
 import {
   getLatestChinaBondYield,
   getChinaBondYieldDeltaVsPrev,
+  getChinaBondYieldHistory,
   type ChinaBondYieldRow
 } from "../../local/chinaBondYield";
 import {
   getLatestRepoFixing,
   getRepoFixingDeltaVsPrev,
+  getRepoFixingHistory,
   type RepoFixingRow
 } from "../../local/repoFixing";
 
@@ -387,4 +421,173 @@ const bondDelta = computed(() => getChinaBondYieldDeltaVsPrev());
 
 const repoFixingLatest = computed<RepoFixingRow | null>(() => getLatestRepoFixing());
 const repoFixingDelta = computed(() => getRepoFixingDeltaVsPrev());
+
+/* ------------------------------------------------------------------ *
+ *  T-009 聚合 · 近 6 期 利率变化趋势
+ *  6 张主卡的关键利率最近 6 期序列 + 涨/跌/持平计数。
+ *  利率「升 = 红」是债市惯例，但房贷场景里「降 = 红」更直观，故反向：
+ *    up = 利率降（红，刺激） / down = 利率升（绿，回收）
+ * ------------------------------------------------------------------ */
+
+type TrendKind = "rate-up" | "rate-down" | "rate-flat";
+interface TrendCell {
+  /** 显示文本：保留 2 位小数的百分比 */
+  text: string;
+  kind: TrendKind;
+}
+interface RateTrendRow {
+  label: string;
+  series: TrendCell[];
+  bandText: string;
+  bandKind: "rate-up" | "rate-down" | "rate-flat";
+}
+
+/**
+ * 取最近 N 期某字段值（新→旧）。
+ * history 函数已按新→旧排序，直接 slice(0, n) 即可。
+ */
+function pickRecent<T>(history: T[], n: number, pick: (row: T) => number): number[] {
+  return history.slice(0, n).map(pick);
+}
+
+/**
+ * 把 6 个连续点两两比对（点 0 = 最新），输出每点的方向：
+ *   - 下降 → rate-up（红，对应房贷场景的「降息 = 好消息」）
+ *   - 上升 → rate-down（绿，回收）
+ *   - 持平 → rate-flat
+ * 注意首点（最新一期）无可比对前值 → rate-flat。
+ */
+function diffSeriesToTrend(values: number[]): TrendKind[] {
+  const out: TrendKind[] = [];
+  for (let i = 0; i < values.length; i++) {
+    if (i === values.length - 1) {
+      out.push("rate-flat");
+      continue;
+    }
+    const cur = values[i]!;
+    const prev = values[i + 1]!;
+    if (!Number.isFinite(cur) || !Number.isFinite(prev)) out.push("rate-flat");
+    else if (cur < prev) out.push("rate-up");
+    else if (cur > prev) out.push("rate-down");
+    else out.push("rate-flat");
+  }
+  return out;
+}
+
+/**
+ * 把 [up, flat, down] 三类计数转成概要文本 + 主色。
+ */
+function summarize(kinds: TrendKind[]): { text: string; kind: TrendKind } {
+  let up = 0, down = 0, flat = 0;
+  for (const k of kinds) {
+    if (k === "rate-up") up++;
+    else if (k === "rate-down") down++;
+    else flat++;
+  }
+  if (up >= down && up > 0) return { text: `${up} 降 · ${down} 升 · ${flat} 平`, kind: "rate-up" };
+  if (down > up) return { text: `${down} 升 · ${up} 降 · ${flat} 平`, kind: "rate-down" };
+  return { text: `持平 ${flat} 期`, kind: "rate-flat" };
+}
+
+const TREND_WINDOW = 6;
+
+/** 最新一期的窗口日期标签（如「2026-07 ~ 2026-02」），供 card 右上角 muted 显示 */
+const trendWindowLabel = computed(() => {
+  // 取 LPR 最新月 + 6 期前月
+  const history = getLprHistory();
+  if (history.length === 0) return "";
+  const sorted = [...history].sort((a, b) => a.month.localeCompare(b.month));
+  const newest = sorted[sorted.length - 1]?.month ?? "";
+  const oldest = sorted[Math.max(0, sorted.length - TREND_WINDOW)]?.month ?? "";
+  return `${newest} ~ ${oldest}`;
+});
+
+const rateTrendRows = computed<RateTrendRow[]>(() => {
+  // LPR 5y：按月份升序再倒序取最近 6 期
+  const lprHistorySorted = [...getLprHistory()]
+    .sort((a, b) => b.month.localeCompare(a.month))
+    .slice(0, TREND_WINDOW);
+  const lprValues = lprHistorySorted.map((r) => r.lpr5y);
+
+  const mlfValues = pickRecent(getMlfHistory(), TREND_WINDOW, (r) => r.mlf1yPct);
+  const omoValues = pickRecent(getOmoRrHistory(), TREND_WINDOW, (r) => r.ratePct);
+  const shiborValues = pickRecent(getShiborHistory(), TREND_WINDOW, (r) => r.on);
+  const bondValues = pickRecent(getChinaBondYieldHistory(), TREND_WINDOW, (r) => r.y10y);
+  const repoValues = pickRecent(getRepoFixingHistory(), TREND_WINDOW, (r) => r.fr007);
+
+  const labels = [
+    "LPR 5y",
+    "MLF 1y",
+    "OMO 7d",
+    "Shibor ON",
+    "国债 10y",
+    "FR007"
+  ];
+  const valuesList = [lprValues, mlfValues, omoValues, shiborValues, bondValues, repoValues];
+
+  return labels.map((label, i) => {
+    const vals = valuesList[i]!;
+    const kinds = diffSeriesToTrend(vals);
+    const series: TrendCell[] = vals.map((v, j) => ({
+      text: Number.isFinite(v) ? v.toFixed(2) + "%" : "—",
+      kind: kinds[j]!
+    }));
+    const sum = summarize(kinds.slice(1)); // 跳过首点（无可比对前值）
+    return { label, series, bandText: sum.text, bandKind: sum.kind };
+  });
+});
 </script>
+
+<style scoped>
+/* T-009 · 利率趋势聚合卡的紧凑网格 */
+.rate-trend-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+.rate-trend-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 22rpx;
+}
+.rate-trend-label {
+  flex: 0 0 140rpx;
+  color: var(--muted, #888);
+}
+.rate-trend-cells {
+  flex: 1;
+  display: flex;
+  gap: 6rpx;
+}
+.rate-trend-cell {
+  flex: 1;
+  text-align: center;
+  padding: 4rpx 6rpx;
+  border-radius: 6rpx;
+  background: rgba(127, 127, 127, 0.08);
+  font-variant-numeric: tabular-nums;
+}
+.rate-trend-cell.rate-up {
+  color: #d23b3b;
+  background: rgba(210, 59, 59, 0.10);
+}
+.rate-trend-cell.rate-down {
+  color: #2f8a3a;
+  background: rgba(47, 138, 58, 0.10);
+}
+.rate-trend-band {
+  flex: 0 0 200rpx;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.rate-trend-band.rate-up {
+  color: #d23b3b;
+}
+.rate-trend-band.rate-down {
+  color: #2f8a3a;
+}
+.rate-trend-band.rate-flat {
+  color: var(--muted, #888);
+}
+</style>

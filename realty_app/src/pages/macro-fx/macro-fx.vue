@@ -117,6 +117,11 @@
             :value="safeUsdMid.eurPer100.toFixed(2)"
             subClass="muted"
           />
+          <MacroKpiCell
+            label="HKD 100"
+            :value="safeUsdMid.hkdPer100.toFixed(3)"
+            subClass="muted"
+          />
         </view>
         <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
           日度 · 人民币 / 美元 中间价 + 100 外币兑人民币；≠房价/挂牌/网签/70城。
@@ -184,6 +189,11 @@
             label="涉外收付款顺差"
             :value="(safeSettle.receiptSurplusUsdYi >= 0 ? '+' : '') + safeSettle.receiptSurplusUsdYi.toFixed(2) + ' 亿$'"
             :subTrendClass="bandFromDelta(safeSettle.receiptSurplusUsdYi)"
+          />
+          <MacroKpiCell
+            label="涉外收入"
+            :value="formatForexYi(safeSettle.receiptUsdYi)"
+            subClass="muted"
           />
         </view>
         <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
@@ -352,6 +362,106 @@
           亿美元 · 月度 · 居民/非居民口径；≠海关人民币口径货物贸易。
         </view>
       </view>
+
+      <!-- 全国 · 央行金融统计（pbcFinStats） -->
+      <view v-if="pbcFinStats" class="card macro-card" data-pbc-fin-stats>
+        <view class="macro-kicker">全国 · 人民银行</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">金融统计 · 社融 M2</view>
+          <view class="muted" style="font-size: 22rpx">{{ pbcFinStats.period }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <MacroKpiCell
+            label="社融存量"
+            :value="(pbcFinStats.sfStockWanYi / 10000).toFixed(2) + ' 万万亿¥'"
+            :sub="`同比 ${formatPctDelta(pbcFinStats.sfStockYoyPct)}`"
+            :subTrendClass="bandFromDelta(pbcFinStats.sfStockYoyPct)"
+          />
+          <MacroKpiCell
+            label="社融增量"
+            :value="(pbcFinStats.sfFlowYtdWanYi / 10000).toFixed(2) + ' 万万亿¥'"
+            subClass="muted"
+          />
+          <MacroKpiCell
+            label="M2"
+            :value="(pbcFinStats.m2WanYi / 10000).toFixed(2) + ' 万万亿¥'"
+            :sub="`同比 ${formatPctDelta(pbcFinStats.m2YoyPct)}`"
+            :subTrendClass="bandFromDelta(pbcFinStats.m2YoyPct)"
+          />
+          <MacroKpiCell
+            label="M1"
+            :value="(pbcFinStats.m1WanYi / 10000).toFixed(2) + ' 万万亿¥'"
+            subClass="muted"
+          />
+          <MacroKpiCell
+            label="本外币贷款"
+            :value="(pbcFinStats.rmbLoanYtdWanYi / 10000).toFixed(2) + ' 万万亿¥'"
+            subClass="muted"
+          />
+          <MacroKpiCell
+            label="住户贷款"
+            :value="formatForexYi(pbcFinStats.hhLoanYtdYi)"
+            subClass="muted"
+          />
+          <MacroKpiCell
+            label="汇率"
+            :value="pbcFinStats.usdCny.toFixed(4)"
+            subClass="muted"
+          />
+          <MacroKpiCell
+            label="数据源"
+            value="人民银行月度"
+            subClass="muted"
+          />
+        </view>
+        <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+          万亿元 · 月度 · 社融存量同比反映宏观杠杆；M2/M1 反映货币活化度；≠房价/挂牌/网签/70城。
+        </view>
+      </view>
+
+      <!-- 全国 · 地区社融（pbcRegionSf 广东） -->
+      <view v-if="pbcRegionSf" class="card macro-card" data-pbc-region-sf>
+        <view class="macro-kicker">广东 · 人民银行</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">地区社融 · {{ pbcRegionSf.region }}</view>
+          <view class="muted" style="font-size: 22rpx">{{ pbcRegionSf.period }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <MacroKpiCell
+            label="社融增量"
+            :value="formatForexYi(pbcRegionSf.sfFlowYi)"
+            subClass="muted"
+          />
+          <MacroKpiCell
+            label="人民币贷款"
+            :value="formatForexYi(pbcRegionSf.rmbLoanYi)"
+            subClass="muted"
+          />
+          <MacroKpiCell
+            label="企业债"
+            :value="formatForexYi(pbcRegionSf.corpBondYi)"
+            subClass="muted"
+          />
+          <MacroKpiCell
+            label="政府债"
+            :value="formatForexYi(pbcRegionSf.govBondYi)"
+            subClass="muted"
+          />
+          <MacroKpiCell
+            label="股权融资"
+            :value="formatForexYi(pbcRegionSf.equityYi)"
+            subClass="muted"
+          />
+          <MacroKpiCell
+            label="占全国社融"
+            :value="pbcRegionSfPeers && pbcRegionSfPeers.length > 0 ? (pbcRegionSfPeers[0]!.sfFlowYi / 10000).toFixed(1) + ' 万亿¥ 区域排名' : '—'"
+            subClass="muted"
+          />
+        </view>
+        <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+          亿元 · 月度 · 省级社融增量对照；广东长期居首；≠房价/挂牌/网签/70城。
+        </view>
+      </view>
     </view>
   </view>
 </template>
@@ -412,6 +522,15 @@ import {
   getLatestSafeBopTrade,
   type SafeBopTradeRow
 } from "../../local/safeBopTrade";
+import {
+  getLatestPbcFinStats,
+  type PbcFinStatsRow
+} from "../../local/pbcFinStats";
+import {
+  getLatestPbcRegionSf,
+  getPbcRegionSfPeerRanking,
+  type PbcRegionSfRow
+} from "../../local/pbcRegionSf";
 
 function formatForexYi(v: number): string {
   if (!Number.isFinite(v) || v <= 0) return "—";
@@ -450,4 +569,8 @@ const safeSettle = computed<SafeSettleRow | null>(() => getLatestSafeSettle());
 const safeBop = computed<SafeBopRow | null>(() => getLatestSafeBop());
 const safeIip = computed<SafeIipRow | null>(() => getLatestSafeIip());
 const safeBopTrade = computed<SafeBopTradeRow | null>(() => getLatestSafeBopTrade());
+
+const pbcFinStats = computed<PbcFinStatsRow | null>(() => getLatestPbcFinStats());
+const pbcRegionSf = computed<PbcRegionSfRow | null>(() => getLatestPbcRegionSf());
+const pbcRegionSfPeers = computed(() => getPbcRegionSfPeerRanking());
 </script>

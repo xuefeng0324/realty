@@ -30,7 +30,7 @@ describe("mlf history", () => {
     expect(script).toContain("中期借贷便利");
     expect(script).toContain("mlf_1y_pct");
     expect(script).toContain("≠ 房价");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-rates/macro-rates.vue"), "utf8");
     expect(dash).toContain("data-mlf-history");
     expect(dash).toContain("getLatestMlf");
   });

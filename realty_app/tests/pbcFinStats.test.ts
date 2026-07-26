@@ -32,7 +32,7 @@ describe("pbc financial statistics", () => {
     expect(script).toContain("金融统计数据报告");
     expect(script).toContain("sf_stock_wan_yi");
     expect(script).toContain("≠ 房价");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-fx/macro-fx.vue"), "utf8");
     expect(dash).toContain("data-pbc-fin-stats");
     expect(dash).toContain("getLatestPbcFinStats");
   });
