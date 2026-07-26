@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
  *
  * 硬规则（防止再涨）：
  *  - overview tab 下 macro-card 数 ≤ 4（v1.121.136 进一步收紧：派生卡移设置/工具页）
- *  - dashboard.vue 总行数 ≤ 13 000（v1.121.138 真删 14 张派生卡后当前 12 763；硬规则锁死）
+ *  - dashboard.vue 总行数 ≤ 11 500（v1.121.144 派生 dead code 清理后当前 10 975；硬规则锁死）
  *
  * 当 overviewCards ≤ 4 且 lines ≤ 10 000 时为「最终态」；当前为「中间态：禁止再涨」。
  */
@@ -17,8 +17,8 @@ describe("总览长度预算 DASHBOARD_OVERVIEW_BUDGET", () => {
   const lines = src.split("\n").length;
 
   // 与 docs/DASHBOARD_OVERVIEW_BUDGET.md §1 同源
-  const MAX_OVERVIEW_CARDS_HARD = 4; // v1.121.138 真删 14 张派生卡后：当前 1 张（nbsMacro）；硬规则 ≤ 4 锁死
-  const MAX_TOTAL_LINES_HARD = 13_000; // v1.121.138 真删 14 张派生卡后：当前 12 763；硬规则 ≤ 13k 锁死
+  const MAX_OVERVIEW_CARDS_HARD = 4; // v1.121.144 真删 14 张派生卡 + 派生 dead code 清理后：当前 1 张（nbsMacro）；硬规则 ≤ 4 锁死
+  const MAX_TOTAL_LINES_HARD = 11_500; // v1.121.144 派生 dead code 清理后：当前 10 975；硬规则 ≤ 11.5k 锁死
 
   const overviewCards = (src.match(
     /class="card[^"]*macro-card[^"]*"\s+data-tab="overview,price"/g
