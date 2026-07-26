@@ -254,4 +254,14 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(dashSrc).toContain("ADVANCED_EXPANDED_KEY");
     expect(dashSrc).toContain("loadUiState");
   });
+
+  it("dashboard.vue v1.121.147 Batch 8：每张核心卡右上角 ✕ 隐藏按钮", () => {
+    // 1. CSS 类
+    expect(dashSrc).toContain(".card-hide-btn");
+    // 2. 至少 15 张卡有 data-dash-card-hide 属性
+    const hideMatches = dashSrc.match(/data-dash-card-hide="[a-z][a-z0-9-]+"/g) || [];
+    expect(hideMatches.length).toBeGreaterThanOrEqual(15);
+    // 3. 点击处理
+    expect(dashSrc).toContain("toggleCardHidden");
+  });
 });

@@ -259,6 +259,12 @@
       <view v-if="!isCardHidden('stats70-drift')" class="card" data-card-key="stats70-drift" v-if="stats70Ready">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">全国 70 城 · 涨跌 Top</view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="stats70-drift"
+            @click.stop="toggleCardHidden('stats70-drift')"
+          >✕</button>
           <view class="muted" style="font-size: 22rpx">{{ stats70MonthLabel }}</view>
         </view>
 
@@ -365,6 +371,12 @@
       <view v-if="!isCardHidden('lpr-mortgage-signal')" class="card" data-card-key="lpr-mortgage-signal" v-if="lprLatest">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏦 LPR 与房贷利率</view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="lpr-mortgage-signal"
+            @click.stop="toggleCardHidden('lpr-mortgage-signal')"
+          >✕</button>
           <view class="muted" style="font-size: 22rpx">{{ lprLatest.month }}</view>
         </view>
 
@@ -1575,7 +1587,15 @@
       >
         <view class="row-between">
           <view class="card-title">区/板块对比</view>
-          <view class="muted">{{ app.metric === "listing_count" ? "挂牌数" : "均价(元/㎡)" }}</view>
+          <view class="row">
+            <view class="muted">{{ app.metric === "listing_count" ? "挂牌数" : "均价(元/㎡)" }}</view>
+            <button
+              class="card-hide-btn"
+              hover-class="tap-row--active"
+              data-dash-card-hide="region-compare"
+              @click.stop="toggleCardHidden('region-compare')"
+            >✕</button>
+          </view>
         </view>
         <view v-if="isOverviewGroupCollapsed('region')" data-overview-summary class="overview-card-summary muted">
           {{ overviewRegionSummary }}
@@ -1614,6 +1634,12 @@
       <view v-if="!isCardHidden('district-8w-trend') && (trendItems.length > 0)" class="card" data-card-key="district-8w-trend">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">区级近 8 周房价趋势</view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="district-8w-trend"
+            @click.stop="toggleCardHidden('district-8w-trend')"
+          >✕</button>
           <view class="muted" style="font-size: 22rpx">按近 4 周均价 vs 前 4 周均价</view>
         </view>
         <view v-for="it in trendItems" :key="it.district_name" class="trend-row">
@@ -1659,6 +1685,12 @@
           <view class="card-title" style="margin-bottom: 0">
             近 4 周二手网签热度榜 · {{ wangqianOverview.cityName }}
           </view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="wangqian-rank-4w"
+            @click.stop="toggleCardHidden('wangqian-rank-4w')"
+          >✕</button>
           <view class="muted" style="font-size: 22rpx">
             累计 {{ wangqianOverview.totalUnits }} 套
           </view>
@@ -1714,6 +1746,12 @@
           <view class="card-title" style="margin-bottom: 0">
             🔥 全品类区级网签热度榜 · {{ districtWangqianRank.cityName }}
           </view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="district-wangqian-3cat"
+            @click.stop="toggleCardHidden('district-wangqian-3cat')"
+          >✕</button>
           <view class="muted" style="font-size: 22rpx">
             累计 {{ districtWangqianRank.totalUnits }} 套 · {{ districtWangqianRank.totalDistricts }} 区
           </view>
@@ -1868,6 +1906,12 @@
           <view class="card-title" style="margin-bottom: 0">
             🚇 通勤时长榜 · {{ commuteRanking.cityName }} → {{ commuteRanking.cbdName }}
           </view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="commute-rank"
+            @click.stop="toggleCardHidden('commute-rank')"
+          >✕</button>
           <view class="muted" style="font-size: 22rpx">
             城市均 {{ commuteRanking.cityAvgMinutes ?? "—" }} 分钟
             · {{ commuteRanking.totalCommunities }} 小区
@@ -2024,6 +2068,12 @@
       <view v-if="!isCardHidden('listing-tag-cloud') && (tagCloud && tagCloud.tags.length > 0)" class="card" data-card-key="listing-tag-cloud" data-tab="all,school">
         <view class="row-between">
           <view class="card-title">🏷️ 房源标签云 · {{ tagCloud.cityName }}</view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="listing-tag-cloud"
+            @click.stop="toggleCardHidden('listing-tag-cloud')"
+          >✕</button>
           <view class="muted">{{ tagCloud.tags.length }} 个标签 / {{ tagCloud.totalTags }} 次命中</view>
         </view>
         <view class="tag-cloud">
@@ -2049,6 +2099,12 @@
       <view v-if="!isCardHidden('district-index') && (districtIndex && districtIndex.items.length > 0)" class="card" data-card-key="district-index" data-tab="all,price">
         <view class="row-between">
           <view class="card-title">📈 区房价指数 · {{ districtIndex.cityName }}</view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="district-index"
+            @click.stop="toggleCardHidden('district-index')"
+          >✕</button>
           <view class="muted">基准 100 = 各区最早周中位价</view>
         </view>
         <view
@@ -2094,6 +2150,12 @@
       <view v-if="!isCardHidden('district-4w-change') && (districtChange && districtChange.items.length > 0)" class="card" data-card-key="district-4w-change" data-tab="all,price">
         <view class="row-between">
           <view class="card-title">🚀 区涨幅榜 (近 4 周) · {{ districtChange.cityName }}</view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="district-4w-change"
+            @click.stop="toggleCardHidden('district-4w-change')"
+          >✕</button>
           <view class="muted">Top {{ districtChange.items.length }}</view>
         </view>
         <view v-if="districtChange.items.length === 0" class="empty">暂无数据</view>
@@ -2139,6 +2201,12 @@
       >
         <view class="row-between">
           <view class="card-title">🏅 小区综合评分 Top 小区 · {{ communityScore.cityName }}</view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="community-score-rank"
+            @click.stop="toggleCardHidden('community-score-rank')"
+          >✕</button>
           <view class="muted">Top {{ communityScore.items.length }}</view>
         </view>
         <view v-if="isOverviewGroupCollapsed('community')" data-overview-summary class="overview-card-summary muted">
@@ -2387,6 +2455,12 @@
       <view v-if="!isCardHidden('listing-freshness') && (listingFreshness && listingFreshness.totalCount > 0)" class="card" data-card-key="listing-freshness" data-tab="all,price">
         <view class="row-between">
           <view class="card-title">📅 房源新鲜度 · {{ listingFreshness.cityName }}</view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="listing-freshness"
+            @click.stop="toggleCardHidden('listing-freshness')"
+          >✕</button>
           <view class="muted">活跃 top {{ listingFreshness.mostFresh.length }} · 滞销 top {{ listingFreshness.mostStale.length }}</view>
         </view>
 
@@ -2505,6 +2579,12 @@
       <view v-if="!isCardHidden('bedroom-area-heatmap') && (bedroomArea && bedroomArea.bedrooms.length > 0)" class="card" data-card-key="bedroom-area-heatmap" data-tab="all,price">
         <view class="row-between">
           <view class="card-title">📐 户型 × 面积 分布 · {{ bedroomArea.cityName }}</view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="bedroom-area-heatmap"
+            @click.stop="toggleCardHidden('bedroom-area-heatmap')"
+          >✕</button>
           <view class="muted">minCount ≥ 3 · 共 {{ bedroomArea.totalCount }} 套</view>
         </view>
         <view class="ba-heatmap">
@@ -2545,6 +2625,12 @@
       <view v-if="!isCardHidden('orientation-floor-matrix') && (orientationFloor && orientationFloor.orientations.length > 0)" class="card" data-card-key="orientation-floor-matrix" data-tab="all,price">
         <view class="row-between">
           <view class="card-title">🧭 朝向 × 楼层 溢价 · {{ orientationFloor.cityName }}</view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="orientation-floor-matrix"
+            @click.stop="toggleCardHidden('orientation-floor-matrix')"
+          >✕</button>
           <view class="muted">vs 全城中位 {{ Math.round(orientationFloor.cityMedian) }} 元/㎡ · minCount ≥ 5</view>
         </view>
         <view class="of-section-title">📈 溢价 Top 5</view>
@@ -2702,6 +2788,12 @@
       <view v-if="!isCardHidden('decorate-age-matrix') && (decorateAge && decorateAge.decorates.length > 0)" class="card" data-card-key="decorate-age-matrix" data-tab="all,price">
         <view class="row-between">
           <view class="card-title">🛋️ 装修 × 楼龄 溢价 · {{ decorateAge.cityName }}</view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="decorate-age-matrix"
+            @click.stop="toggleCardHidden('decorate-age-matrix')"
+          >✕</button>
           <view class="muted">vs 全城中位 {{ Math.round(decorateAge.cityMedian) }} 元/㎡ · minCount ≥ 5</view>
         </view>
         <view class="of-section-title">📈 溢价 Top 5</view>
@@ -2777,6 +2869,12 @@
       <view v-if="!isCardHidden('community-scatter') && (scatter && scatter.points.length > 0)" class="card" data-card-key="community-scatter" data-tab="all,price,map">
         <view class="row-between">
           <view class="card-title">💹 社区 总价 × 单价 散点 · {{ scatter.cityName }}</view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="community-scatter"
+            @click.stop="toggleCardHidden('community-scatter')"
+          >✕</button>
           <view class="muted">共 {{ scatter.points.length }} 社区 (≥3 套)</view>
         </view>
         <view class="scatter-legend">
@@ -3016,6 +3114,12 @@
       <view v-if="!isCardHidden('district-map') && (districtMap && districtMap.districts.length > 0)" class="card" data-card-key="district-map" data-tab="all,map">
         <view class="row-between">
           <view class="card-title">🗺️ 行政区域图 · {{ districtMap.cityName }}</view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="district-map"
+            @click.stop="toggleCardHidden('district-map')"
+          >✕</button>
           <view class="muted">{{ districtMap.districts.length }} 区 · {{ districtMap.markers.length }} 社区</view>
         </view>
         <!-- v0.52.0 map-12: 地图模式切换 (marker / count / price / school / metro) -->
@@ -3130,6 +3234,12 @@
       >
         <view class="row-between">
           <view class="card-title">🏫 学区 5 维评分 · {{ schoolDims.cityName }}</view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="school-dim-weighted"
+            @click.stop="toggleCardHidden('school-dim-weighted')"
+          >✕</button>
           <view class="muted">{{ schoolDims.total }} 校</view>
         </view>
         <view v-if="isOverviewGroupCollapsed('school')" data-overview-summary class="overview-card-summary muted">
@@ -3231,6 +3341,12 @@
       >
         <view class="row-between">
           <view class="card-title">💰 LPR + 房贷利率 · 全国</view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="macro-lpr-card"
+            @click.stop="toggleCardHidden('macro-lpr-card')"
+          >✕</button>
           <view class="muted">{{ lpr.total }} 月历史 · 最新 {{ lpr.latest?.month }}</view>
         </view>
         <view v-if="isOverviewGroupCollapsed('lpr')" data-overview-summary class="overview-card-summary muted">
@@ -3571,6 +3687,12 @@
       <view v-if="!isCardHidden('hospital-rank') && (hospitalCitySummary)" class="card" data-card-key="hospital-rank" data-tab="all,school">
         <view class="row-between">
           <view class="card-title">🏥 医疗资源 · {{ hospitalCityName }}</view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="hospital-rank"
+            @click.stop="toggleCardHidden('hospital-rank')"
+          >✕</button>
           <view class="muted">{{ hospitalCitySummary.hospitalCount }} 家</view>
         </view>
         <view class="hosp-summary">
@@ -4108,6 +4230,12 @@
           <view class="card-title">🧭 生活便利度 Top 小区 · {{ lifeConvenience.cityName }}</view>
           <view class="muted">Top {{ lifeConvenience.items.length }}</view>
         </view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="life-convenience"
+            @click.stop="toggleCardHidden('life-convenience')"
+          >✕</button>
         <view v-if="lifeConvenience.items.length === 0" class="empty">暂无数据</view>
         <view class="lc-summary muted">
           城市均分 {{ lifeConvenience.avgScore }} / 110 · 最高 {{ lifeConvenience.maxScore }} / 110
@@ -4372,6 +4500,12 @@
       <view id="week-ranking-card" class="card" data-tab="all,overview,price">
         <view class="row-between">
           <view class="card-title">小区周榜 Top {{ ranking.length }} · {{ app.weekEnd }}</view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="school-top-community"
+            @click.stop="toggleCardHidden('school-top-community')"
+          >✕</button>
           <view class="muted" v-if="rankingTotal">共 {{ rankingTotal }} 条</view>
         </view>
 
@@ -4606,6 +4740,12 @@
           <view class="card-title">🏫 高学区评分房源 · {{ listingPremiumOverview.cityName }}</view>
           <view class="muted">Top {{ listingPremiumOverview.items.length }} / 共 {{ listingPremiumOverview.total }}</view>
         </view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="listing-school-premium"
+            @click.stop="toggleCardHidden('listing-school-premium')"
+          >✕</button>
         <view v-if="lspCitySummary" class="lsp-summary">
           <view class="lsp-kpi">
             <text class="lsp-kpi-val">{{ lspCitySummary.avgPremiumPct.toFixed(1) }}%</text>
@@ -4710,6 +4850,12 @@
           <view class="card-title">🛒 商业热度 Top {{ commercialResp.items.length }} · {{ commercialResp.cityName }}</view>
           <view class="muted">共 {{ commercialResp.total }} 个小区上榜</view>
         </view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="commercial-heat"
+            @click.stop="toggleCardHidden('commercial-heat')"
+          >✕</button>
         <view v-if="commercialDistrictTop.length" class="muted" style="margin: 0 0 4rpx; font-size: 22rpx">
           分区均分 Top
         </view>
@@ -4840,6 +4986,12 @@
           <view class="card-title">📊 {{ districtCompareResp.districtName }} · {{ districtCompareResp.cityName }} 小区对比</view>
           <view class="muted tap-target" @click="closeDistrictCompare">✕ 关闭</view>
         </view>
+          <button
+            class="card-hide-btn"
+            hover-class="tap-row--active"
+            data-dash-card-hide="multi-community-compare"
+            @click.stop="toggleCardHidden('multi-community-compare')"
+          >✕</button>
         <view class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
           均价柱状图 ({{ districtCompareResp.weekEnd }} 周快照 · 共 {{ districtCompareResp.total }} 个小区)
         </view>
@@ -8519,6 +8671,25 @@ onShow(async () => {
   background: var(--color-soft, #f5f5f5) !important;
   color: var(--color-primary, #4f46e5) !important;
   font-weight: 600;
+}
+.card-hide-btn {
+  margin: 0 0 0 8rpx;
+  font-size: 22rpx;
+  line-height: 1;
+  padding: 0;
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50% !important;
+  background: transparent !important;
+  color: var(--color-muted, #999) !important;
+  border: 1rpx solid var(--color-border-soft, #eee) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.card-hide-btn:hover {
+  background: var(--color-soft, #f5f5f5) !important;
+  color: var(--color-text, #333) !important;
 }
 .page {
   min-height: 100vh;
