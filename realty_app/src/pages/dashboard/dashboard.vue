@@ -718,6 +718,77 @@
         </view>
       </view>
 
+      <!-- Shibor（≠房价） -->
+      <view v-if="shiborLatest" class="card" data-shibor data-tab="overview,price">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">💹 Shibor</view>
+          <view class="muted" style="font-size: 22rpx">{{ shiborLatest.date }}</view>
+        </view>
+        <view class="trend-summary" style="margin-top: 12rpx">
+          <view class="trend-cell">
+            <text class="cell-label">隔夜</text>
+            <text class="cell-value">{{ shiborLatest.on.toFixed(2) }}%</text>
+            <text
+              v-if="shiborDelta"
+              class="cell-sub"
+              :class="rateDeltaClass(shiborDelta.onDeltaPp)"
+            >
+              较上日 {{ shiborDelta.onDeltaPp > 0 ? "+" : "" }}{{ shiborDelta.onDeltaPp }} pp
+            </text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">1 周</text>
+            <text class="cell-value">{{ shiborLatest.w1.toFixed(2) }}%</text>
+            <text
+              v-if="shiborDelta"
+              class="cell-sub"
+              :class="rateDeltaClass(shiborDelta.w1DeltaPp)"
+            >
+              较上日 {{ shiborDelta.w1DeltaPp > 0 ? "+" : "" }}{{ shiborDelta.w1DeltaPp }} pp
+            </text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">1 年</text>
+            <text class="cell-value">{{ shiborLatest.y1.toFixed(2) }}%</text>
+            <text
+              v-if="shiborDelta"
+              class="cell-sub"
+              :class="rateDeltaClass(shiborDelta.y1DeltaPp)"
+            >
+              较上日 {{ shiborDelta.y1DeltaPp > 0 ? "+" : "" }}{{ shiborDelta.y1DeltaPp }} pp
+            </text>
+          </view>
+        </view>
+        <view class="trend-summary" style="margin-top: 8rpx">
+          <view class="trend-cell">
+            <text class="cell-label">1 月</text>
+            <text class="cell-value" style="font-size: 28rpx">{{ shiborLatest.m1.toFixed(2) }}%</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">3 月</text>
+            <text class="cell-value" style="font-size: 28rpx">{{ shiborLatest.m3.toFixed(2) }}%</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">6 月</text>
+            <text class="cell-value" style="font-size: 28rpx">{{ shiborLatest.m6.toFixed(2) }}%</text>
+          </view>
+        </view>
+        <view
+          v-for="row in shiborRecent.slice(0, 3)"
+          :key="'shibor-' + row.date"
+          class="rank-row"
+          style="margin-top: 6rpx"
+        >
+          <text class="muted" style="font-size: 22rpx">{{ row.date }}</text>
+          <text class="rank-val">
+            O/N {{ row.on.toFixed(2) }}% · 1W {{ row.w1.toFixed(2) }}%
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：中国货币网「上海银行间同业拆放利率」。同业拆放利率 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数；可与 LPR / MLF / 国债收益率对照。
+        </view>
+      </view>
+
       <!-- 央行金融统计（社融/M2/住户贷款；≠房价） -->
       <view v-if="pbcFinLatest" class="card" data-pbc-fin-stats data-tab="overview,price">
         <view class="row-between">
@@ -8331,6 +8402,12 @@ import {
   type ChinaBondYieldRow
 } from "../../local/chinaBondYield";
 import {
+  getLatestShibor,
+  getShiborDeltaVsPrev,
+  getShiborHistory,
+  type ShiborRow
+} from "../../local/shibor";
+import {
   getLatestPbcFinStats,
   getPbcFinStats,
   getPbcFinStatsDeltaVsPrev,
@@ -12084,6 +12161,9 @@ const omoRrRecent = computed<OmoRrRow[]>(() => getOmoRrHistory().slice(0, 5));
 const chinabondYieldLatest = computed(() => getLatestChinaBondYield());
 const chinabondYieldDelta = computed(() => getChinaBondYieldDeltaVsPrev());
 const chinabondYieldRecent = computed<ChinaBondYieldRow[]>(() => getChinaBondYieldHistory().slice(0, 5));
+const shiborLatest = computed(() => getLatestShibor());
+const shiborDelta = computed(() => getShiborDeltaVsPrev());
+const shiborRecent = computed<ShiborRow[]>(() => getShiborHistory().slice(0, 5));
 const pbcFinLatest = computed(() => getLatestPbcFinStats());
 const pbcFinDelta = computed(() => getPbcFinStatsDeltaVsPrev());
 const pbcFinRecent = computed<PbcFinStatsRow[]>(() => getPbcFinStats().slice(0, 5));
