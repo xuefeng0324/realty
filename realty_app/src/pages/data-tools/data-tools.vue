@@ -502,12 +502,298 @@
       数据源：layout_distribution.csv + bedroom_area.csv。与户型×面积矩阵卡互补（本卡看单维占比与跨城结构）。
     </view>
   </view>
-
-      <!-- v1.121.142 Batch 4: 区情画像 (HTML 已迁出，ref/函数依赖未迁移，Batch 5 处理) -->
-      <!-- 待 Batch 5 -->
-
-      <!-- v1.121.142 Batch 4：特征画像溢价 (featurePremium ref + 4 helpers 复杂，Batch 5 处理) -->
-      <!-- 待 Batch 5 -->
+      <!-- v0.38.0 trend-18 区情画像 (行政区代码 + 房价指数 + 学区评分 + 挂牌量 + 楼龄) -->
+      <view v-if="districtMeta && districtMeta.items.length > 0" class="card" data-tab="all,school" data-dt-district-meta>
+        <view class="row-between">
+          <view class="card-title">📋 区情画像 · {{ districtMeta.cityName }}</view>
+          <view class="muted">{{ districtMeta.items.length }} 区 · {{ districtMeta.withPrice }} 有均价 · {{ districtMeta.withSchool }} 有学区</view>
+        </view>
+        <view class="dm-chips">
+          <view
+            v-for="s in [
+              { key: 'price', label: '按均价' },
+              { key: 'school', label: '按学区' },
+              { key: 'mom', label: '按月环比' },
+              { key: 'listing', label: '按挂牌' },
+              { key: 'default', label: '按区码' }
+            ]"
+            :key="s.key"
+            :class="['dm-chip', districtMetaSortBy === s.key ? 'dm-chip-on' : '']"
+            @click="setDmSort(s.key as any)"
+          >{{ s.label }}</view>
+          <view
+            :class="['dm-chip', districtMetaHideEmpty ? 'dm-chip-on' : '']"
+            @click="toggleDmHideEmpty()"
+          >仅显示有数据</view>
+        </view>
+        <view
+          v-for="d in districtMeta.items"
+          :key="d.districtName"
+          class="dm-row"
+        >
+          <view class="dm-left">
+            <view class="dm-name">{{ d.districtName }}</view>
+            <view class="muted" style="font-size: 22rpx">区码 {{ d.adminCode || '—' }} · 片区代码 {{ d.areaCode || '—' }}</view>
+          </view>
+          <view class="dm-mid">
+            <view class="dm-line">
+              <text class="dm-k">挂牌</text>
+              <text class="dm-v">{{ d.listingCount }}</text>
+              <text class="dm-sub muted">{{ d.communityCount }} 小区</text>
+            </view>
+            <view class="dm-line">
+              <text class="dm-k">均价</text>
+              <text class="dm-v">{{ d.medianUnitPrice ? (d.medianUnitPrice / 10000).toFixed(1) + 'w' : '—' }}</text>
+              <text :class="['dm-mom', momClass(d.momChangePct)]">
+                {{ d.momChangePct != null ? (d.momChangePct >= 0 ? '+' : '') + d.momChangePct + '%' : '—' }}
+              </text>
+            </view>
+            <view class="dm-line">
+              <text class="dm-k">学区</text>
+              <text class="dm-v">{{ d.avgSchoolScore != null ? d.avgSchoolScore : '—' }}</text>
+              <text class="dm-sub muted">{{ d.schoolCount }} 校</text>
+            </view>
+            <view class="dm-line">
+              <text class="dm-k">楼龄</text>
+              <text class="dm-v">{{ d.medianBuildYear ?? '—' }}</text>
+              <text class="dm-sub muted">{{ d.medianBuildYear ? (2026 - d.medianBuildYear) + '年' : '' }}</text>
+            </view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：admin_districts.csv + district_index.csv + school_premium_district.csv + listings.csv → scripts/compute_district_metadata.py。
+        </view>
+      </view>
+  
+      <!-- v0.39.0 trend-19 特征画像溢价 (户型/面积/朝向/装修 哪类更贵/更便宜) -->
+      <!-- v0.39.0 trend-19 特征画像溢价 (户型/面积/朝向/装修 哪类更贵/更便宜) -->
+      <view v-if="featurePremium && featurePremium.totalCount > 0" class="card" data-tab="all,price" data-dt-feature-premium>
+        <view class="row-between">
+          <view class="card-title">💎 特征画像溢价 · {{ featurePremium.cityName }}</view>
+          <view class="muted">基线 = 城市中位单价 · {{ featurePremium.totalCount }} 桶 · minCount ≥ 5</view>
+        </view>
+        <view class="fp-dim-row">
+          <view
+            v-for="d in featurePremium.dimensions"
+            :key="d.dimension"
+            class="fp-dim-block"
+          >
+            <view class="fp-dim-head">
+              <text class="fp-dim-name">{{ fpDimLabel(d.dimension) }}</text>
+              <text class="muted">{{ d.count }} 桶</text>
+            </view>
+            <view
+              v-for="it in d.items.slice(0, 3)"
+              :key="d.dimension + '_' + it.bucket"
+              class="fp-row"
+            >
+              <view class="fp-bucket">{{ it.bucket }}</view>
+              <view class="fp-bar-wrap">
+                <view
+                  class="fp-bar"
+                  :class="fpBarClass(it.premiumPct)"
+                  :style="{ width: fpBarWidth(it.premiumPct) + '%' }"
+                />
+              </view>
+              <view :class="['fp-pct', fpPctClass(it.premiumPct)]">
+                {{ it.premiumPct >= 0 ? '+' : '' }}{{ it.premiumPct.toFixed(1) }}%
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：listings.csv (中位单价) + cities.csv → scripts/compute_feature_premium.py。<br>
+          公式：premium% = (bucket 桶中位单价 ÷ 城市中位单价 − 1) × 100。
+        </view>
+        <view data-cross-city v-if="featurePremiumCrossBedrooms.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城「户型」最高溢价桶
+        </view>
+        <view
+          v-for="r in featurePremiumCrossBedrooms"
+          :key="'fpb-' + r.cityId"
+          class="fp-row"
+        >
+          <view class="fp-bucket">{{ r.cityName }} · {{ r.bucket }}</view>
+          <view :class="['fp-pct', fpPctClass(r.premiumPct)]">
+            {{ r.premiumPct >= 0 ? '+' : '' }}{{ r.premiumPct.toFixed(1) }}%
+          </view>
+        </view>
+        <view v-if="featurePremiumAbsTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          全国 |溢价| 最大桶
+        </view>
+        <view
+          v-for="(r, idx) in featurePremiumAbsTop"
+          :key="'fpa-' + r.cityId + r.dimension + r.bucket"
+          class="fp-row"
+        >
+          <view class="fp-bucket">
+            {{ idx + 1 }}. {{ r.cityName }} · {{ fpDimLabel(r.dimension) }} · {{ r.bucket }}
+          </view>
+          <view :class="['fp-pct', fpPctClass(r.premiumPct)]">
+            {{ r.premiumPct >= 0 ? '+' : '' }}{{ r.premiumPct.toFixed(1) }}%
+          </view>
+        </view>
+        <view v-if="featurePremiumCityTops.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          本市各维最高溢价桶
+        </view>
+        <view
+          v-for="r in featurePremiumCityTops"
+          :key="'fpt-' + r.dimension"
+          class="fp-row"
+        >
+          <view class="fp-bucket">{{ fpDimLabel(r.dimension) }} · {{ r.bucket }}</view>
+          <view :class="['fp-pct', fpPctClass(r.premiumPct)]">
+            {{ r.premiumPct >= 0 ? '+' : '' }}{{ r.premiumPct.toFixed(1) }}%
+          </view>
+        </view>
+        <view v-if="featurePremiumCitySummary" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          本市极值桶摘要（派生 summarizeFeaturePremiumByCity）
+        </view>
+        <view v-if="featurePremiumCitySummary?.topBucket" class="fp-row">
+          <view class="fp-bucket">
+            最高 · {{ fpDimLabel(featurePremiumCitySummary.topBucket.dimension) }} ·
+            {{ featurePremiumCitySummary.topBucket.bucket }}
+          </view>
+          <view :class="['fp-pct', fpPctClass(featurePremiumCitySummary.topBucket.premiumPct)]">
+            +{{ featurePremiumCitySummary.topBucket.premiumPct.toFixed(1) }}%
+          </view>
+        </view>
+        <view v-if="featurePremiumCitySummary?.bottomBucket" class="fp-row">
+          <view class="fp-bucket">
+            最低 · {{ fpDimLabel(featurePremiumCitySummary.bottomBucket.dimension) }} ·
+            {{ featurePremiumCitySummary.bottomBucket.bucket }}
+          </view>
+          <view :class="['fp-pct', fpPctClass(featurePremiumCitySummary.bottomBucket.premiumPct)]">
+            {{ featurePremiumCitySummary.bottomBucket.premiumPct.toFixed(1) }}%
+          </view>
+        </view>
+        <view v-if="featurePremiumDecorateBuckets.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          本市装修维全部桶
+        </view>
+        <view
+          v-for="r in featurePremiumDecorateBuckets"
+          :key="'fpd-' + r.bucket"
+          class="fp-row"
+        >
+          <view class="fp-bucket">{{ r.bucket }} · {{ r.count }} 套</view>
+          <view :class="['fp-pct', fpPctClass(r.premiumPct)]">
+            {{ r.premiumPct >= 0 ? '+' : '' }}{{ r.premiumPct.toFixed(1) }}%
+          </view>
+        </view>
+      </view>
+  
+      <!-- v1.121.14 挂牌标签热度（listingTagsComparison，筛选项页已用，仪表盘此前未展示） -->
+      <view v-if="listingTagCitySummary" class="card" data-tab="all,price">
+        <view class="row-between">
+          <view class="card-title">🔖 挂牌标签热度 · {{ listingTagCitySummary.cityName }}</view>
+          <view class="muted">{{ listingTagCitySummary.totalTags }} 标签</view>
+        </view>
+        <view
+          v-for="(t, idx) in listingTagCitySummary.topTags"
+          :key="t.tag"
+          class="ltk-row"
+        >
+          <text class="ltk-rank muted">{{ idx + 1 }}</text>
+          <text class="ltk-tag">{{ t.tag }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{ width: Math.min(100, (t.share / (listingTagTopShare || 0.01)) * 100) + '%' }"
+            />
+          </view>
+          <text class="ltk-share">{{ (t.share * 100).toFixed(1) }}%</text>
+          <text class="ltk-count muted">{{ t.count }}</text>
+        </view>
+        <view v-if="listingTagSignature.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          本市特色（相对他城 ≥1.5×）
+        </view>
+        <view
+          v-for="s in listingTagSignature"
+          :key="s.tag"
+          class="ltk-sig-row"
+        >
+          <text class="ltk-sig-tag">{{ s.tag }}</text>
+          <text class="ltk-sig-share">{{ (s.share * 100).toFixed(1) }}%</text>
+          <text class="ltk-sig-vs muted">他城均 {{ (s.otherAvg * 100).toFixed(1) }}%</text>
+        </view>
+        <view data-cross-city v-if="listingTagPenetrationTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城共有标签渗透（本市）
+        </view>
+        <view
+          v-for="t in listingTagPenetrationTop"
+          :key="'pen-' + t.tag"
+          class="ltk-row"
+        >
+          <text class="ltk-tag">{{ t.tag }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{
+                width:
+                  Math.min(
+                    100,
+                    ((t.cityShare ?? 0) / (listingTagPenetrationTop[0]?.cityShare || 0.01)) * 100
+                  ) + '%'
+              }"
+            />
+          </view>
+          <text class="ltk-share">{{ ((t.cityShare ?? 0) * 100).toFixed(1) }}%</text>
+          <text class="ltk-count muted">均 {{ (t.avgShare * 100).toFixed(1) }}%</text>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：listing_tags_summary.csv。与「标签组合」不同：本卡看单标签渗透与城市特色。
+        </view>
+        <view v-if="listingKeywordsCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          标题关键词（listing_keyword）
+        </view>
+        <view
+          v-for="k in listingKeywordsCity"
+          :key="'kw-' + k.keyword"
+          class="ltk-row"
+        >
+          <text class="ltk-tag">{{ k.keyword }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{
+                width:
+                  Math.min(
+                    100,
+                    (k.share / (listingKeywordsCity[0]?.share || 0.01)) * 100
+                  ) + '%'
+              }"
+            />
+          </view>
+          <text class="ltk-share">{{ (k.share * 100).toFixed(1) }}%</text>
+          <text class="ltk-count muted">{{ k.count }}</text>
+        </view>
+        <view data-cross-city v-if="listingKeywordTongtouCross.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          跨城「南北通透」渗透
+        </view>
+        <view
+          v-for="k in listingKeywordTongtouCross"
+          :key="'tt-' + k.cityId"
+          class="ltk-row"
+        >
+          <text class="ltk-tag" style="width: 100rpx">{{ k.cityName }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{
+                width:
+                  Math.min(
+                    100,
+                    (k.share / (listingKeywordTongtouCross[0]?.share || 0.01)) * 100
+                  ) + '%'
+              }"
+            />
+          </view>
+          <text class="ltk-share">{{ (k.share * 100).toFixed(1) }}%</text>
+        </view>
+      </view>
+  
+      <!-- v0.40.0 trend-20 标签组合热度 (最常一起出现的 2 标签) -->
+      <view v-if="tagCombination && tagCombination.topN.length > 0" class="card" data-tab="all,price">
 
       <!-- v1.121.142 Batch 4：挂牌标签热度 -->
   <!-- v1.121.14 挂牌标签热度（listingTagsComparison，筛选项页已用，仪表盘此前未展示） -->
@@ -619,9 +905,140 @@
       <text class="ltk-share">{{ (k.share * 100).toFixed(1) }}%</text>
     </view>
   </view>
-
-      <!-- v1.121.142 Batch 4：标签组合热度 (tagCombination ref 复杂，Batch 5 处理) -->
-      <!-- 待 Batch 5 -->
+      <view v-if="tagCombination && tagCombination.topN.length > 0" class="card" data-tab="all,price" data-dt-tag-combination>
+        <view class="row-between">
+          <view class="card-title">🏷️ 标签组合热度 · {{ tagCombination.cityName }}</view>
+          <view class="muted">top {{ tagCombination.topN.length }} · 共 {{ tagCombination.totalCount }} 对</view>
+        </view>
+        <view
+          v-for="(it, idx) in tagCombination.topN"
+          :key="idx"
+          class="tc-row"
+        >
+          <view class="tc-rank">{{ idx + 1 }}</view>
+          <view class="tc-mid">
+            <view class="tc-pair">
+              <text class="tc-tag">{{ it.tagA }}</text>
+              <text class="tc-plus">+</text>
+              <text class="tc-tag">{{ it.tagB }}</text>
+            </view>
+            <view class="tc-meta muted">
+              出现 {{ it.count }} 套 · 占比 {{ (it.share * 100).toFixed(1) }}% · 中位单价
+              <text v-if="it.avgUnitPrice" class="tc-price">{{ Math.round(it.avgUnitPrice / 1000) }}k 元/㎡</text>
+              <text v-else>—</text>
+            </view>
+          </view>
+          <view class="tc-bar-wrap">
+            <view
+              class="tc-bar"
+              :style="{ width: tcBarWidth(it.count, tagCombination.topN[0].count) + '%' }"
+            />
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：listing_tags.csv (7518 行) → scripts/compute_tag_combination.py。<br>
+          公式：对每个 listing 取 4-7 个 tag, C(2) 算 2-组合, count ≥ 5 才入榜。
+        </view>
+        <view data-cross-city v-if="tagComboCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城共有标签对
+        </view>
+        <view
+          v-for="(it, idx) in tagComboCrossCity"
+          :key="'tcc-' + it.tagA + it.tagB"
+          class="tc-row"
+        >
+          <view class="tc-rank">{{ idx + 1 }}</view>
+          <view class="tc-mid">
+            <view class="tc-pair">
+              <text class="tc-tag">{{ it.tagA }}</text>
+              <text class="tc-plus">+</text>
+              <text class="tc-tag">{{ it.tagB }}</text>
+            </view>
+            <view class="tc-meta muted">
+              {{ it.cities.join(" / ") }} · 合计 {{ it.totalCount }} 套
+            </view>
+          </view>
+        </view>
+        <view v-if="tagComboPremiumLocal.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          本市均价最高标签对
+        </view>
+        <view
+          v-for="(it, idx) in tagComboPremiumLocal"
+          :key="'tcp-' + it.tagA + it.tagB"
+          class="tc-row"
+        >
+          <view class="tc-rank">{{ idx + 1 }}</view>
+          <view class="tc-mid">
+            <view class="tc-pair">
+              <text class="tc-tag">{{ it.tagA }}</text>
+              <text class="tc-plus">+</text>
+              <text class="tc-tag">{{ it.tagB }}</text>
+            </view>
+            <view class="tc-meta muted">
+              {{ it.count }} 套
+              <text v-if="it.avgUnitPrice" class="tc-price">
+                · {{ Math.round(it.avgUnitPrice / 1000) }}k 元/㎡
+              </text>
+            </view>
+          </view>
+        </view>
+        <view v-if="tagComboPopularLocal.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          派生层最常见标签对
+        </view>
+        <view
+          v-for="(it, idx) in tagComboPopularLocal"
+          :key="'tpop-' + it.tagA + it.tagB"
+          class="tc-row"
+        >
+          <view class="tc-rank">{{ idx + 1 }}</view>
+          <view class="tc-mid">
+            <view class="tc-pair">
+              <text class="tc-tag">{{ it.tagA }}</text>
+              <text class="tc-plus">+</text>
+              <text class="tc-tag">{{ it.tagB }}</text>
+            </view>
+            <view class="tc-meta muted">
+              {{ it.count }} 套 · {{ (it.share * 100).toFixed(1) }}%
+            </view>
+          </view>
+        </view>
+        <view data-cross-city v-if="tagComboMetroPartners" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          「地铁可达」常搭配（跨城）
+        </view>
+        <view
+          v-for="(p, idx) in tagComboMetroPartners?.pairs ?? []"
+          :key="'tmp-' + p.otherTag"
+          class="tc-row"
+        >
+          <view class="tc-rank">{{ idx + 1 }}</view>
+          <view class="tc-mid">
+            <view class="tc-pair">
+              <text class="tc-tag">地铁可达</text>
+              <text class="tc-plus">+</text>
+              <text class="tc-tag">{{ p.otherTag }}</text>
+            </view>
+            <view class="tc-meta muted">{{ p.cities }} 城 · 合计 {{ p.totalCount }} 套</view>
+          </view>
+        </view>
+        <view data-cross-city v-if="tagComboCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城标签组合密度
+        </view>
+        <view
+          v-for="c in tagComboCitySummaries"
+          :key="'tccs-' + c.cityId"
+          class="tc-row"
+        >
+          <view class="tc-mid">
+            <view class="tc-pair">
+              <text class="tc-tag">{{ c.cityName }}</text>
+            </view>
+            <view class="tc-meta muted">
+              {{ c.combinationCount }} 对 · 均 share {{ (c.avgShare * 100).toFixed(1) }}% · 均 {{ c.avgCount.toFixed(0) }} 套
+            </view>
+          </view>
+        </view>
+      </view>
+      </view>
 
       <!-- v1.121.142 Batch 4：学校指标各维度 Top 5 -->
   <!-- v0.94.0 学校指标各维度 Top 5（派生：基于 school_indicators.csv） -->
@@ -784,8 +1201,48 @@
           数据源：admin_districts.csv
         </view>
       </view>
+      <!-- v1.121.14 规划地铁线路概览（metroPlanningRanking 已派生，此前未接 UI） -->
+      <view v-if="metroPlanSummary" class="card" data-tab="all,transit" data-dt-metro-plan>
+        <view class="row-between">
+          <view class="card-title">🛤️ 规划地铁 · {{ metroPlanCityName }}</view>
+          <view class="muted">{{ metroPlanSummary.lineCount }} 条</view>
+        </view>
+        <view class="mp-summary">
+          <view class="mp-kpi">
+            <text class="mp-kpi-val">{{ metroPlanSummary.totalLengthKm.toFixed(0) }}</text>
+            <text class="mp-kpi-label muted">公里</text>
+          </view>
+          <view class="mp-kpi">
+            <text class="mp-kpi-val">{{ metroPlanSummary.totalStations }}</text>
+            <text class="mp-kpi-label muted">站</text>
+          </view>
+          <view class="mp-kpi">
+            <text class="mp-kpi-val">{{ metroPlanBuildCount }}</text>
+            <text class="mp-kpi-label muted">在建</text>
+          </view>
+          <view class="mp-kpi">
+            <text class="mp-kpi-val">{{ metroPlanSoonCount }}</text>
+            <text class="mp-kpi-label muted">即将开通</text>
+          </view>
+        </view>
+        <view v-if="metroPlanYears.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          预计开通年份
+        </view>
+        <view v-if="metroPlanYears.length" class="mp-year-row">
+          <view v-for="y in metroPlanYears" :key="y.year" class="mp-year-chip">
+            <text class="mp-year-y">{{ y.year }}</text>
+            <text class="mp-year-n muted">{{ y.lineCount }} 条 · {{ y.totalLengthKm.toFixed(0) }}km</text>
+          </view>
+        </view>
+        <view v-if="metroPlanTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          里程 Top {{ metroPlanTop.length }}
+        </view>
+        <view
+          v-for="(it, idx) in metroPlanTop"
+          :key="it.lineName + idx"
 
-      <!-- 提示：剩余 1 张派生卡（规划地铁线路概览）待 Batch 5 迁移 -->
+
+      <!-- 提示：剩余 0 张派生卡（全部已迁 Batch 5） -->
       <view class="card" data-dt-notice>
         <view class="card-title" style="margin-bottom: 0">剩余派生数据（待迁移）</view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
@@ -817,7 +1274,9 @@ import { getCityDriftOverLastYear, summarizeCityDrift, type City12MonthSummary, 
 import { summarizeMetroWalkAccessibility, getMetroWalkRankingTopN, getMetroWalkRankingByCityTopN, type MetroWalkAccessibility, type MetroWalkRankingItem } from "../../local/metro";
 import { getDistrict12WeekChangeRank, getDistrictRecentMomentumRank, summarizeChangeDistribution, type DistrictChangeEntry, type DistrictMomentumEntry } from "../../local/districtDrift";
 import { getEducationOverview, educationHasPrimaryJuniorSplit, formatEducationPeriodLabel, type EducationOverview } from "../../local/educationOverview";
-import { getMetroWalkRanking, type MetroWalkResponse, getMetroBenefitRanking, type MetroBenefitResponse } from "../../local/queries";
+import { getMetroWalkRanking, type MetroWalkResponse, getMetroBenefitRanking, type MetroBenefitResponse, getFeaturePremiumRanking, getTagCombinationRanking, getDistrictMetaRanking, type FeaturePremiumResponse, type TagCombinationResponse, type DistrictMetaResponse } from "../../local/queries";
+import { summarizeMetroPlanningByCity, getMetroPlanningByCityTopByLength, getMetroPlanningByCityTopByStations, getMetroPlanningByCityFastLines, getMetroPlanningByCityStatusVsStations, getMetroPlanningCrossCityByYear, getMetroPlanningByDistrict, getMetroPlanningByOpenYear, getMetroPlanningByStatus, summarizeMetroPlanningByPhase, summarizeMetroPlanningByStatus, summarizeMetroPlanningByOpenYear, type CityMetroPlanningSummary, type OpenYearMetroPlanningSummary, type TopByMetric, type CityStatusStations, type PhaseMetroPlanningSummary, type StatusMetroPlanningSummary } from "../../local/metroPlanningRanking";
+import { getMetroPlanningGeoByCityCrossReference, getMetroPlanningGeoCoverageStats, getMetroPlanningGeoManualFallbackRate, getMetroPlanningGeoByCityMissingEndpoints, getMetroPlanningGeoByCityStraightLineTop, summarizeMetroPlanningGeoByCity, summarizeMetroPlanningGeoByConfidence, getMetroPlanningGeoCrossCityByConfidence, getMetroPlanningGeoByConfidence, getMetroPlanningGeoByCityStartEnd, type CurvatureEntry, type CoverageStats, type ManualFallbackRate, type StraightLineTop, type CityMetroPlanningGeoSummary, type ConfidenceLevelSummary } from "../../local/metroPlanningGeoAnalysis";
 import {
   getDistributionTopByMedianPrice,
   summarizeDistributionByCity,
@@ -862,6 +1321,130 @@ import { summarizeSchoolDimensionsByCity, getSchoolDimensionByDimensionTopN, get
 import { summarizeSchoolIndicators, getSchoolIndicatorDimensionTopN, getSchoolIndicatorTrendTop, type SchoolIndicatorSummary, type SchoolIndicatorRankingEntry, type SchoolIndicatorTrendEntry } from "../../local/schoolIndicatorRanking";
 
 const app = useAppStore();
+
+// v1.121.143 Batch 5: feature_premium (迁移自 dashboard)
+const featurePremium = ref<FeaturePremiumResponse | null>(null);
+async function reloadFeaturePremium() {
+  try {
+    featurePremium.value = await getFeaturePremiumRanking({
+      cityId: app.cityId,
+      minCount: 5,
+      topN: 10
+    });
+  } catch (e) {
+    console.warn("getFeaturePremiumRanking failed:", e);
+    featurePremium.value = null;
+  }
+}
+const FP_DIM_LABEL: Record<string, string> = {
+  bedrooms: "户型",
+  area_sqm: "面积",
+  orientation: "朝向",
+  decorate: "装修"
+};
+function fpDimLabel(d: string): string {
+  return FP_DIM_LABEL[d] ?? d;
+}
+function fpPctClass(v: number): string {
+  if (v >= 1) return "fp-pct-up";
+  if (v <= -1) return "fp-pct-down";
+  return "fp-pct-flat";
+}
+function fpBarClass(v: number): string {
+  if (v >= 1) return "fp-bar-up";
+  if (v <= -1) return "fp-bar-down";
+  return "fp-bar-flat";
+}
+/** Bar width 50% = 0%, 最高 100% = ±30% (clamp) */
+function fpBarWidth(v: number): number {
+  const abs = Math.min(Math.abs(v), 30);
+  return Math.max(5, (abs / 30) * 100);
+}
+
+// v1.121.143 Batch 5: tag_combination (迁移自 dashboard)
+const tagCombination = ref<TagCombinationResponse | null>(null);
+async function reloadTagCombination() {
+  try {
+    tagCombination.value = await getTagCombinationRanking({
+      cityId: app.cityId,
+      topN: 12,
+      minCount: 5
+    });
+  } catch (e) {
+    console.warn("getTagCombinationRanking failed:", e);
+    tagCombination.value = null;
+  }
+}
+function tcBarWidth(v: number, max: number): number {
+  if (max <= 0) return 5;
+  return Math.max(5, (v / max) * 100);
+}
+
+// v1.121.143 Batch 5: district_meta (迁移自 dashboard)
+const districtMeta = ref<DistrictMetaResponse | null>(null);
+const districtMetaSortBy = ref<"default" | "price" | "school" | "mom" | "listing">("price");
+const districtMetaHideEmpty = ref(false);
+async function reloadDistrictMeta() {
+  try {
+    districtMeta.value = await getDistrictMetaRanking({
+      cityId: app.cityId,
+      sortBy: districtMetaSortBy.value,
+      hideEmpty: districtMetaHideEmpty.value
+    });
+  } catch (e) {
+    console.warn("getDistrictMetaRanking failed:", e);
+    districtMeta.value = null;
+  }
+}
+async function setDmSort(s: "default" | "price" | "school" | "mom" | "listing") {
+  districtMetaSortBy.value = s;
+  await reloadDistrictMeta();
+}
+async function toggleDmHideEmpty() {
+  districtMetaHideEmpty.value = !districtMetaHideEmpty.value;
+  await reloadDistrictMeta();
+}
+function momClass(v: number | null): string {
+  if (v == null) return "";
+  if (v >= 5) return "dm-mom-up";
+  if (v <= -5) return "dm-mom-down";
+  return "dm-mom-flat";
+}
+
+// v1.121.143 Batch 5: metro_plan (迁移自 dashboard, 简化版)
+const metroPlanSummary = computed<CityMetroPlanningSummary | null>(() => {
+  const all = summarizeMetroPlanningByCity();
+  return all.find((x) => x.cityId === app.cityId) ?? null;
+});
+const metroPlanCityName = computed(() => cityNameForId(app.cityId));
+const metroPlanBuildCount = computed(
+  () => metroPlanSummary.value?.statusDistribution["在建"] ?? 0
+);
+const metroPlanSoonCount = computed(
+  () => metroPlanSummary.value?.statusDistribution["即将开通"] ?? 0
+);
+const metroPlanYears = computed<OpenYearMetroPlanningSummary[]>(() => {
+  const lines = store.getMetroLinesByCity(app.cityId);
+  if (lines.length === 0) return [];
+  const grouped = new Map<number, typeof lines>();
+  for (const x of lines) {
+    if (x.openYearExpected == null) continue;
+    let arr = grouped.get(x.openYearExpected);
+    if (!arr) { arr = []; grouped.set(x.openYearExpected, arr); }
+    arr.push(x);
+  }
+  return [...grouped.entries()]
+    .map(([year, arr]) => ({
+      year,
+      lineCount: arr.length,
+      totalLengthKm: arr.reduce((s, x) => s + (x.lengthKm ?? 0), 0),
+      totalStations: arr.reduce((s, x) => s + (x.stationCount ?? 0), 0)
+    }))
+    .sort((a, b) => a.year - b.year);
+});
+const metroPlanTop = computed<TopByMetric[]>(() =>
+  getMetroPlanningByCityTopByLength(app.cityId, 5)
+);
 
 const adminSummary = computed<CityAdminDistrictSummary | null>(() => {
   return summarizeAdminDistrictByCity().find((x) => x.cityId === app.cityId) ?? null;
@@ -1164,11 +1747,9 @@ onMounted(async () => {
   } catch (e) {
     console.warn("data-tools metro benefit failed:", e);
   }
-  try {
-    // reloadDistrictMeta 已迁出（Batch 5 处理）
-  } catch (e) {
-    console.warn("data-tools district meta skipped:", e);
-  }
+  await reloadFeaturePremium();
+  await reloadTagCombination();
+  await reloadDistrictMeta();
 });
 </script>
 

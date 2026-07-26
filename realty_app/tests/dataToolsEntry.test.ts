@@ -182,11 +182,21 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(toolsSrc).toMatch(/from\s+["']\.\.\/\.\.\/local\/schoolDimensionRanking["']/);
   });
 
-  it("data-tools.vue Batch 4：未迁移卡片有占位 placeholder（feature_premium / tag_combination / district_meta / metro_plan）", () => {
-    // 这些卡 HTML 暂未迁移，但有 placeholder 注释
-    expect(toolsSrc).toContain("Batch 4: 区情画像");
-    expect(toolsSrc).toContain("Batch 4：特征画像溢价");
-    expect(toolsSrc).toContain("Batch 4：标签组合热度");
-    expect(toolsSrc).toContain("规划地铁线路概览");
+  it("data-tools.vue Batch 5：4 张派生卡已迁 (feature_premium / tag_combination / district_meta / metro_plan)", () => {
+    expect(toolsSrc).toContain("data-dt-feature-premium");
+    expect(toolsSrc).toContain("data-dt-tag-combination");
+    expect(toolsSrc).toContain("data-dt-district-meta");
+    expect(toolsSrc).toContain("data-dt-metro-plan");
+    expect(toolsSrc).toContain("getFeaturePremiumRanking");
+    expect(toolsSrc).toContain("getTagCombinationRanking");
+    expect(toolsSrc).toContain("getDistrictMetaRanking");
+    expect(toolsSrc).toContain("summarizeMetroPlanningByCity");
+    expect(toolsSrc).toContain("reloadFeaturePremium");
+    expect(toolsSrc).toContain("reloadTagCombination");
+    expect(toolsSrc).toContain("reloadDistrictMeta");
+    // placeholder 已移除
+    expect(toolsSrc).not.toContain("Batch 4：特征画像溢价");
+    expect(toolsSrc).not.toContain("Batch 4：标签组合热度");
+    expect(toolsSrc).not.toContain("Batch 4: 区情画像");
   });
 });
