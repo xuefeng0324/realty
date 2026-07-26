@@ -1453,6 +1453,7 @@ const DASHBOARD_CARDS: DashboardCardEntry[] = [
   { key: "district-8w-trend", label: "区级近 8 周价格趋势" },
   { key: "wangqian-rank-4w", label: "近 4 周网签热度榜" },
   { key: "district-wangqian-rank", label: "全品类区级网签热度榜" },
+  { key: "district-wangqian-3cat", label: "区级网签 (新房/二手/全部 tab)" },
   { key: "commute-rank", label: "通勤时长榜" },
   { key: "layout-distribution", label: "户型/面积/朝向/装修分布" },
   { key: "listing-tag-cloud", label: "房源 tags 标签云" },
@@ -1475,6 +1476,7 @@ const DASHBOARD_CARDS: DashboardCardEntry[] = [
   { key: "life-convenience", label: "生活便利度榜 v2 (6 维)" },
   { key: "school-premium-rank", label: "学区溢价榜" },
   { key: "school-top-community", label: "学区评分 Top 小区" },
+  { key: "school-top-filter-sort", label: "学区 Top 过滤 + 排序" },
   { key: "listing-school-premium", label: "listing 学区溢价榜" },
   { key: "commercial-heat", label: "商业热度榜 (小区维度)" },
   { key: "multi-community-compare", label: "同区多小区对比" }

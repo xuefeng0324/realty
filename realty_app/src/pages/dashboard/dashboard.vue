@@ -1696,7 +1696,7 @@
 
       <!-- v0.23.0 trend-9: 全品类区级网签热度榜 (新房/二手/全部 tab 切换) -->
       <view
-        v-if="districtWangqianRank && districtWangqianRank.items.length > 0"
+        v-if="!isCardHidden('district-wangqian-3cat') && (districtWangqianRank && districtWangqianRank.items.length > 0)" data-card-key="district-wangqian-3cat"
         id="overview-wangqian"
         class="card overview-card"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('wangqian') }"
@@ -1850,7 +1850,7 @@
 
       <!-- v0.24.0 new-5: 通勤时长榜 (community → 城市 CBD 公交通勤) -->
       <view
-        v-if="commuteRanking && commuteRanking.fastest.length > 0"
+        v-if="!isCardHidden('commute-rank') && (commuteRanking && commuteRanking.fastest.length > 0)" data-card-key="commute-rank"
         id="overview-transit"
         class="card overview-card"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('transit') }"
@@ -2123,7 +2123,7 @@
 
       <!-- v0.33.0 trend-15 小区综合评分榜 (生活+学区+通勤 加权) -->
       <view
-        v-if="communityScore && communityScore.items.length > 0"
+        v-if="!isCardHidden('community-score-rank') && (communityScore && communityScore.items.length > 0)" data-card-key="community-score-rank"
         id="overview-community"
         class="card overview-card"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('community') }"
@@ -3114,7 +3114,7 @@
 
       <!-- v0.47.0 school-4 学区指标加权细分 -->
       <view
-        v-if="schoolDims && schoolDims.total > 0"
+        v-if="!isCardHidden('school-dim-weighted') && (schoolDims && schoolDims.total > 0)" data-card-key="school-dim-weighted"
         id="overview-school"
         class="card overview-card"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('school') }"
@@ -3215,7 +3215,7 @@
 
       <!-- v0.53.0 macro-1 LPR + 房贷利率 -->
       <view
-        v-if="lpr && lpr.total > 0"
+        v-if="!isCardHidden('macro-lpr-card') && (lpr && lpr.total > 0)" data-card-key="macro-lpr-card"
         id="overview-lpr"
         class="card overview-card"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('lpr') }"
