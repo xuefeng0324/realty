@@ -1440,6 +1440,71 @@
         </template>
       </view>
 
+      <view v-if="nbsPpi" class="card macro-card" data-tab="overview,price" data-nbs-ppi>
+        <view class="macro-kicker">全国 · 工业生产者价格</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">PPI（含建材分项）</view>
+          <view class="muted" style="font-size: 22rpx">{{ nbsPpi.month }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <view class="stats70-cell">
+            <text class="cell-label">PPI 同比</text>
+            <text class="cell-value" :class="macroTrendClass(nbsPpi.ppiYoyPct)">
+              {{ formatMacroPct(nbsPpi.ppiYoyPct) }}
+            </text>
+            <text class="cell-sub muted">环比 {{ formatMacroPct(nbsPpi.ppiMomPct) }}</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">购进同比</text>
+            <text class="cell-value" :class="macroTrendClass(nbsPpi.purchaseYoyPct)">
+              {{ formatMacroPct(nbsPpi.purchaseYoyPct) }}
+            </text>
+            <text class="cell-sub muted">工业生产者购进</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">非金属矿物制品业</text>
+            <text class="cell-value" :class="macroTrendClass(nbsPpi.nonMetalYoyPct)">
+              {{ formatMacroPct(nbsPpi.nonMetalYoyPct) }}
+            </text>
+            <text class="cell-sub muted">建材相关 · ≠房价</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">发布日</text>
+            <text class="cell-value" style="font-size: 28rpx">{{ nbsPpi.publishDate }}</text>
+            <text class="cell-sub muted">国家统计局</text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+          月度 PPI · 出厂/购进/建材分项 · 非挂牌/网签/70城
+        </view>
+        <button
+          v-if="nbsPpiTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-nbs-ppi-series-toggle
+          :aria-expanded="nbsPpiSeriesExpanded"
+          @click="nbsPpiSeriesExpanded = !nbsPpiSeriesExpanded"
+        >
+          {{ nbsPpiSeriesExpanded ? "收起多期" : "多期序列" }}
+        </button>
+        <template v-if="nbsPpiSeriesExpanded">
+          <view class="macro-series" data-nbs-ppi-series-detail>
+            PPI 同比
+            <text v-for="(p, i) in nbsPpiTrend" :key="'ppi-' + p.month">
+              {{ shortNbsPpiMonthLabel(p.month) }} {{ formatMacroPct(p.ppiYoyPct)
+              }}<text v-if="i < nbsPpiTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view class="macro-series" data-nbs-ppi-series-detail>
+            建材分项同比
+            <text v-for="(p, i) in nbsPpiTrend" :key="'nm-' + p.month">
+              {{ shortNbsPpiMonthLabel(p.month) }} {{ formatMacroPct(p.nonMetalYoyPct)
+              }}<text v-if="i < nbsPpiTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
+
       <view v-if="gdRealEstateBrief" class="card macro-card" data-tab="overview,price" data-gd-real-estate-brief>
         <view class="macro-kicker">广东 · 房地产</view>
         <view class="row-between">
@@ -7132,6 +7197,12 @@ import {
   type NbsCpiRow
 } from "../../local/nbsCpi";
 import {
+  getLatestNbsPpi,
+  getNbsPpiTrend,
+  shortNbsPpiMonthLabel,
+  type NbsPpiRow
+} from "../../local/nbsPpi";
+import {
   getLatestGdRealEstateBrief,
   getGdRealEstateBriefTrend,
   gdBriefImpliedUnitPrice,
@@ -8275,6 +8346,7 @@ const nbsSeriesExpanded = ref(false);
 const nbsFaSeriesExpanded = ref(false);
 const nbsIncomeSeriesExpanded = ref(false);
 const nbsCpiSeriesExpanded = ref(false);
+const nbsPpiSeriesExpanded = ref(false);
 const gdBriefSeriesExpanded = ref(false);
 const gdFaSeriesExpanded = ref(false);
 const gdConstructionSeriesExpanded = ref(false);
@@ -8288,6 +8360,8 @@ const nbsIncome = computed<NbsIncomeRow | null>(() => getLatestNbsIncome());
 const nbsIncomeTrend = computed(() => getNbsIncomeTrend(8));
 const nbsCpi = computed<NbsCpiRow | null>(() => getLatestNbsCpi());
 const nbsCpiTrend = computed(() => getNbsCpiTrend(6));
+const nbsPpi = computed<NbsPpiRow | null>(() => getLatestNbsPpi());
+const nbsPpiTrend = computed(() => getNbsPpiTrend(6));
 const nbsYoyTrend = computed(() => getNbsYoyTrend(6));
 const nbsImpliedUnitPrice = computed(() => getNbsImpliedContractUnitPrice(nbsMacro.value));
 const nbsUnitPriceTrend = computed(() => getNbsImpliedUnitPriceTrend(6));
