@@ -11,7 +11,7 @@
 
 用法：
   python scripts/crawl_safe_forex.py
-  python scripts/crawl_safe_forex.py --max 24 --news-pages 8
+  python scripts/crawl_safe_forex.py --max 40 --news-pages 20
 """
 from __future__ import annotations
 
@@ -290,8 +290,8 @@ def merge_prefer_richer(existing: dict[str, str], fresh: dict[str, str]) -> dict
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--max", type=int, default=24)
-    ap.add_argument("--news-pages", type=int, default=8)
+    ap.add_argument("--max", type=int, default=40)
+    ap.add_argument("--news-pages", type=int, default=20)
     ap.add_argument("--sleep", type=float, default=0.35)
     ap.add_argument("--skip-xlsx", action="store_true")
     args = ap.parse_args()

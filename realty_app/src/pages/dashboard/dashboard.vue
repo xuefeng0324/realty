@@ -850,6 +850,58 @@
         </view>
       </view>
 
+      <!-- 外管局银行结售汇（月度流量；≠房价） -->
+      <view v-if="safeSettleLatest" class="card" data-safe-settle data-tab="overview,price">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🔁 银行结售汇</view>
+          <view class="muted" style="font-size: 22rpx">{{ safeSettleLatest.date.slice(0, 7) }}</view>
+        </view>
+        <view class="trend-summary" style="margin-top: 12rpx">
+          <view class="trend-cell">
+            <text class="cell-label">结汇</text>
+            <text class="cell-value">{{ Math.round(safeSettleLatest.settleUsdYi).toLocaleString() }}</text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">售汇</text>
+            <text class="cell-value">{{ Math.round(safeSettleLatest.sellUsdYi).toLocaleString() }}</text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">顺差（派生）</text>
+            <text
+              class="cell-value"
+              :class="macroTrendClass(safeSettleLatest.surplusUsdYi)"
+            >
+              {{ formatInvDelta(safeSettleLatest.surplusUsdYi) }}
+            </text>
+            <text
+              v-if="safeSettleDelta"
+              class="cell-sub"
+              :class="macroTrendClass(safeSettleDelta.surplusDeltaUsdYi)"
+            >
+              较上月 {{ formatInvDelta(safeSettleDelta.surplusDeltaUsdYi) }}
+            </text>
+          </view>
+        </view>
+        <view
+          v-for="row in safeSettleRecent.slice(0, 3)"
+          :key="'safe-st-' + row.date"
+          class="rank-row"
+          style="margin-top: 6rpx"
+        >
+          <text class="muted" style="font-size: 22rpx">{{ row.date.slice(0, 7) }}</text>
+          <text class="rank-val">
+            结 {{ Math.round(row.settleUsdYi).toLocaleString() }} · 售
+            {{ Math.round(row.sellUsdYi).toLocaleString() }} · 顺差
+            {{ formatInvDelta(row.surplusUsdYi) }}
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：国家外汇管理局「银行结售汇和银行代客涉外收付款」月度通稿（美元计值段）。顺差 = 结汇 − 售汇（派生）。结售汇流量 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数；可与外汇储备规模对照。
+        </view>
+      </view>
+
       <!-- 政府每日网签（摘要；有日更则可进子页） -->
       <view
         class="card wangqian-card"
@@ -7527,6 +7579,12 @@ import {
   type SafeForexRow
 } from "../../local/safeForex";
 import {
+  getLatestSafeSettle,
+  getSafeSettle,
+  getSafeSettleDeltaVsPrev,
+  type SafeSettleRow
+} from "../../local/safeSettle";
+import {
   getLatestCityDaily,
   type CityDailySnapshot
 } from "../../local/dailyWangqian";
@@ -11177,6 +11235,9 @@ const pbcRegionSfPeers = computed(() => getPbcRegionSfPeerRanking());
 const safeForexLatest = computed(() => getLatestSafeForex());
 const safeForexDelta = computed(() => getSafeForexDeltaVsPrev());
 const safeForexRecent = computed<SafeForexRow[]>(() => getSafeForex().slice(0, 5));
+const safeSettleLatest = computed(() => getLatestSafeSettle());
+const safeSettleDelta = computed(() => getSafeSettleDeltaVsPrev());
+const safeSettleRecent = computed<SafeSettleRow[]>(() => getSafeSettle().slice(0, 5));
 const lprYearLabel = computed(() => {
   const m = lprLatest.value?.month;
   if (!m) return String(new Date().getFullYear());
