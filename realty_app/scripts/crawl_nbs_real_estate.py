@@ -59,8 +59,14 @@ FIELDS = [
     "residential_inventory_area_yoy_pct",
     "funds_cny_100m",
     "funds_yoy_pct",
+    "domestic_loan_funds_cny_100m",
+    "domestic_loan_funds_yoy_pct",
+    "deposit_funds_cny_100m",
+    "deposit_funds_yoy_pct",
     "mortgage_funds_cny_100m",
     "mortgage_funds_yoy_pct",
+    "self_raised_funds_cny_100m",
+    "self_raised_funds_yoy_pct",
     "source_url",
 ]
 
@@ -195,10 +201,21 @@ def parse_release(url: str, body: str) -> dict[str, str | float]:
                 result[value_key] = float(row[1].replace(",", ""))
                 result[yoy_key] = float(row[2].replace(",", ""))
             continue
+        if label in {"其中：国内贷款", "其中:国内贷款", "国内贷款"}:
+            result["domestic_loan_funds_cny_100m"] = float(row[1].replace(",", ""))
+            result["domestic_loan_funds_yoy_pct"] = float(row[2].replace(",", ""))
+            continue
+        if label == "定金及预收款":
+            result["deposit_funds_cny_100m"] = float(row[1].replace(",", ""))
+            result["deposit_funds_yoy_pct"] = float(row[2].replace(",", ""))
+            continue
         if label == "个人按揭贷款":
             result["mortgage_funds_cny_100m"] = float(row[1].replace(",", ""))
             result["mortgage_funds_yoy_pct"] = float(row[2].replace(",", ""))
-            current_parent = ""
+            continue
+        if label == "自筹资金":
+            result["self_raised_funds_cny_100m"] = float(row[1].replace(",", ""))
+            result["self_raised_funds_yoy_pct"] = float(row[2].replace(",", ""))
             continue
         if row[0] not in parent_wanted and not label.startswith("其中"):
             # 办公楼/商业等打断「其中：住宅」上下文
@@ -207,7 +224,16 @@ def parse_release(url: str, body: str) -> dict[str, str | float]:
 
     required = [key for pair in parent_wanted.values() for key in pair]
     required += [key for pair in residential_under.values() for key in pair]
-    required += ["mortgage_funds_cny_100m", "mortgage_funds_yoy_pct"]
+    required += [
+        "domestic_loan_funds_cny_100m",
+        "domestic_loan_funds_yoy_pct",
+        "deposit_funds_cny_100m",
+        "deposit_funds_yoy_pct",
+        "mortgage_funds_cny_100m",
+        "mortgage_funds_yoy_pct",
+        "self_raised_funds_cny_100m",
+        "self_raised_funds_yoy_pct",
+    ]
     missing = [key for key in required if key not in result]
     if missing:
         raise RuntimeError(f"国家统计局表格缺少字段：{', '.join(missing)} @ {url}")

@@ -1163,10 +1163,40 @@
             </text>
           </view>
           <view class="stats70-cell">
+            <text class="cell-label">住宅投资</text>
+            <text class="cell-value">{{ formatMacro100m(nbsMacro.residentialInvestmentCny100m) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.residentialInvestmentYoyPct)">
+              同比 {{ formatMacroPct(nbsMacro.residentialInvestmentYoyPct) }}
+            </text>
+          </view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 12rpx" data-nbs-funds>
+          <view class="stats70-cell">
+            <text class="cell-label">国内贷款</text>
+            <text class="cell-value">{{ formatMacro100m(nbsMacro.domesticLoanFundsCny100m) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.domesticLoanFundsYoyPct)">
+              同比 {{ formatMacroPct(nbsMacro.domesticLoanFundsYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">定金及预收款</text>
+            <text class="cell-value">{{ formatMacro100m(nbsMacro.depositFundsCny100m) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.depositFundsYoyPct)">
+              同比 {{ formatMacroPct(nbsMacro.depositFundsYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
             <text class="cell-label">个人按揭贷款</text>
             <text class="cell-value">{{ formatMacro100m(nbsMacro.mortgageFundsCny100m) }}</text>
             <text class="cell-sub" :class="macroTrendClass(nbsMacro.mortgageFundsYoyPct)">
               同比 {{ formatMacroPct(nbsMacro.mortgageFundsYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">自筹资金</text>
+            <text class="cell-value">{{ formatMacro100m(nbsMacro.selfRaisedFundsCny100m) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.selfRaisedFundsYoyPct)">
+              同比 {{ formatMacroPct(nbsMacro.selfRaisedFundsYoyPct) }}
             </text>
           </view>
         </view>
@@ -1260,6 +1290,18 @@
             按揭同比
             <text v-for="(p, i) in nbsYoyTrend" :key="'mtg-' + p.period">
               {{ p.shortLabel }} {{ formatMacroPct(p.mortgageFundsYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
+            定金预收款同比
+            <text v-for="(p, i) in nbsYoyTrend" :key="'dep-' + p.period">
+              {{ p.shortLabel }} {{ formatMacroPct(p.depositFundsYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
+            国内贷款同比
+            <text v-for="(p, i) in nbsYoyTrend" :key="'dl-' + p.period">
+              {{ p.shortLabel }} {{ formatMacroPct(p.domesticLoanFundsYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
             </text>
           </view>
         </template>

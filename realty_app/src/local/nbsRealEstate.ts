@@ -34,9 +34,18 @@ export interface NbsRealEstateSnapshot {
   residentialInventoryAreaYoyPct: number;
   fundsCny100m: number;
   fundsYoyPct: number;
+  /** 其中：国内贷款（亿元） */
+  domesticLoanFundsCny100m: number;
+  domesticLoanFundsYoyPct: number;
+  /** 定金及预收款（亿元） */
+  depositFundsCny100m: number;
+  depositFundsYoyPct: number;
   /** 个人按揭贷款（亿元） */
   mortgageFundsCny100m: number;
   mortgageFundsYoyPct: number;
+  /** 自筹资金（亿元） */
+  selfRaisedFundsCny100m: number;
+  selfRaisedFundsYoyPct: number;
   sourceUrl: string;
 }
 
@@ -81,8 +90,14 @@ export function loadNbsRealEstateFromCSV(text: string): NbsRealEstateSnapshot[] 
       residentialInventoryAreaYoyPct: numeric(row.residential_inventory_area_yoy_pct),
       fundsCny100m: numeric(row.funds_cny_100m),
       fundsYoyPct: numeric(row.funds_yoy_pct),
+      domesticLoanFundsCny100m: numeric(row.domestic_loan_funds_cny_100m),
+      domesticLoanFundsYoyPct: numeric(row.domestic_loan_funds_yoy_pct),
+      depositFundsCny100m: numeric(row.deposit_funds_cny_100m),
+      depositFundsYoyPct: numeric(row.deposit_funds_yoy_pct),
       mortgageFundsCny100m: numeric(row.mortgage_funds_cny_100m),
       mortgageFundsYoyPct: numeric(row.mortgage_funds_yoy_pct),
+      selfRaisedFundsCny100m: numeric(row.self_raised_funds_cny_100m),
+      selfRaisedFundsYoyPct: numeric(row.self_raised_funds_yoy_pct),
       sourceUrl
     };
   }).filter((row) => row.period && /^\d{4}-\d{2}-\d{2}$/.test(row.publishDate));
@@ -112,6 +127,8 @@ export type NbsYoyTrendPoint = {
   completedAreaYoyPct: number;
   residentialSalesAreaYoyPct: number;
   mortgageFundsYoyPct: number;
+  domesticLoanFundsYoyPct: number;
+  depositFundsYoyPct: number;
 };
 
 function shortPeriodLabel(period: string): string {
@@ -136,7 +153,9 @@ export function getNbsYoyTrend(limit = 6): NbsYoyTrendPoint[] {
       newStartsAreaYoyPct: s.newStartsAreaYoyPct,
       completedAreaYoyPct: s.completedAreaYoyPct,
       residentialSalesAreaYoyPct: s.residentialSalesAreaYoyPct,
-      mortgageFundsYoyPct: s.mortgageFundsYoyPct
+      mortgageFundsYoyPct: s.mortgageFundsYoyPct,
+      domesticLoanFundsYoyPct: s.domesticLoanFundsYoyPct,
+      depositFundsYoyPct: s.depositFundsYoyPct
     }));
 }
 

@@ -40,10 +40,19 @@ const stubBase = {
   residentialInventoryAreaYoyPct: 0,
   fundsCny100m: 1,
   fundsYoyPct: 0,
+  domesticLoanFundsCny100m: 1,
+  domesticLoanFundsYoyPct: 0,
+  depositFundsCny100m: 1,
+  depositFundsYoyPct: 0,
   mortgageFundsCny100m: 1,
   mortgageFundsYoyPct: 0,
+  selfRaisedFundsCny100m: 1,
+  selfRaisedFundsYoyPct: 0,
   sourceUrl: "https://www.stats.gov.cn/x"
 };
+
+const HEADER =
+  "period,publish_date,investment_cny_100m,investment_yoy_pct,residential_investment_cny_100m,residential_investment_yoy_pct,construction_area_10k_sqm,construction_area_yoy_pct,new_starts_area_10k_sqm,new_starts_area_yoy_pct,completed_area_10k_sqm,completed_area_yoy_pct,sales_area_10k_sqm,sales_area_yoy_pct,residential_sales_area_10k_sqm,residential_sales_area_yoy_pct,sales_amount_cny_100m,sales_amount_yoy_pct,residential_sales_amount_cny_100m,residential_sales_amount_yoy_pct,inventory_area_10k_sqm,inventory_area_yoy_pct,residential_inventory_area_10k_sqm,residential_inventory_area_yoy_pct,funds_cny_100m,funds_yoy_pct,domestic_loan_funds_cny_100m,domestic_loan_funds_yoy_pct,deposit_funds_cny_100m,deposit_funds_yoy_pct,mortgage_funds_cny_100m,mortgage_funds_yoy_pct,self_raised_funds_cny_100m,self_raised_funds_yoy_pct,source_url";
 
 describe("国家统计局房地产市场数据", () => {
   it("加载多期官方快照并校验最新一期", () => {
@@ -71,8 +80,14 @@ describe("国家统计局房地产市场数据", () => {
     expect(latest?.residentialSalesAmountYoyPct).toBe(-13.7);
     expect(latest?.inventoryArea10kSqm).toBe(76315);
     expect(latest?.residentialInventoryArea10kSqm).toBe(40865);
+    expect(latest?.domesticLoanFundsCny100m).toBe(5716);
+    expect(latest?.domesticLoanFundsYoyPct).toBe(-31.7);
+    expect(latest?.depositFundsCny100m).toBe(12442);
+    expect(latest?.depositFundsYoyPct).toBe(-15.8);
     expect(latest?.mortgageFundsCny100m).toBe(5137);
     expect(latest?.mortgageFundsYoyPct).toBe(-24.9);
+    expect(latest?.selfRaisedFundsCny100m).toBe(14740);
+    expect(latest?.selfRaisedFundsYoyPct).toBe(-16.4);
     expect(latest?.sourceUrl).toBe("https://www.stats.gov.cn/sj/zxfb/202607/t20260715_1964126.html");
 
     const history = getNbsRealEstateHistory();
@@ -93,6 +108,8 @@ describe("国家统计局房地产市场数据", () => {
     expect(trend.map((x) => x.completedAreaYoyPct)).toEqual([-27.9, -25.0, -24.0, -23.4, -23.7]);
     expect(trend.map((x) => x.residentialSalesAreaYoyPct)).toEqual([-15.9, -13.1, -12.2, -12.1, -12.4]);
     expect(trend.map((x) => x.mortgageFundsYoyPct)).toEqual([-41.9, -34.6, -31.7, -28.0, -24.9]);
+    expect(trend.map((x) => x.domesticLoanFundsYoyPct)).toEqual([-13.9, -23.7, -25.9, -28.7, -31.7]);
+    expect(trend.map((x) => x.depositFundsYoyPct)).toEqual([-21.5, -20.1, -17.6, -16.1, -15.8]);
 
     // 37945 亿元 / 40140 万㎡ → 约 9453 元/㎡（合同派生，非城市均价）
     expect(getNbsImpliedContractUnitPrice(latest)).toBe(9453);
@@ -114,8 +131,10 @@ describe("国家统计局房地产市场数据", () => {
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     expect(dash).toContain("data-nbs-pipeline");
     expect(dash).toContain("data-nbs-residential");
+    expect(dash).toContain("data-nbs-funds");
     expect(dash).toContain("constructionArea10kSqm");
-    expect(dash).toContain("mortgageFundsCny100m");
+    expect(dash).toContain("depositFundsCny100m");
+    expect(dash).toContain("domesticLoanFundsCny100m");
   });
 
   it("合同均价在面积为 0 时返回 null", () => {
@@ -128,8 +147,8 @@ describe("国家统计局房地产市场数据", () => {
     expect(() =>
       loadNbsRealEstateFromCSV(
         [
-          "period,publish_date,investment_cny_100m,investment_yoy_pct,residential_investment_cny_100m,residential_investment_yoy_pct,construction_area_10k_sqm,construction_area_yoy_pct,new_starts_area_10k_sqm,new_starts_area_yoy_pct,completed_area_10k_sqm,completed_area_yoy_pct,sales_area_10k_sqm,sales_area_yoy_pct,residential_sales_area_10k_sqm,residential_sales_area_yoy_pct,sales_amount_cny_100m,sales_amount_yoy_pct,residential_sales_amount_cny_100m,residential_sales_amount_yoy_pct,inventory_area_10k_sqm,inventory_area_yoy_pct,residential_inventory_area_10k_sqm,residential_inventory_area_yoy_pct,funds_cny_100m,funds_yoy_pct,mortgage_funds_cny_100m,mortgage_funds_yoy_pct,source_url",
-          "2026-01_to_2026-06,2026-07-15,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,https://example.com"
+          HEADER,
+          "2026-01_to_2026-06,2026-07-15,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,https://example.com"
         ].join("\n")
       )
     ).toThrow(/来源链接无效/);
