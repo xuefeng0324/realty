@@ -1,0 +1,110 @@
+      <!-- v1.121.14 挂牌标签热度（listingTagsComparison，筛选项页已用，仪表盘此前未展示） -->
+      <view v-if="listingTagCitySummary" class="card" data-tab="all,price">
+        <view class="row-between">
+          <view class="card-title">🔖 挂牌标签热度 · {{ listingTagCitySummary.cityName }}</view>
+          <view class="muted">{{ listingTagCitySummary.totalTags }} 标签</view>
+        </view>
+        <view
+          v-for="(t, idx) in listingTagCitySummary.topTags"
+          :key="t.tag"
+          class="ltk-row"
+        >
+          <text class="ltk-rank muted">{{ idx + 1 }}</text>
+          <text class="ltk-tag">{{ t.tag }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{ width: Math.min(100, (t.share / (listingTagTopShare || 0.01)) * 100) + '%' }"
+            />
+          </view>
+          <text class="ltk-share">{{ (t.share * 100).toFixed(1) }}%</text>
+          <text class="ltk-count muted">{{ t.count }}</text>
+        </view>
+        <view v-if="listingTagSignature.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          本市特色（相对他城 ≥1.5×）
+        </view>
+        <view
+          v-for="s in listingTagSignature"
+          :key="s.tag"
+          class="ltk-sig-row"
+        >
+          <text class="ltk-sig-tag">{{ s.tag }}</text>
+          <text class="ltk-sig-share">{{ (s.share * 100).toFixed(1) }}%</text>
+          <text class="ltk-sig-vs muted">他城均 {{ (s.otherAvg * 100).toFixed(1) }}%</text>
+        </view>
+        <view data-cross-city v-if="listingTagPenetrationTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城共有标签渗透（本市）
+        </view>
+        <view
+          v-for="t in listingTagPenetrationTop"
+          :key="'pen-' + t.tag"
+          class="ltk-row"
+        >
+          <text class="ltk-tag">{{ t.tag }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{
+                width:
+                  Math.min(
+                    100,
+                    ((t.cityShare ?? 0) / (listingTagPenetrationTop[0]?.cityShare || 0.01)) * 100
+                  ) + '%'
+              }"
+            />
+          </view>
+          <text class="ltk-share">{{ ((t.cityShare ?? 0) * 100).toFixed(1) }}%</text>
+          <text class="ltk-count muted">均 {{ (t.avgShare * 100).toFixed(1) }}%</text>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：listing_tags_summary.csv。与「标签组合」不同：本卡看单标签渗透与城市特色。
+        </view>
+        <view v-if="listingKeywordsCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          标题关键词（listing_keyword）
+        </view>
+        <view
+          v-for="k in listingKeywordsCity"
+          :key="'kw-' + k.keyword"
+          class="ltk-row"
+        >
+          <text class="ltk-tag">{{ k.keyword }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{
+                width:
+                  Math.min(
+                    100,
+                    (k.share / (listingKeywordsCity[0]?.share || 0.01)) * 100
+                  ) + '%'
+              }"
+            />
+          </view>
+          <text class="ltk-share">{{ (k.share * 100).toFixed(1) }}%</text>
+          <text class="ltk-count muted">{{ k.count }}</text>
+        </view>
+        <view data-cross-city v-if="listingKeywordTongtouCross.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          跨城「南北通透」渗透
+        </view>
+        <view
+          v-for="k in listingKeywordTongtouCross"
+          :key="'tt-' + k.cityId"
+          class="ltk-row"
+        >
+          <text class="ltk-tag" style="width: 100rpx">{{ k.cityName }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{
+                width:
+                  Math.min(
+                    100,
+                    (k.share / (listingKeywordTongtouCross[0]?.share || 0.01)) * 100
+                  ) + '%'
+              }"
+            />
+          </view>
+          <text class="ltk-share">{{ (k.share * 100).toFixed(1) }}%</text>
+        </view>
+      </view>
+

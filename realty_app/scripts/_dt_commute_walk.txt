@@ -1,0 +1,53 @@
+      <!-- v0.35.0 map-9 地铁步行通勤榜 (community → 最近地铁站, 步行时长) -->
+      <view v-if="metroWalk && metroWalk.items.length > 0" class="card" data-tab="all,transit">
+        <view class="row-between">
+          <view class="card-title">🚶 地铁步行通勤 Top · {{ metroWalk.cityName }}</view>
+          <view class="muted">Top {{ metroWalk.items.length }}</view>
+        </view>
+        <view class="mw-summary muted">
+          平均步行 {{ metroWalk.avgMinutes }}min · 最快 {{ metroWalk.fastestMinutes }}min ({{ metroWalk.fastestCommunity }})
+          · 共 {{ metroWalk.totalCount }} 个小区
+        </view>
+        <view
+          v-for="it in metroWalk.items"
+          :key="it.communityId"
+          class="mw-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(it.communityId)"
+        >
+          <view class="mw-rank">
+            <text :class="['mw-min', mwBandClass(it.walkMinutes)]">{{ it.walkMinutes.toFixed(0) }}min</text>
+          </view>
+          <view class="mw-mid">
+            <view class="mw-name">{{ it.communityName }}</view>
+            <view class="mw-dist muted">{{ it.districtName }} · → {{ it.stationName }}</view>
+          </view>
+          <view class="mw-right">
+            <view class="muted" style="font-size: 20rpx">{{ it.walkDistanceM }}m</view>
+            <view class="mw-src muted" v-if="it.source">{{ it.source === 'AMAP_API' ? '高德' : '估算' }}</view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：poi_seed.csv (subway) → 高德 /v3/direction/walking。
+          步行时长按距离升序；绿/橙/红三档 (≤5 / ≤10 / &gt;10min)，AMAP_API 是高德实测，其余为启发式估算（直线×1.45 / 80m·min⁻¹）。
+        </view>
+        <view v-if="metroWalkCityTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          派生层本市步行最少 Top
+        </view>
+        <view
+          v-for="(it, idx) in metroWalkCityTop"
+          :key="'mwc-' + it.communityId"
+          class="mw-row tap-row"
+          hover-class="tap-row--active"
+          @click="goCommunity(it.communityId)"
+        >
+          <view class="mw-rank">
+            <text :class="['mw-min', mwBandClass(it.walkMinutes)]">{{ it.walkMinutes.toFixed(0) }}min</text>
+          </view>
+          <view class="mw-mid">
+            <view class="mw-name">{{ it.communityName }}</view>
+            <view class="mw-dist muted">→ {{ it.stationName }} · {{ it.walkDistanceM }}m</view>
+          </view>
+        </view>
+      </view>
+

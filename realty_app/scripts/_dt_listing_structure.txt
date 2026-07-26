@@ -1,0 +1,146 @@
+      <!-- v1.121.18 挂牌结构占比（distributionRanking + layout_distribution） -->
+      <view v-if="layoutBedroomShare.length || layoutOrientShare.length" class="card" data-tab="all,price">
+        <view class="row-between">
+          <view class="card-title">📐 挂牌结构占比 · {{ hospitalCityName }}</view>
+          <view class="muted">layout</view>
+        </view>
+        <view v-if="layoutBedroomShare.length" class="muted" style="margin: 4rpx 0; font-size: 22rpx">户型</view>
+        <view
+          v-for="(r, idx) in layoutBedroomShare"
+          :key="'bed-' + layoutBucket(r)"
+          class="ltk-row"
+        >
+          <text class="ltk-rank muted">{{ idx + 1 }}</text>
+          <text class="ltk-tag">{{ layoutBucket(r) }}</text>
+          <view class="ltk-bar-wrap">
+            <view class="ltk-bar" :style="{ width: Math.min(100, (r.share / (layoutBedroomShare[0]?.share || 0.01)) * 100) + '%' }" />
+          </view>
+          <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
+          <text class="ltk-count muted">{{ r.count }}</text>
+        </view>
+        <view v-if="layoutOrientShare.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">朝向</view>
+        <view
+          v-for="(r, idx) in layoutOrientShare"
+          :key="'ori-' + layoutBucket(r)"
+          class="ltk-row"
+        >
+          <text class="ltk-rank muted">{{ idx + 1 }}</text>
+          <text class="ltk-tag">{{ layoutBucket(r) }}</text>
+          <view class="ltk-bar-wrap">
+            <view class="ltk-bar" :style="{ width: Math.min(100, (r.share / (layoutOrientShare[0]?.share || 0.01)) * 100) + '%' }" />
+          </view>
+          <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
+          <text class="ltk-count muted">{{ r.count }}</text>
+        </view>
+        <view data-cross-city v-if="layoutThreeBedCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城「3室」占比
+        </view>
+        <view
+          v-for="r in layoutThreeBedCrossCity"
+          :key="'3b-' + r.cityId"
+          class="ltk-row"
+        >
+          <text class="ltk-tag" style="width: 100rpx">{{ r.cityName }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{ width: Math.min(100, (r.share / (layoutThreeBedCrossCity[0]?.share || 0.01)) * 100) + '%' }"
+            />
+          </view>
+          <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
+          <text class="ltk-count muted">{{ r.count }}</text>
+        </view>
+        <view data-cross-city v-if="layoutDecorateCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城「精装」占比
+        </view>
+        <view
+          v-for="r in layoutDecorateCrossCity"
+          :key="'dec-' + r.cityId"
+          class="ltk-row"
+        >
+          <text class="ltk-tag" style="width: 100rpx">{{ r.cityName }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{ width: Math.min(100, (r.share / (layoutDecorateCrossCity[0]?.share || 0.01)) * 100) + '%' }"
+            />
+          </view>
+          <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
+          <text class="ltk-count muted">{{ r.count }}</text>
+        </view>
+        <view data-cross-city v-if="bedroomAreaCrossCityPrice.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城「3室 · 80-110㎡」中位单价
+        </view>
+        <view
+          v-for="r in bedroomAreaCrossCityPrice"
+          :key="'ba3-' + r.cityId"
+          class="ltk-row"
+        >
+          <text class="ltk-tag" style="width: 100rpx">{{ r.cityName }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{
+                width:
+                  Math.min(
+                    100,
+                    ((r.medianUnitPrice ?? 0) /
+                      (bedroomAreaCrossCityPrice[0]?.medianUnitPrice || 1)) *
+                      100
+                  ) + '%'
+              }"
+            />
+          </view>
+          <text class="ltk-share">
+            {{ r.medianUnitPrice != null ? Math.round(r.medianUnitPrice / 1000) + "k" : "—" }}
+          </text>
+          <text class="ltk-count muted">{{ r.count }}</text>
+        </view>
+        <view data-cross-city v-if="layoutTwoBedShareCross.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城「2室」占比（layout）
+        </view>
+        <view
+          v-for="r in layoutTwoBedShareCross"
+          :key="'2b-' + r.cityId"
+          class="ltk-row"
+        >
+          <text class="ltk-tag" style="width: 100rpx">{{ r.cityName }}</text>
+          <view class="ltk-bar-wrap">
+            <view
+              class="ltk-bar"
+              :style="{
+                width:
+                  Math.min(
+                    100,
+                    (r.share / (layoutTwoBedShareCross[0]?.share || 0.01)) * 100
+                  ) + '%'
+              }"
+            />
+          </view>
+          <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
+          <text class="ltk-count muted">{{ r.count }}</text>
+        </view>
+        <view v-if="layoutMedianPriceTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          本市结构桶中位单价 Top
+        </view>
+        <view
+          v-for="(r, idx) in layoutMedianPriceTop"
+          :key="'lmp-' + idx + distRowLabel(r)"
+          class="ltk-row"
+        >
+          <text class="ltk-rank muted">{{ idx + 1 }}</text>
+          <text class="ltk-tag" style="flex: 1">{{ distRowLabel(r) }}</text>
+          <text class="ltk-share">
+            {{
+              distRowPrice(r) != null
+                ? Math.round((distRowPrice(r) as number) / 1000) + "k"
+                : "—"
+            }}
+          </text>
+          <text class="ltk-count muted">×{{ r.count }}</text>
+        </view>
+        <view data-cross-city class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：layout_distribution.csv + bedroom_area.csv。与户型×面积矩阵卡互补（本卡看单维占比与跨城结构）。
+        </view>
+      </view>
+

@@ -1,0 +1,3 @@
+// v0.38.0 trend-18: 区情画像
+const districtMeta = ref<DistrictMetaResponse | null>(null);
+const districtMetaSortBy = ref<"default" | "price" | "school" | "mom" | "listing">("price");

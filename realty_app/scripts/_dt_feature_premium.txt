@@ -1,0 +1,116 @@
+      <!-- v0.39.0 trend-19 特征画像溢价 (户型/面积/朝向/装修 哪类更贵/更便宜) -->
+      <view v-if="featurePremium && featurePremium.totalCount > 0" class="card" data-tab="all,price">
+        <view class="row-between">
+          <view class="card-title">💎 特征画像溢价 · {{ featurePremium.cityName }}</view>
+          <view class="muted">基线 = 城市中位单价 · {{ featurePremium.totalCount }} 桶 · minCount ≥ 5</view>
+        </view>
+        <view class="fp-dim-row">
+          <view
+            v-for="d in featurePremium.dimensions"
+            :key="d.dimension"
+            class="fp-dim-block"
+          >
+            <view class="fp-dim-head">
+              <text class="fp-dim-name">{{ fpDimLabel(d.dimension) }}</text>
+              <text class="muted">{{ d.count }} 桶</text>
+            </view>
+            <view
+              v-for="it in d.items.slice(0, 3)"
+              :key="d.dimension + '_' + it.bucket"
+              class="fp-row"
+            >
+              <view class="fp-bucket">{{ it.bucket }}</view>
+              <view class="fp-bar-wrap">
+                <view
+                  class="fp-bar"
+                  :class="fpBarClass(it.premiumPct)"
+                  :style="{ width: fpBarWidth(it.premiumPct) + '%' }"
+                />
+              </view>
+              <view :class="['fp-pct', fpPctClass(it.premiumPct)]">
+                {{ it.premiumPct >= 0 ? '+' : '' }}{{ it.premiumPct.toFixed(1) }}%
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：listings.csv (中位单价) + cities.csv → scripts/compute_feature_premium.py。<br>
+          公式：premium% = (bucket 桶中位单价 ÷ 城市中位单价 − 1) × 100。
+        </view>
+        <view data-cross-city v-if="featurePremiumCrossBedrooms.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城「户型」最高溢价桶
+        </view>
+        <view
+          v-for="r in featurePremiumCrossBedrooms"
+          :key="'fpb-' + r.cityId"
+          class="fp-row"
+        >
+          <view class="fp-bucket">{{ r.cityName }} · {{ r.bucket }}</view>
+          <view :class="['fp-pct', fpPctClass(r.premiumPct)]">
+            {{ r.premiumPct >= 0 ? '+' : '' }}{{ r.premiumPct.toFixed(1) }}%
+          </view>
+        </view>
+        <view v-if="featurePremiumAbsTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          全国 |溢价| 最大桶
+        </view>
+        <view
+          v-for="(r, idx) in featurePremiumAbsTop"
+          :key="'fpa-' + r.cityId + r.dimension + r.bucket"
+          class="fp-row"
+        >
+          <view class="fp-bucket">
+            {{ idx + 1 }}. {{ r.cityName }} · {{ fpDimLabel(r.dimension) }} · {{ r.bucket }}
+          </view>
+          <view :class="['fp-pct', fpPctClass(r.premiumPct)]">
+            {{ r.premiumPct >= 0 ? '+' : '' }}{{ r.premiumPct.toFixed(1) }}%
+          </view>
+        </view>
+        <view v-if="featurePremiumCityTops.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          本市各维最高溢价桶
+        </view>
+        <view
+          v-for="r in featurePremiumCityTops"
+          :key="'fpt-' + r.dimension"
+          class="fp-row"
+        >
+          <view class="fp-bucket">{{ fpDimLabel(r.dimension) }} · {{ r.bucket }}</view>
+          <view :class="['fp-pct', fpPctClass(r.premiumPct)]">
+            {{ r.premiumPct >= 0 ? '+' : '' }}{{ r.premiumPct.toFixed(1) }}%
+          </view>
+        </view>
+        <view v-if="featurePremiumCitySummary" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          本市极值桶摘要（派生 summarizeFeaturePremiumByCity）
+        </view>
+        <view v-if="featurePremiumCitySummary?.topBucket" class="fp-row">
+          <view class="fp-bucket">
+            最高 · {{ fpDimLabel(featurePremiumCitySummary.topBucket.dimension) }} ·
+            {{ featurePremiumCitySummary.topBucket.bucket }}
+          </view>
+          <view :class="['fp-pct', fpPctClass(featurePremiumCitySummary.topBucket.premiumPct)]">
+            +{{ featurePremiumCitySummary.topBucket.premiumPct.toFixed(1) }}%
+          </view>
+        </view>
+        <view v-if="featurePremiumCitySummary?.bottomBucket" class="fp-row">
+          <view class="fp-bucket">
+            最低 · {{ fpDimLabel(featurePremiumCitySummary.bottomBucket.dimension) }} ·
+            {{ featurePremiumCitySummary.bottomBucket.bucket }}
+          </view>
+          <view :class="['fp-pct', fpPctClass(featurePremiumCitySummary.bottomBucket.premiumPct)]">
+            {{ featurePremiumCitySummary.bottomBucket.premiumPct.toFixed(1) }}%
+          </view>
+        </view>
+        <view v-if="featurePremiumDecorateBuckets.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          本市装修维全部桶
+        </view>
+        <view
+          v-for="r in featurePremiumDecorateBuckets"
+          :key="'fpd-' + r.bucket"
+          class="fp-row"
+        >
+          <view class="fp-bucket">{{ r.bucket }} · {{ r.count }} 套</view>
+          <view :class="['fp-pct', fpPctClass(r.premiumPct)]">
+            {{ r.premiumPct >= 0 ? '+' : '' }}{{ r.premiumPct.toFixed(1) }}%
+          </view>
+        </view>
+      </view>
+

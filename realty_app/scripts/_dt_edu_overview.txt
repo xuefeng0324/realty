@@ -1,0 +1,51 @@
+
+      <!-- v1.121.16 教育事业概览（educationOverview，学校页已有，仪表盘此前未展示） -->
+      <view v-if="eduOverview" class="card" data-tab="all,school" data-education-overview>
+        <view class="row-between">
+          <view class="card-title">📚 教育事业 · {{ eduOverview.city }}</view>
+          <view class="muted">{{ formatEducationPeriodLabel(eduOverview) }}</view>
+        </view>
+        <view class="edu-summary">
+          <view class="edu-kpi">
+            <text class="edu-kpi-val">{{ eduOverview.totalSchools }}</text>
+            <text class="edu-kpi-label muted">学校</text>
+          </view>
+          <view class="edu-kpi">
+            <text class="edu-kpi-val">{{ eduOverview.totalStudents10k > 0 ? eduOverview.totalStudents10k.toFixed(1) : "—" }}</text>
+            <text class="edu-kpi-label muted">在校生万</text>
+          </view>
+          <template v-if="eduHasPrimaryJuniorSplit">
+            <view class="edu-kpi">
+              <text class="edu-kpi-val">{{ eduOverview.primaryCount }}</text>
+              <text class="edu-kpi-label muted">小学</text>
+            </view>
+            <view class="edu-kpi">
+              <text class="edu-kpi-val">{{ eduOverview.juniorHighCount }}</text>
+              <text class="edu-kpi-label muted">初中</text>
+            </view>
+          </template>
+          <template v-else>
+            <view class="edu-kpi">
+              <text class="edu-kpi-val">{{ eduOverview.compulsoryCount }}</text>
+              <text class="edu-kpi-label muted">普通中小学</text>
+            </view>
+            <view class="edu-kpi">
+              <text class="edu-kpi-val">{{ eduOverview.kindergartenCount }}</text>
+              <text class="edu-kpi-label muted">幼儿园</text>
+            </view>
+          </template>
+        </view>
+        <view class="edu-grid">
+          <text v-if="eduHasPrimaryJuniorSplit" class="edu-chip">幼儿园 {{ eduOverview.kindergartenCount }}</text>
+          <text v-if="eduOverview.seniorHighCount > 0" class="edu-chip">高中 {{ eduOverview.seniorHighCount }}</text>
+          <text v-if="eduOverview.vocationalCount > 0" class="edu-chip">职校 {{ eduOverview.vocationalCount }}</text>
+          <text v-if="eduOverview.privateCount > 0" class="edu-chip">民办 {{ eduOverview.privateCount }}</text>
+          <text v-if="eduOverview.specialCount > 0" class="edu-chip">特殊教育 {{ eduOverview.specialCount }}</text>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          {{ eduOverview.sourceOrg }} · {{ eduOverview.publishDate }} 发布。
+          <text v-if="eduOverview.city === '珠海'">基础教育学校数官方表；在校生/民办未公布不伪造。</text>
+          <text v-else-if="!eduHasPrimaryJuniorSplit">官方口径为「普通中小学」合计，不伪造小学/初中分项。</text>
+        </view>
+      </view>
+

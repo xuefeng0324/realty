@@ -1,0 +1,73 @@
+
+      <!-- v0.93.0 分区近 12 周均价变动排行（派生：基于 district_trend.csv） -->
+      <view
+        v-if="district12wChange.length"
+        class="card district-drift-card"
+      >
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">📊 分区近 12 周均价变动</view>
+          <view class="muted" style="font-size: 22rpx">
+            <text v-if="districtChangeDistribution.strictTotal > 0">
+              ≥13 周 · 涨 {{ districtChangeDistribution.strictUp }} ·
+              跌 {{ districtChangeDistribution.strictDown }}
+              <text class="muted" style="font-size: 18rpx">
+                ({{ districtChangeDistribution.strictTotal }} 区)
+              </text>
+            </text>
+            <text v-else>
+              涨 {{ districtChangeDistribution.up }} ·
+              跌 {{ districtChangeDistribution.down }}
+              <text class="muted" style="font-size: 18rpx">
+                (全 {{ districtChangeDistribution.total }} 区样本不足时回退)
+              </text>
+            </text>
+          </view>
+        </view>
+
+        <view class="stats70-grid">
+          <view
+            v-for="row in district12wChange.slice(0, 6)"
+            :key="'dd' + row.cityId + row.districtName"
+            class="stats70-cell"
+          >
+            <text class="cell-label">{{ cityNameForId(row.cityId) }} · {{ row.districtName }}</text>
+            <text class="cell-value" :class="row.change > 0 ? 'drift-up' : row.change < 0 ? 'drift-down' : ''">
+              {{ formatPct(row.change) }}
+            </text>
+            <text class="cell-sub muted">
+              {{ formatUnitPrice(row.latestPrice) }} ({{ row.weeksAvailable }}w)
+            </text>
+          </view>
+        </view>
+
+        <view
+          v-if="districtMomentumRank.length"
+          style="margin-top: 14rpx"
+        >
+          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
+            近 4 周 vs 前 4 周动量 · Top 3
+          </view>
+          <view
+            v-for="(row, i) in districtMomentumRank.slice(0, 3)"
+            :key="'mm' + row.cityId + row.districtName"
+            class="drift-row"
+          >
+            <text class="drift-rank">{{ i + 1 }}</text>
+            <text class="drift-city">{{ cityNameForId(row.cityId) }} · {{ row.districtName }}</text>
+            <text
+              v-if="row.momentum != null"
+              class="drift-value"
+              :class="row.momentum > 0 ? 'drift-up' : row.momentum < 0 ? 'drift-down' : ''"
+            >
+              {{ formatPct(row.momentum) }}
+            </text>
+            <text v-else class="drift-value muted">—</text>
+          </view>
+        </view>
+        <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+          派生：snapshot.districtTrends（{{ districtDriftTotalWeeks }} 周样本 /
+          {{ districtDriftTotalDistricts }} 区），当前严格 12 周对比仅
+          {{ districtChangeDistribution.strictTotal }} 区。卡片严格口径排序，宽松口径作为兜底。
+        </view>
+      </view>
+

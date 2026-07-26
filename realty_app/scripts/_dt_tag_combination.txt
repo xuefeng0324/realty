@@ -1,0 +1,134 @@
+      <!-- v0.40.0 trend-20 标签组合热度 (最常一起出现的 2 标签) -->
+      <view v-if="tagCombination && tagCombination.topN.length > 0" class="card" data-tab="all,price">
+        <view class="row-between">
+          <view class="card-title">🏷️ 标签组合热度 · {{ tagCombination.cityName }}</view>
+          <view class="muted">top {{ tagCombination.topN.length }} · 共 {{ tagCombination.totalCount }} 对</view>
+        </view>
+        <view
+          v-for="(it, idx) in tagCombination.topN"
+          :key="idx"
+          class="tc-row"
+        >
+          <view class="tc-rank">{{ idx + 1 }}</view>
+          <view class="tc-mid">
+            <view class="tc-pair">
+              <text class="tc-tag">{{ it.tagA }}</text>
+              <text class="tc-plus">+</text>
+              <text class="tc-tag">{{ it.tagB }}</text>
+            </view>
+            <view class="tc-meta muted">
+              出现 {{ it.count }} 套 · 占比 {{ (it.share * 100).toFixed(1) }}% · 中位单价
+              <text v-if="it.avgUnitPrice" class="tc-price">{{ Math.round(it.avgUnitPrice / 1000) }}k 元/㎡</text>
+              <text v-else>—</text>
+            </view>
+          </view>
+          <view class="tc-bar-wrap">
+            <view
+              class="tc-bar"
+              :style="{ width: tcBarWidth(it.count, tagCombination.topN[0].count) + '%' }"
+            />
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：listing_tags.csv (7518 行) → scripts/compute_tag_combination.py。<br>
+          公式：对每个 listing 取 4-7 个 tag, C(2) 算 2-组合, count ≥ 5 才入榜。
+        </view>
+        <view data-cross-city v-if="tagComboCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城共有标签对
+        </view>
+        <view
+          v-for="(it, idx) in tagComboCrossCity"
+          :key="'tcc-' + it.tagA + it.tagB"
+          class="tc-row"
+        >
+          <view class="tc-rank">{{ idx + 1 }}</view>
+          <view class="tc-mid">
+            <view class="tc-pair">
+              <text class="tc-tag">{{ it.tagA }}</text>
+              <text class="tc-plus">+</text>
+              <text class="tc-tag">{{ it.tagB }}</text>
+            </view>
+            <view class="tc-meta muted">
+              {{ it.cities.join(" / ") }} · 合计 {{ it.totalCount }} 套
+            </view>
+          </view>
+        </view>
+        <view v-if="tagComboPremiumLocal.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          本市均价最高标签对
+        </view>
+        <view
+          v-for="(it, idx) in tagComboPremiumLocal"
+          :key="'tcp-' + it.tagA + it.tagB"
+          class="tc-row"
+        >
+          <view class="tc-rank">{{ idx + 1 }}</view>
+          <view class="tc-mid">
+            <view class="tc-pair">
+              <text class="tc-tag">{{ it.tagA }}</text>
+              <text class="tc-plus">+</text>
+              <text class="tc-tag">{{ it.tagB }}</text>
+            </view>
+            <view class="tc-meta muted">
+              {{ it.count }} 套
+              <text v-if="it.avgUnitPrice" class="tc-price">
+                · {{ Math.round(it.avgUnitPrice / 1000) }}k 元/㎡
+              </text>
+            </view>
+          </view>
+        </view>
+        <view v-if="tagComboPopularLocal.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          派生层最常见标签对
+        </view>
+        <view
+          v-for="(it, idx) in tagComboPopularLocal"
+          :key="'tpop-' + it.tagA + it.tagB"
+          class="tc-row"
+        >
+          <view class="tc-rank">{{ idx + 1 }}</view>
+          <view class="tc-mid">
+            <view class="tc-pair">
+              <text class="tc-tag">{{ it.tagA }}</text>
+              <text class="tc-plus">+</text>
+              <text class="tc-tag">{{ it.tagB }}</text>
+            </view>
+            <view class="tc-meta muted">
+              {{ it.count }} 套 · {{ (it.share * 100).toFixed(1) }}%
+            </view>
+          </view>
+        </view>
+        <view data-cross-city v-if="tagComboMetroPartners" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          「地铁可达」常搭配（跨城）
+        </view>
+        <view
+          v-for="(p, idx) in tagComboMetroPartners?.pairs ?? []"
+          :key="'tmp-' + p.otherTag"
+          class="tc-row"
+        >
+          <view class="tc-rank">{{ idx + 1 }}</view>
+          <view class="tc-mid">
+            <view class="tc-pair">
+              <text class="tc-tag">地铁可达</text>
+              <text class="tc-plus">+</text>
+              <text class="tc-tag">{{ p.otherTag }}</text>
+            </view>
+            <view class="tc-meta muted">{{ p.cities }} 城 · 合计 {{ p.totalCount }} 套</view>
+          </view>
+        </view>
+        <view data-cross-city v-if="tagComboCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+          跨城标签组合密度
+        </view>
+        <view
+          v-for="c in tagComboCitySummaries"
+          :key="'tccs-' + c.cityId"
+          class="tc-row"
+        >
+          <view class="tc-mid">
+            <view class="tc-pair">
+              <text class="tc-tag">{{ c.cityName }}</text>
+            </view>
+            <view class="tc-meta muted">
+              {{ c.combinationCount }} 对 · 均 share {{ (c.avgShare * 100).toFixed(1) }}% · 均 {{ c.avgCount.toFixed(0) }} 套
+            </view>
+          </view>
+        </view>
+      </view>

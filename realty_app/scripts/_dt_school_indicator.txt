@@ -1,0 +1,84 @@
+      <!-- v0.94.0 学校指标各维度 Top 5（派生：基于 school_indicators.csv） -->
+      <view
+        v-if="schoolIndicatorSummary.total > 0"
+        class="card school-indicator-card"
+      >
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🎓 学校指标 · 各维度 Top 5</view>
+          <view class="muted" style="font-size: 22rpx">
+            综合 ≥ 90 {{ formatPct(schoolIndicatorSummary.highLevelRate) }} ·
+            集团校 {{ formatPct(schoolIndicatorSummary.groupSchoolRate) }}
+          </view>
+        </view>
+
+        <view class="stats70-grid">
+          <view class="stats70-cell">
+            <text class="cell-label">综合排名分</text>
+            <text class="cell-value">#{{ schoolTopLevel[0]?.schoolId ?? "-" }}</text>
+            <text class="cell-sub muted">
+              {{ schoolTopLevel[0]?.score?.toFixed(1) ?? "-" }} 分
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">集团校实力</text>
+            <text class="cell-value">#{{ schoolTopGroup[0]?.schoolId ?? "-" }}</text>
+            <text class="cell-sub muted">
+              {{ schoolTopGroup[0]?.score?.toFixed(1) ?? "-" }} 分
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">区域均衡度</text>
+            <text class="cell-value">#{{ schoolTopBalance[0]?.schoolId ?? "-" }}</text>
+            <text class="cell-sub muted">
+              {{ schoolTopBalance[0]?.score?.toFixed(1) ?? "-" }} 分
+            </text>
+          </view>
+        </view>
+
+        <view
+          v-if="schoolTrendRising.length || schoolTrendDeclining.length"
+          style="margin-top: 14rpx"
+        >
+          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
+            上升 {{ schoolIndicatorSummary.risingCount }} ·
+            下滑 {{ schoolIndicatorSummary.decliningCount }} ·
+            不变 {{ schoolIndicatorSummary.flatCount }}
+          </view>
+          <view
+            v-if="schoolTrendRising.length"
+            style="margin-bottom: 6rpx"
+          >
+            <view class="muted" style="font-size: 20rpx">上升 Top</view>
+            <view
+              v-for="(row, i) in schoolTrendRising.slice(0, 3)"
+              :key="'sup' + row.schoolId"
+              class="drift-row"
+            >
+              <text class="drift-rank">{{ i + 1 }}</text>
+              <text class="drift-city">学校 #{{ row.schoolId }}</text>
+              <text class="drift-value drift-up">
+                +{{ row.trendDelta.toFixed(2) }}
+              </text>
+            </view>
+          </view>
+          <view v-if="schoolTrendDeclining.length">
+            <view class="muted" style="font-size: 20rpx">下滑 Top</view>
+            <view
+              v-for="(row, i) in schoolTrendDeclining.slice(0, 3)"
+              :key="'sdn' + row.schoolId"
+              class="drift-row"
+            >
+              <text class="drift-rank">{{ i + 1 }}</text>
+              <text class="drift-city">学校 #{{ row.schoolId }}</text>
+              <text class="drift-value drift-down">
+                {{ row.trendDelta.toFixed(2) }}
+              </text>
+            </view>
+          </view>
+        </view>
+        <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+          派生：snapshot.schoolIndicators（{{ schoolIndicatorSummary.total }} 所学校）。
+          Top 列仅按各维度分数排序，综合分用于横向参考；具体名称见下方「重点学校维度」。
+        </view>
+      </view>
+

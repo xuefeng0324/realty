@@ -1,0 +1,66 @@
+      <!-- v0.91.0 70 城 12 月趋势对比（派生：基于 stats_70.csv） -->
+      <view
+        v-if="stats70Ready && driftReady"
+        class="card stats70-drift-card tap-target"
+        role="button"
+        tabindex="0"
+        hover-class="card-active"
+        @click="goStats70"
+      >
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">全国 70 城 · 近 12 月同比趋势</view>
+          <view class="muted" style="font-size: 22rpx">派生 / {{ driftLatestLabel || "—" }}</view>
+        </view>
+        <view class="stats70-grid">
+          <view class="stats70-cell">
+            <text class="cell-label">扩张</text>
+            <text class="cell-value drift-up">{{ driftDistribution?.expanding.length ?? 0 }}</text>
+            <text class="cell-sub muted">个</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">收缩</text>
+            <text class="cell-value drift-down">{{ driftDistribution?.contracting.length ?? 0 }}</text>
+            <text class="cell-sub muted">个</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">数据不足</text>
+            <text class="cell-value drift-unknown">{{ driftDistribution?.unknown ?? 0 }}</text>
+            <text class="cell-sub muted">个</text>
+          </view>
+        </view>
+
+        <view v-if="driftTop.length" style="margin-top: 12rpx">
+          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
+            扩张 Top 3（二手）
+          </view>
+          <view
+            v-for="(row, i) in driftTop"
+            :key="'up' + row.city"
+            class="drift-row"
+          >
+            <text class="drift-rank">{{ i + 1 }}</text>
+            <text class="drift-city">{{ row.city }}</text>
+            <text class="drift-value drift-up">
+              +{{ fmtPct(row.drift) }}
+            </text>
+          </view>
+          <view class="muted" style="font-size: 22rpx; margin: 12rpx 0 6rpx">
+            收缩 Top 3（二手）
+          </view>
+          <view
+            v-for="(row, i) in driftBottom"
+            :key="'dn' + row.city"
+            class="drift-row"
+          >
+            <text class="drift-rank">{{ i + 1 }}</text>
+            <text class="drift-city">{{ row.city }}</text>
+            <text class="drift-value drift-down">
+              {{ fmtPct(row.drift) }}
+            </text>
+          </view>
+        </view>
+        <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+          派生：最近 12 月指数均值 / 前 12 月指数均值 -1，数据源 stats_70.csv，仅二手指数
+        </view>
+      </view>
+

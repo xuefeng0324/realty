@@ -1,0 +1,22 @@
+// v0.38.0 trend-18: 区情画像
+async function reloadDistrictMeta() {
+  try {
+    districtMeta.value = await getDistrictMetaRanking({
+      cityId: app.cityId,
+      sortBy: districtMetaSortBy.value,
+      hideEmpty: districtMetaHideEmpty.value
+    });
+  } catch (e) {
+    console.warn("getDistrictMetaRanking failed:", e);
+    districtMeta.value = null;
+  }
+}
+
+async function setDmSort(s: "default" | "price" | "school" | "mom" | "listing") {
+  districtMetaSortBy.value = s;
+  await reloadDistrictMeta();
+}
+
+async function toggleDmHideEmpty() {
+  districtMetaHideEmpty.value = !districtMetaHideEmpty.value;
+  await reloadDistrictMeta();

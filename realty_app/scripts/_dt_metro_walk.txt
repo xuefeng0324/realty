@@ -1,0 +1,64 @@
+      <!-- v0.92.0 地铁步行可达性概览（派生：基于 metro_walk.csv） -->
+      <view
+        v-if="metroWalkSummary.length"
+        class="card metro-walk-card"
+      >
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🚶 地铁步行可达性</view>
+          <view class="muted" style="font-size: 22rpx">深度站 / 全市场</view>
+        </view>
+
+        <view class="stats70-grid">
+          <view
+            v-for="row in metroWalkSummary"
+            :key="'mw' + row.cityId"
+            class="stats70-cell"
+          >
+            <text class="cell-label">{{ cityNameForId(row.cityId) }}</text>
+            <text class="cell-value">{{ formatPct(row.pct5Min) }}</text>
+            <text class="cell-sub muted">
+              ≤5min {{ row.within5Min }}/{{ row.totalCommunities }} · ≤10min {{ row.within10Min }}
+            </text>
+          </view>
+        </view>
+
+        <view
+          v-if="metroWalkTop.length"
+          style="margin-top: 14rpx"
+        >
+          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
+            步行最少 Top 3（深广全市场）
+          </view>
+          <view
+            v-for="(row, i) in metroWalkTop.slice(0, 3)"
+            :key="'mwt' + row.communityId"
+            class="drift-row"
+          >
+            <text class="drift-rank">{{ i + 1 }}</text>
+            <text class="drift-city">{{ row.communityName }} → {{ row.stationName }}</text>
+            <text class="drift-value drift-up">{{ row.walkMinutes.toFixed(1) }}min</text>
+          </view>
+        </view>
+        <view
+          v-if="metroWalkCityTop.length"
+          style="margin-top: 10rpx"
+        >
+          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
+            本市步行最少 Top（派生）
+          </view>
+          <view
+            v-for="(row, i) in metroWalkCityTop"
+            :key="'mwct' + row.communityId"
+            class="drift-row"
+          >
+            <text class="drift-rank">{{ i + 1 }}</text>
+            <text class="drift-city">{{ row.communityName }} → {{ row.stationName }}</text>
+            <text class="drift-value drift-up">{{ row.walkMinutes.toFixed(1) }}min</text>
+          </view>
+        </view>
+        <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+          派生：snapshot.metroWalks（{{
+            metroWalkSummary.reduce((s, r) => s + r.totalCommunities, 0)
+          }} 个小区）。优先选 5 分钟覆盖比例最高城市。
+        </view>
+      </view>

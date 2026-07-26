@@ -1,0 +1,19 @@
+// v0.94.0：学校指标各维度 Top + 涨跌
+const schoolIndicatorSummary = computed<SchoolIndicatorSummary>(() =>
+  summarizeSchoolIndicators()
+);
+const schoolTopLevel = computed<SchoolIndicatorRankingEntry[]>(() =>
+  getSchoolIndicatorDimensionTopN("latestLevelScoreRaw", 5)
+);
+const schoolTopGroup = computed<SchoolIndicatorRankingEntry[]>(() =>
+  getSchoolIndicatorDimensionTopN("groupSchoolStrengthRaw", 5)
+);
+const schoolTopBalance = computed<SchoolIndicatorRankingEntry[]>(() =>
+  getSchoolIndicatorDimensionTopN("districtBalanceLevelRaw", 5)
+);
+const schoolTrendRising = computed<SchoolIndicatorTrendEntry[]>(() =>
+  getSchoolIndicatorTrendTop("rising", 5)
+);
+const schoolTrendDeclining = computed<SchoolIndicatorTrendEntry[]>(() =>
+  getSchoolIndicatorTrendTop("declining", 5)
+);

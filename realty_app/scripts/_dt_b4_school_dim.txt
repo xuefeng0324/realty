@@ -1,0 +1,16 @@
+const dimCitySummaryLocal = computed<CityDimensionSummary | null>(() => {
+  return summarizeSchoolDimensionsByCity().find((x) => x.cityId === app.cityId) ?? null;
+});
+const dimCityReady = computed(() => (dimCitySummaryLocal.value?.schoolCount ?? 0) > 0);
+const dimTopLevelCity = computed<SchoolDimensionEntry[]>(() =>
+  getSchoolDimensionByDimensionTopN("levelScore", app.cityId, 1)
+);
+const dimTopGroupCity = computed<SchoolDimensionEntry[]>(() =>
+  getSchoolDimensionByDimensionTopN("groupStrength", app.cityId, 1)
+);
+const dimTopBalanceCity = computed<SchoolDimensionEntry[]>(() =>
+  getSchoolDimensionByDimensionTopN("districtBalance", app.cityId, 1)
+);
+const dimPolymathCity = computed<SchoolDimensionEntry[]>(() =>
+  getSchoolDimensionPolymath(app.cityId, {}).slice(0, 5)
+);

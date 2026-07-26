@@ -1,0 +1,63 @@
+      <!-- v0.38.0 trend-18 区情画像 (行政区代码 + 房价指数 + 学区评分 + 挂牌量 + 楼龄) -->
+      <view v-if="districtMeta && districtMeta.items.length > 0" class="card" data-tab="all,school">
+        <view class="row-between">
+          <view class="card-title">📋 区情画像 · {{ districtMeta.cityName }}</view>
+          <view class="muted">{{ districtMeta.items.length }} 区 · {{ districtMeta.withPrice }} 有均价 · {{ districtMeta.withSchool }} 有学区</view>
+        </view>
+        <view class="dm-chips">
+          <view
+            v-for="s in [
+              { key: 'price', label: '按均价' },
+              { key: 'school', label: '按学区' },
+              { key: 'mom', label: '按月环比' },
+              { key: 'listing', label: '按挂牌' },
+              { key: 'default', label: '按区码' }
+            ]"
+            :key="s.key"
+            :class="['dm-chip', districtMetaSortBy === s.key ? 'dm-chip-on' : '']"
+            @click="setDmSort(s.key as any)"
+          >{{ s.label }}</view>
+          <view
+            :class="['dm-chip', districtMetaHideEmpty ? 'dm-chip-on' : '']"
+            @click="toggleDmHideEmpty()"
+          >仅显示有数据</view>
+        </view>
+        <view
+          v-for="d in districtMeta.items"
+          :key="d.districtName"
+          class="dm-row"
+        >
+          <view class="dm-left">
+            <view class="dm-name">{{ d.districtName }}</view>
+            <view class="muted" style="font-size: 22rpx">区码 {{ d.adminCode || '—' }} · 片区代码 {{ d.areaCode || '—' }}</view>
+          </view>
+          <view class="dm-mid">
+            <view class="dm-line">
+              <text class="dm-k">挂牌</text>
+              <text class="dm-v">{{ d.listingCount }}</text>
+              <text class="dm-sub muted">{{ d.communityCount }} 小区</text>
+            </view>
+            <view class="dm-line">
+              <text class="dm-k">均价</text>
+              <text class="dm-v">{{ d.medianUnitPrice ? (d.medianUnitPrice / 10000).toFixed(1) + 'w' : '—' }}</text>
+              <text :class="['dm-mom', momClass(d.momChangePct)]">
+                {{ d.momChangePct != null ? (d.momChangePct >= 0 ? '+' : '') + d.momChangePct + '%' : '—' }}
+              </text>
+            </view>
+            <view class="dm-line">
+              <text class="dm-k">学区</text>
+              <text class="dm-v">{{ d.avgSchoolScore != null ? d.avgSchoolScore : '—' }}</text>
+              <text class="dm-sub muted">{{ d.schoolCount }} 校</text>
+            </view>
+            <view class="dm-line">
+              <text class="dm-k">楼龄</text>
+              <text class="dm-v">{{ d.medianBuildYear ?? '—' }}</text>
+              <text class="dm-sub muted">{{ d.medianBuildYear ? (2026 - d.medianBuildYear) + '年' : '' }}</text>
+            </view>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          数据源：admin_districts.csv + district_index.csv + school_premium_district.csv + listings.csv → scripts/compute_district_metadata.py。
+        </view>
+      </view>
+

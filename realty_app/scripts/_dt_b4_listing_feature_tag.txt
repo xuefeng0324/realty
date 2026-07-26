@@ -1,0 +1,143 @@
+const layoutBedroomShare = computed<LocalLayoutDistribution[]>(() =>
+  store
+    .getLayoutDistributions()
+    .filter((x) => x.cityId === app.cityId && x.dimension === "bedrooms")
+    .sort((a, b) => b.share - a.share)
+    .slice(0, 5)
+);
+const layoutOrientShare = computed<LocalLayoutDistribution[]>(() =>
+  store
+    .getLayoutDistributions()
+    .filter((x) => x.cityId === app.cityId && x.dimension === "orientation")
+    .sort((a, b) => b.share - a.share)
+    .slice(0, 5)
+);
+function layoutBucket(r: LocalLayoutDistribution): string {
+  return r.bucket;
+}
+const layoutThreeBedCrossCity = computed(() =>
+  crossCityRows(
+    store
+      .getLayoutDistributions()
+      .filter((x) => x.dimension === "bedrooms" && x.bucket === "3室")
+      .sort((a, b) => b.share - a.share)
+  )
+);
+const layoutDecorateCrossCity = computed(() =>
+  crossCityRows(
+    store
+      .getLayoutDistributions()
+      .filter((x) => x.dimension === "decorate" && x.bucket === "精装")
+      .sort((a, b) => b.share - a.share)
+  )
+);
+const bedroomAreaCrossCityPrice = computed<CrossCityBucketEntry[]>(() =>
+  crossCityRows(getDistributionCrossCityLeaderboard("3室", "80-110"))
+);
+const layoutTwoBedShareCross = computed<CrossCityShareEntry[]>(() =>
+  crossCityRows(
+    getDistributionShareLeaderboard("bedrooms").filter(
+      (x) => x.dimensions[1] === "2室"
+    )
+  )
+);
+const layoutMedianPriceTop = computed<DistributionRow[]>(() =>
+  getDistributionTopByMedianPrice(app.cityId, 5)
+);
+const distributionCitySummaries = computed<CityDistributionSummary[]>(() =>
+  crossCityRows(summarizeDistributionByCity())
+);
+function distRowLabel(r: DistributionRow): string {
+  if ("decorate" in r && "ageBucket" in r) {
+    return `${r.decorate} · ${r.ageBucket}`;
+  }
+  if ("bedrooms" in r && "areaBucket" in r) {
+    return `${r.bedrooms}室 · ${r.areaBucket}`;
+  }
+  const ld = r as LocalLayoutDistribution;
+  return `${ld.dimension} · ${ld.bucket}`;
+}
+function distRowPrice(r: DistributionRow): number | null {
+  return (r as { medianUnitPrice?: number | null }).medianUnitPrice ?? null;
+}
+
+// v1.121.14 挂牌标签热度
+const listingTagCitySummary = computed<CityTagSummary | null>(() => {
+  return summarizeListingTagsByCity(8).find((x) => x.cityId === app.cityId) ?? null;
+});
+const listingTagTopShare = computed(
+  () => listingTagCitySummary.value?.topTags[0]?.share ?? 0
+);
+const listingTagSignature = computed<TagSignatureEntry[]>(() =>
+  getCityTagSignature(app.cityId, 1.5).slice(0, 5)
+);
+const listingTagPenetrationTop = computed(() => {
+  const cityId = app.cityId;
+  return getTagPenetrationCompare()
+    .filter((t) => t.presentIn.length >= 2 && t.byCity[cityId] != null)
+    .map((t) => ({
+      tag: t.tag,
+      avgShare: t.avgShare,
+      cityShare: t.byCity[cityId]?.share ?? null
+    }))
+    .sort((a, b) => (b.cityShare ?? 0) - (a.cityShare ?? 0))
+    .slice(0, 5);
+});
+const listingKeywordsCity = computed<ListingKeywordRow[]>(() =>
+  getListingKeywordsByCity(app.cityId).slice(0, 6)
+);
+const listingKeywordTongtouCross = computed(() =>
+  crossCityRows(getListingKeywordsCrossCity("南北通透"))
+);
+
+// v0.35.0 map-9: 地铁步行通勤
+const metroWalk = ref<MetroWalkResponse | null>(null);
+// v0.36.0 map-10: 地铁规划受益
+const metroBenefit = ref<MetroBenefitResponse | null>(null);
+// v0.39.0 trend-19: 特征画像溢价
+const featurePremium = ref<FeaturePremiumResponse | null>(null);
+// v0.40.0 trend-20: 标签组合热度
+const tagCombination = ref<TagCombinationResponse | null>(null);
+// v0.41.0 trend-21: 房源新鲜度
+const listingFreshness = ref<ListingFreshnessResponse | null>(null);
+// v0.42.0 trend-22: 户型 × 面积 联合分布
+const bedroomArea = ref<BedroomAreaResponse | null>(null);
+// v0.43.0 trend-23: 朝向 × 楼层 溢价分析
+const orientationFloor = ref<OrientationFloorResponse | null>(null);
+// v0.44.0 trend-24: 装修 × 楼龄 溢价分析
+const decorateAge = ref<DecorateAgeResponse | null>(null);
+// v0.45.0 trend-25: 总价 × 单价 双轴散点
+const scatter = ref<CommunityScatterResponse | null>(null);
+const featurePremiumCrossBedrooms = computed(() =>
+  crossCityRows(getFeaturePremiumCrossCityLeaderboard("bedrooms").rows)
+);
+const featurePremiumAbsTop = computed<LocalFeaturePremium[]>(() =>
+  getFeaturePremiumByDimensionCoverage(5)
+);
+const featurePremiumCityTops = computed<LocalFeaturePremium[]>(() => {
+  const dims = ["bedrooms", "area_sqm", "orientation", "decorate"] as const;
+  return dims
+    .map((d) => getFeaturePremiumTopByDimension(app.cityId, d))
+    .filter((x): x is LocalFeaturePremium => x != null);
+});
+const featurePremiumCitySummary = computed<CityPremiumSummary | null>(() =>
+  summarizeFeaturePremiumByCity().find((x) => x.cityId === app.cityId) ?? null
+);
+const featurePremiumDecorateBuckets = computed<LocalFeaturePremium[]>(() =>
+  getFeaturePremiumByCityDimension(app.cityId, "decorate").slice(0, 6)
+);
+const tagComboCrossCity = computed<TagPairAggregate[]>(() =>
+  crossCityRows(getTagCombinationCrossCityMostCommon(5))
+);
+const tagComboPremiumLocal = computed<LocalTagCombination[]>(() =>
+  getTagCombinationPremiumByCity(app.cityId, 5)
+);
+const tagComboPopularLocal = computed<LocalTagCombination[]>(() =>
+  getTagCombinationPopularByCity(app.cityId, 5)
+);
+const tagComboMetroPartners = computed<TagCombinationByTag | null>(() =>
+  getTagCombinationCrossCityByTag("地铁可达", 5)
+);
+const tagComboCitySummaries = computed<CityTagCombinationSummary[]>(() =>
+  summarizeTagCombinationByCity()
+);
