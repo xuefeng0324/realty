@@ -13,6 +13,8 @@ export type MapFindListing = {
   unitPrice: number | null;
   areaSqm: number | null;
   bedrooms: number | null;
+  bathrooms?: number | null;
+  orientation?: string | null;
   districtName?: string | null;
 };
 
@@ -84,11 +86,22 @@ export function sortMapListingsForSheet<T extends MapFindListing>(listings: T[],
   return sorted.slice(0, limit);
 }
 
+/** 对照贝壳地图底栏行：总价 · 单价 · 室卫 · 面积 · 朝向 */
 export function formatListingCardLine(l: MapFindListing): string {
   const price = l.totalPrice10k != null ? `${l.totalPrice10k}万` : "价格待定";
-  const layout = l.bedrooms != null ? `${l.bedrooms}室` : "户型—";
+  const unit =
+    l.unitPrice != null && Number.isFinite(l.unitPrice)
+      ? `${Math.round(l.unitPrice).toLocaleString()}元/㎡`
+      : null;
+  const layout =
+    l.bedrooms != null
+      ? l.bathrooms != null
+        ? `${l.bedrooms}室${l.bathrooms}卫`
+        : `${l.bedrooms}室`
+      : "户型—";
   const area = l.areaSqm != null ? `${Math.round(l.areaSqm)}㎡` : "面积—";
-  return `${price} · ${layout} · ${area}`;
+  const orient = l.orientation?.trim() ? l.orientation.trim() : null;
+  return [price, unit, layout, area, orient].filter(Boolean).join(" · ");
 }
 
 /** 距点击点最近的小区（米级近似：1°≈111km） */

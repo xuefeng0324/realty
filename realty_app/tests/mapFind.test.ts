@@ -67,9 +67,16 @@ describe("mapFind 找房筛选逻辑（对照贝壳）", () => {
     expect(sorted[1].listingId).toBe(2);
   });
 
-  it("卡片文案含价格户型面积", () => {
-    expect(formatListingCardLine(sample[1])).toContain("350万");
-    expect(formatListingCardLine(sample[1])).toContain("3室");
+  it("卡片文案含总价单价户型面积（对照贝壳底栏行）", () => {
+    const line = formatListingCardLine({
+      ...sample[1]!,
+      bathrooms: 2,
+      orientation: "南"
+    });
+    expect(line).toContain("350万");
+    expect(line).toContain("元/㎡");
+    expect(line).toContain("3室2卫");
+    expect(line).toContain("南");
   });
 
   it("最近点选小区在阈值内", () => {

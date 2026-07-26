@@ -83,6 +83,8 @@ export interface LocalListing {
   sourceKind: ListingSourceKind;
   sourceListingId: string | null;
   sourceUrl: string | null;
+  /** 列表封面（可选；安居客 REAL 可有 ajkimg URL，无则详情空态） */
+  coverUrl: string | null;
   totalPrice10k: number | null;
   unitPrice: number | null;
   areaSqm: number | null;

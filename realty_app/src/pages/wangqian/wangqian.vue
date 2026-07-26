@@ -20,10 +20,30 @@
           <EmptyState
             icon="📋"
             :title="ready ? '该城市暂无网签日更' : '网签数据未加载'"
-            :desc="ready ? '当前仅深圳 / 广州有每日网签。可切换城市或点刷新重试。' : '请确认启动时已加载 daily_wangqian，或下拉/点刷新。'"
+            :desc="wangqianEmptyDesc"
             action-text="刷新"
             @action="doRefresh"
           />
+        </view>
+      </view>
+
+      <!-- 珠海无日更时：展示不动产登记季报摘要（对照总览；≠网签） -->
+      <view v-if="!snapshot && cityName === '珠海' && zhBdcNew && zhBdcStock" class="card" data-zh-bdc-registration>
+        <view class="card-title">珠海不动产登记季报 · {{ formatZhBdcPeriod(zhBdcNew) }}</view>
+        <view class="metric-grid">
+          <view class="metric-cell">
+            <text class="metric-label">新增商品房 · 住宅</text>
+            <text class="metric-value new">{{ zhBdcNew.residentialUnits.toLocaleString() }} 套</text>
+            <text class="metric-sub muted">{{ zhBdcNew.residentialAreaWanSqm.toFixed(2) }} 万㎡</text>
+          </view>
+          <view class="metric-cell">
+            <text class="metric-label">存量房转移 · 住宅</text>
+            <text class="metric-value res">{{ zhBdcStock.residentialUnits.toLocaleString() }} 套</text>
+            <text class="metric-sub muted">{{ zhBdcStock.residentialAreaWanSqm.toFixed(2) }} 万㎡</text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          {{ zhBdcNew.sourceOrg }} · 登记量 ≠ 日更网签、≠ 挂牌均价。可在总览同名卡片查看分区明细。
         </view>
       </view>
 
@@ -344,6 +364,11 @@ import {
   type DistrictVolatility,
   type CityCategoryTrend
 } from "../../local/wangqianTrendRanking";
+import {
+  formatZhBdcPeriod,
+  getLatestZhBdcByKind,
+  type ZhBdcRegistrationRow
+} from "../../local/zhBdcRegistration";
 
 const cityName = ref<string>("深圳");
 const sheetOpen = ref(false);
@@ -354,8 +379,23 @@ const ready = computed(() => hasDailyWangqian());
 const supportedCities = computed(() => {
   void dataVersion.value;
   const list = getSupportedWangqianCities();
-  return list.length ? list : ["深圳", "广州"];
+  const base = list.length ? list : ["深圳", "广州"];
+  // 珠海无日更但仍可选：看登记季报空态（对照总览）
+  return base.includes("珠海") ? base : [...base, "珠海"];
 });
+const wangqianEmptyDesc = computed(() => {
+  if (!ready.value) return "请确认启动时已加载 daily_wangqian，或下拉/点刷新。";
+  if (cityName.value === "珠海") {
+    return "珠海暂无住建局日更网签；下方为不动产登记季报（≠日更网签、≠挂牌均价）。也可切回深圳/广州。";
+  }
+  return "当前仅深圳 / 广州有每日网签。可切换城市或点刷新重试。";
+});
+const zhBdcNew = computed<ZhBdcRegistrationRow | null>(() =>
+  cityName.value === "珠海" ? getLatestZhBdcByKind("new_commodity") : null
+);
+const zhBdcStock = computed<ZhBdcRegistrationRow | null>(() =>
+  cityName.value === "珠海" ? getLatestZhBdcByKind("stock_transfer") : null
+);
 
 const wqWowAll = computed<DistrictWoWChange[]>(() => {
   void dataVersion.value;
@@ -574,8 +614,7 @@ onPullDownRefresh(async () => {
 });
 
 onLoad((opts?: Record<string, string>) => {
-  const list = getSupportedWangqianCities();
-  const supported = list.length ? list : ["深圳", "广州"];
+  const list = supportedCities.value;
   let c = (opts?.city ?? "").trim();
   // 某些平台 onLoad 参数未自动解码，这里兜底 decode（如 %E6%B7%B1%E5%9C%B3 → 深圳）
   try {
@@ -584,7 +623,7 @@ onLoad((opts?: Record<string, string>) => {
     /* 保底：解码失败就用原值 */
   }
   c = c.replace(/市$/, "");
-  cityName.value = supported.includes(c) ? c : supported.includes("深圳") ? "深圳" : supported[0];
+  cityName.value = list.includes(c) ? c : list.includes("深圳") ? "深圳" : list[0]!;
   if (!hasDailyWangqian()) showToast("网签数据未加载");
 });
 </script>

@@ -3323,15 +3323,16 @@ describe("build integrity", () => {
       expect(f).toMatch(/同小区其他/);
     });
 
-    it("listing-detail.vue: 同小区其他在售卡 + goListing + sibling-row tap-row", () => {
+    it("listing-detail.vue: 同小区其他挂牌卡 + goListing + sibling-row tap-row", () => {
       const f = readFileSync(resolve(ROOT, "src/pages/listing-detail/listing-detail.vue"), "utf8");
-      expect(f).toMatch(/class="card-title">🔁 同小区其他在售/);
+      expect(f).toMatch(/class="card-title">🔁 同小区其他挂牌/);
       expect(f).toMatch(/sameCommunityListings/);
       expect(f).toMatch(/v-for="l in sameCommunityListings"/);
       expect(f).toMatch(/class="sibling-row tap-row"/);
       expect(f).toMatch(/@click="goListing\(l\.listingId\)"/);
       expect(f).toMatch(/function goListing/);
       expect(f).toMatch(/getListingsByCommunity/);
+      expect(f).toMatch(/id="same-community-listings"/);
     });
 
     it("listing-detail.vue: goBack 智能回退 + goDashboard switchTab", () => {
@@ -3342,7 +3343,9 @@ describe("build integrity", () => {
 
     it("listing-detail.vue: sameCommunityListings computed 按单价排序 + slice(0,10)", () => {
       const f = readFileSync(resolve(ROOT, "src/pages/listing-detail/listing-detail.vue"), "utf8");
-      expect(f).toMatch(/sort\(\(a, b\) => \(b\.unitPrice/);
+      // 无价房源沉底，有价按单价降序（对照贝壳同小区列表）
+      expect(f).toMatch(/sameCommunityListings = computed/);
+      expect(f).toMatch(/unitPrice/);
       expect(f).toMatch(/\.slice\(0, 10\)/);
       expect(f).toMatch(/sameCommunityName/);
       expect(f).toMatch(/getCommunityById/);

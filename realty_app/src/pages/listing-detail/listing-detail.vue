@@ -6,12 +6,35 @@
         <view class="qn-btn" @click="goBack">← 返回</view>
         <view class="qn-btn" @click="goDashboard">📊 仪表盘</view>
         <view class="qn-btn" @click="goCommunity">🏘️ 小区详情</view>
-        <view v-if="sameCommunityListings.length > 0" class="qn-btn qn-btn--primary">
+        <view v-if="sameCommunityListings.length > 0" class="qn-btn qn-btn--primary" @click="scrollToSameCommunity">
           🔁 同小区其他 ({{ sameCommunityListings.length }})
         </view>
       </view>
 
       <view v-if="errorMsg" class="error">{{ errorMsg }}</view>
+
+      <!-- 对照贝壳：首屏图集；有 cover_url 才展示，绝不伪造 -->
+      <view v-if="data" class="card listing-gallery" data-listing-gallery>
+        <image
+          v-if="data.listing.cover_url"
+          class="gallery-cover"
+          :src="data.listing.cover_url"
+          mode="aspectFill"
+          lazy-load
+          data-listing-cover
+          @click="openSource"
+        />
+        <view v-else class="gallery-empty" @click="data.listing.source_url ? openSource() : undefined">
+          <text class="gallery-empty-title">暂无实景图</text>
+          <text class="muted gallery-empty-desc">
+            {{
+              data.listing.source_url
+                ? "样本库暂无封面 URL；可点此处或底栏打开源站查看图集。"
+                : "样本库无封面 URL；有真图源后再接入轮播（对照贝壳详情首屏）。"
+            }}
+          </text>
+        </view>
+      </view>
 
       <view v-if="data" class="card listing-hero">
         <view class="row-between">
@@ -29,6 +52,13 @@
         <view class="fact-strip muted">{{ listingFactStrip }}</view>
         <view v-if="listingTagPills.length > 0" class="listing-tag-pills" data-listing-tags>
           <text v-for="tag in listingTagPills" :key="tag" class="listing-tag-pill">{{ tag }}</text>
+        </view>
+        <view v-else class="muted" style="font-size: 22rpx; margin-bottom: 8rpx" data-listing-tags-empty>
+          暂无挂牌标签
+        </view>
+        <view class="meta-line muted" v-if="data.listing.listing_type || data.listing.crawl_date">
+          <text v-if="data.listing.listing_type">类型 {{ data.listing.listing_type }}</text>
+          <text v-if="data.listing.crawl_date"> · 样本日 {{ data.listing.crawl_date }}</text>
         </view>
         <view class="community-chip tap-row" hover-class="tap-row--active" @click="goCommunity">
           <text class="community-chip-label">小区</text>
@@ -82,12 +112,22 @@
         </view>
       </view>
 
-      <!-- 对照贝壳底栏：主 CTA 去竞品 App，辅操作复制 -->
-      <view v-if="data?.listing.source_url" class="source-dock">
-        <button class="source-dock-primary" @click="openSource" @longpress="openSourceMenu">
+      <!-- 对照贝壳底栏：有源链则唤起；无链仍保留辅操作 -->
+      <view v-if="data" class="source-dock">
+        <button
+          v-if="data.listing.source_url"
+          class="source-dock-primary"
+          @click="openSource"
+          @longpress="openSourceMenu"
+        >
           {{ sourceLinkLabel }}
         </button>
-        <button class="source-dock-ghost" @click="copyUrl">复制链接</button>
+        <button v-else class="source-dock-primary" @click="goListingFilterSameCommunity">
+          同小区全部房源
+        </button>
+        <button class="source-dock-ghost" @click="data.listing.source_url ? copyUrl() : copyTitle()">
+          {{ data.listing.source_url ? "复制链接" : "复制标题" }}
+        </button>
       </view>
 
       <!-- 维度分 -->
@@ -103,12 +143,12 @@
         </view>
       </view>
 
-      <!-- v0.54.0 detail-1: 同小区其他在售 -->
-      <view v-if="sameCommunityListings.length > 0" class="card">
-        <view class="card-title">🔁 同小区其他在售 · {{ sameCommunityName }}</view>
+      <!-- v0.54.0 detail-1: 同小区其他挂牌 -->
+      <view v-if="sameCommunityListings.length > 0" id="same-community-listings" class="card">
+        <view class="card-title">🔁 同小区其他挂牌 · {{ sameCommunityName }}</view>
         <view class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
-          横向对比: 共 {{ sameCommunityAll.length }} 套在售, 显示其他 {{ sameCommunityListings.length }} 套
-          (已按单价降序)
+          横向对比: 同小区共 {{ sameCommunityAll.length }} 套样本, 显示其他 {{ sameCommunityListings.length }} 套
+          (已按单价降序；无价房源仍列出)
         </view>
         <view
           v-for="l in sameCommunityListings"
@@ -325,8 +365,12 @@ const sameCommunityAll = ref<ReturnType<typeof getListingsByCommunity>>([]);
 const sameCommunityListings = computed(() => {
   return sameCommunityAll.value
     .filter((l) => l.listingId !== listingId.value)
-    .filter((l) => l.unitPrice && l.unitPrice > 0)
-    .sort((a, b) => (b.unitPrice ?? 0) - (a.unitPrice ?? 0))
+    .sort((a, b) => {
+      const ua = a.unitPrice && a.unitPrice > 0 ? a.unitPrice : -1;
+      const ub = b.unitPrice && b.unitPrice > 0 ? b.unitPrice : -1;
+      if (ub !== ua) return ub - ua;
+      return a.listingId - b.listingId;
+    })
     .slice(0, 10);
 });
 const sameCommunityName = computed(() => {
@@ -421,6 +465,27 @@ function copyUrl() {
   }
 }
 
+function copyTitle() {
+  const t = data.value?.listing.title;
+  if (t) copyText(t);
+}
+
+function scrollToSameCommunity() {
+  uni.pageScrollTo({
+    selector: "#same-community-listings",
+    duration: 280,
+    fail: () => uni.showToast({ title: "同小区列表在下方", icon: "none" })
+  });
+}
+
+function goListingFilterSameCommunity() {
+  const cid = data.value?.listing.community_id;
+  if (cid == null) return;
+  uni.navigateTo({
+    url: `/pages/listing-filter/listing-filter?communityId=${cid}`
+  });
+}
+
 function goCommunity() {
   if (data.value) {
     uni.navigateTo({ url: `/pages/community/community?id=${data.value.listing.community_id}` });
@@ -497,6 +562,38 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
+.listing-gallery {
+  margin-bottom: 12rpx;
+  padding: 0;
+  overflow: hidden;
+}
+.gallery-cover {
+  width: 100%;
+  height: 360rpx;
+  display: block;
+  background: var(--color-soft-strong, #e2e8f0);
+}
+.gallery-empty {
+  min-height: 220rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  padding: 32rpx 24rpx;
+  background: linear-gradient(180deg, var(--color-soft-strong, #e2e8f0), var(--color-soft, #f1f5f9));
+}
+.gallery-empty-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--color-heading);
+}
+.gallery-empty-desc {
+  font-size: 22rpx;
+  text-align: center;
+  line-height: 1.45;
+  max-width: 560rpx;
+}
 .listing-hero {
   margin-bottom: 16rpx;
 }

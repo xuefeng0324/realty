@@ -104,5 +104,28 @@ describe("filterListings 二手房 / 新房 / 装修", () => {
     expect(vue).toContain("房屋类型");
     expect(vue).toContain("豪装");
     expect(vue).toContain("emptyFilterHint");
+    expect(vue).toContain("data-filter-bedroom");
+    expect(vue).toContain("MAP_BEDROOM_BANDS");
+    expect(vue).toContain("bedroomBand");
+  });
+
+  it("户型档筛选与地图 mapFind 一致（3室有命中且收紧）", async () => {
+    const all = await filterListings({ cityId: 2, page: 1, pageSize: 5, filters: {} });
+    const three = await filterListings({
+      cityId: 2,
+      page: 1,
+      pageSize: 5,
+      filters: { bedroomBand: "3" }
+    });
+    expect(all.total).toBeGreaterThan(0);
+    expect(three.total).toBeGreaterThan(0);
+    expect(three.total).toBeLessThanOrEqual(all.total);
+    const page = await filterListings({
+      cityId: 2,
+      page: 1,
+      pageSize: 50,
+      filters: { bedroomBand: "3" }
+    });
+    expect(page.items.every((it) => it.bedrooms === 3)).toBe(true);
   });
 });

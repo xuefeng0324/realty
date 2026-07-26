@@ -36,6 +36,7 @@ import {
 import { computeSchoolFutureScoreV1 } from "../rules/schoolScoring";
 import { computeListingQualityScoreV1, type SchoolFutureForListing } from "../rules/listingScoring";
 import { matchesDecorateTypeFilter, matchesListingTypeFilter } from "./listingFilterMatch";
+import { matchBedroomBand, type MapBedroomBand } from "./mapFind";
 
 function weekEndFromDate(iso: string): string {
   const d = new Date(iso + "T00:00:00Z");
@@ -472,6 +473,10 @@ export async function filterListings(req: ListingFilterRequest): Promise<Listing
   if (filters.listingType && filters.listingType !== "all") {
     items = items.filter((l) => matchesListingTypeFilter(l.listingType, filters.listingType));
   }
+  if (filters.bedroomBand && filters.bedroomBand !== "all") {
+    const band = filters.bedroomBand as MapBedroomBand;
+    items = items.filter((l) => matchBedroomBand(l.bedrooms, band));
+  }
   if (filters.districtName) {
     const dn = filters.districtName;
     items = items.filter((l) => {
@@ -537,6 +542,8 @@ function toListingItem(l: LocalListing): ListingItem {
     price_total: l.totalPrice10k,
     unit_price: l.unitPrice,
     area_sqm: l.areaSqm,
+    bedrooms: l.bedrooms,
+    bathrooms: l.bathrooms,
     orientation: l.orientation,
     floor_number: l.floorNumber,
     decorate_type: l.decorateType,
@@ -545,7 +552,9 @@ function toListingItem(l: LocalListing): ListingItem {
     quality_score: s.overallScore,
     advantages: s.advantages,
     disadvantages: s.disadvantages,
+    tags_json: l.tagsJson,
     explain_preview: { overall_score: s.overallScore, dimension_scores: s.dimensionScores },
+    cover_url: l.coverUrl,
     url: l.sourceUrl
   };
 }
@@ -564,6 +573,7 @@ export async function getListingDetail(listingId: number, weekEnd?: string): Pro
       source_kind: l.sourceKind,
       source_listing_id: l.sourceListingId,
       source_url: l.sourceUrl,
+      cover_url: l.coverUrl,
       total_price_10k: l.totalPrice10k,
       unit_price: l.unitPrice,
       area_sqm: l.areaSqm,

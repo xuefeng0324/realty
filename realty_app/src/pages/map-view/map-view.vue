@@ -69,12 +69,12 @@
       </scroll-view>
       <view class="mode-summary-row">
         <view class="mode-summary-dot"></view>
-        <text>当前：{{ modeLabel }} · 点小区看盘，点房源进详情</text>
+        <text>当前：{{ modeLabel }} · 点标注看盘 / 进详情</text>
         <button class="cycle-btn" size="mini" @click="toggleType">切换下一图层</button>
       </view>
       <view class="muted legend">
         <text v-if="mode === 'listings'">
-          找房（对照贝壳/链家）：气泡=房源聚合；点单点进挂牌详情；点小区气泡看本小区房源列表；上方可筛总价/户型。
+          找房（对照贝壳/链家）：气泡=房源聚合；点单套房源进详情；点聚合可放大并打开附近小区底栏；上方可筛总价/户型。地图最多展示部分挂牌点。
         </text>
         <text v-else-if="mode === 'price'">
           挂牌均价热力：点地图/小区气泡打开本小区房源底栏（卖方挂牌均价，非成交价）
@@ -175,7 +175,8 @@
       </view>
       <view class="legend-summary">
         <text class="muted">
-          城市均价 {{ cityAvgPrice ? Math.round(cityAvgPrice).toLocaleString() : "—" }} 元/㎡
+          样本小区挂牌均价 {{ cityAvgPrice ? Math.round(cityAvgPrice).toLocaleString() : "—" }} 元/㎡
+          <text class="muted">（有均价小区算术平均，非成交价）</text>
           · 已覆盖 {{ pricedCommunityCount }} 个有挂牌均价的社区
         </text>
       </view>
@@ -1050,7 +1051,7 @@ function onMarkerTap(e: any) {
     goListingDetail(listing.listingId);
     return;
   }
-  openCommunitySheet(markerId);
+  showToast("无法识别该标注");
 }
 
 function toggleType() {

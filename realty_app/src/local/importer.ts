@@ -9,7 +9,7 @@
  *   5. listings.csv        listing_id,city_id,community_id,title,source,source_listing_id,source_url,
  *                          total_price_10k,unit_price,area_sqm,listing_type,bedrooms,bathrooms,
  *                          orientation,floor_number,has_elevator,decorate_type,build_year,
- *                          nearest_metro_distance_m,school_ids_json,tags_json,crawl_date
+ *                          nearest_metro_distance_m,school_ids_json,tags_json,crawl_date[,cover_url]
  *
  * CSV 行格式与 backend `import_listings_csv.py` 输入一致，但允许最少字段缺失。
  */
@@ -897,6 +897,7 @@ export function importSnapshot(inputs: SnapshotInputs, source: string): DataSnap
     sourceKind: normalizeListingSourceKind(r.source_kind, s(r.source)),
     sourceListingId: s(r.source_listing_id),
     sourceUrl: s(r.source_url),
+    coverUrl: s(r.cover_url),
     totalPrice10k: n(r.total_price_10k),
     unitPrice: n(r.unit_price),
     areaSqm: n(r.area_sqm),

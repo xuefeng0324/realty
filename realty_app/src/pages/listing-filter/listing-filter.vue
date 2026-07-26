@@ -53,6 +53,13 @@
               <text class="picker-caret">▾</text>
             </view>
           </view>
+          <view class="form-item">
+            <text class="form-label">户型</text>
+            <view class="picker-value tap" @click="pickBedroom" data-filter-bedroom>
+              {{ bedroomLabels[bedroomIndex] }}
+              <text class="picker-caret">▾</text>
+            </view>
+          </view>
 
           <view class="form-item">
             <text class="form-label">最低评分</text>
@@ -269,6 +276,10 @@
             <text v-if="keyword.trim()"> · 「{{ keyword.trim() }}」</text>
           </view>
         </view>
+        <view v-if="filterCommunityId" class="community-filter-chip">
+          <text>仅看小区：{{ filterCommunityLabel }}</text>
+          <text class="community-filter-clear" @click.stop="clearCommunityFilter">清除</text>
+        </view>
         <view v-if="total" class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
           {{ currentCityLabel }}筛选命中 {{ total }} 套（样本库本市共 {{ cityListingTotal }} 套）
         </view>
@@ -284,22 +295,33 @@
           v-for="it in items"
           :key="it.listing_id"
           class="listing-row"
+          data-listing-card
           @click="goListing(it.listing_id)"
         >
+          <image
+            v-if="it.cover_url"
+            class="listing-thumb"
+            :src="it.cover_url"
+            mode="aspectFill"
+            lazy-load
+            data-listing-thumb
+          />
+          <view v-else class="listing-thumb listing-thumb--empty" aria-hidden="true">
+            <text class="listing-thumb-ph">房</text>
+          </view>
           <view class="listing-main">
             <view class="listing-title">{{ it.title }}</view>
+            <view class="listing-price-row">
+              <text class="listing-price-main">{{ formatPrice(it.price_total) }}</text>
+              <text class="listing-price-unit muted">{{ formatUnitPrice(it.unit_price) }}</text>
+            </view>
             <view class="muted listing-sub">
-              {{ formatPrice(it.price_total) }} · {{ formatArea(it.area_sqm) }} ·
-              {{ it.orientation || "-" }} · {{ it.decorate_type || "-" }}
+              <template v-if="it.bedrooms != null">{{ it.bedrooms }}室<template v-if="it.bathrooms != null">{{ it.bathrooms }}卫</template> · </template>
+              {{ formatArea(it.area_sqm) }} · {{ it.orientation || "-" }} · {{ it.decorate_type || "-" }}
               <text v-if="it.build_year"> · {{ it.build_year }}年</text>
             </view>
-            <view v-if="it.advantages?.length || it.disadvantages?.length" class="tag-row">
-              <text v-for="a in (it.advantages || []).slice(0, 2)" :key="'a' + a.label" class="tag tag-success">
-                {{ a.label }}
-              </text>
-              <text v-for="d in (it.disadvantages || []).slice(0, 2)" :key="'d' + d.label" class="tag tag-danger">
-                {{ d.label }}
-              </text>
+            <view v-if="listingCardTags(it).length" class="tag-row" data-listing-card-tags>
+              <text v-for="tag in listingCardTags(it)" :key="tag" class="tag tag-pill">{{ tag }}</text>
             </view>
             <!-- v0.37.0 trend-17: 5 维度迷你评分条 (位置/房屋/楼龄/配套/性价比) -->
             <view
@@ -390,8 +412,11 @@ import EmptyState from "../../components/EmptyState.vue";
 import {
   formatArea,
   formatPrice,
+  formatUnitPrice,
   scoreClass
 } from "../../utils/format";
+import { getListingTagLabels } from "../../local/listingTags";
+import { MAP_BEDROOM_BANDS, type MapBedroomBand } from "../../local/mapFind";
 import * as store from "../../local/store";
 
 const app = useAppStore();
@@ -424,6 +449,12 @@ const sourceIndex = computed(() => {
 
 const listingTypeLabels = ["全部", "二手房", "新房", "成交"];
 const listingTypeIndex = ref(0);
+
+const bedroomLabels = MAP_BEDROOM_BANDS.map((b) => b.label);
+const bedroomIndex = ref(0);
+const bedroomBand = computed<MapBedroomBand>(
+  () => MAP_BEDROOM_BANDS[bedroomIndex.value]?.key ?? "all"
+);
 
 // v0.37.0 trend-17: 5 维度迷你评分条
 const MINI_DIM_DEFS = [
@@ -479,6 +510,9 @@ const emptyFilterHint = computed(() => {
   }
   if (decorateIndex.value > 0) {
     bits.push(`装修=${decorateOptions[decorateIndex.value]}`);
+  }
+  if (bedroomIndex.value > 0) {
+    bits.push(`户型=${bedroomLabels[bedroomIndex.value]}`);
   }
   if (districtName.value) bits.push(`区=${districtName.value}`);
   if (keyword.value.trim()) bits.push(`关键字「${keyword.value.trim()}」`);
@@ -582,6 +616,13 @@ function pickSource() {
 function pickListingType() {
   openSheet("房屋类型", listingTypeLabels, listingTypeIndex.value, (idx) => {
     listingTypeIndex.value = idx;
+    applyFilter();
+  });
+}
+
+function pickBedroom() {
+  openSheet("户型", bedroomLabels, bedroomIndex.value, (idx) => {
+    bedroomIndex.value = idx;
     applyFilter();
   });
 }
@@ -696,6 +737,8 @@ async function applyFilter(resetPage = true) {
     else if (listingTypeIndex.value === 2) body.filters.listingType = "新房";
     else if (listingTypeIndex.value === 3) body.filters.listingType = "成交";
 
+    if (bedroomBand.value !== "all") body.filters.bedroomBand = bedroomBand.value;
+
     if (decorateIndex.value > 0) body.filters.decorateType = decorateOptions[decorateIndex.value];
 
     const res = await filterListings(body);
@@ -723,11 +766,28 @@ function resetFilter() {
   priceRange.value = [0, 2000];
   areaRange.value = [0, 300];
   listingTypeIndex.value = 0;
+  bedroomIndex.value = 0;
   decorateIndex.value = 0;
   scoreIndex.value = 0;
   districtName.value = "";
   keyword.value = "";
+  filterCommunityId.value = null;
   applyFilter(true);
+}
+
+function clearCommunityFilter() {
+  filterCommunityId.value = null;
+  applyFilter(true);
+}
+
+const filterCommunityLabel = computed(() => {
+  const id = filterCommunityId.value;
+  if (id == null) return "";
+  return store.getCommunityById(id)?.communityName ?? `小区 #${id}`;
+});
+
+function listingCardTags(it: ListingItem): string[] {
+  return getListingTagLabels(it.listing_id, it.tags_json).slice(0, 4);
 }
 
 function goListing(id: number) {
@@ -1187,7 +1247,7 @@ onUnmounted(() => {
 
 .listing-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 16rpx;
   padding: 20rpx 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
@@ -1198,8 +1258,26 @@ onUnmounted(() => {
   border-bottom: none;
 }
 
+.listing-thumb {
+  width: 160rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+  background: var(--color-soft-strong, #e2e8f0);
+}
+.listing-thumb--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.listing-thumb-ph {
+  font-size: 28rpx;
+  color: var(--color-muted, #94a3b8);
+}
+
 .listing-main {
   flex: 1;
+  min-width: 0;
 }
 
 .listing-title {
@@ -1223,7 +1301,43 @@ onUnmounted(() => {
   flex-wrap: wrap;
   gap: 8rpx;
 }
-</style>
+
+.listing-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  margin-bottom: 4rpx;
+}
+.listing-price-main {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--color-danger, #e11d48);
+  font-variant-numeric: tabular-nums;
+}
+.listing-price-unit {
+  font-size: 22rpx;
+}
+.community-filter-chip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10rpx;
+  padding: 10rpx 14rpx;
+  border-radius: 12rpx;
+  background: var(--color-soft-strong);
+  font-size: 24rpx;
+  color: var(--color-heading);
+}
+.community-filter-clear {
+  color: var(--color-primary, #2563eb);
+  font-size: 22rpx;
+}
+.tag-pill {
+  background: rgba(37, 99, 235, 0.12);
+  color: var(--color-primary, #2563eb);
+  border: none;
+}
+
 /* v0.37.0 trend-17: 5 维度迷你评分条 */
 .minidim-row {
   display: flex;
@@ -1241,7 +1355,7 @@ onUnmounted(() => {
 }
 .minidim-label {
   font-size: 18rpx;
-  color: #94a3b8;
+  color: var(--color-muted, #94a3b8);
   font-weight: 500;
 }
 .minidim-track {
@@ -1269,6 +1383,7 @@ onUnmounted(() => {
 .minidim-val {
   font-size: 20rpx;
   font-weight: 700;
-  color: #e2e8f0;
+  color: var(--color-heading);
   font-variant-numeric: tabular-nums;
 }
+</style>

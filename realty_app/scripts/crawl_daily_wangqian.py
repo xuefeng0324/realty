@@ -530,7 +530,11 @@ def cmd_fetch(args: argparse.Namespace) -> int:
         print(f"  → {len(gz_rows)} 行，交易日 {city_days}")
 
     out_path = Path(args.out)
-    if args.merge and out_path.exists():
+    # 默认 merge，避免「仅最新窗口」覆盖抹掉历史；整表重写用 --no-merge。
+    if args.no_merge:
+        merged = merge_rows([], fresh)
+        print("[warn] --no-merge：仅写出本次抓取窗口")
+    elif out_path.exists():
         merged = merge_rows(read_existing(out_path), fresh)
         print(f"[merge] 合并后共 {len(merged)} 行")
     else:
@@ -548,7 +552,11 @@ def main() -> int:
 
     p = sub.add_parser("fetch", help="抓取最新交易日并写出 CSV")
     p.add_argument("--out", default=str(DEFAULT_OUT))
-    p.add_argument("--merge", action="store_true", help="与已有 CSV 按主键去重合并")
+    p.add_argument(
+        "--no-merge",
+        action="store_true",
+        help="禁用 merge，仅写出本次抓取窗口（会抹掉更早历史）",
+    )
     p.add_argument(
         "--city",
         default="深圳,广州",

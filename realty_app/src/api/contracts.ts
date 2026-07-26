@@ -108,6 +108,8 @@ export interface ListingItem {
   price_total: number | null;
   unit_price: number | null;
   area_sqm: number | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
   orientation: string | null;
   floor_number: string | null;
   decorate_type: string | null;
@@ -116,6 +118,10 @@ export interface ListingItem {
   quality_score: number;
   advantages: { label: string; confidence: number; evidence?: any }[];
   disadvantages: { label: string; confidence: number; evidence?: any }[];
+  /** 挂牌标签原文（JSON 数组或逗号分隔），对照贝壳 pill */
+  tags_json: string | null;
+  /** 列表封面 URL（可选；无则列表不展示图） */
+  cover_url: string | null;
   url: string | null;
   explain_preview?: { overall_score: number; dimension_scores: Record<string, number> };
 }
@@ -142,6 +148,11 @@ export interface ListingFilterFilters {
   districtName?: string;
   /** 关键字：匹配标题 / 小区名 / 行政区 / tagsJson（子串，不区分大小写） */
   keyword?: string;
+  /**
+   * 户型档（对照贝壳/地图找房）：all | 1 | 2 | 3 | 4plus
+   * 与 `mapFind.MapBedroomBand` 一致
+   */
+  bedroomBand?: "all" | "1" | "2" | "3" | "4plus";
 }
 
 export interface ListingFilterRequest {
@@ -163,6 +174,7 @@ export interface ListingDetailResponse {
     source_kind: "REAL" | "DERIVED" | "ESTIMATED" | "UNKNOWN";
     source_listing_id: string | null;
     source_url: string | null;
+    cover_url: string | null;
     total_price_10k: number | null;
     unit_price: number | null;
     area_sqm: number | null;

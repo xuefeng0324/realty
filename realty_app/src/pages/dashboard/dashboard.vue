@@ -545,13 +545,14 @@
         </view>
       </view>
 
-      <!-- 政府每日网签（摘要，点击进详情页） -->
+      <!-- 政府每日网签（摘要；有日更则可进子页） -->
       <view
-        class="card wangqian-card tap-target"
-        role="button"
-        tabindex="0"
-        hover-class="card-active"
-        @click="goWangqian"
+        class="card wangqian-card"
+        :class="{ 'tap-target': !!currentWangqian }"
+        :role="currentWangqian ? 'button' : undefined"
+        :tabindex="currentWangqian ? 0 : undefined"
+        :hover-class="currentWangqian ? 'card-active' : undefined"
+        @click="onWangqianCardClick"
       >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">政府每日网签</view>
@@ -566,6 +567,7 @@
         </view>
         <view v-else-if="!currentWangqian" class="empty" style="padding: 24rpx 0">
           当前城市暂无网签日更（仅深圳/广州）
+          <template v-if="zhBdcNew && zhBdcStock">；珠海见下方「不动产登记季报」</template>
         </view>
         <view v-else>
           <view class="stats70-grid">
@@ -593,7 +595,197 @@
           </view>
         </view>
 
-        <view class="stats70-foot">点击查看 90 日趋势与分区 ›</view>
+        <view v-if="currentWangqian" class="stats70-foot">点击查看 90 日趋势与分区 ›</view>
+        <view
+          v-else-if="zhBdcNew && zhBdcStock"
+          class="stats70-foot"
+          @click.stop="jumpHomeAnchor('entry-zh-bdc-registration')"
+        >
+          滚到珠海不动产登记季报 ›
+        </view>
+      </view>
+
+      <!-- 珠海不动产登记季报（官方 PNG 合计抄录；≠日更网签） -->
+      <view
+        v-if="zhBdcNew && zhBdcStock"
+        id="entry-zh-bdc-registration"
+        class="card"
+        data-tab="overview,price"
+        data-zh-bdc-registration
+      >
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">📋 珠海不动产登记季报</view>
+          <view class="muted" style="font-size: 22rpx">{{ formatZhBdcPeriod(zhBdcNew) }}</view>
+        </view>
+        <view class="gz-inventory-grid">
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">新增商品房 · 住宅</text>
+            <text class="gz-inventory-value">{{ zhBdcNew.residentialUnits.toLocaleString() }} 套</text>
+            <text class="cell-sub muted">{{ zhBdcNew.residentialAreaWanSqm.toFixed(2) }} 万㎡</text>
+            <text
+              v-if="zhBdcNewQoQ"
+              class="cell-sub"
+              :class="invDeltaClass(zhBdcNewQoQ.unitsDelta)"
+            >
+              较上季 {{ formatInvDelta(zhBdcNewQoQ.unitsDelta) }}
+            </text>
+          </view>
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">存量房转移 · 住宅</text>
+            <text class="gz-inventory-value">{{ zhBdcStock.residentialUnits.toLocaleString() }} 套</text>
+            <text class="cell-sub muted">{{ zhBdcStock.residentialAreaWanSqm.toFixed(2) }} 万㎡</text>
+            <text
+              v-if="zhBdcStockQoQ"
+              class="cell-sub"
+              :class="invDeltaClass(zhBdcStockQoQ.unitsDelta)"
+            >
+              较上季 {{ formatInvDelta(zhBdcStockQoQ.unitsDelta) }}
+            </text>
+          </view>
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">新增 · 非住（商办其他）</text>
+            <text class="gz-inventory-value">
+              {{
+                (
+                  zhBdcNew.commercialUnits +
+                  zhBdcNew.officeUnits +
+                  zhBdcNew.otherUnits
+                ).toLocaleString()
+              }}
+              套
+            </text>
+            <text class="cell-sub muted">
+              商 {{ zhBdcNew.commercialUnits }} / 办 {{ zhBdcNew.officeUnits }} / 其他
+              {{ zhBdcNew.otherUnits }}
+            </text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          {{ zhBdcNew.sourceOrg }} · {{ zhBdcNew.publishDate }} 公示（官方表为 PNG，人工抄录合计行）。
+          登记量 ≠ 日更网签、≠ 挂牌均价、≠ 70 城指数。
+          <text
+            v-if="zhBdcNew.sourceUrl"
+            class="linkish"
+            @click.stop="openZhBdcSource"
+          >
+            查看官方公示 ›
+          </text>
+        </view>
+        <view
+          v-if="!zhBdcStockDistricts.length && !zhBdcNewDistricts.length"
+          class="muted"
+          style="margin-top: 8rpx; font-size: 21rpx"
+        >
+          本期分区表未抄录（仅全市合计）。
+        </view>
+        <view v-if="zhBdcStockDistricts.length" class="muted" style="margin-top: 10rpx; font-size: 22rpx">
+          本期分区住宅（存量转移 Top）
+        </view>
+        <view
+          v-for="d in zhBdcStockDistricts.slice(0, 5)"
+          :key="'zh-bdc-st-' + d.district"
+          class="gz-inventory-row"
+          style="margin-top: 4rpx"
+        >
+          <text class="muted">{{ d.district }}</text>
+          <text>{{ d.residentialUnits.toLocaleString() }} 套 · {{ d.residentialAreaWanSqm.toFixed(2) }} 万㎡</text>
+        </view>
+        <view v-if="zhBdcNewDistricts.length" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          本期分区住宅（新增登记）
+        </view>
+        <view
+          v-for="d in zhBdcNewDistricts.slice(0, 5)"
+          :key="'zh-bdc-new-' + d.district"
+          class="gz-inventory-row"
+          style="margin-top: 4rpx"
+        >
+          <text class="muted">{{ d.district }}</text>
+          <text>{{ d.residentialUnits.toLocaleString() }} 套 · {{ d.residentialAreaWanSqm.toFixed(2) }} 万㎡</text>
+        </view>
+      </view>
+
+      <!-- 珠海商品房价格备案（住建局 HTML 表；备案价 ≠ 挂牌/成交/70城） -->
+      <view
+        v-if="zhPriceFiling"
+        id="entry-zh-price-filing"
+        class="card"
+        data-tab="overview,price"
+        data-zh-price-filing
+      >
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">📑 珠海商品房价格备案</view>
+          <view class="muted" style="font-size: 22rpx">
+            近 {{ zhPriceFiling.filingCount }} 条 · {{ zhPriceFiling.latestPublishDate || "—" }}
+          </view>
+        </view>
+        <view class="gz-inventory-grid">
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">公示条数</text>
+            <text class="gz-inventory-value">{{ zhPriceFiling.filingCount.toLocaleString() }}</text>
+            <text v-if="zhPriceFiling.earliestPublishDate" class="cell-sub muted">
+              {{ zhPriceFiling.earliestPublishDate }} 起
+            </text>
+          </view>
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">合计套数</text>
+            <text class="gz-inventory-value">{{ zhPriceFiling.totalUnits.toLocaleString() }} 套</text>
+          </view>
+          <view class="gz-inventory-kpi">
+            <text class="cell-label">建筑面积均价中位</text>
+            <text class="gz-inventory-value">
+              <template v-if="zhPriceFiling.medianAvgPriceBuilding">
+                {{ Math.round(zhPriceFiling.medianAvgPriceBuilding).toLocaleString() }}
+              </template>
+              <template v-else>—</template>
+            </text>
+            <text class="cell-sub muted">元/㎡ · 备案</text>
+            <text
+              v-if="zhPriceFiling.weightedAvgPriceBuilding"
+              class="cell-sub muted"
+            >
+              套数加权 {{ Math.round(zhPriceFiling.weightedAvgPriceBuilding).toLocaleString() }}
+            </text>
+          </view>
+        </view>
+        <view
+          v-if="zhPriceFiling.districtStats.length"
+          class="muted"
+          style="margin-top: 10rpx; font-size: 22rpx"
+        >
+          分区（地址推断）
+        </view>
+        <view
+          v-for="d in zhPriceFiling.districtStats.slice(0, 5)"
+          :key="'zh-pf-d-' + d.district"
+          class="gz-inventory-row"
+          style="margin-top: 4rpx"
+        >
+          <text class="muted">{{ d.district }}</text>
+          <text>
+            {{ d.filingCount }} 条 · {{ d.units.toLocaleString() }} 套
+            <template v-if="d.medianAvgPriceBuilding">
+              · 中位 {{ Math.round(d.medianAvgPriceBuilding).toLocaleString() }}
+            </template>
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 22rpx">最近公示</view>
+        <view
+          v-for="f in zhPriceFiling.recent.slice(0, 5)"
+          :key="'zh-pf-' + f.postId"
+          class="gz-inventory-row"
+          style="margin-top: 6rpx"
+        >
+          <text class="muted">{{ f.district }} · {{ f.projectName || "项目" }}</text>
+          <text>
+            {{ f.units }} 套 ·
+            {{ f.avgPriceBuilding ? Math.round(f.avgPriceBuilding).toLocaleString() : "—" }} 元/㎡
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：珠海市住建局「商品房价格备案公示」HTML 表摘要。
+          备案价 ≠ 挂牌价、≠ 成交价、≠ 日更网签、≠ 70 城指数。
+          <text class="linkish" @click.stop="openZhPriceFilingSource">查看专栏 ›</text>
+        </view>
       </view>
 
       <!-- v0.91.0 70 城 12 月趋势对比（派生：基于 stats_70.csv） -->
@@ -7380,6 +7572,17 @@ import {
   getZhAffordableProgressMoM,
   type ZhAffordableProgressRow
 } from "../../local/zhAffordableProgress";
+import {
+  formatZhBdcPeriod,
+  getLatestZhBdcByKind,
+  getZhBdcDistrictsFor,
+  getZhBdcResidentialQoQ,
+  type ZhBdcRegistrationRow
+} from "../../local/zhBdcRegistration";
+import {
+  getZhPriceFilingSummary,
+  type ZhPriceFilingSummary
+} from "../../local/zhPriceFiling";
 import { assessGzInventoryFreshness } from "../../local/gzInventoryFreshness";
 import {
   HOME_CHANNELS,
@@ -8735,6 +8938,24 @@ const zhAffordableMoM = computed(() => {
   if (mom.prev.year !== zhAffordable.value.year) return null;
   return mom;
 });
+const zhBdcNew = computed<ZhBdcRegistrationRow | null>(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "珠海" ? getLatestZhBdcByKind("new_commodity") : null;
+});
+const zhBdcStock = computed<ZhBdcRegistrationRow | null>(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "珠海" ? getLatestZhBdcByKind("stock_transfer") : null;
+});
+const zhBdcNewQoQ = computed(() => (zhBdcNew.value ? getZhBdcResidentialQoQ("new_commodity") : null));
+const zhBdcStockQoQ = computed(() =>
+  zhBdcStock.value ? getZhBdcResidentialQoQ("stock_transfer") : null
+);
+const zhBdcNewDistricts = computed(() => getZhBdcDistrictsFor(zhBdcNew.value, "new_commodity"));
+const zhBdcStockDistricts = computed(() => getZhBdcDistrictsFor(zhBdcStock.value, "stock_transfer"));
+const zhPriceFiling = computed<ZhPriceFilingSummary | null>(() => {
+  const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
+  return city === "珠海" ? getZhPriceFilingSummary(8) : null;
+});
 function formatLandPrice(wan: number): string {
   return wan >= 10000 ? `${(wan / 10000).toFixed(2)} 亿元` : `${wan.toLocaleString()} 万元`;
 }
@@ -8931,6 +9152,8 @@ const homeScrollAvailability = computed<HomeScrollAvailability>(() => ({
   hasSzPlannedSupply: !!szPlannedSupply.value,
   hasGzHousingPlan: !!gzHousingPlan.value,
   hasZhAffordable: !!zhAffordable.value,
+  hasZhBdcRegistration: !!zhBdcNew.value && !!zhBdcStock.value,
+  hasDailyWangqian: !!currentWangqian.value,
   hasGzLand: !!gzLandSummary.value,
   hasSzLand: !!szLandSummary.value
 }));
@@ -9022,8 +9245,15 @@ function onHomeKingkong(k: HomeKingkongItem) {
     let url = a.path;
     if (url.includes("wangqian")) {
       const name = currentWangqianCityName.value;
-      const city = name === "深圳" || name === "广州" ? name : "深圳";
-      url = `/pages/wangqian/wangqian?city=${encodeURIComponent(city)}`;
+      if (name === "深圳" || name === "广州") {
+        url = `/pages/wangqian/wangqian?city=${encodeURIComponent(name)}`;
+      } else if (zhBdcNew.value && zhBdcStock.value) {
+        jumpHomeAnchor("entry-zh-bdc-registration");
+        return;
+      } else {
+        showToast("当前城市暂无网签日更");
+        return;
+      }
     }
     uni.navigateTo({
       url,
@@ -10280,8 +10510,54 @@ function goStats70() {
 
 function goWangqian() {
   const name = currentWangqianCityName.value;
-  const city = name === "深圳" || name === "广州" ? name : "深圳";
-  uni.navigateTo({ url: `/pages/wangqian/wangqian?city=${encodeURIComponent(city)}` });
+  if (name === "深圳" || name === "广州") {
+    uni.navigateTo({ url: `/pages/wangqian/wangqian?city=${encodeURIComponent(name)}` });
+    return;
+  }
+  if (zhBdcNew.value && zhBdcStock.value) {
+    jumpHomeAnchor("entry-zh-bdc-registration");
+    return;
+  }
+  showToast("当前城市暂无网签日更");
+}
+
+function onWangqianCardClick() {
+  if (currentWangqian.value) {
+    goWangqian();
+    return;
+  }
+  if (zhBdcNew.value && zhBdcStock.value) {
+    jumpHomeAnchor("entry-zh-bdc-registration");
+  }
+}
+
+function openZhBdcSource() {
+  const url = zhBdcNew.value?.sourceUrl;
+  if (!url) return;
+  // #ifdef H5
+  window.open(url, "_blank");
+  // #endif
+  // #ifndef H5
+  uni.setClipboardData({
+    data: url,
+    success: () => showToast("已复制官方公示链接")
+  });
+  // #endif
+}
+
+function openZhPriceFilingSource() {
+  const url =
+    zhPriceFiling.value?.recent[0]?.sourceUrl ||
+    "https://zjj.zhuhai.gov.cn/zjj/hygl/ywgsgg/spfjgbags/";
+  // #ifdef H5
+  window.open(url, "_blank");
+  // #endif
+  // #ifndef H5
+  uni.setClipboardData({
+    data: url,
+    success: () => showToast("已复制备案公示链接")
+  });
+  // #endif
 }
 
 // 70 城指数卡片 -------------------------------------------------------

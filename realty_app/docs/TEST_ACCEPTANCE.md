@@ -12,6 +12,8 @@
 | [FEATURE_QA_PROCESS.md](./FEATURE_QA_PROCESS.md) | 加功能→验收→测试 **强制 8 步** |
 | [FEATURE_ACCEPTANCE.md](./FEATURE_ACCEPTANCE.md) | 总则与专题索引 |
 | [LISTING_FILTER_ACCEPTANCE.md](./LISTING_FILTER_ACCEPTANCE.md) | 房源筛选专题（在售/成交/装修等） |
+| [LISTING_DETAIL_ACCEPTANCE.md](./LISTING_DETAIL_ACCEPTANCE.md) | 详情图集/价区/标签（对照贝壳） |
+| [BEIKE_COMPARISON_ACCEPTANCE.md](./BEIKE_COMPARISON_ACCEPTANCE.md) | 与贝壳/链家主路径差距矩阵 |
 
 ---
 
@@ -56,6 +58,11 @@ $env:E2E_BASE_URL="http://127.0.0.1:5174"; npm run test:e2e:core
 | P-LIST-04 | 二手房 + 精装 | total > 0 | 同上 |
 | P-LIST-05 | 选区 / 关键字 | total ≤ 全市 | `listingFilterDistrict` / `Keyword` |
 | P-DET-01 | 详情「去贝壳查看」 | App 优先唤起 | `openExternal.test.ts` |
+| P-DET-02 | 详情首屏图集 | 有 `[data-listing-gallery]`；无图有空态文案 | `listing-detail` 门禁 |
+| P-LIST-06 | 列表卡片 | 总价大字 + 单价 + 室卫；`data-listing-card` | 筛选页门禁 |
+| P-LIST-07 | 房源 → 户型「3室」 | total 收紧且条目 bedrooms=3 | `listingFilterTypeDecorate` |
+| P-ZH-WQ-01 | 珠海总览 | 日更空态 + 季报卡可见 | `zhBdcRegistration` + homeEntry |
+| P-ZH-WQ-02 | 珠海点网签入口 | 不跳深圳；滚到季报 | `homeEntry` 锚点 |
 | P-PRICE-01 | 任意房价文案 | 不出现误标「成交均价」 | `priceSemantics.test.ts` |
 | P-MAP-01 | 地图 → 五模式切换 | 各模式 overlay>0 | `smoke_map_controls.mjs` |
 | P-MAP-02 | 地图 → 挂牌均价 | 底图可读；图例非 0k-0k；半透明热力 | `mapMath.test.ts` + `smoke_price_heatmap.mjs` |

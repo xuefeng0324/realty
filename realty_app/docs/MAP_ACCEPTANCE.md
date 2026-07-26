@@ -66,6 +66,9 @@
 | F4-4 | 底栏一行 | 点击 | 进入 `listing-detail?id=` | F |
 | F4-5 | 底栏 | 「本小区全部房源」 | 进入 `listing-filter?communityId=` | F |
 | F4-6 | 找房图层 | 点单套 marker | 直接进详情（不是只弹小区卡） | F |
+| F4-7 | 底栏行 | 看文案 | 含总价 + 单价或室卫/面积（`formatListingCardLine`） | U |
+| F4-8 | 未知 markerId | 点击 | toast「无法识别」，不把 id 当 communityId | L |
+| F4-9 | 均价摘要 | 读文案 | 「样本小区挂牌均价」，含「非成交价」 | U |
 
 参考：贝壳「地图找房」= 筛 → 气泡 → 列表 → 详情；本产品不做经纪带看，只做到挂牌详情。
 

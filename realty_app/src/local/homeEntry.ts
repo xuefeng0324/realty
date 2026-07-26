@@ -135,6 +135,10 @@ export type HomeScrollAvailability = {
   hasSzPlannedSupply: boolean;
   hasGzHousingPlan: boolean;
   hasZhAffordable: boolean;
+  /** 珠海不动产登记季报（日更网签备选量能） */
+  hasZhBdcRegistration: boolean;
+  /** 当前城有深广式日更网签 */
+  hasDailyWangqian: boolean;
   hasGzLand: boolean;
   hasSzLand: boolean;
 };
@@ -167,6 +171,19 @@ export function resolveHomeScrollAnchor(
       return { kind: "ok", id: "entry-land" };
     }
     return { kind: "missing", reason: "当前城市暂无土地成交卡" };
+  }
+  // 珠海无日更网签时，「网签」频道滚到不动产登记季报（对照：竞品量能入口不空跳）
+  if (anchor === "overview-wangqian" || anchor === "entry-zh-bdc-registration") {
+    if (avail.hasDailyWangqian) {
+      return { kind: "ok", id: "overview-wangqian" };
+    }
+    if (avail.hasZhBdcRegistration) {
+      return { kind: "ok", id: "entry-zh-bdc-registration" };
+    }
+    if (anchor === "entry-zh-bdc-registration") {
+      return { kind: "missing", reason: "当前城市暂无网签日更或登记季报" };
+    }
+    return { kind: "ok", id: "overview-wangqian" };
   }
   return { kind: "ok", id: anchor };
 }

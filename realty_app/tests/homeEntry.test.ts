@@ -46,13 +46,15 @@ describe("homeEntry F-ENTRY-01", () => {
       hasSzPlannedSupply: false,
       hasGzHousingPlan: false,
       hasZhAffordable: false,
+      hasZhBdcRegistration: false,
+      hasDailyWangqian: false,
       hasGzLand: false,
       hasSzLand: false
     };
     expect(resolveHomeScrollAnchor("entry-supply", empty).kind).toBe("missing");
     expect(resolveHomeScrollAnchor("entry-land", empty).kind).toBe("missing");
 
-    const shenzhen = { ...empty, hasSzPlannedSupply: true, hasSzLand: true };
+    const shenzhen = { ...empty, hasSzPlannedSupply: true, hasSzLand: true, hasDailyWangqian: true };
     expect(resolveHomeScrollAnchor("entry-supply", shenzhen)).toEqual({
       kind: "ok",
       id: "entry-supply"
@@ -67,6 +69,32 @@ describe("homeEntry F-ENTRY-01", () => {
     const guangzhou = { ...empty, hasGzInventory: true, hasGzLand: true, hasSzPlannedSupply: true };
     expect(homeSupplyEntryOwner(guangzhou)).toBe("gz");
     expect(homeLandEntryOwner(guangzhou)).toBe("gz");
+  });
+
+  it("珠海网签锚点落到不动产登记季报，不空跳", () => {
+    const zh = {
+      hasGzInventory: false,
+      hasSzPlannedSupply: false,
+      hasGzHousingPlan: false,
+      hasZhAffordable: true,
+      hasZhBdcRegistration: true,
+      hasDailyWangqian: false,
+      hasGzLand: false,
+      hasSzLand: false
+    };
+    expect(resolveHomeScrollAnchor("overview-wangqian", zh)).toEqual({
+      kind: "ok",
+      id: "entry-zh-bdc-registration"
+    });
+    expect(resolveHomeScrollAnchor("entry-zh-bdc-registration", zh)).toEqual({
+      kind: "ok",
+      id: "entry-zh-bdc-registration"
+    });
+    const sz = { ...zh, hasDailyWangqian: true, hasZhBdcRegistration: false };
+    expect(resolveHomeScrollAnchor("overview-wangqian", sz)).toEqual({
+      kind: "ok",
+      id: "overview-wangqian"
+    });
   });
 
   it("房源 pending query 可写入并取出一次", () => {

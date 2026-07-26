@@ -73,6 +73,7 @@ OUT_FIELDS = [
     "nearest_metro_distance_m",
     "school_ids_json", "tags_json",
     "crawl_date",
+    "cover_url",
 ]
 
 USER_AGENTS = [
@@ -175,6 +176,7 @@ def _parse_one(li: Any, city_id: int, listing_id: int, community_id: int) -> dic
         source_url = ""
         title = ""
         source_listing_id = ""
+        cover_url = ""
         if a:
             href = a["href"]
             if href.startswith("/"):
@@ -184,6 +186,12 @@ def _parse_one(li: Any, city_id: int, listing_id: int, community_id: int) -> dic
             m = re.search(r"/sale/(\d+)\.html", href)
             if m:
                 source_listing_id = m.group(1)
+        # 封面：列表卡内最近的 ajkimg（非站内静态 icon）
+        for img in li.find_all("img"):
+            src = (img.get("src") or img.get("data-src") or "").strip()
+            if "ajkimg.com" in src and "/fe/esf/" not in src:
+                cover_url = src.split("?")[0]
+                break
 
         return {
             "listing_id": listing_id,
@@ -209,6 +217,7 @@ def _parse_one(li: Any, city_id: int, listing_id: int, community_id: int) -> dic
             "school_ids_json": "[]",
             "tags_json": "[]",
             "crawl_date": date.today().isoformat(),
+            "cover_url": cover_url,
         }
     except Exception as e:
         print(f"  [warn] parse failed: {e}", file=sys.stderr)

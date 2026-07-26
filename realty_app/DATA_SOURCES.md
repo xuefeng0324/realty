@@ -190,12 +190,15 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/seed/community_commercial.csv` | `communityCommercialRanking.ts` + 分区商业/密度桶 | （派生） | v1.121.17 分区均分；v1.121.19 餐饮密度×距离桶（按 city 过滤） |
 | `static/seed/listing_school_premium.csv` | `listingSchoolPremiumRanking.ts` + 高学区房源卡 | `compute_listing_school_premium` | v1.121.16：溢价分桶与分区 Top |
 | `static/school_source_audit.json` | 审计用（测试/脚本） | `scripts/audit_school_sources.py` | 学校来源分级审计结果，不直接驱动 UI 排名 |
-| （珠海不动产公开页） | （未接入） | `bdc.zhuhai.gov.cn/zwgk/sjfb/` | 季度登记统计页仅为 **PNG**（已探针确认无 HTML 表/XLSX）；暂不 OCR |
-| （珠海预售专网） | （未接入） | `zhfc.zhszjj.com` | TLS handshake 超时（HTTPS/HTTP 均失败，2026-07-26 复测）；暂无可用结构化 endpoint |
+| `static/zh_bdc_registration.csv` | `zhBdcRegistration.ts` + dashboard「📋 珠海不动产登记季报」 | `list_zh_bdc_registration_posts.py`（对照缺口；**人工抄录** PNG 合计） | 珠海不动产登记中心季度「新增商品房登记 / 存量房转移登记」**合计行**；官方正文为 PNG；**≠日更网签、≠挂牌均价** |
+| `static/zh_bdc_registration_district.csv` | 同上模块分区明细 | `seed_zh_bdc_registration_district.py`（人工抄录五区） | **2025Q1–2026Q2**；与合计同行同期；住宅套数之和须对齐全市合计 |
+| `static/zh_price_filing.csv` | `zhPriceFiling.ts` + dashboard「📑 珠海商品房价格备案」 | `crawl_zh_price_filing.py`（**周更 CI**） | 住建局专栏 HTML 表摘要（套数/建筑面积均价/套内均价 + 地址推断分区）；**备案价 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70城** |
+| （珠海不动产公开页） | （已由上表覆盖合计） | `bdc.zhuhai.gov.cn/zwgk/sjfb/` | 季度登记统计页仅为 **PNG**（已探针确认无 HTML 表/XLSX）；合计行人工抄录进 CSV；暂不 OCR |
+| （珠海商品房价格备案公示） | `static/zh_price_filing.csv` | `zjj.zhuhai.gov.cn/.../spfjgbags/` | **已接入**（v1.121.102）；详情页 HTML 表可解析；列表 `index.html`…`index_N.html`；预售专网仍超时 |
 | （广州月度批准预售专栏） | （未接入明细） | `zfcj.gz.gov.cn/.../xjspfpzystjxx/` | 月度正文多为 **PNG**；专栏路径 2026-07-26 复测 **404**；年更计划已由 `gz_housing_plan.csv` 覆盖核心指标 |
 | （广州存量房交易登记月报） | （未接入） | `zfcj.gz.gov.cn/.../clfjydjtjxx/` | 2026-07-26 探针：正文多为 **PNG**、无 HTML 表/XLS；暂不 OCR |
 | （广州房屋租赁登记备案月报） | （未接入） | `zfcj.gz.gov.cn/.../fwzldjbatjxx/` + 阳光租房 | 2026-07-26 探针：专栏正文为 **PNG**（如 `.../10899179.png`）；阳光租房首页无稳定公开统计 API；暂不 OCR |
-| （珠海不动产登记季度统计表） | （未接入） | `bdc.zhuhai.gov.cn/zwgk/sjfb/` | 2026-07-26 复测：新增商品房/存量房转移等仍为 **PNG**；暂不 OCR |
+| （珠海不动产登记季度统计表） | `static/zh_bdc_registration.csv` | `bdc.zhuhai.gov.cn/zwgk/sjfb/` | **已接入合计**（v1.121.99）；正文仍为 PNG；用 `list_zh_bdc_registration_posts.py` 查新季缺口 |
 | （深圳二手房上月成交量专栏） | （未接入独立源） | `zjj.sz.gov.cn/.../sjcx/ersfsy/` | 2026-07-26 探针本机 **403**；深圳二手成交已由 `daily_wangqian` 覆盖 |
 | （广东规上工业/消费品单独简况） | （未单独建卡） | `stats.gd.gov.cn/tjkx185/` | 2026-07-26：工业/社消零 HTML 可解析，但与「经济运行」重叠且与房价弱相关；GDP/房开/人均可支配收入已由 `gd_economy.csv` 覆盖核心宏观 |
 | （佛山/东莞住建公开页） | （未接入） | `fszj.foshan.gov.cn` / `zjj.dg.gov.cn` | 2026-07-26 探针本机 **Timeout**；暂无可用结构化 endpoint |
@@ -227,6 +230,7 @@ provident_fund_rates.csv     → providentFund.ts      → 公积金利率 / 月
 sz_provident_annual.csv      → szProvidentAnnual.ts  → 深圳公积金年报
 gz_provident_annual.csv      → gzProvidentAnnual.ts  → 广州公积金年报
 zh_provident_dynamics.csv    → zhProvidentDynamics.ts → 珠海公积金动态
+zh_bdc_registration.csv      → zhBdcRegistration.ts  → 珠海不动产登记季报（量能备选）
 gd_provident_annual.csv      → gdProvidentAnnual.ts  → 广东全省公积金年报
 gd_real_estate_brief.csv     → gdRealEstateBrief.ts  → 广东房地产运行简况
 gd_fa_investment.csv         → gdFaInvestment.ts     → 广东固定资产投资简况
@@ -271,7 +275,7 @@ static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务�
 
 | 缺口 | 候选源 | 状态 |
 |------|--------|------|
-| 珠海日更网签 | [商品房预(销)售专网](https://zhfc.zhszjj.com/zhysouter)；不动产中心季报 | 无稳定公开 API；2026-07 探测超时 → backlog `data-zh-wq` |
+| 珠海日更网签 | [商品房预(销)售专网](https://zhfc.zhszjj.com/zhysouter) | 无稳定公开 API；TLS 超时；季报量能已由 `zh_bdc_registration` 覆盖 |
 | 房源详情图集 | 链家/贝壳详情页图 | CAPTCHA；仅 REAL 源有 URL，暂不伪造图 |
 
 详情页挂牌标签 pill 已接 `listing_tags.csv` / `tags_json`（v1.121.98）。
