@@ -33,6 +33,7 @@
 | 🟢 | data-shibor | 上海银行间同业拆放利率 Shibor | ✅ v1.121.125 | 货币网 JSON+His；≠房价 |
 | 🟢 | data-repo-fixing | 回购定盘 FR / 银银间 FDR | ✅ v1.121.126 | FDR007 基于 DR 加权；≠房价 |
 | 🟢 | data-nbs-industrial | 规上工业增加值 | ✅ v1.121.127 | 当月/环比/累计 + 三大门类；≠房价 |
+| 🟢 | data-nbs-industrial-profit | 规上工业企业利润 | ✅ v1.121.128 | 累计利润/营收/利润率；滞后约 1 月；≠房价 |
 | 🟡 | data-zh-wq | 珠海网签/预售专网日更接入 | ✅ 季报备选 | 日更仍超时；`zh_bdc_registration` 2025Q1–2026Q2 合计已上线 |
 | 🟢 | data-zh-price-filing | 珠海商品房价格备案公示 | ✅ v1.121.104 | 全量 336 条；周更 CI；预售专网仍超时 |
 

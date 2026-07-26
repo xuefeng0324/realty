@@ -3030,6 +3030,121 @@
         </template>
       </view>
 
+      <view
+        v-if="nbsIndustrialProfit"
+        class="card macro-card"
+        data-tab="overview,price"
+        data-nbs-industrial-profit
+      >
+        <view class="macro-kicker">全国 · 工业企业效益</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">工业企业利润</view>
+          <view class="muted" style="font-size: 22rpx">
+            1–{{ Number(nbsIndustrialProfit.month.slice(5)) }}月
+          </view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <view class="stats70-cell">
+            <text class="cell-label">利润总额</text>
+            <text class="cell-value" :class="macroTrendClass(nbsIndustrialProfit.profitYoyPct)">
+              {{ formatMacroPct(nbsIndustrialProfit.profitYoyPct) }}
+            </text>
+            <text class="cell-sub muted">
+              {{ nbsIndustrialProfit.profitYi.toLocaleString() }} 亿元累计
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">营收同比</text>
+            <text
+              class="cell-value"
+              :class="macroTrendClass(nbsIndustrialProfit.revenueYoyPct ?? 0)"
+            >
+              {{
+                nbsIndustrialProfit.revenueYoyPct != null
+                  ? formatMacroPct(nbsIndustrialProfit.revenueYoyPct)
+                  : "—"
+              }}
+            </text>
+            <text class="cell-sub muted">
+              {{
+                nbsIndustrialProfit.revenueWanYi != null
+                  ? nbsIndustrialProfit.revenueWanYi.toFixed(2) + " 万亿"
+                  : "—"
+              }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">营收利润率</text>
+            <text class="cell-value">
+              {{
+                nbsIndustrialProfit.marginPct != null
+                  ? nbsIndustrialProfit.marginPct.toFixed(2) + "%"
+                  : "—"
+              }}
+            </text>
+            <text
+              v-if="nbsIndustrialProfitDelta && nbsIndustrialProfitDelta.marginDeltaPp != null"
+              class="cell-sub"
+              :class="macroTrendClass(nbsIndustrialProfitDelta.marginDeltaPp)"
+            >
+              较上期
+              {{ nbsIndustrialProfitDelta.marginDeltaPp > 0 ? "+" : ""
+              }}{{ nbsIndustrialProfitDelta.marginDeltaPp }} pp
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">制造业利润</text>
+            <text
+              class="cell-value"
+              :class="macroTrendClass(nbsIndustrialProfit.manufacturingYoyPct ?? 0)"
+            >
+              {{
+                nbsIndustrialProfit.manufacturingYoyPct != null
+                  ? formatMacroPct(nbsIndustrialProfit.manufacturingYoyPct)
+                  : "—"
+              }}
+            </text>
+            <text class="cell-sub muted">
+              采矿
+              {{
+                nbsIndustrialProfit.miningYoyPct != null
+                  ? formatMacroPct(nbsIndustrialProfit.miningYoyPct)
+                  : "—"
+              }}
+              · 公用
+              {{
+                nbsIndustrialProfit.utilitiesYoyPct != null
+                  ? formatMacroPct(nbsIndustrialProfit.utilitiesYoyPct)
+                  : "—"
+              }}
+            </text>
+          </view>
+        </view>
+        <view class="macro-note">
+          国家统计局规上工业企业利润（累计口径，通常滞后约 1 个月）· ≠ 挂牌/成交/网签/70城；可与工业增加值 / PMI 对照
+        </view>
+        <button
+          v-if="nbsIndustrialProfitTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-nbs-industrial-profit-series-toggle
+          :aria-expanded="nbsIndustrialProfitSeriesExpanded"
+          @click="nbsIndustrialProfitSeriesExpanded = !nbsIndustrialProfitSeriesExpanded"
+        >
+          {{ nbsIndustrialProfitSeriesExpanded ? "收起多期" : "多期序列" }}
+        </button>
+        <template v-if="nbsIndustrialProfitSeriesExpanded">
+          <view class="macro-series" data-nbs-industrial-profit-series-detail>
+            利润同比
+            <text v-for="(p, i) in nbsIndustrialProfitTrend" :key="'indp-yoy-' + p.month">
+              {{ shortNbsIndustrialProfitMonthLabel(p.month) }}
+              {{ formatMacroPct(p.profitYoyPct)
+              }}<text v-if="i < nbsIndustrialProfitTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
+
       <view v-if="nbsPpi" class="card macro-card" data-tab="overview,price" data-nbs-ppi>
         <view class="macro-kicker">全国 · 工业生产者价格</view>
         <view class="row-between">
@@ -9118,6 +9233,13 @@ import {
   type NbsIndustrialRow
 } from "../../local/nbsIndustrial";
 import {
+  getLatestNbsIndustrialProfit,
+  getNbsIndustrialProfitDeltaVsPrev,
+  getNbsIndustrialProfitTrend,
+  shortNbsIndustrialProfitMonthLabel,
+  type NbsIndustrialProfitRow
+} from "../../local/nbsIndustrialProfit";
+import {
   getLatestNbsRetail,
   getNbsRetailTrend,
   shortNbsRetailMonthLabel,
@@ -10297,6 +10419,12 @@ const nbsIndustrial = computed<NbsIndustrialRow | null>(() => getLatestNbsIndust
 const nbsIndustrialTrend = computed(() => getNbsIndustrialTrend(6));
 const nbsIndustrialDelta = computed(() => getNbsIndustrialDeltaVsPrev());
 const nbsIndustrialSeriesExpanded = ref(false);
+const nbsIndustrialProfit = computed<NbsIndustrialProfitRow | null>(() =>
+  getLatestNbsIndustrialProfit()
+);
+const nbsIndustrialProfitTrend = computed(() => getNbsIndustrialProfitTrend(6));
+const nbsIndustrialProfitDelta = computed(() => getNbsIndustrialProfitDeltaVsPrev());
+const nbsIndustrialProfitSeriesExpanded = ref(false);
 const nbsRetail = computed<NbsRetailRow | null>(() => getLatestNbsRetail());
 const nbsRetailTrend = computed(() => getNbsRetailTrend(6));
 const nbsTrade = computed<NbsTradeRow | null>(() => getLatestNbsTrade());
