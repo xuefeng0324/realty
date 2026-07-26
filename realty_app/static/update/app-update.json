@@ -1,12 +1,12 @@
 {
-  "versionName": "1.121.87",
-  "versionCode": "208",
-  "publishedAt": "2026-07-26T01:45:16Z",
+  "versionName": "1.121.88",
+  "versionCode": "209",
+  "publishedAt": "2026-07-26T01:53:57Z",
   "force": false,
-  "notes": "docs(realty_app): v1.121.87 README/\u767b\u8bb0\u8868\u8865\u5168\n\n2026-07-25-v1.112.0-\u5468\u8fb9\u5546\u4e1aPOI\u63a5\u5165\u4e0e\u6d3e\u751f: v1.112.0 \u2014 \u5468\u8fb9\u5546\u4e1a POI \u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.113.0-\u884c\u653f\u533a\u5212\u63a5\u5165\u4e0e\u6d3e\u751f: v1.113.0 \u2014 \u884c\u653f\u533a\u5212\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.114.0-\u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f: v1.114.0 \u2014 \u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f\n",
+  "notes": "feat(realty_app): v1.121.88 NBS\u5c45\u6c11\u6d88\u8d39\u4ef7\u683c\u4e0e\u6536\u5165\u56de\u586b \u542b\u5c45\u4f4f/\u623f\u79df\u5206\u9879\u5361\uff1b\u6536\u5165\u56de\u586b2025\u591a\u671f\uff1b\u623f\u79df\u2260\u623f\u4ef7\u3002versionCode 209.\n\n2026-07-25-v1.121.5-\u542f\u52a8\u9875\u4e0eOTA\u6839\u6cbb: v1.121.5 / v1.121.6 \u2014 \u542f\u52a8\u9875 + OTA \u6839\u6cbb\u4e0e\u9a8c\u8bc1\n2026-07-25-v1.121.7-\u623f\u6e90\u6253\u5f00\u8d1d\u58f3App: v1.121.7 \u2014 \u623f\u6e90\u8df3\u8d1d\u58f3 + \u79bb\u7ebf APK \u8865 zip4j\uff08\u4fee OTA 100% \u95ea\u9000\uff09\n2026-07-25-v1.121.8-\u79bb\u7ebfOTA\u81ea\u68c0\u52a0\u56fa: v1.121.8 \u2014 \u79bb\u7ebf\u5305 OTA \u81ea\u68c0\u52a0\u56fa\uff08zip4j + install-apk + \u5ba1\u8ba1\u811a\u672c\uff09\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/208/app.wgt",
-    "sha256": "a00ed67b494e30b3559f7a0d1c4651917ebebf87ba326829c2572e77cfd2fd72"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/209/app.wgt",
+    "sha256": "3289bf04bc2067852747cd47f0caee2f97c012aff72e91686c4b80baaba3c03e"
   },
   "ios": {
     "available": false,
