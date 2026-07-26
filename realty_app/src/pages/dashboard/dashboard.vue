@@ -860,7 +860,75 @@
           </text>
         </view>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
-          来源：国家外汇管理局「外汇储备规模」月度通稿（可与「官方储备资产」表交叉）。外储规模 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数；可与上方金融统计外储字段对照。
+          来源：国家外汇管理局「外汇储备规模」月度通稿（可与下方「官方储备资产」分项交叉）。外储规模 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数；可与上方金融统计外储字段对照。
+        </view>
+      </view>
+
+      <!-- 外管局官方储备资产分项（月末；≠房价） -->
+      <view v-if="safeOraLatest" class="card" data-safe-ora data-tab="overview,price">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🏦 官方储备资产</view>
+          <view class="muted" style="font-size: 22rpx">{{ safeOraLatest.date.slice(0, 7) }} 末</view>
+        </view>
+        <view class="trend-summary" style="margin-top: 12rpx">
+          <view class="trend-cell">
+            <text class="cell-label">合计</text>
+            <text class="cell-value">{{ Math.round(safeOraLatest.totalUsdYi).toLocaleString() }}</text>
+            <text
+              v-if="safeOraDelta"
+              class="cell-sub"
+              :class="macroTrendClass(safeOraDelta.totalDelta)"
+            >
+              较上月 {{ formatInvDelta(safeOraDelta.totalDelta) }} 亿$
+            </text>
+            <text v-else class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">黄金市值</text>
+            <text class="cell-value">{{ Math.round(safeOraLatest.goldUsdYi).toLocaleString() }}</text>
+            <text class="cell-sub muted">
+              {{ safeOraLatest.goldOzWan ? safeOraLatest.goldOzWan.toLocaleString() + " 万盎司" : "亿美元" }}
+            </text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">黄金占比</text>
+            <text class="cell-value">
+              {{ safeOraGoldShare != null ? safeOraGoldShare.toFixed(1) + "%" : "—" }}
+            </text>
+            <text class="cell-sub muted">占合计派生</text>
+          </view>
+        </view>
+        <view class="trend-summary" style="margin-top: 8rpx">
+          <view class="trend-cell">
+            <text class="cell-label">外汇储备</text>
+            <text class="cell-value">{{ Math.round(safeOraLatest.forexUsdYi).toLocaleString() }}</text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">SDR</text>
+            <text class="cell-value">{{ Math.round(safeOraLatest.sdrUsdYi).toLocaleString() }}</text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">IMF 头寸</text>
+            <text class="cell-value">{{ Math.round(safeOraLatest.imfUsdYi).toLocaleString() }}</text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+        </view>
+        <view
+          v-for="row in safeOraRecent.slice(0, 3)"
+          :key="'safe-ora-' + row.date"
+          class="rank-row"
+          style="margin-top: 6rpx"
+        >
+          <text class="muted" style="font-size: 22rpx">{{ row.date.slice(0, 7) }}</text>
+          <text class="rank-val" style="font-size: 22rpx">
+            合计 {{ Math.round(row.totalUsdYi).toLocaleString() }}
+            · 金 {{ Math.round(row.goldUsdYi).toLocaleString() }}
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：国家外汇管理局「官方储备资产」月度统计表（外储/IMF/SDR/黄金/其他）。官方储备合计 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数；黄金市值随国际金价波动，持有量（万盎司）为实物口径。
         </view>
       </view>
 
@@ -7776,6 +7844,13 @@ import {
   type SafeForexRow
 } from "../../local/safeForex";
 import {
+  getLatestSafeOra,
+  getSafeOra,
+  getSafeOraDeltaVsPrev,
+  getSafeOraGoldShare,
+  type SafeOraRow
+} from "../../local/safeOra";
+import {
   getLatestSafeSettle,
   getSafeSettle,
   getSafeSettleDeltaVsPrev,
@@ -11472,6 +11547,10 @@ const pbcRegionSfPeers = computed(() => getPbcRegionSfPeerRanking());
 const safeForexLatest = computed(() => getLatestSafeForex());
 const safeForexDelta = computed(() => getSafeForexDeltaVsPrev());
 const safeForexRecent = computed<SafeForexRow[]>(() => getSafeForex().slice(0, 5));
+const safeOraLatest = computed(() => getLatestSafeOra());
+const safeOraDelta = computed(() => getSafeOraDeltaVsPrev());
+const safeOraRecent = computed<SafeOraRow[]>(() => getSafeOra().slice(0, 5));
+const safeOraGoldShare = computed(() => getSafeOraGoldShare(safeOraLatest.value));
 const safeSettleLatest = computed(() => getLatestSafeSettle());
 const safeSettleDelta = computed(() => getSafeSettleDeltaVsPrev());
 const safeSettleRecent = computed<SafeSettleRow[]>(() => getSafeSettle().slice(0, 5));
