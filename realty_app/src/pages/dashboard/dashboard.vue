@@ -1011,6 +1011,53 @@
         </view>
       </view>
 
+      <!-- 外管局人民币对美元中间价（日度；≠房价） -->
+      <view v-if="safeUsdMidLatest" class="card" data-safe-usd-mid data-tab="overview,price">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">💱 美元中间价</view>
+          <view class="muted" style="font-size: 22rpx">{{ safeUsdMidLatest.date }}</view>
+        </view>
+        <view class="trend-summary" style="margin-top: 12rpx">
+          <view class="trend-cell">
+            <text class="cell-label">1 美元兑人民币</text>
+            <text class="cell-value">{{ safeUsdMidLatest.usdCny.toFixed(4) }}</text>
+            <text
+              v-if="safeUsdMidDelta"
+              class="cell-sub"
+              :class="rateDeltaClass(safeUsdMidDelta.delta)"
+            >
+              较上日 {{ safeUsdMidDelta.delta > 0 ? "+" : "" }}{{ safeUsdMidDelta.delta.toFixed(4) }}
+            </text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">100 美元</text>
+            <text class="cell-value">{{ safeUsdMidLatest.usdPer100.toFixed(2) }}</text>
+            <text class="cell-sub muted">官网原标价</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">本月均价</text>
+            <text class="cell-value">
+              {{ safeUsdMidMonthAvg ? safeUsdMidMonthAvg.avg.toFixed(4) : "—" }}
+            </text>
+            <text class="cell-sub muted">
+              {{ safeUsdMidMonthAvg ? safeUsdMidMonthAvg.count + " 个交易日" : "" }}
+            </text>
+          </view>
+        </view>
+        <view
+          v-for="row in safeUsdMidRecent.slice(0, 5)"
+          :key="'usd-mid-' + row.date"
+          class="rank-row"
+          style="margin-top: 6rpx"
+        >
+          <text class="muted" style="font-size: 22rpx">{{ row.date }}</text>
+          <text class="rank-val">{{ row.usdCny.toFixed(4) }}</text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：国家外汇管理局人民币汇率中间价查询（中国外汇交易中心受权公布）。中间价 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数；可与金融统计月末汇率字段对照。
+        </view>
+      </view>
+
       <!-- 政府每日网签（摘要；有日更则可进子页） -->
       <view
         class="card wangqian-card"
@@ -7700,6 +7747,13 @@ import {
   type SafeFxMarketRow
 } from "../../local/safeFxMarket";
 import {
+  getLatestSafeUsdMid,
+  getSafeUsdMid,
+  getSafeUsdMidDeltaVsPrev,
+  getSafeUsdMidMonthAverage,
+  type SafeUsdMidRow
+} from "../../local/safeUsdMid";
+import {
   getLatestCityDaily,
   type CityDailySnapshot
 } from "../../local/dailyWangqian";
@@ -11356,6 +11410,10 @@ const safeSettleRecent = computed<SafeSettleRow[]>(() => getSafeSettle().slice(0
 const safeFxMarketLatest = computed(() => getLatestSafeFxMarket());
 const safeFxMarketDelta = computed(() => getSafeFxMarketDeltaVsPrev());
 const safeFxMarketRecent = computed<SafeFxMarketRow[]>(() => getSafeFxMarket().slice(0, 5));
+const safeUsdMidLatest = computed(() => getLatestSafeUsdMid());
+const safeUsdMidDelta = computed(() => getSafeUsdMidDeltaVsPrev());
+const safeUsdMidRecent = computed<SafeUsdMidRow[]>(() => getSafeUsdMid().slice(0, 5));
+const safeUsdMidMonthAvg = computed(() => getSafeUsdMidMonthAverage(safeUsdMidLatest.value));
 const lprYearLabel = computed(() => {
   const m = lprLatest.value?.month;
   if (!m) return String(new Date().getFullYear());

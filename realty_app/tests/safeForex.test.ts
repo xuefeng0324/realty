@@ -16,8 +16,8 @@ describe("safe forex", () => {
     expect(latest).not.toBeNull();
     expect(latest!.forexUsdYi).toBeGreaterThan(20000);
     expect(latest!.sourceUrl).toMatch(/safe\.gov\.cn/);
-    const apr2024 = rows.find((r) => r.date.startsWith("2024-04"));
-    expect(apr2024?.forexUsdYi).toBe(32008);
+    const nov2022 = rows.find((r) => r.date.startsWith("2022-11"));
+    expect(nov2022?.forexUsdYi).toBe(31175);
   });
 
   it("相邻期环比可算", () => {
