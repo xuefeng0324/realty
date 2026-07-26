@@ -1,12 +1,12 @@
 {
-  "versionName": "1.121.131",
-  "versionCode": "252",
-  "publishedAt": "2026-07-26T16:27:24Z",
+  "versionName": "1.121.132",
+  "versionCode": "253",
+  "publishedAt": "2026-07-26T16:44:36Z",
   "force": false,
-  "notes": "\u7b2c\u4e09\u6279\u7626\u8eab\uff1aMacroKpiCell \u7ec4\u4ef6\u5316 + nbs-macro 16 KPI \u6539\u7ec4\u4ef6 + \u591a\u671f\u5e8f\u5217\u7cbe\u7b80\n\n2026-07-25-v1.121.4-OTA\u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316: v1.121.4 \u2014 OTA \u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316\n2026-07-25-v1.121.5-\u542f\u52a8\u9875\u4e0eOTA\u6839\u6cbb: v1.121.5 / v1.121.6 \u2014 \u542f\u52a8\u9875 + OTA \u6839\u6cbb\u4e0e\u9a8c\u8bc1\n2026-07-25-v1.121.7-\u623f\u6e90\u6253\u5f00\u8d1d\u58f3App: v1.121.7 \u2014 \u623f\u6e90\u8df3\u8d1d\u58f3 + \u79bb\u7ebf APK \u8865 zip4j\uff08\u4fee OTA 100% \u95ea\u9000\uff09\n",
+  "notes": "\u7b2c\u56db\u6279\u7626\u8eab\uff1a3 \u4e2a macro \u5b50\u9875 MacroKpiCell \u94fa\u5f00\n\n2026-07-25-v1.110.0-\u89c4\u5212\u5730\u94c1\u6d3e\u751f: v1.110.0 \u2014 \u89c4\u5212\u5730\u94c1\u6d3e\u751f\n2026-07-25-v1.111.0-LPR\u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f: v1.111.0 \u2014 LPR \u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f\n2026-07-25-v1.112.0-\u5468\u8fb9\u5546\u4e1aPOI\u63a5\u5165\u4e0e\u6d3e\u751f: v1.112.0 \u2014 \u5468\u8fb9\u5546\u4e1a POI \u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/252/app.wgt",
-    "sha256": "711aa92c06d2e17a2294dd1d03d473dd7b919ac9d8a2583f621c54dbf6c265c9"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/253/app.wgt",
+    "sha256": "bfc3c55a579d5dc69f0c222ec9ea16df1a09e727cdb26536f61fa18b5d276fe3"
   },
   "ios": {
     "available": false,
