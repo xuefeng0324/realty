@@ -113,6 +113,13 @@
       "style": {
         "navigationBarTitleText": "宏观 · 贸易"
       }
+    },
+    {
+      "path": "pages/data-tools/data-tools",
+      "style": {
+        "navigationBarTitleText": "数据工具",
+        "enablePullDownRefresh": true
+      }
     }
   ],
   "tabBar": {

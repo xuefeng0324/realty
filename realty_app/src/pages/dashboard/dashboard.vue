@@ -817,6 +817,8 @@
         </view>
       </view>
 
+      <!-- v1.121.137：派生卡折叠块 — 默认隐藏 7 张派生卡，仅展开时渲染 -->
+      <view v-if="derivedExpanded" data-derived-block>
       <!-- v0.91.0 70 城 12 月趋势对比（派生：基于 stats_70.csv） -->
       <view
         v-if="stats70Ready && driftReady"
@@ -1299,6 +1301,40 @@
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
           数据源：admin_districts.csv × metro_planning.districts。交叉用于发现命名不一致。
+        </view>
+      </view>
+      </view>
+      <!-- /v1.121.137 derivedExpanded 折叠块结束 -->
+
+      <!-- v1.121.137：派生卡折叠入口（默认隐藏 7 张派生数据卡） -->
+      <view class="card derived-toggle-card" data-derived-toggle>
+        <view class="row-between" @click="toggleDerivedCards">
+          <view>
+            <view class="dashboard-eyebrow">数据工具</view>
+            <view class="card-title" style="margin-bottom: 0">
+              {{ derivedExpanded ? "收起派生数据" : "展开派生数据" }}
+            </view>
+          </view>
+          <view class="muted" style="font-size: 22rpx">
+            {{ derivedExpanded ? "▴" : "▾" }} · 7 张卡
+          </view>
+        </view>
+        <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+          70 城 12 月趋势 · 地铁步行 · 分区均价 · 学校指标 · 重点学校 · 教育事业 · 行政区划。
+        </view>
+      </view>
+
+      <!-- v1.121.137：「数据工具」独立页入口 -->
+      <view class="card data-tools-entry-card" data-data-tools-entry>
+        <view class="row-between" @click="goDataTools">
+          <view>
+            <view class="dashboard-eyebrow">设置入口</view>
+            <view class="card-title" style="margin-bottom: 0">数据工具 · 全部派生数据</view>
+          </view>
+          <view class="muted" style="font-size: 22rpx">›</view>
+        </view>
+        <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+          派生排行 · 学校维度 · 教育事业 · 行政区划 · 通勤 · 户型分布 等 30+ 张卡，单独页查看。
         </view>
       </view>
 
@@ -2016,6 +2052,8 @@
         </button>
       </view>
 
+      <!-- v1.121.137：中间段派生卡折叠块（区/板块对比 + 通勤 + 户型 + 挂牌结构 + 区情画像 + 特征溢价 + 挂牌标签 = 14 张） -->
+      <view v-if="derivedExpanded" data-derived-midblock>
       <!-- 区/板块对比 -->
       <view
         id="overview-region"
@@ -3824,6 +3862,8 @@
           </view>
         </view>
       </view>
+      </view>
+      <!-- /v1.121.137 derivedExpanded 中间段折叠块结束 -->
 
       <!-- v0.41.0 trend-21 房源新鲜度 (新挂牌多 + 滞销) -->
       <view v-if="listingFreshness && listingFreshness.totalCount > 0" class="card" data-tab="all,price">
@@ -8248,6 +8288,16 @@ function resetCombo() {
 
 // F-ENTRY-01 首页多入口
 const filterWorkbenchExpanded = ref(false);
+// v1.121.137：首页精简 — 派生卡默认折叠；点「展开派生数据」后渲染 7 张卡。
+// 首屏渲染时间 / 模板体积都更小。
+const derivedExpanded = ref(false);
+function toggleDerivedCards(): void {
+  derivedExpanded.value = !derivedExpanded.value;
+}
+// v1.121.137：跳转到数据工具独立页
+function goDataTools(): void {
+  uni.navigateTo({ url: "/pages/data-tools/data-tools" });
+}
 const homeSearchMode = ref<HomeSearchMode>("school");
 const homeSearchText = ref("");
 const homeSearchPlaceholder = computed(
