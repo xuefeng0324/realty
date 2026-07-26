@@ -11,11 +11,13 @@ import {
 describe("safe forex", () => {
   it("加载外管局外储样本", () => {
     const rows = getSafeForex();
-    expect(rows.length).toBeGreaterThanOrEqual(6);
+    expect(rows.length).toBeGreaterThanOrEqual(24);
     const latest = getLatestSafeForex();
     expect(latest).not.toBeNull();
     expect(latest!.forexUsdYi).toBeGreaterThan(20000);
     expect(latest!.sourceUrl).toMatch(/safe\.gov\.cn/);
+    const apr2024 = rows.find((r) => r.date.startsWith("2024-04"));
+    expect(apr2024?.forexUsdYi).toBe(32008);
   });
 
   it("相邻期环比可算", () => {
@@ -30,6 +32,7 @@ describe("safe forex", () => {
     expect(script).toContain("外汇储备");
     expect(script).toContain("forex_usd_yi");
     expect(script).toContain("≠ 房价");
+    expect(script).toContain("(?<=\\d)\\s+(?=\\d)");
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     expect(dash).toContain("data-safe-forex");
     expect(dash).toContain("getLatestSafeForex");

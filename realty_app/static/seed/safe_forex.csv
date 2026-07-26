@@ -6,14 +6,14 @@ date,forex_usd_yi,mom_delta_usd_yi,mom_pct,source_url
 2026-02-01,34278,287,0.85,https://www.safe.gov.cn/safe/2026/0306/27327.html
 2026-01-01,33991,,1.23,https://www.safe.gov.cn/safe/2026/0206/27117.html
 2025-12-01,33579,115,0.34,https://www.safe.gov.cn/safe/2026/0107/27020.html
-2025-11-01,33464,30,,https://www.safe.gov.cn/safe/2025/1205/26904.html
+2025-11-01,33464,30,0.09,https://www.safe.gov.cn/safe/2025/1205/26904.html
 2025-10-01,33433,47,0.14,https://www.safe.gov.cn/safe/2025/1107/26792.html
 2025-09-01,33387,165,0.5,https://www.safe.gov.cn/safe/2025/1007/26634.html
 2025-08-01,33222,299,0.91,https://www.safe.gov.cn/safe/2025/0905/26497.html
 2025-07-01,32922,-252,-0.76,https://www.safe.gov.cn/safe/2025/0806/26390.html
 2025-06-01,33174,322,0.98,https://www.safe.gov.cn/safe/2025/0707/26284.html
 2025-05-01,32853,36,0.11,https://www.safe.gov.cn/safe/2025/0606/26173.html
-2025-04-01,32817,410,,https://www.safe.gov.cn/safe/2025/0506/26050.html
+2025-04-01,32817,410,1.27,https://www.safe.gov.cn/safe/2025/0506/26050.html
 2025-03-01,32407,134,0.42,https://www.safe.gov.cn/safe/2025/0407/25941.html
 2025-02-01,32272,182,,https://www.safe.gov.cn/safe/2025/0306/25834.html
 2025-01-01,32090,,0.21,https://www.safe.gov.cn/safe/2025/0206/25747.html
@@ -25,6 +25,8 @@ date,forex_usd_yi,mom_delta_usd_yi,mom_pct,source_url
 2024-07-01,32564,340,1.06,https://www.safe.gov.cn/safe/2024/0806/24861.html
 2024-06-01,32224,-97,-0.3,https://www.safe.gov.cn/safe/2024/0705/24720.html
 2024-05-01,32320,312,0.98,https://www.safe.gov.cn/safe/2024/0607/24549.html
+2024-04-01,32008,-448,-1.38,https://www.safe.gov.cn/safe/2024/0506/24328.html
+2024-03-01,32457,198,0.62,https://www.safe.gov.cn/safe/2024/0407/24203.html
 2024-02-01,32258,65,0.2,https://www.safe.gov.cn/safe/2024/0306/24063.html
 2024-01-01,32193,,-0.58,https://www.safe.gov.cn/safe/2024/0206/23978.html
 2023-12-01,32380,662,2.1,https://www.safe.gov.cn/safe/2024/0105/23769.html

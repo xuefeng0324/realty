@@ -850,7 +850,7 @@
         </view>
       </view>
 
-      <!-- 外管局银行结售汇（月度流量；≠房价） -->
+      <!-- 外管局银行结售汇 + 涉外收付款（月度流量；≠房价） -->
       <view v-if="safeSettleLatest" class="card" data-safe-settle data-tab="overview,price">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🔁 银行结售汇</view>
@@ -885,6 +885,38 @@
           </view>
         </view>
         <view
+          v-if="safeSettleLatest.receiptUsdYi"
+          class="trend-summary"
+          style="margin-top: 10rpx"
+        >
+          <view class="trend-cell">
+            <text class="cell-label">涉外收入</text>
+            <text class="cell-value">{{ Math.round(safeSettleLatest.receiptUsdYi).toLocaleString() }}</text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">对外付款</text>
+            <text class="cell-value">{{ Math.round(safeSettleLatest.paymentUsdYi).toLocaleString() }}</text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">收付顺差</text>
+            <text
+              class="cell-value"
+              :class="macroTrendClass(safeSettleLatest.receiptSurplusUsdYi)"
+            >
+              {{ formatInvDelta(safeSettleLatest.receiptSurplusUsdYi) }}
+            </text>
+            <text
+              v-if="safeSettleDelta && safeSettleLatest.receiptUsdYi"
+              class="cell-sub"
+              :class="macroTrendClass(safeSettleDelta.receiptSurplusDeltaUsdYi)"
+            >
+              较上月 {{ formatInvDelta(safeSettleDelta.receiptSurplusDeltaUsdYi) }}
+            </text>
+          </view>
+        </view>
+        <view
           v-for="row in safeSettleRecent.slice(0, 3)"
           :key="'safe-st-' + row.date"
           class="rank-row"
@@ -895,10 +927,13 @@
             结 {{ Math.round(row.settleUsdYi).toLocaleString() }} · 售
             {{ Math.round(row.sellUsdYi).toLocaleString() }} · 顺差
             {{ formatInvDelta(row.surplusUsdYi) }}
+            <template v-if="row.receiptUsdYi">
+              · 收付 {{ formatInvDelta(row.receiptSurplusUsdYi) }}
+            </template>
           </text>
         </view>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
-          来源：国家外汇管理局「银行结售汇和银行代客涉外收付款」月度通稿（美元计值段）。顺差 = 结汇 − 售汇（派生）。结售汇流量 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数；可与外汇储备规模对照。
+          来源：国家外汇管理局「银行结售汇和银行代客涉外收付款」月度通稿（美元计值段）。结售汇顺差 = 结汇 − 售汇；收付顺差 = 涉外收入 − 对外付款（均派生）。流量指标 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数；可与外汇储备规模对照。
         </view>
       </view>
 

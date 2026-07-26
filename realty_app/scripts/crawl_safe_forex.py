@@ -94,6 +94,8 @@ def list_notices(*htmls: str) -> list[tuple[str, str]]:
 def parse_body(html: str, source_url: str) -> dict[str, str] | None:
     text = unescape(re.sub(r"<[^>]+>", " ", re.sub(r"<script[\s\S]*?</script>", " ", html, flags=re.I)))
     text = re.sub(r"\s+", " ", text).replace("\ufeff", "")
+    # 无障碍/排版会在数字间插空格：「320 0 8 亿美元」→「32008 亿美元」
+    text = re.sub(r"(?<=\d)\s+(?=\d)", "", text)
 
     dm = re.search(r"(20\d{2})\s*年\s*(\d{1,2})\s*月末", text)
     if not dm:
@@ -102,6 +104,9 @@ def parse_body(html: str, source_url: str) -> dict[str, str] | None:
     date = f"{y}-{mo:02d}-01"
 
     fx = re.search(r"外汇储备规模为\s*([\d.]+)\s*亿美元", text)
+    if not fx:
+        # 兼容「规模 为 / 规模至」等轻微变体
+        fx = re.search(r"外汇储备规模\s*[为至是]?\s*([\d.]+)\s*亿美元", text)
     if not fx:
         return None
     forex = fx.group(1)

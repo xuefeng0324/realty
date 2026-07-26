@@ -2,12 +2,15 @@ import { parseCSV, rowsToObjects } from "./csv";
 // @ts-ignore
 import rawCsv from "../../static/seed/safe_settle.csv?raw";
 
-/** 外管局银行结售汇（亿美元）；≠房价/挂牌/网签/70城 */
+/** 外管局银行结售汇 + 代客涉外收付款（亿美元）；≠房价/挂牌/网签/70城 */
 export interface SafeSettleRow {
   date: string;
   settleUsdYi: number;
   sellUsdYi: number;
   surplusUsdYi: number;
+  receiptUsdYi: number;
+  paymentUsdYi: number;
+  receiptSurplusUsdYi: number;
   sourceUrl: string;
 }
 
@@ -21,11 +24,22 @@ function mapRow(row: Record<string, string>): SafeSettleRow {
   const sellUsdYi = n(row.sell_usd_yi);
   const surplusRaw = String(row.surplus_usd_yi ?? "").trim();
   const surplusUsdYi = surplusRaw ? n(surplusRaw) : settleUsdYi - sellUsdYi;
+  const receiptUsdYi = n(row.receipt_usd_yi);
+  const paymentUsdYi = n(row.payment_usd_yi);
+  const receiptSurplusRaw = String(row.receipt_surplus_usd_yi ?? "").trim();
+  const receiptSurplusUsdYi = receiptSurplusRaw
+    ? n(receiptSurplusRaw)
+    : receiptUsdYi && paymentUsdYi
+      ? receiptUsdYi - paymentUsdYi
+      : 0;
   return {
     date: String(row.date ?? "").trim(),
     settleUsdYi,
     sellUsdYi,
     surplusUsdYi,
+    receiptUsdYi,
+    paymentUsdYi,
+    receiptSurplusUsdYi,
     sourceUrl: String(row.source_url ?? "").trim()
   };
 }
@@ -50,13 +64,16 @@ export function getLatestSafeSettle(): SafeSettleRow | null {
 export function getSafeSettleDeltaVsPrev(): {
   prev: SafeSettleRow;
   surplusDeltaUsdYi: number;
+  receiptSurplusDeltaUsdYi: number;
 } | null {
   if (rows.length < 2) return null;
   const cur = rows[0]!;
   const prev = rows[1]!;
   return {
     prev,
-    surplusDeltaUsdYi: Math.round((cur.surplusUsdYi - prev.surplusUsdYi) * 100) / 100
+    surplusDeltaUsdYi: Math.round((cur.surplusUsdYi - prev.surplusUsdYi) * 100) / 100,
+    receiptSurplusDeltaUsdYi:
+      Math.round((cur.receiptSurplusUsdYi - prev.receiptSurplusUsdYi) * 100) / 100
   };
 }
 

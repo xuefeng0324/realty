@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""从国家外汇管理局抓取「银行结售汇」月度数据通稿 → CSV。
+"""从国家外汇管理局抓取「银行结售汇 + 银行代客涉外收付款」月度通稿 → CSV。
 
 入口：https://www.safe.gov.cn/safe/whxw/index.html（新闻分页）
-口径：当月银行结汇/售汇（亿美元）及派生顺差（结汇−售汇）；**≠ 房价、≠ 挂牌、≠ 网签、≠ 70 城**。
+口径：
+  - 银行结汇/售汇（亿美元）及派生顺差（结汇−售汇）
+  - 银行代客涉外收入/对外付款（亿美元）及派生顺差（收入−付款）
+  **≠ 房价、≠ 挂牌、≠ 网签、≠ 70 城**。
 
 用法：
   python scripts/crawl_safe_settle.py
@@ -32,6 +35,9 @@ FIELDS = [
     "settle_usd_yi",
     "sell_usd_yi",
     "surplus_usd_yi",
+    "receipt_usd_yi",
+    "payment_usd_yi",
+    "receipt_surplus_usd_yi",
     "source_url",
 ]
 
@@ -70,7 +76,6 @@ def list_notices(*htmls: str) -> list[tuple[str, str]]:
                 continue
             if "数据" not in title and "公布" not in title:
                 continue
-            # 排除专栏首页/年报/访谈
             if any(k in title for k in ("年报", "访谈", "答记者", "经营")):
                 continue
             if not re.search(r"20\d{2}\s*年\s*\d{1,2}\s*月", title):
@@ -89,8 +94,8 @@ def list_notices(*htmls: str) -> list[tuple[str, str]]:
 def parse_body(html: str, source_url: str) -> dict[str, str] | None:
     text = unescape(re.sub(r"<[^>]+>", " ", re.sub(r"<script[\s\S]*?</script>", " ", html, flags=re.I)))
     text = re.sub(r"\s+", " ", text).replace("\ufeff", "")
+    text = re.sub(r"(?<=\d)\s+(?=\d)", "", text)
 
-    # 优先「按美元计值」段；否则任意「银行结汇…售汇…亿美元」
     m = re.search(
         r"按美元计值[，,]\s*(20\d{2})\s*年\s*(\d{1,2})\s*月[，,]\s*银行结汇\s*([\d.]+)\s*亿美元[，,]\s*售汇\s*([\d.]+)\s*亿美元",
         text,
@@ -106,11 +111,29 @@ def parse_body(html: str, source_url: str) -> dict[str, str] | None:
     settle = float(m.group(3))
     sell = float(m.group(4))
     surplus = settle - sell
+
+    receipt = ""
+    payment = ""
+    receipt_surplus = ""
+    cm = re.search(
+        r"(20\d{2})\s*年\s*(\d{1,2})\s*月[，,]\s*银行代客涉外收入\s*([\d.]+)\s*亿美元[，,]\s*对外付款\s*([\d.]+)\s*亿美元",
+        text,
+    )
+    if cm and int(cm.group(1)) == y and int(cm.group(2)) == mo:
+        receipt_v = float(cm.group(3))
+        payment_v = float(cm.group(4))
+        receipt = f"{receipt_v:g}"
+        payment = f"{payment_v:g}"
+        receipt_surplus = f"{(receipt_v - payment_v):g}"
+
     return {
         "date": f"{y}-{mo:02d}-01",
         "settle_usd_yi": f"{settle:g}",
         "sell_usd_yi": f"{sell:g}",
         "surplus_usd_yi": f"{surplus:g}",
+        "receipt_usd_yi": receipt,
+        "payment_usd_yi": payment,
+        "receipt_surplus_usd_yi": receipt_surplus,
         "source_url": source_url,
     }
 
@@ -119,7 +142,12 @@ def load_existing(path: Path) -> list[dict[str, str]]:
     if not path.exists():
         return []
     with path.open(encoding="utf-8-sig", newline="") as f:
-        return list(csv.DictReader(f))
+        rows = list(csv.DictReader(f))
+    # 兼容旧列
+    for r in rows:
+        for k in FIELDS:
+            r.setdefault(k, "")
+    return rows
 
 
 def atomic_write(path: Path, rows: list[dict[str, str]]) -> None:
@@ -129,7 +157,8 @@ def atomic_write(path: Path, rows: list[dict[str, str]]) -> None:
     ) as tmp:
         w = csv.DictWriter(tmp, fieldnames=FIELDS)
         w.writeheader()
-        w.writerows(rows)
+        for r in rows:
+            w.writerow({k: r.get(k, "") for k in FIELDS})
         tmp_path = Path(tmp.name)
     tmp_path.replace(path)
 
@@ -166,9 +195,14 @@ def main() -> int:
         try:
             body = fetch_text(url)
             row = parse_body(body, url)
-            print(f"  [{i}/{len(notices)}] {title[:42]} → {'ok' if row else 'skip'}")
+            tag = "ok"
             if row:
+                if row.get("receipt_usd_yi"):
+                    tag = "ok+xb"
                 fresh.append(row)
+            else:
+                tag = "skip"
+            print(f"  [{i}/{len(notices)}] {title[:42]} → {tag}")
         except Exception as exc:  # noqa: BLE001
             print(f"  [{i}] ERR {type(exc).__name__}: {exc}")
         time.sleep(args.sleep)
