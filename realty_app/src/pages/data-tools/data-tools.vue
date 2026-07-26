@@ -3,7 +3,41 @@
     <view class="container">
       <view class="page-header" data-data-tools-header>
         <view class="page-header-title">数据工具</view>
-        <view class="page-header-sub muted">从仪表盘迁入的派生数据卡 · Batch 1-4 已迁 13 张 / 共 14 张</view>
+        <view class="page-header-sub muted">从仪表盘迁入的派生数据卡 · Batch 1-5 已迁 14 张 / 共 14 张</view>
+      </view>
+
+      <!-- v1.121.145 首页卡片管理（设置入口） -->
+      <view class="card" data-dt-card-manager>
+        <view class="row-between">
+          <view class="card-title">⚙️ 首页卡片管理</view>
+          <view class="muted">{{ hiddenCards.size }} 张已隐藏 · 共 {{ DASHBOARD_CARDS.length }} 张</view>
+        </view>
+        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          在此关闭/打开首页上的核心分析卡。隐藏状态保存在本地存储，下次进入首页生效。
+        </view>
+        <view class="dt-card-list">
+          <view
+            v-for="c in DASHBOARD_CARDS"
+            :key="c.key"
+            class="dt-card-row"
+          >
+            <view class="dt-card-info">
+              <view class="dt-card-name">{{ c.label }}</view>
+              <view class="muted" style="font-size: 20rpx">{{ c.key }}</view>
+            </view>
+            <button
+              class="dt-card-toggle"
+              size="mini"
+              :class="{ 'dt-card-toggle--off': hiddenCards.has(c.key) }"
+              hover-class="tap-row--active"
+              :data-dt-card-toggle="c.key"
+              @click="toggleDashboardCard(c.key)"
+            >{{ hiddenCards.has(c.key) ? "显示" : "隐藏" }}</button>
+          </view>
+        </view>
+        <view class="dt-card-actions">
+          <button class="dt-card-action" size="mini" hover-class="tap-row--active" @click="resetDashboardCards">恢复全部显示</button>
+        </view>
       </view>
 
       <!-- v1.121.139 Batch 1：70 城 12 月同比趋势 -->
@@ -1411,6 +1445,71 @@ function momClass(v: number | null): string {
   return "dm-mom-flat";
 }
 
+// v1.121.145 首页卡片个性化管理（设置入口）
+const HIDDEN_CARDS_KEY = "realty_dashboard_hidden_cards";
+interface DashboardCardEntry { key: string; label: string; }
+const DASHBOARD_CARDS: DashboardCardEntry[] = [
+  { key: "region-compare", label: "区/板块对比" },
+  { key: "district-8w-trend", label: "区级近 8 周价格趋势" },
+  { key: "wangqian-rank-4w", label: "近 4 周网签热度榜" },
+  { key: "district-wangqian-rank", label: "全品类区级网签热度榜" },
+  { key: "commute-rank", label: "通勤时长榜" },
+  { key: "layout-distribution", label: "户型/面积/朝向/装修分布" },
+  { key: "listing-tag-cloud", label: "房源 tags 标签云" },
+  { key: "district-index", label: "区房价指数" },
+  { key: "district-4w-change", label: "区涨幅榜 (4 周累计)" },
+  { key: "community-score-rank", label: "小区综合评分榜" },
+  { key: "community-score-weights", label: "综合评分权重自定义" },
+  { key: "listing-freshness", label: "房源新鲜度" },
+  { key: "bedroom-area-heatmap", label: "户型 × 面积 联合热图" },
+  { key: "orientation-floor-matrix", label: "朝向 × 楼层 溢价矩阵" },
+  { key: "decorate-age-matrix", label: "装修 × 楼龄 溢价矩阵" },
+  { key: "community-scatter", label: "社区 总价 × 单价 双轴散点" },
+  { key: "district-map", label: "行政区 + 社区 marker 地图" },
+  { key: "school-dim-weighted", label: "学区指标加权细分" },
+  { key: "macro-lpr", label: "宏观·LPR+房贷利率" },
+  { key: "stats70-drift", label: "70 城涨跌 Top" },
+  { key: "lpr-mortgage-signal", label: "LPR 与房贷利率信号" },
+  { key: "hospital-rank", label: "医疗资源榜" },
+  { key: "poi-commercial", label: "周边商业 POI" },
+  { key: "life-convenience", label: "生活便利度榜 v2 (6 维)" },
+  { key: "school-premium-rank", label: "学区溢价榜" },
+  { key: "school-top-community", label: "学区评分 Top 小区" },
+  { key: "listing-school-premium", label: "listing 学区溢价榜" },
+  { key: "commercial-heat", label: "商业热度榜 (小区维度)" },
+  { key: "multi-community-compare", label: "同区多小区对比" }
+];
+const hiddenCards = ref<Set<string>>(new Set());
+function loadHiddenCards() {
+  try {
+    const raw = uni.getStorageSync(HIDDEN_CARDS_KEY);
+    if (typeof raw === "string" && raw.length > 0) {
+      const arr = JSON.parse(raw) as string[];
+      hiddenCards.value = new Set(arr);
+    }
+  } catch (e) {
+    console.warn("data-tools loadHiddenCards failed:", e);
+  }
+}
+function saveHiddenCards() {
+  try {
+    uni.setStorageSync(HIDDEN_CARDS_KEY, JSON.stringify([...hiddenCards.value]));
+  } catch (e) {
+    console.warn("data-tools saveHiddenCards failed:", e);
+  }
+}
+function toggleDashboardCard(key: string) {
+  const s = new Set(hiddenCards.value);
+  if (s.has(key)) s.delete(key);
+  else s.add(key);
+  hiddenCards.value = s;
+  saveHiddenCards();
+}
+function resetDashboardCards() {
+  hiddenCards.value = new Set();
+  saveHiddenCards();
+}
+
 // v1.121.143 Batch 5: metro_plan (迁移自 dashboard, 简化版)
 const metroPlanSummary = computed<CityMetroPlanningSummary | null>(() => {
   const all = summarizeMetroPlanningByCity();
@@ -1737,6 +1836,7 @@ const schoolTrendDeclining = computed<SchoolIndicatorTrendEntry[]>(() =>
 // 暂不接 metro_plan 卡本体（Batch 5）
 
 onMounted(async () => {
+  loadHiddenCards();
   try {
     metroWalk.value = await getMetroWalkRanking({ cityId: app.cityId, topN: 10 });
   } catch (e) {
@@ -1756,6 +1856,53 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .page-header {
   padding: 24rpx 24rpx 16rpx;
+}
+.dt-card-list {
+  margin-top: 16rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+.dt-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10rpx 14rpx;
+  background: var(--color-panel, #fafafa);
+  border-radius: 8rpx;
+}
+.dt-card-info {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+  min-width: 0;
+}
+.dt-card-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.dt-card-toggle {
+  flex: 0 0 auto;
+  margin: 0;
+  border-radius: 999px !important;
+  background: var(--color-primary, #4f46e5) !important;
+  color: #fff !important;
+  font-size: 22rpx;
+  padding: 0 22rpx;
+}
+.dt-card-toggle--off {
+  background: var(--color-muted, #888) !important;
+}
+.dt-card-actions {
+  margin-top: 16rpx;
+  display: flex;
+  justify-content: flex-end;
+}
+.dt-card-action {
+  margin: 0;
+  font-size: 22rpx;
 }
 .page-header-title {
   font-size: 32rpx;

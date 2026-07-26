@@ -199,4 +199,33 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(toolsSrc).not.toContain("Batch 4：标签组合热度");
     expect(toolsSrc).not.toContain("Batch 4: 区情画像");
   });
+
+  it("data-tools.vue v1.121.145 首页卡片管理（设置入口）", () => {
+    // 1. 入口卡片存在
+    expect(toolsSrc).toContain("data-dt-card-manager");
+    expect(toolsSrc).toContain("⚙️ 首页卡片管理");
+    expect(toolsSrc).toContain("DASHBOARD_CARDS");
+    expect(toolsSrc).toContain("HIDDEN_CARDS_KEY");
+    // 2. 核心方法
+    expect(toolsSrc).toContain("toggleDashboardCard");
+    expect(toolsSrc).toContain("resetDashboardCards");
+    expect(toolsSrc).toContain("loadHiddenCards");
+    expect(toolsSrc).toContain("saveHiddenCards");
+    // 3. 至少 8 个 card key 配置
+    const cardKeyMatches = toolsSrc.match(/key:\s+"[a-z][a-z0-9-]+"/g) || [];
+    expect(cardKeyMatches.length).toBeGreaterThanOrEqual(8);
+    // 4. CSS 样式
+    expect(toolsSrc).toContain(".dt-card-row");
+    expect(toolsSrc).toContain(".dt-card-toggle");
+    // 5. dashboard 顶部入口按钮
+    expect(dashSrc).toContain("home-personalize-btn");
+    expect(dashSrc).toContain("data-dash-personalize");
+    expect(dashSrc).toContain("isCardHidden");
+    // 6. dashboard 包含 v-if="!isCardHidden('...')"
+    const vIfMatches = dashSrc.match(/v-if="!isCardHidden\('[a-z][a-z0-9-]+'\)/g) || [];
+    expect(vIfMatches.length).toBeGreaterThanOrEqual(15);
+    // 7. 每张核心卡添加 data-card-key 属性
+    const cardKeyAttrMatches = dashSrc.match(/data-card-key="[a-z][a-z0-9-]+"/g) || [];
+    expect(cardKeyAttrMatches.length).toBeGreaterThanOrEqual(15);
+  });
 });
