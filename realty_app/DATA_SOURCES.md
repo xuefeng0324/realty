@@ -343,6 +343,22 @@ dashboard 与 macro-* 子页内重复的 `<view class="stats70-cell">` 模板已
 合计 **47 个 KPI**，全部用 MacroKpiCell 组件渲染。  
 新增 5 个 inline helper：`formatForexYi` / `formatPctDelta` / `formatDelta` / `bandFromDelta` / `safeOraPct`。
 
+## 10. macro-rates 子页利率卡（v1.121.135）
+
+`pages/macro-rates/macro-rates.vue` 从 25 行骨架升级为 6 张完整利率卡：
+
+| 子卡 | 数据源 | 字段数 |
+|------|--------|--------|
+| LPR 贷款市场报价利率 | `lprHistoryAnalysis.ts`（派生自 `store.lprHistory`） | 6（1y/5y/首套/二套 + 5y-1y 利差 + 首套-二套利差 + 最长未调息） |
+| MLF 中期借贷便利 | `mlfHistory.ts` | 3（1y 利率 + 操作量 + 期末余额） |
+| 公开市场 7 天逆回购 | `omoRrHistory.ts` | 3（7d 利率 + 操作量 + 期限） |
+| 同业拆放 Shibor | `shibor.ts` | 8（ON/W1/W2/M1/M3/M6/M9/Y1） |
+| 中债国债收益率 | `chinaBondYield.ts` | 9（3m/6m/1y/3y/5y/7y/10y/30y/利差） |
+| 回购定盘 FR/FDR | `repoFixing.ts` | 6（FR001/007/014 + FDR001/007/014） |
+
+合计 **35 个 KPI** + 3 派生（利差×2 + 最长未调息）= **38 KPI**，全部用 MacroKpiCell 组件渲染。  
+新增 4 个 inline helper：`formatBpDelta` / `bandFromBp` / `bandFromDelta` / `formatDelta`。
+
 ### 5.1 已知缺口（下一优先）
 
 | 缺口 | 候选源 | 状态 |

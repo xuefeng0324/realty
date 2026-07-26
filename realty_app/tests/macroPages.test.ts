@@ -131,4 +131,27 @@ describe("宏观 5 子页骨架 PAGES_MACRO_*", () => {
     // KPI 卡片组件
     expect(src).toContain("MacroKpiCell");
   });
+
+  it("macro-rates 子页迁入了 6 张利率卡（数据 + 模板 + 字段）", () => {
+    const src = readFileSync(
+      resolve(pagesDir, "macro-rates/macro-rates.vue"),
+      "utf8"
+    );
+    // 6 张卡的 data-* 属性
+    expect(src).toContain("data-lpr-history");
+    expect(src).toContain("data-mlf-history");
+    expect(src).toContain("data-omo-rr-history");
+    expect(src).toContain("data-shibor");
+    expect(src).toContain("data-china-bond-yield");
+    expect(src).toContain("data-repo-fixing");
+    // 6 个 getter 引用
+    expect(src).toContain("getLprLatest");
+    expect(src).toContain("getLatestMlf");
+    expect(src).toContain("getLatestOmoRr");
+    expect(src).toContain("getLatestShibor");
+    expect(src).toContain("getLatestChinaBondYield");
+    expect(src).toContain("getLatestRepoFixing");
+    // KPI 卡片组件
+    expect(src).toContain("MacroKpiCell");
+  });
 });
