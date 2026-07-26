@@ -1,12 +1,12 @@
 {
-  "versionName": "1.121.91",
-  "versionCode": "212",
-  "publishedAt": "2026-07-26T02:12:46Z",
+  "versionName": "1.121.92",
+  "versionCode": "213",
+  "publishedAt": "2026-07-26T02:16:58Z",
   "force": false,
-  "notes": "feat(realty_app): v1.121.91 NBS\u5230\u4f4d\u8d44\u91d1\u62c6\u5206 \u56fd\u5185\u8d37\u6b3e/\u5b9a\u91d1\u9884\u6536\u6b3e/\u6309\u63ed/\u81ea\u7b79\uff1b\u4f4f\u5b85\u884c\u6539\u5c55\u793a\u6295\u8d44\u3002versionCode 212.\n\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n",
+  "notes": "feat(realty_app): v1.121.92 NBS\u4f4f\u5b85\u65bd\u5de5\u65b0\u5f00\u5de5\u7ae3\u5de5 \u540c\u6e90\u8868\u8865\u4f4f\u5b85\u65bd\u5de5/\u65b0\u5f00/\u7ae3\u5de5\u5206\u9879\u4e0e\u65bd\u5de5\u5360\u6bd4\u3002versionCode 213.\n\n2026-07-25-v1.110.0-\u89c4\u5212\u5730\u94c1\u6d3e\u751f: v1.110.0 \u2014 \u89c4\u5212\u5730\u94c1\u6d3e\u751f\n2026-07-25-v1.111.0-LPR\u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f: v1.111.0 \u2014 LPR \u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f\n2026-07-25-v1.112.0-\u5468\u8fb9\u5546\u4e1aPOI\u63a5\u5165\u4e0e\u6d3e\u751f: v1.112.0 \u2014 \u5468\u8fb9\u5546\u4e1a POI \u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/212/app.wgt",
-    "sha256": "888dfd7b4f5e2a8af2141f1ead40e19148b0791f70d07c0bda6121985a333cad"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/213/app.wgt",
+    "sha256": "64cf3064861ea8df5e1e88df4176d8f19c5e15ee7ce2b2eccf26ae35c3787360"
   },
   "ios": {
     "available": false,
