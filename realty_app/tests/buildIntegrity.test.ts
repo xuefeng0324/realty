@@ -3366,14 +3366,16 @@ describe("build integrity", () => {
       expect(dash).toMatch(/学区指标/);
     });
 
-    it("dashboard.vue: quick-grid 8 个 tile + 3 类 action", () => {
+    it("dashboard.vue: 首页金刚区 + 搜索入口 (F-ENTRY-01)", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/class="quick-grid"/);
-      expect(dash).toMatch(/v-for="q in QUICK_SHORTCUTS"/);
-      expect(dash).toMatch(/QUICK_SHORTCUTS: QuickShortcut\[\]/);
-      expect(dash).toMatch(/function quickClick\(q: QuickShortcut\)/);
-      expect(dash).toMatch(/key: "city"/);
-      expect(dash).toMatch(/key: "settings"/);
+      const entry = readFileSync(resolve(ROOT, "src/local/homeEntry.ts"), "utf8");
+      expect(dash).toMatch(/data-home-entry/);
+      expect(dash).toMatch(/data-home-kingkong/);
+      expect(dash).toMatch(/HOME_KINGKONG/);
+      expect(dash).toMatch(/function onHomeKingkong/);
+      expect(dash).toMatch(/id="entry-macro"/);
+      expect(entry).toMatch(/key: "settings"/);
+      expect(entry).toMatch(/pages\/settings\/settings/);
     });
 
     it("dashboard.vue: hero 用 swiper 自动滚动 + listingCount/medianUnitPrice 聚合", () => {

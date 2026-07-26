@@ -63,6 +63,7 @@
 | [FEATURE_CATALOG.md](./FEATURE_CATALOG.md) | 全功能验收与测试流程 |
 | [THEME_ACCEPTANCE.md](./THEME_ACCEPTANCE.md) | 浅色 / 深色 / 跟随系统 |
 | [DASHBOARD_FEED_ACCEPTANCE.md](./DASHBOARD_FEED_ACCEPTANCE.md) | 总览长页去分割缝 |
+| [DASHBOARD_ENTRY_IA.md](./DASHBOARD_ENTRY_IA.md) | 总览多入口（搜索/频道/金刚区）F-ENTRY-01 |
 | [HOUSING_PRICE_ACCEPTANCE.md](./HOUSING_PRICE_ACCEPTANCE.md) | 房价三轴（挂牌/网签量/指数） |
 
 ---

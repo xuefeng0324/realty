@@ -31,7 +31,7 @@ try {
 
   await page.goto(`${BASE_URL}/#/pages/dashboard/dashboard`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1800);
-  await page.locator('[data-quick-key="settings"]').click({ force: true });
+  await page.locator('[data-home-king="settings"]').click({ force: true });
   await page.waitForTimeout(500);
   if (!page.url().includes("#/pages/settings/settings")) {
     issues.push(`数据设置按钮跳转错误: ${page.url()}`);

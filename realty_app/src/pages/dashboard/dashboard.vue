@@ -1,13 +1,78 @@
 <template>
   <view class="page">
     <view class="container">
-      <!-- 顶部筛选：用 view+tap 触发 action sheet，避开 picker 兼容问题 -->
-      <view class="card filter-card">
-        <view class="filter-card-head">
-          <view>
-            <view class="dashboard-eyebrow">REALTY ANALYTICS</view>
-            <view class="card-title" style="margin-bottom: 0">市场数据工作台</view>
+      <!-- F-ENTRY-01：定位 + 搜索 + 频道 + 金刚区（美团/淘宝式多入口） -->
+      <view class="card home-entry-card" data-home-entry data-tab="all,overview,price,school,transit,map">
+        <view class="home-loc-search">
+          <button class="home-city-chip" hover-class="tap-row--active" data-home-city @click="pickCity">
+            <text class="home-city-name">{{ currentCityLabel || "选城市" }}</text>
+            <text class="home-city-caret">▾</text>
+          </button>
+          <view class="home-search" data-home-search>
+            <input
+              class="home-search-input"
+              type="text"
+              confirm-type="search"
+              :placeholder="homeSearchPlaceholder"
+              :value="homeSearchText"
+              @input="onHomeSearchInput"
+              @confirm="submitHomeSearch"
+            />
+            <button class="home-search-btn" size="mini" @click="submitHomeSearch">搜索</button>
           </view>
+        </view>
+        <view class="home-search-modes">
+          <view
+            v-for="m in HOME_SEARCH_MODES"
+            :key="m.key"
+            class="home-mode-chip"
+            :class="{ 'home-mode-chip--on': homeSearchMode === m.key }"
+            :data-home-mode="m.key"
+            @click="homeSearchMode = m.key"
+          >{{ m.label }}</view>
+        </view>
+        <scroll-view class="home-channel-scroll" scroll-x :show-scrollbar="false" data-home-channels>
+          <view class="home-channel-row">
+            <view
+              v-for="c in HOME_CHANNELS"
+              :key="c.key"
+              class="home-channel-chip"
+              :data-home-channel="c.key"
+              @click="jumpHomeAnchor(c.anchor)"
+            >{{ c.label }}</view>
+          </view>
+        </scroll-view>
+        <view class="home-kingkong" data-home-kingkong>
+          <view
+            v-for="k in HOME_KINGKONG"
+            :key="k.key"
+            class="home-king-tile"
+            :data-home-king="k.key"
+            @click="onHomeKingkong(k)"
+          >
+            <view class="home-king-icon" :class="'home-king-icon--' + k.tone">{{ k.icon }}</view>
+            <text class="home-king-label">{{ k.label }}</text>
+          </view>
+        </view>
+        <view class="home-entry-hint muted">
+          房价看挂牌 / 网签量 / 70城指数；官方宏观≠城市成交均价。点频道或金刚区直达数据。
+        </view>
+      </view>
+
+      <!-- 高级工作台：默认折叠，避免霸占首屏 -->
+      <view class="card filter-card" data-home-workbench>
+        <view class="row-between" @click="filterWorkbenchExpanded = !filterWorkbenchExpanded">
+          <view>
+            <view class="dashboard-eyebrow">工作台</view>
+            <view class="card-title" style="margin-bottom: 0">周期 · 来源 · 指标</view>
+          </view>
+          <view class="muted" style="font-size: 22rpx">
+            {{ filterWorkbenchExpanded ? "收起 ▴" : "展开 ▾" }}
+            · {{ currentCityLabel || "—" }} · {{ app.weekEnd || "—" }}
+          </view>
+        </view>
+        <template v-if="filterWorkbenchExpanded">
+        <view class="filter-card-head" style="margin-top: 12rpx">
           <view class="data-trust-badge">官方与公开数据</view>
         </view>
         <view class="row-gap">
@@ -64,6 +129,7 @@
           <text v-else>当前城市尚无带日期的真实挂牌。</text>
         </text>
         <text class="muted period-hint">{{ priceAxesHint }}</text>
+        </template>
       </view>
 
       <!-- 今日要点：参考贝壳/链家「首页速览」收敛首屏信息密度 -->
@@ -83,6 +149,7 @@
 
       <!-- 全国 70 城指数（顶部第一张卡，入口也是 stats70 页） -->
       <view
+        id="entry-stats70"
         class="card stats70-card tap-target"
         role="button"
         tabindex="0"
@@ -1015,7 +1082,7 @@
       </view>
 
       <!-- 官方宏观对照：全国 / 广东分组；≠城市挂牌·网签均价 -->
-      <view v-if="nbsMacro" class="card macro-card" data-tab="overview,price" data-nbs-macro>
+      <view v-if="nbsMacro" id="entry-macro" class="card macro-card" data-tab="overview,price" data-nbs-macro>
         <view class="macro-kicker">全国 · 官方累计</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">房地产开发与销售</view>
@@ -1391,7 +1458,7 @@
         </template>
       </view>
 
-      <view v-if="gzInventory" class="card gz-inventory-card" data-tab="overview,price">
+      <view v-if="gzInventory" id="entry-supply" class="card gz-inventory-card" data-tab="overview,price">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 广州新房库存</view>
           <view class="muted" style="font-size: 22rpx">{{ gzInventoryFresh.label }}</view>
@@ -1623,7 +1690,7 @@
         </view>
       </view>
 
-      <view v-if="gzLandSummary" class="card" data-tab="overview,price" data-gz-land-deals>
+      <view v-if="gzLandSummary" id="entry-land" class="card" data-tab="overview,price" data-gz-land-deals>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🗺️ 广州居住用地成交</view>
           <view class="muted" style="font-size: 22rpx">近 {{ gzLandSummary.count }} 宗 · {{ gzLandSummary.latestDate }}</view>
@@ -1955,18 +2022,7 @@
             ></view>
           </view>
         </view>
-        <view class="quick-grid">
-          <view
-            v-for="q in QUICK_SHORTCUTS"
-            :key="q.key"
-            class="quick-tile"
-            :data-quick-key="q.key"
-            @click="quickClick(q)"
-          >
-            <view class="quick-tile-icon" :class="'quick-tile-icon--' + q.tone">{{ q.icon }}</view>
-            <view class="quick-tile-label">{{ q.label }}</view>
-          </view>
-        </view>
+        <!-- 金刚区已上移至首页入口，此处仅保留大盘轮播 -->
       </view>
 
       <!-- v0.59.0 概览渐进式布局：快捷导航 + 全部展开/收起 -->
@@ -6753,6 +6809,15 @@ import {
   type ZhAffordableProgressRow
 } from "../../local/zhAffordableProgress";
 import { assessGzInventoryFreshness } from "../../local/gzInventoryFreshness";
+import {
+  HOME_CHANNELS,
+  HOME_KINGKONG,
+  HOME_SEARCH_MODES,
+  resolveHomeSearch,
+  setPendingSchoolQuery,
+  type HomeKingkongItem,
+  type HomeSearchMode
+} from "../../local/homeEntry";
 import { getLatestProvidentFundRate, monthlyPayment } from "../../local/providentFund";
 import {
   getLatestSzProvidentAnnual,
@@ -8224,6 +8289,95 @@ function resetCombo() {
   comboYears.value = 30;
 }
 
+// F-ENTRY-01 首页多入口
+const filterWorkbenchExpanded = ref(false);
+const homeSearchMode = ref<HomeSearchMode>("school");
+const homeSearchText = ref("");
+const homeSearchPlaceholder = computed(
+  () => HOME_SEARCH_MODES.find((m) => m.key === homeSearchMode.value)?.placeholder ?? "搜索"
+);
+function onHomeSearchInput(e: any) {
+  homeSearchText.value = String(e?.detail?.value ?? e?.target?.value ?? "");
+}
+function jumpHomeAnchor(anchor: string) {
+  if (typeof document !== "undefined") {
+    const el = document.getElementById(anchor);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+  }
+  try {
+    uni.pageScrollTo({ selector: `#${anchor}`, duration: 280 });
+  } catch {
+    showToast("未找到对应区块");
+  }
+}
+function submitHomeSearch() {
+  const resolved = resolveHomeSearch(homeSearchMode.value, homeSearchText.value);
+  if (resolved.kind === "none") {
+    showToast(resolved.reason);
+    return;
+  }
+  if (resolved.kind === "school") {
+    setPendingSchoolQuery(resolved.q);
+    uni.switchTab({
+      url: "/pages/school/school",
+      fail: (e) => showToast(`打开学校失败：${toErrorMessage(e)}`)
+    });
+    return;
+  }
+  if (resolved.kind === "listing") {
+    uni.switchTab({
+      url: resolved.path,
+      fail: (e) => showToast(`打开房源失败：${toErrorMessage(e)}`)
+    });
+    return;
+  }
+  if (resolved.kind === "scroll") {
+    jumpHomeAnchor(resolved.anchor);
+  }
+}
+function onHomeKingkong(k: HomeKingkongItem) {
+  const a = k.action;
+  if (a.kind === "tab") {
+    activeTab.value = a.tab;
+    return;
+  }
+  if (a.kind === "city") {
+    pickCity();
+    return;
+  }
+  if (a.kind === "period") {
+    uni.pageScrollTo({ scrollTop: 0, duration: 200 });
+    filterWorkbenchExpanded.value = true;
+    return;
+  }
+  if (a.kind === "scroll") {
+    jumpHomeAnchor(a.anchor);
+    return;
+  }
+  if (a.kind === "switchTab") {
+    uni.switchTab({
+      url: a.path,
+      fail: (e) => showToast(`打开失败：${toErrorMessage(e)}`)
+    });
+    return;
+  }
+  if (a.kind === "navigate") {
+    let url = a.path;
+    if (url.includes("wangqian")) {
+      const name = currentWangqianCityName.value;
+      const city = name === "深圳" || name === "广州" ? name : "深圳";
+      url = `/pages/wangqian/wangqian?city=${encodeURIComponent(city)}`;
+    }
+    uni.navigateTo({
+      url,
+      fail: (e) => showToast(`打开失败：${toErrorMessage(e)}`)
+    });
+  }
+}
+
 // v0.48.0 dashboard-tabs: 顶部 tab 切换
 type DashTabKey = "overview" | "price" | "school" | "transit" | "map";
 const activeTab = ref<DashTabKey>("overview");
@@ -8433,38 +8587,7 @@ function heroClick(i: number) {
   const s = heroSlides.value[i];
   if (s?.tab) activeTab.value = s.tab;
 }
-// v0.55.0 hero-1: 快捷入口图标网格
-type QuickShortcut = {
-  key: string;
-  icon: string;
-  label: string;
-  tone: "blue" | "green" | "red" | "amber" | "violet" | "rose";
-  action: "tab" | "page" | "city";
-  target?: DashTabKey | string;
-};
-const QUICK_SHORTCUTS: QuickShortcut[] = [
-  { key: "price", icon: "💰", label: "价格画像", tone: "red", action: "tab", target: "price" },
-  { key: "school", icon: "🏫", label: "学区配套", tone: "amber", action: "tab", target: "school" },
-  { key: "transit", icon: "🚇", label: "通勤地铁", tone: "green", action: "tab", target: "transit" },
-  { key: "map", icon: "🗺️", label: "地图视图", tone: "blue", action: "tab", target: "map" },
-  { key: "city", icon: "🌆", label: "切换城市", tone: "violet", action: "city" },
-  { key: "period", icon: "📅", label: "切换周次", tone: "rose", action: "page", target: "period" },
-  { key: "settings", icon: "⚙️", label: "数据设置", tone: "blue", action: "page", target: "settings" },
-  { key: "overview", icon: "📊", label: "返回概览", tone: "green", action: "tab", target: "overview" }
-];
-function quickClick(q: QuickShortcut) {
-  if (q.action === "tab" && q.target) {
-    activeTab.value = q.target as DashTabKey;
-  } else if (q.action === "page" && q.target === "settings") {
-    // 设置页属于 tabBar，navigateTo 在真机和 H5 都可能被框架拒绝。
-    uni.switchTab({ url: "/pages/settings/settings" });
-  } else if (q.action === "page" && q.target === "period") {
-    // 滚动到顶部 (周期 sticky 已经固定, 滚动到位即可)
-    uni.pageScrollTo({ scrollTop: 0, duration: 200 });
-  } else if (q.action === "city") {
-    pickCity();
-  }
-}
+
 const DASHBOARD_TABS: Array<{ key: DashTabKey; icon: string; label: string }> = [
   { key: "overview", icon: "📊", label: "概览" },
   { key: "price", icon: "💰", label: "价格画像" },
@@ -10683,6 +10806,145 @@ onShow(async () => {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-top: 16rpx;
   gap: 8rpx;
+}
+
+/* F-ENTRY-01 首页多入口 */
+.home-entry-card {
+  padding-bottom: 18rpx;
+}
+.home-loc-search {
+  display: flex;
+  gap: 12rpx;
+  align-items: stretch;
+}
+.home-city-chip {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  padding: 0 18rpx;
+  margin: 0;
+  border-radius: 999rpx;
+  border: 1rpx solid var(--color-border);
+  background: var(--color-soft);
+  color: var(--color-heading);
+  font-size: 26rpx;
+  line-height: 1.2;
+}
+.home-city-chip::after {
+  border: none;
+}
+.home-city-name {
+  max-width: 140rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.home-city-caret {
+  opacity: 0.6;
+  font-size: 22rpx;
+}
+.home-search {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 6rpx 8rpx 6rpx 18rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid var(--color-border);
+  background: var(--color-surface);
+}
+.home-search-input {
+  flex: 1;
+  min-width: 0;
+  height: 64rpx;
+  font-size: 26rpx;
+  color: var(--color-text);
+}
+.home-search-btn {
+  margin: 0;
+  border-radius: 999rpx !important;
+}
+.home-search-modes {
+  display: flex;
+  gap: 10rpx;
+  margin-top: 14rpx;
+}
+.home-mode-chip {
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  color: var(--color-muted);
+  background: var(--color-soft);
+  border: 1rpx solid transparent;
+}
+.home-mode-chip--on {
+  color: var(--color-heading);
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  font-weight: 600;
+}
+.home-channel-scroll {
+  margin-top: 14rpx;
+  width: 100%;
+  white-space: nowrap;
+}
+.home-channel-row {
+  display: inline-flex;
+  gap: 12rpx;
+  padding: 2rpx 0;
+}
+.home-channel-chip {
+  display: inline-flex;
+  padding: 10rpx 22rpx;
+  border-radius: 12rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--color-heading);
+  background: var(--color-soft);
+  border: 1rpx solid var(--color-border);
+}
+.home-kingkong {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12rpx 6rpx;
+  margin-top: 18rpx;
+}
+.home-king-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  padding: 8rpx 0;
+}
+.home-king-icon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34rpx;
+  background: var(--color-soft);
+}
+.home-king-icon--blue { background: rgba(37, 99, 235, 0.12); }
+.home-king-icon--green { background: rgba(22, 163, 74, 0.14); }
+.home-king-icon--red { background: rgba(220, 38, 38, 0.12); }
+.home-king-icon--amber { background: rgba(217, 119, 6, 0.14); }
+.home-king-icon--violet { background: rgba(79, 70, 229, 0.12); }
+.home-king-icon--rose { background: rgba(225, 29, 72, 0.12); }
+.home-king-icon--slate { background: rgba(71, 85, 105, 0.14); }
+.home-king-label {
+  font-size: 22rpx;
+  color: var(--color-text);
+}
+.home-entry-hint {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 20rpx;
+  line-height: 1.45;
 }
 
 .macro-kicker {

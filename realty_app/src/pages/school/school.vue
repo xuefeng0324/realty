@@ -205,6 +205,7 @@
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { SNAPSHOT_UPDATED_EVENT } from "../../config";
 import { getCities, searchSchools } from "../../local/queries";
+import { takePendingSchoolQuery } from "../../local/homeEntry";
 import type { CityItem, SchoolItem } from "../../api/contracts";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { useAppStore } from "../../store/app";
@@ -230,6 +231,20 @@ const cities = ref<CityItem[]>([]);
 const keyword = ref("");
 const results = ref<SchoolItem[] | null>(null);
 const errorMsg = ref("");
+
+onMounted(async () => {
+  uni.$on(SNAPSHOT_UPDATED_EVENT, loadCities);
+  await loadCities();
+  const pending = takePendingSchoolQuery();
+  if (pending) {
+    keyword.value = pending;
+    await search();
+  }
+});
+
+onUnmounted(() => {
+  uni.$off(SNAPSHOT_UPDATED_EVENT, loadCities);
+});
 
 const cityLabels = computed(() => cities.value.map((c) => c.city_name));
 const cityIndex = computed(() => cities.value.findIndex((c) => c.city_id === app.cityId));
@@ -314,15 +329,6 @@ async function loadCities() {
     app.setCityId(cities.value[0].city_id);
   }
 }
-
-onMounted(async () => {
-  uni.$on(SNAPSHOT_UPDATED_EVENT, loadCities);
-  await loadCities();
-});
-
-onUnmounted(() => {
-  uni.$off(SNAPSHOT_UPDATED_EVENT, loadCities);
-});
 </script>
 
 <style lang="scss" scoped>
