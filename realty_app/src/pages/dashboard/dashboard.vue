@@ -1640,6 +1640,73 @@
         </template>
       </view>
 
+      <view v-if="nbsRetail" class="card macro-card" data-tab="overview,price" data-nbs-retail>
+        <view class="macro-kicker">全国 · 社消商品类</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">建筑装潢 / 家具</view>
+          <view class="muted" style="font-size: 22rpx">{{ nbsRetail.month }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <view class="stats70-cell">
+            <text class="cell-label">装潢材料当月</text>
+            <text class="cell-value">{{ formatMacro100m(nbsRetail.buildingMonthCny100m) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsRetail.buildingMonthYoyPct)">
+              同比 {{ formatMacroPct(nbsRetail.buildingMonthYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">装潢材料累计</text>
+            <text class="cell-value">{{ formatMacro100m(nbsRetail.buildingCumCny100m) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsRetail.buildingCumYoyPct)">
+              同比 {{ formatMacroPct(nbsRetail.buildingCumYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">家具当月</text>
+            <text class="cell-value">{{ formatMacro100m(nbsRetail.furnitureMonthCny100m) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsRetail.furnitureMonthYoyPct)">
+              同比 {{ formatMacroPct(nbsRetail.furnitureMonthYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">社消总额当月</text>
+            <text class="cell-value">{{ formatMacro100m(nbsRetail.retailMonthCny100m) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsRetail.retailMonthYoyPct)">
+              同比 {{ formatMacroPct(nbsRetail.retailMonthYoyPct) }}
+            </text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+          限额以上商品零售 · 装潢/家具 ≠ 房价 · 国家统计局
+        </view>
+        <button
+          v-if="nbsRetailTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-nbs-retail-series-toggle
+          :aria-expanded="nbsRetailSeriesExpanded"
+          @click="nbsRetailSeriesExpanded = !nbsRetailSeriesExpanded"
+        >
+          {{ nbsRetailSeriesExpanded ? "收起多期" : "多期序列" }}
+        </button>
+        <template v-if="nbsRetailSeriesExpanded">
+          <view class="macro-series" data-nbs-retail-series-detail>
+            装潢当月同比
+            <text v-for="(p, i) in nbsRetailTrend" :key="'bldg-' + p.month">
+              {{ shortNbsRetailMonthLabel(p.month) }} {{ formatMacroPct(p.buildingMonthYoyPct)
+              }}<text v-if="i < nbsRetailTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view class="macro-series" data-nbs-retail-series-detail>
+            家具当月同比
+            <text v-for="(p, i) in nbsRetailTrend" :key="'furn-' + p.month">
+              {{ shortNbsRetailMonthLabel(p.month) }} {{ formatMacroPct(p.furnitureMonthYoyPct)
+              }}<text v-if="i < nbsRetailTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
+
       <view v-if="gdRealEstateBrief" class="card macro-card" data-tab="overview,price" data-gd-real-estate-brief>
         <view class="macro-kicker">广东 · 房地产</view>
         <view class="row-between">
@@ -7340,6 +7407,12 @@ import {
   type NbsPpiRow
 } from "../../local/nbsPpi";
 import {
+  getLatestNbsRetail,
+  getNbsRetailTrend,
+  shortNbsRetailMonthLabel,
+  type NbsRetailRow
+} from "../../local/nbsRetail";
+import {
   getLatestGdRealEstateBrief,
   getGdRealEstateBriefTrend,
   gdBriefImpliedUnitPrice,
@@ -8484,6 +8557,7 @@ const nbsFaSeriesExpanded = ref(false);
 const nbsIncomeSeriesExpanded = ref(false);
 const nbsCpiSeriesExpanded = ref(false);
 const nbsPpiSeriesExpanded = ref(false);
+const nbsRetailSeriesExpanded = ref(false);
 const gdBriefSeriesExpanded = ref(false);
 const gdFaSeriesExpanded = ref(false);
 const gdConstructionSeriesExpanded = ref(false);
@@ -8499,6 +8573,8 @@ const nbsCpi = computed<NbsCpiRow | null>(() => getLatestNbsCpi());
 const nbsCpiTrend = computed(() => getNbsCpiTrend(6));
 const nbsPpi = computed<NbsPpiRow | null>(() => getLatestNbsPpi());
 const nbsPpiTrend = computed(() => getNbsPpiTrend(6));
+const nbsRetail = computed<NbsRetailRow | null>(() => getLatestNbsRetail());
+const nbsRetailTrend = computed(() => getNbsRetailTrend(6));
 const nbsYoyTrend = computed(() => getNbsYoyTrend(6));
 const nbsImpliedUnitPrice = computed(() => getNbsImpliedContractUnitPrice(nbsMacro.value));
 const nbsImpliedResidentialUnitPrice = computed(() =>

@@ -166,6 +166,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/nbs_income.csv` | `nbsIncome.ts` + 仪表盘「全国居民收支」卡（**多期默认折叠**） | `scripts/crawl_nbs_income.py`（**月更 CI** 探测；季/半年/年报） | 国家统计局「居民收入和消费支出情况」：人均可支配收入（全国/城/乡，名义+实际）、消费支出、**居住消费**；已回填 2025 全年及分季；**居住消费 ≠ 房价**；可与广东收入对照 |
 | `static/nbs_cpi.csv` | `nbsCpi.ts` + 仪表盘「全国 CPI」卡（**多期默认折叠**） | `scripts/crawl_nbs_cpi.py`（**月更 CI**） | 国家统计局月度 CPI：同比/环比 + **居住** + **租赁房房租**同比；**房租 ≠ 房价均价** |
 | `static/nbs_ppi.csv` | `nbsPpi.ts` + 仪表盘「全国 PPI」卡（**多期默认折叠**） | `scripts/crawl_nbs_ppi.py`（**月更 CI**） | 国家统计局月度 PPI：同比/环比 + **购进** + **非金属矿物制品业**（建材相关）同比；**PPI/建材 ≠ 房价均价** |
+| `static/nbs_retail.csv` | `nbsRetail.ts` + 仪表盘「社消装潢/家具」卡（**多期默认折叠**） | `scripts/crawl_nbs_retail.py`（**月更 CI**） | 国家统计局社消：限额以上 **建筑及装潢材料类**、**家具类**（当月+累计）；**装潢/家具零售 ≠ 房价** |
 
 | `static/gz_new_house_inventory.csv` | `gzNewHouseInventory.ts` + `gzInventoryFreshness.ts` | `scripts/crawl_gz_new_house_inventory.py`（**日更 CI** 随 `crawl-daily-wangqian`） | 广州新房可售/未售/签约分区库存；>3 天未更新时总览标明滞后 |
 | `static/seed/hospitals.csv` | `hospitalRanking.ts` + dashboard「🏥 医疗资源」 | （名录整理） | 三城医院名录；v1.121.12 起仪表盘展示三甲占比 / 分区密度 / 等级 Top |
@@ -236,6 +237,7 @@ nbs_fa_investment.csv        → nbsFaInvestment.ts    → 全国固定资产投
 nbs_income.csv               → nbsIncome.ts          → 全国居民收入/消费/居住
 nbs_cpi.csv                  → nbsCpi.ts             → 全国 CPI/居住/房租
 nbs_ppi.csv                  → nbsPpi.ts             → 全国 PPI/购进/建材分项
+nbs_retail.csv               → nbsRetail.ts          → 社消装潢/家具零售
 gz_new_house_inventory.csv   → gzNewHouseInventory.ts → 广州新房库存
 education_overview.csv       → educationOverview.ts  → 教育事业概览（dashboard v1.121.16）
 hospitals.csv                → hospitalRanking.ts    → 医疗资源榜（dashboard v1.121.12）
