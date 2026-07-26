@@ -1140,6 +1140,36 @@
             </text>
           </view>
         </view>
+        <view class="stats70-grid" style="margin-top: 12rpx" data-nbs-res-pipeline>
+          <view class="stats70-cell">
+            <text class="cell-label">住宅施工</text>
+            <text class="cell-value">{{ formatMacroArea(nbsMacro.residentialConstructionArea10kSqm) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.residentialConstructionAreaYoyPct)">
+              同比 {{ formatMacroPct(nbsMacro.residentialConstructionAreaYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">住宅新开工</text>
+            <text class="cell-value">{{ formatMacroArea(nbsMacro.residentialNewStartsArea10kSqm) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.residentialNewStartsAreaYoyPct)">
+              同比 {{ formatMacroPct(nbsMacro.residentialNewStartsAreaYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">住宅竣工</text>
+            <text class="cell-value">{{ formatMacroArea(nbsMacro.residentialCompletedArea10kSqm) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.residentialCompletedAreaYoyPct)">
+              同比 {{ formatMacroPct(nbsMacro.residentialCompletedAreaYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">住宅施工占比</text>
+            <text class="cell-value">
+              {{ nbsResidentialConstructionSharePct != null ? nbsResidentialConstructionSharePct + "%" : "—" }}
+            </text>
+            <text class="cell-sub muted">占全部房屋施工</text>
+          </view>
+        </view>
         <view class="stats70-grid" style="margin-top: 12rpx" data-nbs-residential>
           <view class="stats70-cell">
             <text class="cell-label">住宅销售面积</text>
@@ -1278,6 +1308,24 @@
             竣工同比
             <text v-for="(p, i) in nbsYoyTrend" :key="'cmp-' + p.period">
               {{ p.shortLabel }} {{ formatMacroPct(p.completedAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
+            住宅施工同比
+            <text v-for="(p, i) in nbsYoyTrend" :key="'rcst-' + p.period">
+              {{ p.shortLabel }} {{ formatMacroPct(p.residentialConstructionAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
+            住宅新开工同比
+            <text v-for="(p, i) in nbsYoyTrend" :key="'rnst-' + p.period">
+              {{ p.shortLabel }} {{ formatMacroPct(p.residentialNewStartsAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
+            住宅竣工同比
+            <text v-for="(p, i) in nbsYoyTrend" :key="'rcmp-' + p.period">
+              {{ p.shortLabel }} {{ formatMacroPct(p.residentialCompletedAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
             </text>
           </view>
           <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
@@ -7177,6 +7225,7 @@ import {
   getNbsImpliedInventoryMonths,
   getNbsImpliedInventoryMonthsTrend,
   getNbsImpliedUnitPriceTrend,
+  getNbsResidentialConstructionSharePct,
   getNbsYoyTrend
 } from "../../local/nbsRealEstate";
 import { getGzInventoryOverview, getGzInventoryDayDelta, topDistrictAvailableSharePct, districtAvailableSharePct } from "../../local/gzNewHouseInventory";
@@ -8454,6 +8503,9 @@ const nbsYoyTrend = computed(() => getNbsYoyTrend(6));
 const nbsImpliedUnitPrice = computed(() => getNbsImpliedContractUnitPrice(nbsMacro.value));
 const nbsImpliedResidentialUnitPrice = computed(() =>
   getNbsImpliedResidentialUnitPrice(nbsMacro.value)
+);
+const nbsResidentialConstructionSharePct = computed(() =>
+  getNbsResidentialConstructionSharePct(nbsMacro.value)
 );
 const nbsUnitPriceTrend = computed(() => getNbsImpliedUnitPriceTrend(6));
 const nbsImpliedInventoryMonths = computed(() => getNbsImpliedInventoryMonths(nbsMacro.value));

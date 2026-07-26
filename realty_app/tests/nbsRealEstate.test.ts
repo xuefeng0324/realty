@@ -9,6 +9,7 @@ import {
   getNbsImpliedInventoryMonthsTrend,
   getNbsImpliedUnitPriceTrend,
   getNbsRealEstateHistory,
+  getNbsResidentialConstructionSharePct,
   getNbsYoyTrend,
   loadNbsRealEstateFromCSV
 } from "../src/local/nbsRealEstate";
@@ -22,10 +23,16 @@ const stubBase = {
   residentialInvestmentYoyPct: 0,
   constructionArea10kSqm: 1,
   constructionAreaYoyPct: 0,
+  residentialConstructionArea10kSqm: 1,
+  residentialConstructionAreaYoyPct: 0,
   newStartsArea10kSqm: 1,
   newStartsAreaYoyPct: 0,
+  residentialNewStartsArea10kSqm: 1,
+  residentialNewStartsAreaYoyPct: 0,
   completedArea10kSqm: 1,
   completedAreaYoyPct: 0,
+  residentialCompletedArea10kSqm: 1,
+  residentialCompletedAreaYoyPct: 0,
   salesArea10kSqm: 0,
   salesAreaYoyPct: 0,
   residentialSalesArea10kSqm: 0,
@@ -52,7 +59,7 @@ const stubBase = {
 };
 
 const HEADER =
-  "period,publish_date,investment_cny_100m,investment_yoy_pct,residential_investment_cny_100m,residential_investment_yoy_pct,construction_area_10k_sqm,construction_area_yoy_pct,new_starts_area_10k_sqm,new_starts_area_yoy_pct,completed_area_10k_sqm,completed_area_yoy_pct,sales_area_10k_sqm,sales_area_yoy_pct,residential_sales_area_10k_sqm,residential_sales_area_yoy_pct,sales_amount_cny_100m,sales_amount_yoy_pct,residential_sales_amount_cny_100m,residential_sales_amount_yoy_pct,inventory_area_10k_sqm,inventory_area_yoy_pct,residential_inventory_area_10k_sqm,residential_inventory_area_yoy_pct,funds_cny_100m,funds_yoy_pct,domestic_loan_funds_cny_100m,domestic_loan_funds_yoy_pct,deposit_funds_cny_100m,deposit_funds_yoy_pct,mortgage_funds_cny_100m,mortgage_funds_yoy_pct,self_raised_funds_cny_100m,self_raised_funds_yoy_pct,source_url";
+  "period,publish_date,investment_cny_100m,investment_yoy_pct,residential_investment_cny_100m,residential_investment_yoy_pct,construction_area_10k_sqm,construction_area_yoy_pct,residential_construction_area_10k_sqm,residential_construction_area_yoy_pct,new_starts_area_10k_sqm,new_starts_area_yoy_pct,residential_new_starts_area_10k_sqm,residential_new_starts_area_yoy_pct,completed_area_10k_sqm,completed_area_yoy_pct,residential_completed_area_10k_sqm,residential_completed_area_yoy_pct,sales_area_10k_sqm,sales_area_yoy_pct,residential_sales_area_10k_sqm,residential_sales_area_yoy_pct,sales_amount_cny_100m,sales_amount_yoy_pct,residential_sales_amount_cny_100m,residential_sales_amount_yoy_pct,inventory_area_10k_sqm,inventory_area_yoy_pct,residential_inventory_area_10k_sqm,residential_inventory_area_yoy_pct,funds_cny_100m,funds_yoy_pct,domestic_loan_funds_cny_100m,domestic_loan_funds_yoy_pct,deposit_funds_cny_100m,deposit_funds_yoy_pct,mortgage_funds_cny_100m,mortgage_funds_yoy_pct,self_raised_funds_cny_100m,self_raised_funds_yoy_pct,source_url";
 
 describe("国家统计局房地产市场数据", () => {
   it("加载多期官方快照并校验最新一期", () => {
@@ -68,10 +75,16 @@ describe("国家统计局房地产市场数据", () => {
     expect(latest?.residentialInvestmentYoyPct).toBe(-17.8);
     expect(latest?.constructionArea10kSqm).toBe(554049);
     expect(latest?.constructionAreaYoyPct).toBe(-12.5);
+    expect(latest?.residentialConstructionArea10kSqm).toBe(384453);
+    expect(latest?.residentialConstructionAreaYoyPct).toBe(-12.9);
     expect(latest?.newStartsArea10kSqm).toBe(23239);
     expect(latest?.newStartsAreaYoyPct).toBe(-23.4);
+    expect(latest?.residentialNewStartsArea10kSqm).toBe(16900);
+    expect(latest?.residentialNewStartsAreaYoyPct).toBe(-24.1);
     expect(latest?.completedArea10kSqm).toBe(17221);
     expect(latest?.completedAreaYoyPct).toBe(-23.7);
+    expect(latest?.residentialCompletedArea10kSqm).toBe(12148);
+    expect(latest?.residentialCompletedAreaYoyPct).toBe(-25.3);
     expect(latest?.salesArea10kSqm).toBe(40140);
     expect(latest?.residentialSalesArea10kSqm).toBe(33318);
     expect(latest?.residentialSalesAreaYoyPct).toBe(-12.4);
@@ -89,6 +102,7 @@ describe("国家统计局房地产市场数据", () => {
     expect(latest?.selfRaisedFundsCny100m).toBe(14740);
     expect(latest?.selfRaisedFundsYoyPct).toBe(-16.4);
     expect(latest?.sourceUrl).toBe("https://www.stats.gov.cn/sj/zxfb/202607/t20260715_1964126.html");
+    expect(getNbsResidentialConstructionSharePct(latest)).toBe(69.4);
 
     const history = getNbsRealEstateHistory();
     expect(history.map((x) => x.period)).toEqual([
@@ -106,6 +120,9 @@ describe("国家统计局房地产市场数据", () => {
     expect(trend.map((x) => x.constructionAreaYoyPct)).toEqual([-11.7, -11.7, -12.1, -12.3, -12.5]);
     expect(trend.map((x) => x.newStartsAreaYoyPct)).toEqual([-23.1, -20.3, -22.0, -22.6, -23.4]);
     expect(trend.map((x) => x.completedAreaYoyPct)).toEqual([-27.9, -25.0, -24.0, -23.4, -23.7]);
+    expect(trend.map((x) => x.residentialConstructionAreaYoyPct)).toEqual([-11.9, -12.1, -12.5, -12.6, -12.9]);
+    expect(trend.map((x) => x.residentialNewStartsAreaYoyPct)).toEqual([-23.3, -22.0, -23.6, -23.4, -24.1]);
+    expect(trend.map((x) => x.residentialCompletedAreaYoyPct)).toEqual([-26.9, -26.5, -25.8, -25.0, -25.3]);
     expect(trend.map((x) => x.residentialSalesAreaYoyPct)).toEqual([-15.9, -13.1, -12.2, -12.1, -12.4]);
     expect(trend.map((x) => x.mortgageFundsYoyPct)).toEqual([-41.9, -34.6, -31.7, -28.0, -24.9]);
     expect(trend.map((x) => x.domesticLoanFundsYoyPct)).toEqual([-13.9, -23.7, -25.9, -28.7, -31.7]);
@@ -130,9 +147,10 @@ describe("国家统计局房地产市场数据", () => {
 
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     expect(dash).toContain("data-nbs-pipeline");
+    expect(dash).toContain("data-nbs-res-pipeline");
     expect(dash).toContain("data-nbs-residential");
     expect(dash).toContain("data-nbs-funds");
-    expect(dash).toContain("constructionArea10kSqm");
+    expect(dash).toContain("residentialConstructionArea10kSqm");
     expect(dash).toContain("depositFundsCny100m");
     expect(dash).toContain("domesticLoanFundsCny100m");
   });
@@ -141,16 +159,13 @@ describe("国家统计局房地产市场数据", () => {
     expect(getNbsImpliedContractUnitPrice({ ...stubBase, salesArea10kSqm: 0 })).toBeNull();
     expect(getNbsImpliedResidentialUnitPrice({ ...stubBase, residentialSalesArea10kSqm: 0 })).toBeNull();
     expect(getNbsImpliedInventoryMonths({ ...stubBase, salesArea10kSqm: 0 })).toBeNull();
+    expect(getNbsResidentialConstructionSharePct({ ...stubBase, constructionArea10kSqm: 0 })).toBeNull();
   });
 
   it("拒绝非国家统计局来源", () => {
+    const ones = Array.from({ length: 40 }, () => "1").join(",");
     expect(() =>
-      loadNbsRealEstateFromCSV(
-        [
-          HEADER,
-          "2026-01_to_2026-06,2026-07-15,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,https://example.com"
-        ].join("\n")
-      )
+      loadNbsRealEstateFromCSV([HEADER, `2026-01_to_2026-06,2026-07-15,${ones},https://example.com`].join("\n"))
     ).toThrow(/来源链接无效/);
   });
 });

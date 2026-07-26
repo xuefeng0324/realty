@@ -11,12 +11,21 @@ export interface NbsRealEstateSnapshot {
   /** 房屋施工面积（万㎡） */
   constructionArea10kSqm: number;
   constructionAreaYoyPct: number;
+  /** 其中：住宅施工面积（万㎡） */
+  residentialConstructionArea10kSqm: number;
+  residentialConstructionAreaYoyPct: number;
   /** 房屋新开工面积（万㎡） */
   newStartsArea10kSqm: number;
   newStartsAreaYoyPct: number;
+  /** 其中：住宅新开工面积（万㎡） */
+  residentialNewStartsArea10kSqm: number;
+  residentialNewStartsAreaYoyPct: number;
   /** 房屋竣工面积（万㎡） */
   completedArea10kSqm: number;
   completedAreaYoyPct: number;
+  /** 其中：住宅竣工面积（万㎡） */
+  residentialCompletedArea10kSqm: number;
+  residentialCompletedAreaYoyPct: number;
   salesArea10kSqm: number;
   salesAreaYoyPct: number;
   /** 其中：住宅销售面积（万㎡） */
@@ -72,10 +81,16 @@ export function loadNbsRealEstateFromCSV(text: string): NbsRealEstateSnapshot[] 
       residentialInvestmentYoyPct: numeric(row.residential_investment_yoy_pct),
       constructionArea10kSqm: numeric(row.construction_area_10k_sqm),
       constructionAreaYoyPct: numeric(row.construction_area_yoy_pct),
+      residentialConstructionArea10kSqm: numeric(row.residential_construction_area_10k_sqm),
+      residentialConstructionAreaYoyPct: numeric(row.residential_construction_area_yoy_pct),
       newStartsArea10kSqm: numeric(row.new_starts_area_10k_sqm),
       newStartsAreaYoyPct: numeric(row.new_starts_area_yoy_pct),
+      residentialNewStartsArea10kSqm: numeric(row.residential_new_starts_area_10k_sqm),
+      residentialNewStartsAreaYoyPct: numeric(row.residential_new_starts_area_yoy_pct),
       completedArea10kSqm: numeric(row.completed_area_10k_sqm),
       completedAreaYoyPct: numeric(row.completed_area_yoy_pct),
+      residentialCompletedArea10kSqm: numeric(row.residential_completed_area_10k_sqm),
+      residentialCompletedAreaYoyPct: numeric(row.residential_completed_area_yoy_pct),
       salesArea10kSqm: numeric(row.sales_area_10k_sqm),
       salesAreaYoyPct: numeric(row.sales_area_yoy_pct),
       residentialSalesArea10kSqm: numeric(row.residential_sales_area_10k_sqm),
@@ -125,6 +140,9 @@ export type NbsYoyTrendPoint = {
   constructionAreaYoyPct: number;
   newStartsAreaYoyPct: number;
   completedAreaYoyPct: number;
+  residentialConstructionAreaYoyPct: number;
+  residentialNewStartsAreaYoyPct: number;
+  residentialCompletedAreaYoyPct: number;
   residentialSalesAreaYoyPct: number;
   mortgageFundsYoyPct: number;
   domesticLoanFundsYoyPct: number;
@@ -152,11 +170,23 @@ export function getNbsYoyTrend(limit = 6): NbsYoyTrendPoint[] {
       constructionAreaYoyPct: s.constructionAreaYoyPct,
       newStartsAreaYoyPct: s.newStartsAreaYoyPct,
       completedAreaYoyPct: s.completedAreaYoyPct,
+      residentialConstructionAreaYoyPct: s.residentialConstructionAreaYoyPct,
+      residentialNewStartsAreaYoyPct: s.residentialNewStartsAreaYoyPct,
+      residentialCompletedAreaYoyPct: s.residentialCompletedAreaYoyPct,
       residentialSalesAreaYoyPct: s.residentialSalesAreaYoyPct,
       mortgageFundsYoyPct: s.mortgageFundsYoyPct,
       domesticLoanFundsYoyPct: s.domesticLoanFundsYoyPct,
       depositFundsYoyPct: s.depositFundsYoyPct
     }));
+}
+
+/** 住宅施工面积占全部房屋施工面积的比例（%）；派生，≠房价 */
+export function getNbsResidentialConstructionSharePct(
+  snapshot?: NbsRealEstateSnapshot | null
+): number | null {
+  const s = snapshot === undefined ? getLatestNbsRealEstate() : snapshot;
+  if (!s || !(s.constructionArea10kSqm > 0)) return null;
+  return Math.round((s.residentialConstructionArea10kSqm * 1000) / s.constructionArea10kSqm) / 10;
 }
 
 /**

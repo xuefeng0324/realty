@@ -41,10 +41,16 @@ FIELDS = [
     "residential_investment_yoy_pct",
     "construction_area_10k_sqm",
     "construction_area_yoy_pct",
+    "residential_construction_area_10k_sqm",
+    "residential_construction_area_yoy_pct",
     "new_starts_area_10k_sqm",
     "new_starts_area_yoy_pct",
+    "residential_new_starts_area_10k_sqm",
+    "residential_new_starts_area_yoy_pct",
     "completed_area_10k_sqm",
     "completed_area_yoy_pct",
+    "residential_completed_area_10k_sqm",
+    "residential_completed_area_yoy_pct",
     "sales_area_10k_sqm",
     "sales_area_yoy_pct",
     "residential_sales_area_10k_sqm",
@@ -165,6 +171,18 @@ def parse_release(url: str, body: str) -> dict[str, str | float]:
         "房地产开发投资（亿元）": (
             "residential_investment_cny_100m",
             "residential_investment_yoy_pct",
+        ),
+        "房屋施工面积（万平方米）": (
+            "residential_construction_area_10k_sqm",
+            "residential_construction_area_yoy_pct",
+        ),
+        "房屋新开工面积（万平方米）": (
+            "residential_new_starts_area_10k_sqm",
+            "residential_new_starts_area_yoy_pct",
+        ),
+        "房屋竣工面积（万平方米）": (
+            "residential_completed_area_10k_sqm",
+            "residential_completed_area_yoy_pct",
         ),
         "新建商品房销售面积（万平方米）": (
             "residential_sales_area_10k_sqm",
