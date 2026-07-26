@@ -160,9 +160,11 @@ describe("总览长度预算 DASHBOARD_OVERVIEW_BUDGET", () => {
 | v1.121.142 Batch 4 | **12,024** | 1 | + data-tools.vue 迁入 10 张派生卡（派生卡迁移 13/14） |
 | v1.121.143 Batch 5 | **10,975** | 1 | + 派生数据 dead code 二次清理（8 个死变量 + metroPlan imports/computed/CSS + 35 行 drift CSS + 817 行派生卡 CSS 块）；合计 -1,049 行 / -8.7% |
 | v1.121.144 Batch 5 | **10,975** | 1 | + data-tools.vue 迁入剩余 4 张派生卡（feature_premium / tag_combination / district_meta / metro_plan）；派生卡迁移 14/14 完成；首页瘦身累计 -3,264 行 / -22.9% |
+| v1.121.145 Batch 6 | **11,034** | 1 | + 首页卡片个性化（设置入口 → 数据工具页「首页卡片管理」section，localStorage 持久化）；33 张核心分析卡可隐藏/恢复 |
+| v1.121.146 Batch 7 | **11,034** | 1 | + 首页卡片管理扩展（5 张新 card-key + DASHBOARD_CARDS 扩展为 33 项）；用户可隐藏 dashboard 全部核心卡 |
 
-**当前 dashboard.vue: 10,975 行**（vs v1.121.137 14,239 → **-3,264 行**）
-**当前 data-tools.vue: 1,805 行**（独立设置入口页）
+**当前 dashboard.vue: 11,034 行**（vs v1.121.137 14,239 → **-3,205 行 / -22.5%**）
+**当前 data-tools.vue: 1,952 行**（独立设置入口页 + 首页卡片管理）
 
 ---
 
