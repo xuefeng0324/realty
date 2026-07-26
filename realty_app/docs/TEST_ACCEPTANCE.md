@@ -57,6 +57,8 @@ $env:E2E_BASE_URL="http://127.0.0.1:5174"; npm run test:e2e:core
 | P-LIST-05 | 选区 / 关键字 | total ≤ 全市 | `listingFilterDistrict` / `Keyword` |
 | P-DET-01 | 详情「去贝壳查看」 | App 优先唤起 | `openExternal.test.ts` |
 | P-PRICE-01 | 任意房价文案 | 不出现误标「成交均价」 | `priceSemantics.test.ts` |
+| P-MAP-01 | 地图 → 五模式切换 | 各模式 overlay>0 | `smoke_map_controls.mjs` |
+| P-MAP-02 | 地图 → 挂牌均价 | 底图可读；图例非 0k-0k；半透明热力 | `mapMath.test.ts` + `smoke_price_heatmap.mjs` |
 
 新增会改变列表/计数的筛选时：**必须新增或扩展本表一行 + 对应 unit**。
 

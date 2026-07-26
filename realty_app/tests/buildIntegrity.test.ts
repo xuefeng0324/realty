@@ -1223,12 +1223,10 @@ describe("build integrity", () => {
   // v0.21.0 map-7: 价格热力升级 (5 档分位 + legend)
   // --------------------------------------------------------------
   describe("v0.21.0 价格热力升级", () => {
-    it("map-view.vue 含 priceColorRamp5 5 档分位函数", () => {
-      const content = readFileSync(
-        resolve(ROOT, "src/pages/map-view/map-view.vue"),
-        "utf8"
-      );
-      expect(content).toMatch(/function priceColorRamp5/);
+    it("mapMath 导出 priceColorRamp5 且为 8 位 hex 色阶", () => {
+      const content = readFileSync(resolve(ROOT, "src/local/mapMath.ts"), "utf8");
+      expect(content).toMatch(/export function priceColorRamp5/);
+      expect(content).toMatch(/rgbToHexAlpha/);
     });
 
     it("map-view.vue 含 priceBuckets computed (legend)", () => {
@@ -1247,20 +1245,21 @@ describe("build integrity", () => {
       expect(content).toMatch(/cityAvgPrice = computed/);
     });
 
-    it("map-view.vue 渲染「🎨 价格分位图例」卡片", () => {
+    it("map-view.vue 渲染「🎨 挂牌价格分位图例」卡片", () => {
       const content = readFileSync(
         resolve(ROOT, "src/pages/map-view/map-view.vue"),
         "utf8"
       );
-      expect(content).toMatch(/价格分位图例/);
+      expect(content).toMatch(/挂牌价格分位图例/);
     });
 
-    it("map-view.vue heatCircles 在 price 模式用 5 档分位", () => {
+    it("map-view.vue price 模式走 buildPriceHeatCircles（只画有均价社区）", () => {
       const content = readFileSync(
         resolve(ROOT, "src/pages/map-view/map-view.vue"),
         "utf8"
       );
-      expect(content).toMatch(/priceColorRamp5\(tPrice\)/);
+      expect(content).toMatch(/buildPriceHeatCircles\(cm\)/);
+      expect(content).toMatch(/from ["'].*mapMath["']/);
     });
   });
 

@@ -13,6 +13,7 @@
 |------|------|------|------|------|
 | 🟡 | bug-filter-1 | 房源在售/成交/装修筛选清空列表 | ✅ 本轮 | 别名匹配 + 豪装/普装选项 + TEST/FEATURES/LISTING_FILTER 文档 |
 | 🟡 | docs-qa-1 | 测试验收总册 + 功能清单 MD | ✅ 本轮 | TEST_ACCEPTANCE.md / FEATURES.md |
+| 🟡 | bug-map-1 | 地图挂牌均价黑乎乎 + 图例 0k-0k | ✅ 本轮 | 半透明热力/只画有价社区/formatPriceRange；MAP_ACCEPTANCE |
 | 🟡 | bug-theme-1 | 浅色模式与深色差别不大（糊弄感） | ✅ 本轮 | JS 注入 token + 去 #0c1426 硬编码；THEME_ACCEPTANCE 亮度门禁 |
 | 🟡 | ux-list-beike | 房源详情进一步学贝壳：图集/挂牌标签 pill/经纪人区（本产品不做经纪） | ⏳ | 仅学信息架构，不伪造成交 |
 | 🟡 | ux-home-1 | 首页金刚区库存/土地按城锚点（深圳空点） | ✅ 本会话前半 | `entry-supply` / `entry-land` 按城挂载 |

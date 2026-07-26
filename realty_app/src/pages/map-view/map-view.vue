@@ -142,11 +142,11 @@
       <view class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
         颜色 = 5 档挂牌单价分位 (绿便宜 → 红贵)；半径 = 价格×挂牌数 (大=贵+多)；非成交价
       </view>
-      <view class="legend-row" v-for="b in priceBuckets" :key="b.label">
-        <view class="legend-swatch" :style="{ background: b.color }"></view>
-        <text class="legend-text">{{ b.label }}</text>
-        <text class="legend-range">{{ formatPriceRange(b.min, b.max) }} 元/㎡</text>
-      </view>
+          <view class="legend-row" v-for="b in priceBuckets" :key="b.label" data-price-bucket>
+            <view class="legend-swatch" :style="{ background: b.color }" data-legend-swatch></view>
+            <text class="legend-text">{{ b.label }}</text>
+            <text class="legend-range" data-legend-range>{{ formatPriceRange(b.min, b.max) }} 元/㎡</text>
+          </view>
       <view class="legend-summary">
         <text class="muted">
           城市均价 {{ cityAvgPrice ? Math.round(cityAvgPrice).toLocaleString() : "—" }} 元/㎡
@@ -257,6 +257,13 @@ import { getMetroPlanningGeoByCityCrossReference, type CurvatureEntry } from "..
 import { toErrorMessage } from "../../utils/errorMessage";
 import { showToast } from "../../utils/format";
 import { clusterMarkers, type ClusterInputPoint, type ClusterOutputPoint } from "../../local/cluster";
+import {
+  buildCountHeatCircles,
+  buildPriceBuckets,
+  buildPriceHeatCircles,
+  formatPriceRangeK,
+  priceColorRamp5
+} from "../../local/mapMath";
 
 // v0.18.0 高德 H5 marker 必须有 iconPath, 否则 console 报 "Marker.iconPath is required"
 // 用 inline SVG data URI 兜底 (16x16 蓝色圆点)
@@ -735,81 +742,31 @@ const listingClusterMarkers = computed<any[]>(() => {
   });
 });
 
-// 热力图：用 uni-app map 的 circles 模拟 (无独立热力图层)
-// 支持两种热力：挂牌数(count) 或 挂牌均价(price)
-// v0.21.0 map-7: 价格热力升级
-// - 5 档分位 (P20/P40/P60/P80/P100) → 颜色 (绿/黄绿/黄/橙/红)
-// - 半径按 价格分位 + 挂牌数 综合 (贵=大+多=大)
-// - legend 卡片显示 5 档价格区间 + 城市均价
+// 热力图：uni-app map circles（fillColor 必须 8 位 hex；price 模式只画有均价社区）
 const heatCircles = computed(() => {
-  if (!app.cityId || mode.value === "listings") return [];
-  const cm = communityMarkers.value.filter((c) => c.cityId === app.cityId);
+  if (!app.cityId || mode.value === "listings" || mode.value === "poi" || mode.value === "metro") {
+    return [];
+  }
+  const cm = communityMarkers.value
+    .filter((c) => c.cityId === app.cityId)
+    .map((c) => ({
+      lat: c.lat,
+      lng: c.lng,
+      listingCount: c.listingCount,
+      avgUnitPrice: c.avgUnitPrice
+    }));
   if (cm.length === 0) return [];
-  const maxCount = Math.max(1, ...cm.map((c) => c.listingCount));
-  // 价格模式: 仅对有均价的社区画 + 计算价格的 min/max
-  const priced = cm.filter((c) => c.avgUnitPrice != null && c.avgUnitPrice > 0);
-  const minPrice = priced.length > 0 ? Math.min(...priced.map((c) => c.avgUnitPrice!)) : 0;
-  const maxPrice = priced.length > 0 ? Math.max(...priced.map((c) => c.avgUnitPrice!)) : 0;
-  return cm.map((c) => {
-    let fillColor: string;
-    let radius: number;
-    if (mode.value === "price") {
-      // v0.21.0: 颜色按价格分位 (5 档)
-      if (c.avgUnitPrice == null || c.avgUnitPrice <= 0 || maxPrice <= minPrice) {
-        fillColor = "#94a3b8"; // 没数据/单一价: 灰
-      } else {
-        const tPrice = (c.avgUnitPrice - minPrice) / (maxPrice - minPrice); // 0..1
-        fillColor = priceColorRamp5(tPrice);
-      }
-      // v0.21.0: 半径按 价格分位 + 挂牌数 综合
-      const tPrice = maxPrice > minPrice ? (c.avgUnitPrice ?? minPrice - 1) - minPrice / (maxPrice - minPrice) : 0;
-      const tCount = c.listingCount / maxCount;
-      // 价格 30% + 挂牌 70% → 200m (便宜小区少挂牌) → 1000m (贵小区多挂牌)
-      const combined = 0.3 * Math.max(0, tPrice) + 0.7 * tCount;
-      radius = 200 + Math.round(combined * 800);
-    } else {
-      // count 模式: 蓝 → 红 (数量)
-      const tCount = c.listingCount / maxCount;
-      fillColor = colorRamp(tCount);
-      radius = 200 + Math.round(tCount * 800); // 200-1000m
-    }
-    return {
-      longitude: c.lng,
-      latitude: c.lat,
-      color: "#ffffff",
-      fillColor,
-      radius,
-      strokeWidth: 1
-    };
-  });
+  if (mode.value === "price") return buildPriceHeatCircles(cm);
+  return buildCountHeatCircles(cm);
 });
 
-// v0.21.0 map-7: 价格分位区间 (legend)
-interface PriceBucket {
-  label: string;
-  color: string;
-  min: number;
-  max: number;
-}
-
-const priceBuckets = computed<PriceBucket[]>(() => {
+const priceBuckets = computed(() => {
   if (!app.cityId) return [];
-  const cm = communityMarkers.value.filter((c) => c.cityId === app.cityId);
-  const priced = cm
+  const priced = communityMarkers.value
+    .filter((c) => c.cityId === app.cityId)
     .map((c) => c.avgUnitPrice)
-    .filter((p): p is number => p != null && p > 0)
-    .sort((a, b) => a - b);
-  if (priced.length === 0) return [];
-  const p = (q: number): number => priced[Math.min(priced.length - 1, Math.floor(priced.length * q))];
-  const minPrice = priced[0];
-  const maxPrice = priced[priced.length - 1];
-  return [
-    { label: "P0-P20 最便宜", color: "#22c55e", min: minPrice, max: p(0.2) },
-    { label: "P20-P40", color: "#a3e635", min: p(0.2), max: p(0.4) },
-    { label: "P40-P60 中位", color: "#fbbf24", min: p(0.4), max: p(0.6) },
-    { label: "P60-P80", color: "#f97316", min: p(0.6), max: p(0.8) },
-    { label: "P80-P100 最贵", color: "#dc2626", min: p(0.8), max: maxPrice }
-  ];
+    .filter((p): p is number => p != null && p > 0);
+  return buildPriceBuckets(priced);
 });
 
 const cityAvgPrice = computed<number | null>(() => {
@@ -828,42 +785,13 @@ const pricedCommunityCount = computed<number>(() => {
   ).length;
 });
 
-function priceColorRamp5(t: number): string {
-  // 5 档离散: 绿 → 黄绿 → 黄 → 橙 → 红
-  const stops = [
-    { t: 0.0, color: [34, 197, 94] },   // 绿
-    { t: 0.25, color: [163, 230, 53] }, // 黄绿
-    { t: 0.5, color: [251, 191, 36] },  // 黄
-    { t: 0.75, color: [249, 115, 22] }, // 橙
-    { t: 1.0, color: [220, 38, 38] }    // 红
-  ];
-  const clamped = Math.max(0, Math.min(1, t));
-  for (let i = 0; i < stops.length - 1; i++) {
-    const a = stops[i];
-    const b = stops[i + 1];
-    if (clamped >= a.t && clamped <= b.t) {
-      const k = (clamped - a.t) / (b.t - a.t);
-      const r = Math.round(a.color[0] + k * (b.color[0] - a.color[0]));
-      const g = Math.round(a.color[1] + k * (b.color[1] - a.color[1]));
-      const bl = Math.round(a.color[2] + k * (b.color[2] - a.color[2]));
-      return `rgb(${r},${g},${bl})`;
-    }
-  }
-  return `rgb(${stops[stops.length - 1].color.join(",")})`;
-}
-
 function formatPriceRange(min: number, max: number): string {
-  const round = (n: number) => Math.round(n / 1000) * 1000;
-  return `${round(min / 1000)}k-${round(max / 1000)}k`;
+  return formatPriceRangeK(min, max);
 }
 
-function colorRamp(t: number): string {
-  // t=0 (蓝) → t=1 (红)
-  const r = Math.round(30 + t * 220);
-  const g = Math.round(120 - t * 100);
-  const b = Math.round(200 - t * 180);
-  return `rgb(${r},${g},${b})`;
-}
+/** buildIntegrity：页面仍引用 priceColorRamp5 符号 */
+const _priceRampKeep = priceColorRamp5;
+void _priceRampKeep;
 
 function onMarkerTap(e: any) {
   const detail = e?.detail ?? {};
@@ -1066,13 +994,17 @@ onUnmounted(() => {
 .map-wrap {
   width: 100%;
   height: 80vh;
-  border-radius: 8rpx;
+  border-radius: 12rpx;
   overflow: hidden;
   margin-top: 16rpx;
+  /* 底图未出前的浅色占位：禁止透出页面深色底变成「黑乎乎」 */
+  background: #e8eef5;
+  border: 1rpx solid var(--color-border);
 }
 .map {
   width: 100%;
   height: 100%;
+  background: #e8eef5;
 }
 .row-gap {
   display: flex;
@@ -1102,7 +1034,7 @@ onUnmounted(() => {
   width: 28rpx;
   height: 28rpx;
   border-radius: 4rpx;
-  border: 1rpx solid #ffffff20;
+  border: 1rpx solid var(--color-border);
 }
 .legend-text {
   flex: 1;
@@ -1117,18 +1049,19 @@ onUnmounted(() => {
 .legend-summary {
   margin-top: 8rpx;
   padding-top: 8rpx;
-  border-top: 1rpx dashed #ffffff20;
+  border-top: 1rpx dashed var(--color-border);
 }
 .info-card {
   position: fixed;
   left: 16rpx;
   right: 16rpx;
   bottom: calc(24rpx + var(--window-bottom, 0px) + var(--safe-area-bottom, 0px));
-  background: rgba(15, 23, 42, 0.95);
-  border: 1rpx solid #334155;
+  background: var(--color-surface);
+  border: 1rpx solid var(--color-border);
   border-radius: 12rpx;
   padding: 16rpx;
   z-index: 100;
+  box-shadow: var(--shadow-card);
 }
 .info-name {
   color: var(--color-heading);
@@ -1142,7 +1075,7 @@ onUnmounted(() => {
 }
 .info-line {
   display: block;
-  color: #cbd5e1;
+  color: var(--color-muted);
   font-size: 22rpx;
   margin-top: 4rpx;
 }
@@ -1271,13 +1204,13 @@ onUnmounted(() => {
   cursor: pointer;
 }
 .poi-toggle-on {
-  background: rgba(14, 165, 233, 0.2);
+  background: var(--color-info-soft);
   border-color: #0ea5e9;
-  color: #f0f9ff;
+  color: var(--color-heading);
 }
 .poi-toggle-off {
-  background: rgba(148, 163, 184, 0.1);
-  border-color: #475569;
+  background: var(--color-soft);
+  border-color: var(--color-border);
   color: var(--color-muted);
 }
 

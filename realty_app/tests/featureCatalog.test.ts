@@ -21,6 +21,7 @@ const REQUIRED_IDS = [
   "F-SCH-01",
   "F-SCH-02",
   "F-MAP-01",
+  "F-MAP-03",
   "F-SET-01",
   "F-OTA-01",
   "F-S70-01",
@@ -36,6 +37,8 @@ describe("FEATURE QA 文档门禁", () => {
     expect(existsSync(resolve(root, "docs/TEST_ACCEPTANCE.md"))).toBe(true);
     expect(existsSync(resolve(root, "docs/FEATURES.md"))).toBe(true);
     expect(existsSync(resolve(root, "docs/LISTING_FILTER_ACCEPTANCE.md"))).toBe(true);
+    expect(existsSync(resolve(root, "docs/MAP_ACCEPTANCE.md"))).toBe(true);
+    expect(existsSync(resolve(root, "docs/THEME_ACCEPTANCE.md"))).toBe(true);
   });
 
   it("QA_PROCESS 含三类 bug 与 8 步 / DoD", () => {
@@ -69,10 +72,13 @@ describe("FEATURE QA 文档门禁", () => {
     expect(acc).toContain("FEATURES.md");
     const testAcc = read("docs/TEST_ACCEPTANCE.md");
     expect(testAcc).toContain("P-LIST-01");
+    expect(testAcc).toContain("P-MAP-02");
     expect(testAcc).toContain("listingFilterTypeDecorate");
     const features = read("docs/FEATURES.md");
     expect(features).toContain("F-LIST-01");
+    expect(features).toContain("MAP_ACCEPTANCE");
     expect(features).toContain("在售");
+    expect(read("docs/FEATURE_CATALOG.md")).toContain("MAP_ACCEPTANCE");
   });
 
   it("CATALOG 引用的核心 smoke / 单测文件存在", () => {
@@ -82,6 +88,7 @@ describe("FEATURE QA 文档门禁", () => {
       "tests/e2e/smoke_map_controls.mjs",
       "tests/e2e/smoke_school_detail.mjs",
       "tests/e2e/smoke_price_heatmap.mjs",
+      "tests/mapMath.test.ts",
       "tests/priceSemantics.test.ts",
       "tests/theme.test.ts",
       "tests/stats70Freshness.test.ts",
