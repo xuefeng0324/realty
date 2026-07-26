@@ -37,6 +37,12 @@ FIELDS = [
     "publish_date",
     "investment_cny_100m",
     "investment_yoy_pct",
+    "construction_area_10k_sqm",
+    "construction_area_yoy_pct",
+    "new_starts_area_10k_sqm",
+    "new_starts_area_yoy_pct",
+    "completed_area_10k_sqm",
+    "completed_area_yoy_pct",
     "sales_area_10k_sqm",
     "sales_area_yoy_pct",
     "sales_amount_cny_100m",
@@ -131,6 +137,9 @@ def parse_release(url: str, body: str) -> dict[str, str | float]:
     parser.feed(body)
     wanted = {
         "房地产开发投资（亿元）": ("investment_cny_100m", "investment_yoy_pct"),
+        "房屋施工面积（万平方米）": ("construction_area_10k_sqm", "construction_area_yoy_pct"),
+        "房屋新开工面积（万平方米）": ("new_starts_area_10k_sqm", "new_starts_area_yoy_pct"),
+        "房屋竣工面积（万平方米）": ("completed_area_10k_sqm", "completed_area_yoy_pct"),
         "新建商品房销售面积（万平方米）": ("sales_area_10k_sqm", "sales_area_yoy_pct"),
         "新建商品房销售额（亿元）": ("sales_amount_cny_100m", "sales_amount_yoy_pct"),
         "商品房待售面积（万平方米）": ("inventory_area_10k_sqm", "inventory_area_yoy_pct"),

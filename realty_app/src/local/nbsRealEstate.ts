@@ -5,6 +5,15 @@ export interface NbsRealEstateSnapshot {
   publishDate: string;
   investmentCny100m: number;
   investmentYoyPct: number;
+  /** 房屋施工面积（万㎡） */
+  constructionArea10kSqm: number;
+  constructionAreaYoyPct: number;
+  /** 房屋新开工面积（万㎡） */
+  newStartsArea10kSqm: number;
+  newStartsAreaYoyPct: number;
+  /** 房屋竣工面积（万㎡） */
+  completedArea10kSqm: number;
+  completedAreaYoyPct: number;
   salesArea10kSqm: number;
   salesAreaYoyPct: number;
   salesAmountCny100m: number;
@@ -35,6 +44,12 @@ export function loadNbsRealEstateFromCSV(text: string): NbsRealEstateSnapshot[] 
       publishDate: String(row.publish_date ?? "").trim(),
       investmentCny100m: numeric(row.investment_cny_100m),
       investmentYoyPct: numeric(row.investment_yoy_pct),
+      constructionArea10kSqm: numeric(row.construction_area_10k_sqm),
+      constructionAreaYoyPct: numeric(row.construction_area_yoy_pct),
+      newStartsArea10kSqm: numeric(row.new_starts_area_10k_sqm),
+      newStartsAreaYoyPct: numeric(row.new_starts_area_yoy_pct),
+      completedArea10kSqm: numeric(row.completed_area_10k_sqm),
+      completedAreaYoyPct: numeric(row.completed_area_yoy_pct),
       salesArea10kSqm: numeric(row.sales_area_10k_sqm),
       salesAreaYoyPct: numeric(row.sales_area_yoy_pct),
       salesAmountCny100m: numeric(row.sales_amount_cny_100m),
@@ -67,6 +82,9 @@ export type NbsYoyTrendPoint = {
   salesAmountYoyPct: number;
   investmentYoyPct: number;
   fundsYoyPct: number;
+  constructionAreaYoyPct: number;
+  newStartsAreaYoyPct: number;
+  completedAreaYoyPct: number;
 };
 
 function shortPeriodLabel(period: string): string {
@@ -75,7 +93,7 @@ function shortPeriodLabel(period: string): string {
   return `1—${Number(m[2])}`;
 }
 
-/** 销售面积/销售额/投资/到位资金同比序列（官方累计口径，非成交均价） */
+/** 销售面积/销售额/投资/到位资金/施工·新开工·竣工同比序列（官方累计口径，非成交均价） */
 export function getNbsYoyTrend(limit = 6): NbsYoyTrendPoint[] {
   return getNbsRealEstateHistory(limit)
     .slice()
@@ -86,7 +104,10 @@ export function getNbsYoyTrend(limit = 6): NbsYoyTrendPoint[] {
       salesAreaYoyPct: s.salesAreaYoyPct,
       salesAmountYoyPct: s.salesAmountYoyPct,
       investmentYoyPct: s.investmentYoyPct,
-      fundsYoyPct: s.fundsYoyPct
+      fundsYoyPct: s.fundsYoyPct,
+      constructionAreaYoyPct: s.constructionAreaYoyPct,
+      newStartsAreaYoyPct: s.newStartsAreaYoyPct,
+      completedAreaYoyPct: s.completedAreaYoyPct
     }));
 }
 

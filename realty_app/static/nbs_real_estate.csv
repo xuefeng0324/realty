@@ -1,6 +1,6 @@
-period,publish_date,investment_cny_100m,investment_yoy_pct,sales_area_10k_sqm,sales_area_yoy_pct,sales_amount_cny_100m,sales_amount_yoy_pct,inventory_area_10k_sqm,inventory_area_yoy_pct,funds_cny_100m,funds_yoy_pct,source_url
-2026-01_to_2026-06,2026-07-15,38074.0,-18.0,40140.0,-11.6,37945.0,-13.6,76315.0,-0.9,40233.0,-20.2,https://www.stats.gov.cn/sj/zxfb/202607/t20260715_1964126.html
-2026-01_to_2026-05,2026-06-16,30356.0,-16.2,31320.0,-10.8,29366.0,-13.5,77182.0,-0.4,32756.0,-19.0,https://www.stats.gov.cn/sj/zxfb/202606/t20260616_1963950.html
-2026-01_to_2026-04,2026-05-18,23969.0,-13.7,25258.0,-10.2,23000.0,-14.6,77801.0,-0.5,26697.0,-18.4,https://www.stats.gov.cn/sj/zxfb/202605/t20260518_1963729.html
-2026-01_to_2026-03,2026-04-16,17720.0,-11.2,19525.0,-10.4,17262.0,-16.7,78601.0,-0.1,20524.0,-17.3,https://www.stats.gov.cn/sj/zxfb/202604/t20260416_1963327.html
-2026-01_to_2026-02,2026-03-16,9612.0,-11.1,9293.0,-13.5,8186.0,-20.2,79998.0,0.1,13047.0,-16.5,https://www.stats.gov.cn/sj/zxfb/202603/t20260316_1962785.html
+period,publish_date,investment_cny_100m,investment_yoy_pct,construction_area_10k_sqm,construction_area_yoy_pct,new_starts_area_10k_sqm,new_starts_area_yoy_pct,completed_area_10k_sqm,completed_area_yoy_pct,sales_area_10k_sqm,sales_area_yoy_pct,sales_amount_cny_100m,sales_amount_yoy_pct,inventory_area_10k_sqm,inventory_area_yoy_pct,funds_cny_100m,funds_yoy_pct,source_url
+2026-01_to_2026-06,2026-07-15,38074.0,-18.0,554049.0,-12.5,23239.0,-23.4,17221.0,-23.7,40140.0,-11.6,37945.0,-13.6,76315.0,-0.9,40233.0,-20.2,https://www.stats.gov.cn/sj/zxfb/202607/t20260715_1964126.html
+2026-01_to_2026-05,2026-06-16,30356.0,-16.2,548775.0,-12.3,17929.0,-22.6,14087.0,-23.4,31320.0,-10.8,29366.0,-13.5,77182.0,-0.4,32756.0,-19.0,https://www.stats.gov.cn/sj/zxfb/202606/t20260616_1963950.html
+2026-01_to_2026-04,2026-05-18,23969.0,-13.7,545116.0,-12.1,13900.0,-22.0,11886.0,-24.0,25258.0,-10.2,23000.0,-14.6,77801.0,-0.5,26697.0,-18.4,https://www.stats.gov.cn/sj/zxfb/202605/t20260518_1963729.html
+2026-01_to_2026-03,2026-04-16,17720.0,-11.2,541737.0,-11.7,10373.0,-20.3,9789.0,-25.0,19525.0,-10.4,17262.0,-16.7,78601.0,-0.1,20524.0,-17.3,https://www.stats.gov.cn/sj/zxfb/202604/t20260416_1963327.html
+2026-01_to_2026-02,2026-03-16,9612.0,-11.1,535372.0,-11.7,5084.0,-23.1,6320.0,-27.9,9293.0,-13.5,8186.0,-20.2,79998.0,0.1,13047.0,-16.5,https://www.stats.gov.cn/sj/zxfb/202603/t20260316_1962785.html

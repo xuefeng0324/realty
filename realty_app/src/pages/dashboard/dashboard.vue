@@ -1110,6 +1110,36 @@
             <text class="cell-sub" :class="macroTrendClass(nbsMacro.inventoryAreaYoyPct)">同比 {{ formatMacroPct(nbsMacro.inventoryAreaYoyPct) }}</text>
           </view>
         </view>
+        <view class="stats70-grid" style="margin-top: 12rpx" data-nbs-pipeline>
+          <view class="stats70-cell">
+            <text class="cell-label">房屋施工</text>
+            <text class="cell-value">{{ formatMacroArea(nbsMacro.constructionArea10kSqm) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.constructionAreaYoyPct)">
+              同比 {{ formatMacroPct(nbsMacro.constructionAreaYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">新开工</text>
+            <text class="cell-value">{{ formatMacroArea(nbsMacro.newStartsArea10kSqm) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.newStartsAreaYoyPct)">
+              同比 {{ formatMacroPct(nbsMacro.newStartsAreaYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">竣工</text>
+            <text class="cell-value">{{ formatMacroArea(nbsMacro.completedArea10kSqm) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.completedAreaYoyPct)">
+              同比 {{ formatMacroPct(nbsMacro.completedAreaYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">到位资金</text>
+            <text class="cell-value">{{ formatMacro100m(nbsMacro.fundsCny100m) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsMacro.fundsYoyPct)">
+              同比 {{ formatMacroPct(nbsMacro.fundsYoyPct) }}
+            </text>
+          </view>
+        </view>
         <view v-if="nbsImpliedUnitPrice != null" class="rank-row macro-derived" style="margin-top: 12rpx">
           <text class="muted" style="font-size: 22rpx">派生合同均价</text>
           <text class="rank-val">
@@ -1167,6 +1197,24 @@
             资金同比
             <text v-for="(p, i) in nbsYoyTrend" :key="'fund-' + p.period">
               {{ p.shortLabel }} {{ formatMacroPct(p.fundsYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
+            施工同比
+            <text v-for="(p, i) in nbsYoyTrend" :key="'cst-' + p.period">
+              {{ p.shortLabel }} {{ formatMacroPct(p.constructionAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
+            新开工同比
+            <text v-for="(p, i) in nbsYoyTrend" :key="'nst-' + p.period">
+              {{ p.shortLabel }} {{ formatMacroPct(p.newStartsAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
+            竣工同比
+            <text v-for="(p, i) in nbsYoyTrend" :key="'cmp-' + p.period">
+              {{ p.shortLabel }} {{ formatMacroPct(p.completedAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
             </text>
           </view>
         </template>
