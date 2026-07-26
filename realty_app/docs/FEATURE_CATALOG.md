@@ -217,7 +217,7 @@
 7. （L）装修选项含精装/豪装/普装/简装/毛坯；高频装修选中后 total>0  
 
 **不期望**：只有二手没有新房分类；选类型无故清空；装修缺豪装/普装。  
-**自动化**：`listingFilterTypeDecorate.test.ts` / `listingFilterDistrict.test.ts` / `listingFilterKeyword.test.ts` / `homeEntry.test.ts`；`smoke_listings.mjs`  
+**自动化**：`listingFilterTypeDecorate.test.ts` / `listingFilterDistrict.test.ts` / `listingFilterKeyword.test.ts` / `homeEntry.test.ts` / `uiVerticalAlign.test.ts`；`smoke_listings.mjs`  
 **手工**：见 LISTING_FILTER_ACCEPTANCE §4。
 
 ---
@@ -242,10 +242,10 @@
 | 入口 | 列表项 / 深链 `listing-detail?id=` |
 | 风险 | F, L, U |
 
-**期望**：价/面积/小区名展示；DERIVED 有黄标；同小区在售可点。  
+**期望**：价/面积/小区名展示；DERIVED 有黄标；同小区在售可点；底栏「查看参考页面/复制链接」文字垂直居中。  
 **不期望**：无 id 白屏无说明。  
-**自动化**：`smoke_full_pages` id=1227；unit 相关  
-**手工**：打开 1227，看派生标（若为 DERIVED）。
+**自动化**：`smoke_full_pages` id=1227；`uiVerticalAlign.test.ts`；unit 相关  
+**手工**：打开 1227，看派生标（若为 DERIVED）；确认底栏文案居中。
 
 ---
 
@@ -526,6 +526,7 @@
 
 | 日期 | ID | 标题 | 发版 version | 备注 |
 |------|-----|------|--------------|------|
+| 2026-07-26 | F-LIST-01 / F-LIST-03 | 搜索框与详情底栏垂直居中 + 门禁 | 1.121.115 | uiVerticalAlign |
 | 2026-07-26 | F-MAP-04 | 地图找房主路径（筛/底栏/详情） | 1.121.97 | 对照贝壳；mapFind |
 | 2026-07-26 | F-MAP-03 | 挂牌均价热力可读性（禁黑糊/0k-0k） | 1.121.96 | MAP_ACCEPTANCE + mapMath |
 | 2026-07-26 | F-DASH-11 | 美元中间价日度 + 外储 2022-11 补缺 | 1.121.114 | RMBQuery；≠房价 |

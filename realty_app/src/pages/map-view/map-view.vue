@@ -1483,9 +1483,14 @@ onUnmounted(() => {
 }
 
 .map-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   background: var(--color-surface-raised);
   color: var(--color-text);
   border: 1rpx solid var(--color-border);
+  line-height: 1.2;
 }
 
 .map-mode-btn--active {
@@ -1494,10 +1499,15 @@ onUnmounted(() => {
 }
 
 .map-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   background: var(--color-soft) !important;
   color: var(--color-text) !important;
   border: 1rpx solid var(--color-border) !important;
   font-size: 22rpx;
+  line-height: 1.2;
 }
 .map-filter-btn--active {
   background: var(--color-primary) !important;

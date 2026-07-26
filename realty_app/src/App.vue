@@ -372,6 +372,10 @@ textarea {
 
 /* 干掉 uni-app button 默认浅灰底/黑字，否则深色模式到处「浅色按键」 */
 button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   background: transparent;
   color: inherit;
   padding-left: 0;

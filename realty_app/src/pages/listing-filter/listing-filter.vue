@@ -899,7 +899,10 @@ onUnmounted(() => {
 
 .search-input .input {
   flex: 1;
+  box-sizing: border-box;
+  height: 64rpx;
   min-height: 64rpx;
+  line-height: 64rpx;
   padding: 0 20rpx;
   border-radius: 12rpx;
   background: var(--color-soft);

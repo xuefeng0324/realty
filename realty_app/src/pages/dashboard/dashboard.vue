@@ -12351,9 +12351,12 @@ onShow(async () => {
 }
 .home-city-chip {
   flex: 0 0 auto;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4rpx;
+  box-sizing: border-box;
+  min-height: 76rpx;
   padding: 0 18rpx;
   margin: 0;
   border-radius: 999rpx;
@@ -12391,13 +12394,23 @@ onShow(async () => {
 .home-search-input {
   flex: 1;
   min-width: 0;
+  box-sizing: border-box;
   height: 64rpx;
+  line-height: 64rpx;
+  padding: 0;
   font-size: 26rpx;
   color: var(--color-text);
 }
 .home-search-btn {
   margin: 0;
   border-radius: 999rpx !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 56rpx;
+  padding: 0 20rpx;
+  line-height: 1;
 }
 .home-search-modes {
   display: flex;

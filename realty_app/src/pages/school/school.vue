@@ -372,6 +372,9 @@ async function loadCities() {
 
 .picker-value,
 .input {
+  box-sizing: border-box;
+  min-height: 64rpx;
+  line-height: 40rpx;
   background: var(--color-surface-raised);
   border-radius: 8rpx;
   padding: 12rpx 16rpx;

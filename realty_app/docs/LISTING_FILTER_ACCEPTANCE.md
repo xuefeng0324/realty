@@ -42,6 +42,7 @@
 | 列表卡片 `[data-listing-card]`：总价大字 + 单价 + 室卫·面积·朝向；挂牌 pill 与详情同源 | 仅一行灰字、只有评分优缺点、无单价 |
 | 户型筛选与地图找房同档（不限/1/2/3/4室+，`bedroomBand`） | 仅地图能筛室数、列表不能 |
 | 从地图带 `communityId`：显示「仅看小区」chip，可清除；重置一并清除 | 重置后仍锁单小区 |
+| 关键字搜索框 `[data-listing-keyword] input` 占位文字垂直居中（`height`=`line-height`） | 文字顶偏/底偏 |
 
 ### 功能
 

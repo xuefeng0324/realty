@@ -677,6 +677,10 @@ onMounted(async () => {
 .source-dock-primary,
 button.source-dock-primary {
   flex: 1.4;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   min-height: 80rpx;
   padding: 0 24rpx;
   border-radius: 12rpx;
@@ -689,6 +693,10 @@ button.source-dock-primary {
 .source-dock-ghost,
 button.source-dock-ghost {
   flex: 0.8;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   min-height: 80rpx;
   padding: 0 16rpx;
   border-radius: 12rpx;
@@ -696,6 +704,7 @@ button.source-dock-ghost {
   color: var(--color-text) !important;
   border: 1rpx solid var(--color-border) !important;
   font-size: 26rpx;
+  line-height: 1.2;
 }
 
 .source-trust-row {

@@ -24,6 +24,7 @@
 | U3 | 有标签 | 价区下 | `[data-listing-tags]` 有 pill |
 | U4 | 无标签 | 价区下 | `[data-listing-tags-empty]` 或等价空态 |
 | U5 | 有同小区其它房 | 顶栏 | 「同小区其他」可点，滚到 `#same-community-listings` |
+| U6 | 有 source_url | 底栏 | 「查看参考页面/源链接」「复制链接」文字垂直居中（`display:flex` + `align-items:center`） |
 
 ## 2. 功能（F）
 

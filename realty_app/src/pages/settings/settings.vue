@@ -702,6 +702,9 @@ function openGithubReleases() {
 }
 
 .input {
+  box-sizing: border-box;
+  min-height: 64rpx;
+  line-height: 40rpx;
   background: var(--color-soft);
   border: 1rpx solid var(--color-border);
   border-radius: 8rpx;
