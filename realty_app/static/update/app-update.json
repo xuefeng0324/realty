@@ -1,12 +1,12 @@
 {
-  "versionName": "1.121.136",
-  "versionCode": "257",
-  "publishedAt": "2026-07-26T19:32:57Z",
+  "versionName": "1.121.137",
+  "versionCode": "258",
+  "publishedAt": "2026-07-26T19:54:09Z",
   "force": false,
-  "notes": "\ufeffv1.121.136 \u9996\u9875\u771f\u7626\u8eab\uff1adashboard \u771f\u5220 15 \u5f20\u5b8f\u5361\n\n2026-07-25-v1.109.0-\u793e\u533a\u603b\u4ef7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f: v1.109.0 \u2014 \u793e\u533a\u603b\u4ef7\u00d7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f\n2026-07-25-v1.110.0-\u89c4\u5212\u5730\u94c1\u6d3e\u751f: v1.110.0 \u2014 \u89c4\u5212\u5730\u94c1\u6d3e\u751f\n2026-07-25-v1.111.0-LPR\u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f: v1.111.0 \u2014 LPR \u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f\n",
+  "notes": "\ufeffv1.121.137 \u6570\u636e\u5de5\u5177\u72ec\u7acb\u9875\u4e0e\u9996\u5c4f\u6298\u53e0\uff08\u8bbe\u7f6e\u5165\u53e3\uff09\n\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/257/app.wgt",
-    "sha256": "71da7ec22637f4c5858e0ed1e78a5683b0ef557094414e375c598aafcc0fa050"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/258/app.wgt",
+    "sha256": "2595779356d2b1fb7bff43d82bc615d3a83d6f98e7ca388e0749004776dfc002"
   },
   "ios": {
     "available": false,
