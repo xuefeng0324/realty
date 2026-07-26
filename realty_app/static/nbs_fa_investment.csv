@@ -1,0 +1,4 @@
+period,publish_date,fa_cny_100m,fa_yoy_pct,private_yoy_pct,state_yoy_pct,primary_yoy_pct,secondary_yoy_pct,tertiary_yoy_pct,manufacturing_yoy_pct,equipment_yoy_pct,ip_yoy_pct,source_url
+2026-01_to_2026-06,2026-07-15,226370.0,-5.7,-8.5,-2.3,0.9,-1.1,-8.4,-1.2,8.1,9.4,https://www.stats.gov.cn/sj/zxfb/202607/t20260715_1964124.html
+2026-01_to_2026-05,2026-06-16,178512.0,-4.1,-7.1,-0.4,5.9,0.1,-6.8,-0.4,9.3,9.3,https://www.stats.gov.cn/sj/zxfb/202606/t20260616_1963951.html
+2026-01_to_2026-04,2026-05-18,141293.0,-1.6,-5.2,2.5,10.1,2.5,-4.2,1.2,11.5,,https://www.stats.gov.cn/sj/zxfb/202605/t20260518_1963730.html

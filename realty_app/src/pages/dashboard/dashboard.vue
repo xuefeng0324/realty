@@ -1172,6 +1172,85 @@
         </template>
       </view>
 
+      <view v-if="nbsFaInvestment" class="card macro-card" data-tab="overview,price" data-nbs-fa-investment>
+        <view class="macro-kicker">全国 · 固定资产投资</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">固投基本情况</view>
+          <view class="muted" style="font-size: 22rpx">{{ nbsFaInvestment.publishDate }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <view class="stats70-cell">
+            <text class="cell-label">固投累计</text>
+            <text class="cell-value">{{ formatMacro100m(nbsFaInvestment.faCny100m) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(nbsFaInvestment.faYoyPct)">
+              同比 {{ formatMacroPct(nbsFaInvestment.faYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">民间投资同比</text>
+            <text class="cell-value" :class="macroTrendClass(nbsFaInvestment.privateYoyPct)">
+              {{ formatMacroPct(nbsFaInvestment.privateYoyPct) }}
+            </text>
+            <text class="cell-sub muted">国有控股 {{ formatMacroPct(nbsFaInvestment.stateYoyPct) }}</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">制造业同比</text>
+            <text class="cell-value" :class="macroTrendClass(nbsFaInvestment.manufacturingYoyPct)">
+              {{ formatMacroPct(nbsFaInvestment.manufacturingYoyPct) }}
+            </text>
+            <text class="cell-sub muted">设备工器具 {{ formatMacroPct(nbsFaInvestment.equipmentYoyPct) }}</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">第三产业同比</text>
+            <text class="cell-value" :class="macroTrendClass(nbsFaInvestment.tertiaryYoyPct)">
+              {{ formatMacroPct(nbsFaInvestment.tertiaryYoyPct) }}
+            </text>
+            <text class="cell-sub muted">
+              二产 {{ formatMacroPct(nbsFaInvestment.secondaryYoyPct) }}
+              <template v-if="nbsFaInvestment.ipYoyPct != null">
+                · 知产 {{ formatMacroPct(nbsFaInvestment.ipYoyPct) }}
+              </template>
+            </text>
+          </view>
+        </view>
+        <view class="macro-note">
+          {{ nbsFaInvestment.period.replace("_to_", "–") }} · 不含农户 · 国家统计局 · 非房价；房开投资见上方房地产卡
+        </view>
+        <button
+          v-if="nbsFaTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-nbs-fa-series-toggle
+          :aria-expanded="nbsFaSeriesExpanded"
+          @click="nbsFaSeriesExpanded = !nbsFaSeriesExpanded"
+        >
+          {{ nbsFaSeriesExpanded ? "收起多期" : "多期序列" }}
+        </button>
+        <template v-if="nbsFaSeriesExpanded">
+          <view class="macro-series" data-nbs-fa-series-detail>
+            固投同比
+            <text v-for="(p, i) in nbsFaTrend" :key="'nfa-' + p.period">
+              {{ shortNbsFaPeriodLabel(p.period) }} {{ formatMacroPct(p.faYoyPct)
+              }}<text v-if="i < nbsFaTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view class="macro-series" data-nbs-fa-series-detail>
+            民间同比
+            <text v-for="(p, i) in nbsFaTrend" :key="'nfa-p-' + p.period">
+              {{ shortNbsFaPeriodLabel(p.period) }} {{ formatMacroPct(p.privateYoyPct)
+              }}<text v-if="i < nbsFaTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view class="macro-series" data-nbs-fa-series-detail>
+            制造同比
+            <text v-for="(p, i) in nbsFaTrend" :key="'nfa-m-' + p.period">
+              {{ shortNbsFaPeriodLabel(p.period) }} {{ formatMacroPct(p.manufacturingYoyPct)
+              }}<text v-if="i < nbsFaTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
+
       <view v-if="gdRealEstateBrief" class="card macro-card" data-tab="overview,price" data-gd-real-estate-brief>
         <view class="macro-kicker">广东 · 房地产</view>
         <view class="row-between">
@@ -6847,6 +6926,12 @@ import {
   type ZhProvidentDynamicsRow
 } from "../../local/zhProvidentDynamics";
 import {
+  getLatestNbsFaInvestment,
+  getNbsFaInvestmentTrend,
+  shortNbsFaPeriodLabel,
+  type NbsFaInvestmentRow
+} from "../../local/nbsFaInvestment";
+import {
   getLatestGdRealEstateBrief,
   getGdRealEstateBriefTrend,
   gdBriefImpliedUnitPrice,
@@ -7987,6 +8072,7 @@ const errorMsg = ref<string>("");
 const loading = ref<boolean>(false);
 const gzInventoryExpanded = ref(false);
 const nbsSeriesExpanded = ref(false);
+const nbsFaSeriesExpanded = ref(false);
 const gdBriefSeriesExpanded = ref(false);
 const gdFaSeriesExpanded = ref(false);
 const gdConstructionSeriesExpanded = ref(false);
@@ -7994,6 +8080,8 @@ const gdEconomySeriesExpanded = ref(false);
 const gdProvidentExpanded = ref(false);
 
 const nbsMacro = computed(() => getLatestNbsRealEstate());
+const nbsFaInvestment = computed<NbsFaInvestmentRow | null>(() => getLatestNbsFaInvestment());
+const nbsFaTrend = computed(() => getNbsFaInvestmentTrend(6));
 const nbsYoyTrend = computed(() => getNbsYoyTrend(6));
 const nbsImpliedUnitPrice = computed(() => getNbsImpliedContractUnitPrice(nbsMacro.value));
 const nbsUnitPriceTrend = computed(() => getNbsImpliedUnitPriceTrend(6));
