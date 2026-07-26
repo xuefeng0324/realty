@@ -530,6 +530,7 @@
 | 2026-07-26 | F-PAGES-MACRO-06 | 第二批迁移：迁 4 张广东卡 → macro-region | 1.121.130 | gd-real-estate-brief / gd-economy / gd-fa-investment / gd-construction |
 | 2026-07-26 | F-PAGES-MACRO-07 | 第二批迁移：迁 8 张产业卡 → macro-industry | 1.121.130 | nbs-fa-investment / nbs-income / nbs-cpi / nbs-pmi / nbs-industrial / nbs-industrial-profit / nbs-ppi / nbs-retail |
 | 2026-07-26 | F-PAGES-MACRO-08 | 第二批迁移：迁 1 张贸易卡 → macro-trade | 1.121.130 | nbs-trade |
+| 2026-07-27 | F-COMP-KPI-03 | nbs-macro 多期序列精简 6 → 4 v-for（删面积同比/投资同比，保留均价/可售月/销售额同比/资金同比） | 1.121.133 | dashboard 15,404 → 15,392 行（-12）；T-006 完成；gzAffordableProjects 测试断言兼容 |
 | 2026-07-27 | F-COMP-KPI-02 | 3 个 macro 子页（macro-region / industry / trade）共 52 KPI 改 MacroKpiCell 组件；macroTrendBand 替换 macroTrendClass；import 同步 | 1.121.132 | 子页合计 1,269 → 1,024 行（-245 行 / -19.3%）；T-003 完成 |
 | 2026-07-27 | F-COMP-KPI-01 | MacroKpiCell.vue 单 KPI 单元格组件（label/value/sub/subTrendClass）；dashboard nbs-macro 卡 16 KPI 改用组件；nbs-macro 多期序列精简 14 → 6 块 | 1.121.131 | dashboard 15,555 → 15,404 行；累计两轮 -8.0%；后续 T-001 ~ T-006 |
 | 2026-07-26 | F-PAGES-MACRO-09 | 预算硬规则收紧到 ≤ 8 / ≤ 16k；dashboard 16,746 → 15,555 行 | 1.121.130 | overview 14 张 → 1 张（nbsMacro） |

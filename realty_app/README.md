@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.121.133 | 2026-07-27 | 第五批瘦身：nbs-macro 多期序列精简 6 → 4 块（删面积同比/投资同比，保留均价/可售月/销售额同比/资金同比）；dashboard 15,404 → 15,392 行；T-006 完成 |
 | v1.121.132 | 2026-07-27 | 第四批瘦身：3 个 macro 子页（macro-region / industry / trade）共 52 KPI 改 MacroKpiCell 组件；子页合计 1,269 → 1,024 行（-245） |
 | v1.121.131 | 2026-07-27 | 第三批瘦身：MacroKpiCell.vue 抽 KPI 单元格组件 + nbs-macro 卡 16 KPI 改组件 + macroTrendBand helper；dashboard 15,555 → 15,404 行 |
 | v1.121.130 | 2026-07-26 | 第二批迁移：迁 13 张宏卡到 3 个子页（macro-region 4 + macro-industry 8 + macro-trade 1）；dashboard 16,746 → 15,555 行；总览预算收紧到 ≤ 8 / ≤ 16k |

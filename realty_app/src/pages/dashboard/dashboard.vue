@@ -2451,21 +2451,9 @@
             </text>
           </view>
           <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
-            面积同比
-            <text v-for="(p, i) in nbsYoyTrend" :key="p.period">
-              {{ p.shortLabel }} {{ formatMacroPct(p.salesAreaYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
-            </text>
-          </view>
-          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
             销售额同比
             <text v-for="(p, i) in nbsYoyTrend" :key="'sa-' + p.period">
               {{ p.shortLabel }} {{ formatMacroPct(p.salesAmountYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
-            </text>
-          </view>
-          <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
-            投资同比
-            <text v-for="(p, i) in nbsYoyTrend" :key="'inv-' + p.period">
-              {{ p.shortLabel }} {{ formatMacroPct(p.investmentYoyPct) }}<text v-if="i < nbsYoyTrend.length - 1"> · </text>
             </text>
           </view>
           <view v-if="nbsYoyTrend.length > 1" class="macro-series" data-nbs-series-detail>
