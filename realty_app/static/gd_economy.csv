@@ -1,0 +1,4 @@
+﻿region,period,period_label,publish_date,sort_key,gdp_yi,gdp_yoy_pct,primary_va_yi,primary_yoy_pct,secondary_va_yi,secondary_yoy_pct,tertiary_va_yi,tertiary_yoy_pct,industry_yoy_pct,retail_yoy_pct,fa_yoy_pct,re_investment_yoy_pct,cpi_yoy_pct,title,source_org,source_url
+广东,2026_H1,2026年上半年,2026-07-23,2026-06,72281.05,4.5,2248.94,3.8,27327.61,4.7,42704.5,4.5,5.8,1.3,-11.4,-21.6,0.8,2026年上半年广东经济运行简况,广东省统计局,http://stats.gd.gov.cn/tjkx185/content/post_4927626.html
+广东,2026_Q1,2026年一季度,2026-04-21,2026-03,34950.34,4.6,941.66,3.9,12410.95,4.7,21597.72,4.5,5.4,2.5,0.2,-14.8,0.5,2026年一季度广东经济运行简况,广东省统计局,http://stats.gd.gov.cn/tjkx185/content/post_4887418.html
+广东,2025,2025年,2026-01-30,2025-12,145846.76,3.9,5891.8,4.5,54993.5,2.4,84961.46,4.7,3,2.8,-17.3,-23.6,-0.2,2025年广东经济运行简况,广东省统计局,http://stats.gd.gov.cn/tjkx185/content/post_4850449.html

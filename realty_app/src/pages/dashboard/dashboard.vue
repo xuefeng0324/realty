@@ -1176,6 +1176,71 @@
         </template>
       </view>
 
+      <view v-if="gdEconomy" class="card macro-card" data-tab="overview,price" data-gd-economy>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">广东经济运行</view>
+          <view class="muted" style="font-size: 22rpx">{{ gdEconomy.periodLabel }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <view class="stats70-cell">
+            <text class="cell-label">地区生产总值</text>
+            <text class="cell-value">{{ formatMacro100m(gdEconomy.gdpYi) }}</text>
+            <text class="cell-sub" :class="macroTrendClass(gdEconomy.gdpYoyPct)">
+              同比 {{ formatMacroPct(gdEconomy.gdpYoyPct) }}
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">房开投资同比</text>
+            <text class="cell-value" :class="macroTrendClass(gdEconomy.reInvestmentYoyPct)">
+              {{ formatMacroPct(gdEconomy.reInvestmentYoyPct) }}
+            </text>
+            <text class="cell-sub muted">固投 {{ formatMacroPct(gdEconomy.faYoyPct) }}</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">规上工业同比</text>
+            <text class="cell-value" :class="macroTrendClass(gdEconomy.industryYoyPct)">
+              {{ formatMacroPct(gdEconomy.industryYoyPct) }}
+            </text>
+            <text class="cell-sub muted">社消零 {{ formatMacroPct(gdEconomy.retailYoyPct) }}</text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">CPI 同比</text>
+            <text class="cell-value" :class="macroTrendClass(gdEconomy.cpiYoyPct)">
+              {{ formatMacroPct(gdEconomy.cpiYoyPct) }}
+            </text>
+            <text class="cell-sub muted">三产 {{ formatMacroPct(gdEconomy.tertiaryYoyPct) }}</text>
+          </view>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          {{ gdEconomy.sourceOrg }} · {{ gdEconomy.publishDate || gdEconomy.periodLabel }}。
+          不变价 GDP；房开投资≠房价均价；月度无 GDP 的简况不入库。
+        </view>
+        <button
+          v-if="gdEconomyTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-gd-economy-series-toggle
+          :aria-expanded="gdEconomySeriesExpanded"
+          @click="gdEconomySeriesExpanded = !gdEconomySeriesExpanded"
+        >
+          {{ gdEconomySeriesExpanded ? "收起多期序列" : "展开多期序列" }}
+        </button>
+        <template v-if="gdEconomySeriesExpanded">
+          <view class="muted" style="margin-top: 10rpx; font-size: 22rpx" data-gd-economy-series-detail>
+            GDP 同比（累计口径勿直接环比）：
+            <text v-for="(p, i) in gdEconomyTrend" :key="'econ-' + p.period">
+              {{ p.periodLabel }} {{ formatMacroPct(p.gdpYoyPct) }}<text v-if="i < gdEconomyTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view class="muted" style="margin-top: 6rpx; font-size: 22rpx">
+            房开投资同比：
+            <text v-for="(p, i) in gdEconomyTrend" :key="'econ-re-' + p.period">
+              {{ p.periodLabel }} {{ formatMacroPct(p.reInvestmentYoyPct) }}<text v-if="i < gdEconomyTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
+
       <view v-if="gdFaInvestment" class="card macro-card" data-tab="overview,price" data-gd-fa-investment>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">广东固定资产投资</view>
@@ -6709,6 +6774,11 @@ import {
   gdHousingSharePct,
   type GdConstructionRow
 } from "../../local/gdConstruction";
+import {
+  getLatestGdEconomy,
+  getGdEconomyTrend,
+  type GdEconomyRow
+} from "../../local/gdEconomy";
 
 const app = useAppStore();
 
@@ -7830,6 +7900,7 @@ const nbsSeriesExpanded = ref(false);
 const gdBriefSeriesExpanded = ref(false);
 const gdFaSeriesExpanded = ref(false);
 const gdConstructionSeriesExpanded = ref(false);
+const gdEconomySeriesExpanded = ref(false);
 const gdProvidentExpanded = ref(false);
 
 const nbsMacro = computed(() => getLatestNbsRealEstate());
@@ -7992,6 +8063,8 @@ const gdFaTrend = computed(() => getGdFaInvestmentTrend(6));
 const gdConstruction = computed<GdConstructionRow | null>(() => getLatestGdConstruction());
 const gdConstructionTrend = computed(() => getGdConstructionTrend(6));
 const gdConstructionHousingShare = computed(() => gdHousingSharePct(gdConstruction.value));
+const gdEconomy = computed<GdEconomyRow | null>(() => getLatestGdEconomy());
+const gdEconomyTrend = computed(() => getGdEconomyTrend(6));
 const gzProvidentAnnual = computed<GzProvidentAnnualRow | null>(() => {
   const city = store.getCityById(app.cityId)?.cityName?.replace(/市$/, "") ?? "";
   return city === "广州" ? getLatestGzProvidentAnnual() : null;
