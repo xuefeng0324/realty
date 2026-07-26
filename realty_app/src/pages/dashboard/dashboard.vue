@@ -776,8 +776,17 @@
             </text>
           </view>
         </template>
+        <view v-if="pbcRegionSfPeers.length > 1" class="muted" style="margin-top: 10rpx; font-size: 22rpx">
+          同期对照（增量亿元）：
+          <text
+            v-for="(p, i) in pbcRegionSfPeers"
+            :key="'peer-' + p.region"
+          >
+            {{ p.region }} {{ p.sfFlowYi.toLocaleString() }}<text v-if="i < pbcRegionSfPeers.length - 1"> · </text>
+          </text>
+        </view>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
-          来源：地区社融 XLSX（广东）÷ 全国「金融统计数据报告」同期社融增量。占比为派生指标；省级累计 ≠ 城市挂牌/网签/70 城，亦非成交均价。
+          来源：地区社融 XLSX（广东 + 苏浙京沪对照）÷ 全国「金融统计数据报告」同期社融增量。占比为派生指标；省级累计 ≠ 城市挂牌/网签/70 城，亦非成交均价。
         </view>
       </view>
 
@@ -7444,8 +7453,9 @@ import {
 } from "../../local/pbcFinStats";
 import {
   getLatestPbcRegionSf,
-  getPbcRegionSf,
+  getPbcRegionSfByRegion,
   getPbcRegionSfDeltaVsPrev,
+  getPbcRegionSfPeerRanking,
   getPbcRegionSfVsNational,
   listPbcRegionSfVsNational,
   type PbcRegionSfRow
@@ -11085,9 +11095,10 @@ const pbcFinDelta = computed(() => getPbcFinStatsDeltaVsPrev());
 const pbcFinRecent = computed<PbcFinStatsRow[]>(() => getPbcFinStats().slice(0, 5));
 const pbcRegionSfLatest = computed(() => getLatestPbcRegionSf());
 const pbcRegionSfDelta = computed(() => getPbcRegionSfDeltaVsPrev());
-const pbcRegionSfRecent = computed<PbcRegionSfRow[]>(() => getPbcRegionSf().slice(0, 5));
+const pbcRegionSfRecent = computed<PbcRegionSfRow[]>(() => getPbcRegionSfByRegion().slice(0, 5));
 const pbcRegionSfVsNat = computed(() => getPbcRegionSfVsNational());
 const pbcRegionSfVsNatRecent = computed(() => listPbcRegionSfVsNational().slice(0, 5));
+const pbcRegionSfPeers = computed(() => getPbcRegionSfPeerRanking());
 const lprYearLabel = computed(() => {
   const m = lprLatest.value?.month;
   if (!m) return String(new Date().getFullYear());

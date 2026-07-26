@@ -3,7 +3,7 @@
 """从央行抓取「地区社会融资规模增量统计表」XLSX → 广东行 CSV。
 
 列表：http://www.pbc.gov.cn/diaochatongjisi/116219/116225/index.html
-口径：省级社融增量（亿元）；**≠ 房价、≠ 挂牌、≠ 网签**。仅入库广东（本产品三城所在省）。
+口径：省级社融增量（亿元）；**≠ 房价、≠ 挂牌、≠ 网签**。入库广东及对照省（江苏/浙江/北京/上海）。
 
 用法：
   python scripts/crawl_pbc_region_sf.py
@@ -42,6 +42,7 @@ FIELDS = [
     "xlsx_url",
 ]
 TARGET = "广东"
+PEER_REGIONS = ("广东", "江苏", "浙江", "北京", "上海")
 
 
 def fetch_bytes(url: str) -> bytes:
@@ -176,43 +177,47 @@ def _fnum(s: str) -> str:
         return ""
 
 
-def extract_guangdong(rows: list[list[str]]) -> dict[str, str] | None:
-    # 定位表头：含「人民币贷款」的行
+def extract_regions(rows: list[list[str]], regions: tuple[str, ...] = PEER_REGIONS) -> list[dict[str, str]]:
     header_i = -1
     for i, r in enumerate(rows[:20]):
         joined = "".join(r)
         if "人民币贷款" in joined and ("社会融资" in joined or i > 0):
             header_i = i
             break
-    # 列索引：第 0 列地区名；第 1 列总量；其后按常见顺序
-    # 新表：总量, 人民币贷款, 外币, 委托, 信托, 承兑, 企业债, 政府债, 股票
+    has_gov = any(
+        "政府债券" in "".join(rows[j]) for j in range(max(0, header_i), header_i + 3) if header_i >= 0
+    )
+    out: list[dict[str, str]] = []
     for r in rows:
         name = (r[0] if r else "").strip()
-        if not name.startswith(TARGET):
-            continue
-        # 跳过空数据行
-        if len(r) < 3:
+        hit = next((reg for reg in regions if name.startswith(reg)), None)
+        if not hit or len(r) < 3:
             continue
         total = _fnum(r[1] if len(r) > 1 else "")
         if not total:
             continue
-        # 政府债列：若表头含政府债券则约在 index 8，否则空
-        has_gov = any("政府债券" in "".join(rows[j]) for j in range(max(0, header_i), header_i + 3) if header_i >= 0)
         if has_gov and len(r) >= 9:
             corp, gov, equity = _fnum(r[7]), _fnum(r[8]), _fnum(r[9]) if len(r) > 9 else ""
         else:
             corp = _fnum(r[7]) if len(r) > 7 else ""
             gov = ""
             equity = _fnum(r[8]) if len(r) > 8 else ""
-        return {
-            "region": TARGET,
-            "sf_flow_yi": total,
-            "rmb_loan_yi": _fnum(r[2]) if len(r) > 2 else "",
-            "corp_bond_yi": corp,
-            "gov_bond_yi": gov,
-            "equity_yi": equity,
-        }
-    return None
+        out.append(
+            {
+                "region": hit,
+                "sf_flow_yi": total,
+                "rmb_loan_yi": _fnum(r[2]) if len(r) > 2 else "",
+                "corp_bond_yi": corp,
+                "gov_bond_yi": gov,
+                "equity_yi": equity,
+            }
+        )
+    return out
+
+
+def extract_guangdong(rows: list[list[str]]) -> dict[str, str] | None:
+    found = extract_regions(rows, (TARGET,))
+    return found[0] if found else None
 
 
 def load_existing(path: Path) -> list[dict[str, str]]:
@@ -260,27 +265,26 @@ def main() -> int:
                 print(f"  [{i}] no xlsx {title[:36]}")
                 continue
             rows = read_xlsx_rows(fetch_bytes(xurl))
-            gd = extract_guangdong(rows)
-            print(f"  [{i}/{len(pages)}] {title[:36]} → {'ok' if gd else 'miss'}")
-            if not gd:
-                continue
-            fresh.append(
-                {
-                    "period": period,
-                    "label": label,
-                    **gd,
-                    "source_url": url,
-                    "xlsx_url": xurl,
-                }
-            )
+            regs = extract_regions(rows)
+            print(f"  [{i}/{len(pages)}] {title[:36]} → {len(regs)} regions")
+            for reg in regs:
+                fresh.append(
+                    {
+                        "period": period,
+                        "label": label,
+                        **reg,
+                        "source_url": url,
+                        "xlsx_url": xurl,
+                    }
+                )
         except Exception as exc:  # noqa: BLE001
             print(f"  [{i}] ERR {type(exc).__name__}: {exc}")
         time.sleep(args.sleep)
 
-    by_period = {r["period"]: r for r in load_existing(OUT)}
+    by_key = {f"{r['period']}|{r['region']}": r for r in load_existing(OUT)}
     for r in fresh:
-        by_period[r["period"]] = r
-    rows = sorted(by_period.values(), key=lambda x: x["period"], reverse=True)
+        by_key[f"{r['period']}|{r['region']}"] = r
+    rows = sorted(by_key.values(), key=lambda x: (x["period"], x["region"]), reverse=True)
     atomic_write(OUT, rows)
     print(f"[done] {len(rows)} → {OUT}")
     return 0 if rows else 1

@@ -3,7 +3,7 @@ import { getPbcFinStats } from "./pbcFinStats";
 // @ts-ignore
 import rawCsv from "../../static/seed/pbc_region_sf.csv?raw";
 
-/** 央行地区社融增量（广东）：省级流量；≠房价/挂牌/网签 */
+/** 央行地区社融增量（广东+对照省）：省级流量；≠房价/挂牌/网签 */
 export interface PbcRegionSfRow {
   period: string;
   label: string;
@@ -24,6 +24,9 @@ export interface PbcRegionSfVsNational {
   nationalLabel: string;
   sharePct: number;
 }
+
+export const PBC_REGION_SF_FOCUS = "广东";
+export const PBC_REGION_SF_PEERS = ["广东", "江苏", "浙江", "北京", "上海"] as const;
 
 function n(v: string | undefined): number {
   const x = Number(v);
@@ -46,10 +49,11 @@ function mapRow(row: Record<string, string>): PbcRegionSfRow {
 }
 
 export function loadPbcRegionSfFromCSV(text: string): PbcRegionSfRow[] {
+  const allow = new Set<string>(PBC_REGION_SF_PEERS);
   return rowsToObjects<Record<string, string>>(parseCSV(text))
     .map(mapRow)
-    .filter((r) => r.period && r.region === "广东" && r.sfFlowYi > 0)
-    .sort((a, b) => b.period.localeCompare(a.period));
+    .filter((r) => r.period && allow.has(r.region) && r.sfFlowYi > 0)
+    .sort((a, b) => b.period.localeCompare(a.period) || a.region.localeCompare(b.region));
 }
 
 let rows: PbcRegionSfRow[] = loadPbcRegionSfFromCSV(String(rawCsv ?? ""));
@@ -58,8 +62,12 @@ export function getPbcRegionSf(): PbcRegionSfRow[] {
   return [...rows];
 }
 
+export function getPbcRegionSfByRegion(region: string = PBC_REGION_SF_FOCUS): PbcRegionSfRow[] {
+  return rows.filter((r) => r.region === region);
+}
+
 export function getLatestPbcRegionSf(): PbcRegionSfRow | null {
-  return rows[0] ?? null;
+  return getPbcRegionSfByRegion(PBC_REGION_SF_FOCUS)[0] ?? null;
 }
 
 export function getPbcRegionSfDeltaVsPrev(): {
@@ -67,9 +75,10 @@ export function getPbcRegionSfDeltaVsPrev(): {
   sfFlowDeltaYi: number;
   rmbLoanDeltaYi: number;
 } | null {
-  if (rows.length < 2) return null;
-  const cur = rows[0]!;
-  const prev = rows[1]!;
+  const gd = getPbcRegionSfByRegion(PBC_REGION_SF_FOCUS);
+  if (gd.length < 2) return null;
+  const cur = gd[0]!;
+  const prev = gd[1]!;
   return {
     prev,
     sfFlowDeltaYi: Math.round((cur.sfFlowYi - prev.sfFlowYi) * 100) / 100,
@@ -92,15 +101,28 @@ function vsNationalFor(row: PbcRegionSfRow): PbcRegionSfVsNational | null {
 }
 
 export function getPbcRegionSfVsNational(period?: string): PbcRegionSfVsNational | null {
-  const row = period ? rows.find((r) => r.period === period) : rows[0];
+  const gd = getPbcRegionSfByRegion(PBC_REGION_SF_FOCUS);
+  const row = period ? gd.find((r) => r.period === period) : gd[0];
   if (!row) return null;
   return vsNationalFor(row);
 }
 
 export function listPbcRegionSfVsNational(): PbcRegionSfVsNational[] {
-  return rows.map(vsNationalFor).filter((x): x is PbcRegionSfVsNational => x != null);
+  return getPbcRegionSfByRegion(PBC_REGION_SF_FOCUS)
+    .map(vsNationalFor)
+    .filter((x): x is PbcRegionSfVsNational => x != null);
+}
+
+/** 与广东最新同期对照省，按社融增量降序 */
+export function getPbcRegionSfPeerRanking(period?: string): PbcRegionSfRow[] {
+  const gd = getLatestPbcRegionSf();
+  const p = period ?? gd?.period;
+  if (!p) return [];
+  return rows
+    .filter((r) => r.period === p)
+    .sort((a, b) => b.sfFlowYi - a.sfFlowYi || a.region.localeCompare(b.region));
 }
 
 export function __setPbcRegionSfForTest(next: PbcRegionSfRow[]): void {
-  rows = [...next].sort((a, b) => b.period.localeCompare(a.period));
+  rows = [...next].sort((a, b) => b.period.localeCompare(a.period) || a.region.localeCompare(b.region));
 }

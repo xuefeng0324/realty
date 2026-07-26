@@ -164,7 +164,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/seed/mlf_history.csv` | `mlfHistory.ts` + dashboard「🏛️ 中期借贷便利（MLF）」 | `crawl_mlf_history.py`（**周/月更 CI**） | 央行「开展情况」公告：中标利率/操作量/余额；**2025-03 起多重价位中标，专栏多为招标量无单一利率**；**≠房价**；与 LPR 对照 |
 | `static/seed/omo_rr_history.csv` | `omoRrHistory.ts` + dashboard「🏦 公开市场逆回购」 | `crawl_omo_rr.py`（**周/月更 CI**） | 央行「公开市场业务交易公告」7 天期逆回购利率/中标量；**≠房价**；可与 LPR/MLF 对照 |
 | `static/seed/pbc_fin_stats.csv` | `pbcFinStats.ts` + dashboard「📊 金融统计（社融/M2）」 | `crawl_pbc_fin_stats.py`（**周/月更 CI**） | 央行「金融统计数据报告」：社融存量/增量、M2/M1、人民币贷款、住户及中长期贷款、质押式回购利率、**外汇储备/美元兑人民币**；早期月报可无社融段；**≠房价**；住户中长期贷≠按揭成交 |
-| `static/seed/pbc_region_sf.csv` | `pbcRegionSf.ts` + dashboard「🗺️ 广东社融增量」 | `crawl_pbc_region_sf.py`（**周/月更 CI**；XLSX zip+xml） | 央行「地区社会融资规模增量统计表」广东行；UI 派生 **占全国社融%**（÷ 全国同期增量）；**省级流量 ≠ 城市挂牌/网签/70城** |
+| `static/seed/pbc_region_sf.csv` | `pbcRegionSf.ts` + dashboard「🗺️ 广东社融增量」 | `crawl_pbc_region_sf.py`（**周/月更 CI**；XLSX zip+xml） | 央行「地区社会融资规模增量统计表」：**广东 + 苏浙京沪**；UI 派生占全国%与同期对照；**省级流量 ≠ 城市挂牌/网签/70城** |
 | `static/nbs_real_estate.csv` | `nbsRealEstate.ts` | `scripts/crawl_nbs_real_estate.py`（**月更 CI** 随 `crawl-monthly-stats70`） | 国家统计局全国房地产市场基本情况；**多期 merge**（`period` 主键）；来源须为 `stats.gov.cn`；仪表盘展示销售面积/销售额/投资/到位资金同比多期、**房屋/住宅施工·新开工·竣工**、**住宅销售/待售/投资分项**、**到位资金拆分（国内贷款/定金预收款/个人按揭/自筹）**、**销售额÷面积派生全国合同均价（含住宅派生，多期）**、以及 **待售÷销售节奏粗算可售月数（多期）**（均 ≠城市挂牌/网签均价、≠70城指数、≠城市去化周期） |
 | `static/nbs_fa_investment.csv` | `nbsFaInvestment.ts` + 仪表盘「全国固定资产投资」卡（**多期默认折叠**） | `scripts/crawl_nbs_fa_investment.py`（**月更 CI** 随 `crawl-monthly-stats70`） | 国家统计局「全国固定资产投资基本情况」：累计绝对额亿元 + 民间/产业/制造/设备/知产同比；**不含农户**；**≠房价均价**；房开投资仍见 `nbs_real_estate` |
 | `static/nbs_income.csv` | `nbsIncome.ts` + 仪表盘「全国居民收支」卡（**多期默认折叠**） | `scripts/crawl_nbs_income.py`（**月更 CI** 探测；季/半年/年报） | 国家统计局「居民收入和消费支出情况」：人均可支配收入（全国/城/乡，名义+实际）、消费支出、**居住消费**；已回填 2025 全年及分季；**居住消费 ≠ 房价**；可与广东收入对照 |
@@ -282,6 +282,7 @@ static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务�
 | 珠海日更网签 | [商品房预(销)售专网](https://zhfc.zhszjj.com/zhysouter) | 无稳定公开 API；TLS 超时；季报量能已由 `zh_bdc_registration` 覆盖 |
 | 房源详情图集 | 链家/贝壳/安居客 | 链家 CAPTCHA；安居客 m 站 SPA 无静态 sale 链；`cover_url` 接线已备 |
 | MLF 单一利率（2025-03+） | 央行 MLF 专栏 | 改多重价位中标后公开页多为招标量；利率样本止于「开展情况」期 |
+| 存款准备金率时间序列 | 央行货币政策工具 | 2026-07-26：专栏路径 404；公开页多为历史通稿/答记者问，无稳定利率表 |
 
 详情页挂牌标签 pill 已接 `listing_tags.csv` / `tags_json`（v1.121.98）。
 
