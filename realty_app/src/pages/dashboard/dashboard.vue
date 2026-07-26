@@ -932,6 +932,89 @@
         </view>
       </view>
 
+      <!-- 外管局国际收支货物和服务贸易（月度；≠房价） -->
+      <view v-if="safeBopTradeLatest" class="card" data-safe-bop-trade data-tab="overview,price">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🌐 货物与服务贸易</view>
+          <view class="muted" style="font-size: 22rpx">{{ safeBopTradeLatest.date.slice(0, 7) }}</view>
+        </view>
+        <view class="trend-summary" style="margin-top: 12rpx">
+          <view class="trend-cell">
+            <text class="cell-label">货物+服务顺差</text>
+            <text
+              class="cell-value"
+              :class="macroTrendClass(safeBopTradeLatest.totalSurplusUsdYi)"
+            >
+              {{ formatInvDelta(safeBopTradeLatest.totalSurplusUsdYi) }}
+            </text>
+            <text
+              v-if="safeBopTradeDelta"
+              class="cell-sub"
+              :class="macroTrendClass(safeBopTradeDelta.totalSurplusDelta)"
+            >
+              较上月 {{ formatInvDelta(safeBopTradeDelta.totalSurplusDelta) }}
+            </text>
+            <text v-else class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">货物顺差</text>
+            <text
+              class="cell-value"
+              :class="macroTrendClass(safeBopTradeLatest.goodsSurplusUsdYi)"
+            >
+              {{ formatInvDelta(safeBopTradeLatest.goodsSurplusUsdYi) }}
+            </text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">服务顺差</text>
+            <text
+              class="cell-value"
+              :class="macroTrendClass(safeBopTradeLatest.servicesSurplusUsdYi)"
+            >
+              {{ formatInvDelta(safeBopTradeLatest.servicesSurplusUsdYi) }}
+            </text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+        </view>
+        <view class="trend-summary" style="margin-top: 8rpx">
+          <view class="trend-cell">
+            <text class="cell-label">货物出口</text>
+            <text class="cell-value">{{ Math.round(safeBopTradeLatest.goodsExportUsdYi).toLocaleString() }}</text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">货物进口</text>
+            <text class="cell-value">{{ Math.round(safeBopTradeLatest.goodsImportUsdYi).toLocaleString() }}</text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">服贸出口/进口</text>
+            <text class="cell-value" style="font-size: 26rpx">
+              {{ Math.round(safeBopTradeLatest.servicesExportUsdYi) }}/{{
+                Math.round(safeBopTradeLatest.servicesImportUsdYi)
+              }}
+            </text>
+            <text class="cell-sub muted">亿美元</text>
+          </view>
+        </view>
+        <view
+          v-for="row in safeBopTradeRecent.slice(0, 3)"
+          :key="'safe-bop-' + row.date"
+          class="rank-row"
+          style="margin-top: 6rpx"
+        >
+          <text class="muted" style="font-size: 22rpx">{{ row.date.slice(0, 7) }}</text>
+          <text class="rank-val" style="font-size: 22rpx">
+            总顺差 {{ formatInvDelta(row.totalSurplusUsdYi) }}
+            · 货 {{ formatInvDelta(row.goodsSurplusUsdYi) }}
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：国家外汇管理局「国际收支货物和服务贸易」月度通稿（居民/非居民口径，初步数可能与季报不一致）。贸易顺差 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数。
+        </view>
+      </view>
+
       <!-- 外管局银行结售汇 + 涉外收付款（月度流量；≠房价） -->
       <view v-if="safeSettleLatest" class="card" data-safe-settle data-tab="overview,price">
         <view class="row-between">
@@ -7851,6 +7934,12 @@ import {
   type SafeOraRow
 } from "../../local/safeOra";
 import {
+  getLatestSafeBopTrade,
+  getSafeBopTrade,
+  getSafeBopTradeDeltaVsPrev,
+  type SafeBopTradeRow
+} from "../../local/safeBopTrade";
+import {
   getLatestSafeSettle,
   getSafeSettle,
   getSafeSettleDeltaVsPrev,
@@ -11551,6 +11640,9 @@ const safeOraLatest = computed(() => getLatestSafeOra());
 const safeOraDelta = computed(() => getSafeOraDeltaVsPrev());
 const safeOraRecent = computed<SafeOraRow[]>(() => getSafeOra().slice(0, 5));
 const safeOraGoldShare = computed(() => getSafeOraGoldShare(safeOraLatest.value));
+const safeBopTradeLatest = computed(() => getLatestSafeBopTrade());
+const safeBopTradeDelta = computed(() => getSafeBopTradeDeltaVsPrev());
+const safeBopTradeRecent = computed<SafeBopTradeRow[]>(() => getSafeBopTrade().slice(0, 5));
 const safeSettleLatest = computed(() => getLatestSafeSettle());
 const safeSettleDelta = computed(() => getSafeSettleDeltaVsPrev());
 const safeSettleRecent = computed<SafeSettleRow[]>(() => getSafeSettle().slice(0, 5));
