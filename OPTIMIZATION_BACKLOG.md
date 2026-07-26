@@ -11,18 +11,12 @@
 
 | 等级 | 编号 | 任务 | 状态 | 备注 |
 |------|------|------|------|------|
-| 🟡 | bug-filter-1 | 房源在售/成交/装修筛选清空列表 | ✅ 本轮 | 别名匹配 + 豪装/普装选项 + TEST/FEATURES/LISTING_FILTER 文档 |
-| 🟡 | docs-qa-1 | 测试验收总册 + 功能清单 MD | ✅ 本轮 | TEST_ACCEPTANCE.md / FEATURES.md |
-| 🟡 | ux-map-find-1 | 地图找房只有名字不能找房 | ✅ 本轮 | 默认找房+快筛+底栏+详情；MAP F-MAP-04 |
-| 🟡 | bug-map-1 | 地图挂牌均价黑乎乎 + 图例 0k-0k | ✅ 本轮 | 半透明热力/只画有价社区/formatPriceRange；MAP_ACCEPTANCE |
-| 🟡 | bug-theme-1 | 浅色模式与深色差别不大（糊弄感） | ✅ 本轮 | JS 注入 token + 去 #0c1426 硬编码；THEME_ACCEPTANCE 亮度门禁 |
-| 🟡 | ux-list-beike | 房源详情进一步学贝壳：图集/挂牌标签 pill/经纪人区（本产品不做经纪） | ⏳ | 仅学信息架构，不伪造成交 |
-| 🟡 | ux-home-1 | 首页金刚区库存/土地按城锚点（深圳空点） | ✅ 本会话前半 | `entry-supply` / `entry-land` 按城挂载 |
-| 🟡 | ux-stats70-1 | 70 城页新建/二手/同比/环比/降序芯片过大 | ✅ 本会话前半 | 去掉全局 `tap-target` 撑高 |
-| 🟡 | bug-edu-1 | dashboard/school 教育事业 lookup 依赖异步 cities（应用 store） | ⏳ | bug hunt P1 |
-| 🟡 | bug-school-1 | school.vue 重点学校头部跨城汇总，应按 cityId 过滤 | ⏳ | bug hunt P1 |
-| 🟢 | bug-edu-2 | 深圳「中小学」vs「普通中小学」文案不一致 | ⏳ | bug hunt P2 |
-| 🟢 | test-entry-1 | E2E 覆盖金刚区库存点击 → `#entry-supply` | ⏳ | |
+| 🟡 | bug-edu-1 | dashboard/school 教育事业 lookup 依赖异步 cities（应用 store） | ✅ 已修 | store.getCityById；adversarial 门禁 |
+| 🟡 | bug-school-1 | school.vue 重点学校头部跨城汇总，应按 cityId 过滤 | ✅ 本轮 | dimCityCurrent / Polymath(cityId) |
+| 🟡 | ux-list-beike | 房源详情进一步学贝壳：图集/挂牌标签 pill/经纪人区（本产品不做经纪） | 🟡 部分 | 本轮加标签 pill；图集待真图源 |
+| 🟢 | bug-edu-2 | 深圳「中小学」vs「普通中小学」文案不一致 | ✅ 已修 | adversarial 门禁「普通中小学」 |
+| 🟢 | test-entry-1 | E2E 覆盖金刚区库存点击 → `#entry-supply` | 🟡 部分 | unit 门禁已加；真 E2E 待 H5 |
+| 🟡 | data-zh-wq | 珠海网签/预售专网日更接入 | ⏳ | 站点慢/无稳定 API；不动产季报可作备选 |
 
 ### 执行策略（用户确认）
 

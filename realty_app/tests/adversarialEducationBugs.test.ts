@@ -69,4 +69,12 @@ describe("adversarial education bugs", () => {
     expect(school).toContain("kindergartenCount > 0");
     expect(school).toContain("formatEducationPeriodLabel");
   });
+
+  it("P1: 学校页重点校维度按 cityId 过滤，禁止跨城汇总头", () => {
+    const school = readFileSync(resolve(process.cwd(), "src/pages/school/school.vue"), "utf8");
+    expect(school).toContain("dimCityCurrent");
+    expect(school).toContain("getSchoolDimensionPolymath(app.cityId");
+    expect(school).not.toMatch(/getSchoolDimensionPolymath\(undefined/);
+    expect(school).not.toMatch(/dimCitySummary\.reduce/);
+  });
 });

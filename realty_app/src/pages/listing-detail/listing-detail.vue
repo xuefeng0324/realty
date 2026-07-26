@@ -27,6 +27,9 @@
           <view class="price-unit muted">{{ formatUnitPrice(data.listing.unit_price) }}</view>
         </view>
         <view class="fact-strip muted">{{ listingFactStrip }}</view>
+        <view v-if="listingTagPills.length > 0" class="listing-tag-pills" data-listing-tags>
+          <text v-for="tag in listingTagPills" :key="tag" class="listing-tag-pill">{{ tag }}</text>
+        </view>
         <view class="community-chip tap-row" hover-class="tap-row--active" @click="goCommunity">
           <text class="community-chip-label">小区</text>
           <text class="community-chip-name">{{ sameCommunityName || "查看小区" }}</text>
@@ -280,6 +283,7 @@ import {
 } from "../../utils/format";
 import { getListingsByCommunity, getCommunityById } from "../../local/store";
 import { listingSourceKindLabel } from "../../local/listingSource";
+import { getListingTagLabels } from "../../local/listingTags";
 import { housingAppHint, openHousingSourceUrl } from "../../utils/openExternal";
 
 const listingId = ref<number>(0);
@@ -309,6 +313,12 @@ const listingFactStrip = computed(() => {
   if (l.decorate_type) parts.push(l.decorate_type);
   if (l.build_year) parts.push(`${l.build_year}年建`);
   return parts.join(" · ");
+});
+
+const listingTagPills = computed(() => {
+  const l = data.value?.listing;
+  if (!l) return [] as string[];
+  return getListingTagLabels(l.listing_id, l.tags_json).slice(0, 8);
 });
 // v0.54.0 detail-1: 同小区其他 listings
 const sameCommunityAll = ref<ReturnType<typeof getListingsByCommunity>>([]);
@@ -514,6 +524,20 @@ onMounted(async () => {
   margin-top: 10rpx;
   font-size: 24rpx;
   line-height: 1.4;
+}
+.listing-tag-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-top: 12rpx;
+}
+.listing-tag-pill {
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  background: var(--color-soft);
+  color: var(--color-chip-text);
+  border: 1rpx solid var(--color-border);
 }
 .community-chip {
   margin-top: 16rpx;

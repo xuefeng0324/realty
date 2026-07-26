@@ -267,6 +267,15 @@ static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务�
 
 宏观数据与业务快照相互独立，在 `App.vue` 启动时分别注入内存（教育概览由模块 import 时解析）。
 
+### 5.1 已知缺口（下一优先）
+
+| 缺口 | 候选源 | 状态 |
+|------|--------|------|
+| 珠海日更网签 | [商品房预(销)售专网](https://zhfc.zhszjj.com/zhysouter)；不动产中心季报 | 无稳定公开 API；2026-07 探测超时 → backlog `data-zh-wq` |
+| 房源详情图集 | 链家/贝壳详情页图 | CAPTCHA；仅 REAL 源有 URL，暂不伪造图 |
+
+详情页挂牌标签 pill 已接 `listing_tags.csv` / `tags_json`（v1.121.98）。
+
 ---
 
 ## 6. 免责声明

@@ -107,4 +107,13 @@ describe("homeEntry F-ENTRY-01", () => {
     expect(ia).toContain("验收标准");
     expect(ia).toContain("pending listing");
   });
+
+  it("金刚区库存点击锚点为 entry-supply（test-entry-1 门禁）", () => {
+    const inv = HOME_KINGKONG.find((k) => k.key === "inventory");
+    expect(inv?.action).toEqual({ kind: "scroll", anchor: "entry-supply" });
+    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
+    expect(dash).toContain("entry-supply");
+    expect(dash).toContain("resolveHomeScrollAnchor");
+    expect(dash).toContain("supplyEntryOwner");
+  });
 });

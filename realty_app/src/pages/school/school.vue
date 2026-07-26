@@ -39,15 +39,14 @@
 
       <!-- v0.97.0 重点学校维度细分 (派生：基于 school_dimensions.csv) -->
       <view
-        v-if="dimCitySummary.length > 0"
+        v-if="dimCityCurrent"
         class="card"
         data-school-dimensions
       >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏫 重点学校维度细分</view>
-          <view class="muted" style="font-size: 22rpx">
-            {{ dimCitySummary.reduce((s, c) => s + c.schoolCount, 0) }} 所重点校 ·
-            {{ dimCitySummary.length }} 个城市
+          <view class="muted" style="font-size: 22rpx" data-school-dim-count>
+            {{ dimCityCurrent.schoolCount }} 所重点校 · {{ currentCityLabel || educationCityLabel }}
           </view>
         </view>
         <view
@@ -69,7 +68,7 @@
             <text class="drift-city">
               {{ row.schoolName }}
               <text class="muted" style="font-size: 18rpx">
-                ({{ row.cityName }}·{{ row.districtName }}·{{ row.schoolType }})
+                ({{ row.districtName }}·{{ row.schoolType }})
               </text>
             </text>
             <text class="drift-value drift-up">{{ row.score.toFixed(1) }}</text>
@@ -81,7 +80,7 @@
           style="margin-top: 14rpx"
         >
           <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
-            三维度 Top 1（每城市当前）
+            三维度 Top 1（本市）
           </view>
           <view class="stats70-grid">
             <view class="stats70-cell">
@@ -115,28 +114,25 @@
         </view>
 
         <view
-          v-if="cityByComposite.length > 0"
+          v-if="cityCompositeTop"
           style="margin-top: 14rpx"
+          data-school-city-top
         >
           <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
-            各市综合得分最强
+            本市综合得分最强
           </view>
-          <view
-            v-for="(row, i) in cityByComposite"
-            :key="'ctc' + row.cityId"
-            class="drift-row"
-          >
-            <text class="drift-rank">{{ i + 1 }}</text>
+          <view class="drift-row">
+            <text class="drift-rank">1</text>
             <text class="drift-city">
-              {{ row.cityName }} · {{ row.topSchool?.schoolName ?? "-" }}
+              {{ cityCompositeTop.cityName }} · {{ cityCompositeTop.topSchool?.schoolName ?? "-" }}
             </text>
             <text class="drift-value drift-up">
-              {{ row.topSchool?.score?.toFixed(1) ?? "-" }}
+              {{ cityCompositeTop.topSchool?.score?.toFixed(1) ?? "-" }}
             </text>
           </view>
         </view>
         <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
-          派生：snapshot.schoolDimensions（仅重点学校子集）。
+          派生：snapshot.schoolDimensions（仅重点学校子集，已按当前城市过滤）。
           "六边形战士" 同时满足综合≥80 / 集团实力≥70 / 区均衡度≥70。
         </view>
       </view>
@@ -221,10 +217,7 @@ import {
   summarizeSchoolDimensionsByCity,
   getSchoolDimensionByDimensionTopN,
   getSchoolDimensionPolymath,
-  getCityByCompositeRank,
-  type CityDimensionSummary,
-  type SchoolDimensionEntry,
-  type CityTopComposite
+  getCityByCompositeRank
 } from "../../local/schoolDimensionRanking";
 
 const app = useAppStore();
@@ -270,24 +263,23 @@ const educationHasSplit = computed(() =>
   educationOverview.value ? educationHasPrimaryJuniorSplit(educationOverview.value) : false
 );
 
-// v0.97.0：重点学校维度细分
-const dimCitySummary = computed<CityDimensionSummary[]>(() =>
-  summarizeSchoolDimensionsByCity()
+// v0.97.0：重点学校维度细分（必须按 app.cityId 过滤，禁止跨城汇总）
+const dimCitySummary = computed(() => summarizeSchoolDimensionsByCity());
+const dimCityCurrent = computed(
+  () => dimCitySummary.value.find((c) => c.cityId === app.cityId) ?? null
 );
-const dimPolymathList = computed<SchoolDimensionEntry[]>(() =>
-  getSchoolDimensionPolymath(undefined, {})
-);
-const dimTopLevel = computed<SchoolDimensionEntry[]>(() =>
+const dimPolymathList = computed(() => getSchoolDimensionPolymath(app.cityId, {}));
+const dimTopLevel = computed(() =>
   getSchoolDimensionByDimensionTopN("levelScore", app.cityId, 1)
 );
-const dimTopGroup = computed<SchoolDimensionEntry[]>(() =>
+const dimTopGroup = computed(() =>
   getSchoolDimensionByDimensionTopN("groupStrength", app.cityId, 1)
 );
-const dimTopBalance = computed<SchoolDimensionEntry[]>(() =>
+const dimTopBalance = computed(() =>
   getSchoolDimensionByDimensionTopN("districtBalance", app.cityId, 1)
 );
-const cityByComposite = computed<CityTopComposite[]>(() =>
-  getCityByCompositeRank()
+const cityCompositeTop = computed(
+  () => getCityByCompositeRank().find((r) => r.cityId === app.cityId) ?? null
 );
 
 function onCityChange(e: { detail: { value: string } }) {
