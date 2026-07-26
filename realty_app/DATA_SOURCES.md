@@ -161,6 +161,8 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/gd_construction.csv` | `gdConstruction.ts` + 仪表盘「广东建筑业生产运行」卡（**多期默认折叠**） | `crawl_gd_construction.py`（**周更 CI**） | 省住建厅「建筑业生产运行简况」：资质企业总产值/房屋建筑业/土木/珠三角产值及同比；**房屋建筑业产值 ≠ 商品房销售/挂牌均价** |
 | `static/gd_economy.csv` | `gdEconomy.ts` + 仪表盘「广东经济运行」卡（**多期默认折叠**） | `crawl_gd_economy.py`（**周更 CI**；多页列表；仅入库含 GDP 的期次） | 省统计局「经济运行简况」：不变价 GDP/三产；规上工业、社消零、固投、房开、CPI；人均可支配收入；**年报另含常住人口/城镇化率**；**≠城市挂牌/网签均价**；月度无 GDP 则跳过 |
 | `static/seed/lpr_history.csv` | LPR 卡 / 组合贷 | `compute_lpr_history.py`（基线）+ `crawl_lpr_history.py`（**月更 CI**） | 央行 PBOC 公告 1Y/5Y LPR；房贷加点沿用示意 bp |
+| `static/seed/mlf_history.csv` | `mlfHistory.ts` + dashboard「🏛️ 中期借贷便利（MLF）」 | `crawl_mlf_history.py`（**周/月更 CI**） | 央行「开展情况」公告：中标利率/操作量/余额；**2025-03 起多重价位中标，专栏多为招标量无单一利率**；**≠房价**；与 LPR 对照 |
+| `static/seed/omo_rr_history.csv` | `omoRrHistory.ts` + dashboard「🏦 公开市场逆回购」 | `crawl_omo_rr.py`（**周/月更 CI**） | 央行「公开市场业务交易公告」7 天期逆回购利率/中标量；**≠房价**；可与 LPR/MLF 对照 |
 | `static/nbs_real_estate.csv` | `nbsRealEstate.ts` | `scripts/crawl_nbs_real_estate.py`（**月更 CI** 随 `crawl-monthly-stats70`） | 国家统计局全国房地产市场基本情况；**多期 merge**（`period` 主键）；来源须为 `stats.gov.cn`；仪表盘展示销售面积/销售额/投资/到位资金同比多期、**房屋/住宅施工·新开工·竣工**、**住宅销售/待售/投资分项**、**到位资金拆分（国内贷款/定金预收款/个人按揭/自筹）**、**销售额÷面积派生全国合同均价（含住宅派生，多期）**、以及 **待售÷销售节奏粗算可售月数（多期）**（均 ≠城市挂牌/网签均价、≠70城指数、≠城市去化周期） |
 | `static/nbs_fa_investment.csv` | `nbsFaInvestment.ts` + 仪表盘「全国固定资产投资」卡（**多期默认折叠**） | `scripts/crawl_nbs_fa_investment.py`（**月更 CI** 随 `crawl-monthly-stats70`） | 国家统计局「全国固定资产投资基本情况」：累计绝对额亿元 + 民间/产业/制造/设备/知产同比；**不含农户**；**≠房价均价**；房开投资仍见 `nbs_real_estate` |
 | `static/nbs_income.csv` | `nbsIncome.ts` + 仪表盘「全国居民收支」卡（**多期默认折叠**） | `scripts/crawl_nbs_income.py`（**月更 CI** 探测；季/半年/年报） | 国家统计局「居民收入和消费支出情况」：人均可支配收入（全国/城/乡，名义+实际）、消费支出、**居住消费**；已回填 2025 全年及分季；**居住消费 ≠ 房价**；可与广东收入对照 |
@@ -276,7 +278,8 @@ static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务�
 | 缺口 | 候选源 | 状态 |
 |------|--------|------|
 | 珠海日更网签 | [商品房预(销)售专网](https://zhfc.zhszjj.com/zhysouter) | 无稳定公开 API；TLS 超时；季报量能已由 `zh_bdc_registration` 覆盖 |
-| 房源详情图集 | 链家/贝壳详情页图 | CAPTCHA；仅 REAL 源有 URL，暂不伪造图 |
+| 房源详情图集 | 链家/贝壳/安居客 | 链家 CAPTCHA；安居客 m 站 SPA 无静态 sale 链；`cover_url` 接线已备 |
+| MLF 单一利率（2025-03+） | 央行 MLF 专栏 | 改多重价位中标后公开页多为招标量；利率样本止于「开展情况」期 |
 
 详情页挂牌标签 pill 已接 `listing_tags.csv` / `tags_json`（v1.121.98）。
 

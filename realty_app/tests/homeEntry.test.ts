@@ -143,5 +143,9 @@ describe("homeEntry F-ENTRY-01", () => {
     expect(dash).toContain("entry-supply");
     expect(dash).toContain("resolveHomeScrollAnchor");
     expect(dash).toContain("supplyEntryOwner");
+    expect(dash).toContain("onHomeKingkong");
+    const smoke = readFileSync(resolve(process.cwd(), "tests/e2e/smoke_entry_supply.mjs"), "utf8");
+    expect(smoke).toContain("entry-supply");
+    expect(smoke).toContain("库存");
   });
 });

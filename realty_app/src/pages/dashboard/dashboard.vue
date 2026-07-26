@@ -545,6 +545,98 @@
         </view>
       </view>
 
+      <!-- 央行 MLF（政策操作利率；≠房价） -->
+      <view v-if="mlfLatest" class="card" data-mlf-history data-tab="overview,price">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🏛️ 中期借贷便利（MLF）</view>
+          <view class="muted" style="font-size: 22rpx">{{ mlfLatest.date }}</view>
+        </view>
+        <view class="trend-summary" style="margin-top: 12rpx">
+          <view class="trend-cell">
+            <text class="cell-label">1 年期中标利率</text>
+            <text class="cell-value">{{ mlfLatest.mlf1yPct.toFixed(2) }}%</text>
+            <text
+              v-if="mlfDelta"
+              class="cell-sub"
+              :class="rateDeltaClass(mlfDelta.rateDeltaPp)"
+            >
+              较上期 {{ mlfDelta.rateDeltaPp > 0 ? "+" : "" }}{{ mlfDelta.rateDeltaPp }} pp
+            </text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">操作量</text>
+            <text class="cell-value">{{ mlfLatest.amountYi.toLocaleString() }}</text>
+            <text class="cell-sub muted">亿元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">操作后余额</text>
+            <text class="cell-value">
+              {{ mlfLatest.balanceYi ? mlfLatest.balanceYi.toLocaleString() : "—" }}
+            </text>
+            <text class="cell-sub muted">亿元</text>
+          </view>
+        </view>
+        <view
+          v-for="row in mlfRecent.slice(0, 3)"
+          :key="'mlf-' + row.date"
+          class="rank-row"
+          style="margin-top: 6rpx"
+        >
+          <text class="muted" style="font-size: 22rpx">{{ row.date }}</text>
+          <text class="rank-val">
+            {{ row.mlf1yPct.toFixed(2) }}% · {{ row.amountYi.toLocaleString() }} 亿
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：中国人民银行「中期借贷便利开展情况」公告。2025-03 起改为多重价位中标，专栏多仅为招标量、无单一中标利率，故样本止于有利率的开展情况期。政策利率操作 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数；可与上方 LPR 对照。
+        </view>
+      </view>
+
+      <!-- 央行公开市场 7 天期逆回购（≠房价） -->
+      <view v-if="omoRrLatest" class="card" data-omo-rr-history data-tab="overview,price">
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">🏦 公开市场逆回购</view>
+          <view class="muted" style="font-size: 22rpx">{{ omoRrLatest.date }}</view>
+        </view>
+        <view class="trend-summary" style="margin-top: 12rpx">
+          <view class="trend-cell">
+            <text class="cell-label">{{ omoRrLatest.tenorDays }} 天期利率</text>
+            <text class="cell-value">{{ omoRrLatest.ratePct.toFixed(2) }}%</text>
+            <text
+              v-if="omoRrDelta"
+              class="cell-sub"
+              :class="rateDeltaClass(omoRrDelta.rateDeltaPp)"
+            >
+              较上期 {{ omoRrDelta.rateDeltaPp > 0 ? "+" : "" }}{{ omoRrDelta.rateDeltaPp }} pp
+            </text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">中标量</text>
+            <text class="cell-value">{{ omoRrLatest.amountYi.toLocaleString() }}</text>
+            <text class="cell-sub muted">亿元</text>
+          </view>
+          <view class="trend-cell">
+            <text class="cell-label">近 {{ omoRrRecent.length }} 期</text>
+            <text class="cell-value">{{ omoRrRecent.length }}</text>
+            <text class="cell-sub muted">交易公告</text>
+          </view>
+        </view>
+        <view
+          v-for="row in omoRrRecent.slice(0, 3)"
+          :key="'omo-rr-' + row.date"
+          class="rank-row"
+          style="margin-top: 6rpx"
+        >
+          <text class="muted" style="font-size: 22rpx">{{ row.date }}</text>
+          <text class="rank-val">
+            {{ row.ratePct.toFixed(2) }}% · {{ row.amountYi.toLocaleString() }} 亿
+          </text>
+        </view>
+        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+          来源：中国人民银行「公开市场业务交易公告」。7 天期逆回购操作利率 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城指数；可与 LPR / MLF 对照。
+        </view>
+      </view>
+
       <!-- 政府每日网签（摘要；有日更则可进子页） -->
       <view
         class="card wangqian-card"
@@ -7189,6 +7281,18 @@ import {
   type LprCycle
 } from "../../local/lprHistoryAnalysis";
 import {
+  getLatestMlf,
+  getMlfDeltaVsPrev,
+  getMlfHistory,
+  type MlfRow
+} from "../../local/mlfHistory";
+import {
+  getLatestOmoRr,
+  getOmoRrDeltaVsPrev,
+  getOmoRrHistory,
+  type OmoRrRow
+} from "../../local/omoRrHistory";
+import {
   getLatestCityDaily,
   type CityDailySnapshot
 } from "../../local/dailyWangqian";
@@ -10812,6 +10916,12 @@ function goSchool(schoolId: number) {
 
 // v1.117.0 LPR 与房贷利率信号
 const lprLatest = computed(() => getLprLatest());
+const mlfLatest = computed(() => getLatestMlf());
+const mlfDelta = computed(() => getMlfDeltaVsPrev());
+const mlfRecent = computed<MlfRow[]>(() => getMlfHistory().slice(0, 5));
+const omoRrLatest = computed(() => getLatestOmoRr());
+const omoRrDelta = computed(() => getOmoRrDeltaVsPrev());
+const omoRrRecent = computed<OmoRrRow[]>(() => getOmoRrHistory().slice(0, 5));
 const lprYearLabel = computed(() => {
   const m = lprLatest.value?.month;
   if (!m) return String(new Date().getFullYear());

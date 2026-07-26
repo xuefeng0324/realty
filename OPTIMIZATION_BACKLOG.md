@@ -13,8 +13,10 @@
 |------|------|------|------|------|
 | 🟡 | bug-edu-1 | dashboard/school 教育事业 lookup 依赖异步 cities（应用 store） | ✅ 已修 | store.getCityById；adversarial 门禁 |
 | 🟡 | bug-school-1 | school.vue 重点学校头部跨城汇总，应按 cityId 过滤 | ✅ 本轮 | dimCityCurrent / Polymath(cityId) |
-| 🟡 | ux-list-beike | 房源详情进一步学贝壳：图集/挂牌标签 pill/经纪人区（本产品不做经纪） | 🟡 部分 | 标签+价区+图集空态+列表缩略图位+`cover_url` 接线已做；链家 REAL 本机 CAPTCHA，封面仍空；安居客 enrich 脚本已备 |
-| 🟢 | test-entry-1 | E2E 覆盖金刚区库存点击 → `#entry-supply` | 🟡 部分 | unit 门禁已加；真 E2E 待 H5 |
+| 🟡 | ux-list-beike | 房源详情进一步学贝壳：图集/挂牌标签 pill/经纪人区（本产品不做经纪） | 🟡 部分 | 封面接线已做；安居客 m 站 SPA 无静态 sale 链、链家 CAPTCHA；真图仍空 |
+| 🟢 | test-entry-1 | E2E 覆盖金刚区库存点击 → `#entry-supply` | 🟡 部分 | unit+smoke_entry_supply.mjs 已备；真跑待 H5 |
+| 🟢 | data-mlf | 央行 MLF 操作利率 | ✅ v1.121.105 | 公告「开展情况」；2025-03+ 多重价位无单一利率；与 LPR 对照；≠房价 |
+| 🟢 | data-omo-rr | 央行公开市场 7 天期逆回购 | ✅ v1.121.105 | 交易公告利率/中标量；周月更 CI；≠房价 |
 | 🟡 | data-zh-wq | 珠海网签/预售专网日更接入 | ✅ 季报备选 | 日更仍超时；`zh_bdc_registration` 2025Q1–2026Q2 合计已上线 |
 | 🟢 | data-zh-price-filing | 珠海商品房价格备案公示 | ✅ v1.121.104 | 全量 336 条；周更 CI；预售专网仍超时 |
 
