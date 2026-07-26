@@ -5,6 +5,18 @@
       <view class="card">
         <view class="card-title">筛选</view>
 
+        <view class="form-item search-input" data-listing-keyword>
+          <input
+            class="input"
+            type="text"
+            v-model="keyword"
+            placeholder="小区 / 标题 / 行政区关键字"
+            confirm-type="search"
+            @confirm="() => applyFilter(true)"
+          />
+          <button class="btn" size="mini" @click="() => applyFilter(true)">搜索</button>
+        </view>
+
         <view class="form-grid">
           <view class="form-item">
             <text class="form-label">城市</text>
@@ -254,6 +266,7 @@
           <view class="muted" v-if="total">
             共 {{ total }} 套 · 已显示 {{ items.length }}
             <text v-if="districtName"> · {{ districtName }}</text>
+            <text v-if="keyword.trim()"> · 「{{ keyword.trim() }}」</text>
           </view>
         </view>
         <view v-if="total" class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
@@ -263,7 +276,7 @@
           v-if="items.length === 0"
           icon="⌂"
           title="暂无匹配房源"
-          desc="试试放宽面积、总价、行政区或朝向条件；下拉或点刷新也可重试。"
+          desc="试试换关键字，或放宽面积、总价、行政区条件；下拉或点刷新也可重试。"
           action-text="重置筛选"
           @action="resetFilter"
         />
@@ -350,8 +363,9 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { SNAPSHOT_UPDATED_EVENT } from "../../config";
-import { onLoad } from "@dcloudio/uni-app";
+import { onLoad, onShow } from "@dcloudio/uni-app";
 import { filterListings } from "../../local/queries";
+import { takePendingListingQuery } from "../../local/homeEntry";
 import {
   summarizeListingFreshnessByCity,
   getFreshestCommunityTopN,
@@ -437,6 +451,8 @@ const areaRange = ref<[number, number]>([0, 300]);
 
 const filterCommunityId = ref<number | null>(null);
 const districtName = ref<string>("");
+const keyword = ref("");
+const metaReady = ref(false);
 const PAGE_SIZE = 30;
 const page = ref(1);
 const loadingMore = ref(false);
@@ -651,7 +667,8 @@ async function applyFilter(resetPage = true) {
         priceRange: priceRange.value,
         areaRange: areaRange.value,
         minQualityScore: minQualityScore.value || undefined,
-        districtName: districtName.value || undefined
+        districtName: districtName.value || undefined,
+        keyword: keyword.value.trim() || undefined
       }
     };
     if (filterCommunityId.value) body.communityId = filterCommunityId.value;
@@ -689,6 +706,7 @@ function resetFilter() {
   decorateIndex.value = 0;
   scoreIndex.value = 0;
   districtName.value = "";
+  keyword.value = "";
   applyFilter(true);
 }
 
@@ -759,9 +777,18 @@ onLoad((q: any) => {
   }
 });
 
+onShow(async () => {
+  const pending = takePendingListingQuery();
+  if (!pending) return;
+  keyword.value = pending;
+  if (!metaReady.value) return;
+  await applyFilter(true);
+});
+
 onMounted(async () => {
   uni.$on(SNAPSHOT_UPDATED_EVENT, refreshSnapshotData);
   await loadMeta();
+  metaReady.value = true;
   await applyFilter();
 });
 
@@ -781,6 +808,23 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16rpx;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.search-input .input {
+  flex: 1;
+  min-height: 64rpx;
+  padding: 0 20rpx;
+  border-radius: 12rpx;
+  background: var(--color-soft);
+  color: var(--color-heading);
+  font-size: 28rpx;
 }
 
 /* v0.95.0：市场流动性条 */

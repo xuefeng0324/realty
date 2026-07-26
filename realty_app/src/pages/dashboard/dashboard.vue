@@ -6815,6 +6815,7 @@ import {
   HOME_SEARCH_MODES,
   resolveHomeSearch,
   setPendingSchoolQuery,
+  setPendingListingQuery,
   type HomeKingkongItem,
   type HomeSearchMode
 } from "../../local/homeEntry";
@@ -8328,6 +8329,7 @@ function submitHomeSearch() {
     return;
   }
   if (resolved.kind === "listing") {
+    if (resolved.q) setPendingListingQuery(resolved.q);
     uni.switchTab({
       url: resolved.path,
       fail: (e) => showToast(`打开房源失败：${toErrorMessage(e)}`)

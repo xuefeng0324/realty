@@ -140,6 +140,8 @@ export interface ListingFilterFilters {
   minSchoolFutureScore?: number;
   /** 行政区名（与 community.districtName 精确匹配） */
   districtName?: string;
+  /** 关键字：匹配标题 / 小区名 / 行政区 / tagsJson（子串，不区分大小写） */
+  keyword?: string;
 }
 
 export interface ListingFilterRequest {

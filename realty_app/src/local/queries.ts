@@ -478,6 +478,19 @@ export async function filterListings(req: ListingFilterRequest): Promise<Listing
       return c?.districtName === dn;
     });
   }
+  if (filters.keyword) {
+    const q = String(filters.keyword).trim().toLowerCase();
+    if (q) {
+      items = items.filter((l) => {
+        if (l.title.toLowerCase().includes(q)) return true;
+        if (l.tagsJson && l.tagsJson.toLowerCase().includes(q)) return true;
+        const c = store.getCommunityById(l.communityId);
+        if (c?.communityName?.toLowerCase().includes(q)) return true;
+        if (c?.districtName?.toLowerCase().includes(q)) return true;
+        return false;
+      });
+    }
+  }
   if (filters.hasElevator != null) {
     items = items.filter((l) => l.hasElevator === filters.hasElevator);
   }

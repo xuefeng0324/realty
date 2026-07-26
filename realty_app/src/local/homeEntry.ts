@@ -79,11 +79,12 @@ const PAGE_KEYWORD_ANCHORS: Array<{ keys: string[]; anchor: string }> = [
 
 export type HomeSearchResolve =
   | { kind: "school"; q: string }
-  | { kind: "listing"; path: string }
+  | { kind: "listing"; path: string; q: string }
   | { kind: "scroll"; anchor: string }
   | { kind: "none"; reason: string };
 
 let pendingSchoolQuery = "";
+let pendingListingQuery = "";
 
 export function setPendingSchoolQuery(q: string): void {
   pendingSchoolQuery = String(q ?? "").trim();
@@ -95,6 +96,16 @@ export function takePendingSchoolQuery(): string {
   return q;
 }
 
+export function setPendingListingQuery(q: string): void {
+  pendingListingQuery = String(q ?? "").trim();
+}
+
+export function takePendingListingQuery(): string {
+  const q = pendingListingQuery;
+  pendingListingQuery = "";
+  return q;
+}
+
 export function resolveHomeSearch(mode: HomeSearchMode, raw: string): HomeSearchResolve {
   const q = String(raw ?? "").trim();
   if (mode === "school") {
@@ -102,7 +113,7 @@ export function resolveHomeSearch(mode: HomeSearchMode, raw: string): HomeSearch
     return { kind: "school", q };
   }
   if (mode === "listing") {
-    return { kind: "listing", path: "/pages/listing-filter/listing-filter" };
+    return { kind: "listing", path: "/pages/listing-filter/listing-filter", q };
   }
   if (!q) return { kind: "none", reason: "请输入本页关键词，如 宏观 / 网签" };
   const lower = q.toLowerCase();

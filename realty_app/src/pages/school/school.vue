@@ -204,6 +204,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { SNAPSHOT_UPDATED_EVENT } from "../../config";
+import { onShow } from "@dcloudio/uni-app";
 import { getCities, searchSchools } from "../../local/queries";
 import { takePendingSchoolQuery } from "../../local/homeEntry";
 import type { CityItem, SchoolItem } from "../../api/contracts";
@@ -231,13 +232,21 @@ const cities = ref<CityItem[]>([]);
 const keyword = ref("");
 const results = ref<SchoolItem[] | null>(null);
 const errorMsg = ref("");
+const metaReady = ref(false);
+
+onShow(async () => {
+  const pending = takePendingSchoolQuery();
+  if (!pending) return;
+  keyword.value = pending;
+  if (!metaReady.value) return;
+  await search();
+});
 
 onMounted(async () => {
   uni.$on(SNAPSHOT_UPDATED_EVENT, loadCities);
   await loadCities();
-  const pending = takePendingSchoolQuery();
-  if (pending) {
-    keyword.value = pending;
+  metaReady.value = true;
+  if (keyword.value.trim()) {
     await search();
   }
 });

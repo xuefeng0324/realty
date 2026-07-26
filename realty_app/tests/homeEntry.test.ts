@@ -6,7 +6,9 @@ import {
   HOME_KINGKONG,
   HOME_SEARCH_MODES,
   homeKingkongCount,
-  resolveHomeSearch
+  resolveHomeSearch,
+  setPendingListingQuery,
+  takePendingListingQuery
 } from "../src/local/homeEntry";
 
 describe("homeEntry F-ENTRY-01", () => {
@@ -21,11 +23,22 @@ describe("homeEntry F-ENTRY-01", () => {
   it("搜索路由解析", () => {
     expect(resolveHomeSearch("school", "")).toMatchObject({ kind: "none" });
     expect(resolveHomeSearch("school", "实验")).toEqual({ kind: "school", q: "实验" });
-    expect(resolveHomeSearch("listing", "任意").kind).toBe("listing");
+    expect(resolveHomeSearch("listing", "万科")).toEqual({
+      kind: "listing",
+      path: "/pages/listing-filter/listing-filter",
+      q: "万科"
+    });
+    expect(resolveHomeSearch("listing", "").kind).toBe("listing");
     expect(resolveHomeSearch("page", "宏观").anchor).toBe("entry-macro");
     expect(resolveHomeSearch("page", "70城").anchor).toBe("entry-stats70");
     expect(resolveHomeSearch("page", "库存").anchor).toBe("entry-supply");
     expect(resolveHomeSearch("page", "xyz").kind).toBe("none");
+  });
+
+  it("房源 pending query 可写入并取出一次", () => {
+    setPendingListingQuery("  海岸城  ");
+    expect(takePendingListingQuery()).toBe("海岸城");
+    expect(takePendingListingQuery()).toBe("");
   });
 
   it("入口文案不误标成交均价", () => {
@@ -40,10 +53,18 @@ describe("homeEntry F-ENTRY-01", () => {
     expect(dash).toContain("data-home-kingkong");
     expect(dash).toContain("HOME_KINGKONG");
     expect(dash).toContain("id=\"entry-macro\"");
+    expect(dash).toContain("setPendingListingQuery");
     const school = readFileSync(resolve(process.cwd(), "src/pages/school/school.vue"), "utf8");
     expect(school).toContain("takePendingSchoolQuery");
+    const listing = readFileSync(
+      resolve(process.cwd(), "src/pages/listing-filter/listing-filter.vue"),
+      "utf8"
+    );
+    expect(listing).toContain("takePendingListingQuery");
+    expect(listing).toContain("data-listing-keyword");
     const ia = readFileSync(resolve(process.cwd(), "docs/DASHBOARD_ENTRY_IA.md"), "utf8");
     expect(ia).toContain("F-ENTRY-01");
     expect(ia).toContain("验收标准");
+    expect(ia).toContain("pending listing");
   });
 });
