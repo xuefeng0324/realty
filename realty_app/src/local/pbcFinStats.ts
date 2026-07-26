@@ -47,7 +47,7 @@ function mapRow(row: Record<string, string>): PbcFinStatsRow {
 export function loadPbcFinStatsFromCSV(text: string): PbcFinStatsRow[] {
   return rowsToObjects<Record<string, string>>(parseCSV(text))
     .map(mapRow)
-    .filter((r) => r.period && r.sfStockWanYi > 0 && r.m2WanYi > 0)
+    .filter((r) => r.period && r.m2WanYi > 0)
     .sort((a, b) => b.period.localeCompare(a.period));
 }
 

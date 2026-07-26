@@ -11,7 +11,7 @@ import {
 describe("pbc financial statistics", () => {
   it("加载央行金融统计样本", () => {
     const rows = getPbcFinStats();
-    expect(rows.length).toBeGreaterThanOrEqual(6);
+    expect(rows.length).toBeGreaterThanOrEqual(10);
     const latest = getLatestPbcFinStats();
     expect(latest).not.toBeNull();
     expect(latest!.sfStockWanYi).toBeGreaterThan(100);

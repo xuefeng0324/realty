@@ -109,8 +109,10 @@ def _num(s: str | None) -> str:
     return s.replace(",", "").strip()
 
 
-def _signed_yi(verb: str, amount: str) -> str:
+def _signed_amount(verb: str, amount: str, wan: str | None) -> str:
     n = float(amount)
+    if wan:
+        n *= 10000  # 万亿元 → 亿元
     if verb == "减少":
         n = -n
     return f"{n:g}"
@@ -139,27 +141,29 @@ def parse_body(html: str, title: str, source_url: str) -> dict[str, str] | None:
     )
     loan = re.search(r"人民币贷款增加\s*([\d.]+)\s*万亿元", text)
     hh = re.search(
-        r"住户贷款(增加|减少)\s*([\d.]+)\s*亿元[，,]其中[，,]短期贷款[^；]{0,40}?中长期贷款(增加|减少)\s*([\d.]+)\s*亿元",
+        r"住户贷款(增加|减少)\s*([\d.]+)\s*(万)?亿元[，,]其中[，,]短期贷款[^；]{0,80}?"
+        r"中长期贷款(增加|减少)\s*([\d.]+)\s*(万)?亿元",
         text,
     )
     repo = re.search(r"质押式(?:债券)?回购(?:月)?加权平均利率为\s*([\d.]+)\s*%", text)
 
-    if not (sf and m2):
+    # 2025 中段部分报告无社融存量段，仅有 M2/贷款；有社融或有 M2 即可入库
+    if not (sf or m2):
         return None
 
     return {
         "period": period,
         "label": label,
-        "sf_stock_wan_yi": _num(sf.group(1)),
-        "sf_stock_yoy_pct": _num(sf.group(2)),
+        "sf_stock_wan_yi": _num(sf.group(1)) if sf else "",
+        "sf_stock_yoy_pct": _num(sf.group(2)) if sf else "",
         "sf_flow_ytd_wan_yi": _num(flow.group(1)) if flow else "",
-        "m2_wan_yi": _num(m2.group(1)),
-        "m2_yoy_pct": _num(m2.group(2)),
+        "m2_wan_yi": _num(m2.group(1)) if m2 else "",
+        "m2_yoy_pct": _num(m2.group(2)) if m2 else "",
         "m1_wan_yi": _num(m1.group(1)) if m1 else "",
         "m1_yoy_pct": _num(m1.group(2)) if m1 else "",
         "rmb_loan_ytd_wan_yi": _num(loan.group(1)) if loan else "",
-        "hh_loan_ytd_yi": _signed_yi(hh.group(1), hh.group(2)) if hh else "",
-        "hh_ml_loan_ytd_yi": _signed_yi(hh.group(3), hh.group(4)) if hh else "",
+        "hh_loan_ytd_yi": _signed_amount(hh.group(1), hh.group(2), hh.group(3)) if hh else "",
+        "hh_ml_loan_ytd_yi": _signed_amount(hh.group(4), hh.group(5), hh.group(6)) if hh else "",
         "ib_repo_pct": _num(repo.group(1)) if repo else "",
         "source_url": source_url,
     }
