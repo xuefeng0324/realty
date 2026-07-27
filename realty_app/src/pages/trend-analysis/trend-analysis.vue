@@ -230,6 +230,16 @@ onMounted(async () => {
   await reloadAll(cityId.value);
 });
 
+// v1.121.151 Batch 12：响应城市切换自动 reload
+watch(
+  () => app.cityId,
+  async (newId) => {
+    if (newId === cityId.value) return;
+    cityId.value = newId;
+    await reloadAll(newId);
+  }
+);
+
 // 用 idx 而非 key 访问 grid
 function baCellCountByIdx(bi: number, ai: number): number {
   if (!bedroomArea.value) return 0;

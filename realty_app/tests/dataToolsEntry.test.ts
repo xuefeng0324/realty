@@ -229,6 +229,19 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(cardKeyAttrMatches.length).toBeGreaterThanOrEqual(15);
   });
 
+  it("v1.121.151 Batch 12：trend-analysis 响应城市切换", () => {
+    const taSrc2 = readFileSync(
+      resolve(__dirname, "../src/pages/trend-analysis/trend-analysis.vue"),
+      "utf8"
+    );
+    // 1. watch 监听 app.cityId
+    expect(taSrc2).toMatch(/watch\(\s*\(\)\s*=>\s*app\.cityId/);
+    expect(taSrc2).toMatch(/watch\([\s\S]{0,200}app\.cityId/);
+    // 2. cityId.value 更新 + reload
+    expect(taSrc2).toMatch(/cityId\.value = newId/);
+    expect(taSrc2).toMatch(/reloadAll\(newId\)/);
+  });
+
   it("v1.121.150 Batch 11：首页使用指南 banner", () => {
     const dashSrc3 = readFileSync(
       resolve(__dirname, "../src/pages/dashboard/dashboard.vue"),
