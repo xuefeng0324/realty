@@ -636,7 +636,7 @@
           </view>
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：listings.csv (中位单价) + cities.csv → scripts/compute_feature_premium.py。<br>
+          数据源：listings.csv (中位单价) + cities.csv → scripts/compute_feature_premium.py。<br/>
           公式：premium% = (bucket 桶中位单价 ÷ 城市中位单价 − 1) × 100。
         </view>
         <view data-cross-city v-if="featurePremiumCrossBedrooms.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
@@ -826,9 +826,6 @@
         </view>
       </view>
   
-      <!-- v0.40.0 trend-20 标签组合热度 (最常一起出现的 2 标签) -->
-      <view v-if="tagCombination && tagCombination.topN.length > 0" class="card" data-tab="all,price">
-
       <!-- v1.121.142 Batch 4：挂牌标签热度 -->
   <!-- v1.121.14 挂牌标签热度（listingTagsComparison，筛选项页已用，仪表盘此前未展示） -->
   <view v-if="listingTagCitySummary" class="card" data-tab="all,price" data-dt-listing-tags>
@@ -970,7 +967,7 @@
           </view>
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：listing_tags.csv (7518 行) → scripts/compute_tag_combination.py。<br>
+          数据源：listing_tags.csv (7518 行) → scripts/compute_tag_combination.py。<br/>
           公式：对每个 listing 取 4-7 个 tag, C(2) 算 2-组合, count ≥ 5 才入榜。
         </view>
         <view data-cross-city v-if="tagComboCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
@@ -1071,7 +1068,6 @@
             </view>
           </view>
         </view>
-      </view>
       </view>
 
       <!-- v1.121.142 Batch 4：学校指标各维度 Top 5 -->
@@ -1274,17 +1270,25 @@
         <view
           v-for="(it, idx) in metroPlanTop"
           :key="it.lineName + idx"
-
+          class="mp-row"
+        >
+          <view class="mp-rank">{{ idx + 1 }}</view>
+          <view class="mp-mid">
+            <view class="mp-line">{{ it.lineName }}</view>
+            <view class="mp-meta muted">{{ it.status }} · {{ it.lengthKm?.toFixed(0) ?? '—' }}km · {{ it.stationCount ?? '—' }} 站</view>
+          </view>
+        </view>
+      </view>
 
       <!-- 提示：剩余 0 张派生卡（全部已迁 Batch 5） -->
       <view class="card" data-dt-notice>
         <view class="card-title" style="margin-bottom: 0">剩余派生数据（待迁移）</view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          已迁 13 张：70 城 12 月趋势 + 地铁步行可达性 + 分区近 12 周 + 教育事业 + 通勤步行 + 规划受益 + 挂牌结构 + 区情画像 + 特征溢价 + 挂牌标签 + 标签组合 + 学校指标 + 重点学校。
-          待迁 1 张：规划地铁线路概览（v1.121.14，422 行 + 22 computed，工作量大，单独 Batch 5 处理）。
+          已迁 14 张：70 城 12 月趋势 + 地铁步行可达性 + 分区近 12 周 + 教育事业 + 通勤步行 + 规划受益 + 挂牌结构 + 区情画像 + 特征溢价 + 挂牌标签 + 标签组合 + 学校指标 + 重点学校 + 规划地铁。
+          首页瘦身完成度 14/14 = 100%。
         </view>
         <view class="muted" style="margin-top: 6rpx; font-size: 20rpx">
-          Batch 1-4 完成（v1.121.142）；首页瘦身完成度 13/14 ≈ 92.9%。
+          Batch 1-5 全部完成（v1.121.153）。
         </view>
       </view>
     </view>

@@ -121,6 +121,16 @@
             @click="goTrendAnalysis"
           >📊 深度可视化分析 (热图/矩阵/散点)</button>
         </view>
+        <!-- v1.121.153 Batch 14：行政区 + 社区地图 sub-page 入口 -->
+        <view class="home-personalize-row">
+          <button
+            class="home-personalize-btn"
+            size="mini"
+            hover-class="tap-row--active"
+            data-dash-map
+            @click="goMapAnalysis"
+          >🗺️ 全屏行政区 + 社区地图</button>
+        </view>
       </view>
 
       <!-- F-DASH-04：专业 Tab 置于入口下方（App/H5 均靠 .page[data-dash-tab] 过滤） -->
@@ -310,7 +320,7 @@
       </view>
 
       <!-- v1.116.0 全国 70 城涨跌 Top + 当前城市排位 + 趋势方向 -->
-      <view v-if="!isCardHidden('stats70-drift')" class="card" data-card-key="stats70-drift" v-if="stats70Ready">
+      <view v-if="!isCardHidden('stats70-drift') && stats70Ready" class="card" data-card-key="stats70-drift">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">全国 70 城 · 涨跌 Top</view>
           <button
@@ -422,7 +432,7 @@
       </view>
 
       <!-- v1.117.0 LPR 与房贷利率信号卡 -->
-      <view v-if="!isCardHidden('lpr-mortgage-signal')" class="card" data-card-key="lpr-mortgage-signal" v-if="lprLatest">
+      <view v-if="!isCardHidden('lpr-mortgage-signal') && lprLatest" class="card" data-card-key="lpr-mortgage-signal">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏦 LPR 与房贷利率</view>
           <button
@@ -5955,6 +5965,11 @@ function goDataTools(): void {
 function goTrendAnalysis(): void {
   uni.navigateTo({ url: "/pages/trend-analysis/trend-analysis" });
 }
+
+// v1.121.153 Batch 14：跳转到全屏行政区地图独立页
+function goMapAnalysis(): void {
+  uni.navigateTo({ url: "/pages/map-analysis/map-analysis" });
+}
 const homeSearchMode = ref<HomeSearchMode>("school");
 const homeSearchText = ref("");
 const homeSearchPlaceholder = computed(
@@ -9930,7 +9945,7 @@ onShow(async () => {
   text-align: right;
   flex-shrink: 0;
 }
-
+.tc-bar {
   background: linear-gradient(90deg, #a78bfa 0%, #7c3aed 100%);
   border-radius: 6rpx;
 }

@@ -127,6 +127,13 @@
         "navigationBarTitleText": "深度可视化分析",
         "enablePullDownRefresh": false
       }
+    },
+    {
+      "path": "pages/map-analysis/map-analysis",
+      "style": {
+        "navigationBarTitleText": "行政区 + 社区地图",
+        "enablePullDownRefresh": false
+      }
     }
   ],
   "tabBar": {
