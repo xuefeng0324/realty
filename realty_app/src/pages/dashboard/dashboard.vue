@@ -4564,7 +4564,10 @@
             :class="{ 'advanced-row--hidden': hiddenCards.has(c.key) }"
           >
             <view class="advanced-info">
-              <view class="advanced-name">{{ c.label }}</view>
+              <view class="advanced-name">
+                <text v-if="c.hot" class="advanced-hot-tag">🔥 热门</text>
+                {{ c.label }}
+              </view>
               <view class="muted" style="font-size: 20rpx">{{ c.hint }}</view>
             </view>
             <button
@@ -5058,21 +5061,21 @@ const FEATURED_MODE_KEY = "realty_dashboard_featured_mode";
 const ADVANCED_EXPANDED_KEY = "realty_dashboard_advanced_expanded";
 const featuredMode = ref<boolean>(true);  // 默认精简模式
 const advancedExpanded = ref<boolean>(false);  // 默认折叠
-const ADVANCED_CARDS: { key: string; label: string; hint: string }[] = [
+const ADVANCED_CARDS: { key: string; label: string; hint: string; hot?: boolean }[] = [
   { key: "bedroom-area-heatmap", label: "户型×面积 热图", hint: "bedroomAreaDistribution 联合分布" },
   { key: "orientation-floor-matrix", label: "朝向×楼层 溢价", hint: "orientationFloorMatrix 朝向×楼层溢价" },
   { key: "decorate-age-matrix", label: "装修×楼龄 溢价", hint: "decorateAgeMatrix 装修×楼龄溢价" },
   { key: "community-scatter", label: "总价×单价 散点", hint: "communityScatter 双轴散点可视化" },
-  { key: "district-map", label: "行政区+社区 地图", hint: "districtMap 地图聚合 marker/count/price/school/metro 模式" },
-  { key: "school-dim-weighted", label: "学区指标加权", hint: "schoolDimensions 加权细分明细" },
-  { key: "macro-lpr-card", label: "LPR+房贷利率", hint: "LPR 1y/5y + 房贷利率快照" },
+  { key: "district-map", label: "行政区+社区 地图", hint: "districtMap 地图聚合 marker/count/price/school/metro 模式", hot: true },
+  { key: "school-dim-weighted", label: "学区指标加权", hint: "schoolDimensions 加权细分明细", hot: true },
+  { key: "macro-lpr-card", label: "LPR+房贷利率", hint: "LPR 1y/5y + 房贷利率快照", hot: true },
   { key: "hospital-rank", label: "医疗资源榜", hint: "hospitalRanking 周边医院" },
-  { key: "commercial-heat", label: "商业热度榜", hint: "commercialRanking 小区维度" },
-  { key: "school-top-community", label: "学区评分 Top 小区", hint: "schoolPremiumCommunityItems Top 评分小区" },
+  { key: "commercial-heat", label: "商业热度榜", hint: "commercialRanking 小区维度", hot: true },
+  { key: "school-top-community", label: "学区评分 Top 小区", hint: "schoolPremiumCommunityItems Top 评分小区", hot: true },
   { key: "listing-school-premium", label: "Listing 学区溢价", hint: "listingPremiumOverview 房源学区溢价" },
   { key: "stats70-drift", label: "70 城涨跌 Top", hint: "stats70 城市 12 月同比趋势" },
   { key: "lpr-mortgage-signal", label: "LPR 与房贷利率信号", hint: "lprOverview 信号卡" },
-  { key: "district-wangqian-3cat", label: "区级网签 (新房/二手/全部)", hint: "districtWangqianRank 三品类 tab" }
+  { key: "district-wangqian-3cat", label: "区级网签 (新房/二手/全部)", hint: "districtWangqianRank 三品类 tab", hot: true }
 ];
 const advancedCardCount = computed(() => ADVANCED_CARDS.length);
 function toggleFeaturedMode() {
@@ -8028,6 +8031,17 @@ onShow(async () => {
   font-size: 26rpx;
   font-weight: 600;
   color: var(--color-text, #333);
+}
+.advanced-hot-tag {
+  display: inline-block;
+  font-size: 20rpx;
+  font-weight: 700;
+  padding: 0 8rpx;
+  margin-right: 6rpx;
+  border-radius: 8rpx;
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  color: #fff;
+  vertical-align: middle;
 }
 .advanced-toggle {
   flex: 0 0 auto;

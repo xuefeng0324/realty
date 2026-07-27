@@ -229,6 +229,22 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(cardKeyAttrMatches.length).toBeGreaterThanOrEqual(15);
   });
 
+  it("v1.121.152 Batch 13：🔥 热门卡标签", () => {
+    const dashSrc4 = readFileSync(
+      resolve(__dirname, "../src/pages/dashboard/dashboard.vue"),
+      "utf8"
+    );
+    // 1. ADVANCED_CARDS 至少 4 张卡有 hot: true
+    const hotMatches = dashSrc4.match(/hot:\s+true/g) || [];
+    expect(hotMatches.length).toBeGreaterThanOrEqual(4);
+    // 2. template 渲染 🔥 热门 标签
+    expect(dashSrc4).toMatch(/🔥 热门/);
+    expect(dashSrc4).toMatch(/advanced-hot-tag/);
+    // 3. CSS 样式
+    expect(dashSrc4).toMatch(/\.advanced-hot-tag\s*\{/);
+    expect(dashSrc4).toMatch(/linear-gradient\(135deg/);
+  });
+
   it("v1.121.151 Batch 12：trend-analysis 响应城市切换", () => {
     const taSrc2 = readFileSync(
       resolve(__dirname, "../src/pages/trend-analysis/trend-analysis.vue"),
