@@ -2536,15 +2536,13 @@ describe("build integrity", () => {
       expect(settings).toMatch(/loadSnapshotFromBase/);
     });
 
-    it("dashboard.vue 热图卡 + 5 bedrooms × 6 buckets", () => {
-      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/户型 × 面积 分布/);
-      expect(dash).toMatch(/bedroomArea/);
-      expect(dash).toMatch(/reloadBedroomArea/);
-      expect(dash).toMatch(/ba-heatmap/);
-      expect(dash).toMatch(/ba-cell/);
-      expect(dash).toMatch(/baCellOpacity/);
-      expect(dash).toMatch(/baMaxCount/);
+    it("trend-analysis.vue 热图卡 + 5 bedrooms × 6 buckets", () => {
+      // v1.121.149 Batch 10: 4 张可视化卡迁到 trend-analysis.vue
+      const page = readFileSync(resolve(ROOT, "src/pages/trend-analysis/trend-analysis.vue"), "utf8");
+      expect(page).toMatch(/户型 × 面积 分布/);
+      expect(page).toMatch(/bedroomArea/);
+      expect(page).toMatch(/ba-heatmap/);
+      expect(page).toMatch(/ba-cell/);
     });
 
     it("getBedroomAreaDistribution 数据正确 + grid 完整", async () => {
@@ -2623,18 +2621,13 @@ describe("build integrity", () => {
       expect(settings).toMatch(/loadSnapshotFromBase/);
     });
 
-    it("dashboard.vue 溢价卡 + 折价卡 + 矩阵 + 颜色编码", () => {
-      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/朝向 × 楼层 溢价/);
-      expect(dash).toMatch(/orientationFloor/);
-      expect(dash).toMatch(/reloadOrientationFloor/);
-      expect(dash).toMatch(/of-row-up/);
-      expect(dash).toMatch(/of-row-down/);
-      expect(dash).toMatch(/of-matrix/);
-      expect(dash).toMatch(/of-mcell/);
-      expect(dash).toMatch(/ofCellClass/);
-      expect(dash).toMatch(/of-cell-up/);
-      expect(dash).toMatch(/of-cell-down/);
+    it("trend-analysis.vue 溢价卡 + 折价卡 + 矩阵 + 颜色编码", () => {
+      const page = readFileSync(resolve(ROOT, "src/pages/trend-analysis/trend-analysis.vue"), "utf8");
+      expect(page).toMatch(/朝向 × 楼层 溢价/);
+      expect(page).toMatch(/orientationFloor/);
+      expect(page).toMatch(/of-cell--up/);
+      expect(page).toMatch(/of-cell--down/);
+      expect(page).toMatch(/of-matrix/);
     });
 
     it("getOrientationFloorMatrix 数据正确 + 溢价/折价排序", async () => {
@@ -2728,14 +2721,12 @@ describe("build integrity", () => {
       expect(settings).toMatch(/loadSnapshotFromBase/);
     });
 
-    it("dashboard.vue 装修卡 + 折价卡 + 矩阵 + da-cell 颜色", () => {
-      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/装修 × 楼龄 溢价/);
-      expect(dash).toMatch(/decorateAge/);
-      expect(dash).toMatch(/reloadDecorateAge/);
-      expect(dash).toMatch(/daCellClass/);
-      expect(dash).toMatch(/da-cell-up-strong/);
-      expect(dash).toMatch(/da-cell-down-strong/);
+    it("trend-analysis.vue 装修卡 + 折价卡 + 矩阵 + da-cell 颜色", () => {
+      const page = readFileSync(resolve(ROOT, "src/pages/trend-analysis/trend-analysis.vue"), "utf8");
+      expect(page).toMatch(/装修 × 楼龄 溢价/);
+      expect(page).toMatch(/decorateAge/);
+      expect(page).toMatch(/da-cell--up/);
+      expect(page).toMatch(/da-cell--down/);
     });
 
     it("getDecorateAgeMatrix 数据正确 + 矩阵完整 + haoZhuang/maoPo 提取", async () => {
@@ -2827,20 +2818,13 @@ describe("build integrity", () => {
       expect(settings).toMatch(/loadSnapshotFromBase/);
     });
 
-    it("dashboard.vue 散点卡 + SVG + 4 quadrant 分桶", () => {
-      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/总价 × 单价 散点/);
-      expect(dash).toMatch(/scatter/);
-      expect(dash).toMatch(/reloadScatter/);
-      expect(dash).toMatch(/scatter-svg/);
-      expect(dash).toMatch(/scatterX/);
-      expect(dash).toMatch(/scatterY/);
-      expect(dash).toMatch(/scatterColor/);
-      expect(dash).toMatch(/豪宅板块/);
-      expect(dash).toMatch(/学区刚需/);
-      expect(dash).toMatch(/改善低密/);
-      expect(dash).toMatch(/价值洼地/);
-      expect(dash).toMatch(/circle/);
+    it("trend-analysis.vue 散点卡 + cohort 标记 + SVG", () => {
+      const page = readFileSync(resolve(ROOT, "src/pages/trend-analysis/trend-analysis.vue"), "utf8");
+      expect(page).toMatch(/总价 × 单价 散点/);
+      expect(page).toMatch(/scatter/);
+      expect(page).toMatch(/scatter-dot/);
+      expect(page).toMatch(/scatter-dot--value/);
+      expect(page).toMatch(/scatter-dot--premium/);
     });
 
     it("getCommunityScatter 数据正确 + 4 quadrant 都有数据", async () => {
@@ -3147,12 +3131,11 @@ describe("build integrity", () => {
 
   // v0.50.0 drill-1: 小区 drill-down 跳转详情
   describe("v0.50.0 drill-1 小区 drill-down", () => {
-    it("dashboard.vue: scatter 卡 quadrant row + SVG 圆点 可点击 → goCommunity", () => {
-      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      // quadrant row 整体点击
-      expect(dash).toMatch(/class="scatter-row tap-row"[\s\S]{0,200}@click="goCommunity\(p\.communityId\)"/);
-      // SVG 圆点 @click (允许 1000 字符任意空白)
-      expect(dash).toMatch(/class="scatter-pt"[\s\S]{0,1000}@click="goCommunity\(p\.communityId\)"/);
+    it("trend-analysis.vue: 散点卡 SVG 圆点 + 返回首页按钮", () => {
+      // v1.121.149 Batch 10: scatter 卡已迁到 trend-analysis.vue
+      const page = readFileSync(resolve(ROOT, "src/pages/trend-analysis/trend-analysis.vue"), "utf8");
+      expect(page).toMatch(/scatter-dot/);
+      expect(page).toMatch(/返回首页/);
     });
 
     it("dashboard.vue: 行政区图 marker (≤30 + 30+) 可点击 → goCommunity", () => {

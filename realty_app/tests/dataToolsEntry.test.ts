@@ -229,6 +229,45 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(cardKeyAttrMatches.length).toBeGreaterThanOrEqual(15);
   });
 
+  it("v1.121.149 Batch 10：4 张可视化卡已迁到 trend-analysis.vue", () => {
+    const taSrc = readFileSync(
+      resolve(__dirname, "../src/pages/trend-analysis/trend-analysis.vue"),
+      "utf8"
+    );
+    const composableSrc = readFileSync(
+      resolve(__dirname, "../src/composables/useTrendVisualization.ts"),
+      "utf8"
+    );
+    const dashSrc2 = readFileSync(
+      resolve(__dirname, "../src/pages/dashboard/dashboard.vue"),
+      "utf8"
+    );
+    // 1. trend-analysis.vue 存在 4 张卡
+    expect(taSrc).toMatch(/户型 × 面积 分布/);
+    expect(taSrc).toMatch(/朝向 × 楼层 溢价/);
+    expect(taSrc).toMatch(/装修 × 楼龄 溢价/);
+    expect(taSrc).toMatch(/总价 × 单价 散点/);
+    // 2. composable 存在
+    expect(composableSrc).toMatch(/useTrendVisualization/);
+    expect(composableSrc).toMatch(/reloadBedroomArea/);
+    expect(composableSrc).toMatch(/reloadOrientationFloor/);
+    expect(composableSrc).toMatch(/reloadDecorateAge/);
+    expect(composableSrc).toMatch(/reloadScatter/);
+    // 3. dashboard.vue 不再包含这 4 张卡 HTML
+    expect(dashSrc2).not.toMatch(/v0\.42\.0 trend-22 户型 × 面积 联合热图/);
+    expect(dashSrc2).not.toMatch(/v0\.43\.0 trend-23 朝向 × 楼层 溢价矩阵/);
+    expect(dashSrc2).not.toMatch(/v0\.44\.0 trend-24 装修 × 楼龄 溢价矩阵/);
+    expect(dashSrc2).not.toMatch(/v0\.45\.0 trend-25 社区 总价 × 单价 双轴散点/);
+    // 4. pages.json 注册
+    const pagesJsonObj = JSON.parse(
+      readFileSync(resolve(__dirname, "../src/pages.json"), "utf8")
+    );
+    const trendPath = pagesJsonObj.pages.some(
+      (p: any) => p.path === "pages/trend-analysis/trend-analysis"
+    );
+    expect(trendPath).toBe(true);
+  });
+
   it("dashboard.vue v1.121.147 Batch 8：精简/完整模式 + 进阶分析区块", () => {
     // 1. 切换按钮存在
     expect(dashSrc).toContain("data-dash-mode-toggle");

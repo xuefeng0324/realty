@@ -120,6 +120,13 @@
         "navigationBarTitleText": "数据工具",
         "enablePullDownRefresh": true
       }
+    },
+    {
+      "path": "pages/trend-analysis/trend-analysis",
+      "style": {
+        "navigationBarTitleText": "深度可视化分析",
+        "enablePullDownRefresh": false
+      }
     }
   ],
   "tabBar": {
