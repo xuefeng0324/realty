@@ -229,6 +229,30 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(cardKeyAttrMatches.length).toBeGreaterThanOrEqual(15);
   });
 
+  it("v1.121.150 Batch 11：首页使用指南 banner", () => {
+    const dashSrc3 = readFileSync(
+      resolve(__dirname, "../src/pages/dashboard/dashboard.vue"),
+      "utf8"
+    );
+    // 1. banner 元素
+    expect(dashSrc3).toMatch(/data-dash-guide/);
+    expect(dashSrc3).toMatch(/data-dash-guide-close/);
+    expect(dashSrc3).toMatch(/🏠 首页使用指南/);
+    // 2. 4 步骤内容
+    expect(dashSrc3).toMatch(/🏠 精简模式/);
+    expect(dashSrc3).toMatch(/✕ 单卡隐藏/);
+    expect(dashSrc3).toMatch(/📊 进阶分析/);
+    expect(dashSrc3).toMatch(/📐 深度可视化/);
+    // 3. 函数 + state
+    expect(dashSrc3).toMatch(/showGuide/);
+    expect(dashSrc3).toMatch(/dismissGuide/);
+    expect(dashSrc3).toMatch(/loadGuideDismissed/);
+    expect(dashSrc3).toMatch(/DASHBOARD_GUIDE_KEY/);
+    // 4. CSS
+    expect(dashSrc3).toMatch(/\.home-guide-card/);
+    expect(dashSrc3).toMatch(/\.home-guide-step/);
+  });
+
   it("v1.121.149 Batch 10：4 张可视化卡已迁到 trend-analysis.vue", () => {
     const taSrc = readFileSync(
       resolve(__dirname, "../src/pages/trend-analysis/trend-analysis.vue"),

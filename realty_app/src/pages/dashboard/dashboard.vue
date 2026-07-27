@@ -1,6 +1,50 @@
 <template>
   <view class="page" :data-dash-tab="activeTab" :class="{ 'city-scoped': cityScoped }">
     <view class="container">
+      <!-- v1.121.150 Batch 11：首页使用指南 banner（首次进入显示，用户可关闭） -->
+      <view v-if="showGuide" class="home-guide-card" data-dash-guide>
+        <view class="row-between">
+          <view class="home-guide-title">🏠 首页使用指南</view>
+          <button
+            class="home-guide-close"
+            size="mini"
+            hover-class="tap-row--active"
+            data-dash-guide-close
+            @click.stop="dismissGuide"
+          >✕</button>
+        </view>
+        <view class="home-guide-list">
+          <view class="home-guide-row">
+            <text class="home-guide-step">1</text>
+            <view class="home-guide-content">
+              <view class="home-guide-name">🏠 精简模式</view>
+              <view class="muted" style="font-size: 22rpx">首页默认只显示 13 张精选卡，点工具栏「📊 完整模式」看全部 25 张。</view>
+            </view>
+          </view>
+          <view class="home-guide-row">
+            <text class="home-guide-step">2</text>
+            <view class="home-guide-content">
+              <view class="home-guide-name">✕ 单卡隐藏</view>
+              <view class="muted" style="font-size: 22rpx">每张核心卡右上角的 ✕ 可一键隐藏；底部「⚙️ 首页卡片管理」恢复。</view>
+            </view>
+          </view>
+          <view class="home-guide-row">
+            <text class="home-guide-step">3</text>
+            <view class="home-guide-content">
+              <view class="home-guide-name">📊 进阶分析</view>
+              <view class="muted" style="font-size: 22rpx">首页底部「📊 进阶分析」区块：14 张深度卡（热图/矩阵/散点/地图），默认折叠。</view>
+            </view>
+          </view>
+          <view class="home-guide-row">
+            <text class="home-guide-step">4</text>
+            <view class="home-guide-content">
+              <view class="home-guide-name">📐 深度可视化</view>
+              <view class="muted" style="font-size: 22rpx">首页金刚区下方「📊 深度可视化分析」按钮 → 独立 sub-page 全屏深度卡。</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
       <!-- F-ENTRY-01：定位 + 搜索 + 频道 + 金刚区（美团/淘宝式多入口） -->
       <view class="card home-entry-card" data-home-entry data-tab="all,overview,price,school,transit,map">
         <view class="home-loc-search">
@@ -5062,6 +5106,28 @@ function loadUiState() {
   }
 }
 
+// v1.121.150 Batch 11: 首页使用指南 banner
+const DASHBOARD_GUIDE_KEY = "realty_dashboard_guide_dismissed";
+const showGuide = ref<boolean>(true);
+function dismissGuide() {
+  showGuide.value = false;
+  try {
+    uni.setStorageSync(DASHBOARD_GUIDE_KEY, JSON.stringify(true));
+  } catch (e) {
+    console.warn("saveGuideDismissed failed:", e);
+  }
+}
+function loadGuideDismissed() {
+  try {
+    const raw = uni.getStorageSync(DASHBOARD_GUIDE_KEY);
+    if (typeof raw === "string" && raw.length > 0) {
+      showGuide.value = !(JSON.parse(raw) as boolean);
+    }
+  } catch (e) {
+    console.warn("loadGuideDismissed failed:", e);
+  }
+}
+
 const cities = ref<CityItem[]>([]);
 const periods = ref<string[]>([]);
 const sourceOptions = ref<SourceStatItem[]>([]);
@@ -7769,6 +7835,7 @@ onMounted(async () => {
   uni.$on(SNAPSHOT_UPDATED_EVENT, loadAll);
   loadHiddenCards();
   loadUiState();
+  loadGuideDismissed();
   applyTabClass();
   applyCityScopedClass(cityScoped.value);
   const res = await getCities();
@@ -7864,6 +7931,62 @@ onShow(async () => {
   border-radius: 999px !important;
   background: var(--color-soft, #f5f5f5) !important;
   color: var(--color-text, #333) !important;
+}
+.home-guide-card {
+  background: linear-gradient(135deg, #f0f4ff 0%, #fef3c7 100%);
+  border: 1rpx solid #c7d2fe;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  margin-bottom: 16rpx;
+}
+.home-guide-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--color-primary, #4f46e5);
+}
+.home-guide-close {
+  margin: 0;
+  font-size: 22rpx;
+  padding: 0 12rpx;
+  border-radius: 999px !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: var(--color-muted, #999) !important;
+}
+.home-guide-list {
+  margin-top: 16rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+.home-guide-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+}
+.home-guide-step {
+  flex: 0 0 36rpx;
+  width: 36rpx;
+  height: 36rpx;
+  background: var(--color-primary, #4f46e5);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 22rpx;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.home-guide-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+  min-width: 0;
+}
+.home-guide-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--color-text, #333);
 }
 .overview-mode-toggle {
   margin: 0 8rpx;
