@@ -186,6 +186,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/nbs_gdp.csv` | `nbsGdp.ts` + macro-industry「GDP 初步核算」 | `scripts/crawl_nbs_gdp.py`（**月更 CI** 探测季报） | 季度/半年/全年 GDP 现价绝对额 + 不变价同比；三产；**建筑业/房地产业**增加值；双列表稿含当季；**≠房价** |
 | `static/nbs_unemployment.csv` | `nbsUnemployment.ts` + macro-industry「城镇调查失业率」 | `scripts/crawl_nbs_unemployment.py`（**月更 CI**；国民经济运行通稿） | 当月失业率 + 1—N 月均 + 31 城 + 户籍分项 + 周工时；**失业率 ≠ 房价** |
 | `static/nbs_service_index.csv` | `nbsServiceIndex.ts` + macro-industry「服务业生产指数」 | `scripts/crawl_nbs_service_index.py`（**月更 CI**；国民经济运行通稿） | 当月/累计同比 + IT/租赁商务/金融/交运分项；**租赁商务 ≠ 房价**；可与 `gd_services` 对照 |
+| `static/mot_transport.csv` | `motTransport.ts` + macro-industry「交通运输」 | `scripts/crawl_mot_transport.py`（**月更 CI**；交通运输部 xxgk） | 营业性货运/公路水路/港口/集装箱/跨区域人员流动/交通固投；**≠房价**；无稳定列表页，靠 backfill URL 探测最新 |
 | `static/nbs_cpi.csv` | `nbsCpi.ts` + 仪表盘「全国 CPI」卡（**多期默认折叠**） | `scripts/crawl_nbs_cpi.py`（**月更 CI**） | 国家统计局月度 CPI：同比/环比 + **居住** + **租赁房房租**同比；**房租 ≠ 房价均价** |
 | `static/nbs_ppi.csv` | `nbsPpi.ts` + macro-industry「全国 PPI」 | `scripts/crawl_nbs_ppi.py`（**月更 CI**） | 国家统计局月度 PPI：同比/环比 + **购进** + **非金属矿物制品业**（出厂）+ **建筑材料及非金属类**（购进）+ **黑色金属冶炼和压延加工业**（出厂）；**PPI/建材 ≠ 房价均价** |
 | `static/nbs_retail.csv` | `nbsRetail.ts` + 仪表盘「社消装潢/家具」卡（**多期默认折叠**） | `scripts/crawl_nbs_retail.py`（**月更 CI**） | 国家统计局社消：限额以上 **建筑及装潢材料类**、**家具类**（当月+累计）；**装潢/家具零售 ≠ 房价** |
@@ -276,6 +277,7 @@ nbs_avg_wage.csv             → nbsAvgWage.ts         → 城镇单位年平均
 nbs_gdp.csv                  → nbsGdp.ts             → 全国 GDP 初步核算（含建筑业/房地产业）
 nbs_unemployment.csv         → nbsUnemployment.ts    → 城镇调查失业率（国民经济运行通稿）
 nbs_service_index.csv        → nbsServiceIndex.ts    → 服务业生产指数（含租赁商务）
+mot_transport.csv            → motTransport.ts       → 交通运输部货运/港口/固投
 nbs_cpi.csv                  → nbsCpi.ts             → 全国 CPI/居住/房租
 nbs_ppi.csv                  → nbsPpi.ts             → 全国 PPI/购进/非金属/建材购进/黑色金属冶炼
 nbs_retail.csv               → nbsRetail.ts          → 社消装潢/家具零售

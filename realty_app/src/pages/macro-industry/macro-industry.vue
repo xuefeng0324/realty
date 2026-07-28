@@ -3,6 +3,83 @@
     <view class="container">
       <MacroTabNav active="industry" data-macro-tab-nav />
 
+      <!-- 全国 · 交通运输经济运行（motTransport） -->
+      <view v-if="motTransport" class="card macro-card" data-mot-transport>
+        <view class="macro-kicker">全国 · 交通运输</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">货运与港口</view>
+          <view class="muted" style="font-size: 22rpx">{{ motTransport.label }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <MacroKpiCell
+            label="营业性货运量"
+            :value="motTransport.freightYiT.toLocaleString() + ' 亿吨'"
+            :sub="formatMacroPct(motTransport.freightYoyPct)"
+            :subTrendClass="macroTrendBand(motTransport.freightYoyPct)" />
+          <MacroKpiCell
+            label="港口吞吐量"
+            :value='motTransport.portYiT != null ? motTransport.portYiT.toLocaleString() + " 亿吨" : "—"'
+            :sub='motTransport.portYoyPct != null ? formatMacroPct(motTransport.portYoyPct) : ""'
+            :subTrendClass="macroTrendBand(motTransport.portYoyPct ?? 0)" />
+          <MacroKpiCell
+            label="集装箱"
+            :value='motTransport.containerYiTeu != null ? motTransport.containerYiTeu.toLocaleString() + " 亿TEU" : "—"'
+            :sub='motTransport.containerYoyPct != null ? formatMacroPct(motTransport.containerYoyPct) : ""'
+            :subTrendClass="macroTrendBand(motTransport.containerYoyPct ?? 0)" />
+          <MacroKpiCell
+            label="交通固投"
+            :value='motTransport.investYiYuan != null ? formatMacro100m(motTransport.investYiYuan) : "—"'
+            :sub="motTransport.publishDate" />
+        </view>
+        <view class="stats70-grid" style="margin-top: 8rpx" data-mot-transport-split>
+          <MacroKpiCell
+            label="公路货运"
+            :value='motTransport.roadFreightYiT != null ? motTransport.roadFreightYiT.toLocaleString() + " 亿吨" : "—"'
+            :sub='motTransport.roadFreightYoyPct != null ? formatMacroPct(motTransport.roadFreightYoyPct) : ""'
+            :subTrendClass="macroTrendBand(motTransport.roadFreightYoyPct ?? 0)" />
+          <MacroKpiCell
+            label="水路货运"
+            :value='motTransport.waterFreightYiT != null ? motTransport.waterFreightYiT.toLocaleString() + " 亿吨" : "—"'
+            :sub='motTransport.waterFreightYoyPct != null ? formatMacroPct(motTransport.waterFreightYoyPct) : ""'
+            :subTrendClass="macroTrendBand(motTransport.waterFreightYoyPct ?? 0)" />
+          <MacroKpiCell
+            label="跨区域人员流动"
+            :value='motTransport.passengerYiTrips != null ? motTransport.passengerYiTrips.toLocaleString() + " 亿人次" : "—"'
+            :sub='motTransport.passengerYoyPct != null ? formatMacroPct(motTransport.passengerYoyPct) : ""'
+            :subTrendClass="macroTrendBand(motTransport.passengerYoyPct ?? 0)" />
+        </view>
+        <view class="macro-note">
+          交通运输部综合规划司 · 货运/港口/固投 ≠ 房价/挂牌/网签/70城（宏观景气弱相关）
+        </view>
+        <button
+          v-if="motTransportTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-mot-transport-series-toggle
+          :aria-expanded="motTransportSeriesExpanded"
+          @click="motTransportSeriesExpanded = !motTransportSeriesExpanded"
+        >
+          {{ motTransportSeriesExpanded ? "收起多期" : "多期序列" }}
+        </button>
+        <template v-if="motTransportSeriesExpanded">
+          <view class="macro-series" data-mot-transport-series-detail>
+            货运同比
+            <text v-for="(p, i) in motTransportTrend" :key="'mt-f-' + p.period">
+              {{ shortMotTransportPeriodLabel(p.period) }} {{ formatMacroPct(p.freightYoyPct)
+              }}<text v-if="i < motTransportTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view class="macro-series" data-mot-transport-series-detail>
+            港口同比
+            <text v-for="(p, i) in motTransportTrend" :key="'mt-p-' + p.period">
+              {{ shortMotTransportPeriodLabel(p.period) }}
+              {{ p.portYoyPct != null ? formatMacroPct(p.portYoyPct) : "—"
+              }}<text v-if="i < motTransportTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
+
       <!-- 全国 · 服务业生产指数（nbsServiceIndex） -->
       <view v-if="nbsServiceIndex" class="card macro-card" data-nbs-service-index>
         <view class="macro-kicker">全国 · 服务业生产指数</view>
@@ -883,6 +960,12 @@ import MacroKpiCell from "../../components/MacroKpiCell.vue";
 import MacroTabNav from "../../components/MacroTabNav.vue";
 import { formatMacro100m, formatMacroPct, formatMacroYuan, macroTrendClass, macroTrendBand } from "../../utils/format";
 import {
+  getLatestMotTransport,
+  getMotTransportTrend,
+  shortMotTransportPeriodLabel,
+  type MotTransportRow
+} from "../../local/motTransport";
+import {
   getLatestNbsServiceIndex,
   getNbsServiceIndexTrend,
   shortNbsServiceIndexMonthLabel,
@@ -965,6 +1048,7 @@ import {
 } from "../../local/nbsRetail";
 
 // 多期展开 ref
+const motTransportSeriesExpanded = ref(false);
 const nbsServiceIndexSeriesExpanded = ref(false);
 const nbsUnemploymentSeriesExpanded = ref(false);
 const nbsGdpSeriesExpanded = ref(false);
@@ -978,6 +1062,9 @@ const nbsEnergySeriesExpanded = ref(false);
 const nbsIndustrialProfitSeriesExpanded = ref(false);
 const nbsPpiSeriesExpanded = ref(false);
 const nbsRetailSeriesExpanded = ref(false);
+
+const motTransport = computed<MotTransportRow | null>(() => getLatestMotTransport());
+const motTransportTrend = computed(() => getMotTransportTrend(6));
 
 const nbsServiceIndex = computed<NbsServiceIndexRow | null>(() => getLatestNbsServiceIndex());
 const nbsServiceIndexTrend = computed(() => getNbsServiceIndexTrend(6));
