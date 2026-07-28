@@ -200,45 +200,48 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(toolsSrc).not.toContain("Batch 4: 区情画像");
   });
 
-  it("data-tools.vue v1.121.145 首页卡片管理（设置入口）", () => {
-    // 1. 入口卡片存在
+  it("data-tools.vue 首页卡片管理 + 设置入口（首屏不再堆按钮）", () => {
     expect(toolsSrc).toContain("data-dt-card-manager");
     expect(toolsSrc).toContain("⚙️ 首页卡片管理");
     expect(toolsSrc).toContain("DASHBOARD_CARDS");
     expect(toolsSrc).toContain("HIDDEN_CARDS_KEY");
-    // 2. 核心方法
     expect(toolsSrc).toContain("toggleDashboardCard");
     expect(toolsSrc).toContain("resetDashboardCards");
     expect(toolsSrc).toContain("loadHiddenCards");
     expect(toolsSrc).toContain("saveHiddenCards");
-    // 3. 至少 8 个 card key 配置
     const cardKeyMatches = toolsSrc.match(/key:\s+"[a-z][a-z0-9-]+"/g) || [];
     expect(cardKeyMatches.length).toBeGreaterThanOrEqual(8);
-    // 4. CSS 样式
     expect(toolsSrc).toContain(".dt-card-row");
     expect(toolsSrc).toContain(".dt-card-toggle");
-    // 5. dashboard 顶部入口按钮
-    expect(dashSrc).toContain("home-personalize-btn");
-    expect(dashSrc).toContain("data-dash-personalize");
+    // 总览首屏不再放个人化按钮；设置页承接
+    expect(dashSrc).not.toContain("data-dash-personalize");
     expect(dashSrc).toContain("isCardHidden");
-    // 6. dashboard 包含 v-if="!isCardHidden('...')"
+    const settingsSrc = readFileSync(
+      resolve(__dirname, "../src/pages/settings/settings.vue"),
+      "utf8"
+    );
+    expect(settingsSrc).toContain("data-settings-home-ia");
+    expect(settingsSrc).toContain("data-settings-go-data-tools");
     const vIfMatches = dashSrc.match(/v-if="!isCardHidden\('[a-z][a-z0-9-]+'\)/g) || [];
     expect(vIfMatches.length).toBeGreaterThanOrEqual(15);
-    // 7. 每张核心卡添加 data-card-key 属性
     const cardKeyAttrMatches = dashSrc.match(/data-card-key="[a-z][a-z0-9-]+"/g) || [];
     expect(cardKeyAttrMatches.length).toBeGreaterThanOrEqual(15);
   });
 
-  it("v1.121.152 Batch 13：进阶卡 hot 标记保留在配置（列表已迁独立页）", () => {
+  it("进阶卡 hot 配置保留；入口在设置/频道（不在总览占位）", () => {
     const dashSrc4 = readFileSync(
       resolve(__dirname, "../src/pages/dashboard/dashboard.vue"),
       "utf8"
     );
     const hotMatches = dashSrc4.match(/hot:\s+true/g) || [];
     expect(hotMatches.length).toBeGreaterThanOrEqual(4);
-    // 总览进阶区改为跳页，不再本页渲染热门列表
-    expect(dashSrc4).toContain("data-dash-advanced-trend");
-    expect(dashSrc4).toContain("data-dash-advanced-tools");
+    expect(dashSrc4).not.toContain("data-dash-advanced-section");
+    const settingsSrc = readFileSync(
+      resolve(__dirname, "../src/pages/settings/settings.vue"),
+      "utf8"
+    );
+    expect(settingsSrc).toContain("data-settings-go-trend");
+    expect(settingsSrc).toContain("goTrendAnalysis");
   });
 
   it("v1.121.151 Batch 12：trend-analysis 响应城市切换", () => {
@@ -254,29 +257,18 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(taSrc2).toMatch(/reloadAll\(newId\)/);
   });
 
-  it("v1.121.150 Batch 11：首页使用指南 banner", () => {
+  it("首页指南已迁出首屏（避免占位 + 白闪）；util 仍可测", () => {
     const dashSrc3 = readFileSync(
       resolve(__dirname, "../src/pages/dashboard/dashboard.vue"),
       "utf8"
     );
-    // 1. banner 元素
-    expect(dashSrc3).toMatch(/data-dash-guide/);
-    expect(dashSrc3).toMatch(/data-dash-guide-close/);
-    expect(dashSrc3).toMatch(/🏠 首页使用指南/);
-    // 2. 4 步骤内容
-    expect(dashSrc3).toMatch(/🏠 精简模式/);
-    expect(dashSrc3).toMatch(/✕ 单卡隐藏/);
-    expect(dashSrc3).toMatch(/📊 进阶分析/);
-    expect(dashSrc3).toMatch(/📐 深度可视化/);
-    // 3. 函数 + state（首帧同步读 storage，禁止 loadGuideDismissed 晚一拍导致白闪）
-    expect(dashSrc3).toMatch(/showGuide/);
-    expect(dashSrc3).toMatch(/dismissGuide/);
-    expect(dashSrc3).toMatch(/shouldShowDashboardGuide/);
-    expect(dashSrc3).toMatch(/DASHBOARD_GUIDE_KEY/);
-    expect(dashSrc3).not.toMatch(/loadGuideDismissed/);
-    // 4. CSS
-    expect(dashSrc3).toMatch(/\.home-guide-card/);
-    expect(dashSrc3).toMatch(/\.home-guide-step/);
+    expect(dashSrc3).not.toContain("data-dash-guide");
+    expect(dashSrc3).not.toContain("🏠 首页使用指南");
+    const settingsSrc = readFileSync(
+      resolve(__dirname, "../src/pages/settings/settings.vue"),
+      "utf8"
+    );
+    expect(settingsSrc).toContain("data-settings-home-ia");
   });
 
   it("v1.121.149 Batch 10：4 张可视化卡已迁到 trend-analysis.vue", () => {
@@ -318,28 +310,27 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(trendPath).toBe(true);
   });
 
-  it("dashboard.vue：精简/完整模式 + 进阶分析进独立页（禁折叠）", () => {
-    expect(dashSrc).toContain("data-dash-mode-toggle");
-    expect(dashSrc).toContain("toggleFeaturedMode");
+  it("精简模式在设置页；总览禁折叠/禁堆进阶区", () => {
     expect(dashSrc).toContain("featuredMode");
-    expect(dashSrc).toContain("🏠 精简模式");
-    expect(dashSrc).toContain("📊 完整模式");
-    expect(dashSrc).toContain("data-dash-advanced-section");
+    expect(dashSrc).toContain("FEATURED_MODE_KEY");
+    expect(dashSrc).toContain("loadUiState");
     expect(dashSrc).toContain("ADVANCED_CARDS");
-    expect(dashSrc).toContain("advancedCardCount");
-    expect(dashSrc).toContain("data-dash-advanced-tools");
-    expect(dashSrc).toContain("data-dash-advanced-trend");
     expect(dashSrc).toContain("goDataTools");
     expect(dashSrc).toContain("goTrendAnalysis");
+    expect(dashSrc).not.toContain("data-dash-mode-toggle");
+    expect(dashSrc).not.toContain("data-dash-advanced-section");
     expect(dashSrc).not.toContain("data-dash-advanced-expand");
     expect(dashSrc).not.toContain("overview-toggle-all");
     expect(dashSrc).toMatch(/isOverviewGroupCollapsed[\s\S]*?return false/);
+    expect(dashSrc).toMatch(/activeTab !== ['"]overview['"]/);
+    const settingsSrc = readFileSync(
+      resolve(__dirname, "../src/pages/settings/settings.vue"),
+      "utf8"
+    );
+    expect(settingsSrc).toContain("data-settings-featured-toggle");
+    expect(settingsSrc).toContain("toggleFeaturedMode");
     const advKeyMatches = dashSrc.match(/key:\s+"[a-z][a-z0-9-]+",\s+label:\s+"[^"]+"/g) || [];
     expect(advKeyMatches.length).toBeGreaterThanOrEqual(10);
-    expect(dashSrc).toContain(".advanced-section");
-    expect(dashSrc).toContain(".advanced-expand-btn");
-    expect(dashSrc).toContain("FEATURED_MODE_KEY");
-    expect(dashSrc).toContain("loadUiState");
   });
 
   it("dashboard.vue v1.121.147 Batch 8：每张核心卡右上角 ✕ 隐藏按钮", () => {

@@ -121,7 +121,39 @@
       </view>
 
       <view v-if="errorMsg" class="error">{{ errorMsg }}</view>
-      <view v-if="infoMsg" class="card muted">{{ infoMsg }}</view>
+      <view v-if="infoMsg" class="card muted">{{ infoMsg }}      </view>
+
+      <!-- 首页与分析（对照大厂：次要能力进设置，不堆首屏） -->
+      <view class="card" data-settings-home-ia>
+        <view class="card-title">首页与分析</view>
+        <view class="muted" style="font-size: 22rpx">
+          卡片管理、深度分析、精简模式已从总览首屏迁出。频道「工具 / 供需」仍可直达。
+        </view>
+        <view class="row-gap" style="margin-top: 16rpx">
+          <button class="btn" size="mini" data-settings-go-data-tools @click="goDataTools">
+            首页卡片管理
+          </button>
+          <button class="btn btn-ghost" size="mini" data-settings-go-trend @click="goTrendAnalysis">
+            深度可视化
+          </button>
+          <button class="btn btn-ghost" size="mini" data-settings-go-map @click="goMapAnalysis">
+            行政区地图
+          </button>
+        </view>
+        <view class="row-gap" style="margin-top: 12rpx">
+          <button
+            class="btn btn-ghost"
+            size="mini"
+            data-settings-featured-toggle
+            @click="toggleFeaturedMode"
+          >
+            {{ featuredMode ? "当前：精简模式 · 点此切完整" : "当前：完整模式 · 点此切精简" }}
+          </button>
+        </view>
+        <text class="muted" style="margin-top: 12rpx; font-size: 22rpx; display: block">
+          精简模式影响总览信息流卡数量；切换后回总览立即生效。
+        </text>
+      </view>
 
       <!-- 高级设置（折叠） -->
       <view class="card">
@@ -294,6 +326,38 @@ import { openExternalUrl } from "../../utils/openExternal";
 import ProgressBar from "../../components/ProgressBar.vue";
 // @ts-ignore
 import dailyWangqianRaw from "../../../static/daily_wangqian.csv?raw";
+
+const FEATURED_MODE_KEY = "realty_dashboard_featured_mode";
+
+function goDataTools(): void {
+  uni.navigateTo({ url: "/pages/data-tools/data-tools" });
+}
+function goTrendAnalysis(): void {
+  uni.navigateTo({ url: "/pages/trend-analysis/trend-analysis" });
+}
+function goMapAnalysis(): void {
+  uni.navigateTo({ url: "/pages/map-analysis/map-analysis" });
+}
+
+function readFeaturedMode(): boolean {
+  try {
+    const raw = uni.getStorageSync(FEATURED_MODE_KEY);
+    if (raw === "" || raw == null) return true;
+    return JSON.parse(String(raw)) as boolean;
+  } catch {
+    return true;
+  }
+}
+const featuredMode = ref(readFeaturedMode());
+function toggleFeaturedMode(): void {
+  featuredMode.value = !featuredMode.value;
+  try {
+    uni.setStorageSync(FEATURED_MODE_KEY, JSON.stringify(featuredMode.value));
+  } catch (e) {
+    console.warn("saveFeaturedMode failed:", e);
+  }
+  showToast(featuredMode.value ? "已切精简模式" : "已切完整模式");
+}
 
 const govLinkNotes = GOV_WEB_LINKS;
 

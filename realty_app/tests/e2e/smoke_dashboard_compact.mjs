@@ -1,37 +1,32 @@
 /**
- * 概览不再默认折叠分组；进阶入口改为跳独立页。
- * 需本地 H5：E2E_BASE_URL 默认 http://127.0.0.1:5174
+ * 总览首屏精简：无指南/无个人化三按钮/无进阶占位；频道跳页。
  */
 import { chromium } from "playwright";
 
 const BASE_URL = process.env.E2E_BASE_URL ?? "http://127.0.0.1:5174";
 const browser = await chromium.launch();
-const context = await browser.newContext({ viewport: { width: 420, height: 900 } });
-const page = await context.newPage();
+const page = await browser.newPage({ viewport: { width: 420, height: 900 } });
 const issues = [];
 
 try {
-  await page.goto(`${BASE_URL}/#/pages/dashboard/dashboard`, { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(1800);
+  await page.goto(`${BASE_URL}/#/pages/dashboard/dashboard`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await page.waitForTimeout(1500);
 
-  const collapsed = await page.locator(".overview-card--collapsed").count();
-  if (collapsed !== 0) issues.push(`概览不应再折叠分组，实际 ${collapsed}`);
+  if ((await page.locator("[data-dash-guide]").count()) > 0) issues.push("首屏不应再有指南 banner");
+  if ((await page.locator("[data-dash-personalize]").count()) > 0) issues.push("首屏不应再有卡片管理按钮");
+  if ((await page.locator("[data-dash-advanced-section]").count()) > 0) issues.push("首屏不应再有进阶分析占位");
+  if ((await page.locator(".overview-card--collapsed").count()) > 0) issues.push("概览不应折叠");
+  if ((await page.locator("[data-home-entry]").count()) < 1) issues.push("缺少首页入口壳");
+  if ((await page.locator("[data-home-channels]").count()) < 1) issues.push("缺少频道条");
 
-  const toggleAll = page.locator(".overview-toggle-all");
-  if ((await toggleAll.count()) > 0) issues.push("不应再出现「全部展开/收起」");
-
-  const jump = page.locator(".overview-jump");
-  if ((await jump.count()) > 0) issues.push("不应再出现滚锚点快捷按钮 overview-jump");
-
-  const tools = page.locator("[data-dash-advanced-tools]");
-  const trend = page.locator("[data-dash-advanced-trend]");
-  if ((await tools.count()) < 1) issues.push("缺少进阶→数据工具入口");
-  if ((await trend.count()) < 1) issues.push("缺少进阶→深度可视化入口");
-
-  await tools.first().click();
-  await page.waitForTimeout(1200);
-  if (!page.url().includes("pages/data-tools/data-tools")) {
-    issues.push(`点数据工具未进独立页，URL=${page.url()}`);
+  const tools = page.locator('[data-home-channel="tools"]').first();
+  if ((await tools.count()) < 1) issues.push("缺少频道工具");
+  else {
+    await tools.click();
+    await page.waitForTimeout(1200);
+    if (!page.url().includes("pages/data-tools/data-tools")) {
+      issues.push(`工具未跳页 URL=${page.url()}`);
+    }
   }
 
   if (issues.length) {
@@ -39,10 +34,10 @@ try {
     issues.forEach((i) => console.error(`- ${i}`));
     process.exitCode = 1;
   } else {
-    console.log("总计: dashboard 去折叠+进阶跳页 通过");
+    console.log("总计: 首屏精简通过");
   }
 } catch (e) {
-  console.error("E2E 失败（是否已起 npm run dev:h5？）:", e instanceof Error ? e.message : e);
+  console.error("E2E 失败:", e instanceof Error ? e.message : e);
   process.exitCode = 1;
 } finally {
   await browser.close();

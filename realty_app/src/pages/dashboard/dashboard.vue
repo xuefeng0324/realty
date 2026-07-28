@@ -1,51 +1,7 @@
 <template>
   <view class="page" :data-dash-tab="activeTab" :data-realty-theme="realtyTheme" :class="[{ 'city-scoped': cityScoped }, 'realty-theme-' + realtyTheme]">
     <view class="container">
-      <!-- v1.121.150 Batch 11：首页使用指南 banner（首次进入显示，用户可关闭） -->
-      <view v-if="showGuide" class="home-guide-card" data-dash-guide>
-        <view class="row-between">
-          <view class="home-guide-title">🏠 首页使用指南</view>
-          <button
-            class="home-guide-close"
-            size="mini"
-            hover-class="tap-row--active"
-            data-dash-guide-close
-            @click.stop="dismissGuide"
-          >✕</button>
-        </view>
-        <view class="home-guide-list">
-          <view class="home-guide-row">
-            <text class="home-guide-step">1</text>
-            <view class="home-guide-content">
-              <view class="home-guide-name">🏠 精简模式</view>
-              <view class="muted" style="font-size: 22rpx">首页默认只显示 13 张精选卡，点工具栏「📊 完整模式」看全部 25 张。</view>
-            </view>
-          </view>
-          <view class="home-guide-row">
-            <text class="home-guide-step">2</text>
-            <view class="home-guide-content">
-              <view class="home-guide-name">✕ 单卡隐藏</view>
-              <view class="muted" style="font-size: 22rpx">每张核心卡右上角的 ✕ 可一键隐藏；底部「⚙️ 首页卡片管理」恢复。</view>
-            </view>
-          </view>
-          <view class="home-guide-row">
-            <text class="home-guide-step">3</text>
-            <view class="home-guide-content">
-              <view class="home-guide-name">📊 进阶分析</view>
-              <view class="muted" style="font-size: 22rpx">点频道「工具 / 供需」或下方「深度可视化 / 数据工具」进独立页，不在本页折叠长滚。</view>
-            </view>
-          </view>
-          <view class="home-guide-row">
-            <text class="home-guide-step">4</text>
-            <view class="home-guide-content">
-              <view class="home-guide-name">📐 深度可视化</view>
-              <view class="muted" style="font-size: 22rpx">首页金刚区下方「📊 深度可视化分析」按钮 → 独立 sub-page 全屏深度卡。</view>
-            </view>
-          </view>
-        </view>
-      </view>
-
-      <!-- F-ENTRY-01：定位 + 搜索 + 频道 + 金刚区（美团/淘宝式多入口） -->
+      <!-- 首屏壳（对照美团/淘宝）：城市 + 搜索 + 频道 + 金刚；次要能力进设置 / 独立页 -->
       <view class="card home-entry-card" data-home-entry data-tab="all,overview,price,school,transit,map">
         <view class="home-loc-search">
           <button class="home-city-chip" hover-class="tap-row--active" data-home-city @click="pickCity">
@@ -98,39 +54,6 @@
             <text class="home-king-label">{{ k.label }}</text>
           </view>
         </view>
-        <view class="home-entry-hint muted">
-          房价看挂牌 / 网签量 / 70城指数；官方宏观≠城市成交均价。点频道或金刚区进入对应独立页（非本页长滚）。
-        </view>
-        <!-- v1.121.145 首页卡片个性化设置入口 -->
-        <view class="home-personalize-row">
-          <button
-            class="home-personalize-btn"
-            size="mini"
-            hover-class="tap-row--active"
-            data-dash-personalize
-            @click="goDataTools"
-          >⚙️ 首页卡片管理 ({{ hiddenCards.size }} 已隐藏)</button>
-        </view>
-        <!-- v1.121.149 Batch 10：深度可视化分析 sub-page 入口 -->
-        <view class="home-personalize-row">
-          <button
-            class="home-personalize-btn"
-            size="mini"
-            hover-class="tap-row--active"
-            data-dash-trend
-            @click="goTrendAnalysis"
-          >📊 深度可视化分析 (热图/矩阵/散点)</button>
-        </view>
-        <!-- v1.121.153 Batch 14：行政区 + 社区地图 sub-page 入口 -->
-        <view class="home-personalize-row">
-          <button
-            class="home-personalize-btn"
-            size="mini"
-            hover-class="tap-row--active"
-            data-dash-map
-            @click="goMapAnalysis"
-          >🗺️ 全屏行政区 + 社区地图</button>
-        </view>
       </view>
 
       <!-- F-DASH-04：专业 Tab 置于入口下方（App/H5 均靠 .page[data-dash-tab] 过滤） -->
@@ -147,19 +70,17 @@
         </view>
       </view>
 
-      <!-- 高级工作台：默认折叠，避免霸占首屏 -->
-      <view class="card filter-card" data-home-workbench>
-        <view class="row-between" @click="filterWorkbenchExpanded = !filterWorkbenchExpanded">
+      <!-- 工作台：概览首屏不占位；专业 Tab 下直接展示筛选项（不折叠） -->
+      <view v-if="activeTab !== 'overview'" class="card filter-card" data-home-workbench>
+        <view class="row-between">
           <view>
             <view class="dashboard-eyebrow">工作台</view>
             <view class="card-title" style="margin-bottom: 0">周期 · 来源 · 指标</view>
           </view>
           <view class="muted" style="font-size: 22rpx">
-            {{ filterWorkbenchExpanded ? "收起 ▴" : "展开 ▾" }}
-            · {{ currentCityLabel || "—" }} · {{ app.weekEnd || "—" }}
+            {{ currentCityLabel || "—" }} · {{ app.weekEnd || "—" }}
           </view>
         </view>
-        <template v-if="filterWorkbenchExpanded">
         <view class="filter-card-head" style="margin-top: 12rpx">
           <view class="data-trust-badge">官方与公开数据</view>
         </view>
@@ -217,7 +138,6 @@
           <text v-else>当前城市尚无带日期的真实挂牌。</text>
         </text>
         <text class="muted period-hint">{{ priceAxesHint }}</text>
-        </template>
       </view>
 
       <!-- 今日要点：参考贝壳/链家「首页速览」收敛首屏信息密度 -->
@@ -1615,16 +1535,7 @@
         <!-- 金刚区已上移至首页入口，此处仅保留大盘轮播 -->
       </view>
 
-      <!-- 概览工具条：只保留精简/完整模式；禁止「快捷跳转滚锚点 + 全部展开收起」折叠套路 -->
-      <view v-if="activeTab === 'overview'" class="overview-toolbar" data-overview-toolbar>
-        <button
-          class="overview-mode-toggle"
-          size="mini"
-          hover-class="tap-row--active"
-          data-dash-mode-toggle
-          @click.stop="toggleFeaturedMode"
-        >{{ featuredMode ? "📊 完整模式" : "🏠 精简模式" }}</button>
-      </view>
+      <!-- 概览工具条已迁设置：精简/完整模式在「设置 → 首页与分析」 -->
 
       <!-- v1.121.138：原中间段折叠块内的 7 张派生卡已真删；区/板块对比核心卡移出折叠块、直接渲染 -->
       <!-- 区/板块对比 -->
@@ -4543,32 +4454,7 @@
         </view>
       </view>
 
-      <!-- 进阶分析：入口进独立页，禁止本页折叠展开 -->
-      <view v-if="activeTab === 'overview'" class="card advanced-section" data-dash-advanced-section>
-        <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">📊 进阶分析</view>
-          <view class="muted">{{ advancedCardCount }} 张 · 独立页</view>
-        </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          深度可视化 / 数据工具已迁出总览。点下方进页查看，不在本页折叠长滚。
-        </view>
-        <view class="advanced-actions">
-          <button
-            class="advanced-expand-btn"
-            size="mini"
-            hover-class="tap-row--active"
-            data-dash-advanced-trend
-            @click.stop="goTrendAnalysis"
-          >深度可视化分析</button>
-          <button
-            class="advanced-expand-btn"
-            size="mini"
-            hover-class="tap-row--active"
-            data-dash-advanced-tools
-            @click.stop="goDataTools"
-          >数据工具</button>
-        </view>
-      </view>
+      <!-- 进阶分析入口已迁：频道「工具」+ 设置「首页与分析」；概览不再占位 -->
 
     <!-- 内置 popup：城市/周期/来源/指标选择 -->
     <view v-if="sheet.open" class="sheet-mask" @click="closeSheet">
@@ -4599,7 +4485,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
-import { DASHBOARD_GUIDE_KEY, shouldShowDashboardGuide } from "../../utils/dashboardGuide";
 import MacroKpiCell from "../../components/MacroKpiCell.vue";
 import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
@@ -5089,18 +4974,6 @@ function loadUiState() {
     }
   } catch (e) {
     console.warn("loadUiState failed:", e);
-  }
-}
-
-// v1.121.150 Batch 11: 首页使用指南 banner
-// 首帧必须同步读 storage：默认 true 会先画出浅色渐变卡，启动后上半截必闪白
-const showGuide = ref<boolean>(shouldShowDashboardGuide());
-function dismissGuide() {
-  showGuide.value = false;
-  try {
-    uni.setStorageSync(DASHBOARD_GUIDE_KEY, JSON.stringify(true));
-  } catch (e) {
-    console.warn("saveGuideDismissed failed:", e);
   }
 }
 
