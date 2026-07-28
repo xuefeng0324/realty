@@ -272,11 +272,12 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(dashSrc3).toMatch(/✕ 单卡隐藏/);
     expect(dashSrc3).toMatch(/📊 进阶分析/);
     expect(dashSrc3).toMatch(/📐 深度可视化/);
-    // 3. 函数 + state
+    // 3. 函数 + state（首帧同步读 storage，禁止 loadGuideDismissed 晚一拍导致白闪）
     expect(dashSrc3).toMatch(/showGuide/);
     expect(dashSrc3).toMatch(/dismissGuide/);
-    expect(dashSrc3).toMatch(/loadGuideDismissed/);
+    expect(dashSrc3).toMatch(/shouldShowDashboardGuide/);
     expect(dashSrc3).toMatch(/DASHBOARD_GUIDE_KEY/);
+    expect(dashSrc3).not.toMatch(/loadGuideDismissed/);
     // 4. CSS
     expect(dashSrc3).toMatch(/\.home-guide-card/);
     expect(dashSrc3).toMatch(/\.home-guide-step/);
