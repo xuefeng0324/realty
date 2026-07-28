@@ -2,7 +2,7 @@ import { parseCSV, rowsToObjects } from "./csv";
 // @ts-ignore
 import rawCsv from "../../static/gd_retail.csv?raw";
 
-/** 广东消费品市场运行简况（社消零；≠房价三轴） */
+/** 广东消费品市场运行简况（社消零；家具/装潢为住房弱相关分项；≠房价三轴） */
 export interface GdRetailRow {
   region: string;
   period: string;
@@ -17,6 +17,8 @@ export interface GdRetailRow {
   cateringYoyPct: number;
   onlineRetailYoyPct: number;
   communicationsYoyPct: number;
+  furnitureYoyPct: number;
+  decorationYoyPct: number;
   title: string;
   sourceOrg: string;
   sourceUrl: string;
@@ -44,6 +46,8 @@ function mapRow(row: Record<string, string>): GdRetailRow | null {
     cateringYoyPct: n(row.catering_yoy_pct),
     onlineRetailYoyPct: n(row.online_retail_yoy_pct),
     communicationsYoyPct: n(row.communications_yoy_pct),
+    furnitureYoyPct: n(row.furniture_yoy_pct),
+    decorationYoyPct: n(row.decoration_yoy_pct),
     title: String(row.title ?? "").trim(),
     sourceOrg: String(row.source_org ?? "").trim(),
     sourceUrl: String(row.source_url ?? "").trim()
@@ -69,6 +73,12 @@ export function getLatestGdRetail(): GdRetailRow | null {
 
 export function getGdRetailTrend(limit = 6): GdRetailRow[] {
   return rows.slice(0, Math.max(0, limit));
+}
+
+/** 家具或装潢分项任一有值 */
+export function gdRetailHasHousingRelated(row: GdRetailRow | null): boolean {
+  if (!row) return false;
+  return row.furnitureYoyPct !== 0 || row.decorationYoyPct !== 0;
 }
 
 export function __setGdRetailForTest(next: GdRetailRow[]): void {

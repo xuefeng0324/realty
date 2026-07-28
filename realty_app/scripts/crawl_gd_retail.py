@@ -53,6 +53,8 @@ FIELDS = [
     "catering_yoy_pct",
     "online_retail_yoy_pct",
     "communications_yoy_pct",
+    "furniture_yoy_pct",
+    "decoration_yoy_pct",
     "title",
     "source_org",
     "source_url",
@@ -187,15 +189,19 @@ def list_briefs() -> list[tuple[str, str]]:
 
 
 def listed_category_yoy(text: str, category: str) -> float:
-    """解析「A类，B类…商品零售额分别增长 x%、y%…」中某一类同比。"""
-    for sent in re.findall(r"[^。]{8,220}分别增长[^。]{0,80}", text):
-        if category not in sent:
+    """解析「A类，B类…分别增长 x%、y%…」中某一类同比。"""
+    # 中文分号常分隔两段「分别增长」，需与句号同等切开
+    chunks = re.split(r"[。；;]", text)
+    for sent in chunks:
+        if "分别增长" not in sent or category not in sent:
             continue
-        head = sent.split("分别增长", 1)[0]
-        # 类名：…类 / …品类
-        cats = re.findall(r"([\u4e00-\u9fff、]+?类)", head)
-        rates = [fnum(x) for x in re.findall(r"([\d.]+)%", sent.split("分别增长", 1)[1])]
-        for i, cat in enumerate(cats):
+        head, _, tail = sent.partition("分别增长")
+        if category not in head:
+            continue
+        # 取「分别增长」前所有「…类」出现顺序（含「通讯器材类商品零售额」）
+        norm = re.findall(r"([\u4e00-\u9fff]{1,24}类)", head)
+        rates = [fnum(x) for x in re.findall(r"([\d.]+)%", tail)]
+        for i, cat in enumerate(norm):
             if category in cat and i < len(rates):
                 return rates[i]
     return 0.0
@@ -209,34 +215,40 @@ def parse_brief(url: str, title: str, html: str) -> dict | None:
     text = plain(html)
 
     retail_total = 0.0
+    retail = 0.0
     m_amt = re.search(
-        r"全省社会消费品零售总额([\d.]+)亿元，同比(增长|下降)([\d.]+)%",
+        r"全省(?:实现)?社会消费品零售总额([\d.]+)亿元，(?:同比)?(增长|下降)([\d.]+)%",
         text,
     )
-    retail = 0.0
     if m_amt:
         retail_total = fnum(m_amt.group(1))
         retail = signed_yoy(m_amt.group(2), m_amt.group(3))
     else:
         retail = one_yoy(
             text,
-            r"全省社会消费品零售总额同比(增长|下降)([\d.]+)%",
+            r"全省(?:实现)?社会消费品零售总额同比(增长|下降)([\d.]+)%",
             r"社会消费品零售总额同比(增长|下降)([\d.]+)%",
         )
     if retail == 0.0 and retail_total == 0.0:
         return None
 
-    urban = one_yoy(text, r"城镇消费品零售额(增长|下降)([\d.]+)%")
-    rural = one_yoy(text, r"乡村消费品零售额(增长|下降)([\d.]+)%")
+    urban = one_yoy(
+        text,
+        r"城镇消费品零售额(?:[\d.]+亿元，)?(?:同比)?(增长|下降)([\d.]+)%",
+    )
+    rural = one_yoy(
+        text,
+        r"乡村消费品零售额(?:[\d.]+亿元，)?(?:同比)?(增长|下降)([\d.]+)%",
+    )
     goods = one_yoy(
         text,
-        r"限额以上单位商品零售额(增长|下降)([\d.]+)%",
-        r"限额以上单位商品零售额同比(增长|下降)([\d.]+)%",
+        r"限额以上单位商品零售额(?:[\d.]+亿元，)?(?:同比)?(增长|下降)([\d.]+)%",
+        r"(?<!餐饮)商品零售额(?:[\d.]+亿元，)?(?:同比)?(增长|下降)([\d.]+)%",
     )
     catering = one_yoy(
         text,
-        r"限额以上单位餐饮收入(增长|下降)([\d.]+)%",
-        r"限额以上单位餐饮收入同比(增长|下降)([\d.]+)%",
+        r"限额以上单位餐饮收入(?:[\d.]+亿元，)?(?:同比)?(增长|下降)([\d.]+)%",
+        r"餐饮收入(?:[\d.]+亿元，)?(?:同比)?(增长|下降)([\d.]+)%",
     )
     online = one_yoy(
         text,
@@ -244,14 +256,12 @@ def parse_brief(url: str, title: str, html: str) -> dict | None:
         r"通过公共网络实现商品零售额(增长|下降)([\d.]+)%",
     )
     communications = listed_category_yoy(text, "通讯器材")
-    if communications == 0.0:
-        m_c = re.search(r"通讯器材类[^，。；;]{0,24}?(?:同比)?(增长|下降)([\d.]+)%", text)
-        if m_c:
-            communications = signed_yoy(m_c.group(1), m_c.group(2))
-        else:
-            m_c2 = re.search(r"通讯器材类[^，。；;]{0,40}?增长([\d.]+)%", text)
-            if m_c2:
-                communications = fnum(m_c2.group(1))
+    furniture = listed_category_yoy(text, "家具")
+    decoration = listed_category_yoy(text, "装潢材料")
+    if decoration == 0.0:
+        decoration = listed_category_yoy(text, "建筑及装潢")
+    if decoration == 0.0:
+        decoration = listed_category_yoy(text, "装潢")
 
     return {
         "region": "广东",
@@ -267,6 +277,8 @@ def parse_brief(url: str, title: str, html: str) -> dict | None:
         "catering_yoy_pct": fmt(catering),
         "online_retail_yoy_pct": fmt(online),
         "communications_yoy_pct": fmt(communications),
+        "furniture_yoy_pct": fmt(furniture),
+        "decoration_yoy_pct": fmt(decoration),
         "title": title,
         "source_org": "广东省统计局",
         "source_url": url,

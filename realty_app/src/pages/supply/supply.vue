@@ -83,6 +83,31 @@
           <text class="muted">未售 {{ row.unsoldUnits.toLocaleString() }}</text>
           <text class="muted">签约 {{ row.signedUnits }}</text>
         </view>
+        <template v-if="gzInventoryHasNonRes">
+          <button
+            class="btn"
+            size="mini"
+            style="margin-top: 12rpx"
+            data-gz-inventory-nonres-toggle
+            :aria-expanded="gzNonResDistrictsOpen"
+            @click="gzNonResDistrictsOpen = !gzNonResDistrictsOpen"
+          >
+            {{ gzNonResDistrictsOpen ? "收起业态分区" : "查看商业/办公分区" }}
+          </button>
+          <view v-if="gzNonResDistrictsOpen" class="section-title">分区明细（可售商业 / 办公）</view>
+          <view
+            v-if="gzNonResDistrictsOpen"
+            v-for="row in gzNonResDistricts"
+            :key="'nr-' + row.district"
+            class="row-line"
+            data-gz-inventory-nonres-detail
+          >
+            <text class="row-name">{{ row.district }}</text>
+            <text>商 {{ row.availableCommercialUnits.toLocaleString() }}</text>
+            <text class="muted">办 {{ row.availableOfficeUnits.toLocaleString() }}</text>
+            <text class="muted">车 {{ row.availableParkingUnits.toLocaleString() }}</text>
+          </view>
+        </template>
         <view class="note">
           广州市住建局商品房销售统计。住宅 / 商业 / 办公 / 车位为同一接口分项；可售与未售为不同官方口径；≠挂牌价、≠网签均价。
         </view>
@@ -292,6 +317,7 @@ const CITY_NAME_BY_ID: Record<number, string> = { 1: "广州", 2: "深圳", 3: "
 const cityName = ref<string>(CITY_NAME_BY_ID[app.cityId] ?? "广州");
 const citySheetOpen = ref(false);
 const focus = ref<"inventory" | "land" | "">("");
+const gzNonResDistrictsOpen = ref(false);
 
 onLoad((q) => {
   const f = String(q?.focus ?? "").trim();
@@ -312,6 +338,12 @@ function selectCity(c: string) {
 const gzInventory = computed(() => (cityName.value === "广州" ? getGzInventoryOverview() : null));
 const gzInventoryDelta = computed(() => (gzInventory.value ? getGzInventoryDayDelta() : null));
 const gzInventoryHasNonRes = computed(() => gzInventoryHasNonResidential(gzInventory.value));
+const gzNonResDistricts = computed(() => {
+  const list = gzInventory.value?.districts ?? [];
+  return [...list].sort(
+    (a, b) => b.availableCommercialUnits - a.availableCommercialUnits || b.availableOfficeUnits - a.availableOfficeUnits
+  );
+});
 const gzInventoryFresh = computed(() => assessGzInventoryFreshness(gzInventory.value?.date ?? null));
 const szPlannedSupply = computed(() => (cityName.value === "深圳" ? getLatestSzPlannedSupply() : null));
 const gzHousingPlan = computed(() => (cityName.value === "广州" ? getLatestGzHousingPlan() : null));

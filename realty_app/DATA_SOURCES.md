@@ -160,7 +160,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/gd_fa_investment.csv` | `gdFaInvestment.ts` + 仪表盘「广东固定资产投资」卡（**多期默认折叠**） | `crawl_gd_fa_investment.py`（**周更 CI**） | 省统计局「固定资产投资运行简况」：全省/产业/工业·制造/分区域 **名义同比**（正文通常无绝对额）；统计范围含全部房地产开发项目投资；**≠房价均价** |
 | `static/gd_construction.csv` | `gdConstruction.ts` + 仪表盘「广东建筑业生产运行」卡（**多期默认折叠**） | `crawl_gd_construction.py`（**周更 CI**） | 省住建厅「建筑业生产运行简况」：资质企业总产值/房屋建筑业/土木/珠三角产值及同比；**房屋建筑业产值 ≠ 商品房销售/挂牌均价** |
 | `static/gd_industrial.csv` | `gdIndustrial.ts` + macro-region「规上工业生产」 | `crawl_gd_industrial.py`（**周更 CI**） | 省统计局「规模以上工业生产运行简况」：增加值同比 + 三大门类 + 电子/电气/汽车 + 机器人/集成电路产量同比；**≠房价** |
-| `static/gd_retail.csv` | `gdRetail.ts` + macro-region「消费品市场」 | `crawl_gd_retail.py`（**周更 CI**） | 省统计局「消费品市场运行简况」：社消零额/同比 + 城乡 + 限上商品/餐饮 + 网上零售 + 通讯器材；**≠房价** |
+| `static/gd_retail.csv` | `gdRetail.ts` + macro-region「消费品市场」 | `crawl_gd_retail.py`（**周更 CI**） | 省统计局「消费品市场运行简况」：社消零额/同比 + 城乡 + 限上商品/餐饮 + 网上零售 + 通讯器材；**家具/装潢材料**限上零售同比（住房弱相关，≠房价） |
 | `static/gd_economy.csv` | `gdEconomy.ts` + 仪表盘「广东经济运行」卡（**多期默认折叠**） | `crawl_gd_economy.py`（**周更 CI**；多页列表；仅入库含 GDP 的期次） | 省统计局「经济运行简况」：不变价 GDP/三产；规上工业、社消零、固投、房开、CPI；人均可支配收入；**年报另含常住人口/城镇化率**；**≠城市挂牌/网签均价**；月度无 GDP 则跳过 |
 | `static/seed/lpr_history.csv` | LPR 卡 / 组合贷 | `compute_lpr_history.py`（基线）+ `crawl_lpr_history.py`（**月更 CI**） | 央行 PBOC 公告 1Y/5Y LPR；房贷加点沿用示意 bp |
 | `static/seed/mlf_history.csv` | `mlfHistory.ts` + dashboard「🏛️ 中期借贷便利（MLF）」 | `crawl_mlf_history.py`（**周/月更 CI**） | 央行「开展情况」公告：中标利率/操作量/余额；**2025-03 起多重价位中标，专栏多为招标量无单一利率**；**≠房价**；与 LPR 对照 |
@@ -222,7 +222,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | （珠海不动产登记季度统计表） | `static/zh_bdc_registration.csv` | `bdc.zhuhai.gov.cn/zwgk/sjfb/` | **已接入合计**（v1.121.99）；正文仍为 PNG；用 `list_zh_bdc_registration_posts.py` 查新季缺口 |
 | （深圳二手房上月成交量专栏） | （未接入独立源） | `zjj.sz.gov.cn/.../sjcx/ersfsy/` | 2026-07-26 探针本机 **403**；深圳二手成交已由 `daily_wangqian` 覆盖 |
 | （广东规上工业生产运行简况） | `static/gd_industrial.csv` | `stats.gd.gov.cn/tjkx185/`「规模以上工业生产运行简况」 | **已接入**（v1.121.147）；专栏分项；与经济运行简况工业同比同源不同篇；≠房价 |
-| （广东消费品市场运行简况） | `static/gd_retail.csv` | `stats.gd.gov.cn/tjkx185/`「消费品市场运行简况」 | **已接入**（v1.121.147）；社消零+城乡+限上+网上零售；≠房价 |
+| （广东消费品市场运行简况） | `static/gd_retail.csv` | `stats.gd.gov.cn/tjkx185/`「消费品市场运行简况」 | **已接入**（v1.121.147+148）；含「实现」句式与家具/装潢分项；≠房价 |
 | （广东规上工业/消费品单独简况） | （已由上表覆盖） | `stats.gd.gov.cn/tjkx185/` | 2026-07-29：工业/社消零 HTML 专栏已建卡；与「经济运行」仍并存（专栏分项更细） |
 | （佛山/东莞住建公开页） | （未接入） | `fszj.foshan.gov.cn` / `zjj.dg.gov.cn` | 2026-07-26 探针本机 **Timeout**；暂无可用结构化 endpoint |
 | （国家统计局全国固投） | `static/nbs_fa_investment.csv` | `stats.gov.cn/sj/zxfb/`「固定资产投资基本情况」 | **已接入**（v1.121.85）；与广东固投卡对照；≠房价 |

@@ -337,8 +337,18 @@
             :sub="formatMacroPct(gdRetail.communicationsYoyPct)"
             :valueTrendClass="macroTrendBand(gdRetail.onlineRetailYoyPct)" />
         </view>
+        <view v-if="gdRetailHasHousing" class="stats70-grid" style="margin-top: 8rpx" data-gd-retail-housing>
+          <MacroKpiCell
+            label="'家具类零售'"
+            :value="formatMacroPct(gdRetail.furnitureYoyPct)"
+            :valueTrendClass="macroTrendBand(gdRetail.furnitureYoyPct)" />
+          <MacroKpiCell
+            label="'装潢材料零售'"
+            :value="formatMacroPct(gdRetail.decorationYoyPct)"
+            :valueTrendClass="macroTrendBand(gdRetail.decorationYoyPct)" />
+        </view>
         <view class="macro-note">
-          {{ gdRetail.sourceOrg }} · {{ gdRetail.publishDate || gdRetail.periodLabel }} · 社消零口径 · ≠房价
+          {{ gdRetail.sourceOrg }} · {{ gdRetail.publishDate || gdRetail.periodLabel }} · 社消零口径 · 家具/装潢≠房价
         </view>
         <button
           v-if="gdRetailTrend.length > 1"
@@ -414,6 +424,7 @@ import {
 import {
   getLatestGdRetail,
   getGdRetailTrend,
+  gdRetailHasHousingRelated,
   type GdRetailRow
 } from "../../local/gdRetail";
 
@@ -454,4 +465,5 @@ const gdIndustrial = computed<GdIndustrialRow | null>(() => getLatestGdIndustria
 const gdIndustrialTrend = computed(() => getGdIndustrialTrend(6));
 const gdRetail = computed<GdRetailRow | null>(() => getLatestGdRetail());
 const gdRetailTrend = computed(() => getGdRetailTrend(6));
+const gdRetailHasHousing = computed(() => gdRetailHasHousingRelated(gdRetail.value));
 </script>
