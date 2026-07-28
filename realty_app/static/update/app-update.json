@@ -1,12 +1,12 @@
 {
   "versionName": "1.121.139",
   "versionCode": "260",
-  "publishedAt": "2026-07-28T08:46:35Z",
+  "publishedAt": "2026-07-28T10:05:25Z",
   "force": false,
-  "notes": "\ufefffeat(theme+ux): \u4fee\u590d\u6d45\u8272\u6a21\u5f0f\u5185\u5bb9\u4e0d\u6362\u80a4 + \u53f3\u4fa7\u53ef\u62d6\u52a8\u6eda\u52a8\u6761 + \u623f\u6e90 App \u76f4\u547c (v1.121.139)\n\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n2026-07-25-v1.119.0-\u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730map-view: v1.119.0 \u00b7 \u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730 map-view\n",
+  "notes": "refactor(dashboard): remove scroll progress and compact overview\n\n2026-07-25-v1.121.0-\u5730\u56fefetch-\u4fee\u590d\u4e0eAPK\u56fe\u6807: v1.121.0 \u2014 \u5730\u56fe fetch \u4fee\u590d + \u81ea\u52a8 APK \u53ef\u9009 job + \u5e94\u7528\u56fe\u6807\u91cd\u505a\n2026-07-25-v1.121.2-OTA\u68c0\u67e5\u66f4\u65b0\u4fee\u590d: v1.121.2 \u2014 OTA \u68c0\u67e5\u66f4\u65b0\u65e0\u53cd\u5e94\u4fee\u590d\n2026-07-25-v1.121.4-OTA\u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316: v1.121.4 \u2014 OTA \u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316\n",
   "wgt": {
     "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/260/app.wgt",
-    "sha256": "6fa95cd5947d9663c78b0cba59f617c843cd55a513106c06c8a612549664314c"
+    "sha256": "13364d620633f689609f45399734db756ba5571c8daa1dd59295ef2a4699bd66"
   },
   "ios": {
     "available": false,
