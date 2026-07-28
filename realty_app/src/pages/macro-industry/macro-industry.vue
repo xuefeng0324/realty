@@ -3,6 +3,71 @@
     <view class="container">
       <MacroTabNav active="industry" data-macro-tab-nav />
 
+      <!-- 全国 · 服务业生产指数（nbsServiceIndex） -->
+      <view v-if="nbsServiceIndex" class="card macro-card" data-nbs-service-index>
+        <view class="macro-kicker">全国 · 服务业生产指数</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">服务业景气</view>
+          <view class="muted" style="font-size: 22rpx">{{ nbsServiceIndex.month }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <MacroKpiCell
+            label="生产指数同比"
+            :value="formatMacroPct(nbsServiceIndex.indexYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsServiceIndex.indexYoyPct)"
+            :sub='nbsServiceIndex.indexYtdYoyPct != null ? "累计 " + formatMacroPct(nbsServiceIndex.indexYtdYoyPct) : ""' />
+          <MacroKpiCell
+            label="IT/软件同比"
+            :value='nbsServiceIndex.itYoyPct != null ? formatMacroPct(nbsServiceIndex.itYoyPct) : "—"'
+            :valueTrendClass="macroTrendBand(nbsServiceIndex.itYoyPct ?? 0)" />
+          <MacroKpiCell
+            label="租赁商务同比"
+            :value='nbsServiceIndex.leasingYoyPct != null ? formatMacroPct(nbsServiceIndex.leasingYoyPct) : "—"'
+            :valueTrendClass="macroTrendBand(nbsServiceIndex.leasingYoyPct ?? 0)" />
+          <MacroKpiCell
+            label="金融同比"
+            :value='nbsServiceIndex.financeYoyPct != null ? formatMacroPct(nbsServiceIndex.financeYoyPct) : "—"'
+            :valueTrendClass="macroTrendBand(nbsServiceIndex.financeYoyPct ?? 0)"
+            :sub="nbsServiceIndex.publishDate" />
+        </view>
+        <view v-if="nbsServiceIndex.transportYoyPct != null" class="stats70-grid" style="margin-top: 8rpx" data-nbs-service-index-leasing>
+          <MacroKpiCell
+            label="交运仓储同比"
+            :value="formatMacroPct(nbsServiceIndex.transportYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsServiceIndex.transportYoyPct)" />
+        </view>
+        <view class="macro-note">
+          国家统计局国民经济运行通稿 · 服务业生产指数 / 租赁商务 ≠ 房价/挂牌/网签/70城（可与广东规上服务业对照）
+        </view>
+        <button
+          v-if="nbsServiceIndexTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-nbs-service-index-series-toggle
+          :aria-expanded="nbsServiceIndexSeriesExpanded"
+          @click="nbsServiceIndexSeriesExpanded = !nbsServiceIndexSeriesExpanded"
+        >
+          {{ nbsServiceIndexSeriesExpanded ? "收起多期" : "多期序列" }}
+        </button>
+        <template v-if="nbsServiceIndexSeriesExpanded">
+          <view class="macro-series" data-nbs-service-index-series-detail>
+            指数同比
+            <text v-for="(p, i) in nbsServiceIndexTrend" :key="'si-' + p.month">
+              {{ shortNbsServiceIndexMonthLabel(p.month) }} {{ formatMacroPct(p.indexYoyPct)
+              }}<text v-if="i < nbsServiceIndexTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view class="macro-series" data-nbs-service-index-series-detail>
+            租赁商务
+            <text v-for="(p, i) in nbsServiceIndexTrend" :key="'si-l-' + p.month">
+              {{ shortNbsServiceIndexMonthLabel(p.month) }}
+              {{ p.leasingYoyPct != null ? formatMacroPct(p.leasingYoyPct) : "—"
+              }}<text v-if="i < nbsServiceIndexTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
+
       <!-- 全国 · 城镇调查失业率（nbsUnemployment） -->
       <view v-if="nbsUnemployment" class="card macro-card" data-nbs-unemployment>
         <view class="macro-kicker">全国 · 城镇调查失业率</view>
@@ -818,6 +883,12 @@ import MacroKpiCell from "../../components/MacroKpiCell.vue";
 import MacroTabNav from "../../components/MacroTabNav.vue";
 import { formatMacro100m, formatMacroPct, formatMacroYuan, macroTrendClass, macroTrendBand } from "../../utils/format";
 import {
+  getLatestNbsServiceIndex,
+  getNbsServiceIndexTrend,
+  shortNbsServiceIndexMonthLabel,
+  type NbsServiceIndexRow
+} from "../../local/nbsServiceIndex";
+import {
   getLatestNbsUnemployment,
   getNbsUnemploymentTrend,
   shortNbsUnemploymentMonthLabel,
@@ -894,6 +965,7 @@ import {
 } from "../../local/nbsRetail";
 
 // 多期展开 ref
+const nbsServiceIndexSeriesExpanded = ref(false);
 const nbsUnemploymentSeriesExpanded = ref(false);
 const nbsGdpSeriesExpanded = ref(false);
 const nbsFaSeriesExpanded = ref(false);
@@ -906,6 +978,9 @@ const nbsEnergySeriesExpanded = ref(false);
 const nbsIndustrialProfitSeriesExpanded = ref(false);
 const nbsPpiSeriesExpanded = ref(false);
 const nbsRetailSeriesExpanded = ref(false);
+
+const nbsServiceIndex = computed<NbsServiceIndexRow | null>(() => getLatestNbsServiceIndex());
+const nbsServiceIndexTrend = computed(() => getNbsServiceIndexTrend(6));
 
 const nbsUnemployment = computed<NbsUnemploymentRow | null>(() => getLatestNbsUnemployment());
 const nbsUnemploymentTrend = computed(() => getNbsUnemploymentTrend(6));

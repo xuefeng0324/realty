@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.121.156 | 2026-07-29 | NBS 服务业生产指数接入（含租赁商务分项）；macro-industry（versionCode 277） |
 | v1.121.155 | 2026-07-29 | NBS 城镇调查失业率接入（国民经济运行通稿）；GDP 前三季度回填；macro-industry（versionCode 276） |
 | v1.121.154 | 2026-07-29 | NBS GDP 初步核算接入（含建筑业/房地产业增加值）；macro-industry（versionCode 275） |
 | v1.121.153 | 2026-07-29 | NBS 城镇单位年平均工资接入（含房地产/建筑业行业）；macro-industry（versionCode 274） |
@@ -611,6 +612,10 @@ gh auth setup-git
 ## 更新日志
 
 详细变更见 [changelog/](./changelog/) 目录。
+
+### v1.121.156 (2026-07-29)
+
+国家统计局国民经济运行通稿「服务业生产指数」接入 `macro-industry`（当月/累计 + IT/租赁商务/金融）。详见 [changelog/2026-07-29-v1.121.156-nbs-service-index.md](./changelog/2026-07-29-v1.121.156-nbs-service-index.md)。
 
 ### v1.121.155 (2026-07-29)
 
