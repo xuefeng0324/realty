@@ -17,6 +17,8 @@ describe("nbs ppi", () => {
     expect(latest!.ppiMomPct).toBe(-0.3);
     expect(latest!.purchaseYoyPct).toBe(6.4);
     expect(latest!.nonMetalYoyPct).toBe(-4.4);
+    expect(latest!.buildingMaterialsYoyPct).toBe(-4.8);
+    expect(latest!.ferrousSmeltingYoyPct).toBe(3.1);
     expect(latest!.sourceUrl).toMatch(/stats\.gov\.cn/);
     expect(getNbsPpiTrend(6).length).toBeGreaterThanOrEqual(6);
     expect(shortNbsPpiMonthLabel("2026-06")).toBe("6月");
@@ -26,18 +28,21 @@ describe("nbs ppi", () => {
     const script = readFileSync(resolve(process.cwd(), "scripts/crawl_nbs_ppi.py"), "utf8");
     expect(script).toContain("工业生产者出厂价格");
     expect(script).toContain("非金属矿物制品业");
+    expect(script).toContain("建筑材料及非金属类");
+    expect(script).toContain("黑色金属冶炼和压延加工业");
     expect(script).toContain("二、工业生产者购进价格");
     const dash = readFileSync(resolve(process.cwd(), "src/pages/macro-industry/macro-industry.vue"), "utf8");
     expect(dash).toContain("getLatestNbsPpi");
     expect(dash).toContain("data-nbs-ppi");
-    expect(dash).toContain("建材相关 · ≠房价");
+    expect(dash).toContain("data-nbs-ppi-materials");
+    expect(dash).toContain("≠房价");
   });
 
   it("CSV 解析拒绝非 stats.gov.cn", () => {
     const rows = loadNbsPpiFromCSV(
       [
-        "month,publish_date,ppi_yoy_pct,ppi_mom_pct,purchase_yoy_pct,non_metal_yoy_pct,source_url",
-        "2099-01,2099-01-01,1,1,1,1,https://example.com/x"
+        "month,publish_date,ppi_yoy_pct,ppi_mom_pct,purchase_yoy_pct,non_metal_yoy_pct,building_materials_yoy_pct,ferrous_smelting_yoy_pct,source_url",
+        "2099-01,2099-01-01,1,1,1,1,1,1,https://example.com/x"
       ].join("\n")
     );
     expect(rows).toEqual([]);

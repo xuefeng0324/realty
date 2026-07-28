@@ -2,7 +2,7 @@ import { parseCSV, rowsToObjects } from "./csv";
 // @ts-ignore
 import rawCsv from "../../static/nbs_ppi.csv?raw";
 
-/** 国家统计局月度 PPI（建材分项 ≠ 房价） */
+/** 国家统计局月度 PPI（建材/黑色金属分项 ≠ 房价） */
 export interface NbsPpiRow {
   month: string;
   publishDate: string;
@@ -10,12 +10,23 @@ export interface NbsPpiRow {
   ppiMomPct: number;
   purchaseYoyPct: number;
   nonMetalYoyPct: number;
+  /** 购进：建筑材料及非金属类同比% */
+  buildingMaterialsYoyPct: number | null;
+  /** 出厂：黑色金属冶炼和压延加工业同比% */
+  ferrousSmeltingYoyPct: number | null;
   sourceUrl: string;
 }
 
 function n(v: string | undefined): number {
   const x = Number(String(v ?? "").replace(/,/g, "").trim());
   return Number.isFinite(x) ? x : 0;
+}
+
+function nOrNull(v: string | undefined): number | null {
+  const t = String(v ?? "").replace(/,/g, "").trim();
+  if (!t) return null;
+  const x = Number(t);
+  return Number.isFinite(x) ? x : null;
 }
 
 function mapRow(row: Record<string, string>): NbsPpiRow | null {
@@ -31,6 +42,8 @@ function mapRow(row: Record<string, string>): NbsPpiRow | null {
     ppiMomPct: n(row.ppi_mom_pct),
     purchaseYoyPct: n(row.purchase_yoy_pct),
     nonMetalYoyPct: n(row.non_metal_yoy_pct),
+    buildingMaterialsYoyPct: nOrNull(row.building_materials_yoy_pct),
+    ferrousSmeltingYoyPct: nOrNull(row.ferrous_smelting_yoy_pct),
     sourceUrl
   };
 }
@@ -54,6 +67,11 @@ export function getLatestNbsPpi(): NbsPpiRow | null {
 
 export function getNbsPpiTrend(limit = 6): NbsPpiRow[] {
   return rows.slice(0, Math.max(0, limit));
+}
+
+export function nbsPpiHasBuildingMaterials(row: NbsPpiRow | null): boolean {
+  if (!row) return false;
+  return row.buildingMaterialsYoyPct != null || row.ferrousSmeltingYoyPct != null;
 }
 
 export function shortNbsPpiMonthLabel(month: string): string {

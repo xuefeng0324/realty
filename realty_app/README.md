@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.121.151 | 2026-07-29 | NBS PPI 补建材购进（建筑材料及非金属类）+ 黑色金属冶炼出厂分项；macro-industry（versionCode 272） |
 | v1.121.150 | 2026-07-29 | NBS 工业增加值通稿补水泥/钢材/平板玻璃/粗钢产量（建材弱相关≠房价）；macro-industry（versionCode 271） |
 | v1.121.149 | 2026-07-29 | 广东统计局规上服务业专栏接入 macro-region（租赁商务/房地产服务≠房价）；周更 CI（versionCode 270） |
 | v1.121.148 | 2026-07-29 | 消费品 Q3 回填 + 家具/装潢零售分项；供需页商业/办公分区展开（versionCode 269） |
@@ -606,6 +607,10 @@ gh auth setup-git
 ## 更新日志
 
 详细变更见 [changelog/](./changelog/) 目录。
+
+### v1.121.151 (2026-07-29)
+
+国家统计局 PPI 通稿补「建筑材料及非金属类」购进与「黑色金属冶炼和压延加工业」出厂分项；`macro-industry` 建材 KPI 行。详见 [changelog/2026-07-29-v1.121.151-nbs-ppi-building-ferrous.md](./changelog/2026-07-29-v1.121.151-nbs-ppi-building-ferrous.md)。
 
 ### v1.121.150 (2026-07-29)
 

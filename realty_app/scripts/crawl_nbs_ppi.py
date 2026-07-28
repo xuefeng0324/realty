@@ -6,7 +6,8 @@
   python scripts/crawl_nbs_ppi.py
   python scripts/crawl_nbs_ppi.py --backfill --no-latest
 
-口径：全国 PPI 同比/环比；购进价格同比；非金属矿物制品业同比（建材相关分项）。
+口径：全国 PPI 同比/环比；购进价格同比；非金属矿物制品业同比；
+**建筑材料及非金属类**（购进）与 **黑色金属冶炼和压延加工业**（出厂）同比（建材/钢材弱相关）。
 PPI / 建材出厂价 ≠ 房价均价、≠挂牌、≠70城指数。
 """
 from __future__ import annotations
@@ -41,6 +42,8 @@ FIELDS = [
     "ppi_mom_pct",
     "purchase_yoy_pct",
     "non_metal_yoy_pct",
+    "building_materials_yoy_pct",
+    "ferrous_smelting_yoy_pct",
     "source_url",
 ]
 
@@ -183,6 +186,8 @@ def parse_release(url: str, body: str) -> dict[str, str | float]:
     if purchase is None:
         purchase = table_yoy(parser.rows, "工业生产者购进价格")
     non_metal = table_yoy(parser.rows, "非金属矿物制品业")
+    building_materials = table_yoy(parser.rows, "建筑材料及非金属类")
+    ferrous = table_yoy(parser.rows, "黑色金属冶炼和压延加工业")
 
     if purchase is None or non_metal is None:
         raise RuntimeError(f"PPI 表缺少购进或非金属矿物制品业同比: {url}")
@@ -194,6 +199,8 @@ def parse_release(url: str, body: str) -> dict[str, str | float]:
         "ppi_mom_pct": ppi_mom,
         "purchase_yoy_pct": purchase,
         "non_metal_yoy_pct": non_metal,
+        "building_materials_yoy_pct": "" if building_materials is None else building_materials,
+        "ferrous_smelting_yoy_pct": "" if ferrous is None else ferrous,
         "source_url": url,
     }
 

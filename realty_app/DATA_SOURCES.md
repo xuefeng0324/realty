@@ -183,7 +183,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/nbs_fa_investment.csv` | `nbsFaInvestment.ts` + 仪表盘「全国固定资产投资」卡（**多期默认折叠**） | `scripts/crawl_nbs_fa_investment.py`（**月更 CI** 随 `crawl-monthly-stats70`） | 国家统计局「全国固定资产投资基本情况」：累计绝对额亿元 + 民间/产业/制造/设备/知产同比；**不含农户**；**≠房价均价**；房开投资仍见 `nbs_real_estate` |
 | `static/nbs_income.csv` | `nbsIncome.ts` + 仪表盘「全国居民收支」卡（**多期默认折叠**） | `scripts/crawl_nbs_income.py`（**月更 CI** 探测；季/半年/年报） | 国家统计局「居民收入和消费支出情况」：人均可支配收入（全国/城/乡，名义+实际）、消费支出、**居住消费**；已回填 2025 全年及分季；**居住消费 ≠ 房价**；可与广东收入对照 |
 | `static/nbs_cpi.csv` | `nbsCpi.ts` + 仪表盘「全国 CPI」卡（**多期默认折叠**） | `scripts/crawl_nbs_cpi.py`（**月更 CI**） | 国家统计局月度 CPI：同比/环比 + **居住** + **租赁房房租**同比；**房租 ≠ 房价均价** |
-| `static/nbs_ppi.csv` | `nbsPpi.ts` + 仪表盘「全国 PPI」卡（**多期默认折叠**） | `scripts/crawl_nbs_ppi.py`（**月更 CI**） | 国家统计局月度 PPI：同比/环比 + **购进** + **非金属矿物制品业**（建材相关）同比；**PPI/建材 ≠ 房价均价** |
+| `static/nbs_ppi.csv` | `nbsPpi.ts` + macro-industry「全国 PPI」 | `scripts/crawl_nbs_ppi.py`（**月更 CI**） | 国家统计局月度 PPI：同比/环比 + **购进** + **非金属矿物制品业**（出厂）+ **建筑材料及非金属类**（购进）+ **黑色金属冶炼和压延加工业**（出厂）；**PPI/建材 ≠ 房价均价** |
 | `static/nbs_retail.csv` | `nbsRetail.ts` + 仪表盘「社消装潢/家具」卡（**多期默认折叠**） | `scripts/crawl_nbs_retail.py`（**月更 CI**） | 国家统计局社消：限额以上 **建筑及装潢材料类**、**家具类**（当月+累计）；**装潢/家具零售 ≠ 房价** |
 | `static/nbs_trade.csv` | `nbsTrade.ts` + 仪表盘「货物进出口」 | `scripts/crawl_nbs_trade.py`（**月更 CI**；国民经济通稿） | 海关口径货物进出口（亿元，当月+累计）；海关官网 WAF 不可直抓，取 NBS 转载；**≠房价**；与 SAFE 货服美元口径不同 |
 | `static/nbs_pmi.csv` | `nbsPmi.ts` + 仪表盘「PMI（含建筑业）」 | `scripts/crawl_nbs_pmi.py`（**月更 CI**） | 制造业/非制造业/建筑业/综合 PMI；临界点 50；建筑业商务活动 **≠房价** |
@@ -268,7 +268,7 @@ nbs_real_estate.csv          → nbsRealEstate.ts      → 全国房地产开销
 nbs_fa_investment.csv        → nbsFaInvestment.ts    → 全国固定资产投资
 nbs_income.csv               → nbsIncome.ts          → 全国居民收入/消费/居住
 nbs_cpi.csv                  → nbsCpi.ts             → 全国 CPI/居住/房租
-nbs_ppi.csv                  → nbsPpi.ts             → 全国 PPI/购进/建材分项
+nbs_ppi.csv                  → nbsPpi.ts             → 全国 PPI/购进/非金属/建材购进/黑色金属冶炼
 nbs_retail.csv               → nbsRetail.ts          → 社消装潢/家具零售
 nbs_trade.csv                → nbsTrade.ts           → 海关货物进出口（NBS 转载）
 nbs_pmi.csv                  → nbsPmi.ts             → 采购经理指数（含建筑业）

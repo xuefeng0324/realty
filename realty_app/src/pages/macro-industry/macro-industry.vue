@@ -414,14 +414,26 @@
             label="非金属矿物制品业"
             :value="formatMacroPct(nbsPpi.nonMetalYoyPct)"
             :valueTrendClass="macroTrendBand(nbsPpi.nonMetalYoyPct)"
-            sub="建材相关 · ≠房价" />
+            sub="出厂 · 建材相关" />
           <MacroKpiCell
             label="发布日"
             :value="nbsPpi.publishDate"
             sub="国家统计局" />
         </view>
+        <view v-if="nbsPpiHasMaterials" class="stats70-grid" style="margin-top: 8rpx" data-nbs-ppi-materials>
+          <MacroKpiCell
+            label="建材购进"
+            :value='nbsPpi.buildingMaterialsYoyPct != null ? formatMacroPct(nbsPpi.buildingMaterialsYoyPct) : "—"'
+            :valueTrendClass="macroTrendBand(nbsPpi.buildingMaterialsYoyPct ?? 0)"
+            sub="建筑材料及非金属类" />
+          <MacroKpiCell
+            label="黑色金属冶炼"
+            :value='nbsPpi.ferrousSmeltingYoyPct != null ? formatMacroPct(nbsPpi.ferrousSmeltingYoyPct) : "—"'
+            :valueTrendClass="macroTrendBand(nbsPpi.ferrousSmeltingYoyPct ?? 0)"
+            sub="出厂 · 钢材相关" />
+        </view>
         <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
-          月度 PPI · 出厂/购进/建材分项 · 非挂牌/网签/70城
+          月度 PPI · 出厂/购进/建材与黑色金属分项 · 非挂牌/网签/70城 · ≠房价
         </view>
         <button
           v-if="nbsPpiTrend.length > 1"
@@ -567,6 +579,7 @@ import {
 import {
   getLatestNbsPpi,
   getNbsPpiTrend,
+  nbsPpiHasBuildingMaterials,
   shortNbsPpiMonthLabel,
   type NbsPpiRow
 } from "../../local/nbsPpi";
@@ -611,6 +624,7 @@ const nbsIndustrialProfitDelta = computed(() => getNbsIndustrialProfitDeltaVsPre
 
 const nbsPpi = computed<NbsPpiRow | null>(() => getLatestNbsPpi());
 const nbsPpiTrend = computed(() => getNbsPpiTrend(6));
+const nbsPpiHasMaterials = computed(() => nbsPpiHasBuildingMaterials(nbsPpi.value));
 
 const nbsRetail = computed<NbsRetailRow | null>(() => getLatestNbsRetail());
 const nbsRetailTrend = computed(() => getNbsRetailTrend(6));
