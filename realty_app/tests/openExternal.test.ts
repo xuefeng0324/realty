@@ -174,3 +174,75 @@ describe("housing deep link", () => {
     );
   });
 });
+
+describe("native Android intent 唤起（plus.android）", () => {
+  function makeAndroidStub(startImpl?: () => void) {
+    const startActivity = vi.fn(startImpl);
+    const setData = vi.fn();
+    const setPackage = vi.fn();
+    const intent = { setData, setPackage };
+    const Intent = function (this: any, action?: string, uri?: unknown) {
+      Object.assign(this, intent);
+      (this as any).action = action;
+      (this as any).uri = uri;
+    } as any;
+    Intent.ACTION_VIEW = "android.intent.action.VIEW";
+    const Uri = { parse: vi.fn((u: string) => ({ __uri: u })) };
+    const main = { startActivity };
+    const importClass = vi.fn((name: string) =>
+      name.includes("Intent") ? Intent : name.includes("Uri") ? Uri : null
+    );
+    const android = { importClass, runtimeMainActivity: () => main };
+    return { android, startActivity, setPackage, setData, Uri, importClass, intent };
+  }
+
+  it("launchAndroidAppForUrl：ACTION_VIEW + setData(https) + setPackage(pkg) + startActivity", async () => {
+    const { launchAndroidAppForUrl } = await import("../src/utils/openExternal");
+    const { android, startActivity, setPackage } = makeAndroidStub();
+    vi.stubGlobal("plus", { android });
+    const ok = launchAndroidAppForUrl("https://sz.ke.com/ershoufang/1.html", "com.lianjia.beike");
+    expect(ok).toBe(true);
+    expect(setPackage).toHaveBeenCalledWith("com.lianjia.beike");
+    expect(startActivity).toHaveBeenCalledTimes(1);
+  });
+
+  it("startActivity 抛异常（App 未安装）→ 返回 false", async () => {
+    const { launchAndroidAppForUrl } = await import("../src/utils/openExternal");
+    const { android } = makeAndroidStub(() => {
+      throw new Error("ActivityNotFoundException");
+    });
+    vi.stubGlobal("plus", { android });
+    expect(launchAndroidAppForUrl("https://sz.ke.com/x.html", "com.lianjia.beike")).toBe(false);
+  });
+
+  it("无 plus.android → launchAndroidAppForUrl 返回 false", async () => {
+    const { launchAndroidAppForUrl } = await import("../src/utils/openExternal");
+    vi.stubGlobal("plus", {});
+    expect(launchAndroidAppForUrl("https://sz.ke.com/x.html", "com.lianjia.beike")).toBe(false);
+  });
+
+  it("openHousingSourceUrl：有 plus.android 时走原生 startActivity，不再 openURL(intent://)", async () => {
+    const { openHousingSourceUrl } = await import("../src/utils/openExternal");
+    const { android, startActivity } = makeAndroidStub();
+    const openURL = vi.fn();
+    vi.stubGlobal("plus", { android, runtime: { openURL, isApplicationExist: () => true } });
+    vi.stubGlobal("uni", { showToast: vi.fn(), showActionSheet: vi.fn(), setClipboardData: vi.fn() });
+    openHousingSourceUrl("https://sz.ke.com/ershoufang/105123170923.html");
+    // 原生成功 → 不应再退回 plus.runtime.openURL 的 intent:// 链
+    expect(startActivity).toHaveBeenCalled();
+    expect(openURL).not.toHaveBeenCalled();
+  });
+
+  it("openHousingSourceUrl：原生全失败 → 回退 plus.runtime.openURL", async () => {
+    const { openHousingSourceUrl } = await import("../src/utils/openExternal");
+    const { android } = makeAndroidStub(() => {
+      throw new Error("no activity");
+    });
+    const openURL = vi.fn();
+    vi.stubGlobal("plus", { android, runtime: { openURL, isApplicationExist: () => true } });
+    vi.stubGlobal("uni", { showToast: vi.fn(), showActionSheet: vi.fn(), setClipboardData: vi.fn() });
+    openHousingSourceUrl("https://sz.ke.com/ershoufang/105123170923.html");
+    // 原生失败后回退：openURL 被调用
+    expect(openURL).toHaveBeenCalled();
+  });
+});

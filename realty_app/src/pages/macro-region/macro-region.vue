@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="container">
       <MacroTabNav active="region" data-macro-tab-nav />
 
@@ -262,6 +262,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 /**
  * 宏观 · 区域子页（macro-region.vue）。
  *

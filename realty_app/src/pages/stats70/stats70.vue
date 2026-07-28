@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="container">
       <view class="card">
         <view class="card-title">全国 70 城价格指数</view>
@@ -188,6 +188,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 import { computed, ref } from "vue";
 import {
   getLatestMonth,

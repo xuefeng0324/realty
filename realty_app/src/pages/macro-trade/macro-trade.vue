@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="container">
       <MacroTabNav active="trade" data-macro-tab-nav />
 
@@ -68,6 +68,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 /**
  * 宏观 · 贸易子页（macro-trade.vue）。
  *

@@ -13,10 +13,20 @@
  * 禁止：浅色只改 data 属性、不写 CSS 变量（App 上 page 选择器经常不级联）。
  */
 
+import { ref, type Ref } from "vue";
 import { THEME_CSS_VARS, type ResolvedTheme } from "./themeTokens";
 
 export type ThemeMode = "system" | "light" | "dark";
 export type { ResolvedTheme };
+
+/**
+ * 响应式「已解析主题」——App(app-plus) 逻辑层没有可写的页面 document，
+ * paintDom 的 setAttribute 到不了真正渲染页面的 WebView（这正是「只有导航栏
+ * 变白、页面内容不变」的根因）。因此改由每个页面把根节点
+ * `<view class="page" :data-realty-theme="realtyTheme">` 绑定到本 ref，
+ * 让 Vue 跨逻辑层/渲染层把属性同步到真实 DOM，CSS 变量随之级联到全部内容。
+ */
+export const resolvedThemeRef: Ref<ResolvedTheme> = ref<ResolvedTheme>("dark");
 
 export const THEME_STORAGE_KEY = "realty:themeMode";
 
@@ -158,6 +168,8 @@ export function applyTheme(mode: ThemeMode): ResolvedTheme {
   const normalized = normalizeThemeMode(mode);
   applyNativeUiStyle(normalized);
   const resolved = resolveTheme(normalized);
+  // 先更新响应式 ref：这是 App 端页面内容真正换肤的主路径（模板绑定 data-realty-theme）
+  resolvedThemeRef.value = resolved;
   paintDom(resolved);
   paintChrome(resolved);
   return resolved;

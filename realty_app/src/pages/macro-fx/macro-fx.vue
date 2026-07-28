@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="container">
       <MacroTabNav active="fx" data-macro-tab-nav />
 
@@ -467,6 +467,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 /**
  * 宏观 · 汇市子页（macro-fx.vue）。
  *

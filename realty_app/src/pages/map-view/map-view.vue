@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="card map-control-card">
       <view class="row-between">
         <view>
@@ -271,6 +271,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 import { computed, ref } from "vue";
 import { onMounted, onUnmounted } from "vue";
 import { SNAPSHOT_UPDATED_EVENT } from "../../config";

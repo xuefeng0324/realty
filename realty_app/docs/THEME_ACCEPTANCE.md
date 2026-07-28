@@ -37,8 +37,22 @@
 
 1. **原生壳**：`darkmode` + `theme.json` + `pages.json` `@变量`
 2. **系统跟随**：`setUIStyle` + `uni.onThemeChange`
-3. **页面内容**：**JS `style.setProperty('--color-*')` + `data-realty-theme` + class**（双保险）
-4. **门禁**：token 亮度 unit + H5 主题视觉 smoke + 真机三点路径
+3. **页面内容**：**Vue 响应式属性绑定**（主路径）+ JS `style.setProperty`（H5 兜底）
+4. **门禁**：token 亮度 unit + 绑定护栏 unit + H5 主题视觉 smoke + 真机三点路径
+
+### 1.1 v1.121.139 根因修复：「只有导航栏变白、内容不变」
+
+**根因**：App(app-plus) 页面 JS 跑在**逻辑层**，`theme.ts` 的 `paintDom` 通过
+`document.querySelectorAll("page,…")` 写属性/内联变量，在逻辑层拿不到真正渲染页面的
+WebView DOM → 只有 `paintChrome`（`uni.setNavigationBarColor` / `setTabBarStyle`，走
+uni API）生效 → **导航栏/TabBar 变了、页面内容没变**，与用户反馈完全吻合。
+
+**修复**：改由每个页面的**根节点响应式绑定**
+`<view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">`，
+`realtyTheme` = `theme.ts` 导出的 `resolvedThemeRef`（`applyTheme` 中同步更新）。
+Vue 的响应式跨逻辑层→渲染层可靠同步属性；`App.vue` 提供通用属性选择器
+`[data-realty-theme="light"|"dark"] { --color-*: … }`，让浅/深变量从 `.page` 根**级联**
+到全部子内容。H5 仍保留 `paintDom` 做双保险。
 
 ## 2. 验收标准
 
@@ -72,12 +86,16 @@
 ## 3. 自动化门禁
 
 ```powershell
-npx vitest run tests/theme.test.ts tests/themeTokens.test.ts
+npx vitest run tests/theme.test.ts tests/themeTokens.test.ts tests/themeBinding.test.ts tests/themeHardcodeGuard.test.ts
 npm run type-check
 npm test
 node tests/e2e/smoke_theme_buttons.mjs
 node tests/e2e/smoke_theme_visual.mjs
 ```
+
+`themeBinding.test.ts` 护栏：全部页面根节点必须绑定 `:data-realty-theme="realtyTheme"`，
+`App.vue` 必须有通用属性选择器，`theme.ts` 必须导出并更新 `resolvedThemeRef`——
+任一缺失即 fail，防止新增页面漏绑定导致浅色回归。
 
 失败则**阻断发版**。
 

@@ -271,21 +271,97 @@ uni-app[data-realty-theme="light"] {
   color: var(--color-text);
 }
 
+/*
+ * App 端主路径：页面根 `<view class="page" :data-realty-theme="...">` 由 Vue 响应式
+ * 绑定属性（逻辑层→渲染层可靠同步）。这里用「属性在任意节点」的通用选择器，让浅色
+ * 变量从 .page 根级联到全部子内容——不再依赖 document 写 html/body（App 逻辑层拿不到）。
+ */
+[data-realty-theme="light"] {
+  --color-bg: #f2f4f7;
+  --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
+  --color-border: #d8dee8;
+  --color-text: #1e293b;
+  --color-heading: #0f172a;
+  --color-muted: #64748b;
+  --color-primary: #16a34a;
+  --color-primary-strong: #15803d;
+  --color-primary-contrast: #15803d;
+  --color-primary-text: #ffffff;
+  --color-danger: #dc2626;
+  --color-accent: #2563eb;
+  --color-accent-text: #ffffff;
+  --color-soft: #eef2f7;
+  --color-soft-strong: #e2e8f0;
+  --color-panel: #f8fafc;
+  --color-card: #ffffff;
+  --color-chip-text: #334155;
+  --color-success-soft: #ecfdf5;
+  --color-danger-soft: #fef2f2;
+  --color-warn-soft: #fef3c7;
+  --color-info-soft: #e0f2fe;
+  --color-violet-soft: #ede9fe;
+  --color-on-success-soft: #166534;
+  --color-on-danger-soft: #991b1b;
+  --color-on-warn-soft: #92400e;
+  --shadow-card: 0 8rpx 24rpx rgba(15, 23, 42, 0.08);
+  color-scheme: light;
+}
+/* 页面根本身补底色，避免根 view 透出下层 page 深底 */
+.page[data-realty-theme="light"] {
+  background-color: var(--color-bg);
+  background-image: none;
+  color: var(--color-text);
+}
+/* 深色显式回写：从浅色切回深色时覆盖 .page 上残留的浅色变量 */
+[data-realty-theme="dark"] {
+  --color-bg: #080d18;
+  --color-surface: #111827;
+  --color-surface-raised: #182235;
+  --color-border: rgba(148, 163, 184, 0.16);
+  --color-text: #e2e8f0;
+  --color-heading: #f3f4f6;
+  --color-muted: #94a3b8;
+  --color-primary: #22c55e;
+  --color-primary-strong: #16a34a;
+  --color-primary-contrast: #4ade80;
+  --color-primary-text: #052e16;
+  --color-danger: #ef4444;
+  --color-accent: #1d4ed8;
+  --color-accent-text: #ffffff;
+  --color-soft: #1e293b;
+  --color-soft-strong: #334155;
+  --color-panel: #0f172a;
+  --color-card: #111827;
+  --color-chip-text: #cbd5e1;
+  --color-success-soft: rgba(34, 197, 94, 0.16);
+  --color-danger-soft: rgba(239, 68, 68, 0.16);
+  --color-warn-soft: rgba(234, 179, 8, 0.16);
+  --color-info-soft: rgba(56, 189, 248, 0.16);
+  --color-violet-soft: rgba(139, 92, 246, 0.18);
+  --color-on-success-soft: #86efac;
+  --color-on-danger-soft: #fca5a5;
+  --color-on-warn-soft: #fde68a;
+  --shadow-card: 0 12rpx 34rpx rgba(0, 0, 0, 0.2);
+  color-scheme: dark;
+}
+.page[data-realty-theme="dark"] {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
 /* 浅色下分数胶囊不用「深色霓虹字」 */
-html[data-realty-theme="light"] .score-high,
-page[data-realty-theme="light"] .score-high,
+[data-realty-theme="light"] .score-high,
 .realty-theme-light .score-high {
   background: #ecfdf5;
   color: #166534;
 }
-html[data-realty-theme="light"] .score-mid,
-page[data-realty-theme="light"] .score-mid,
+[data-realty-theme="light"] .score-mid,
 .realty-theme-light .score-mid {
   background: #fef3c7;
   color: #92400e;
 }
-html[data-realty-theme="light"] .score-low,
-page[data-realty-theme="light"] .score-low,
+[data-realty-theme="light"] .score-low,
 .realty-theme-light .score-low {
   background: #fef2f2;
   color: #991b1b;

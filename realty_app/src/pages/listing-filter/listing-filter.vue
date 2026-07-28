@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="container">
       <!-- 筛选器 -->
       <view class="card">
@@ -383,6 +383,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { SNAPSHOT_UPDATED_EVENT } from "../../config";
 import { onLoad, onShow } from "@dcloudio/uni-app";

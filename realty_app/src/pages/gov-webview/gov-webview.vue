@@ -1,5 +1,5 @@
 <template>
-  <view class="gov-webview-page">
+  <view class="gov-webview-page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view v-if="pageUrl" class="gov-toolbar">
       <text class="toolbar-hint muted">政府站登录、跳转在系统浏览器中更稳定</text>
       <button class="btn btn-ghost toolbar-btn" size="mini" @click="openInBrowser">
@@ -30,6 +30,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 import { ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { normalizeGovUrl } from "../../config/govLinks";

@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="container">
       <MacroTabNav active="industry" data-macro-tab-nav />
 
@@ -494,6 +494,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 /**
  * 宏观 · 产业子页（macro-industry.vue）。
  *

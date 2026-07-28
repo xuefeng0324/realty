@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="container detail-container">
       <view class="quicknav">
         <view class="quick-btn tap-target" role="button" tabindex="0" @click="goBack">← 返回学校查询</view>
@@ -95,6 +95,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 import { computed, ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { getSchoolFutureScore } from "../../local/queries";

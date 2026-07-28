@@ -8,6 +8,7 @@ import {
   normalizeThemeMode,
   refreshThemeChrome,
   resolveTheme,
+  resolvedThemeRef,
   setThemeMode
 } from "../src/utils/theme";
 import { THEME_CSS_VARS } from "../src/utils/themeTokens";
@@ -165,6 +166,23 @@ describe("theme", () => {
     initializeTheme();
     expect(onThemeChange).toHaveBeenCalledWith(expect.any(Function));
     expect(html.dataset.realtyTheme).toBe("dark");
+  });
+
+  it("applyTheme 同步更新响应式 resolvedThemeRef（App 页面换肤主路径）", () => {
+    const { html, body } = makeDomStub();
+    vi.stubGlobal("uni", {
+      getSystemInfoSync: () => ({ theme: "dark" }),
+      setNavigationBarColor: vi.fn(),
+      setTabBarStyle: vi.fn()
+    });
+    vi.stubGlobal("document", { documentElement: html, body, querySelectorAll: () => [] });
+    applyTheme("light");
+    expect(resolvedThemeRef.value).toBe("light");
+    applyTheme("dark");
+    expect(resolvedThemeRef.value).toBe("dark");
+    // 跟随系统时按系统解析
+    applyTheme("system");
+    expect(resolvedThemeRef.value).toBe("dark");
   });
 
   it("refreshThemeChrome 按存储值重刷", () => {

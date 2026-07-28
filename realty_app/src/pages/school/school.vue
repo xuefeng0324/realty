@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="container">
       <view class="card school-hero">
         <view class="hero-eyebrow">EDUCATION SEARCH</view>
@@ -198,6 +198,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { SNAPSHOT_UPDATED_EVENT } from "../../config";
 import { onShow } from "@dcloudio/uni-app";

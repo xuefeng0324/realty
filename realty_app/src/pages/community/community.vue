@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="container">
       <!-- v0.56.0 detail-2: 顶部快捷导航 -->
       <view class="quicknav">
@@ -313,6 +313,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 import { computed, onMounted, ref } from "vue";
 import type { LocalCommunity } from "../../local/types";
 import { toErrorMessage } from "../../utils/errorMessage";

@@ -46,6 +46,61 @@ function getPlusRuntime(): PlusRuntime | null {
   return rt?.openURL ? rt : null;
 }
 
+type PlusAndroid = {
+  importClass: (name: string) => any;
+  runtimeMainActivity: () => any;
+};
+
+function getPlusAndroid(): PlusAndroid | null {
+  if (typeof plus === "undefined") return null;
+  const a = (plus as { android?: Partial<PlusAndroid> }).android;
+  return a && typeof a.importClass === "function" && typeof a.runtimeMainActivity === "function"
+    ? (a as PlusAndroid)
+    : null;
+}
+
+/**
+ * 原生 Intent 直接唤起「指定包名 + https 页」——贝壳/链家/安居客最稳路径。
+ *
+ * 关键：`plus.runtime.openURL("intent://…")` 会把 intent:// 当未知 scheme，
+ * 只有浏览器才解析 intent://，所以真机上「只能跳浏览器」。竞品做法是
+ * ACTION_VIEW + setData(https) + setPackage(pkg) 交给系统直接拉起 App
+ * （目标 App 声明了对应 host 的 App Links / intent-filter 时命中）。
+ * 目标未安装或无匹配 filter → 抛 ActivityNotFoundException → 返回 false 走下一候选。
+ */
+export function launchAndroidAppForUrl(url: string, androidPackage: string): boolean {
+  const android = getPlusAndroid();
+  if (!android || !url || !androidPackage) return false;
+  try {
+    const Intent = android.importClass("android.content.Intent");
+    const Uri = android.importClass("android.net.Uri");
+    const main = android.runtimeMainActivity();
+    const intent = new Intent(Intent.ACTION_VIEW);
+    intent.setData(Uri.parse(url));
+    intent.setPackage(androidPackage);
+    main.startActivity(intent);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** 原生 Intent 打开自定义 scheme（lianjiabeike:// / openanjuke:// 等） */
+export function launchAndroidScheme(schemeUrl: string): boolean {
+  const android = getPlusAndroid();
+  if (!android || !schemeUrl) return false;
+  try {
+    const Intent = android.importClass("android.content.Intent");
+    const Uri = android.importClass("android.net.Uri");
+    const main = android.runtimeMainActivity();
+    const intent = new Intent(Intent.ACTION_VIEW, Uri.parse(schemeUrl));
+    main.startActivity(intent);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function hostOf(url: string): string {
   try {
     return new URL(url).hostname.toLowerCase();
@@ -254,6 +309,28 @@ function showFallbackSheet(runtime: PlusRuntime, url: string, appName: string): 
   });
 }
 
+/**
+ * 原生 Intent 唤起链：https+包名 → 自定义 scheme。
+ * 仅在真机（plus.android 可用）时生效；H5/单测无 plus.android → 返回 false 走 openURL 回退。
+ */
+function tryNativeLaunch(url: string, hint: HousingAppHint | null): boolean {
+  if (!getPlusAndroid()) return false;
+  const host = hostOf(url);
+  const pageUrl = host.includes("lianjia.com") ? rewriteLianjiaToKe(url) : url;
+  // 1) https + 显式包名（App Links / intent-filter 命中直接进 App）
+  for (const pkg of hint?.androidPackages ?? []) {
+    if (launchAndroidAppForUrl(pageUrl, pkg)) return true;
+  }
+  // 2) 自定义 scheme（house/detail、web/main 等，取非 intent:// / 非 http 的候选）
+  const schemes = buildHousingAppDeepLinks(pageUrl).filter(
+    (l) => !l.startsWith("intent://") && !/^https?:/i.test(l)
+  );
+  for (const s of schemes) {
+    if (launchAndroidScheme(s)) return true;
+  }
+  return false;
+}
+
 export type OpenHousingSourceOptions = {
   /** app=直接唤起（默认）；sheet=先弹出 App/浏览器/复制 */
   mode?: "app" | "sheet";
@@ -291,6 +368,9 @@ export function openHousingSourceUrl(url: string, opts?: OpenHousingSourceOption
     if (installed === false) {
       uni.showToast({ title: `未检测到${appName}，可装 App 或选浏览器`, icon: "none", duration: 2200 });
     }
+    // ① 原生 Intent 直呼（绕开 intent:// 被 openURL 丢浏览器；真机唤起 App 的主路径）
+    if (tryNativeLaunch(url, hint)) return;
+    // ② 回退：plus.runtime.openURL 逐个 deep link（H5/无 plus.android 或原生失败时）
     tryOpenDeepLinks(runtime, links, url, appName, () => {
       showFallbackSheet(runtime, url, appName);
     });

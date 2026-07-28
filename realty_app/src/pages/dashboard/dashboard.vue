@@ -1,5 +1,5 @@
 <template>
-  <view class="page" :data-dash-tab="activeTab" :class="{ 'city-scoped': cityScoped }">
+  <view class="page" :data-dash-tab="activeTab" :data-realty-theme="realtyTheme" :class="[{ 'city-scoped': cityScoped }, 'realty-theme-' + realtyTheme]">
     <view class="container">
       <!-- v1.121.150 Batch 11：首页使用指南 banner（首次进入显示，用户可关闭） -->
       <view v-if="showGuide" class="home-guide-card" data-dash-guide>
@@ -4623,13 +4623,23 @@
       </view>
     </view>
     </view>
+
+    <!-- 右侧可拖动滚动进度条（替代原生细条，支持拖拽快速定位） -->
+    <ScrollProgress
+      :scroll-top="pageScrollTop"
+      :content-height="pageContentHeight"
+      :viewport-height="pageViewportHeight"
+      @seek="onScrollbarSeek"
+    />
   </view>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 import MacroKpiCell from "../../components/MacroKpiCell.vue";
-import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
+import ScrollProgress from "../../components/ScrollProgress.vue";
+import { onPullDownRefresh, onShow, onPageScroll } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
@@ -6124,6 +6134,8 @@ function setDashTab(tab: DashTabKey) {
         /* App 部分端无 selector 时仍保留 toast + data-dash-tab */
       }
     });
+    // Tab 切换后卡片数变化 → 复测内容高，刷新右侧滚动条
+    setTimeout(() => measureScrollMetrics(), 120);
   });
 }
 
@@ -7849,6 +7861,47 @@ watch(activeTab, () => {
   applyTabClass();
 });
 
+// ===== 可拖动滚动进度条（右侧）=====
+const pageScrollTop = ref(0);
+const pageContentHeight = ref(0);
+const pageViewportHeight = ref(0);
+let _lastMeasureAt = 0;
+
+function measureScrollMetrics() {
+  try {
+    const info = uni.getSystemInfoSync();
+    if (info?.windowHeight) pageViewportHeight.value = info.windowHeight;
+  } catch {
+    /* ignore */
+  }
+  try {
+    uni
+      .createSelectorQuery()
+      .select(".page")
+      .boundingClientRect((rect) => {
+        const r = Array.isArray(rect) ? rect[0] : rect;
+        if (r && typeof (r as { height?: number }).height === "number") {
+          pageContentHeight.value = (r as { height: number }).height;
+        }
+      })
+      .exec();
+  } catch {
+    /* ignore */
+  }
+  _lastMeasureAt = Date.now();
+}
+
+function onScrollbarSeek(scrollTop: number) {
+  pageScrollTop.value = scrollTop;
+  uni.pageScrollTo({ scrollTop, duration: 0 });
+}
+
+onPageScroll((e) => {
+  pageScrollTop.value = e.scrollTop;
+  // 内容高度随卡片/Tab 变化：滚动时每 ~800ms 复测一次，避免每帧 selectorQuery
+  if (Date.now() - _lastMeasureAt > 800) measureScrollMetrics();
+});
+
 onMounted(async () => {
   uni.$on(SNAPSHOT_UPDATED_EVENT, loadAll);
   loadHiddenCards();
@@ -7866,6 +7919,7 @@ onMounted(async () => {
     errorMsg.value = "未获取到城市列表，请检查后端 /api/v1/cities";
   }
   await loadAll();
+  nextTick(() => measureScrollMetrics());
 });
 
 onUnmounted(() => {
@@ -7930,6 +7984,7 @@ onShow(async () => {
     _lastCityId = app.cityId;
     await loadAll();
   }
+  nextTick(() => measureScrollMetrics());
 });
 </script>
 

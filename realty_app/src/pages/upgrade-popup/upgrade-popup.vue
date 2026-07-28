@@ -3,7 +3,7 @@
     参考 DCloud uni-upgrade-center：透明独立页盖住 tabBar/导航，
     用自定义卡片 + 进度条（Expo Updates 同款）代替原生 showModal/showLoading，避免闪烁。
   -->
-  <view class="upgrade-mask" @touchmove.stop.prevent="noop">
+  <view class="upgrade-mask" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme" @touchmove.stop.prevent="noop">
     <view class="upgrade-card">
       <view class="upgrade-eyebrow">APP UPDATE</view>
       <view class="upgrade-title">发现新版本 v{{ manifest?.versionName || "—" }}</view>
@@ -57,6 +57,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 import { computed, ref } from "vue";
 import { onBackPress, onLoad } from "@dcloudio/uni-app";
 import { APP_UPDATE_PENDING_KEY } from "../../config";

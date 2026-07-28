@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="container">
       <MacroTabNav active="rates" data-macro-tab-nav />
 
@@ -323,6 +323,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 /**
  * 宏观 · 利率子页（macro-rates.vue）。
  *

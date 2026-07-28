@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="container">
       <view class="settings-hero">
         <view>
@@ -177,7 +177,7 @@
         <view class="muted">
           Realty App v{{ APP_VERSION }} · 启动时自动检查热更新；升级交互对齐 uni-upgrade-center / Expo Updates<br />
           默认数据：真实挂牌与公开指标派生样本并存，详情页会明确标注数据等级<br />
-          评分规则在手机上实时计算；当前自动化测试为 785 个用例
+          评分规则在手机上实时计算；当前自动化测试为 1128 个用例
         </view>
       </view>
 
@@ -279,7 +279,7 @@ import {
   clearWangqianRemoteCache
 } from "../../local/wangqianDataRefresher";
 import { loadDailyWangqianFromCSV } from "../../local/dailyWangqian";
-import { getStoredThemeMode, setThemeMode, type ThemeMode } from "../../utils/theme";
+import { getStoredThemeMode, setThemeMode, resolvedThemeRef as realtyTheme, type ThemeMode } from "../../utils/theme";
 import { GOV_WEB_LINKS, openGovWeb, type GovWebLinkKey } from "../../config/govLinks";
 import {
   checkAppUpdate,

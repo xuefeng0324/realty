@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="container">
       <!-- v0.54.0 detail-1: 顶部快捷导航 (返回 + 同区其他小区 + 小区详情) -->
       <view class="quicknav">
@@ -307,6 +307,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 import { computed, onMounted, ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { getListingDetail, getCommunityPois, getCommunityHospitals, getCommunityMetroPlanning } from "../../local/queries";

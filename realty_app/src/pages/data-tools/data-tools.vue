@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="container">
       <view class="page-header" data-data-tools-header>
         <view class="page-header-title">数据工具</view>
@@ -1296,6 +1296,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 /**
  * 数据工具独立页（data-tools.vue，v1.121.142 Batch 4）
  *

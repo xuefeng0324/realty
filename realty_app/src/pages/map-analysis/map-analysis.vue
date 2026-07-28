@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="header">
       <view class="title">🗺️ 行政区 + 社区 marker 地图</view>
       <view class="muted">
@@ -146,6 +146,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 import { computed, onMounted, ref, watch } from "vue";
 import { useAppStore } from "../../store/app";
 import * as store from "../../local/store";
