@@ -1,12 +1,12 @@
 {
-  "versionName": "1.121.142",
-  "versionCode": "263",
-  "publishedAt": "2026-07-28T13:13:04Z",
+  "versionName": "1.121.143",
+  "versionCode": "264",
+  "publishedAt": "2026-07-28T18:46:21Z",
   "force": false,
-  "notes": "test: align guide banner assertion with sync shouldShowDashboardGuide\n\n2026-07-25-v1.115.0-\u533b\u9662\u5750\u6807\u63a5\u5165\u4e0e\u6d3e\u751f: v1.115.0 \u2014 \u533b\u9662\u5750\u6807\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n",
+  "notes": "fix(entry): channel/kingkong navigate to pages, add supply page\n\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n2026-07-25-v1.119.0-\u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730map-view: v1.119.0 \u00b7 \u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730 map-view\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/263/app.wgt",
-    "sha256": "4234dda59f4020ed0502b195041f497ddb3786e671edf05292037c862c60e20d"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/264/app.wgt",
+    "sha256": "b2683ed8669fc19392025dd6d35053de07504b42253946723e38a7d55722e0b1"
   },
   "ios": {
     "available": false,
