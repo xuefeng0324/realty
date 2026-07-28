@@ -1,12 +1,12 @@
 {
-  "versionName": "1.121.154",
-  "versionCode": "275",
-  "publishedAt": "2026-07-28T20:47:24Z",
+  "versionName": "1.121.155",
+  "versionCode": "276",
+  "publishedAt": "2026-07-28T20:56:17Z",
   "force": false,
-  "notes": "\ufefffeat(macro): NBS GDP\u521d\u6b65\u6838\u7b97\u63a5\u5165macro-industry\n\n2026-07-25-v1.121.9-OTA\u9a8c\u8bc1130: v1.121.9 \u2014 OTA \u9a8c\u8bc1\u5305 130\n2026-07-25-v1.109.0-\u793e\u533a\u603b\u4ef7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f: v1.109.0 \u2014 \u793e\u533a\u603b\u4ef7\u00d7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f\n2026-07-25-v1.110.0-\u89c4\u5212\u5730\u94c1\u6d3e\u751f: v1.110.0 \u2014 \u89c4\u5212\u5730\u94c1\u6d3e\u751f\n",
+  "notes": "\ufefffeat(macro): NBS\u57ce\u9547\u8c03\u67e5\u5931\u4e1a\u7387\u63a5\u5165\uff1bGDP\u524d\u4e09\u5b63\u5ea6\u56de\u586b\n\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n2026-07-25-v1.119.0-\u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730map-view: v1.119.0 \u00b7 \u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730 map-view\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/275/app.wgt",
-    "sha256": "ad787501fbe53509fddffa1d8ebbb67a3520c24fd30a701680c00e726323cd4e"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/276/app.wgt",
+    "sha256": "bbad4340a91dff4aa0045a981d60d5a50e1d95a78e517faa2e3fa5c2678040e0"
   },
   "ios": {
     "available": false,
