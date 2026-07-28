@@ -1,12 +1,12 @@
 {
-  "versionName": "1.121.143",
-  "versionCode": "264",
-  "publishedAt": "2026-07-28T18:46:21Z",
+  "versionName": "1.121.144",
+  "versionCode": "265",
+  "publishedAt": "2026-07-28T18:55:46Z",
   "force": false,
-  "notes": "fix(entry): channel/kingkong navigate to pages, add supply page\n\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n2026-07-25-v1.119.0-\u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730map-view: v1.119.0 \u00b7 \u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730 map-view\n",
+  "notes": "\ufefffix(dashboard): remove overview fold/scroll shortcuts, jump to pages\n\n2026-07-25-v1.120.0-\u4fee\u590dOTA\u68c0\u67e5\u66f4\u65b0fetch: v1.120.0 \u00b7 \u4fee\u590d OTA \u68c0\u67e5\u66f4\u65b0\uff08fetch is not a function\uff09\n2026-07-25-v1.121.0-\u5730\u56fefetch-\u4fee\u590d\u4e0eAPK\u56fe\u6807: v1.121.0 \u2014 \u5730\u56fe fetch \u4fee\u590d + \u81ea\u52a8 APK \u53ef\u9009 job + \u5e94\u7528\u56fe\u6807\u91cd\u505a\n2026-07-25-v1.121.2-OTA\u68c0\u67e5\u66f4\u65b0\u4fee\u590d: v1.121.2 \u2014 OTA \u68c0\u67e5\u66f4\u65b0\u65e0\u53cd\u5e94\u4fee\u590d\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/264/app.wgt",
-    "sha256": "b2683ed8669fc19392025dd6d35053de07504b42253946723e38a7d55722e0b1"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/265/app.wgt",
+    "sha256": "81200f35f59b1dfb85361914b2241307c05da658adbbc38472775c6083d2ed22"
   },
   "ios": {
     "available": false,
