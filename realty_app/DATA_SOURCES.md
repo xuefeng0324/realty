@@ -188,6 +188,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/nbs_trade.csv` | `nbsTrade.ts` + 仪表盘「货物进出口」 | `scripts/crawl_nbs_trade.py`（**月更 CI**；国民经济通稿） | 海关口径货物进出口（亿元，当月+累计）；海关官网 WAF 不可直抓，取 NBS 转载；**≠房价**；与 SAFE 货服美元口径不同 |
 | `static/nbs_pmi.csv` | `nbsPmi.ts` + 仪表盘「PMI（含建筑业）」 | `scripts/crawl_nbs_pmi.py`（**月更 CI**） | 制造业/非制造业/建筑业/综合 PMI；临界点 50；建筑业商务活动 **≠房价** |
 | `static/nbs_industrial.csv` | `nbsIndustrial.ts` + macro-industry「工业增加值」 | `scripts/crawl_nbs_industrial.py`（**月更 CI**） | 规上工业增加值当月同比/环比/累计同比 + 采矿/制造/公用分项；附产量表 **水泥 / 平板玻璃 / 钢材 / 粗钢**（建材弱相关）；**≠房价**；可与 PMI 对照 |
+| `static/nbs_energy.csv` | `nbsEnergy.ts` + macro-industry「能源生产」 | `scripts/crawl_nbs_energy.py`（**月更 CI**） | 规上工业原煤/原油/天然气/发电量产量与同比；单月稿跳过 1—N 累计句、兼容「同比持平」；**≠房价** |
 | `static/nbs_industrial_profit.csv` | `nbsIndustrialProfit.ts` + 仪表盘「工业企业利润」 | `scripts/crawl_nbs_industrial_profit.py`（**月更 CI**） | 规上工业企业累计利润/营收/利润率 + 三大门类利润同比；通常滞后约 1 个月；**≠房价** |
 
 | `static/gz_new_house_inventory.csv` | `gzNewHouseInventory.ts` + `gzInventoryFreshness.ts` + 供需页「广州新房库存」 | `scripts/crawl_gz_new_house_inventory.py`（**日更 CI** 随 `crawl-daily-wangqian`） | 广州新房**可售/未售/签约**分区；住宅列兼容旧名；**商业 / 办公 / 车位**分项（同源 `shangYe*` / `banGong*` / `cheWei*`）；>3 天未更新时标明滞后；≠挂牌价、≠网签均价 |
@@ -273,6 +274,7 @@ nbs_retail.csv               → nbsRetail.ts          → 社消装潢/家具�
 nbs_trade.csv                → nbsTrade.ts           → 海关货物进出口（NBS 转载）
 nbs_pmi.csv                  → nbsPmi.ts             → 采购经理指数（含建筑业）
 nbs_industrial.csv           → nbsIndustrial.ts      → 规上工业增加值 + 水泥/钢材/玻璃产量
+nbs_energy.csv               → nbsEnergy.ts          → 能源生产（原煤/原油/气/电）
 nbs_industrial_profit.csv    → nbsIndustrialProfit.ts → 规上工业企业利润（累计）
 chinabond_yield.csv          → chinaBondYield.ts     → 中债国债收益率
 shibor.csv                   → shibor.ts             → 上海银行间同业拆放利率
@@ -316,7 +318,7 @@ static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务�
 |----------|------------------|--------|
 | `pages/macro-rates/macro-rates` | LPR / MLF / 逆回购 / Shibor / 国债 / 回购 FR/FDR（6 张） | lprHistoryAnalysis + mlfData + repoFixing + bondYield |
 | `pages/macro-fx/macro-fx` | 外储 / 官方储备 / 美元中间价 / 外汇市场 / 结售汇 / BOP / IIP（7 张） | foreignReserves + officialReservesAssets + rmbQuery + fxMarketMonthly + bankForex + bopQuery + iipQuery |
-| `pages/macro-industry/macro-industry` | 工业增加值 / 工业利润 / CPI / PPI / 固投 / 居民收支 / PMI（7 张） | nbsIndustrial + nbsIndustrialProfit + nbsCpi + nbsPpi + nbsFaInvestment + nbsIncome + nbsPmi |
+| `pages/macro-industry/macro-industry` | 工业增加值 / 能源 / 工业利润 / CPI / PPI / 固投 / 居民收支 / PMI / 社消装潢家具（9 张） | nbsIndustrial + nbsEnergy + nbsIndustrialProfit + nbsCpi + nbsPpi + nbsFaInvestment + nbsIncome + nbsPmi + nbsRetail |
 | `pages/macro-region/macro-region` | 广东 房地产简况 / 经济运行 / 固投 / 施工产值 / 规上工业 / 消费品 / 规上服务业（7 张） | gdRealEstateBrief + gdEconomy + gdFaInvestment + gdConstruction + gdIndustrial + gdRetail + gdServices |
 | `pages/macro-trade/macro-trade` | 海关货物进出口（1 张） | nbsTrade |
 

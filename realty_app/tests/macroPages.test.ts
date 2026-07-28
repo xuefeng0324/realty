@@ -85,7 +85,7 @@ describe("宏观 5 子页骨架 PAGES_MACRO_*", () => {
     expect(src).toContain("getLatestGdRetail");
   });
 
-  it("macro-industry 子页迁入了 8 张产业卡（数据 + 模板）", () => {
+  it("macro-industry 子页迁入了产业卡（数据 + 模板）", () => {
     const src = readFileSync(
       resolve(pagesDir, "macro-industry/macro-industry.vue"),
       "utf8"
@@ -95,10 +95,12 @@ describe("宏观 5 子页骨架 PAGES_MACRO_*", () => {
     expect(src).toContain("data-nbs-cpi");
     expect(src).toContain("data-nbs-pmi");
     expect(src).toContain("data-nbs-industrial");
+    expect(src).toContain("data-nbs-energy");
     expect(src).toContain("data-nbs-industrial-profit");
     expect(src).toContain("data-nbs-ppi");
     expect(src).toContain("data-nbs-retail");
     expect(src).toContain("getLatestNbsIndustrialProfit");
+    expect(src).toContain("getLatestNbsEnergy");
     expect(src).toContain("getLatestNbsPmi");
   });
 

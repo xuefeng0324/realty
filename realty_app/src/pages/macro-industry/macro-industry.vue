@@ -332,6 +332,66 @@
         </template>
       </view>
 
+      <!-- 全国 · 能源生产（nbsEnergy） -->
+      <view v-if="nbsEnergy" class="card macro-card" data-nbs-energy>
+        <view class="macro-kicker">全国 · 能源生产</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">能源生产情况</view>
+          <view class="muted" style="font-size: 22rpx">{{ nbsEnergy.month }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <MacroKpiCell
+            label="发电量同比"
+            :value="formatMacroPct(nbsEnergy.powerYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsEnergy.powerYoyPct)"
+            :sub="nbsEnergy.powerYiKwh.toLocaleString() + ' 亿千瓦时'" />
+          <MacroKpiCell
+            label="原煤同比"
+            :value="formatMacroPct(nbsEnergy.coalYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsEnergy.coalYoyPct)"
+            :sub="nbsEnergy.coalYiT + ' 亿吨'" />
+          <MacroKpiCell
+            label="原油同比"
+            :value="formatMacroPct(nbsEnergy.oilYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsEnergy.oilYoyPct)"
+            :sub="nbsEnergy.oilWanT.toLocaleString() + ' 万吨'" />
+          <MacroKpiCell
+            label="天然气同比"
+            :value="formatMacroPct(nbsEnergy.gasYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsEnergy.gasYoyPct)"
+            :sub="nbsEnergy.gasYiM3 + ' 亿立方米'" />
+        </view>
+        <view class="macro-note">
+          国家统计局规上工业能源产量 · 景气弱相关 · ≠挂牌/成交/网签/70城 · ≠房价
+        </view>
+        <button
+          v-if="nbsEnergyTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-nbs-energy-series-toggle
+          :aria-expanded="nbsEnergySeriesExpanded"
+          @click="nbsEnergySeriesExpanded = !nbsEnergySeriesExpanded"
+        >
+          {{ nbsEnergySeriesExpanded ? "收起多期" : "多期序列" }}
+        </button>
+        <template v-if="nbsEnergySeriesExpanded">
+          <view class="macro-series" data-nbs-energy-series-detail>
+            发电同比
+            <text v-for="(p, i) in nbsEnergyTrend" :key="'en-p-' + p.month">
+              {{ shortNbsEnergyMonthLabel(p.month) }} {{ formatMacroPct(p.powerYoyPct)
+              }}<text v-if="i < nbsEnergyTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view class="macro-series" data-nbs-energy-series-detail>
+            原煤同比
+            <text v-for="(p, i) in nbsEnergyTrend" :key="'en-c-' + p.month">
+              {{ shortNbsEnergyMonthLabel(p.month) }} {{ formatMacroPct(p.coalYoyPct)
+              }}<text v-if="i < nbsEnergyTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
+
       <!-- 全国 · 工业企业利润（nbsIndustrialProfit） -->
       <view
         v-if="nbsIndustrialProfit"
@@ -570,6 +630,12 @@ import {
   type NbsIndustrialRow
 } from "../../local/nbsIndustrial";
 import {
+  getLatestNbsEnergy,
+  getNbsEnergyTrend,
+  shortNbsEnergyMonthLabel,
+  type NbsEnergyRow
+} from "../../local/nbsEnergy";
+import {
   getLatestNbsIndustrialProfit,
   getNbsIndustrialProfitDeltaVsPrev,
   getNbsIndustrialProfitTrend,
@@ -596,6 +662,7 @@ const nbsIncomeSeriesExpanded = ref(false);
 const nbsCpiSeriesExpanded = ref(false);
 const nbsPmiSeriesExpanded = ref(false);
 const nbsIndustrialSeriesExpanded = ref(false);
+const nbsEnergySeriesExpanded = ref(false);
 const nbsIndustrialProfitSeriesExpanded = ref(false);
 const nbsPpiSeriesExpanded = ref(false);
 const nbsRetailSeriesExpanded = ref(false);
@@ -617,6 +684,9 @@ const nbsIndustrial = computed<NbsIndustrialRow | null>(() => getLatestNbsIndust
 const nbsIndustrialTrend = computed(() => getNbsIndustrialTrend(6));
 const nbsIndustrialDelta = computed(() => getNbsIndustrialDeltaVsPrev());
 const nbsIndustrialHasMaterials = computed(() => nbsIndustrialHasBuildingMaterials(nbsIndustrial.value));
+
+const nbsEnergy = computed<NbsEnergyRow | null>(() => getLatestNbsEnergy());
+const nbsEnergyTrend = computed(() => getNbsEnergyTrend(6));
 
 const nbsIndustrialProfit = computed<NbsIndustrialProfitRow | null>(() => getLatestNbsIndustrialProfit());
 const nbsIndustrialProfitTrend = computed(() => getNbsIndustrialProfitTrend(6));
