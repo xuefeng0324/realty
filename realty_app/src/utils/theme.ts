@@ -102,13 +102,13 @@ export function getStoredThemeMode(): ThemeMode {
   return normalizeThemeMode(uni.getStorageSync(THEME_STORAGE_KEY));
 }
 
-/** App 原生 UI 风格：auto | light | dark（官方要求跟随系统前先开 auto） */
-function applyNativeUiStyle(mode: ThemeMode): void {
+/** App 原生 UI 风格。跟随系统时仍按「已解析主题」设 dark/light，避免冷启动 setUIStyle("auto") 先套浅色壳。 */
+function applyNativeUiStyle(mode: ThemeMode, resolved: ResolvedTheme): void {
   if (typeof plus === "undefined") return;
   const nativeUI = (plus as { nativeUI?: { setUIStyle?: (s: string) => void } }).nativeUI;
   if (!nativeUI?.setUIStyle) return;
   try {
-    if (mode === "system") nativeUI.setUIStyle("auto");
+    if (mode === "system") nativeUI.setUIStyle(resolved);
     else nativeUI.setUIStyle(mode);
   } catch {
     /* ignore */
@@ -166,10 +166,12 @@ function paintDom(resolved: ResolvedTheme): void {
 function paintChrome(resolved: ResolvedTheme): void {
   if (typeof uni === "undefined") return;
   const dark = resolved === "dark";
+  const navBg = dark ? "#0b1020" : "#f2f4f7";
+  const pageBg = dark ? "#080d18" : "#f2f4f7";
   try {
     uni.setNavigationBarColor?.({
       frontColor: dark ? "#ffffff" : "#000000",
-      backgroundColor: dark ? "#0b1020" : "#f2f4f7",
+      backgroundColor: navBg,
       animation: { duration: 0, timingFunc: "linear" }
     });
   } catch {
@@ -185,12 +187,29 @@ function paintChrome(resolved: ResolvedTheme): void {
   } catch {
     /* ignore */
   }
+  // 状态栏 + WebView 底：启动页关掉后上半截白闪的常见来源（系统默认白）
+  try {
+    const p = plus as {
+      navigator?: {
+        setStatusBarBackground?: (c: string) => void;
+        setStatusBarStyle?: (s: string) => void;
+      };
+      webview?: {
+        currentWebview?: () => { setStyle?: (s: Record<string, string>) => void } | null;
+      };
+    };
+    p.navigator?.setStatusBarBackground?.(navBg);
+    p.navigator?.setStatusBarStyle?.(dark ? "light" : "dark");
+    p.webview?.currentWebview?.()?.setStyle?.({ background: pageBg });
+  } catch {
+    /* ignore / H5 无 plus */
+  }
 }
 
 export function applyTheme(mode: ThemeMode): ResolvedTheme {
   const normalized = normalizeThemeMode(mode);
-  applyNativeUiStyle(normalized);
   const resolved = resolveTheme(normalized);
+  applyNativeUiStyle(normalized, resolved);
   // 先更新响应式 ref：这是 App 端页面内容真正换肤的主路径（模板绑定 data-realty-theme）
   resolvedThemeRef.value = resolved;
   paintDom(resolved);

@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.121.142 | 2026-07-28 | 启动上半截白闪二修：根因是首页指南 banner 首帧默认 `showGuide=true` + 浅色渐变，onMounted 再藏导致必闪；改为同步读 storage；指南卡默认深色渐变；pages.json 硬编码深色壳底；状态栏/WebView 刷底；setUIStyle 按已解析主题（versionCode 263） |
 | v1.121.141 | 2026-07-28 | 修复启动页结束后上半截必闪白：系统 theme 未就绪时不再兜底浅色（改深色 + 缓存上次成功值）；`initializeTheme` 非显式浅色先刷深色导航栏；splash `waiting=true` + delay 300ms 等首屏再关；theme 单测补白闪护栏（versionCode 262） |
 | v1.121.140 | 2026-07-28 | OTA 发版：承接上轮「移除右侧进度条 + 概览页 data-tab/isOverviewCompact 收敛」业务改动；versionCode 260→261，使已装 1.121.139 的真机可热更新到本包（上一 commit 未 bump 导致清单停留 139/260） |
 | v1.121.139 | 2026-07-28 | 浅色模式根因修复（App 逻辑层 document 到不了页面 WebView → 只有导航栏变色）：`theme.ts` 导出响应式 `resolvedThemeRef`，19 个页面根节点 `:data-realty-theme` 绑定 + `App.vue` 通用 `[data-realty-theme]` 级联选择器；房源参考页原生 Intent 直呼贝壳/链家/安居客 App（`plus.android` startActivity，绕开 intent:// 被 openURL 丢浏览器）；移除右侧进度条并收敛概览页长度（概览精简模式隐藏关键大卡）；新增 themeBinding 测试 + 补 theme/openExternal 用例（1125/1125）。未做：房源数据完善、整体走查、真机 deep-link 验证 |

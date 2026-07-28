@@ -4629,6 +4629,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
+import { DASHBOARD_GUIDE_KEY, shouldShowDashboardGuide } from "../../utils/dashboardGuide";
 import MacroKpiCell from "../../components/MacroKpiCell.vue";
 import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
@@ -5121,24 +5122,14 @@ function loadUiState() {
 }
 
 // v1.121.150 Batch 11: 首页使用指南 banner
-const DASHBOARD_GUIDE_KEY = "realty_dashboard_guide_dismissed";
-const showGuide = ref<boolean>(true);
+// 首帧必须同步读 storage：默认 true 会先画出浅色渐变卡，启动后上半截必闪白
+const showGuide = ref<boolean>(shouldShowDashboardGuide());
 function dismissGuide() {
   showGuide.value = false;
   try {
     uni.setStorageSync(DASHBOARD_GUIDE_KEY, JSON.stringify(true));
   } catch (e) {
     console.warn("saveGuideDismissed failed:", e);
-  }
-}
-function loadGuideDismissed() {
-  try {
-    const raw = uni.getStorageSync(DASHBOARD_GUIDE_KEY);
-    if (typeof raw === "string" && raw.length > 0) {
-      showGuide.value = !(JSON.parse(raw) as boolean);
-    }
-  } catch (e) {
-    console.warn("loadGuideDismissed failed:", e);
   }
 }
 
@@ -7859,7 +7850,6 @@ onMounted(async () => {
   uni.$on(SNAPSHOT_UPDATED_EVENT, loadAll);
   loadHiddenCards();
   loadUiState();
-  loadGuideDismissed();
   applyTabClass();
   applyCityScopedClass(cityScoped.value);
   const res = await getCities();
@@ -7957,11 +7947,21 @@ onShow(async () => {
   color: var(--color-text, #333) !important;
 }
 .home-guide-card {
-  background: linear-gradient(135deg, #f0f4ff 0%, #fef3c7 100%);
-  border: 1rpx solid #c7d2fe;
+  /* 默认跟深色主题；浅色用下方选择器覆盖——禁止硬编码浅色渐变当默认（启动白闪） */
+  background: linear-gradient(
+    135deg,
+    rgba(34, 197, 94, 0.14) 0%,
+    rgba(59, 130, 246, 0.12) 100%
+  );
+  border: 1rpx solid rgba(148, 163, 184, 0.28);
   border-radius: 16rpx;
   padding: 20rpx;
   margin-bottom: 16rpx;
+}
+.page[data-realty-theme="light"] .home-guide-card,
+[data-realty-theme="light"] .home-guide-card {
+  background: linear-gradient(135deg, #f0f4ff 0%, #fef3c7 100%);
+  border-color: #c7d2fe;
 }
 .home-guide-title {
   font-size: 30rpx;

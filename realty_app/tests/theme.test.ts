@@ -186,7 +186,7 @@ describe("theme", () => {
     );
 
     expect(applyTheme("system")).toBe("dark");
-    expect(setUIStyle).toHaveBeenCalledWith("auto");
+    expect(setUIStyle).toHaveBeenCalledWith("dark");
   });
 
   it("跟随系统时绑定 uni.onThemeChange", () => {
