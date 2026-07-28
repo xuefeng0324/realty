@@ -181,7 +181,8 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/seed/safe_bop.csv` | `safeBop.ts` + dashboard「🌐 国际收支平衡表」 | `crawl_safe_bop.py`（**周/月更 CI**；新闻通稿；正式优先于初步） | 国际收支平衡表季度流量：经常账户/货服/初次二次收入/资本和金融账户（亿美元）；**≠房价**；与月度货服贸易卡口径不同 |
 | `static/nbs_real_estate.csv` | `nbsRealEstate.ts` | `scripts/crawl_nbs_real_estate.py`（**月更 CI** 随 `crawl-monthly-stats70`） | 国家统计局全国房地产市场基本情况；**多期 merge**（`period` 主键）；来源须为 `stats.gov.cn`；仪表盘展示销售面积/销售额/投资/到位资金同比多期、**房屋/住宅施工·新开工·竣工**、**住宅销售/待售/投资分项**、**到位资金拆分（国内贷款/定金预收款/个人按揭/自筹）**、**销售额÷面积派生全国合同均价（含住宅派生，多期）**、以及 **待售÷销售节奏粗算可售月数（多期）**（均 ≠城市挂牌/网签均价、≠70城指数、≠城市去化周期） |
 | `static/nbs_fa_investment.csv` | `nbsFaInvestment.ts` + 仪表盘「全国固定资产投资」卡（**多期默认折叠**） | `scripts/crawl_nbs_fa_investment.py`（**月更 CI** 随 `crawl-monthly-stats70`） | 国家统计局「全国固定资产投资基本情况」：累计绝对额亿元 + 民间/产业/制造/设备/知产同比；**不含农户**；**≠房价均价**；房开投资仍见 `nbs_real_estate` |
-| `static/nbs_income.csv` | `nbsIncome.ts` + 仪表盘「全国居民收支」卡（**多期默认折叠**） | `scripts/crawl_nbs_income.py`（**月更 CI** 探测；季/半年/年报） | 国家统计局「居民收入和消费支出情况」：人均可支配收入（全国/城/乡，名义+实际）、消费支出、**居住消费**；已回填 2025 全年及分季；**居住消费 ≠ 房价**；可与广东收入对照 |
+| `static/nbs_income.csv` | `nbsIncome.ts` + macro-industry「居民收支」 | `scripts/crawl_nbs_income.py`（**月更 CI** 探测；季/半年/年报） | 国家统计局「居民收入和消费支出情况」：人均可支配收入（全国/城/乡，名义+实际）、消费支出、**居住消费**；已回填 2025 全年及分季；**居住消费 ≠ 房价**；可与广东收入对照 |
+| `static/nbs_avg_wage.csv` | `nbsAvgWage.ts` + macro-industry「城镇单位年平均工资」 | `scripts/crawl_nbs_avg_wage.py`（**月更 CI** 探测年报） | 城镇非私营/私营年平均工资 + 名义/实际（或可比）同比；行业表 **房地产业/建筑业**；**工资 ≠ 房价** |
 | `static/nbs_cpi.csv` | `nbsCpi.ts` + 仪表盘「全国 CPI」卡（**多期默认折叠**） | `scripts/crawl_nbs_cpi.py`（**月更 CI**） | 国家统计局月度 CPI：同比/环比 + **居住** + **租赁房房租**同比；**房租 ≠ 房价均价** |
 | `static/nbs_ppi.csv` | `nbsPpi.ts` + macro-industry「全国 PPI」 | `scripts/crawl_nbs_ppi.py`（**月更 CI**） | 国家统计局月度 PPI：同比/环比 + **购进** + **非金属矿物制品业**（出厂）+ **建筑材料及非金属类**（购进）+ **黑色金属冶炼和压延加工业**（出厂）；**PPI/建材 ≠ 房价均价** |
 | `static/nbs_retail.csv` | `nbsRetail.ts` + 仪表盘「社消装潢/家具」卡（**多期默认折叠**） | `scripts/crawl_nbs_retail.py`（**月更 CI**） | 国家统计局社消：限额以上 **建筑及装潢材料类**、**家具类**（当月+累计）；**装潢/家具零售 ≠ 房价** |
@@ -268,6 +269,7 @@ gd_economy.csv               → gdEconomy.ts          → 广东经济运行（
 nbs_real_estate.csv          → nbsRealEstate.ts      → 全国房地产开销宏观（含住宅/按揭）
 nbs_fa_investment.csv        → nbsFaInvestment.ts    → 全国固定资产投资
 nbs_income.csv               → nbsIncome.ts          → 全国居民收入/消费/居住
+nbs_avg_wage.csv             → nbsAvgWage.ts         → 城镇单位年平均工资（含房地产/建筑业）
 nbs_cpi.csv                  → nbsCpi.ts             → 全国 CPI/居住/房租
 nbs_ppi.csv                  → nbsPpi.ts             → 全国 PPI/购进/非金属/建材购进/黑色金属冶炼
 nbs_retail.csv               → nbsRetail.ts          → 社消装潢/家具零售
@@ -318,7 +320,7 @@ static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务�
 |----------|------------------|--------|
 | `pages/macro-rates/macro-rates` | LPR / MLF / 逆回购 / Shibor / 国债 / 回购 FR/FDR（6 张） | lprHistoryAnalysis + mlfData + repoFixing + bondYield |
 | `pages/macro-fx/macro-fx` | 外储 / 官方储备 / 美元中间价 / 外汇市场 / 结售汇 / BOP / IIP（7 张） | foreignReserves + officialReservesAssets + rmbQuery + fxMarketMonthly + bankForex + bopQuery + iipQuery |
-| `pages/macro-industry/macro-industry` | 工业增加值 / 能源 / 工业利润 / CPI / PPI / 固投 / 居民收支 / PMI / 社消装潢家具（9 张） | nbsIndustrial + nbsEnergy + nbsIndustrialProfit + nbsCpi + nbsPpi + nbsFaInvestment + nbsIncome + nbsPmi + nbsRetail |
+| `pages/macro-industry/macro-industry` | 固投 / 居民收支 / 年平均工资 / CPI / PMI / 工业 / 能源 / 利润 / PPI / 社消装潢家具（10 张） | nbsFaInvestment + nbsIncome + nbsAvgWage + nbsCpi + nbsPmi + nbsIndustrial + nbsEnergy + nbsIndustrialProfit + nbsPpi + nbsRetail |
 | `pages/macro-region/macro-region` | 广东 房地产简况 / 经济运行 / 固投 / 施工产值 / 规上工业 / 消费品 / 规上服务业（7 张） | gdRealEstateBrief + gdEconomy + gdFaInvestment + gdConstruction + gdIndustrial + gdRetail + gdServices |
 | `pages/macro-trade/macro-trade` | 海关货物进出口（1 张） | nbsTrade |
 

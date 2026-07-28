@@ -92,6 +92,7 @@ describe("宏观 5 子页骨架 PAGES_MACRO_*", () => {
     );
     expect(src).toContain("data-nbs-fa-investment");
     expect(src).toContain("data-nbs-income");
+    expect(src).toContain("data-nbs-avg-wage");
     expect(src).toContain("data-nbs-cpi");
     expect(src).toContain("data-nbs-pmi");
     expect(src).toContain("data-nbs-industrial");

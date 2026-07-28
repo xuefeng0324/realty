@@ -136,6 +136,75 @@
         </template>
       </view>
 
+      <!-- 全国 · 城镇单位年平均工资（nbsAvgWage） -->
+      <view v-if="nbsAvgWage" class="card macro-card" data-nbs-avg-wage>
+        <view class="macro-kicker">全国 · 就业工资</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">城镇单位年平均工资</view>
+          <view class="muted" style="font-size: 22rpx">{{ nbsAvgWage.year }}年</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <MacroKpiCell
+            label="非私营单位"
+            :value="formatMacroYuan(nbsAvgWage.nonprivYuan)"
+            :sub="formatMacroPct(nbsAvgWage.nonprivNominalYoyPct)"
+            :subTrendClass="macroTrendBand(nbsAvgWage.nonprivNominalYoyPct)" />
+          <MacroKpiCell
+            label="私营单位"
+            :value="formatMacroYuan(nbsAvgWage.privYuan)"
+            :sub="formatMacroPct(nbsAvgWage.privNominalYoyPct)"
+            :subTrendClass="macroTrendBand(nbsAvgWage.privNominalYoyPct)" />
+          <MacroKpiCell
+            label="非私营实际/可比"
+            :value='nbsAvgWage.nonprivRealYoyPct != null ? formatMacroPct(nbsAvgWage.nonprivRealYoyPct) : "—"'
+            :valueTrendClass="macroTrendBand(nbsAvgWage.nonprivRealYoyPct ?? 0)"
+            sub="扣除价格或可比口径" />
+          <MacroKpiCell
+            label="发布日"
+            :value="nbsAvgWage.publishDate"
+            sub="国家统计局" />
+        </view>
+        <view v-if="nbsAvgWageHasHousing" class="stats70-grid" style="margin-top: 8rpx" data-nbs-avg-wage-housing>
+          <MacroKpiCell
+            label="房地产业(非私营)"
+            :value='nbsAvgWage.reNonprivYuan != null ? formatMacroYuan(nbsAvgWage.reNonprivYuan) : "—"'
+            :sub='nbsAvgWage.reNonprivYoyPct != null ? formatMacroPct(nbsAvgWage.reNonprivYoyPct) : ""'
+            :subTrendClass="macroTrendBand(nbsAvgWage.reNonprivYoyPct ?? 0)" />
+          <MacroKpiCell
+            label="建筑业(非私营)"
+            :value='nbsAvgWage.constructionNonprivYuan != null ? formatMacroYuan(nbsAvgWage.constructionNonprivYuan) : "—"'
+            :sub='nbsAvgWage.constructionNonprivYoyPct != null ? formatMacroPct(nbsAvgWage.constructionNonprivYoyPct) : ""'
+            :subTrendClass="macroTrendBand(nbsAvgWage.constructionNonprivYoyPct ?? 0)" />
+          <MacroKpiCell
+            label="房地产业(私营)"
+            :value='nbsAvgWage.rePrivYuan != null ? formatMacroYuan(nbsAvgWage.rePrivYuan) : "—"'
+            :sub='nbsAvgWage.rePrivYoyPct != null ? formatMacroPct(nbsAvgWage.rePrivYoyPct) : ""'
+            :subTrendClass="macroTrendBand(nbsAvgWage.rePrivYoyPct ?? 0)" />
+        </view>
+        <view class="macro-note">
+          年报口径 · 行业工资为支付力弱相关 · ≠挂牌/成交/网签/70城 · ≠房价
+        </view>
+        <button
+          v-if="nbsAvgWageTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-nbs-avg-wage-series-toggle
+          :aria-expanded="nbsAvgWageSeriesExpanded"
+          @click="nbsAvgWageSeriesExpanded = !nbsAvgWageSeriesExpanded"
+        >
+          {{ nbsAvgWageSeriesExpanded ? "收起多期" : "多期序列" }}
+        </button>
+        <template v-if="nbsAvgWageSeriesExpanded">
+          <view class="macro-series" data-nbs-avg-wage-series-detail>
+            非私营工资
+            <text v-for="(p, i) in nbsAvgWageTrend" :key="'aw-' + p.year">
+              {{ p.year }} {{ formatMacroYuan(p.nonprivYuan)
+              }}<text v-if="i < nbsAvgWageTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
+
       <!-- 全国 · CPI（nbsCpi） -->
       <view v-if="nbsCpi" class="card macro-card" data-nbs-cpi>
         <view class="macro-kicker">全国 · 居民消费价格</view>
@@ -610,6 +679,12 @@ import {
   type NbsIncomeRow
 } from "../../local/nbsIncome";
 import {
+  getLatestNbsAvgWage,
+  getNbsAvgWageTrend,
+  nbsAvgWageHasHousingIndustry,
+  type NbsAvgWageRow
+} from "../../local/nbsAvgWage";
+import {
   getLatestNbsCpi,
   getNbsCpiTrend,
   shortNbsCpiMonthLabel,
@@ -659,6 +734,7 @@ import {
 // 多期展开 ref（8 张卡 × 1 ref = 8）
 const nbsFaSeriesExpanded = ref(false);
 const nbsIncomeSeriesExpanded = ref(false);
+const nbsAvgWageSeriesExpanded = ref(false);
 const nbsCpiSeriesExpanded = ref(false);
 const nbsPmiSeriesExpanded = ref(false);
 const nbsIndustrialSeriesExpanded = ref(false);
@@ -673,6 +749,10 @@ const nbsFaTrend = computed(() => getNbsFaInvestmentTrend(6));
 
 const nbsIncome = computed<NbsIncomeRow | null>(() => getLatestNbsIncome());
 const nbsIncomeTrend = computed(() => getNbsIncomeTrend(6));
+
+const nbsAvgWage = computed<NbsAvgWageRow | null>(() => getLatestNbsAvgWage());
+const nbsAvgWageTrend = computed(() => getNbsAvgWageTrend(6));
+const nbsAvgWageHasHousing = computed(() => nbsAvgWageHasHousingIndustry(nbsAvgWage.value));
 
 const nbsCpi = computed<NbsCpiRow | null>(() => getLatestNbsCpi());
 const nbsCpiTrend = computed(() => getNbsCpiTrend(6));
