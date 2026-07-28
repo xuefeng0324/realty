@@ -950,25 +950,25 @@
             :subTrendClass="macroTrendClass(nbsMacro.inventoryAreaYoyPct) === 'stats70-up' ? 'up' : macroTrendClass(nbsMacro.inventoryAreaYoyPct) === 'stats70-down' ? 'down' : 'flat'"
           />
         </view>
-        <view class="stats70-grid" style="margin-top: 12rpx" data-nbs-pipeline>
+        <view v-if="!isOverviewCompact" class="stats70-grid" style="margin-top: 12rpx" data-nbs-pipeline>
           <MacroKpiCell label="房屋施工" :value="formatMacroArea(nbsMacro.constructionArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.constructionAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.constructionAreaYoyPct)" />
           <MacroKpiCell label="新开工" :value="formatMacroArea(nbsMacro.newStartsArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.newStartsAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.newStartsAreaYoyPct)" />
           <MacroKpiCell label="竣工" :value="formatMacroArea(nbsMacro.completedArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.completedAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.completedAreaYoyPct)" />
           <MacroKpiCell label="到位资金" :value="formatMacro100m(nbsMacro.fundsCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.fundsYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.fundsYoyPct)" />
         </view>
-        <view class="stats70-grid" style="margin-top: 12rpx" data-nbs-res-pipeline>
+        <view v-if="!isOverviewCompact" class="stats70-grid" style="margin-top: 12rpx" data-nbs-res-pipeline>
           <MacroKpiCell label="住宅施工" :value="formatMacroArea(nbsMacro.residentialConstructionArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialConstructionAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialConstructionAreaYoyPct)" />
           <MacroKpiCell label="住宅新开工" :value="formatMacroArea(nbsMacro.residentialNewStartsArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialNewStartsAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialNewStartsAreaYoyPct)" />
           <MacroKpiCell label="住宅竣工" :value="formatMacroArea(nbsMacro.residentialCompletedArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialCompletedAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialCompletedAreaYoyPct)" />
           <MacroKpiCell label="住宅施工占比" :value="(nbsResidentialConstructionSharePct != null ? nbsResidentialConstructionSharePct + '%' : '—')" sub-muted="占全部房屋施工" />
         </view>
-        <view class="stats70-grid" style="margin-top: 12rpx" data-nbs-residential>
+        <view v-if="!isOverviewCompact" class="stats70-grid" style="margin-top: 12rpx" data-nbs-residential>
           <MacroKpiCell label="住宅销售面积" :value="formatMacroArea(nbsMacro.residentialSalesArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialSalesAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialSalesAreaYoyPct)" />
           <MacroKpiCell label="住宅销售额" :value="formatMacro100m(nbsMacro.residentialSalesAmountCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialSalesAmountYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialSalesAmountYoyPct)" />
           <MacroKpiCell label="住宅待售" :value="formatMacroArea(nbsMacro.residentialInventoryArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialInventoryAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialInventoryAreaYoyPct)" />
           <MacroKpiCell label="住宅投资" :value="formatMacro100m(nbsMacro.residentialInvestmentCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialInvestmentYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialInvestmentYoyPct)" />
         </view>
-        <view class="stats70-grid" style="margin-top: 12rpx" data-nbs-funds>
+        <view v-if="!isOverviewCompact" class="stats70-grid" style="margin-top: 12rpx" data-nbs-funds>
           <MacroKpiCell label="国内贷款" :value="formatMacro100m(nbsMacro.domesticLoanFundsCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.domesticLoanFundsYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.domesticLoanFundsYoyPct)" />
           <MacroKpiCell label="定金及预收款" :value="formatMacro100m(nbsMacro.depositFundsCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.depositFundsYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.depositFundsYoyPct)" />
           <MacroKpiCell label="个人按揭贷款" :value="formatMacro100m(nbsMacro.mortgageFundsCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.mortgageFundsYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.mortgageFundsYoyPct)" />
@@ -990,7 +990,7 @@
           {{ nbsMacro.period.replace("_to_", "–") }} 累计 · 国家统计局 · 非城市均价 / 非70城
         </view>
         <button
-          v-if="nbsHasSeriesDetail"
+          v-if="!isOverviewCompact && nbsHasSeriesDetail"
           class="gz-inventory-toggle"
           size="mini"
           data-nbs-series-toggle
@@ -1145,7 +1145,7 @@
       </view>
 
       <view
-        v-if="gzHousingPlan"
+        v-if="gzHousingPlan && !isOverviewCompact"
         :id="supplyEntryOwner === 'gz-plan' ? 'entry-supply' : undefined"
         class="card"
         data-tab="overview,price"
@@ -1182,7 +1182,7 @@
         </view>
       </view>
 
-      <view v-if="gzAffordableRaised || gzAffordableCompleted" class="card" data-tab="overview,price" data-gz-affordable-projects>
+      <view v-if="(gzAffordableRaised || gzAffordableCompleted) && !isOverviewCompact" class="card" data-tab="overview,price" data-gz-affordable-projects>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 广州保障房项目清单</view>
           <view class="muted" style="font-size: 22rpx">
@@ -1277,7 +1277,7 @@
       </view>
 
       <view
-        v-if="gzLandSummary"
+        v-if="gzLandSummary && !isOverviewCompact"
         :id="landEntryOwner === 'gz' ? 'entry-land' : undefined"
         class="card"
         data-tab="overview,price"
@@ -1406,7 +1406,7 @@
         </view>
       </view>
 
-      <view v-if="szAffordableRaised || szAffordableCompleted" class="card" data-tab="overview,price" data-sz-affordable-projects>
+      <view v-if="(szAffordableRaised || szAffordableCompleted) && !isOverviewCompact" class="card" data-tab="overview,price" data-sz-affordable-projects>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 深圳保障房项目表</view>
           <view class="muted" style="font-size: 22rpx">
@@ -1436,7 +1436,7 @@
       </view>
 
       <view
-        v-if="zhAffordable"
+        v-if="zhAffordable && !isOverviewCompact"
         :id="supplyEntryOwner === 'zh' ? 'entry-supply' : undefined"
         class="card"
         data-tab="overview,price"
@@ -1695,7 +1695,7 @@
       </view>
 
       <!-- v0.8.0 区级近 8 周价格趋势 -->
-      <view v-if="!isCardHidden('district-8w-trend') && (trendItems.length > 0)" class="card" data-card-key="district-8w-trend">
+      <view v-if="!isCardHidden('district-8w-trend') && (trendItems.length > 0)" class="card" data-card-key="district-8w-trend" data-tab="price">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">区级近 8 周房价趋势</view>
           <button
@@ -1744,7 +1744,7 @@
       </view>
 
       <!-- v0.10.0 近 4 周网签热度榜 -->
-      <view v-if="!isCardHidden('wangqian-rank-4w') && (wangqianOverview && wangqianOverview.items.length > 0)" class="card" data-card-key="wangqian-rank-4w" data-tab="all,price">
+      <view v-if="!isCardHidden('wangqian-rank-4w') && (wangqianOverview && wangqianOverview.items.length > 0)" class="card" data-card-key="wangqian-rank-4w" data-tab="price">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">
             近 4 周二手网签热度榜 · {{ wangqianOverview.cityName }}
@@ -1866,7 +1866,7 @@
       </view>
 
       <!-- 网签周环比 + 异常突增（wangqianTrendRanking 派生，随 cityId） -->
-      <view v-if="wangqianTrendWeeklyReady" class="card" data-tab="all,price">
+      <view v-if="wangqianTrendWeeklyReady" class="card" data-tab="price">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">
             📈 网签周环比 · {{ wangqianTrendCityName }}
@@ -2079,7 +2079,7 @@
       </view>
 
       <!-- v0.25.0 户型/面积/朝向/装修分布 -->
-      <view v-if="layoutDistribution && layoutDistribution.totalListings > 0" class="card" data-tab="all,price">
+      <view v-if="layoutDistribution && layoutDistribution.totalListings > 0" class="card" data-tab="price">
         <view class="row-between">
           <view class="card-title">🏠 户型分布 · {{ layoutDistribution.cityName }}</view>
           <view class="muted">共 {{ layoutDistribution.totalListings }} 套</view>
@@ -2129,7 +2129,7 @@
       </view>
 
       <!-- v0.28.0 new-6 房源 tags 标签云 -->
-      <view v-if="!isCardHidden('listing-tag-cloud') && (tagCloud && tagCloud.tags.length > 0)" class="card" data-card-key="listing-tag-cloud" data-tab="all,school">
+      <view v-if="!isCardHidden('listing-tag-cloud') && (tagCloud && tagCloud.tags.length > 0)" class="card" data-card-key="listing-tag-cloud" data-tab="school">
         <view class="row-between">
           <view class="card-title">🏷️ 房源标签云 · {{ tagCloud.cityName }}</view>
           <button
@@ -2160,7 +2160,7 @@
       </view>
 
       <!-- v0.29.0 trend-13 区房价指数 -->
-      <view v-if="!isCardHidden('district-index') && (districtIndex && districtIndex.items.length > 0)" class="card" data-card-key="district-index" data-tab="all,price">
+      <view v-if="!isCardHidden('district-index') && (districtIndex && districtIndex.items.length > 0)" class="card" data-card-key="district-index" data-tab="price">
         <view class="row-between">
           <view class="card-title">📈 区房价指数 · {{ districtIndex.cityName }}</view>
           <button
@@ -2211,7 +2211,7 @@
       </view>
 
       <!-- v0.30.0 trend-14 区涨幅榜 (4 周累计) -->
-      <view v-if="!isCardHidden('district-4w-change') && (districtChange && districtChange.items.length > 0)" class="card" data-card-key="district-4w-change" data-tab="all,price">
+      <view v-if="!isCardHidden('district-4w-change') && (districtChange && districtChange.items.length > 0)" class="card" data-card-key="district-4w-change" data-tab="price">
         <view class="row-between">
           <view class="card-title">🚀 区涨幅榜 (近 4 周) · {{ districtChange.cityName }}</view>
           <button
@@ -2516,7 +2516,7 @@
       </view>
 
       <!-- v0.41.0 trend-21 房源新鲜度 (新挂牌多 + 滞销) -->
-      <view v-if="!isCardHidden('listing-freshness') && (listingFreshness && listingFreshness.totalCount > 0)" class="card" data-card-key="listing-freshness" data-tab="all,price">
+      <view v-if="!isCardHidden('listing-freshness') && (listingFreshness && listingFreshness.totalCount > 0)" class="card" data-card-key="listing-freshness" data-tab="price">
         <view class="row-between">
           <view class="card-title">📅 房源新鲜度 · {{ listingFreshness.cityName }}</view>
           <button
@@ -2639,7 +2639,7 @@
         </view>
       </view>
 
-      <view v-if="!isCardHidden('district-map') && (districtMap && districtMap.districts.length > 0)" class="card" data-card-key="district-map" data-tab="all,map">
+      <view v-if="!isCardHidden('district-map') && (districtMap && districtMap.districts.length > 0)" class="card" data-card-key="district-map" data-tab="map">
         <view class="row-between">
           <view class="card-title">🗺️ 行政区域图 · {{ districtMap.cityName }}</view>
           <button
@@ -3212,7 +3212,7 @@
       </view>
 
       <!-- v1.121.12 医疗资源榜（hospitalRanking 已派生，此前未接 UI） -->
-      <view v-if="!isCardHidden('hospital-rank') && (hospitalCitySummary)" class="card" data-card-key="hospital-rank" data-tab="all,school">
+      <view v-if="!isCardHidden('hospital-rank') && (hospitalCitySummary)" class="card" data-card-key="hospital-rank" data-tab="school">
         <view class="row-between">
           <view class="card-title">🏥 医疗资源 · {{ hospitalCityName }}</view>
           <button
@@ -3475,7 +3475,7 @@
       </view>
 
       <!-- v1.121.15 周边商业 POI（poiCommercialRanking，此前未接仪表盘） -->
-      <view v-if="commercialReady" class="card" data-tab="all,transit">
+      <view v-if="commercialReady" class="card" data-tab="transit">
         <view class="row-between">
           <view class="card-title">🏪 周边商业 · {{ hospitalCityName }}</view>
           <view class="muted">{{ commercialCommunityCount }} 小区</view>
@@ -3670,7 +3670,7 @@
       </view>
 
       <!-- v1.121.15 菜市场/超市可达（poiMarketRanking） -->
-      <view v-if="marketNearTop.length" class="card" data-tab="all,transit">
+      <view v-if="marketNearTop.length" class="card" data-tab="transit">
         <view class="row-between">
           <view class="card-title">🥬 菜市场可达 · {{ hospitalCityName }}</view>
           <view class="muted">最近 Top {{ marketNearTop.length }}</view>
@@ -3753,7 +3753,7 @@
       </view>
 
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
-      <view v-if="!isCardHidden('life-convenience') && (lifeConvenience && lifeConvenience.items.length > 0)" class="card" data-card-key="life-convenience" data-tab="all,transit">
+      <view v-if="!isCardHidden('life-convenience') && (lifeConvenience && lifeConvenience.items.length > 0)" class="card" data-card-key="life-convenience" data-tab="transit">
         <view class="row-between">
           <view class="card-title">🧭 生活便利度 Top 小区 · {{ lifeConvenience.cityName }}</view>
           <view class="muted">Top {{ lifeConvenience.items.length }}</view>
@@ -3930,7 +3930,7 @@
       </view>
 
       <!-- v0.11.0 学区溢价榜 -->
-      <view v-if="schoolPremiumOverview && schoolPremiumOverview.items.length > 0" class="card" data-tab="all,school">
+      <view v-if="schoolPremiumOverview && schoolPremiumOverview.items.length > 0" class="card" data-tab="school">
         <view class="row-between">
           <view class="card-title">学区溢价榜 · {{ schoolPremiumOverview.cityName }}</view>
           <view class="muted">Top {{ schoolPremiumOverview.items.length }}</view>
@@ -4263,7 +4263,7 @@
       </view>
 
       <!-- v0.17.0 listing 学区溢价榜（Top 高评分房源） -->
-      <view v-if="!isCardHidden('listing-school-premium') && (listingPremiumOverview && listingPremiumOverview.items.length > 0)" class="card" data-card-key="listing-school-premium" data-tab="all,price">
+      <view v-if="!isCardHidden('listing-school-premium') && (listingPremiumOverview && listingPremiumOverview.items.length > 0)" class="card" data-card-key="listing-school-premium" data-tab="price">
         <view class="row-between">
           <view class="card-title">🏫 高学区评分房源 · {{ listingPremiumOverview.cityName }}</view>
           <view class="muted">Top {{ listingPremiumOverview.items.length }} / 共 {{ listingPremiumOverview.total }}</view>
@@ -4373,7 +4373,7 @@
       </view>
 
       <!-- v0.19.0 商业热度榜 (小区维度) -->
-      <view v-if="!isCardHidden('commercial-heat') && (commercialResp && commercialResp.items.length > 0)" class="card" data-card-key="commercial-heat" data-tab="all,transit">
+      <view v-if="!isCardHidden('commercial-heat') && (commercialResp && commercialResp.items.length > 0)" class="card" data-card-key="commercial-heat" data-tab="transit">
         <view class="row-between">
           <view class="card-title">🛒 商业热度 Top {{ commercialResp.items.length }} · {{ commercialResp.cityName }}</view>
           <view class="muted">共 {{ commercialResp.total }} 个小区上榜</view>
@@ -4509,7 +4509,7 @@
       </view>
 
       <!-- v0.20.0 trend-8: 同区多小区对比 (点区/板块对比 区名后展示) -->
-      <view v-if="!isCardHidden('multi-community-compare') && (districtCompareResp && districtCompareResp.items.length > 0)" class="card" data-card-key="multi-community-compare" data-tab="all,school">
+      <view v-if="!isCardHidden('multi-community-compare') && (districtCompareResp && districtCompareResp.items.length > 0)" class="card" data-card-key="multi-community-compare" data-tab="school">
         <view class="row-between">
           <view class="card-title">📊 {{ districtCompareResp.districtName }} · {{ districtCompareResp.cityName }} 小区对比</view>
           <view class="muted tap-target" @click="closeDistrictCompare">✕ 关闭</view>
@@ -4623,14 +4623,6 @@
       </view>
     </view>
     </view>
-
-    <!-- 右侧可拖动滚动进度条（替代原生细条，支持拖拽快速定位） -->
-    <ScrollProgress
-      :scroll-top="pageScrollTop"
-      :content-height="pageContentHeight"
-      :viewport-height="pageViewportHeight"
-      @seek="onScrollbarSeek"
-    />
   </view>
 </template>
 
@@ -4638,8 +4630,7 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 import MacroKpiCell from "../../components/MacroKpiCell.vue";
-import ScrollProgress from "../../components/ScrollProgress.vue";
-import { onPullDownRefresh, onShow, onPageScroll } from "@dcloudio/uni-app";
+import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
@@ -6115,6 +6106,11 @@ function onHomeKingkong(k: HomeKingkongItem) {
 // v0.48.0 dashboard-tabs: 顶部 tab 切换
 const activeTab = ref<DashTabKey>("overview");
 
+// 概览页「精简模式」：默认尽量收敛信息流长度
+const isOverviewCompact = computed(
+  () => activeTab.value === "overview" && featuredMode.value
+);
+
 function setDashTab(tab: DashTabKey) {
   activeTab.value = tab;
   const fb = dashTabSwitchFeedback(tab);
@@ -6134,8 +6130,6 @@ function setDashTab(tab: DashTabKey) {
         /* App 部分端无 selector 时仍保留 toast + data-dash-tab */
       }
     });
-    // Tab 切换后卡片数变化 → 复测内容高，刷新右侧滚动条
-    setTimeout(() => measureScrollMetrics(), 120);
   });
 }
 
@@ -7861,47 +7855,6 @@ watch(activeTab, () => {
   applyTabClass();
 });
 
-// ===== 可拖动滚动进度条（右侧）=====
-const pageScrollTop = ref(0);
-const pageContentHeight = ref(0);
-const pageViewportHeight = ref(0);
-let _lastMeasureAt = 0;
-
-function measureScrollMetrics() {
-  try {
-    const info = uni.getSystemInfoSync();
-    if (info?.windowHeight) pageViewportHeight.value = info.windowHeight;
-  } catch {
-    /* ignore */
-  }
-  try {
-    uni
-      .createSelectorQuery()
-      .select(".page")
-      .boundingClientRect((rect) => {
-        const r = Array.isArray(rect) ? rect[0] : rect;
-        if (r && typeof (r as { height?: number }).height === "number") {
-          pageContentHeight.value = (r as { height: number }).height;
-        }
-      })
-      .exec();
-  } catch {
-    /* ignore */
-  }
-  _lastMeasureAt = Date.now();
-}
-
-function onScrollbarSeek(scrollTop: number) {
-  pageScrollTop.value = scrollTop;
-  uni.pageScrollTo({ scrollTop, duration: 0 });
-}
-
-onPageScroll((e) => {
-  pageScrollTop.value = e.scrollTop;
-  // 内容高度随卡片/Tab 变化：滚动时每 ~800ms 复测一次，避免每帧 selectorQuery
-  if (Date.now() - _lastMeasureAt > 800) measureScrollMetrics();
-});
-
 onMounted(async () => {
   uni.$on(SNAPSHOT_UPDATED_EVENT, loadAll);
   loadHiddenCards();
@@ -7919,7 +7872,6 @@ onMounted(async () => {
     errorMsg.value = "未获取到城市列表，请检查后端 /api/v1/cities";
   }
   await loadAll();
-  nextTick(() => measureScrollMetrics());
 });
 
 onUnmounted(() => {
@@ -7984,7 +7936,6 @@ onShow(async () => {
     _lastCityId = app.cityId;
     await loadAll();
   }
-  nextTick(() => measureScrollMetrics());
 });
 </script>
 

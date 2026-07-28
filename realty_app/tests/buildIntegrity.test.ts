@@ -3072,7 +3072,8 @@ describe("build integrity", () => {
       expect(dash).toMatch(/data-tab="overview,price"/);
       expect(dash).toMatch(/data-tab="overview,school"/);
       expect(dash).toMatch(/data-tab="overview,transit"/);
-      expect(dash).toMatch(/data-tab="all,map"/);
+      // v1.121.139：为压缩概览页长度，district-map 从 data-tab="all,map" 收敛到 data-tab="map"
+      expect(dash).toMatch(/data-tab="map"/);
     });
 
     it("dashboard.vue: 全局 style 用 .page[data-dash-tab] 隐藏卡片（App 可达）", () => {
