@@ -1,12 +1,12 @@
 {
-  "versionName": "1.121.151",
-  "versionCode": "272",
-  "publishedAt": "2026-07-28T20:09:57Z",
+  "versionName": "1.121.152",
+  "versionCode": "273",
+  "publishedAt": "2026-07-28T20:21:31Z",
   "force": false,
-  "notes": "\ufefffeat(macro): NBS PPI\u8865\u5efa\u6750\u8d2d\u8fdb\u4e0e\u9ed1\u8272\u91d1\u5c5e\u51b6\u70bc\u5206\u9879\n\n2026-07-25-v1.121.9-OTA\u9a8c\u8bc1130: v1.121.9 \u2014 OTA \u9a8c\u8bc1\u5305 130\n2026-07-25-v1.108.0-\u533b\u9662\u8d44\u6e90\u6d3e\u751f: v1.108.0 \u533b\u9662\u8d44\u6e90\u6d3e\u751f\uff08\u4ec5\u6570\u636e\u5c42\uff09\n2026-07-25-v1.109.0-\u793e\u533a\u603b\u4ef7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f: v1.109.0 \u2014 \u793e\u533a\u603b\u4ef7\u00d7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f\n",
+  "notes": "\ufefffeat(macro): NBS\u80fd\u6e90\u751f\u4ea7\u6708\u62a5\u63a5\u5165macro-industry\n\n2026-07-25-v1.121.2-OTA\u68c0\u67e5\u66f4\u65b0\u4fee\u590d: v1.121.2 \u2014 OTA \u68c0\u67e5\u66f4\u65b0\u65e0\u53cd\u5e94\u4fee\u590d\n2026-07-25-v1.121.4-OTA\u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316: v1.121.4 \u2014 OTA \u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316\n2026-07-25-v1.121.5-\u542f\u52a8\u9875\u4e0eOTA\u6839\u6cbb: v1.121.5 / v1.121.6 \u2014 \u542f\u52a8\u9875 + OTA \u6839\u6cbb\u4e0e\u9a8c\u8bc1\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/272/app.wgt",
-    "sha256": "e43adfe764d283d95bfd65d7c50d5d76e32fb58d2d676c320567c0ebeeedbc09"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/273/app.wgt",
+    "sha256": "72bd6753ba371f2a287db8f37893ef3ec36291354bf5cbd75f08c2a57b706a0f"
   },
   "ios": {
     "available": false,
