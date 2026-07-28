@@ -1,12 +1,12 @@
 {
-  "versionName": "1.121.139",
-  "versionCode": "260",
-  "publishedAt": "2026-07-28T10:05:25Z",
+  "versionName": "1.121.140",
+  "versionCode": "261",
+  "publishedAt": "2026-07-28T10:36:59Z",
   "force": false,
-  "notes": "refactor(dashboard): remove scroll progress and compact overview\n\n2026-07-25-v1.121.0-\u5730\u56fefetch-\u4fee\u590d\u4e0eAPK\u56fe\u6807: v1.121.0 \u2014 \u5730\u56fe fetch \u4fee\u590d + \u81ea\u52a8 APK \u53ef\u9009 job + \u5e94\u7528\u56fe\u6807\u91cd\u505a\n2026-07-25-v1.121.2-OTA\u68c0\u67e5\u66f4\u65b0\u4fee\u590d: v1.121.2 \u2014 OTA \u68c0\u67e5\u66f4\u65b0\u65e0\u53cd\u5e94\u4fee\u590d\n2026-07-25-v1.121.4-OTA\u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316: v1.121.4 \u2014 OTA \u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316\n",
+  "notes": "chore(release): bump to 1.121.140 (261) for OTA after overview compact\n\n2026-07-25-v1.115.0-\u533b\u9662\u5750\u6807\u63a5\u5165\u4e0e\u6d3e\u751f: v1.115.0 \u2014 \u533b\u9662\u5750\u6807\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/260/app.wgt",
-    "sha256": "13364d620633f689609f45399734db756ba5571c8daa1dd59295ef2a4699bd66"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/261/app.wgt",
+    "sha256": "d1baa324f5fab968d9efdf67b52377f0db6f8d541d0a5892373f62dc2ac3694a"
   },
   "ios": {
     "available": false,
