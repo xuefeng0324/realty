@@ -3,6 +3,67 @@
     <view class="container">
       <MacroTabNav active="industry" data-macro-tab-nav />
 
+      <!-- 全国 · 城镇调查失业率（nbsUnemployment） -->
+      <view v-if="nbsUnemployment" class="card macro-card" data-nbs-unemployment>
+        <view class="macro-kicker">全国 · 城镇调查失业率</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">就业景气</view>
+          <view class="muted" style="font-size: 22rpx">{{ nbsUnemployment.month }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <MacroKpiCell
+            label="城镇调查失业率"
+            :value="nbsUnemployment.urbanRatePct.toFixed(1) + '%'"
+            :sub='nbsUnemployment.urbanAvgYtdPct != null ? "1—" + Number(nbsUnemployment.month.slice(5)) + "月均 " + nbsUnemployment.urbanAvgYtdPct.toFixed(1) + "%" : ""' />
+          <MacroKpiCell
+            label="31城失业率"
+            :value='nbsUnemployment.big31RatePct != null ? nbsUnemployment.big31RatePct.toFixed(1) + "%" : "—"' />
+          <MacroKpiCell
+            label="本地户籍"
+            :value='nbsUnemployment.localHukouRatePct != null ? nbsUnemployment.localHukouRatePct.toFixed(1) + "%" : "—"' />
+          <MacroKpiCell
+            label="周平均工时"
+            :value='nbsUnemployment.weeklyHours != null ? nbsUnemployment.weeklyHours.toFixed(1) + " h" : "—"'
+            :sub="nbsUnemployment.publishDate" />
+        </view>
+        <view v-if="nbsUnemployment.migrantRatePct != null" class="stats70-grid" style="margin-top: 8rpx" data-nbs-unemployment-migrant>
+          <MacroKpiCell
+            label="外来户籍"
+            :value="nbsUnemployment.migrantRatePct.toFixed(1) + '%'"
+            :sub='nbsUnemployment.migrantAgriRatePct != null ? "其中农业户籍 " + nbsUnemployment.migrantAgriRatePct.toFixed(1) + "%" : ""' />
+        </view>
+        <view class="macro-note">
+          国家统计局国民经济运行通稿 · 失业率/工时 ≠ 房价/挂牌/网签/70城（就业弱相关）
+        </view>
+        <button
+          v-if="nbsUnemploymentTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-nbs-unemployment-series-toggle
+          :aria-expanded="nbsUnemploymentSeriesExpanded"
+          @click="nbsUnemploymentSeriesExpanded = !nbsUnemploymentSeriesExpanded"
+        >
+          {{ nbsUnemploymentSeriesExpanded ? "收起多期" : "多期序列" }}
+        </button>
+        <template v-if="nbsUnemploymentSeriesExpanded">
+          <view class="macro-series" data-nbs-unemployment-series-detail>
+            失业率
+            <text v-for="(p, i) in nbsUnemploymentTrend" :key="'ue-' + p.month">
+              {{ shortNbsUnemploymentMonthLabel(p.month) }} {{ p.urbanRatePct.toFixed(1) }}%
+              <text v-if="i < nbsUnemploymentTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view class="macro-series" data-nbs-unemployment-series-detail>
+            31城
+            <text v-for="(p, i) in nbsUnemploymentTrend" :key="'ue31-' + p.month">
+              {{ shortNbsUnemploymentMonthLabel(p.month) }}
+              {{ p.big31RatePct != null ? p.big31RatePct.toFixed(1) + "%" : "—"
+              }}<text v-if="i < nbsUnemploymentTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
+
       <!-- 全国 · GDP 初步核算（nbsGdp） -->
       <view v-if="nbsGdp" class="card macro-card" data-nbs-gdp>
         <view class="macro-kicker">全国 · GDP 初步核算</view>
@@ -757,6 +818,12 @@ import MacroKpiCell from "../../components/MacroKpiCell.vue";
 import MacroTabNav from "../../components/MacroTabNav.vue";
 import { formatMacro100m, formatMacroPct, formatMacroYuan, macroTrendClass, macroTrendBand } from "../../utils/format";
 import {
+  getLatestNbsUnemployment,
+  getNbsUnemploymentTrend,
+  shortNbsUnemploymentMonthLabel,
+  type NbsUnemploymentRow
+} from "../../local/nbsUnemployment";
+import {
   getLatestNbsGdp,
   getNbsGdpTrend,
   shortNbsGdpPeriodLabel,
@@ -827,6 +894,7 @@ import {
 } from "../../local/nbsRetail";
 
 // 多期展开 ref
+const nbsUnemploymentSeriesExpanded = ref(false);
 const nbsGdpSeriesExpanded = ref(false);
 const nbsFaSeriesExpanded = ref(false);
 const nbsIncomeSeriesExpanded = ref(false);
@@ -838,6 +906,9 @@ const nbsEnergySeriesExpanded = ref(false);
 const nbsIndustrialProfitSeriesExpanded = ref(false);
 const nbsPpiSeriesExpanded = ref(false);
 const nbsRetailSeriesExpanded = ref(false);
+
+const nbsUnemployment = computed<NbsUnemploymentRow | null>(() => getLatestNbsUnemployment());
+const nbsUnemploymentTrend = computed(() => getNbsUnemploymentTrend(6));
 
 const nbsGdp = computed<NbsGdpRow | null>(() => getLatestNbsGdp());
 const nbsGdpTrend = computed(() => getNbsGdpTrend(6));

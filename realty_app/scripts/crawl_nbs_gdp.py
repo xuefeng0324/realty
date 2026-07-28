@@ -26,6 +26,7 @@ INDEX_URL = "https://www.stats.gov.cn/sj/zxfb/"
 OUTPUT = Path(__file__).resolve().parents[1] / "static" / "nbs_gdp.csv"
 
 BACKFILL_URLS = [
+    "https://www.stats.gov.cn/sj/zxfb/202510/t20251021_1961646.html",  # 2025 前三季度
     "https://www.stats.gov.cn/sj/zxfb/202601/t20260120_1962349.html",  # 2025 全年
     "https://www.stats.gov.cn/sj/zxfb/202604/t20260417_1963336.html",  # 2026 Q1
     "https://www.stats.gov.cn/sj/zxfb/202607/t20260716_1964142.html",  # 2026 H1
@@ -112,7 +113,11 @@ def detect_period(plain: str, url: str) -> tuple[str, str, bool]:
         )
         year = y.group(1) if y else (re.search(r"/t(20\d{2})", url) or [None, ""])[1]
         return f"{year}", f"{year}全年", True
-    if re.search(r"三季度和前三季度|前三季度国内生产总值", plain):
+    # 标题可能仅为「三季度…」，表头仍含「前三季度」双列
+    if re.search(r"三季度和前三季度|前三季度国内生产总值|三季度\s*前三季度", plain) or (
+        re.search(r"(20\d{2})\s*年\s*三季度国内生产总值初步核算", plain)
+        and re.search(rf"GDP\s+{NUM}\s+{NUM}\s+{NUM}\s+{NUM}\b", plain)
+    ):
         y = re.search(r"(20\d{2})\s*年", plain)
         year = y.group(1) if y else ""
         return f"{year}-9M", f"{year}前三季度", True

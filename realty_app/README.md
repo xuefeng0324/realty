@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.121.155 | 2026-07-29 | NBS 城镇调查失业率接入（国民经济运行通稿）；GDP 前三季度回填；macro-industry（versionCode 276） |
 | v1.121.154 | 2026-07-29 | NBS GDP 初步核算接入（含建筑业/房地产业增加值）；macro-industry（versionCode 275） |
 | v1.121.153 | 2026-07-29 | NBS 城镇单位年平均工资接入（含房地产/建筑业行业）；macro-industry（versionCode 274） |
 | v1.121.152 | 2026-07-29 | NBS 能源生产月报接入 macro-industry（原煤/原油/天然气/发电量）；月更 CI（versionCode 273） |
@@ -610,6 +611,10 @@ gh auth setup-git
 ## 更新日志
 
 详细变更见 [changelog/](./changelog/) 目录。
+
+### v1.121.155 (2026-07-29)
+
+国家统计局国民经济运行通稿中的城镇调查失业率接入 `macro-industry`；并回填 GDP 2025 前三季度。详见 [changelog/2026-07-29-v1.121.155-nbs-unemployment.md](./changelog/2026-07-29-v1.121.155-nbs-unemployment.md)。
 
 ### v1.121.154 (2026-07-29)
 
