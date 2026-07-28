@@ -122,6 +122,12 @@
       }
     },
     {
+      "path": "pages/supply/supply",
+      "style": {
+        "navigationBarTitleText": "供需与土地"
+      }
+    },
+    {
       "path": "pages/trend-analysis/trend-analysis",
       "style": {
         "navigationBarTitleText": "深度可视化分析",

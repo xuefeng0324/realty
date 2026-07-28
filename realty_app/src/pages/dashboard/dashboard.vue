@@ -82,7 +82,7 @@
               :key="c.key"
               class="home-channel-chip"
               :data-home-channel="c.key"
-              @click="jumpHomeAnchor(c.anchor)"
+              @click="onHomeChannel(c)"
             >{{ c.label }}</view>
           </view>
         </scroll-view>
@@ -99,7 +99,7 @@
           </view>
         </view>
         <view class="home-entry-hint muted">
-          房价看挂牌 / 网签量 / 70城指数；官方宏观≠城市成交均价。点频道或金刚区直达数据。
+          房价看挂牌 / 网签量 / 70城指数；官方宏观≠城市成交均价。点频道或金刚区进入对应独立页（非本页长滚）。
         </view>
         <!-- v1.121.145 首页卡片个性化设置入口 -->
         <view class="home-personalize-row">
@@ -725,7 +725,7 @@
         v-if="zhBdcNew && zhBdcStock"
         id="entry-zh-bdc-registration"
         class="card"
-        data-tab="overview,price"
+        data-tab="price"
         data-zh-bdc-registration
       >
         <view class="row-between">
@@ -824,7 +824,7 @@
         v-if="zhPriceFiling"
         id="entry-zh-price-filing"
         class="card"
-        data-tab="overview,price"
+        data-tab="price"
         data-zh-price-filing
       >
         <view class="row-between">
@@ -918,7 +918,7 @@
       </view>
 
       <!-- 官方宏观对照：全国 / 广东分组；≠城市挂牌·网签均价 -->
-      <view v-if="nbsMacro" id="entry-macro" class="card macro-card" data-tab="overview,price" data-nbs-macro>
+      <view v-if="nbsMacro" id="entry-macro" class="card macro-card" data-tab="price" data-nbs-macro>
         <view class="macro-kicker">全国 · 官方累计</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">房地产开发与销售</view>
@@ -1031,7 +1031,7 @@
         v-if="gzInventory"
         :id="supplyEntryOwner === 'gz' ? 'entry-supply' : undefined"
         class="card gz-inventory-card"
-        data-tab="overview,price"
+        data-tab="archived"
       >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 广州新房库存</view>
@@ -1106,7 +1106,7 @@
         v-if="szPlannedSupply"
         :id="supplyEntryOwner === 'sz' ? 'entry-supply' : undefined"
         class="card"
-        data-tab="overview,price"
+        data-tab="archived"
         data-sz-planned-supply
       >
         <view class="row-between">
@@ -1148,7 +1148,7 @@
         v-if="gzHousingPlan && !isOverviewCompact"
         :id="supplyEntryOwner === 'gz-plan' ? 'entry-supply' : undefined"
         class="card"
-        data-tab="overview,price"
+        data-tab="archived"
         data-gz-housing-plan
       >
         <view class="row-between">
@@ -1182,7 +1182,7 @@
         </view>
       </view>
 
-      <view v-if="(gzAffordableRaised || gzAffordableCompleted) && !isOverviewCompact" class="card" data-tab="overview,price" data-gz-affordable-projects>
+      <view v-if="(gzAffordableRaised || gzAffordableCompleted) && !isOverviewCompact" class="card" data-tab="archived" data-gz-affordable-projects>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 广州保障房项目清单</view>
           <view class="muted" style="font-size: 22rpx">
@@ -1280,7 +1280,7 @@
         v-if="gzLandSummary && !isOverviewCompact"
         :id="landEntryOwner === 'gz' ? 'entry-land' : undefined"
         class="card"
-        data-tab="overview,price"
+        data-tab="archived"
         data-gz-land-deals
       >
         <view class="row-between">
@@ -1343,7 +1343,7 @@
         v-if="szLandSummary"
         :id="landEntryOwner === 'sz' ? 'entry-land' : undefined"
         class="card"
-        data-tab="overview,price"
+        data-tab="archived"
         data-sz-land-deals
       >
         <view class="row-between">
@@ -1406,7 +1406,7 @@
         </view>
       </view>
 
-      <view v-if="(szAffordableRaised || szAffordableCompleted) && !isOverviewCompact" class="card" data-tab="overview,price" data-sz-affordable-projects>
+      <view v-if="(szAffordableRaised || szAffordableCompleted) && !isOverviewCompact" class="card" data-tab="archived" data-sz-affordable-projects>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 深圳保障房项目表</view>
           <view class="muted" style="font-size: 22rpx">
@@ -1439,7 +1439,7 @@
         v-if="zhAffordable && !isOverviewCompact"
         :id="supplyEntryOwner === 'zh' ? 'entry-supply' : undefined"
         class="card"
-        data-tab="overview,price"
+        data-tab="archived"
         data-zh-affordable-progress
       >
         <view class="row-between">
@@ -1803,7 +1803,7 @@
         id="overview-wangqian"
         class="card overview-card"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('wangqian') }"
-        data-tab="overview,price"
+        data-tab="price"
         @click="onOverviewCardClick('wangqian')"
       >
         <view class="row-between">
@@ -2757,7 +2757,7 @@
         id="overview-school"
         class="card overview-card"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('school') }"
-        data-tab="overview,school"
+        data-tab="school"
         @click="onOverviewCardClick('school')"
       >
         <view class="row-between">
@@ -2864,7 +2864,7 @@
         id="overview-lpr"
         class="card overview-card"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('lpr') }"
-        data-tab="overview,price"
+        data-tab="price"
         @click="onOverviewCardClick('lpr')"
       >
         <view class="row-between">
@@ -4999,6 +4999,7 @@ import {
   resolveHomeSearch,
   setPendingSchoolQuery,
   setPendingListingQuery,
+  type HomeChannel,
   type HomeKingkongItem,
   type HomeScrollAvailability,
   type HomeSearchMode
@@ -6021,6 +6022,36 @@ function jumpHomeAnchor(anchor: string) {
     nextTick(doScroll);
   });
 }
+
+/** F-ENTRY-01：频道条跳独立页 / Tab，禁止本页长滚 */
+function onHomeChannel(c: HomeChannel) {
+  const a = c.action;
+  if (a.kind === "tab") {
+    setDashTab(a.tab);
+    return;
+  }
+  if (a.kind === "switchTab") {
+    uni.switchTab({
+      url: a.path,
+      fail: (e) => showToast(`打开失败：${toErrorMessage(e)}`)
+    });
+    return;
+  }
+  if (a.kind === "navigate") {
+    let url = a.path;
+    if (url.includes("wangqian")) {
+      const name = currentWangqianCityName.value;
+      if (name === "深圳" || name === "广州" || name === "珠海") {
+        url = `/pages/wangqian/wangqian?city=${encodeURIComponent(name)}`;
+      }
+    }
+    uni.navigateTo({
+      url,
+      fail: (e) => showToast(`打开失败：${toErrorMessage(e)}`)
+    });
+  }
+}
+
 function submitHomeSearch() {
   const resolved = resolveHomeSearch(homeSearchMode.value, homeSearchText.value);
   if (resolved.kind === "none") {
@@ -6040,6 +6071,17 @@ function submitHomeSearch() {
     uni.switchTab({
       url: resolved.path,
       fail: (e) => showToast(`打开房源失败：${toErrorMessage(e)}`)
+    });
+    return;
+  }
+  if (resolved.kind === "tab") {
+    setDashTab(resolved.tab);
+    return;
+  }
+  if (resolved.kind === "navigate") {
+    uni.navigateTo({
+      url: resolved.path,
+      fail: (e) => showToast(`打开失败：${toErrorMessage(e)}`)
     });
     return;
   }
@@ -6077,14 +6119,8 @@ function onHomeKingkong(k: HomeKingkongItem) {
     let url = a.path;
     if (url.includes("wangqian")) {
       const name = currentWangqianCityName.value;
-      if (name === "深圳" || name === "广州") {
+      if (name === "深圳" || name === "广州" || name === "珠海") {
         url = `/pages/wangqian/wangqian?city=${encodeURIComponent(name)}`;
-      } else if (zhBdcNew.value && zhBdcStock.value) {
-        jumpHomeAnchor("entry-zh-bdc-registration");
-        return;
-      } else {
-        showToast("当前城市暂无网签日更");
-        return;
       }
     }
     uni.navigateTo({

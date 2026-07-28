@@ -35,6 +35,15 @@ describe("概览页长度守护：关键大卡 data-tab 不应混入 overview", 
     expect(getCardDataTab("multi-community-compare")).toBe("school");
   });
 
+  it("nbsMacro / 供需大卡不应再混入 overview（频道已跳独立页）", () => {
+    expect(dash).toMatch(/data-nbs-macro[^>]*data-tab="price"|data-tab="price"[^>]*data-nbs-macro/);
+    // 供需相关卡归档：总览不再渲染（独立页 pages/supply）
+    expect(dash).toMatch(/data-sz-planned-supply[\s\S]{0,80}data-tab="archived"|data-tab="archived"[\s\S]{0,80}data-sz-planned-supply/);
+    expect(dash).toMatch(/data-gz-land-deals[\s\S]{0,80}data-tab="archived"|data-tab="archived"[\s\S]{0,80}data-gz-land-deals/);
+    expect(dash).toContain('data-tab="archived"');
+    expect(dash).toContain("onHomeChannel");
+  });
+
   it("nbsMacro 在概览精简模式下应收敛：pipeline/res/funds 分区必须被 !isOverviewCompact 门禁", () => {
     expect(
       dash.match(/<view\s+v-if="!isOverviewCompact"[\s\S]*?data-nbs-pipeline/)

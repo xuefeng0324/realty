@@ -3068,10 +3068,12 @@ describe("build integrity", () => {
       // 至少 24 张数据卡 + 1 张 tab 按钮 = 25
       const matches = dash.match(/data-tab=/g) || [];
       expect(matches.length).toBeGreaterThanOrEqual(25);
-      // 4 个 tab 维度都要出现
+      // tab 维度：概览仍有 overview,price / overview,transit；学区配套卡已迁出概览（频道跳学校 Tab）
       expect(dash).toMatch(/data-tab="overview,price"/);
-      expect(dash).toMatch(/data-tab="overview,school"/);
+      expect(dash).toMatch(/data-tab="school"/);
       expect(dash).toMatch(/data-tab="overview,transit"/);
+      // 供需卡归档到独立页后用 archived，保证总览不再渲染
+      expect(dash).toMatch(/data-tab="archived"/);
       // v1.121.139：为压缩概览页长度，district-map 从 data-tab="all,map" 收敛到 data-tab="map"
       expect(dash).toMatch(/data-tab="map"/);
     });

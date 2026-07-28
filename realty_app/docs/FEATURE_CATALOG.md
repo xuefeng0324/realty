@@ -527,6 +527,7 @@
 
 | 日期 | ID | 标题 | 发版 version | 备注 |
 |------|-----|------|--------------|------|
+| 2026-07-28 | F-ENTRY-01 | 频道/金刚改为独立页跳转：供需页 + 工具/宏观/网签/70城 navigate；概览归档库存土地卡 | 1.121.143 | DASHBOARD_ENTRY_IA；禁本页长滚；smoke_entry_supply |
 | 2026-07-26 | F-PAGES-MACRO-06 | 第二批迁移：迁 4 张广东卡 → macro-region | 1.121.130 | gd-real-estate-brief / gd-economy / gd-fa-investment / gd-construction |
 | 2026-07-26 | F-PAGES-MACRO-07 | 第二批迁移：迁 8 张产业卡 → macro-industry | 1.121.130 | nbs-fa-investment / nbs-income / nbs-cpi / nbs-pmi / nbs-industrial / nbs-industrial-profit / nbs-ppi / nbs-retail |
 | 2026-07-26 | F-PAGES-MACRO-08 | 第二批迁移：迁 1 张贸易卡 → macro-trade | 1.121.130 | nbs-trade |

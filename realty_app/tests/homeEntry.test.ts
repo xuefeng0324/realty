@@ -25,6 +25,24 @@ describe("homeEntry F-ENTRY-01", () => {
     expect(HOME_KINGKONG.some((k) => k.key === "land")).toBe(true);
   });
 
+  it("频道条全部为独立页/Tab 跳转，禁止纯滚动", () => {
+    for (const c of HOME_CHANNELS) {
+      expect(["navigate", "switchTab", "tab"]).toContain(c.action.kind);
+    }
+    expect(HOME_CHANNELS.find((c) => c.key === "tools")?.action).toEqual({
+      kind: "navigate",
+      path: "/pages/data-tools/data-tools"
+    });
+    expect(HOME_CHANNELS.find((c) => c.key === "supply")?.action).toEqual({
+      kind: "navigate",
+      path: "/pages/supply/supply"
+    });
+    expect(HOME_CHANNELS.find((c) => c.key === "macro")?.action).toEqual({
+      kind: "navigate",
+      path: "/pages/macro-region/macro-region"
+    });
+  });
+
   it("搜索路由解析", () => {
     expect(resolveHomeSearch("school", "")).toMatchObject({ kind: "none" });
     expect(resolveHomeSearch("school", "实验")).toEqual({ kind: "school", q: "实验" });
@@ -34,9 +52,22 @@ describe("homeEntry F-ENTRY-01", () => {
       q: "万科"
     });
     expect(resolveHomeSearch("listing", "").kind).toBe("listing");
-    expect(resolveHomeSearch("page", "宏观").anchor).toBe("entry-macro");
-    expect(resolveHomeSearch("page", "70城").anchor).toBe("entry-stats70");
-    expect(resolveHomeSearch("page", "库存").anchor).toBe("entry-supply");
+    expect(resolveHomeSearch("page", "宏观")).toMatchObject({
+      kind: "navigate",
+      path: "/pages/macro-region/macro-region"
+    });
+    expect(resolveHomeSearch("page", "70城")).toMatchObject({
+      kind: "navigate",
+      path: "/pages/stats70/stats70"
+    });
+    expect(resolveHomeSearch("page", "库存")).toMatchObject({
+      kind: "navigate",
+      path: "/pages/supply/supply?focus=inventory"
+    });
+    expect(resolveHomeSearch("page", "工具")).toMatchObject({
+      kind: "navigate",
+      path: "/pages/data-tools/data-tools"
+    });
     expect(resolveHomeSearch("page", "xyz").kind).toBe("none");
   });
 
@@ -86,10 +117,6 @@ describe("homeEntry F-ENTRY-01", () => {
       kind: "ok",
       id: "entry-zh-bdc-registration"
     });
-    expect(resolveHomeScrollAnchor("entry-zh-bdc-registration", zh)).toEqual({
-      kind: "ok",
-      id: "entry-zh-bdc-registration"
-    });
     const sz = { ...zh, hasDailyWangqian: true, hasZhBdcRegistration: false };
     expect(resolveHomeScrollAnchor("overview-wangqian", sz)).toEqual({
       kind: "ok",
@@ -114,6 +141,7 @@ describe("homeEntry F-ENTRY-01", () => {
     expect(dash).toContain("data-home-search");
     expect(dash).toContain("data-home-kingkong");
     expect(dash).toContain("HOME_KINGKONG");
+    expect(dash).toContain("onHomeChannel");
     expect(dash).toContain("id=\"entry-macro\"");
     expect(dash).toContain("resolveHomeScrollAnchor");
     expect(dash).toContain("supplyEntryOwner");
@@ -130,22 +158,35 @@ describe("homeEntry F-ENTRY-01", () => {
     expect(stats70).toContain("chip-btn");
     expect(stats70).not.toMatch(/class="tag tap-target"/);
     expect(stats70).not.toMatch(/class="tab tap-target"/);
+    const supply = readFileSync(resolve(process.cwd(), "src/pages/supply/supply.vue"), "utf8");
+    expect(supply).toContain("data-supply-header");
+    expect(supply).toContain("data-supply-inventory");
+    expect(supply).toContain("data-supply-land");
+    const pages = readFileSync(resolve(process.cwd(), "src/pages.json"), "utf8");
+    expect(pages).toContain("pages/supply/supply");
     const ia = readFileSync(resolve(process.cwd(), "docs/DASHBOARD_ENTRY_IA.md"), "utf8");
     expect(ia).toContain("F-ENTRY-01");
     expect(ia).toContain("验收标准");
     expect(ia).toContain("pending listing");
+    expect(ia).toContain("独立页");
   });
 
-  it("金刚区库存点击锚点为 entry-supply（test-entry-1 门禁）", () => {
+  it("金刚区库存/土地点击跳供需独立页（非本页滚动）", () => {
     const inv = HOME_KINGKONG.find((k) => k.key === "inventory");
-    expect(inv?.action).toEqual({ kind: "scroll", anchor: "entry-supply" });
+    expect(inv?.action).toEqual({
+      kind: "navigate",
+      path: "/pages/supply/supply?focus=inventory"
+    });
+    const land = HOME_KINGKONG.find((k) => k.key === "land");
+    expect(land?.action).toEqual({
+      kind: "navigate",
+      path: "/pages/supply/supply?focus=land"
+    });
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
-    expect(dash).toContain("entry-supply");
-    expect(dash).toContain("resolveHomeScrollAnchor");
-    expect(dash).toContain("supplyEntryOwner");
+    expect(dash).toContain("onHomeChannel");
     expect(dash).toContain("onHomeKingkong");
     const smoke = readFileSync(resolve(process.cwd(), "tests/e2e/smoke_entry_supply.mjs"), "utf8");
-    expect(smoke).toContain("entry-supply");
+    expect(smoke).toContain("pages/supply/supply");
     expect(smoke).toContain("库存");
   });
 });

@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.121.143 | 2026-07-28 | 频道/金刚「工具·供需·宏观…」改为跳独立页（新建供需页）；库存土地卡从概览归档；禁止本页长滚代替分类页（versionCode 264） |
 | v1.121.142 | 2026-07-28 | 启动上半截白闪二修：根因是首页指南 banner 首帧默认 `showGuide=true` + 浅色渐变，onMounted 再藏导致必闪；改为同步读 storage；指南卡默认深色渐变；pages.json 硬编码深色壳底；状态栏/WebView 刷底；setUIStyle 按已解析主题（versionCode 263） |
 | v1.121.141 | 2026-07-28 | 修复启动页结束后上半截必闪白：系统 theme 未就绪时不再兜底浅色（改深色 + 缓存上次成功值）；`initializeTheme` 非显式浅色先刷深色导航栏；splash `waiting=true` + delay 300ms 等首屏再关；theme 单测补白闪护栏（versionCode 262） |
 | v1.121.140 | 2026-07-28 | OTA 发版：承接上轮「移除右侧进度条 + 概览页 data-tab/isOverviewCompact 收敛」业务改动；versionCode 260→261，使已装 1.121.139 的真机可热更新到本包（上一 commit 未 bump 导致清单停留 139/260） |
@@ -598,6 +599,10 @@ gh auth setup-git
 ## 更新日志
 
 详细变更见 [changelog/](./changelog/) 目录。
+
+### v1.121.143 (2026-07-28)
+
+总览频道条与金刚区「工具 / 供需 / 宏观 / 房价 / 网签 / 配套」改为 `navigateTo` / `switchTab` 进入独立页；新增 `pages/supply/supply`（库存·计划入市·土地）；对应大卡从概览 `data-tab` 归档。禁止再用本页滚动冒充分类入口。详见 [changelog/2026-07-28-v1.121.143-channel-navigate-supply-page.md](./changelog/2026-07-28-v1.121.143-channel-navigate-supply-page.md)。
 
 ### v1.121.130 (2026-07-26)
 

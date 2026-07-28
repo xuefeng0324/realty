@@ -1,6 +1,7 @@
 /**
  * 总览首页多入口配置（F-ENTRY-01）
  * 对照：美团定位+搜索、淘宝/拼多多频道+金刚区；房价三轴不误标成交价。
+ * v1.121.143：频道/金刚「供需·工具」等改为 navigate 独立页，不再本页滚动。
  */
 
 export type HomeSearchMode = "school" | "listing" | "page";
@@ -23,10 +24,15 @@ export type HomeKingkongAction =
   | { kind: "city" }
   | { kind: "period" };
 
+export type HomeChannelAction =
+  | { kind: "navigate"; path: string }
+  | { kind: "switchTab"; path: string }
+  | { kind: "tab"; tab: "overview" | "price" | "school" | "transit" | "map" };
+
 export interface HomeChannel {
   key: HomeChannelKey;
   label: string;
-  anchor: string;
+  action: HomeChannelAction;
 }
 
 export interface HomeKingkongItem {
@@ -43,13 +49,14 @@ export const HOME_SEARCH_MODES: { key: HomeSearchMode; label: string; placeholde
   { key: "page", label: "本页", placeholder: "宏观 / 网签 / 库存 / 70城…" }
 ];
 
+/** 频道条：一律跳独立页 / Tab，禁止只滚本页长流 */
 export const HOME_CHANNELS: HomeChannel[] = [
-  { key: "price", label: "房价", anchor: "entry-stats70" },
-  { key: "wangqian", label: "网签", anchor: "overview-wangqian" },
-  { key: "macro", label: "宏观", anchor: "entry-macro" },
-  { key: "supply", label: "供需", anchor: "entry-supply" },
-  { key: "amenity", label: "配套", anchor: "overview-school" },
-  { key: "tools", label: "工具", anchor: "overview-lpr" }
+  { key: "price", label: "房价", action: { kind: "navigate", path: "/pages/stats70/stats70" } },
+  { key: "wangqian", label: "网签", action: { kind: "navigate", path: "/pages/wangqian/wangqian" } },
+  { key: "macro", label: "宏观", action: { kind: "navigate", path: "/pages/macro-region/macro-region" } },
+  { key: "supply", label: "供需", action: { kind: "navigate", path: "/pages/supply/supply" } },
+  { key: "amenity", label: "配套", action: { kind: "switchTab", path: "/pages/school/school" } },
+  { key: "tools", label: "工具", action: { kind: "navigate", path: "/pages/data-tools/data-tools" } }
 ];
 
 export const HOME_KINGKONG: HomeKingkongItem[] = [
@@ -59,27 +66,33 @@ export const HOME_KINGKONG: HomeKingkongItem[] = [
   { key: "wangqian", icon: "📋", label: "网签", tone: "red", action: { kind: "navigate", path: "/pages/wangqian/wangqian" } },
   { key: "stats70", icon: "📈", label: "70城", tone: "violet", action: { kind: "navigate", path: "/pages/stats70/stats70" } },
   { key: "macro", icon: "🏛️", label: "宏观", tone: "slate", action: { kind: "navigate", path: "/pages/macro-region/macro-region" } },
-  { key: "inventory", icon: "🏗️", label: "库存", tone: "amber", action: { kind: "scroll", anchor: "entry-supply" } },
-  { key: "land", icon: "🗺️", label: "土地", tone: "green", action: { kind: "scroll", anchor: "entry-land" } },
+  { key: "inventory", icon: "🏗️", label: "库存", tone: "amber", action: { kind: "navigate", path: "/pages/supply/supply?focus=inventory" } },
+  { key: "land", icon: "🗺️", label: "土地", tone: "green", action: { kind: "navigate", path: "/pages/supply/supply?focus=land" } },
   { key: "price-tab", icon: "💰", label: "价格", tone: "red", action: { kind: "tab", tab: "price" } },
   { key: "settings", icon: "⚙️", label: "设置", tone: "rose", action: { kind: "switchTab", path: "/pages/settings/settings" } }
 ];
 
-/** 本页搜索关键词 → 锚点（小写匹配） */
-const PAGE_KEYWORD_ANCHORS: Array<{ keys: string[]; anchor: string }> = [
-  { keys: ["宏观", "gdp", "经济", "固投", "建筑"], anchor: "entry-macro" },
-  { keys: ["70", "七十", "指数", "stats"], anchor: "entry-stats70" },
-  { keys: ["网签", "成交量"], anchor: "overview-wangqian" },
-  { keys: ["库存", "可售", "供需", "计划入市", "保障房"], anchor: "entry-supply" },
-  { keys: ["土地", "地块"], anchor: "entry-land" },
-  { keys: ["利率", "lpr", "房贷"], anchor: "overview-lpr" },
-  { keys: ["学校", "学区", "教育"], anchor: "overview-school" },
-  { keys: ["通勤", "地铁"], anchor: "overview-transit" }
+/** 本页搜索关键词 → 独立页（不再滚锚点） */
+const PAGE_KEYWORD_ROUTES: Array<{
+  keys: string[];
+  resolve: HomeSearchResolve;
+}> = [
+  { keys: ["宏观", "gdp", "经济", "固投", "建筑"], resolve: { kind: "navigate", path: "/pages/macro-region/macro-region" } },
+  { keys: ["70", "七十", "指数", "stats"], resolve: { kind: "navigate", path: "/pages/stats70/stats70" } },
+  { keys: ["网签", "成交量"], resolve: { kind: "navigate", path: "/pages/wangqian/wangqian" } },
+  { keys: ["库存", "可售", "供需", "计划入市", "保障房"], resolve: { kind: "navigate", path: "/pages/supply/supply?focus=inventory" } },
+  { keys: ["土地", "地块"], resolve: { kind: "navigate", path: "/pages/supply/supply?focus=land" } },
+  { keys: ["利率", "lpr", "房贷"], resolve: { kind: "navigate", path: "/pages/macro-rates/macro-rates" } },
+  { keys: ["学校", "学区", "教育"], resolve: { kind: "school", q: "" } },
+  { keys: ["工具", "派生"], resolve: { kind: "navigate", path: "/pages/data-tools/data-tools" } },
+  { keys: ["通勤", "地铁"], resolve: { kind: "tab", tab: "transit" } }
 ];
 
 export type HomeSearchResolve =
   | { kind: "school"; q: string }
   | { kind: "listing"; path: string; q: string }
+  | { kind: "navigate"; path: string }
+  | { kind: "tab"; tab: "overview" | "price" | "school" | "transit" | "map" }
   | { kind: "scroll"; anchor: string }
   | { kind: "none"; reason: string };
 
@@ -117,19 +130,22 @@ export function resolveHomeSearch(mode: HomeSearchMode, raw: string): HomeSearch
   }
   if (!q) return { kind: "none", reason: "请输入本页关键词，如 宏观 / 网签" };
   const lower = q.toLowerCase();
-  for (const row of PAGE_KEYWORD_ANCHORS) {
+  for (const row of PAGE_KEYWORD_ROUTES) {
     if (row.keys.some((k) => lower.includes(k.toLowerCase()))) {
-      return { kind: "scroll", anchor: row.anchor };
+      if (row.resolve.kind === "school") {
+        return { kind: "school", q: q || "学校" };
+      }
+      return row.resolve;
     }
   }
-  return { kind: "none", reason: "未识别关键词，可试：宏观、网签、库存、70城" };
+  return { kind: "none", reason: "未识别关键词，可试：宏观、网签、库存、70城、工具" };
 }
 
 export function homeKingkongCount(): number {
   return HOME_KINGKONG.length;
 }
 
-/** 首页滚动锚点在当前城市下的可达性（库存/土地按城挂 id） */
+/** 首页滚动锚点在当前城市下的可达性（库存/土地按城挂 id；遗留兼容） */
 export type HomeScrollAvailability = {
   hasGzInventory: boolean;
   hasSzPlannedSupply: boolean;
@@ -150,6 +166,7 @@ export type HomeScrollResolve =
 /**
  * 将配置锚点解析为实际 DOM id。
  * entry-supply / entry-land 在深圳原先只绑广州卡，导致金刚区「库存」「土地」空点。
+ * @deprecated 主入口已改为供需独立页；仅遗留锚点调用。
  */
 export function resolveHomeScrollAnchor(
   anchor: string,
