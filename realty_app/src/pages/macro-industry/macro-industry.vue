@@ -287,8 +287,29 @@
             :valueTrendClass="macroTrendBand(nbsIndustrial.manufacturingYoyPct ?? 0)"
             :sub='nbsIndustrial.miningYoyPct != null ? formatMacroPct(nbsIndustrial.miningYoyPct) : "—"' />
         </view>
+        <view v-if="nbsIndustrialHasMaterials" class="stats70-grid" style="margin-top: 8rpx" data-nbs-industrial-materials>
+          <MacroKpiCell
+            label="'水泥产量同比'"
+            :value='nbsIndustrial.cementYoyPct != null ? formatMacroPct(nbsIndustrial.cementYoyPct) : "—"'
+            :valueTrendClass="macroTrendBand(nbsIndustrial.cementYoyPct ?? 0)"
+            :sub='nbsIndustrial.cementWanT != null ? nbsIndustrial.cementWanT.toLocaleString() + " 万吨" : ""' />
+          <MacroKpiCell
+            label="'钢材产量同比'"
+            :value='nbsIndustrial.steelYoyPct != null ? formatMacroPct(nbsIndustrial.steelYoyPct) : "—"'
+            :valueTrendClass="macroTrendBand(nbsIndustrial.steelYoyPct ?? 0)"
+            :sub='nbsIndustrial.steelWanT != null ? nbsIndustrial.steelWanT.toLocaleString() + " 万吨" : ""' />
+          <MacroKpiCell
+            label="'平板玻璃同比'"
+            :value='nbsIndustrial.flatGlassYoyPct != null ? formatMacroPct(nbsIndustrial.flatGlassYoyPct) : "—"'
+            :valueTrendClass="macroTrendBand(nbsIndustrial.flatGlassYoyPct ?? 0)"
+            :sub='nbsIndustrial.cementYtdYoyPct != null ? "水泥累计 " + formatMacroPct(nbsIndustrial.cementYtdYoyPct) : ""' />
+          <MacroKpiCell
+            label="'粗钢同比'"
+            :value='nbsIndustrial.crudeSteelYoyPct != null ? formatMacroPct(nbsIndustrial.crudeSteelYoyPct) : "—"'
+            :valueTrendClass="macroTrendBand(nbsIndustrial.crudeSteelYoyPct ?? 0)" />
+        </view>
         <view class="macro-note">
-          国家统计局规模以上工业增加值（扣除价格因素）· ≠ 挂牌/成交/网签/70城；可与 PMI 对照
+          国家统计局规模以上工业增加值（扣除价格因素）· 水泥/钢材/玻璃为产量表分项（建材弱相关，≠房价）· ≠ 挂牌/成交/网签/70城；可与 PMI 对照
         </view>
         <button
           v-if="nbsIndustrialTrend.length > 1"
@@ -532,6 +553,7 @@ import {
   getLatestNbsIndustrial,
   getNbsIndustrialDeltaVsPrev,
   getNbsIndustrialTrend,
+  nbsIndustrialHasBuildingMaterials,
   shortNbsIndustrialMonthLabel,
   type NbsIndustrialRow
 } from "../../local/nbsIndustrial";
@@ -581,6 +603,7 @@ const nbsPmiTrend = computed(() => getNbsPmiTrend(6));
 const nbsIndustrial = computed<NbsIndustrialRow | null>(() => getLatestNbsIndustrial());
 const nbsIndustrialTrend = computed(() => getNbsIndustrialTrend(6));
 const nbsIndustrialDelta = computed(() => getNbsIndustrialDeltaVsPrev());
+const nbsIndustrialHasMaterials = computed(() => nbsIndustrialHasBuildingMaterials(nbsIndustrial.value));
 
 const nbsIndustrialProfit = computed<NbsIndustrialProfitRow | null>(() => getLatestNbsIndustrialProfit());
 const nbsIndustrialProfitTrend = computed(() => getNbsIndustrialProfitTrend(6));

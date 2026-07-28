@@ -2,7 +2,7 @@ import { parseCSV, rowsToObjects } from "./csv";
 // @ts-ignore
 import rawCsv from "../../static/nbs_industrial.csv?raw";
 
-/** 国家统计局规上工业增加值（%）；≠房价 */
+/** 国家统计局规上工业增加值（%）；附水泥/钢材/玻璃产量；≠房价 */
 export interface NbsIndustrialRow {
   month: string;
   publishDate: string;
@@ -12,6 +12,15 @@ export interface NbsIndustrialRow {
   miningYoyPct: number | null;
   manufacturingYoyPct: number | null;
   utilitiesYoyPct: number | null;
+  cementWanT: number | null;
+  cementYoyPct: number | null;
+  cementYtdYoyPct: number | null;
+  flatGlassWanWeightBox: number | null;
+  flatGlassYoyPct: number | null;
+  steelWanT: number | null;
+  steelYoyPct: number | null;
+  crudeSteelWanT: number | null;
+  crudeSteelYoyPct: number | null;
   sourceUrl: string;
 }
 
@@ -44,6 +53,15 @@ function mapRow(row: Record<string, string>): NbsIndustrialRow | null {
     miningYoyPct: nOrNull(row.mining_yoy_pct),
     manufacturingYoyPct: nOrNull(row.manufacturing_yoy_pct),
     utilitiesYoyPct: nOrNull(row.utilities_yoy_pct),
+    cementWanT: nOrNull(row.cement_wan_t),
+    cementYoyPct: nOrNull(row.cement_yoy_pct),
+    cementYtdYoyPct: nOrNull(row.cement_ytd_yoy_pct),
+    flatGlassWanWeightBox: nOrNull(row.flat_glass_wan_weight_box),
+    flatGlassYoyPct: nOrNull(row.flat_glass_yoy_pct),
+    steelWanT: nOrNull(row.steel_wan_t),
+    steelYoyPct: nOrNull(row.steel_yoy_pct),
+    crudeSteelWanT: nOrNull(row.crude_steel_wan_t),
+    crudeSteelYoyPct: nOrNull(row.crude_steel_yoy_pct),
     sourceUrl
   };
 }
@@ -80,6 +98,11 @@ export function getNbsIndustrialDeltaVsPrev(): {
     prev,
     yoyDeltaPp: Math.round((cur.yoyPct - prev.yoyPct) * 10) / 10
   };
+}
+
+export function nbsIndustrialHasBuildingMaterials(row: NbsIndustrialRow | null): boolean {
+  if (!row) return false;
+  return row.cementYoyPct != null || row.steelYoyPct != null || row.flatGlassYoyPct != null;
 }
 
 export function shortNbsIndustrialMonthLabel(month: string): string {

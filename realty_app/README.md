@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.121.150 | 2026-07-29 | NBS 工业增加值通稿补水泥/钢材/平板玻璃/粗钢产量（建材弱相关≠房价）；macro-industry（versionCode 271） |
 | v1.121.149 | 2026-07-29 | 广东统计局规上服务业专栏接入 macro-region（租赁商务/房地产服务≠房价）；周更 CI（versionCode 270） |
 | v1.121.148 | 2026-07-29 | 消费品 Q3 回填 + 家具/装潢零售分项；供需页商业/办公分区展开（versionCode 269） |
 | v1.121.147 | 2026-07-29 | 广东统计局规上工业 + 消费品市场专栏接入 macro-region；周更 CI（versionCode 268） |
@@ -605,6 +606,10 @@ gh auth setup-git
 ## 更新日志
 
 详细变更见 [changelog/](./changelog/) 目录。
+
+### v1.121.150 (2026-07-29)
+
+国家统计局工业增加值通稿「主要产品产量」表接入水泥/钢材/平板玻璃/粗钢；`macro-industry` 建材 KPI 行。详见 [changelog/2026-07-29-v1.121.150-nbs-industrial-building-materials.md](./changelog/2026-07-29-v1.121.150-nbs-industrial-building-materials.md)。
 
 ### v1.121.149 (2026-07-29)
 

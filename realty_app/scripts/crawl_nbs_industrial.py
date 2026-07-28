@@ -6,7 +6,8 @@
   python scripts/crawl_nbs_industrial.py
   python scripts/crawl_nbs_industrial.py --backfill --no-latest
 
-口径：规上工业增加值当月同比 / 环比 / 累计同比；采矿业 / 制造业 / 公用事业分项同比。
+口径：规上工业增加值当月同比 / 环比 / 累计同比；采矿业 / 制造业 / 公用事业分项同比；
+附「主要产品产量」表中的 **水泥 / 平板玻璃 / 钢材 / 粗钢**（建材弱相关）。
 **≠ 房价、≠ 挂牌、≠ 网签、≠ 70 城**。
 """
 from __future__ import annotations
@@ -41,6 +42,15 @@ FIELDS = [
     "mining_yoy_pct",
     "manufacturing_yoy_pct",
     "utilities_yoy_pct",
+    "cement_wan_t",
+    "cement_yoy_pct",
+    "cement_ytd_yoy_pct",
+    "flat_glass_wan_weight_box",
+    "flat_glass_yoy_pct",
+    "steel_wan_t",
+    "steel_yoy_pct",
+    "crude_steel_wan_t",
+    "crude_steel_yoy_pct",
     "source_url",
 ]
 
@@ -125,6 +135,19 @@ def month_yoy(plain: str) -> tuple[int | None, float | None]:
     return None, None
 
 
+def product_table(
+    plain: str, name: str
+) -> tuple[float | None, float | None, float | None, float | None]:
+    """解析「主要产品产量」表一行：当月产量、当月同比%、累计产量、累计同比%。"""
+    m = re.search(
+        rf"{re.escape(name)}（[^）]+）\s*([\d.]+)\s+([\-\d.]+)\s+([\d.]+)\s+([\-\d.]+)",
+        plain,
+    )
+    if not m:
+        return None, None, None, None
+    return fnum(m.group(1)), fnum(m.group(2)), fnum(m.group(3)), fnum(m.group(4))
+
+
 def parse_release(url: str, body: str) -> dict[str, str]:
     plain = plain_of(body)
     pub = re.search(r"/t(\d{4})(\d{2})(\d{2})_", url)
@@ -194,6 +217,11 @@ def parse_release(url: str, body: str) -> dict[str, str]:
         if um:
             util = -fnum(um.group(1))
 
+    cement_amt, cement_yoy, _cement_ytd_amt, cement_ytd_yoy = product_table(plain, "水泥")
+    glass_amt, glass_yoy, _, _ = product_table(plain, "平板玻璃")
+    steel_amt, steel_yoy, _, _ = product_table(plain, "钢材")
+    crude_amt, crude_yoy, _, _ = product_table(plain, "粗钢")
+
     return {
         "month": f"{year}-{month:02d}",
         "publish_date": "-".join(pub.groups()) if pub else "",
@@ -203,6 +231,15 @@ def parse_release(url: str, body: str) -> dict[str, str]:
         "mining_yoy_pct": _f(mining),
         "manufacturing_yoy_pct": _f(mfg),
         "utilities_yoy_pct": _f(util),
+        "cement_wan_t": _f(cement_amt),
+        "cement_yoy_pct": _f(cement_yoy),
+        "cement_ytd_yoy_pct": _f(cement_ytd_yoy),
+        "flat_glass_wan_weight_box": _f(glass_amt),
+        "flat_glass_yoy_pct": _f(glass_yoy),
+        "steel_wan_t": _f(steel_amt),
+        "steel_yoy_pct": _f(steel_yoy),
+        "crude_steel_wan_t": _f(crude_amt),
+        "crude_steel_yoy_pct": _f(crude_yoy),
         "source_url": url,
     }
 
