@@ -90,6 +90,7 @@ describe("宏观 5 子页骨架 PAGES_MACRO_*", () => {
       resolve(pagesDir, "macro-industry/macro-industry.vue"),
       "utf8"
     );
+    expect(src).toContain("data-nbs-gdp");
     expect(src).toContain("data-nbs-fa-investment");
     expect(src).toContain("data-nbs-income");
     expect(src).toContain("data-nbs-avg-wage");

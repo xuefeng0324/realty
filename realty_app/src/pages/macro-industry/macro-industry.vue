@@ -3,6 +3,95 @@
     <view class="container">
       <MacroTabNav active="industry" data-macro-tab-nav />
 
+      <!-- 全国 · GDP 初步核算（nbsGdp） -->
+      <view v-if="nbsGdp" class="card macro-card" data-nbs-gdp>
+        <view class="macro-kicker">全国 · GDP 初步核算</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">国内生产总值</view>
+          <view class="muted" style="font-size: 22rpx">{{ nbsGdp.label }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <MacroKpiCell
+            label="GDP"
+            :value="formatMacro100m(nbsGdp.gdpYiYuan)"
+            :sub="formatMacroPct(nbsGdp.gdpYoyPct)"
+            :subTrendClass="macroTrendBand(nbsGdp.gdpYoyPct)" />
+          <MacroKpiCell
+            label="第三产业同比"
+            :value="formatMacroPct(nbsGdp.tertiaryYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsGdp.tertiaryYoyPct)"
+            :sub="formatMacro100m(nbsGdp.tertiaryYiYuan)" />
+          <MacroKpiCell
+            label="第二产业同比"
+            :value="formatMacroPct(nbsGdp.secondaryYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsGdp.secondaryYoyPct)"
+            :sub="formatMacro100m(nbsGdp.secondaryYiYuan)" />
+          <MacroKpiCell
+            label="当季同比"
+            :value='nbsGdp.quarterGdpYoyPct != null ? formatMacroPct(nbsGdp.quarterGdpYoyPct) : "—"'
+            :valueTrendClass="macroTrendBand(nbsGdp.quarterGdpYoyPct ?? 0)"
+            :sub='nbsGdp.quarterGdpYiYuan != null ? formatMacro100m(nbsGdp.quarterGdpYiYuan) : nbsGdp.publishDate' />
+        </view>
+        <view class="stats70-grid" style="margin-top: 8rpx" data-nbs-gdp-housing>
+          <MacroKpiCell
+            label="建筑业增加值"
+            :value="formatMacro100m(nbsGdp.constructionYiYuan)"
+            :sub="formatMacroPct(nbsGdp.constructionYoyPct)"
+            :subTrendClass="macroTrendBand(nbsGdp.constructionYoyPct)" />
+          <MacroKpiCell
+            label="房地产业增加值"
+            :value="formatMacro100m(nbsGdp.realEstateYiYuan)"
+            :sub="formatMacroPct(nbsGdp.realEstateYoyPct)"
+            :subTrendClass="macroTrendBand(nbsGdp.realEstateYoyPct)" />
+          <MacroKpiCell
+            label="工业增加值"
+            :value="formatMacro100m(nbsGdp.industryYiYuan)"
+            :sub="formatMacroPct(nbsGdp.industryYoyPct)"
+            :subTrendClass="macroTrendBand(nbsGdp.industryYoyPct)" />
+          <MacroKpiCell
+            label="第一产业同比"
+            :value="formatMacroPct(nbsGdp.primaryYoyPct)"
+            :valueTrendClass="macroTrendBand(nbsGdp.primaryYoyPct)"
+            :sub="formatMacro100m(nbsGdp.primaryYiYuan)" />
+        </view>
+        <view class="macro-note">
+          不变价同比 · 现价绝对额 · 国家统计局 · 建筑业/房地产业增加值 ≠ 房价/挂牌/网签/70城
+        </view>
+        <button
+          v-if="nbsGdpTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-nbs-gdp-series-toggle
+          :aria-expanded="nbsGdpSeriesExpanded"
+          @click="nbsGdpSeriesExpanded = !nbsGdpSeriesExpanded"
+        >
+          {{ nbsGdpSeriesExpanded ? "收起多期" : "多期序列" }}
+        </button>
+        <template v-if="nbsGdpSeriesExpanded">
+          <view class="macro-series" data-nbs-gdp-series-detail>
+            GDP 同比
+            <text v-for="(p, i) in nbsGdpTrend" :key="'gdp-' + p.period">
+              {{ shortNbsGdpPeriodLabel(p.period) }} {{ formatMacroPct(p.gdpYoyPct)
+              }}<text v-if="i < nbsGdpTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view class="macro-series" data-nbs-gdp-series-detail>
+            建筑业同比
+            <text v-for="(p, i) in nbsGdpTrend" :key="'gdp-c-' + p.period">
+              {{ shortNbsGdpPeriodLabel(p.period) }} {{ formatMacroPct(p.constructionYoyPct)
+              }}<text v-if="i < nbsGdpTrend.length - 1"> · </text>
+            </text>
+          </view>
+          <view class="macro-series" data-nbs-gdp-series-detail>
+            房地产业同比
+            <text v-for="(p, i) in nbsGdpTrend" :key="'gdp-r-' + p.period">
+              {{ shortNbsGdpPeriodLabel(p.period) }} {{ formatMacroPct(p.realEstateYoyPct)
+              }}<text v-if="i < nbsGdpTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
+
       <!-- 全国 · 固定资产投资（nbsFaInvestment） -->
       <view v-if="nbsFaInvestment" class="card macro-card" data-nbs-fa-investment>
         <view class="macro-kicker">全国 · 固定资产投资</view>
@@ -668,6 +757,12 @@ import MacroKpiCell from "../../components/MacroKpiCell.vue";
 import MacroTabNav from "../../components/MacroTabNav.vue";
 import { formatMacro100m, formatMacroPct, formatMacroYuan, macroTrendClass, macroTrendBand } from "../../utils/format";
 import {
+  getLatestNbsGdp,
+  getNbsGdpTrend,
+  shortNbsGdpPeriodLabel,
+  type NbsGdpRow
+} from "../../local/nbsGdp";
+import {
   getLatestNbsFaInvestment,
   getNbsFaInvestmentTrend,
   shortNbsFaPeriodLabel,
@@ -731,7 +826,8 @@ import {
   type NbsRetailRow
 } from "../../local/nbsRetail";
 
-// 多期展开 ref（8 张卡 × 1 ref = 8）
+// 多期展开 ref
+const nbsGdpSeriesExpanded = ref(false);
 const nbsFaSeriesExpanded = ref(false);
 const nbsIncomeSeriesExpanded = ref(false);
 const nbsAvgWageSeriesExpanded = ref(false);
@@ -743,7 +839,9 @@ const nbsIndustrialProfitSeriesExpanded = ref(false);
 const nbsPpiSeriesExpanded = ref(false);
 const nbsRetailSeriesExpanded = ref(false);
 
-// 8 张卡的 state
+const nbsGdp = computed<NbsGdpRow | null>(() => getLatestNbsGdp());
+const nbsGdpTrend = computed(() => getNbsGdpTrend(6));
+
 const nbsFaInvestment = computed<NbsFaInvestmentRow | null>(() => getLatestNbsFaInvestment());
 const nbsFaTrend = computed(() => getNbsFaInvestmentTrend(6));
 

@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.121.154 | 2026-07-29 | NBS GDP 初步核算接入（含建筑业/房地产业增加值）；macro-industry（versionCode 275） |
 | v1.121.153 | 2026-07-29 | NBS 城镇单位年平均工资接入（含房地产/建筑业行业）；macro-industry（versionCode 274） |
 | v1.121.152 | 2026-07-29 | NBS 能源生产月报接入 macro-industry（原煤/原油/天然气/发电量）；月更 CI（versionCode 273） |
 | v1.121.151 | 2026-07-29 | NBS PPI 补建材购进（建筑材料及非金属类）+ 黑色金属冶炼出厂分项；macro-industry（versionCode 272） |
@@ -609,6 +610,10 @@ gh auth setup-git
 ## 更新日志
 
 详细变更见 [changelog/](./changelog/) 目录。
+
+### v1.121.154 (2026-07-29)
+
+国家统计局「国内生产总值初步核算」接入 `macro-industry`（GDP/三产 + 建筑业/房地产业增加值；双列表含当季）。详见 [changelog/2026-07-29-v1.121.154-nbs-gdp.md](./changelog/2026-07-29-v1.121.154-nbs-gdp.md)。
 
 ### v1.121.153 (2026-07-29)
 
