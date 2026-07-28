@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.121.140 | 2026-07-28 | OTA 发版：承接上轮「移除右侧进度条 + 概览页 data-tab/isOverviewCompact 收敛」业务改动；versionCode 260→261，使已装 1.121.139 的真机可热更新到本包（上一 commit 未 bump 导致清单停留 139/260） |
 | v1.121.139 | 2026-07-28 | 浅色模式根因修复（App 逻辑层 document 到不了页面 WebView → 只有导航栏变色）：`theme.ts` 导出响应式 `resolvedThemeRef`，19 个页面根节点 `:data-realty-theme` 绑定 + `App.vue` 通用 `[data-realty-theme]` 级联选择器；房源参考页原生 Intent 直呼贝壳/链家/安居客 App（`plus.android` startActivity，绕开 intent:// 被 openURL 丢浏览器）；移除右侧进度条并收敛概览页长度（概览精简模式隐藏关键大卡）；新增 themeBinding 测试 + 补 theme/openExternal 用例（1125/1125）。未做：房源数据完善、整体走查、真机 deep-link 验证 |
 | v1.121.138 | 2026-07-27 | 修复 wgt 热更新打包 3 个 build 阻断：(1) dashboard 2 张卡 (stats70-drift / lpr-mortgage-signal) 重复 v-if 合并 (2) data-tools 模板 5 处不闭合（metroPlan v-for 缺 `</view>` + 多余 `</view>` + 2 个 `<br>` 改 `<br/>`）(3) dashboard `.tc-bar` CSS selector 缺失（v0.40.0 dead-css 清理误删）；附 map-analysis.vue 用 store.getListingsByCity + getListingSchoolPremiumByCity 聚合 district 指标；新增 tests/buildSmoke.test.ts (5 测试) 防回归 |
 | v1.121.137 | 2026-07-27 | 第四批瘦身：dashboard 首屏精简 + 数据工具独立页（设置入口）；7 张派生卡 + 14 张中间段派生卡（通勤/户型/挂牌结构/区情画像/特征溢价/挂牌标签）默认折叠在 `<view v-if="derivedExpanded">` 内；新增 `pages/data-tools/data-tools.vue` + dashboard 加 2 个入口卡；预算硬规则保持 ≤ 4 宏卡 / ≤ 14.5k 行 |
