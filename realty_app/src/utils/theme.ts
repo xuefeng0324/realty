@@ -39,17 +39,37 @@ export function normalizeThemeMode(value: unknown): ThemeMode {
 }
 
 /**
+ * 上次成功读到的系统深/浅偏好。冷启动时 `uni.getSystemInfoSync().theme`
+ * 常短暂为空；若此时兜底成浅色，paintChrome 会把导航栏刷成近白，
+ * 启动页关掉后上半截必闪一下白（浅色模式改造后更明显，因壳层 API 可靠生效）。
+ */
+let lastKnownSystemPrefersDark: boolean | null = null;
+
+/** 仅单测：清空系统主题缓存与 listener 绑定标记 */
+export function resetSystemThemeCacheForTest(): void {
+  lastKnownSystemPrefersDark = null;
+  themeChangeBound = false;
+}
+
+/**
  * 读取系统当前是深色还是浅色。
  * 优先 uni.getSystemInfoSync().theme（需 manifest darkmode:true），
- * 其次 H5 matchMedia，再兜底 false（浅色）。
+ * 其次 H5 matchMedia；
+ * 未知时：用上次成功值，再兜底 true（深色）——本 App 默认深色体系，避免启动白闪。
  */
 export function getSystemPrefersDark(): boolean {
   if (typeof uni !== "undefined" && typeof uni.getSystemInfoSync === "function") {
     try {
       const info = uni.getSystemInfoSync() as { theme?: string; osTheme?: string };
       const t = info.theme || info.osTheme;
-      if (t === "dark") return true;
-      if (t === "light") return false;
+      if (t === "dark") {
+        lastKnownSystemPrefersDark = true;
+        return true;
+      }
+      if (t === "light") {
+        lastKnownSystemPrefersDark = false;
+        return false;
+      }
     } catch {
       /* ignore */
     }
@@ -59,12 +79,15 @@ export function getSystemPrefersDark(): boolean {
     typeof window.matchMedia === "function"
   ) {
     try {
-      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      lastKnownSystemPrefersDark = dark;
+      return dark;
     } catch {
       /* ignore */
     }
   }
-  return false;
+  if (lastKnownSystemPrefersDark != null) return lastKnownSystemPrefersDark;
+  return true;
 }
 
 export function resolveTheme(
@@ -204,6 +227,11 @@ function bindSystemThemeListener(): void {
 
 export function initializeTheme(): void {
   const mode = getStoredThemeMode();
+  // 启动瞬间先按「深色壳」落一笔：冷启动 theme 未就绪时，若直接解析成 light，
+  // 导航栏/状态栏会先近白再被纠正，上半截必闪。显式浅色用户仍由紧随其后的 applyTheme 刷回。
+  if (mode !== "light") {
+    paintChrome("dark");
+  }
   applyTheme(mode);
   bindSystemThemeListener();
 }

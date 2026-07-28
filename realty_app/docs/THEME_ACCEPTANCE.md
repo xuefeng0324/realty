@@ -120,7 +120,9 @@ node tests/e2e/smoke_theme_visual.mjs
 - 第三方 WebView / 地图 SDK 配色可能不跟主题
 - 系统弹窗不受 App CSS 控制
 - `theme.json` `@` 随系统暗黑；强制浅/深仍靠本模块
+- 冷启动 `uni.getSystemInfoSync().theme` 可能短暂为空：未知时**兜底深色**（并缓存上次成功值），禁止兜底浅色——否则 `paintChrome` 会把导航栏刷近白，启动页关掉后上半截白闪（v1.121.141）
+- `splashscreen.waiting=true` + `delay=300`：等首屏渲染后再关启动页，减轻白窗一瞬；**waiting/delay 属原生壳配置，完整生效可能需整包**，JS 兜底深色壳可走 OTA
 
 ---
 
-最后更新：2026-07-26（浅色「一眼可辨」强化）
+最后更新：2026-07-28（启动上半截白闪：未知主题兜底深色）

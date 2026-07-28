@@ -171,7 +171,7 @@ onLaunch(() => {
 
 onShow(() => {
   console.log("[realty_app] shown");
-  // 切回前台 / Tab 时重刷导航栏与 TabBar，避免残留深色壳
+  // 切回前台 / Tab 时重刷导航栏与 TabBar；未知系统主题时兜底深色，避免误刷浅色白闪
   refreshThemeChrome();
   // Expo 建议：回到前台再检查；我们加 6h 冷却，避免反复弹升级页
   if (startupUpdateCheckStarted) {

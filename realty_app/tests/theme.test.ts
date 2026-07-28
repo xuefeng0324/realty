@@ -7,6 +7,7 @@ import {
   initializeTheme,
   normalizeThemeMode,
   refreshThemeChrome,
+  resetSystemThemeCacheForTest,
   resolveTheme,
   resolvedThemeRef,
   setThemeMode
@@ -51,6 +52,7 @@ function makeDomStub() {
 }
 
 afterEach(() => {
+  resetSystemThemeCacheForTest();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -80,6 +82,49 @@ describe("theme", () => {
       getSystemInfoSync: () => ({ theme: "light" })
     });
     expect(getSystemPrefersDark()).toBe(false);
+  });
+
+  it("系统 theme 未就绪时兜底深色（避免启动导航栏白闪）", () => {
+    vi.stubGlobal("uni", {
+      getSystemInfoSync: () => ({})
+    });
+    expect(getSystemPrefersDark()).toBe(true);
+    expect(resolveTheme("system")).toBe("dark");
+  });
+
+  it("系统 theme 短暂为空时沿用上次成功读取的偏好", () => {
+    vi.stubGlobal("uni", {
+      getSystemInfoSync: () => ({ theme: "light" })
+    });
+    expect(getSystemPrefersDark()).toBe(false);
+    vi.stubGlobal("uni", {
+      getSystemInfoSync: () => ({})
+    });
+    expect(getSystemPrefersDark()).toBe(false);
+  });
+
+  it("initializeTheme 在非显式浅色时先刷深色导航栏，再应用存储主题", () => {
+    const setNavigationBarColor = vi.fn();
+    const setTabBarStyle = vi.fn();
+    const { html, body } = makeDomStub();
+    vi.stubGlobal("uni", {
+      getStorageSync: () => "system",
+      getSystemInfoSync: () => ({}),
+      onThemeChange: vi.fn(),
+      setNavigationBarColor,
+      setTabBarStyle
+    });
+    vi.stubGlobal("document", {
+      documentElement: html,
+      body,
+      querySelectorAll: () => []
+    });
+    initializeTheme();
+    // 至少一次深色壳（先刷 + applyTheme 再刷）
+    expect(setNavigationBarColor).toHaveBeenCalledWith(
+      expect.objectContaining({ backgroundColor: "#0b1020" })
+    );
+    expect(resolvedThemeRef.value).toBe("dark");
   });
 
   it("读取、保存并应用主题到 H5 根节点（含内联 CSS 变量）", () => {
