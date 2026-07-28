@@ -77,6 +77,8 @@ describe("宏观 5 子页骨架 PAGES_MACRO_*", () => {
     expect(src).toContain("data-gd-construction");
     expect(src).toContain("data-gd-industrial");
     expect(src).toContain("data-gd-retail");
+    expect(src).toContain("data-gd-services");
+    expect(src).toContain("getLatestGdServices");
     expect(src).toContain("getLatestGdRealEstateBrief");
     expect(src).toContain("getLatestGdEconomy");
     expect(src).toContain("getLatestGdIndustrial");

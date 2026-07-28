@@ -369,6 +369,67 @@
           </view>
         </template>
       </view>
+
+      <!-- 广东 · 规上服务业 -->
+      <view v-if="gdServices" class="card macro-card" data-gd-services>
+        <view class="macro-kicker">广东 · 服务业</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">规上服务业</view>
+          <view class="muted" style="font-size: 22rpx">{{ gdServices.periodLabel }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <MacroKpiCell
+            label="'营收同比'"
+            :value="formatMacroPct(gdServices.revenueYoyPct)"
+            :valueTrendClass="macroTrendBand(gdServices.revenueYoyPct)"
+            :sub="formatMacroPct(gdServices.itYoyPct)" />
+          <MacroKpiCell
+            label="'交运仓储'"
+            :value="formatMacroPct(gdServices.transportYoyPct)"
+            :valueTrendClass="macroTrendBand(gdServices.transportYoyPct)"
+            :sub="formatMacroPct(gdServices.residentSvcYoyPct)" />
+          <MacroKpiCell
+            label="'科研技术'"
+            :value="formatMacroPct(gdServices.scienceYoyPct)"
+            :valueTrendClass="macroTrendBand(gdServices.scienceYoyPct)" />
+          <MacroKpiCell
+            label="'文体娱乐'"
+            :value="formatMacroPct(gdServices.cultureYoyPct)"
+            :valueTrendClass="macroTrendBand(gdServices.cultureYoyPct)" />
+        </view>
+        <view v-if="gdServicesHasHousing" class="stats70-grid" style="margin-top: 8rpx" data-gd-services-housing>
+          <MacroKpiCell
+            label="'租赁商务'"
+            :value="formatMacroPct(gdServices.leasingYoyPct)"
+            :valueTrendClass="macroTrendBand(gdServices.leasingYoyPct)" />
+          <MacroKpiCell
+            label="'房地产服务'"
+            :value="formatMacroPct(gdServices.realEstateSvcYoyPct)"
+            :valueTrendClass="macroTrendBand(gdServices.realEstateSvcYoyPct)" />
+        </view>
+        <view class="macro-note">
+          {{ gdServices.sourceOrg }} · {{ gdServices.publishDate || gdServices.periodLabel }} · 营业收入同比 ·
+          房地产服务不含开发、≠房价
+        </view>
+        <button
+          v-if="gdServicesTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-gd-services-series-toggle
+          :aria-expanded="gdServicesSeriesExpanded"
+          @click="gdServicesSeriesExpanded = !gdServicesSeriesExpanded"
+        >
+          {{ gdServicesSeriesExpanded ? "收起多期" : "多期序列" }}
+        </button>
+        <template v-if="gdServicesSeriesExpanded">
+          <view class="macro-series" data-gd-services-series-detail>
+            营收同比
+            <text v-for="(p, i) in gdServicesTrend" :key="'gs-' + p.period">
+              {{ p.periodLabel }} {{ formatMacroPct(p.revenueYoyPct) }}<text v-if="i < gdServicesTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
     </view>
   </view>
 </template>
@@ -385,6 +446,7 @@ import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
  *   - 广东 · 建筑业生产运行
  *   - 广东 · 规上工业生产（统计局专栏）
  *   - 广东 · 消费品市场（统计局专栏）
+ *   - 广东 · 规上服务业（统计局专栏；租赁/房地产服务≠房价）
  *
  * 共享 helper：formatMacro100m / formatMacroPct / formatMacroArea / formatMacroYuan / macroTrendClass
  * 数据源：realty_app/src/local/* 对应模块
@@ -427,6 +489,12 @@ import {
   gdRetailHasHousingRelated,
   type GdRetailRow
 } from "../../local/gdRetail";
+import {
+  getLatestGdServices,
+  getGdServicesTrend,
+  gdServicesHasHousingRelated,
+  type GdServicesRow
+} from "../../local/gdServices";
 
 // 多期展开 ref
 const gdBriefSeriesExpanded = ref(false);
@@ -435,6 +503,7 @@ const gdConstructionSeriesExpanded = ref(false);
 const gdEconomySeriesExpanded = ref(false);
 const gdIndustrialSeriesExpanded = ref(false);
 const gdRetailSeriesExpanded = ref(false);
+const gdServicesSeriesExpanded = ref(false);
 
 // 4 张卡的 state（10 个 computed）
 const gdRealEstateBrief = computed<GdRealEstateBriefRow | null>(() => getLatestGdRealEstateBrief());
@@ -466,4 +535,7 @@ const gdIndustrialTrend = computed(() => getGdIndustrialTrend(6));
 const gdRetail = computed<GdRetailRow | null>(() => getLatestGdRetail());
 const gdRetailTrend = computed(() => getGdRetailTrend(6));
 const gdRetailHasHousing = computed(() => gdRetailHasHousingRelated(gdRetail.value));
+const gdServices = computed<GdServicesRow | null>(() => getLatestGdServices());
+const gdServicesTrend = computed(() => getGdServicesTrend(6));
+const gdServicesHasHousing = computed(() => gdServicesHasHousingRelated(gdServices.value));
 </script>

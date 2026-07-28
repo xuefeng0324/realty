@@ -161,6 +161,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/gd_construction.csv` | `gdConstruction.ts` + 仪表盘「广东建筑业生产运行」卡（**多期默认折叠**） | `crawl_gd_construction.py`（**周更 CI**） | 省住建厅「建筑业生产运行简况」：资质企业总产值/房屋建筑业/土木/珠三角产值及同比；**房屋建筑业产值 ≠ 商品房销售/挂牌均价** |
 | `static/gd_industrial.csv` | `gdIndustrial.ts` + macro-region「规上工业生产」 | `crawl_gd_industrial.py`（**周更 CI**） | 省统计局「规模以上工业生产运行简况」：增加值同比 + 三大门类 + 电子/电气/汽车 + 机器人/集成电路产量同比；**≠房价** |
 | `static/gd_retail.csv` | `gdRetail.ts` + macro-region「消费品市场」 | `crawl_gd_retail.py`（**周更 CI**） | 省统计局「消费品市场运行简况」：社消零额/同比 + 城乡 + 限上商品/餐饮 + 网上零售 + 通讯器材；**家具/装潢材料**限上零售同比（住房弱相关，≠房价） |
+| `static/gd_services.csv` | `gdServices.ts` + macro-region「规上服务业」 | `crawl_gd_services.py`（**周更 CI**） | 省统计局「规模以上服务业运行简况」：营业收入同比 + 交运/IT/科研等门类；**租赁和商务 / 房地产（不含房地产开发）** 住房弱相关（≠房价、≠商品房开发销售） |
 | `static/gd_economy.csv` | `gdEconomy.ts` + 仪表盘「广东经济运行」卡（**多期默认折叠**） | `crawl_gd_economy.py`（**周更 CI**；多页列表；仅入库含 GDP 的期次） | 省统计局「经济运行简况」：不变价 GDP/三产；规上工业、社消零、固投、房开、CPI；人均可支配收入；**年报另含常住人口/城镇化率**；**≠城市挂牌/网签均价**；月度无 GDP 则跳过 |
 | `static/seed/lpr_history.csv` | LPR 卡 / 组合贷 | `compute_lpr_history.py`（基线）+ `crawl_lpr_history.py`（**月更 CI**） | 央行 PBOC 公告 1Y/5Y LPR；房贷加点沿用示意 bp |
 | `static/seed/mlf_history.csv` | `mlfHistory.ts` + dashboard「🏛️ 中期借贷便利（MLF）」 | `crawl_mlf_history.py`（**周/月更 CI**） | 央行「开展情况」公告：中标利率/操作量/余额；**2025-03 起多重价位中标，专栏多为招标量无单一利率**；**≠房价**；与 LPR 对照 |
@@ -223,6 +224,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | （深圳二手房上月成交量专栏） | （未接入独立源） | `zjj.sz.gov.cn/.../sjcx/ersfsy/` | 2026-07-26 探针本机 **403**；深圳二手成交已由 `daily_wangqian` 覆盖 |
 | （广东规上工业生产运行简况） | `static/gd_industrial.csv` | `stats.gd.gov.cn/tjkx185/`「规模以上工业生产运行简况」 | **已接入**（v1.121.147）；专栏分项；与经济运行简况工业同比同源不同篇；≠房价 |
 | （广东消费品市场运行简况） | `static/gd_retail.csv` | `stats.gd.gov.cn/tjkx185/`「消费品市场运行简况」 | **已接入**（v1.121.147+148）；含「实现」句式与家具/装潢分项；≠房价 |
+| （广东规模以上服务业运行简况） | `static/gd_services.csv` | `stats.gd.gov.cn/tjkx185/`「规模以上服务业运行简况」 | **已接入**（v1.121.149）；含绝对额插入句式；租赁商务/房地产服务（不含开发）；≠房价 |
 | （广东规上工业/消费品单独简况） | （已由上表覆盖） | `stats.gd.gov.cn/tjkx185/` | 2026-07-29：工业/社消零 HTML 专栏已建卡；与「经济运行」仍并存（专栏分项更细） |
 | （佛山/东莞住建公开页） | （未接入） | `fszj.foshan.gov.cn` / `zjj.dg.gov.cn` | 2026-07-26 探针本机 **Timeout**；暂无可用结构化 endpoint |
 | （国家统计局全国固投） | `static/nbs_fa_investment.csv` | `stats.gov.cn/sj/zxfb/`「固定资产投资基本情况」 | **已接入**（v1.121.85）；与广东固投卡对照；≠房价 |
@@ -260,6 +262,7 @@ gd_fa_investment.csv         → gdFaInvestment.ts     → 广东固定资产投
 gd_construction.csv          → gdConstruction.ts     → 广东建筑业生产运行
 gd_industrial.csv            → gdIndustrial.ts       → 广东规上工业生产
 gd_retail.csv                → gdRetail.ts           → 广东消费品市场
+gd_services.csv              → gdServices.ts         → 广东规上服务业
 gd_economy.csv               → gdEconomy.ts          → 广东经济运行（GDP/收入/人口）
 nbs_real_estate.csv          → nbsRealEstate.ts      → 全国房地产开销宏观（含住宅/按揭）
 nbs_fa_investment.csv        → nbsFaInvestment.ts    → 全国固定资产投资
@@ -314,7 +317,7 @@ static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务�
 | `pages/macro-rates/macro-rates` | LPR / MLF / 逆回购 / Shibor / 国债 / 回购 FR/FDR（6 张） | lprHistoryAnalysis + mlfData + repoFixing + bondYield |
 | `pages/macro-fx/macro-fx` | 外储 / 官方储备 / 美元中间价 / 外汇市场 / 结售汇 / BOP / IIP（7 张） | foreignReserves + officialReservesAssets + rmbQuery + fxMarketMonthly + bankForex + bopQuery + iipQuery |
 | `pages/macro-industry/macro-industry` | 工业增加值 / 工业利润 / CPI / PPI / 固投 / 居民收支 / PMI（7 张） | nbsIndustrial + nbsIndustrialProfit + nbsCpi + nbsPpi + nbsFaInvestment + nbsIncome + nbsPmi |
-| `pages/macro-region/macro-region` | 广东 房地产简况 / 经济运行 / 固投 / 施工产值 / 规上工业 / 消费品（6 张） | gdRealEstateBrief + gdEconomy + gdFaInvestment + gdConstruction + gdIndustrial + gdRetail |
+| `pages/macro-region/macro-region` | 广东 房地产简况 / 经济运行 / 固投 / 施工产值 / 规上工业 / 消费品 / 规上服务业（7 张） | gdRealEstateBrief + gdEconomy + gdFaInvestment + gdConstruction + gdIndustrial + gdRetail + gdServices |
 | `pages/macro-trade/macro-trade` | 海关货物进出口（1 张） | nbsTrade |
 
 > 5 个子页共用 `components/MacroTabNav.vue`（顶部 5 tab 切换）。dashboard 金刚区「宏观」tile 已 navigate → `macro-region`。
