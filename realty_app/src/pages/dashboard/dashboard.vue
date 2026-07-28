@@ -32,7 +32,7 @@
             <text class="home-guide-step">3</text>
             <view class="home-guide-content">
               <view class="home-guide-name">📊 进阶分析</view>
-              <view class="muted" style="font-size: 22rpx">首页底部「📊 进阶分析」区块：14 张深度卡（热图/矩阵/散点/地图），默认折叠。</view>
+              <view class="muted" style="font-size: 22rpx">点频道「工具 / 供需」或下方「深度可视化 / 数据工具」进独立页，不在本页折叠长滚。</view>
             </view>
           </view>
           <view class="home-guide-row">
@@ -1615,17 +1615,8 @@
         <!-- 金刚区已上移至首页入口，此处仅保留大盘轮播 -->
       </view>
 
-      <!-- v0.59.0 概览渐进式布局：快捷导航 + 全部展开/收起 -->
-      <view v-if="activeTab === 'overview'" class="overview-toolbar">
-        <view class="overview-jump-row">
-          <button
-            v-for="j in OVERVIEW_JUMPS"
-            :key="j.key"
-            class="overview-jump"
-            size="mini"
-            @click.stop="jumpOverviewGroup(j.key)"
-          >{{ j.label }}</button>
-        </view>
+      <!-- 概览工具条：只保留精简/完整模式；禁止「快捷跳转滚锚点 + 全部展开收起」折叠套路 -->
+      <view v-if="activeTab === 'overview'" class="overview-toolbar" data-overview-toolbar>
         <button
           class="overview-mode-toggle"
           size="mini"
@@ -1633,9 +1624,6 @@
           data-dash-mode-toggle
           @click.stop="toggleFeaturedMode"
         >{{ featuredMode ? "📊 完整模式" : "🏠 精简模式" }}</button>
-        <button class="overview-toggle-all" size="mini" @click.stop="toggleOverviewAll">
-          {{ overviewAllExpanded ? "全部收起" : "全部展开" }}
-        </button>
       </view>
 
       <!-- v1.121.138：原中间段折叠块内的 7 张派生卡已真删；区/板块对比核心卡移出折叠块、直接渲染 -->
@@ -4555,48 +4543,30 @@
         </view>
       </view>
 
-      <!-- v1.121.147 进阶分析区块（精简模式下默认折叠，可一键展开） -->
+      <!-- 进阶分析：入口进独立页，禁止本页折叠展开 -->
       <view v-if="activeTab === 'overview'" class="card advanced-section" data-dash-advanced-section>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">📊 进阶分析</view>
-          <view class="muted">
-            {{ advancedCardCount }} 张 · {{ advancedExpanded ? "已展开" : "默认折叠" }}
-          </view>
+          <view class="muted">{{ advancedCardCount }} 张 · 独立页</view>
         </view>
         <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据可视化矩阵、双轴散点、地图、学区加权等深度分析卡。精简模式下默认隐藏，{{ "点这里" }}展开。
+          深度可视化 / 数据工具已迁出总览。点下方进页查看，不在本页折叠长滚。
         </view>
-        <view class="advanced-list" v-if="advancedExpanded">
-          <view
-            v-for="c in ADVANCED_CARDS"
-            :key="c.key"
-            class="advanced-row"
-            :class="{ 'advanced-row--hidden': hiddenCards.has(c.key) }"
-          >
-            <view class="advanced-info">
-              <view class="advanced-name">
-                <text v-if="c.hot" class="advanced-hot-tag">🔥 热门</text>
-                {{ c.label }}
-              </view>
-              <view class="muted" style="font-size: 20rpx">{{ c.hint }}</view>
-            </view>
-            <button
-              class="advanced-toggle"
-              size="mini"
-              hover-class="tap-row--active"
-              :data-dash-advanced-toggle="c.key"
-              @click.stop="toggleCardHidden(c.key)"
-            >{{ hiddenCards.has(c.key) ? "显示" : "隐藏" }}</button>
-          </view>
-        </view>
-        <view class="advanced-actions" v-else>
+        <view class="advanced-actions">
           <button
             class="advanced-expand-btn"
             size="mini"
             hover-class="tap-row--active"
-            data-dash-advanced-expand
-            @click.stop="expandAdvancedCards"
-          >展开 {{ advancedCardCount }} 张进阶分析卡 ▼</button>
+            data-dash-advanced-trend
+            @click.stop="goTrendAnalysis"
+          >深度可视化分析</button>
+          <button
+            class="advanced-expand-btn"
+            size="mini"
+            hover-class="tap-row--active"
+            data-dash-advanced-tools
+            @click.stop="goDataTools"
+          >数据工具</button>
         </view>
       </view>
 
@@ -6177,32 +6147,44 @@ const overviewAllExpanded = computed(() =>
   OVERVIEW_GROUP_KEYS.every((k) => overviewOpenGroups.value.has(k))
 );
 
-function isOverviewGroupCollapsed(key: OverviewGroupKey): boolean {
-  if (activeTab.value !== "overview") return false;
-  return !overviewOpenGroups.value.has(key);
+/** 概览分组不再折叠：始终展开（用户明确禁止折叠套路） */
+function isOverviewGroupCollapsed(_key: OverviewGroupKey): boolean {
+  return false;
 }
 
-function expandOverviewGroup(key: OverviewGroupKey) {
-  overviewOpenGroups.value = new Set([...overviewOpenGroups.value, key]);
+function expandOverviewGroup(_key: OverviewGroupKey) {
+  /* no-op：已取消折叠 */
 }
 
 function jumpOverviewGroup(key: OverviewGroupKey) {
-  expandOverviewGroup(key);
-  if (typeof document !== "undefined") {
-    document.getElementById(`overview-${key}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  // 遗留兼容：改为进独立页 / Tab，禁止 scrollIntoView
+  if (key === "wangqian") {
+    uni.navigateTo({ url: "/pages/wangqian/wangqian" });
+    return;
+  }
+  if (key === "school") {
+    uni.switchTab({ url: "/pages/school/school" });
+    return;
+  }
+  if (key === "lpr") {
+    uni.navigateTo({ url: "/pages/macro-rates/macro-rates" });
+    return;
+  }
+  if (key === "transit") {
+    setDashTab("transit");
+    return;
+  }
+  if (key === "region" || key === "community") {
+    setDashTab("price");
   }
 }
 
 function toggleOverviewAll() {
-  if (overviewAllExpanded.value) {
-    overviewOpenGroups.value = new Set();
-  } else {
-    overviewOpenGroups.value = new Set(OVERVIEW_GROUP_KEYS);
-  }
+  /* no-op：已取消全部展开/收起 */
 }
 
-function onOverviewCardClick(key: OverviewGroupKey) {
-  if (isOverviewGroupCollapsed(key)) expandOverviewGroup(key);
+function onOverviewCardClick(_key: OverviewGroupKey) {
+  /* no-op：卡面不再靠点击展开 */
 }
 
 const overviewRegionSummary = computed(() => {
@@ -8291,43 +8273,12 @@ onShow(async () => {
   border-bottom: 1rpx solid var(--color-border);
 }
 
-.overview-jump-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8rpx;
-}
-
-.overview-jump,
-.overview-toggle-all {
+.overview-mode-toggle {
   margin: 0;
   border: 1rpx solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text-secondary);
   font-size: 22rpx;
-}
-
-.overview-toggle-all {
-  align-self: flex-start;
-}
-
-.overview-card--collapsed {
-  position: relative;
-  overflow: hidden;
-  max-height: 220rpx;
-}
-
-.overview-card--collapsed::after {
-  content: "展开完整数据";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 28rpx 0 12rpx;
-  text-align: center;
-  font-size: 21rpx;
-  color: var(--color-primary);
-  background: linear-gradient(180deg, transparent, var(--color-surface) 55%);
-  pointer-events: none;
 }
 
 .overview-card-summary {

@@ -229,20 +229,16 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(cardKeyAttrMatches.length).toBeGreaterThanOrEqual(15);
   });
 
-  it("v1.121.152 Batch 13：🔥 热门卡标签", () => {
+  it("v1.121.152 Batch 13：进阶卡 hot 标记保留在配置（列表已迁独立页）", () => {
     const dashSrc4 = readFileSync(
       resolve(__dirname, "../src/pages/dashboard/dashboard.vue"),
       "utf8"
     );
-    // 1. ADVANCED_CARDS 至少 4 张卡有 hot: true
     const hotMatches = dashSrc4.match(/hot:\s+true/g) || [];
     expect(hotMatches.length).toBeGreaterThanOrEqual(4);
-    // 2. template 渲染 🔥 热门 标签
-    expect(dashSrc4).toMatch(/🔥 热门/);
-    expect(dashSrc4).toMatch(/advanced-hot-tag/);
-    // 3. CSS 样式
-    expect(dashSrc4).toMatch(/\.advanced-hot-tag\s*\{/);
-    expect(dashSrc4).toMatch(/linear-gradient\(135deg/);
+    // 总览进阶区改为跳页，不再本页渲染热门列表
+    expect(dashSrc4).toContain("data-dash-advanced-trend");
+    expect(dashSrc4).toContain("data-dash-advanced-tools");
   });
 
   it("v1.121.151 Batch 12：trend-analysis 响应城市切换", () => {
@@ -322,29 +318,27 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(trendPath).toBe(true);
   });
 
-  it("dashboard.vue v1.121.147 Batch 8：精简/完整模式 + 进阶分析区块", () => {
-    // 1. 切换按钮存在
+  it("dashboard.vue：精简/完整模式 + 进阶分析进独立页（禁折叠）", () => {
     expect(dashSrc).toContain("data-dash-mode-toggle");
     expect(dashSrc).toContain("toggleFeaturedMode");
     expect(dashSrc).toContain("featuredMode");
     expect(dashSrc).toContain("🏠 精简模式");
     expect(dashSrc).toContain("📊 完整模式");
-    // 2. 进阶分析区块
     expect(dashSrc).toContain("data-dash-advanced-section");
     expect(dashSrc).toContain("ADVANCED_CARDS");
-    expect(dashSrc).toContain("advancedExpanded");
-    expect(dashSrc).toContain("expandAdvancedCards");
-    expect(dashSrc).toContain("data-dash-advanced-expand");
-    // 3. 至少 10 张进阶卡配置
+    expect(dashSrc).toContain("advancedCardCount");
+    expect(dashSrc).toContain("data-dash-advanced-tools");
+    expect(dashSrc).toContain("data-dash-advanced-trend");
+    expect(dashSrc).toContain("goDataTools");
+    expect(dashSrc).toContain("goTrendAnalysis");
+    expect(dashSrc).not.toContain("data-dash-advanced-expand");
+    expect(dashSrc).not.toContain("overview-toggle-all");
+    expect(dashSrc).toMatch(/isOverviewGroupCollapsed[\s\S]*?return false/);
     const advKeyMatches = dashSrc.match(/key:\s+"[a-z][a-z0-9-]+",\s+label:\s+"[^"]+"/g) || [];
     expect(advKeyMatches.length).toBeGreaterThanOrEqual(10);
-    // 4. CSS 样式
     expect(dashSrc).toContain(".advanced-section");
-    expect(dashSrc).toContain(".advanced-row");
     expect(dashSrc).toContain(".advanced-expand-btn");
-    // 5. localStorage 键
     expect(dashSrc).toContain("FEATURED_MODE_KEY");
-    expect(dashSrc).toContain("ADVANCED_EXPANDED_KEY");
     expect(dashSrc).toContain("loadUiState");
   });
 
