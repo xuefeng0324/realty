@@ -37,15 +37,41 @@
             <text class="kpi-value">{{ formatInventoryUnits(gzInventory.unsoldUnits) }}</text>
           </view>
           <view class="kpi">
-            <text class="kpi-label">当日签约</text>
+            <text class="kpi-label">当日签约住宅</text>
             <text class="kpi-value">{{ gzInventory.signedUnits }} 套</text>
           </view>
         </view>
+        <view
+          v-if="gzInventoryHasNonRes"
+          class="kpi-grid"
+          style="margin-top: 12rpx"
+          data-gz-inventory-nonres
+        >
+          <view class="kpi">
+            <text class="kpi-label">可售商业</text>
+            <text class="kpi-value">{{ formatInventoryUnits(gzInventory.availableCommercialUnits) }}</text>
+          </view>
+          <view class="kpi">
+            <text class="kpi-label">可售办公</text>
+            <text class="kpi-value">{{ formatInventoryUnits(gzInventory.availableOfficeUnits) }}</text>
+          </view>
+          <view class="kpi">
+            <text class="kpi-label">可售车位</text>
+            <text class="kpi-value">{{ formatInventoryUnits(gzInventory.availableParkingUnits) }}</text>
+          </view>
+        </view>
+        <view v-if="gzInventoryHasNonRes" class="summary muted" style="font-size: 22rpx">
+          未售 商业 {{ formatInventoryUnits(gzInventory.unsoldCommercialUnits) }}
+          · 办公 {{ formatInventoryUnits(gzInventory.unsoldOfficeUnits) }}
+          · 车位 {{ formatInventoryUnits(gzInventory.unsoldParkingUnits) }}
+          · 当日签约 商 {{ gzInventory.signedCommercialUnits }} / 办 {{ gzInventory.signedOfficeUnits }} / 车
+          {{ gzInventory.signedParkingUnits }}
+        </view>
         <view v-if="gzInventory.districts[0]" class="summary">
-          可售量最高：{{ gzInventory.districts[0].district }}
+          可售住宅最高：{{ gzInventory.districts[0].district }}
           {{ gzInventory.districts[0].availableUnits.toLocaleString() }} 套
         </view>
-        <view class="section-title">分区明细</view>
+        <view class="section-title">分区明细（住宅）</view>
         <view
           v-for="row in gzInventory.districts"
           :key="row.district"
@@ -57,7 +83,9 @@
           <text class="muted">未售 {{ row.unsoldUnits.toLocaleString() }}</text>
           <text class="muted">签约 {{ row.signedUnits }}</text>
         </view>
-        <view class="note">广州市住建局商品房销售统计。可售与未售为不同官方口径。</view>
+        <view class="note">
+          广州市住建局商品房销售统计。住宅 / 商业 / 办公 / 车位为同一接口分项；可售与未售为不同官方口径；≠挂牌价、≠网签均价。
+        </view>
       </view>
 
       <!-- 深圳计划入市 -->
@@ -243,7 +271,8 @@ import { onLoad } from "@dcloudio/uni-app";
 import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 import {
   getGzInventoryOverview,
-  getGzInventoryDayDelta
+  getGzInventoryDayDelta,
+  gzInventoryHasNonResidential
 } from "../../local/gzNewHouseInventory";
 import { assessGzInventoryFreshness } from "../../local/gzInventoryFreshness";
 import {
@@ -282,6 +311,7 @@ function selectCity(c: string) {
 
 const gzInventory = computed(() => (cityName.value === "广州" ? getGzInventoryOverview() : null));
 const gzInventoryDelta = computed(() => (gzInventory.value ? getGzInventoryDayDelta() : null));
+const gzInventoryHasNonRes = computed(() => gzInventoryHasNonResidential(gzInventory.value));
 const gzInventoryFresh = computed(() => assessGzInventoryFreshness(gzInventory.value?.date ?? null));
 const szPlannedSupply = computed(() => (cityName.value === "深圳" ? getLatestSzPlannedSupply() : null));
 const gzHousingPlan = computed(() => (cityName.value === "广州" ? getLatestGzHousingPlan() : null));

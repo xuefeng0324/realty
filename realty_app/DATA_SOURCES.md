@@ -82,7 +82,7 @@ App 因此把二手拆成「住宅 / 全部」两列都展示，不再互相覆�
 | 新房签约 | `GET https://zfcj.gz.gov.cn/ysqgk/Api/WebApi/mrxjspfqyxx.ashx` | 住宅 `zhuZaiTaoShu` / `zhuZaiArea`（按区） |
 
 - 入口页面：<https://zfcj.gz.gov.cn/zfcj/tjxx/spfxstjxx>
-- 同页面另有 `mrxjspfksxx`（可售）、`mrxjspfwsxx`（未售），已由 `crawl_gz_new_house_inventory.py` 写入 `gz_new_house_inventory.csv`
+- 同页面另有 `mrxjspfksxx`（可售）、`mrxjspfwsxx`（未售），已由 `crawl_gz_new_house_inventory.py` 写入 `gz_new_house_inventory.csv`（住宅 + **商业 / 办公 / 车位**分项）
 - 广州二手房月度统计为图片公告（存量房交易登记统计信息），**暂无日更 API**
 
 ### 2.3 CSV 字段
@@ -187,7 +187,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/nbs_industrial.csv` | `nbsIndustrial.ts` + 仪表盘「工业增加值」 | `scripts/crawl_nbs_industrial.py`（**月更 CI**） | 规上工业增加值当月同比/环比/累计同比 + 采矿/制造/公用分项；**≠房价**；可与 PMI 对照 |
 | `static/nbs_industrial_profit.csv` | `nbsIndustrialProfit.ts` + 仪表盘「工业企业利润」 | `scripts/crawl_nbs_industrial_profit.py`（**月更 CI**） | 规上工业企业累计利润/营收/利润率 + 三大门类利润同比；通常滞后约 1 个月；**≠房价** |
 
-| `static/gz_new_house_inventory.csv` | `gzNewHouseInventory.ts` + `gzInventoryFreshness.ts` | `scripts/crawl_gz_new_house_inventory.py`（**日更 CI** 随 `crawl-daily-wangqian`） | 广州新房可售/未售/签约分区库存；>3 天未更新时总览标明滞后 |
+| `static/gz_new_house_inventory.csv` | `gzNewHouseInventory.ts` + `gzInventoryFreshness.ts` + 供需页「广州新房库存」 | `scripts/crawl_gz_new_house_inventory.py`（**日更 CI** 随 `crawl-daily-wangqian`） | 广州新房**可售/未售/签约**分区；住宅列兼容旧名；**商业 / 办公 / 车位**分项（同源 `shangYe*` / `banGong*` / `cheWei*`）；>3 天未更新时标明滞后；≠挂牌价、≠网签均价 |
 | `static/seed/hospitals.csv` | `hospitalRanking.ts` + dashboard「🏥 医疗资源」 | （名录整理） | 三城医院名录；v1.121.12 起仪表盘展示三甲占比 / 分区密度 / 等级 Top |
 | `static/seed/hospitals_geo.csv` | `hospitalGeoAnalysis.ts` + 医疗卡坐标段 | （高德文本检索） | v1.121.15：置信度 / 地址分区 / 最近医院对 |
 | `static/seed/poi_commercial.csv` | `poiCommercialRanking.ts` + dashboard「🏪 周边商业」 | （高德周边） | v1.121.15：餐饮/银行/便利店与步行分 |

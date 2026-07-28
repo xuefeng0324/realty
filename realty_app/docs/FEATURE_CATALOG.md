@@ -25,6 +25,30 @@
 
 ---
 
+## 1b. 供需独立页 `pages/supply/supply`
+
+### F-SUPPLY-01 · 广州库存住宅 + 商业/办公/车位
+
+| 项 | 内容 |
+|----|------|
+| 入口 | 频道「供需」/ 金刚「库存」→ `/pages/supply/supply`（广州城） |
+| 风险 | L, U |
+| 对照 | [DATA_SOURCES.md](../DATA_SOURCES.md) 广州 `mrxjspfksxx` 等 |
+
+**期望**
+1. （L）可售/未售/签约住宅数字来自 CSV；商业/办公/车位来自同源接口分项，不为住宅之和  
+2. （U）有非住宅数据时展示 `data-gz-inventory-nonres` KPI；无数据时不硬凑假数  
+3. （L）历史日缺非住宅列时业态日环比不报虚假跳变  
+
+**不期望**
+1. 把商业/办公/车位标成挂牌价或网签均价  
+
+**自动化**
+- unit: `tests/gzNewHouseInventory.test.ts`
+- smoke: `tests/e2e/smoke_entry_supply.mjs`（进页路径；非住宅文案可选）
+
+---
+
 ## 1. 总览壳层 `pages/dashboard/dashboard`
 
 ### F-DASH-01 · 市场数据工作台（城市/周期/来源/仅本市）
@@ -527,6 +551,8 @@
 
 | 日期 | ID | 标题 | 发版 version | 备注 |
 |------|-----|------|--------------|------|
+| 2026-07-29 | F-SUPPLY-01 | 广州库存接入商业/办公/车位分项（同源可售接口） | 1.121.146 | ≠房价；供需页 KPI；历史日非住宅列可空 |
+| 2026-07-29 | F-ENTRY-01 | 总览首屏精简：次要入口迁设置「首页与分析」 | 1.121.145 | versionCode 266 |
 | 2026-07-29 | F-ENTRY-01 | 去掉概览折叠/滚锚点；进阶分析改跳独立页 | 1.121.144 | 禁折叠；versionCode 265 |
 | 2026-07-28 | F-ENTRY-01 | 频道/金刚改为独立页跳转：供需页 + 工具/宏观/网签/70城 navigate；概览归档库存土地卡 | 1.121.143 | DASHBOARD_ENTRY_IA；禁本页长滚；smoke_entry_supply |
 | 2026-07-26 | F-PAGES-MACRO-06 | 第二批迁移：迁 4 张广东卡 → macro-region | 1.121.130 | gd-real-estate-brief / gd-economy / gd-fa-investment / gd-construction |
