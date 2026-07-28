@@ -257,6 +257,108 @@
           </view>
         </template>
       </view>
+
+      <!-- 广东 · 规上工业 -->
+      <view v-if="gdIndustrial" class="card macro-card" data-gd-industrial>
+        <view class="macro-kicker">广东 · 工业</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">规上工业生产</view>
+          <view class="muted" style="font-size: 22rpx">{{ gdIndustrial.periodLabel }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <MacroKpiCell
+            label="'增加值同比'"
+            :value="formatMacroPct(gdIndustrial.industryYoyPct)"
+            :valueTrendClass="macroTrendBand(gdIndustrial.industryYoyPct)"
+            :sub="formatMacroPct(gdIndustrial.manufacturingYoyPct)" />
+          <MacroKpiCell
+            label="'采矿业'"
+            :value="formatMacroPct(gdIndustrial.miningYoyPct)"
+            :valueTrendClass="macroTrendBand(gdIndustrial.miningYoyPct)" />
+          <MacroKpiCell
+            label="'电力热力燃气水'"
+            :value="formatMacroPct(gdIndustrial.utilitiesYoyPct)"
+            :valueTrendClass="macroTrendBand(gdIndustrial.utilitiesYoyPct)" />
+          <MacroKpiCell
+            label="'电子/电气/汽车'"
+            :value="formatMacroPct(gdIndustrial.electronicsYoyPct)"
+            :sub="formatMacroPct(gdIndustrial.autoYoyPct)"
+            :valueTrendClass="macroTrendBand(gdIndustrial.electronicsYoyPct)" />
+        </view>
+        <view class="macro-note">
+          {{ gdIndustrial.sourceOrg }} · {{ gdIndustrial.publishDate || gdIndustrial.periodLabel }} · 增加值同比 · ≠房价
+        </view>
+        <button
+          v-if="gdIndustrialTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-gd-industrial-series-toggle
+          :aria-expanded="gdIndustrialSeriesExpanded"
+          @click="gdIndustrialSeriesExpanded = !gdIndustrialSeriesExpanded"
+        >
+          {{ gdIndustrialSeriesExpanded ? "收起多期" : "多期序列" }}
+        </button>
+        <template v-if="gdIndustrialSeriesExpanded">
+          <view class="macro-series" data-gd-industrial-series-detail>
+            增加值同比
+            <text v-for="(p, i) in gdIndustrialTrend" :key="'gi-' + p.period">
+              {{ p.periodLabel }} {{ formatMacroPct(p.industryYoyPct) }}<text v-if="i < gdIndustrialTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
+
+      <!-- 广东 · 消费品 -->
+      <view v-if="gdRetail" class="card macro-card" data-gd-retail>
+        <view class="macro-kicker">广东 · 消费</view>
+        <view class="row-between">
+          <view class="card-title" style="margin-bottom: 0">消费品市场</view>
+          <view class="muted" style="font-size: 22rpx">{{ gdRetail.periodLabel }}</view>
+        </view>
+        <view class="stats70-grid" style="margin-top: 16rpx">
+          <MacroKpiCell
+            label="'社消零同比'"
+            :value="formatMacroPct(gdRetail.retailYoyPct)"
+            :valueTrendClass="macroTrendBand(gdRetail.retailYoyPct)"
+            :sub="gdRetail.retailTotalYi > 0 ? formatMacro100m(gdRetail.retailTotalYi) : ''" />
+          <MacroKpiCell
+            label="'城镇/乡村'"
+            :value="formatMacroPct(gdRetail.urbanYoyPct)"
+            :sub="formatMacroPct(gdRetail.ruralYoyPct)"
+            :valueTrendClass="macroTrendBand(gdRetail.urbanYoyPct)" />
+          <MacroKpiCell
+            label="'限上商品/餐饮'"
+            :value="formatMacroPct(gdRetail.goodsRetailYoyPct)"
+            :sub="formatMacroPct(gdRetail.cateringYoyPct)"
+            :valueTrendClass="macroTrendBand(gdRetail.goodsRetailYoyPct)" />
+          <MacroKpiCell
+            label="'网上零售/通讯'"
+            :value="formatMacroPct(gdRetail.onlineRetailYoyPct)"
+            :sub="formatMacroPct(gdRetail.communicationsYoyPct)"
+            :valueTrendClass="macroTrendBand(gdRetail.onlineRetailYoyPct)" />
+        </view>
+        <view class="macro-note">
+          {{ gdRetail.sourceOrg }} · {{ gdRetail.publishDate || gdRetail.periodLabel }} · 社消零口径 · ≠房价
+        </view>
+        <button
+          v-if="gdRetailTrend.length > 1"
+          class="gz-inventory-toggle"
+          size="mini"
+          data-gd-retail-series-toggle
+          :aria-expanded="gdRetailSeriesExpanded"
+          @click="gdRetailSeriesExpanded = !gdRetailSeriesExpanded"
+        >
+          {{ gdRetailSeriesExpanded ? "收起多期" : "多期序列" }}
+        </button>
+        <template v-if="gdRetailSeriesExpanded">
+          <view class="macro-series" data-gd-retail-series-detail>
+            社消零同比
+            <text v-for="(p, i) in gdRetailTrend" :key="'gr-' + p.period">
+              {{ p.periodLabel }} {{ formatMacroPct(p.retailYoyPct) }}<text v-if="i < gdRetailTrend.length - 1"> · </text>
+            </text>
+          </view>
+        </template>
+      </view>
     </view>
   </view>
 </template>
@@ -266,14 +368,16 @@ import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
 /**
  * 宏观 · 区域子页（macro-region.vue）。
  *
- * 4 张广东卡从 dashboard 总览迁入（详见 docs/DASHBOARD_OVERVIEW_BUDGET.md §2）：
+ * 广东卡从 dashboard 总览迁入（详见 docs/DASHBOARD_OVERVIEW_BUDGET.md §2）：
  *   - 广东 · 房地产（市场运行简况）
  *   - 广东 · 经济运行
  *   - 广东 · 固定资产投资
  *   - 广东 · 建筑业生产运行
+ *   - 广东 · 规上工业生产（统计局专栏）
+ *   - 广东 · 消费品市场（统计局专栏）
  *
  * 共享 helper：formatMacro100m / formatMacroPct / formatMacroArea / formatMacroYuan / macroTrendClass
- * 数据源：realty_app/src/local/store.ts 的 gdMacro 模块
+ * 数据源：realty_app/src/local/* 对应模块
  */
 import { computed, ref } from "vue";
 import MacroKpiCell from "../../components/MacroKpiCell.vue";
@@ -302,12 +406,24 @@ import {
   getGdEconomyTrend,
   type GdEconomyRow
 } from "../../local/gdEconomy";
+import {
+  getLatestGdIndustrial,
+  getGdIndustrialTrend,
+  type GdIndustrialRow
+} from "../../local/gdIndustrial";
+import {
+  getLatestGdRetail,
+  getGdRetailTrend,
+  type GdRetailRow
+} from "../../local/gdRetail";
 
-// 5 个多期展开 ref
+// 多期展开 ref
 const gdBriefSeriesExpanded = ref(false);
 const gdFaSeriesExpanded = ref(false);
 const gdConstructionSeriesExpanded = ref(false);
 const gdEconomySeriesExpanded = ref(false);
+const gdIndustrialSeriesExpanded = ref(false);
+const gdRetailSeriesExpanded = ref(false);
 
 // 4 张卡的 state（10 个 computed）
 const gdRealEstateBrief = computed<GdRealEstateBriefRow | null>(() => getLatestGdRealEstateBrief());
@@ -333,4 +449,9 @@ const gdFaTrend = computed(() => getGdFaInvestmentTrend(6));
 const gdConstruction = computed<GdConstructionRow | null>(() => getLatestGdConstruction());
 const gdConstructionTrend = computed(() => getGdConstructionTrend(6));
 const gdConstructionHousingShare = computed(() => gdHousingSharePct(gdConstruction.value));
+
+const gdIndustrial = computed<GdIndustrialRow | null>(() => getLatestGdIndustrial());
+const gdIndustrialTrend = computed(() => getGdIndustrialTrend(6));
+const gdRetail = computed<GdRetailRow | null>(() => getLatestGdRetail());
+const gdRetailTrend = computed(() => getGdRetailTrend(6));
 </script>

@@ -66,7 +66,7 @@ describe("宏观 5 子页骨架 PAGES_MACRO_*", () => {
     );
   });
 
-  it("macro-region 子页迁入了 4 张广东卡（数据 + 模板）", () => {
+  it("macro-region 子页迁入了广东卡（数据 + 模板）", () => {
     const src = readFileSync(
       resolve(pagesDir, "macro-region/macro-region.vue"),
       "utf8"
@@ -75,8 +75,12 @@ describe("宏观 5 子页骨架 PAGES_MACRO_*", () => {
     expect(src).toContain("data-gd-economy");
     expect(src).toContain("data-gd-fa-investment");
     expect(src).toContain("data-gd-construction");
+    expect(src).toContain("data-gd-industrial");
+    expect(src).toContain("data-gd-retail");
     expect(src).toContain("getLatestGdRealEstateBrief");
     expect(src).toContain("getLatestGdEconomy");
+    expect(src).toContain("getLatestGdIndustrial");
+    expect(src).toContain("getLatestGdRetail");
   });
 
   it("macro-industry 子页迁入了 8 张产业卡（数据 + 模板）", () => {
