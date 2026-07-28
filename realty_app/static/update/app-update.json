@@ -1,12 +1,12 @@
 {
-  "versionName": "1.121.150",
-  "versionCode": "271",
-  "publishedAt": "2026-07-28T20:04:32Z",
+  "versionName": "1.121.151",
+  "versionCode": "272",
+  "publishedAt": "2026-07-28T20:09:57Z",
   "force": false,
-  "notes": "\ufefffeat(macro): NBS\u5de5\u4e1a\u901a\u7a3f\u8865\u6c34\u6ce5\u94a2\u6750\u73bb\u7483\u7c97\u94a2\u4ea7\u91cf\n\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n2026-07-25-v1.119.0-\u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730map-view: v1.119.0 \u00b7 \u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730 map-view\n2026-07-25-v1.120.0-\u4fee\u590dOTA\u68c0\u67e5\u66f4\u65b0fetch: v1.120.0 \u00b7 \u4fee\u590d OTA \u68c0\u67e5\u66f4\u65b0\uff08fetch is not a function\uff09\n",
+  "notes": "\ufefffeat(macro): NBS PPI\u8865\u5efa\u6750\u8d2d\u8fdb\u4e0e\u9ed1\u8272\u91d1\u5c5e\u51b6\u70bc\u5206\u9879\n\n2026-07-25-v1.121.9-OTA\u9a8c\u8bc1130: v1.121.9 \u2014 OTA \u9a8c\u8bc1\u5305 130\n2026-07-25-v1.108.0-\u533b\u9662\u8d44\u6e90\u6d3e\u751f: v1.108.0 \u533b\u9662\u8d44\u6e90\u6d3e\u751f\uff08\u4ec5\u6570\u636e\u5c42\uff09\n2026-07-25-v1.109.0-\u793e\u533a\u603b\u4ef7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f: v1.109.0 \u2014 \u793e\u533a\u603b\u4ef7\u00d7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/271/app.wgt",
-    "sha256": "0af89ea6eac50b982880442719f776d06b5a3d7722a382afad14bdeaa71152d4"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/272/app.wgt",
+    "sha256": "e43adfe764d283d95bfd65d7c50d5d76e32fb58d2d676c320567c0ebeeedbc09"
   },
   "ios": {
     "available": false,
