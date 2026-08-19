@@ -29,6 +29,8 @@ describe("theme binding guard", () => {
     const missing: string[] = [];
     for (const file of pageFiles) {
       const src = readFileSync(file, "utf8");
+      const usesPageShell = src.includes("<PageShell") && src.includes("PageShell from");
+      if (usesPageShell) continue;
       if (!src.includes(':data-realty-theme="realtyTheme"')) missing.push(file);
       if (!src.includes("'realty-theme-' + realtyTheme")) missing.push(file);
       if (!src.includes('resolvedThemeRef as realtyTheme')) missing.push(file);
@@ -46,5 +48,12 @@ describe("theme binding guard", () => {
     const theme = readFileSync(resolve(__dirname, "../src/utils/theme.ts"), "utf8");
     expect(theme).toContain("export const resolvedThemeRef");
     expect(theme).toMatch(/resolvedThemeRef\.value\s*=\s*resolved/);
+  });
+
+  it("PageShell 将响应式主题和完整变量表绑定到页面根", () => {
+    const shell = readFileSync(resolve(__dirname, "../src/components/PageShell.vue"), "utf8");
+    expect(shell).toContain(':data-realty-theme="realtyTheme"');
+    expect(shell).toContain("THEME_CSS_VARS[realtyTheme.value]");
+    expect(shell).toContain("`realty-theme-${realtyTheme}`");
   });
 });

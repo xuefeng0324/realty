@@ -7,7 +7,10 @@ const read = (path: string) => readFileSync(resolve(process.cwd(), path), "utf8"
 describe("dashboard visual system", () => {
   it("uses a centered content width and shared surface tokens", () => {
     const app = read("src/App.vue");
-    expect(app).toContain("max-width: 1180px");
+    const foundation = read("src/styles/foundation.scss");
+    expect(app).toContain('@use "./styles/foundation.scss"');
+    expect(foundation).toContain("--content-max-width: 1180px");
+    expect(foundation).toContain("max-width: var(--content-max-width)");
     expect(app).toContain("--shadow-card:");
     expect(app).toContain("radial-gradient");
   });

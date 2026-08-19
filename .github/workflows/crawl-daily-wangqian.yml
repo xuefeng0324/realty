@@ -36,7 +36,8 @@ jobs:
         run: |
           set -o pipefail   # 否则 python 失败会被 tee 吞掉导致假成功
           cd realty_app
-          python scripts/crawl_daily_wangqian.py fetch --merge 2>&1 | tee wangqian.log
+          # fetch 默认按主键 merge；只有显式 --no-merge 才整表重写。
+          python scripts/crawl_daily_wangqian.py fetch 2>&1 | tee wangqian.log
           python scripts/publish_wangqian_meta.py
           # 周聚合须随 daily 重建，否则仪表盘网签热度/周环比落后（见 HOUSING_PRICE_ACCEPTANCE Phase B）
           python scripts/build_wangqian_heatmap.py

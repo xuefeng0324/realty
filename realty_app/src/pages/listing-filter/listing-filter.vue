@@ -1,6 +1,113 @@
 <template>
-  <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
+  <view
+    class="page find-hub-page"
+    :data-realty-theme="realtyTheme"
+    :class="['realty-theme-' + realtyTheme, 'find-mode-' + activeFindMode]"
+  >
     <view class="container">
+      <view class="find-hub-head" data-find-hub>
+        <view class="find-hub-title-row">
+          <view>
+            <text class="find-hub-eyebrow">DISCOVER</text>
+            <view class="find-hub-title">找房</view>
+            <text class="find-hub-subtitle">房源、小区和学校，一个入口查清楚</text>
+          </view>
+          <button class="find-hub-city" @click="pickCity">
+            <text class="find-hub-city-dot" />{{ currentCityLabel || "选城市" }}<text>⌄</text>
+          </button>
+        </view>
+
+        <view class="find-hub-segments" data-find-segments>
+          <button
+            v-for="mode in FIND_HUB_MODES"
+            :key="mode.key"
+            class="find-hub-segment"
+            :class="{ 'find-hub-segment--active': activeFindMode === mode.key }"
+            :data-find-mode="mode.key"
+            @click="setFindMode(mode.key)"
+          >
+            <text class="find-hub-segment-icon">{{ mode.icon }}</text>
+            <text>{{ mode.label }}</text>
+          </button>
+        </view>
+
+        <view class="find-hub-search">
+          <text class="find-hub-search-icon">⌕</text>
+          <input
+            v-model="keyword"
+            class="find-hub-search-input"
+            type="text"
+            confirm-type="search"
+            :placeholder="findSearchPlaceholder"
+            @confirm="submitFindSearch"
+          />
+          <button class="find-hub-search-btn" size="mini" @click="submitFindSearch">搜索</button>
+        </view>
+        <view class="find-hub-caption">
+          <text>{{ findModeCaption }}</text>
+          <text v-if="activeFindMode !== 'listing'">{{ findResultCount }} 个结果</text>
+        </view>
+      </view>
+
+      <view v-if="activeFindMode !== 'listing'" class="card find-entity-panel" data-find-entity-list>
+        <template v-if="activeFindMode === 'community'">
+          <view class="find-entity-heading">
+            <view class="card-title">小区</view>
+            <text class="muted">按当前城市与关键词筛选</text>
+          </view>
+          <EmptyState
+            v-if="filteredCommunities.length === 0"
+            icon="区"
+            title="没有找到小区"
+            desc="换个关键词，或切换城市后再试。"
+          />
+          <view
+            v-for="community in filteredCommunities"
+            :key="community.communityId"
+            class="find-entity-row"
+            data-community-card
+            @click="goCommunity(community.communityId)"
+          >
+            <view class="find-entity-avatar find-entity-avatar--community">区</view>
+            <view class="find-entity-main">
+              <view class="find-entity-name">{{ community.communityName }}</view>
+              <text class="find-entity-meta">{{ community.districtName || "行政区待补" }} · {{ communityListingCount(community.communityId) }} 套在库房源</text>
+            </view>
+            <text class="find-entity-arrow">›</text>
+          </view>
+        </template>
+        <template v-else>
+          <view class="find-entity-heading">
+            <view class="card-title">学校</view>
+            <text class="muted">保留原学校详情深链</text>
+          </view>
+          <EmptyState
+            v-if="filteredSchools.length === 0"
+            icon="校"
+            title="没有找到学校"
+            desc="可尝试学校简称、实验、外国语等关键词。"
+          />
+          <view
+            v-for="school in filteredSchools"
+            :key="school.schoolId"
+            class="find-entity-row"
+            data-school-card
+            @click="goSchool(school.schoolId)"
+          >
+            <view class="find-entity-avatar find-entity-avatar--school">校</view>
+            <view class="find-entity-main">
+              <view class="find-entity-name">{{ school.displayName || school.officialName }}</view>
+              <view class="find-entity-tags">
+                <text v-if="school.schoolType" class="find-entity-tag">{{ school.schoolType }}</text>
+                <text v-if="school.provinceKeyFlag || school.cityKeyFlag" class="find-entity-tag find-entity-tag--key">重点</text>
+                <text v-if="school.sourceKind === 'OFFICIAL'" class="find-entity-tag find-entity-tag--official">官方目录</text>
+              </view>
+            </view>
+            <text class="find-entity-arrow">›</text>
+          </view>
+        </template>
+      </view>
+
       <!-- 筛选器 -->
       <view class="card">
         <view class="card-title">筛选</view>
@@ -388,7 +495,12 @@ import { computed, onMounted, onUnmounted, ref } from "vue";
 import { SNAPSHOT_UPDATED_EVENT } from "../../config";
 import { onLoad, onShow } from "@dcloudio/uni-app";
 import { filterListings } from "../../local/queries";
-import { takePendingListingQuery } from "../../local/homeEntry";
+import {
+  takePendingFindMode,
+  takePendingListingQuery,
+  takePendingSchoolQuery,
+  type FindHubMode
+} from "../../local/homeEntry";
 import {
   summarizeListingFreshnessByCity,
   getFreshestCommunityTopN,
@@ -421,6 +533,13 @@ import { MAP_BEDROOM_BANDS, type MapBedroomBand } from "../../local/mapFind";
 import * as store from "../../local/store";
 
 const app = useAppStore();
+
+const FIND_HUB_MODES: ReadonlyArray<{ key: FindHubMode; label: string; icon: string }> = [
+  { key: "listing", label: "房源", icon: "住" },
+  { key: "community", label: "小区", icon: "区" },
+  { key: "school", label: "学校", icon: "校" }
+];
+const activeFindMode = ref<FindHubMode>("listing");
 
 const cities = ref<CityItem[]>([]);
 const periods = ref<string[]>([]);
@@ -525,6 +644,65 @@ const items = ref<ListingItem[]>([]);
 const total = ref(0);
 const errorMsg = ref("");
 const hasMore = computed(() => items.value.length < total.value);
+
+const findSearchPlaceholder = computed(() => {
+  if (activeFindMode.value === "community") return "搜索小区名或行政区";
+  if (activeFindMode.value === "school") return "搜索学校名、类型";
+  return "搜索房源标题、小区或行政区";
+});
+
+const findModeCaption = computed(() => {
+  if (activeFindMode.value === "community") return "先看小区，再比较周边房源";
+  if (activeFindMode.value === "school") return "查学校信息与关联详情";
+  return "组合筛选总价、面积、户型与来源";
+});
+
+const filteredCommunities = computed(() => {
+  const q = keyword.value.trim().toLocaleLowerCase();
+  return store
+    .getCommunitiesByCity(app.cityId)
+    .filter((row) => {
+      if (!q) return true;
+      return `${row.communityName} ${row.districtName ?? ""}`.toLocaleLowerCase().includes(q);
+    })
+    .slice(0, 100);
+});
+
+const filteredSchools = computed(() => {
+  const q = keyword.value.trim().toLocaleLowerCase();
+  return store
+    .getSchoolsByCity(app.cityId)
+    .filter((row) => {
+      if (!q) return true;
+      return `${row.displayName ?? ""} ${row.officialName} ${row.schoolType ?? ""}`
+        .toLocaleLowerCase()
+        .includes(q);
+    })
+    .slice(0, 100);
+});
+
+const findResultCount = computed(() =>
+  activeFindMode.value === "community"
+    ? filteredCommunities.value.length
+    : filteredSchools.value.length
+);
+
+function setFindMode(mode: FindHubMode): void {
+  activeFindMode.value = mode;
+  if (mode === "listing" && metaReady.value) void applyFilter(true);
+}
+
+function submitFindSearch(): void {
+  if (activeFindMode.value === "listing") void applyFilter(true);
+}
+
+function communityListingCount(communityId: number): number {
+  return store.getListingsByCommunity(communityId).length;
+}
+
+function goSchool(id: number): void {
+  uni.navigateTo({ url: "/pages/school-detail/school-detail?id=" + id });
+}
 
 // 内置 popup（替代 uni-app picker，跨平台一致）
 const sheet = ref<{
@@ -856,14 +1034,30 @@ onLoad((q: any) => {
   if (q?.communityId) {
     filterCommunityId.value = Number(q.communityId);
   }
+  if (q?.mode === "listing" || q?.mode === "community" || q?.mode === "school") {
+    activeFindMode.value = q.mode;
+  }
 });
 
 onShow(async () => {
-  const pending = takePendingListingQuery();
-  if (!pending) return;
-  keyword.value = pending;
-  if (!metaReady.value) return;
-  await applyFilter(true);
+  const pendingMode = takePendingFindMode();
+  const pendingSchool = takePendingSchoolQuery();
+  const pendingListing = takePendingListingQuery();
+  if (pendingMode) activeFindMode.value = pendingMode;
+  if (pendingSchool) {
+    activeFindMode.value = "school";
+    keyword.value = pendingSchool;
+  } else if (pendingListing) {
+    activeFindMode.value = "listing";
+    keyword.value = pendingListing;
+  }
+  if (
+    activeFindMode.value === "listing" &&
+    metaReady.value &&
+    (pendingMode === "listing" || !!pendingListing)
+  ) {
+    await applyFilter(true);
+  }
 });
 
 onMounted(async () => {
@@ -885,6 +1079,301 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.find-hub-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.1), transparent 32%),
+    var(--color-bg, #f4f7f6);
+}
+
+.find-mode-community .container > :not(.find-hub-head):not(.find-entity-panel),
+.find-mode-school .container > :not(.find-hub-head):not(.find-entity-panel) {
+  display: none !important;
+}
+
+.find-hub-head {
+  padding: 32rpx 30rpx 26rpx;
+  border: 1rpx solid var(--color-border, rgba(15, 118, 110, 0.12));
+  border-radius: 30rpx;
+  background:
+    radial-gradient(circle at 92% 0%, rgba(56, 189, 248, 0.16), transparent 42%),
+    var(--color-panel, #fff);
+  box-shadow: 0 16rpx 44rpx rgba(15, 48, 42, 0.08);
+}
+
+.find-hub-title-row,
+.find-hub-caption,
+.find-entity-heading,
+.find-entity-row,
+.find-entity-tags {
+  display: flex;
+  align-items: center;
+}
+
+.find-hub-title-row,
+.find-hub-caption,
+.find-entity-heading {
+  justify-content: space-between;
+}
+
+.find-hub-eyebrow {
+  display: block;
+  color: #0f9880;
+  font-size: 18rpx;
+  font-weight: 900;
+  letter-spacing: 3rpx;
+}
+
+.find-hub-title {
+  margin-top: 4rpx;
+  color: var(--color-heading, #102b27);
+  font-size: 44rpx;
+  font-weight: 900;
+  letter-spacing: -2rpx;
+}
+
+.find-hub-subtitle {
+  display: block;
+  margin-top: 8rpx;
+  color: var(--color-muted, #6b807c);
+  font-size: 21rpx;
+}
+
+.find-hub-city,
+.find-hub-segment,
+.find-hub-search-btn {
+  box-sizing: border-box;
+  margin: 0;
+  border: 0;
+  line-height: 1;
+}
+
+.find-hub-city::after,
+.find-hub-segment::after,
+.find-hub-search-btn::after {
+  border: 0;
+}
+
+.find-hub-city {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  min-height: 62rpx;
+  padding: 0 18rpx;
+  border: 1rpx solid rgba(15, 152, 128, 0.16);
+  border-radius: 999rpx;
+  color: #0f766e;
+  background: rgba(16, 185, 129, 0.08);
+  font-size: 23rpx;
+}
+
+.find-hub-city-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 6rpx rgba(16, 185, 129, 0.12);
+}
+
+.find-hub-segments {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10rpx;
+  margin-top: 28rpx;
+  padding: 8rpx;
+  border-radius: 20rpx;
+  background: var(--color-soft, #eef4f2);
+}
+
+.find-hub-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  min-height: 68rpx;
+  padding: 0 12rpx;
+  border-radius: 15rpx;
+  color: var(--color-muted, #667c77);
+  background: transparent;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.find-hub-segment--active {
+  color: #087565;
+  background: var(--color-panel, #fff);
+  box-shadow: 0 6rpx 18rpx rgba(11, 84, 72, 0.1);
+}
+
+.find-hub-segment-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34rpx;
+  height: 34rpx;
+  border-radius: 10rpx;
+  color: #fff;
+  background: linear-gradient(135deg, #10b981, #0ea5e9);
+  font-size: 18rpx;
+}
+
+.find-hub-search {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  height: 82rpx;
+  margin-top: 20rpx;
+  padding: 0 10rpx 0 22rpx;
+  border: 1rpx solid var(--color-border, #dce7e4);
+  border-radius: 20rpx;
+  background: var(--color-soft, #f5f8f7);
+}
+
+.find-hub-search-icon {
+  color: #0f8b76;
+  font-size: 34rpx;
+  transform: rotate(-15deg);
+}
+
+.find-hub-search-input {
+  flex: 1;
+  min-width: 0;
+  height: 70rpx;
+  color: var(--color-heading, #17322d);
+  font-size: 25rpx;
+}
+
+.find-hub-search-btn {
+  min-width: 96rpx;
+  min-height: 60rpx;
+  padding: 0 20rpx;
+  border-radius: 16rpx;
+  color: #fff;
+  background: linear-gradient(135deg, #059669, #0d9488);
+  font-size: 22rpx;
+  font-weight: 800;
+}
+
+.find-hub-caption {
+  margin-top: 15rpx;
+  color: var(--color-muted, #6b807c);
+  font-size: 20rpx;
+}
+
+.find-entity-panel {
+  overflow: hidden;
+  padding: 26rpx 28rpx;
+  border-radius: 28rpx;
+}
+
+.find-entity-heading {
+  margin-bottom: 10rpx;
+}
+
+.find-entity-heading .muted {
+  font-size: 20rpx;
+}
+
+.find-entity-row {
+  gap: 20rpx;
+  min-height: 116rpx;
+  padding: 19rpx 0;
+  border-top: 1rpx solid var(--color-border, #e9efed);
+}
+
+.find-entity-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 22rpx;
+  flex-shrink: 0;
+  font-size: 23rpx;
+  font-weight: 900;
+}
+
+.find-entity-avatar--community {
+  color: #1d4ed8;
+  background: #e6efff;
+}
+
+.find-entity-avatar--school {
+  color: #a16207;
+  background: #fff1cb;
+}
+
+.find-entity-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.find-entity-name {
+  overflow: hidden;
+  color: var(--color-heading, #17322d);
+  font-size: 27rpx;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.find-entity-meta {
+  display: block;
+  overflow: hidden;
+  margin-top: 9rpx;
+  color: var(--color-muted, #6b807c);
+  font-size: 21rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.find-entity-arrow {
+  color: var(--color-muted, #8da09c);
+  font-size: 38rpx;
+}
+
+.find-entity-tags {
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-top: 10rpx;
+}
+
+.find-entity-tag {
+  padding: 6rpx 10rpx;
+  border-radius: 8rpx;
+  color: #475569;
+  background: var(--color-soft, #eef3f2);
+  font-size: 18rpx;
+}
+
+.find-entity-tag--key {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.12);
+}
+
+.find-entity-tag--official {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+@media (min-width: 700px) {
+  .find-hub-page .container {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 340px) {
+  .find-hub-head {
+    padding-right: 22rpx;
+    padding-left: 22rpx;
+  }
+  .find-hub-title { font-size: 38rpx; }
+  .find-hub-subtitle { max-width: 340rpx; }
+  .find-hub-city { padding: 0 12rpx; }
+  .find-hub-segment { gap: 6rpx; }
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

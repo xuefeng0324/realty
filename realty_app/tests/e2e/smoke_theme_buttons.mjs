@@ -29,28 +29,32 @@ try {
   if (await page.getByText("保存", { exact: true }).count() !== 1) issues.push("高级设置展开后缺少保存按钮");
   if (await page.getByText("启动时自动检查热更新", { exact: false }).count() !== 1) issues.push("关于区域未说明启动自动检查更新");
 
-  await page.goto(`${BASE_URL}/#/pages/dashboard/dashboard`, { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(1800);
-  await page.locator('[data-home-king="settings"]').click({ force: true });
-  await page.waitForTimeout(500);
-  if (!page.url().includes("#/pages/settings/settings")) {
-    issues.push(`数据设置按钮跳转错误: ${page.url()}`);
+  const tabLabels = (await page.locator(".uni-tabbar__item:visible").allTextContents())
+    .map((text) => text.trim())
+    .filter(Boolean);
+  for (const label of ["首页", "找房", "地图", "行情", "我的"]) {
+    if (!tabLabels.some((text) => text.includes(label))) issues.push(`原生 TabBar 缺少“${label}”`);
   }
 
-  await page.goto(`${BASE_URL}/#/pages/dashboard/dashboard`, { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(1800);
-  const nextButton = page.getByText("下一周 ›", { exact: true });
-  const nextDisabled = await nextButton.evaluate((el) =>
-    el.hasAttribute("disabled") || el.closest("[disabled]") !== null
+  const homeTab = page.locator(".uni-tabbar__item:visible").filter({ hasText: "首页" });
+  await homeTab.click({ force: true });
+  await page.waitForURL((url) =>
+    url.toString().includes("/pages/dashboard/dashboard") || url.hash === "#/"
   );
-  if (!nextDisabled) issues.push("最新周期的下一周按钮应禁用");
+  await page.locator(".home-v122-shell:visible").waitFor();
+  await page.locator('[data-home-king="market"]:visible').click();
+  await page.waitForURL((url) => url.toString().includes("/pages/market/market"));
+  await page.locator(".segmented-tabs__item:visible").first().waitFor();
+  if ((await page.locator(".segmented-tabs__item:visible").count()) !== 4) {
+    issues.push("首页行情入口未到达四分类聚合页");
+  }
 
   if (issues.length > 0) {
     console.error(`${issues.length} 失败 / 0 通过`);
     for (const issue of issues) console.error(`- ${issue}`);
     process.exitCode = 1;
   } else {
-    console.log("总计: 8 通过 / 0 失败");
+    console.log("总计: 主题切换、持久化、五栏与行情入口通过");
   }
 } finally {
   await browser.close();

@@ -27,6 +27,9 @@
               <text v-if="school.provinceKeyFlag" class="profile-tag profile-tag--success">省重点标记</text>
               <text v-if="school.cityKeyFlag" class="profile-tag profile-tag--warn">市重点标记</text>
             </view>
+            <view class="school-favorite-row">
+              <FavoriteButton v-if="schoolLibraryItem" :item="schoolLibraryItem" />
+            </view>
           </view>
           <view class="score-ring" :class="scoreBand">
             <text class="score-value">{{ Math.round(score.trend_score_0_100) }}</text>
@@ -103,13 +106,29 @@ import { getCityById, getSchoolById } from "../../local/store";
 import type { LocalSchool } from "../../local/types";
 import type { SchoolFutureScoreResponse } from "../../api/contracts";
 import { toErrorMessage } from "../../utils/errorMessage";
+import FavoriteButton from "../../components/FavoriteButton.vue";
+import type { UserLibraryEntityInput } from "../../local/userLibrary";
+import { useUserLibraryStore } from "../../store/userLibrary";
 
 const school = ref<LocalSchool | null>(null);
 const score = ref<SchoolFutureScoreResponse | null>(null);
 const loading = ref(true);
 const errorMsg = ref("");
+const userLibrary = useUserLibraryStore();
 
 const cityName = computed(() => school.value ? (getCityById(school.value.cityId)?.cityName || "城市未标注") : "");
+const schoolLibraryItem = computed<UserLibraryEntityInput | null>(() => {
+  const item = school.value;
+  if (!item) return null;
+  return {
+    type: "school",
+    id: item.schoolId,
+    title: item.displayName || item.officialName,
+    city: cityName.value,
+    route: "/pages/school-detail/school-detail",
+    query: { id: item.schoolId }
+  };
+});
 const confidencePercent = computed(() => Math.round((score.value?.confidence_score ?? 0) * 100));
 const fallbackCount = computed(() => score.value?.feature_contrib_json?.missing_fallbacks?.length ?? 0);
 const scoreBand = computed(() => {
@@ -134,6 +153,9 @@ async function loadSchool(id: number) {
     if (!item) throw new Error("未找到该学校，请返回后重新搜索");
     school.value = item;
     score.value = await getSchoolFutureScore({ schoolId: id });
+    if (schoolLibraryItem.value) {
+      userLibrary.recordHistory(schoolLibraryItem.value);
+    }
   } catch (e) {
     school.value = null;
     score.value = null;
@@ -144,7 +166,7 @@ async function loadSchool(id: number) {
 }
 
 function goBack() {
-  uni.navigateBack({ fail: () => uni.switchTab({ url: "/pages/school/school" }) });
+  uni.navigateBack({ fail: () => uni.navigateTo({ url: "/pages/school/school" }) });
 }
 
 function goDashboard() {
@@ -172,6 +194,7 @@ onLoad((query?: Record<string, string>) => {
 .hero-title { margin-top: 10rpx; color: var(--color-heading); font-size: 40rpx; font-weight: 750; line-height: 1.3; }
 .hero-official { margin-top: 8rpx; color: var(--color-text-secondary); font-size: 22rpx; }
 .tag-row { display: flex; flex-wrap: wrap; gap: 8rpx; margin-top: 18rpx; }
+.school-favorite-row { margin-top: 18rpx; }
 .profile-tag { padding: 6rpx 13rpx; border-radius: 999rpx; background: var(--color-surface-raised); color: var(--color-text-secondary); font-size: 20rpx; }
 .profile-tag--success { background: rgba(34,197,94,.14); color: var(--color-primary); }
 .profile-tag--warn { background: rgba(245,158,11,.14); color: #d97706; }

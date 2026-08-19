@@ -248,4 +248,17 @@ describe("theme", () => {
     expect(html.dataset.realtyTheme).toBe("light");
     expect(htmlStyle.getPropertyValue("--color-bg")).toBe(THEME_CSS_VARS.light["--color-bg"]);
   });
+
+  it("applyTheme 保持同步并吸收原生壳 API 的 Promise rejection", async () => {
+    vi.stubGlobal("uni", {
+      getSystemInfoSync: () => ({ theme: "dark" }),
+      setNavigationBarColor: () => Promise.reject(new Error("navigation unavailable")),
+      setTabBarStyle: () => Promise.reject(new Error("tabbar unavailable"))
+    });
+
+    expect(applyTheme("dark")).toBe("dark");
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(resolvedThemeRef.value).toBe("dark");
+  });
 });

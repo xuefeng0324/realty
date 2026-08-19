@@ -547,27 +547,32 @@ const rateTrendRows = computed<RateTrendRow[]>(() => {
   gap: 8rpx;
 }
 .rate-trend-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(72rpx, 100rpx) minmax(0, 1fr);
   align-items: center;
-  gap: 12rpx;
+  gap: 4rpx 8rpx;
   font-size: 22rpx;
+  min-width: 0;
 }
 .rate-trend-label {
-  flex: 0 0 140rpx;
+  min-width: 0;
   color: var(--muted, #888);
 }
 .rate-trend-cells {
-  flex: 1;
-  display: flex;
-  gap: 6rpx;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 2rpx;
 }
 .rate-trend-cell {
-  flex: 1;
+  min-width: 0;
   text-align: center;
-  padding: 4rpx 6rpx;
+  padding: 4rpx 1rpx;
   border-radius: 6rpx;
   background: rgba(127, 127, 127, 0.08);
   font-variant-numeric: tabular-nums;
+  font-size: 20rpx;
+  white-space: nowrap;
 }
 .rate-trend-cell.rate-up {
   color: #d23b3b;
@@ -578,8 +583,10 @@ const rateTrendRows = computed<RateTrendRow[]>(() => {
   background: rgba(47, 138, 58, 0.10);
 }
 .rate-trend-band {
-  flex: 0 0 200rpx;
-  text-align: right;
+  grid-column: 2;
+  min-width: 0;
+  text-align: left;
+  font-size: 20rpx;
   font-variant-numeric: tabular-nums;
 }
 .rate-trend-band.rate-up {

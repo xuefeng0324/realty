@@ -695,8 +695,9 @@ const metroLineMarkers = computed(() => {
       id: 9000000 + g.lineId,
       latitude: g.startLat,
       longitude: g.startLng,
-      width: 14,
-      height: 14,
+      width: 24,
+      height: 24,
+      iconPath: DEFAULT_MARKER_ICON,
       title: `🚇 ${g.lineName} · 起点 ${g.startStation}`,
       callout: {
         content: `🚇 ${g.lineName}\n${g.startStation}`,
@@ -713,8 +714,9 @@ const metroLineMarkers = computed(() => {
       id: 9100000 + g.lineId,
       latitude: g.endLat,
       longitude: g.endLng,
-      width: 14,
-      height: 14,
+      width: 24,
+      height: 24,
+      iconPath: DEFAULT_MARKER_ICON,
       title: `🚇 ${g.lineName} · 终点 ${g.endStation}`,
       callout: {
         content: `🚇 ${g.lineName}\n${g.endStation}`,

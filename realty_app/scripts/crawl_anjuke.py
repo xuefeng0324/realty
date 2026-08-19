@@ -27,6 +27,7 @@ import csv
 import random
 import re
 import sys
+import tempfile
 import time
 import urllib.parse
 from datetime import date, datetime
@@ -288,10 +289,25 @@ def load_communities(csv_path: Path) -> dict[int, list[tuple[int, str]]]:
 
 def write_csv(rows: list[dict[str, Any]], out_path: Path) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(out_path, "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=OUT_FIELDS)
-        w.writeheader()
-        w.writerows(rows)
+    tmp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            "w",
+            encoding="utf-8",
+            newline="",
+            delete=False,
+            dir=str(out_path.parent),
+            suffix=".tmp",
+        ) as f:
+            tmp_path = Path(f.name)
+            w = csv.DictWriter(f, fieldnames=OUT_FIELDS)
+            w.writeheader()
+            w.writerows(rows)
+        tmp_path.replace(out_path)
+    except Exception:
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
+        raise
     print(f"[write] {len(rows)} -> {out_path}", file=sys.stderr)
 
 

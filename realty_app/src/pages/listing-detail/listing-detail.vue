@@ -39,8 +39,11 @@
       <view v-if="data" class="card listing-hero">
         <view class="row-between">
           <view class="card-title listing-title">{{ data.listing.title }}</view>
-          <view class="score-pill" :class="scoreClass(data.score.overall_score_0_100)">
-            {{ data.score.overall_score_0_100.toFixed(1) }}
+          <view class="listing-hero-actions">
+            <FavoriteButton v-if="listingLibraryItem" :item="listingLibraryItem" />
+            <view class="score-pill" :class="scoreClass(data.score.overall_score_0_100)">
+              {{ data.score.overall_score_0_100.toFixed(1) }}
+            </view>
           </view>
         </view>
 
@@ -322,15 +325,32 @@ import {
   formatUnitPrice,
   scoreClass
 } from "../../utils/format";
-import { getListingsByCommunity, getCommunityById } from "../../local/store";
+import { getListingsByCommunity, getCommunityById, getCityById } from "../../local/store";
 import { listingSourceKindLabel } from "../../local/listingSource";
 import { getListingTagLabels } from "../../local/listingTags";
 import { housingAppHint, openHousingSourceUrl } from "../../utils/openExternal";
+import FavoriteButton from "../../components/FavoriteButton.vue";
+import type { UserLibraryEntityInput } from "../../local/userLibrary";
+import { useUserLibraryStore } from "../../store/userLibrary";
 
 const listingId = ref<number>(0);
 const data = ref<ListingDetailResponse | null>(null);
 const errorMsg = ref<string>("");
 const explainOpen = ref(false);
+const userLibrary = useUserLibraryStore();
+const listingLibraryItem = computed<UserLibraryEntityInput | null>(() => {
+  const listing = data.value?.listing;
+  if (!listing) return null;
+  return {
+    type: "listing",
+    id: listing.listing_id,
+    title: listing.title,
+    city: getCityById(listing.city_id)?.cityName ?? "",
+    coverUrl: listing.cover_url,
+    route: "/pages/listing-detail/listing-detail",
+    query: { id: listing.listing_id }
+  };
+});
 const sourceKindLabel = computed(() => data.value ? listingSourceKindLabel(data.value.listing.source_kind) : "");
 const sourceLinkLabel = computed(() => {
   const url = data.value?.listing.source_url;
@@ -526,6 +546,9 @@ onMounted(async () => {
   }
   try {
     data.value = await getListingDetail(listingId.value);
+    if (listingLibraryItem.value) {
+      userLibrary.recordHistory(listingLibraryItem.value);
+    }
     if (data.value?.listing.community_id) {
       // v0.54.0 detail-1: 同小区其他 listings
       sameCommunityAll.value = getListingsByCommunity(data.value.listing.community_id);
@@ -563,6 +586,13 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
+.listing-hero-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10rpx;
+}
+
 .listing-gallery {
   margin-bottom: 12rpx;
   padding: 0;

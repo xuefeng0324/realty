@@ -39,8 +39,8 @@
 ### Phase D — 指数月更（本迭代落地管线）
 
 1. ✅ 参照 hugohe3：`crawl-monthly-stats70.yml` 每月 16–20 日自动 `download`  
-2. ✅ `check_stats70_freshness.py` + `stats70Freshness.ts` 新鲜度门禁（publishDay=18）  
-3. ✅ 设置 / 总览 / stats70 页展示「截至…是否跟上」  
+2. ✅ `check_stats70_freshness.py` + `stats70Freshness.ts` 新鲜度门禁；16–19 日缺上月数据为等待发布 warning，20 日仍落后才阻断
+3. ✅ 设置 / 总览 / stats70 页展示「截至…是否跟上」；接口提供 `fresh / waiting / stale / missing` 四态，并保留 `fresh` 布尔兼容旧调用
 4. ⚠️ 七月指数约 8 月中发布；当前仓内与 hugohe3 均为 **2026/6**（已达标）
 
 ### Phase E — 配套官方库存 / 宏观日更·月更（本迭代）
@@ -49,6 +49,12 @@
 2. ✅ 月更 CI 附带 `crawl_nbs_real_estate.py`（period merge，不抹历史）  
 3. ✅ `gzInventoryFreshness`：源站超过 3 自然日未更新时总览卡标明滞后  
 4. ⚠️ 深圳 opendata 一手/二手成交需 `OPENDATA_SZ_TOKEN`，未配置前不进 CI  
+
+### Phase F — CI 告警分级（v1.122.0）
+
+1. daily 网签参数契约与脚本一致，真实抓取/派生失败仍硬失败。
+2. monthly 先写候选文件并校验，禁止坏文件覆盖 last-good；其它月更源不因 stats70 等待发布而跳过。
+3. weekly：挂牌主链 P0 硬失败；必需官方源 P1 全部执行后统一 gate；best-effort P2 只 warning，但必须留来源日志和 Job Summary。
 
 ### 明确不做
 
@@ -103,4 +109,4 @@
 
 ---
 
-最后更新：2026-07-26
+最后更新：2026-08-18（70 城宽限窗口、原子替换与 weekly 告警分级）

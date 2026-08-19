@@ -18,6 +18,7 @@ import argparse
 import csv
 import re
 import ssl
+import tempfile
 import time
 from html import unescape
 from pathlib import Path
@@ -205,18 +206,33 @@ def parse_post(url: str, list_title: str) -> dict[str, str] | None:
     }
 
 
-def write_csv(rows: list[dict[str, str]]) -> None:
+def write_csv(rows: list[dict[str, str]], out_path: Path = OUT) -> None:
     rows = sorted(
         rows,
         key=lambda r: (r.get("publish_date") or "", r.get("post_id") or ""),
         reverse=True,
     )
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    with OUT.open("w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=FIELDS)
-        w.writeheader()
-        for r in rows:
-            w.writerow({k: r.get(k, "") for k in FIELDS})
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            "w",
+            encoding="utf-8",
+            newline="",
+            delete=False,
+            dir=str(out_path.parent),
+            suffix=".tmp",
+        ) as f:
+            tmp_path = Path(f.name)
+            w = csv.DictWriter(f, fieldnames=FIELDS)
+            w.writeheader()
+            for r in rows:
+                w.writerow({k: r.get(k, "") for k in FIELDS})
+        tmp_path.replace(out_path)
+    except Exception:
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
+        raise
 
 
 def main() -> int:
@@ -224,6 +240,7 @@ def main() -> int:
     ap.add_argument("--max-pages", type=int, default=0, help="0=全部页")
     ap.add_argument("--max-posts", type=int, default=0, help="0=全部帖")
     ap.add_argument("--sleep", type=float, default=0.35)
+    ap.add_argument("--out", type=Path, default=OUT)
     args = ap.parse_args()
 
     first = fetch(list_url(1))
@@ -273,9 +290,12 @@ def main() -> int:
             )
         time.sleep(args.sleep)
 
-    write_csv(rows)
-    print(f"[done] {len(rows)} rows (skipped {skipped}) → {OUT}")
-    return 0 if rows else 1
+    if not rows:
+        print(f"[fail] 0 rows (skipped {skipped})，保留现有文件")
+        return 2
+    write_csv(rows, args.out)
+    print(f"[done] {len(rows)} rows (skipped {skipped}) → {args.out}")
+    return 0
 
 
 if __name__ == "__main__":

@@ -89,9 +89,14 @@ describe("official education overview", () => {
 
   it("周任务会刷新广深珠教育概览快照", () => {
     const workflow = readFileSync(resolve(process.cwd(), "../.github/workflows/crawl-weekly.yml"), "utf8");
-    expect(workflow).toContain("python scripts/crawl_gz_education_overview.py");
-    expect(workflow).toContain("python scripts/crawl_sz_education_overview.py");
-    expect(workflow).toContain("python scripts/crawl_zh_education_overview.py");
+    const sourceRunner = readFileSync(
+      resolve(process.cwd(), "scripts/run_weekly_source_group.py"),
+      "utf8"
+    );
+    expect(workflow).toContain("python scripts/run_weekly_source_group.py");
+    expect(sourceRunner).toContain('_python_command("crawl_gz_education_overview.py")');
+    expect(sourceRunner).toContain('_python_command("crawl_sz_education_overview.py")');
+    expect(sourceRunner).toContain('_python_command("crawl_zh_education_overview.py")');
     expect(workflow).toContain("static/education_overview.csv");
   });
 });

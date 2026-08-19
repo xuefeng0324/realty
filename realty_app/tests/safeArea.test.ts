@@ -6,10 +6,14 @@ const read = (path: string) => readFileSync(resolve(process.cwd(), path), "utf8"
 
 describe("cross-platform safe area", () => {
   it("defines global safe-area variables and applies horizontal page padding", () => {
-    const app = read("src/App.vue");
-    expect(app).toContain("--safe-area-bottom: env(safe-area-inset-bottom, 0px)");
-    expect(app).toContain("padding-left: calc(24rpx + var(--safe-area-left))");
-    expect(app).toContain("padding-right: calc(24rpx + var(--safe-area-right))");
+    const foundation = read("src/styles/foundation.scss");
+    expect(foundation).toContain("--safe-area-bottom: env(safe-area-inset-bottom, 0px)");
+    expect(foundation).toContain(
+      "padding-left: calc(var(--content-padding) + var(--safe-area-left))"
+    );
+    expect(foundation).toContain(
+      "padding-right: calc(var(--content-padding) + var(--safe-area-right))"
+    );
   });
 
   it.each([

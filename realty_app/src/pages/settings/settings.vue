@@ -3,12 +3,96 @@
     <view class="container">
       <view class="settings-hero">
         <view>
-          <view class="hero-eyebrow">APP CONTROL CENTER</view>
-          <view class="hero-title">设置与数据管理</view>
+          <view class="hero-eyebrow">MY REALTY</view>
+          <view class="hero-title">我的</view>
+          <view class="hero-subtitle">收藏、浏览足迹与应用设置</view>
         </view>
       </view>
 
       <view class="settings-grid">
+      <view class="card user-library-card" data-user-library>
+        <view class="row-between">
+          <view>
+            <view class="card-title">我的收藏与足迹</view>
+            <view class="muted library-privacy">仅保存在本机，不需要账号，也不会上传云端</view>
+          </view>
+          <text class="local-only-badge">仅本机</text>
+        </view>
+
+        <view class="library-tabs" role="tablist">
+          <button
+            class="library-tab"
+            :class="{ 'library-tab--active': libraryTab === 'favorites' }"
+            size="mini"
+            data-library-tab="favorites"
+            @click="libraryTab = 'favorites'"
+          >
+            收藏 {{ userLibrary.favorites.length }}
+          </button>
+          <button
+            class="library-tab"
+            :class="{ 'library-tab--active': libraryTab === 'history' }"
+            size="mini"
+            data-library-tab="history"
+            @click="libraryTab = 'history'"
+          >
+            最近浏览 {{ userLibrary.history.length }}
+          </button>
+          <button
+            v-if="libraryTab === 'history' && userLibrary.history.length > 0"
+            class="library-clear"
+            size="mini"
+            @click="confirmClearHistory"
+          >
+            清空足迹
+          </button>
+        </view>
+
+        <view v-if="libraryItems.length === 0" class="library-empty">
+          <view class="library-empty-icon">{{ libraryTab === "favorites" ? "☆" : "◷" }}</view>
+          <view class="library-empty-title">
+            {{ libraryTab === "favorites" ? "还没有收藏" : "还没有浏览足迹" }}
+          </view>
+          <view class="muted">
+            {{ libraryTab === "favorites" ? "在房源、小区或学校详情页点击收藏" : "成功打开详情后会自动记录，最多保留 100 条、90 天" }}
+          </view>
+        </view>
+
+        <scroll-view v-else class="library-list" scroll-y>
+          <view
+            v-for="item in libraryItems"
+            :key="`${item.type}:${item.id}`"
+            class="library-row tap-target"
+            role="button"
+            tabindex="0"
+            hover-class="library-row--active"
+            @click="openLibraryItem(item)"
+          >
+            <image v-if="item.coverUrl" class="library-cover" :src="item.coverUrl" mode="aspectFill" lazy-load />
+            <view v-else class="library-cover library-cover--placeholder">
+              {{ item.type === "listing" ? "房" : item.type === "community" ? "区" : "校" }}
+            </view>
+            <view class="library-copy">
+              <view class="library-title">{{ item.title }}</view>
+              <view class="muted library-meta">
+                {{ libraryTypeLabel(item.type) }}<text v-if="item.city"> · {{ item.city }}</text>
+                · {{ formatLibraryTime(item.updatedAt) }}
+              </view>
+            </view>
+            <button
+              v-if="libraryTab === 'favorites'"
+              class="library-remove"
+              size="mini"
+              aria-label="取消收藏"
+              @click.stop="removeLibraryFavorite(item)"
+            >
+              移除
+            </button>
+            <text v-else class="library-caret">›</text>
+          </view>
+        </scroll-view>
+      </view>
+
       <view class="card">
         <view class="card-title">外观</view>
         <view class="muted">
@@ -209,7 +293,7 @@
         <view class="muted">
           Realty App v{{ APP_VERSION }} · 启动时自动检查热更新；升级交互对齐 uni-upgrade-center / Expo Updates<br />
           默认数据：真实挂牌与公开指标派生样本并存，详情页会明确标注数据等级<br />
-          评分规则在手机上实时计算；当前自动化测试为 1128 个用例
+          评分规则在手机上实时计算；核心路径已纳入自动化回归
         </view>
       </view>
 
@@ -324,10 +408,55 @@ import {
 } from "../../utils/appUpdate";
 import { openExternalUrl } from "../../utils/openExternal";
 import ProgressBar from "../../components/ProgressBar.vue";
+import { buildUserLibraryUrl, type LocalEntityType, type UserLibraryEntity } from "../../local/userLibrary";
+import { useUserLibraryStore } from "../../store/userLibrary";
 // @ts-ignore
 import dailyWangqianRaw from "../../../static/daily_wangqian.csv?raw";
 
 const FEATURED_MODE_KEY = "realty_dashboard_featured_mode";
+const userLibrary = useUserLibraryStore();
+const libraryTab = ref<"favorites" | "history">("favorites");
+const libraryItems = computed(() => libraryTab.value === "favorites"
+  ? userLibrary.favorites
+  : userLibrary.history
+);
+
+function libraryTypeLabel(type: LocalEntityType): string {
+  return ({ listing: "房源", community: "小区", school: "学校" } as const)[type];
+}
+
+function formatLibraryTime(timestamp: number): string {
+  const date = new Date(timestamp);
+  if (!Number.isFinite(date.getTime())) return "";
+  const now = new Date();
+  if (date.toDateString() === now.toDateString()) {
+    return `今天 ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+  }
+  return `${date.getMonth() + 1}月${date.getDate()}日`;
+}
+
+function openLibraryItem(item: UserLibraryEntity): void {
+  uni.navigateTo({ url: buildUserLibraryUrl(item) });
+}
+
+function removeLibraryFavorite(item: UserLibraryEntity): void {
+  userLibrary.removeFavorite(item.type, item.id);
+  showToast("已从本机收藏移除");
+}
+
+function confirmClearHistory(): void {
+  uni.showModal({
+    title: "清空浏览足迹",
+    content: "将删除本机保存的全部浏览记录，此操作不可撤销。",
+    confirmText: "清空",
+    confirmColor: "#dc2626",
+    success: (result) => {
+      if (!result.confirm) return;
+      userLibrary.clearHistory();
+      showToast("浏览足迹已清空");
+    }
+  });
+}
 
 function goDataTools(): void {
   uni.navigateTo({ url: "/pages/data-tools/data-tools" });
@@ -724,6 +853,146 @@ function openGithubReleases() {
   margin-top: 8rpx;
 }
 
+.hero-subtitle {
+  margin-top: 6rpx;
+  color: var(--color-muted);
+  font-size: 23rpx;
+}
+
+.user-library-card {
+  grid-column: 1 / -1;
+}
+
+.library-privacy {
+  margin-top: 4rpx;
+  font-size: 21rpx;
+}
+
+.local-only-badge {
+  flex: 0 0 auto;
+  padding: 7rpx 13rpx;
+  border-radius: 999rpx;
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--color-primary);
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
+.library-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: 18rpx;
+}
+
+.library-tab,
+.library-clear,
+.library-remove {
+  margin: 0;
+  border: 1rpx solid var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-text-secondary);
+  font-size: 21rpx;
+}
+
+.library-tab::after,
+.library-clear::after,
+.library-remove::after {
+  border: 0;
+}
+
+.library-tab--active {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+}
+
+.library-clear {
+  margin-left: auto;
+  color: var(--color-danger, #dc2626);
+}
+
+.library-empty {
+  padding: 38rpx 20rpx 24rpx;
+  text-align: center;
+}
+
+.library-empty-icon {
+  color: var(--color-primary);
+  font-size: 52rpx;
+}
+
+.library-empty-title {
+  margin: 8rpx 0 4rpx;
+  color: var(--color-heading);
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.library-list {
+  max-height: 620rpx;
+  margin-top: 14rpx;
+}
+
+.library-row {
+  display: flex;
+  min-height: 92rpx;
+  align-items: center;
+  gap: 14rpx;
+  padding: 12rpx 0;
+  border-top: 1rpx solid var(--color-border);
+}
+
+.library-row--active {
+  background: var(--color-soft);
+}
+
+.library-cover {
+  flex: 0 0 82rpx;
+  width: 82rpx;
+  height: 68rpx;
+  border-radius: 10rpx;
+  background: var(--color-soft);
+}
+
+.library-cover--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.library-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.library-title {
+  overflow: hidden;
+  color: var(--color-heading);
+  font-size: 25rpx;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.library-meta {
+  margin-top: 5rpx;
+  font-size: 20rpx;
+}
+
+.library-remove {
+  flex: 0 0 auto;
+  color: var(--color-muted);
+}
+
+.library-caret {
+  color: var(--color-muted);
+  font-size: 34rpx;
+}
+
 .theme-options {
   display: flex;
   flex-wrap: wrap;
@@ -740,7 +1009,7 @@ function openGithubReleases() {
 }
 
 .theme-option--active {
-  background: var(--color-primary) !important;
+  background: var(--color-primary-strong) !important;
   border-color: var(--color-primary-strong);
   color: var(--color-primary-text) !important;
 }

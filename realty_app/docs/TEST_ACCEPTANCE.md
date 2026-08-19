@@ -15,6 +15,7 @@
 | [LISTING_DETAIL_ACCEPTANCE.md](./LISTING_DETAIL_ACCEPTANCE.md) | 详情图集/价区/标签（对照贝壳） |
 | [DASHBOARD_TABS_ACCEPTANCE.md](./DASHBOARD_TABS_ACCEPTANCE.md) | 总览专业 Tab / 金刚区「价格」 |
 | [BEIKE_COMPARISON_ACCEPTANCE.md](./BEIKE_COMPARISON_ACCEPTANCE.md) | 与贝壳/链家主路径差距矩阵 |
+| [APP_SHELL_ACCEPTANCE.md](./APP_SHELL_ACCEPTANCE.md) | 五栏入口、行情聚合、本地收藏历史 |
 
 ---
 
@@ -68,6 +69,10 @@ $env:E2E_BASE_URL="http://127.0.0.1:5174"; npm run test:e2e:core
 | P-MAP-01 | 地图 → 五模式切换 | 各模式 overlay>0 | `smoke_map_controls.mjs` |
 | P-MAP-02 | 地图 → 挂牌均价 | 底图可读；图例非 0k-0k；半透明热力 | `mapMath.test.ts` + `smoke_price_heatmap.mjs` |
 | P-MAP-03 | 地图找房 → 筛总价/户型 → 底栏 → 详情 | 可完成看盘闭环 | `mapFind.test.ts` + `smoke_map_find.mjs` |
+| P-NAV-01 | 依次点击首页/找房/地图/行情/我的 | 五个 Tab 均可达且仅当前项高亮 | `navigation.test.ts` + `smoke_full_interactions.mjs` |
+| P-FIND-01 | 找房切房源/小区/学校 | 三类结果可切换，详情均可返回 | `navigation.test.ts` + full interactions |
+| P-MINE-01 | 详情收藏 → 我的 → 收藏打开详情 | 条目按 type:id 去重；仅本机提示可见 | `userLibrary.test.ts` + `smoke_full_interactions.mjs` |
+| P-MINE-02 | 重复访问同一详情并模拟 90 天前记录 | 历史不重复，过期清理，总数 ≤100 | `userLibrary.test.ts` |
 
 新增会改变列表/计数的筛选时：**必须新增或扩展本表一行 + 对应 unit**。
 
@@ -99,4 +104,4 @@ $env:E2E_BASE_URL="http://127.0.0.1:5174"; npm run test:e2e:core
 
 ---
 
-最后更新：2026-07-26
+最后更新：2026-08-18（22 路由、五栏、三类找房、本地收藏与响应式主题矩阵）

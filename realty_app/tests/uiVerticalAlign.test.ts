@@ -23,8 +23,8 @@ function expectFlexCenter(body: string, label: string) {
 }
 
 describe("single-line control vertical centering (source guard)", () => {
-  it("App.vue button defaults to flex center (covers custom CTAs)", () => {
-    const body = ruleBody(read("src/App.vue"), "button");
+  it("foundation button defaults to flex center (covers custom CTAs)", () => {
+    const body = ruleBody(read("src/styles/foundation.scss"), "button");
     expectFlexCenter(body, "global button");
     expect(body).toContain("box-sizing: border-box");
   });

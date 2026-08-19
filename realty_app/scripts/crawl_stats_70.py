@@ -40,6 +40,8 @@ import argparse
 import csv
 import io
 import sys
+import tempfile
+from collections import defaultdict
 from pathlib import Path
 
 try:
@@ -111,16 +113,107 @@ def wide_to_narrow(rows_in: list[list[str]], header: list[str]) -> list[dict]:
     return out
 
 
+def validate_complete_snapshot(rows: list[dict]) -> tuple[int, int]:
+    """校验整表结构，避免把部分下载或截断历史原子替换成“成功”。"""
+    if not rows:
+        raise ValueError("没有可写入的数据行")
+
+    coverage: dict[tuple[int, int], dict[str, set[str]]] = defaultdict(
+        lambda: {"同比": set(), "环比": set()}
+    )
+    seen: set[tuple[tuple[int, int], str, str]] = set()
+    for index, row in enumerate(rows, start=2):
+        month = month_key(str(row.get("date") or ""))
+        city = str(row.get("city") or "").strip()
+        fixed_base = str(row.get("fixed_base") or "").strip()
+        if month is None or not city or fixed_base not in ("同比", "环比"):
+            raise ValueError(f"第 {index} 行 date/city/fixed_base 非法")
+        for field in ("new_idx", "second_idx"):
+            value = str(row.get(field) or "").strip()
+            try:
+                float(value)
+            except ValueError as exc:
+                raise ValueError(f"第 {index} 行 {field} 不是数值") from exc
+        key = (month, city, fixed_base)
+        if key in seen:
+            raise ValueError(f"第 {index} 行出现重复城市与口径：{city}/{fixed_base}")
+        seen.add(key)
+        coverage[month][fixed_base].add(city)
+
+    for month, bases in coverage.items():
+        yoy = bases["同比"]
+        mom = bases["环比"]
+        if len(yoy) != 70 or len(mom) != 70 or yoy != mom:
+            raise ValueError(
+                f"{month[0]}/{month[1]} 城市覆盖不完整：同比 {len(yoy)}，环比 {len(mom)}"
+            )
+    return max(coverage)
+
+
 def write_narrow_csv(rows: list[dict], out_path: Path, append: bool = False) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     file_exists = out_path.exists() and out_path.stat().st_size > 0
-    mode = "a" if (append and file_exists) else "w"
-    with open(out_path, mode, encoding="utf-8-sig", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=OUT_FIELDS)
-        if mode == "w":
+    if append and file_exists:
+        with open(out_path, "a", encoding="utf-8-sig", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=OUT_FIELDS)
+            for r in rows:
+                writer.writerow(r)
+        return
+
+    # download/convert 会整表替换；先写同目录临时文件再 replace，避免网络成功后
+    # 在写盘中途把 last-good CSV 截断。
+    tmp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            "w",
+            encoding="utf-8-sig",
+            newline="",
+            delete=False,
+            dir=str(out_path.parent),
+            suffix=".tmp",
+        ) as f:
+            tmp_path = Path(f.name)
+            writer = csv.DictWriter(f, fieldnames=OUT_FIELDS)
             writer.writeheader()
-        for r in rows:
-            writer.writerow(r)
+            for r in rows:
+                writer.writerow(r)
+        with tmp_path.open(encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+            if reader.fieldnames != OUT_FIELDS:
+                raise ValueError(f"临时文件表头非法：{reader.fieldnames}")
+            validate_complete_snapshot(list(reader))
+        tmp_path.replace(out_path)
+    except Exception:
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
+        raise
+
+
+def month_key(value: str) -> tuple[int, int] | None:
+    parts = value.strip().replace("-", "/").split("/")
+    if len(parts) < 2:
+        return None
+    try:
+        year, month = int(parts[0]), int(parts[1])
+    except ValueError:
+        return None
+    if month < 1 or month > 12:
+        return None
+    return year, month
+
+
+def latest_month(rows: list[dict]) -> tuple[int, int] | None:
+    months = [month_key(str(row.get("date") or "")) for row in rows]
+    valid = [month for month in months if month is not None]
+    return max(valid) if valid else None
+
+
+def existing_snapshot_stats(path: Path) -> tuple[tuple[int, int] | None, int]:
+    if not path.exists() or path.stat().st_size == 0:
+        return None, 0
+    with path.open(encoding="utf-8-sig", newline="") as f:
+        rows = list(csv.DictReader(f))
+        return latest_month(rows), len(rows)
 
 
 # ---------- mode 1: download ----------
@@ -149,9 +242,37 @@ def cmd_download(args: argparse.Namespace) -> int:
     print(f"[download] 收到 {len(text)} 字节")
 
     rows_in = list(csv.reader(io.StringIO(text)))
+    if not rows_in:
+        print("[download] 上游 CSV 为空，保留现有文件", file=sys.stderr)
+        return 2
     rows_out = wide_to_narrow(rows_in, rows_in[0])
+    try:
+        candidate_latest = validate_complete_snapshot(rows_out)
+    except ValueError as exc:
+        print(f"[download] 结构校验失败：{exc}，保留现有文件", file=sys.stderr)
+        return 2
+    try:
+        current_latest, current_count = existing_snapshot_stats(out_path)
+    except (OSError, csv.Error) as exc:
+        print(f"[download] 现有 CSV 无法读取：{exc}", file=sys.stderr)
+        return 2
+    if current_latest is not None and candidate_latest < current_latest:
+        print(
+            f"[download] 上游最新月 {candidate_latest} 早于现有 {current_latest}，拒绝回退",
+            file=sys.stderr,
+        )
+        return 2
+    if current_count and len(rows_out) < current_count:
+        print(
+            f"[download] 上游仅 {len(rows_out)} 行，少于现有 {current_count} 行，拒绝截断历史",
+            file=sys.stderr,
+        )
+        return 2
     write_narrow_csv(rows_out, out_path)
-    print(f"[download] 完成：{len(rows_out)} 行 → {out_path}")
+    print(
+        f"[download] 完成：{len(rows_out)} 行，最新 {candidate_latest[0]}/{candidate_latest[1]} "
+        f"→ {out_path}"
+    )
     return 0
 
 
@@ -247,7 +368,32 @@ def cmd_convert(args: argparse.Namespace) -> int:
     print(f"[convert] 读 {src}")
     text = src.read_text(encoding="utf-8-sig")
     rows_in = list(csv.reader(io.StringIO(text)))
+    if not rows_in:
+        print("[convert] 输入 CSV 为空，保留现有文件", file=sys.stderr)
+        return 2
     rows_out = wide_to_narrow(rows_in, rows_in[0])
+    try:
+        candidate_latest = validate_complete_snapshot(rows_out)
+    except ValueError as exc:
+        print(f"[convert] 结构校验失败：{exc}，保留现有文件", file=sys.stderr)
+        return 2
+    try:
+        current_latest, current_count = existing_snapshot_stats(out)
+    except (OSError, csv.Error) as exc:
+        print(f"[convert] 现有 CSV 无法读取：{exc}", file=sys.stderr)
+        return 2
+    if current_latest is not None and candidate_latest < current_latest:
+        print(
+            f"[convert] 输入最新月 {candidate_latest} 早于现有 {current_latest}，拒绝回退",
+            file=sys.stderr,
+        )
+        return 2
+    if current_count and len(rows_out) < current_count:
+        print(
+            f"[convert] 输入仅 {len(rows_out)} 行，少于现有 {current_count} 行，拒绝截断历史",
+            file=sys.stderr,
+        )
+        return 2
     write_narrow_csv(rows_out, out)
     print(f"[convert] 完成：{len(rows_out)} 行 → {out}")
     return 0

@@ -14,7 +14,11 @@
  */
 
 import { ref, type Ref } from "vue";
-import { THEME_CSS_VARS, type ResolvedTheme } from "./themeTokens";
+import {
+  THEME_CHROME_TOKENS,
+  THEME_CSS_VARS,
+  type ResolvedTheme
+} from "./themeTokens";
 
 export type ThemeMode = "system" | "light" | "dark";
 export type { ResolvedTheme };
@@ -163,27 +167,39 @@ function paintDom(resolved: ResolvedTheme): void {
     .forEach((el) => mark(el));
 }
 
+/**
+ * uni-app 的回调式 API 在部分运行时会返回 Promise。try/catch 只能处理同步抛错，
+ * 因此这里立即挂载 rejection handler，同时不把主题主路径改成异步。
+ */
+function consumePossiblePromise(value: unknown): void {
+  if (!value || typeof (value as { then?: unknown }).then !== "function") return;
+  void Promise.resolve(value).catch(() => undefined);
+}
+
 function paintChrome(resolved: ResolvedTheme): void {
   if (typeof uni === "undefined") return;
+  const chrome = THEME_CHROME_TOKENS[resolved];
   const dark = resolved === "dark";
-  const navBg = dark ? "#0b1020" : "#f2f4f7";
-  const pageBg = dark ? "#080d18" : "#f2f4f7";
   try {
-    uni.setNavigationBarColor?.({
-      frontColor: dark ? "#ffffff" : "#000000",
-      backgroundColor: navBg,
-      animation: { duration: 0, timingFunc: "linear" }
-    });
+    consumePossiblePromise(
+      uni.setNavigationBarColor?.({
+        frontColor: chrome.navigationFront,
+        backgroundColor: chrome.navigationBackground,
+        animation: { duration: 0, timingFunc: "linear" }
+      })
+    );
   } catch {
     /* ignore */
   }
   try {
-    uni.setTabBarStyle?.({
-      color: dark ? "#94a3b8" : "#64748b",
-      selectedColor: dark ? "#4ade80" : "#15803d",
-      backgroundColor: dark ? "#0b1020" : "#ffffff",
-      borderStyle: dark ? "black" : "black"
-    });
+    consumePossiblePromise(
+      uni.setTabBarStyle?.({
+        color: chrome.tabText,
+        selectedColor: chrome.tabSelected,
+        backgroundColor: chrome.tabBackground,
+        borderStyle: "black"
+      })
+    );
   } catch {
     /* ignore */
   }
@@ -198,9 +214,9 @@ function paintChrome(resolved: ResolvedTheme): void {
         currentWebview?: () => { setStyle?: (s: Record<string, string>) => void } | null;
       };
     };
-    p.navigator?.setStatusBarBackground?.(navBg);
+    p.navigator?.setStatusBarBackground?.(chrome.navigationBackground);
     p.navigator?.setStatusBarStyle?.(dark ? "light" : "dark");
-    p.webview?.currentWebview?.()?.setStyle?.({ background: pageBg });
+    p.webview?.currentWebview?.()?.setStyle?.({ background: chrome.pageBackground });
   } catch {
     /* ignore / H5 无 plus */
   }

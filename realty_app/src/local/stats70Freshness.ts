@@ -46,27 +46,62 @@ export function compareStats70Month(a: string, b: string): number {
 export type Stats70Freshness = {
   maxDate: string | null;
   expectedDate: string;
+  status: Stats70FreshnessStatus;
   fresh: boolean;
   label: string;
 };
 
+export type Stats70FreshnessStatus = "fresh" | "waiting" | "stale" | "missing";
+
 export function assessStats70Freshness(
   maxDate: string | null,
   today: Date = new Date(),
-  publishDay = 18
+  publishDay = 18,
+  deadlineDay = 20
 ): Stats70Freshness {
   const expectedDate = expectedStats70Month(today, publishDay);
-  if (!maxDate) {
+  const parsedMaxDate = maxDate ? parseStats70Date(maxDate) : null;
+  if (!maxDate || !parsedMaxDate) {
     return {
       maxDate: null,
       expectedDate,
+      status: "missing",
       fresh: false,
       label: `暂无数据（期望至少 ${formatStats70MonthLabel(expectedDate)}）`
     };
   }
   const fresh = compareStats70Month(maxDate, expectedDate) >= 0;
-  const label = fresh
-    ? `截至 ${formatStats70MonthLabel(maxDate)}（已跟上发布节奏）`
-    : `截至 ${formatStats70MonthLabel(maxDate)}（落后，期望 ≥ ${formatStats70MonthLabel(expectedDate)}）`;
-  return { maxDate, expectedDate, fresh, label };
+  if (fresh) {
+    return {
+      maxDate,
+      expectedDate,
+      status: "fresh",
+      fresh: true,
+      label: `截至 ${formatStats70MonthLabel(maxDate)}（已跟上发布节奏）`
+    };
+  }
+
+  const parsedExpectedDate = parseStats70Date(expectedDate);
+  const monthGap = parsedExpectedDate
+    ? parsedExpectedDate.y * 12 + parsedExpectedDate.m - (parsedMaxDate.y * 12 + parsedMaxDate.m)
+    : Number.POSITIVE_INFINITY;
+  const waiting =
+    monthGap === 1 && today.getDate() >= publishDay && today.getDate() < deadlineDay;
+  if (waiting) {
+    return {
+      maxDate,
+      expectedDate,
+      status: "waiting",
+      fresh: false,
+      label: `截至 ${formatStats70MonthLabel(maxDate)}（上月数据待发布，${deadlineDay} 日后再校验）`
+    };
+  }
+
+  return {
+    maxDate,
+    expectedDate,
+    status: "stale",
+    fresh: false,
+    label: `截至 ${formatStats70MonthLabel(maxDate)}（落后，期望 ≥ ${formatStats70MonthLabel(expectedDate)}）`
+  };
 }

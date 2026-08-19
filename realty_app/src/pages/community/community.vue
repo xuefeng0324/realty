@@ -19,6 +19,7 @@
             <view class="card-title">{{ communityName }}</view>
             <view class="muted">小区 ID: {{ communityId }} · {{ currentDistrict }}</view>
           </view>
+          <FavoriteButton v-if="communityLibraryItem" :item="communityLibraryItem" />
         </view>
       </view>
 
@@ -350,12 +351,16 @@ import {
   getMetroWalkByCommunity,
   getCommunitySchoolScore,
   getCommunityById,
+  getCityById,
   getCommunitiesByCity,
   getListingsByCommunity,
   getListingFreshness
 } from "../../local/store";
 import type { LocalListingFreshness } from "../../local/types";
 import type { QualitySummaryBin } from "../../api/contracts";
+import FavoriteButton from "../../components/FavoriteButton.vue";
+import type { UserLibraryEntityInput } from "../../local/userLibrary";
+import { useUserLibraryStore } from "../../store/userLibrary";
 
 const communityId = ref<number>(0);
 const communityName = ref<string>("");
@@ -365,6 +370,20 @@ const currentDistrict = ref<string>("");
 const currentCommunityObj = computed<LocalCommunity | undefined>(() =>
   communityId.value ? getCommunityById(communityId.value) : undefined
 );
+const userLibrary = useUserLibraryStore();
+const communityLibraryItem = computed<UserLibraryEntityInput | null>(() => {
+  const community = currentCommunityObj.value;
+  const title = communityName.value || community?.communityName;
+  if (!community || !title) return null;
+  return {
+    type: "community",
+    id: community.communityId,
+    title,
+    city: getCityById(community.cityId)?.cityName ?? "",
+    route: "/pages/community/community",
+    query: { id: community.communityId }
+  };
+});
 
 const listingFreshness = computed<LocalListingFreshness | null>(() => {
   if (!communityId.value) return null;
@@ -563,6 +582,10 @@ async function loadAll() {
     if (cur?.districtName) currentDistrict.value = cur.districtName;
     quality.value = q;
     tags.value = t;
+
+    if (communityLibraryItem.value) {
+      userLibrary.recordHistory(communityLibraryItem.value);
+    }
 
     await loadListings(weekEnd);
   } catch (e) {

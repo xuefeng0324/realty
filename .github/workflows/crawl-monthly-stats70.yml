@@ -49,12 +49,24 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: 下载 70 城指数 + merge NBS 全国房地产/固投/居民收入/CPI/PPI/社消
+      - name: 下载并校验 70 城指数
+        id: stats70
+        continue-on-error: true
         working-directory: realty_app
         run: |
           set -o pipefail
           python scripts/crawl_stats_70.py download --out static/stats_70.csv 2>&1 | tee stats70.log
-          python scripts/check_stats70_freshness.py --csv static/stats_70.csv
+          # 16–19 日上月数据尚未发布只发 warning；20 日仍落后才失败。
+          # 文件缺失、结构损坏或落后两个月以上在任何日期都会失败。
+          python scripts/check_stats70_freshness.py \
+            --csv static/stats_70.csv \
+            --deadline-day 20 2>&1 | tee -a stats70.log
+
+      - name: merge NBS 全国房地产/固投/居民收入/CPI/PPI/社消
+        id: monthly_sources
+        working-directory: realty_app
+        run: |
+          set -o pipefail
           # Phase E：首页最新一期 merge，不抹掉已回填历史
           python scripts/crawl_nbs_real_estate.py 2>&1 | tee nbs.log
           python scripts/crawl_nbs_fa_investment.py 2>&1 | tee nbs_fa.log
@@ -148,3 +160,23 @@ jobs:
           else
             echo "stats_70 / nbs / rates / fin / safe 无变化，跳过 commit"
           fi
+
+      - name: 上传月更日志
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crawl-monthly-logs
+          path: realty_app/*.log
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: 70 城最终质量门禁
+        if: always()
+        env:
+          STATS70_OUTCOME: ${{ steps.stats70.outcome }}
+        run: |
+          if [ "$STATS70_OUTCOME" != "success" ]; then
+            echo "::error title=70 城月更失败::下载、结构校验或截止日新鲜度未通过；其它月更来源已继续执行"
+            exit 1
+          fi
+          echo "70 城月更通过（含截止日前 warning 状态）"

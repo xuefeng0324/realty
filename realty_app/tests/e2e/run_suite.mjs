@@ -73,7 +73,8 @@ for (const file of files) {
       env,
       stdio: "inherit"
     });
-    const timer = setTimeout(() => child.kill(), 90_000);
+    // 22 路由 × 明暗主题 × 320/390/768 验收需要更长的单脚本窗口。
+    const timer = setTimeout(() => child.kill(), 240_000);
     child.on("exit", (status) => {
       clearTimeout(timer);
       done(status ?? 1);

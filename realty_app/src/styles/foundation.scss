@@ -1,0 +1,259 @@
+/*
+ * Realty UI foundation
+ * 只放跨页面的几何、排版与基础交互；主题颜色由 themeTokens.ts / App.vue 提供。
+ */
+page {
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+
+  --space-1: 8rpx;
+  --space-2: 12rpx;
+  --space-3: 16rpx;
+  --space-4: 24rpx;
+  --space-5: 32rpx;
+  --space-6: 40rpx;
+  --space-8: 56rpx;
+
+  --radius-sm: 10rpx;
+  --radius-md: 16rpx;
+  --radius-lg: 24rpx;
+  --radius-xl: 32rpx;
+  --radius-pill: 999rpx;
+
+  --font-caption: 22rpx;
+  --font-body-sm: 24rpx;
+  --font-body: 28rpx;
+  --font-title-sm: 32rpx;
+  --font-title: 40rpx;
+  --font-display: 52rpx;
+
+  --touch-target-min: 88rpx;
+  --content-padding: 24rpx;
+  --content-max-width: 1180px;
+  --motion-fast: 160ms;
+  --motion-normal: 240ms;
+}
+
+view,
+text,
+button,
+input,
+textarea,
+scroll-view,
+image {
+  box-sizing: border-box;
+}
+
+/* 表单控件默认跟主题，避免深色模式下冒出系统浅色输入框。 */
+input,
+textarea {
+  color: var(--color-text);
+  background: var(--color-soft);
+}
+
+.container {
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--content-padding);
+  padding-left: calc(var(--content-padding) + var(--safe-area-left));
+  padding-right: calc(var(--content-padding) + var(--safe-area-right));
+}
+
+.card {
+  margin-bottom: var(--space-4);
+  padding: var(--space-4);
+  border: 1rpx solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.card-title {
+  margin-bottom: var(--space-3);
+  color: var(--color-heading);
+  font-size: var(--font-title-sm);
+  font-weight: 600;
+}
+
+.muted {
+  color: var(--color-muted);
+  font-size: var(--font-body-sm);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+}
+
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.row-gap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.tag {
+  display: inline-block;
+  margin-right: var(--space-1);
+  margin-bottom: var(--space-1);
+  padding: 4rpx var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-soft);
+  color: var(--color-chip-text);
+  font-size: var(--font-caption);
+}
+
+.tag-success {
+  background: var(--color-success-soft);
+  color: var(--color-on-success-soft);
+}
+
+.tag-warn {
+  background: var(--color-warn-soft);
+  color: var(--color-on-warn-soft);
+}
+
+.tag-danger {
+  background: var(--color-danger-soft);
+  color: var(--color-on-danger-soft);
+}
+
+/* 清理 uni-app button 默认浅灰底和伪边框。 */
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding-right: 0;
+  padding-left: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+button::after {
+  border: none;
+}
+
+.btn,
+button.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-target-min);
+  padding: var(--space-3) var(--space-5);
+  border: 1rpx solid transparent;
+  border-radius: var(--radius-md);
+  background: var(--color-accent) !important;
+  color: var(--color-accent-text) !important;
+  font-size: var(--font-body);
+  line-height: 1.3;
+}
+
+.btn-ghost,
+button.btn-ghost {
+  border: 1rpx solid var(--color-border) !important;
+  background: var(--color-soft) !important;
+  color: var(--color-text) !important;
+}
+
+.btn-danger,
+button.btn-danger {
+  background: var(--color-danger) !important;
+  color: var(--color-danger-text) !important;
+}
+
+.score-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 96rpx;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.score-high {
+  background: var(--color-success-soft);
+  color: var(--color-on-success-soft);
+}
+
+.score-mid {
+  background: var(--color-warn-soft);
+  color: var(--color-on-warn-soft);
+}
+
+.score-low {
+  background: var(--color-danger-soft);
+  color: var(--color-on-danger-soft);
+}
+
+.divider {
+  height: 1rpx;
+  margin: var(--space-3) 0;
+  background: var(--color-border);
+}
+
+.empty {
+  padding: 64rpx 0;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.error {
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  border: 1rpx solid var(--color-danger);
+  border-radius: var(--radius-md);
+  background: var(--color-danger-soft);
+  color: var(--color-on-danger-soft);
+}
+
+.tap-target {
+  min-height: var(--touch-target-min);
+}
+
+.focusable:focus,
+button:focus,
+.btn:focus {
+  outline: 2rpx solid var(--color-focus);
+  outline-offset: 2rpx;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1rpx;
+  height: 1rpx;
+  margin: -1rpx;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.card-active,
+.row-active {
+  background: var(--color-soft) !important;
+  opacity: 0.75;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  button,
+  .card-active,
+  .row-active {
+    transition-duration: 0.01ms !important;
+  }
+}

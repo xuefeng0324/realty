@@ -1,143 +1,267 @@
-// tests/e2e/smoke_full_interactions.mjs
-// 深度交互测试：测试各种城市切换、筛选、模式切换是否真的更新 UI
 import { chromium } from "playwright";
-import { fileURLToPath } from "node:url";
-import { dirname, resolve } from "node:path";
 import { mkdirSync } from "node:fs";
+import { resolve } from "node:path";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const OUT_DIR = resolve(__dirname, "../e2e-screenshots/interactive");
+const BASE_URL = (process.env.E2E_BASE_URL ?? "http://127.0.0.1:5174").replace(/\/$/, "");
+const OUT_DIR = resolve(process.cwd(), "tests/e2e-screenshots/interactive");
 mkdirSync(OUT_DIR, { recursive: true });
 
-const BASE_URL = process.env.E2E_BASE_URL ?? "http://127.0.0.1:5174";
+const browser = await chromium.launch();
+const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+const page = await context.newPage();
+const issues = [];
+const consoleErrors = [];
+const pageErrors = [];
 
-async function switchCityDashboard(page, cityName) {
+page.on("console", (message) => {
+  if (message.type() === "error") consoleErrors.push(message.text());
+});
+page.on("pageerror", (error) => pageErrors.push(error.message));
+
+async function open(path, wait = 900) {
+  await page.goto(`${BASE_URL}${path}`, { waitUntil: "domcontentloaded" });
+  // Hash 路由的 page.goto 只会切地址，不一定重建 uni-app 页面栈。
+  // 每个显式业务阶段硬刷新一次，避免五栏契约探测的失败路由污染后续闭环。
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(wait);
   await page.addStyleTag({ content: ".uni-page-head { display: none !important; }" });
-  await page.waitForTimeout(200);
-  await page.locator(".form-row").first().click({ force: true });
-  await page.waitForTimeout(800);
-  await page.getByText(cityName, { exact: true }).last().click({ force: true });
-  await page.waitForTimeout(4000);
 }
 
-async function checkCity(page, expected, label) {
-  // 抓所有卡片标题，检查它们是否含期望城市
-  const titles = await page.locator(".card-title").allTextContents();
-  const premium = titles.find((t) => t.includes("学区溢价榜"));
-  const wq = titles.find((t) => t.includes("网签热度榜"));
-  const trend = titles.find((t) => t.includes("区级"));
-  console.log(`[${label}] 学区: ${premium} / 网签: ${wq} / 趋势: ${trend}`);
-  if (premium && !premium.includes(expected)) {
-    console.log(`  ⚠️ 学区榜未切到 ${expected}: ${premium}`);
+async function clickPrimaryTab(label, expectedPath) {
+  const tab = page.locator(".uni-tabbar__item:visible").filter({ hasText: label });
+  if (await tab.count() !== 1) {
+    issues.push(`缺少一级入口：${label}`);
+    return false;
   }
-  if (wq && !wq.includes(expected) && !wq.includes("全市")) {
-    console.log(`  ⚠️ 网签榜未切到 ${expected}: ${wq}`);
+  // 点击文字区域，避开 Chromium 对 tab 图标 IMG 内部节点的命中差异。
+  const labelBox = await tab.locator(".uni-tabbar__label").boundingBox();
+  if (!labelBox) {
+    issues.push(`一级入口不可见：${label}`);
+    return false;
   }
-}
-
-async function run() {
-  const browser = await chromium.launch();
-  const ctx = await browser.newContext({ viewport: { width: 420, height: 900 } });
-  const page = await ctx.newPage();
-
-  const issues = [];
-
+  await page.evaluate(() => {
+    window.__e2eTabPointerEvents = [];
+    for (const type of ["pointerdown", "mousedown", "mouseup", "click"]) {
+      document.addEventListener(type, (event) => {
+        const target = event.target instanceof Element ? event.target : null;
+        window.__e2eTabPointerEvents.push({
+          type,
+          target: target?.outerHTML?.slice(0, 300) ?? "",
+          path: event.composedPath().filter((item) => item instanceof Element).slice(0, 6)
+            .map((item) => `${item.tagName.toLowerCase()}${item.id ? `#${item.id}` : ""}${typeof item.className === "string" && item.className ? `.${item.className.trim().replace(/\s+/g, ".")}` : ""}`)
+        });
+      }, { capture: true, once: true });
+    }
+  });
+  await page.mouse.click(
+    labelBox.x + labelBox.width / 2,
+    labelBox.y + labelBox.height / 2
+  );
   try {
-    // === Test 1: dashboard 三城切换 ===
-    console.log("\n=== Test 1: dashboard 三城切换 ===");
-    await page.goto(BASE_URL + "/#/pages/dashboard/dashboard", { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(2000);
-
-    await switchCityDashboard(page, "广州");
-    await page.waitForTimeout(500);
-    await checkCity(page, "广州", "广州");
-    await page.screenshot({ path: resolve(OUT_DIR, "dashboard_gz.png"), fullPage: true });
-
-    await switchCityDashboard(page, "深圳");
-    await page.waitForTimeout(500);
-    await checkCity(page, "深圳", "深圳");
-    await page.screenshot({ path: resolve(OUT_DIR, "dashboard_sz.png"), fullPage: true });
-
-    await switchCityDashboard(page, "珠海");
-    await page.waitForTimeout(500);
-    await checkCity(page, "珠海", "珠海");
-    await page.screenshot({ path: resolve(OUT_DIR, "dashboard_zh.png"), fullPage: true });
-
-    // === Test 2: map-view 三模式 ===
-    console.log("\n=== Test 2: map-view 三模式 ===");
-    await page.goto(BASE_URL + "/#/pages/map-view/map-view", { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(2500);
-    await page.addStyleTag({ content: ".uni-page-head { display: none !important; }" });
-    await page.waitForTimeout(300);
-    // 默认 count
-    let legend = await page.locator(".legend").first().textContent();
-    console.log("[map] count 模式 legend:", legend);
-    await page.screenshot({ path: resolve(OUT_DIR, "map_count.png"), fullPage: true });
-
-    // 切到 price
-    await page.locator('.map-mode-btn[data-map-mode="price"]').click({ force: true });
-    await page.waitForTimeout(800);
-    legend = await page.locator(".legend").first().textContent();
-    console.log("[map] price 模式 legend:", legend);
-    if (!legend || !legend.includes("挂牌均价")) {
-      issues.push(`map price mode 切换失败: ${legend}`);
+    await page.waitForURL((url) => {
+      if (url.toString().includes(expectedPath)) return true;
+      return expectedPath.includes("/pages/dashboard/dashboard") && url.hash === "#/";
+    }, { timeout: 10_000 });
+    if (expectedPath.includes("/pages/dashboard/dashboard")) {
+      await page.locator(".home-v122-shell").waitFor({ state: "visible", timeout: 10_000 });
     }
-    await page.screenshot({ path: resolve(OUT_DIR, "map_price.png"), fullPage: true });
-
-    // 切到 listings
-    await page.locator('.map-mode-btn[data-map-mode="listings"]').click({ force: true });
-    await page.waitForTimeout(800);
-    legend = await page.locator(".legend").first().textContent();
-    console.log("[map] listings 模式 legend:", legend);
-    if (!legend || !legend.includes("挂牌点")) {
-      issues.push(`map listings mode 切换失败: ${legend}`);
+    if (expectedPath.includes("listing-filter")) {
+      await page.locator("[data-find-hub]").waitFor({ state: "visible", timeout: 10_000 });
     }
-    await page.screenshot({ path: resolve(OUT_DIR, "map_listings.png"), fullPage: true });
-
-    // === Test 3: listing-filter 筛选 ===
-    console.log("\n=== Test 3: listing-filter 筛选 ===");
-    await page.goto(BASE_URL + "/#/pages/listing-filter/listing-filter", { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(2000);
-    await page.addStyleTag({ content: ".uni-page-head { display: none !important; }" });
-    await page.waitForTimeout(300);
-    const totalText = await page.locator(".muted").filter({ hasText: "共" }).first().textContent();
-    console.log("[filter] 默认 total:", totalText);
-
-    // === Test 4: stats70 数据展示 ===
-    console.log("\n=== Test 4: stats70 ===");
-    await page.goto(BASE_URL + "/#/pages/stats70/stats70", { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(2000);
-    await page.addStyleTag({ content: ".uni-page-head { display: none !important; }" });
-    await page.waitForTimeout(300);
-    const statsRows = await page.locator(".stats-row, .row").count();
-    console.log(`[stats70] 行数: ${statsRows}`);
-    await page.screenshot({ path: resolve(OUT_DIR, "stats70.png"), fullPage: true });
-
-    // === Test 5: wangqian 详情 ===
-    console.log("\n=== Test 5: wangqian ===");
-    await page.goto(BASE_URL + "/#/pages/wangqian/wangqian", { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(2000);
-    await page.addStyleTag({ content: ".uni-page-head { display: none !important; }" });
-    await page.waitForTimeout(300);
-    const wqRows = await page.locator(".wq-row, .row").count();
-    console.log(`[wangqian] 行数: ${wqRows}`);
-    await page.screenshot({ path: resolve(OUT_DIR, "wangqian.png"), fullPage: true });
-
-    // === 总结 ===
-    console.log("\n=== 测试完成 ===");
-    if (issues.length === 0) {
-      console.log("✓ 无 issues");
-    } else {
-      console.log(`✗ ${issues.length} 个 issues:`);
-      issues.forEach((i) => console.log(`  - ${i}`));
+    if (expectedPath.includes("map-view")) {
+      await page.locator("#realty-map").waitFor({ state: "visible", timeout: 10_000 });
     }
-  } catch (e) {
-    console.error("✗ 测试失败:", e.message);
-    process.exitCode = 1;
-  } finally {
-    await browser.close();
+    if (expectedPath.includes("market/market")) {
+      await page.locator(".segmented-tabs").waitFor({ state: "visible", timeout: 10_000 });
+    }
+    if (expectedPath.includes("settings/settings")) {
+      await page.locator(".local-only-badge").waitFor({ state: "visible", timeout: 10_000 });
+    }
+    await page.waitForTimeout(200);
+  } catch {
+    const hitStack = await page.evaluate(({ x, y }) =>
+      document.elementsFromPoint(x, y).slice(0, 8).map((element) => {
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return {
+          tag: element.tagName.toLowerCase(),
+          id: element.id,
+          className: typeof element.className === "string" ? element.className : "",
+          rect: {
+            x: Math.round(rect.x * 10) / 10,
+            y: Math.round(rect.y * 10) / 10,
+            width: Math.round(rect.width * 10) / 10,
+            height: Math.round(rect.height * 10) / 10
+          },
+          pointerEvents: style.pointerEvents,
+          display: style.display,
+          visibility: style.visibility,
+          opacity: style.opacity,
+          position: style.position,
+          zIndex: style.zIndex,
+          overflow: style.overflow,
+          transform: style.transform,
+          outerHTML: element.outerHTML.slice(0, 300)
+        };
+      }), {
+        x: labelBox.x + labelBox.width / 2,
+        y: labelBox.y + labelBox.height / 2
+      }
+    );
+    const pointerEvents = await page.evaluate(() => window.__e2eTabPointerEvents ?? []);
+    console.log(`[tab-hit-stack:${label}] ${JSON.stringify(hitStack)}`);
+    console.log(`[tab-pointer-events:${label}] ${JSON.stringify(pointerEvents)}`);
+    issues.push(`${label} 跳转错误：${page.url()}`);
+    return false;
   }
+  return true;
 }
 
-run();
+try {
+  console.log("\n=== 五栏原生入口 ===");
+  await open("/#/pages/dashboard/dashboard", 1400);
+  const tabLabels = (await page.locator(".uni-tabbar__item:visible").allTextContents())
+    .map((text) => text.trim())
+    .filter(Boolean);
+  for (const label of ["首页", "找房", "地图", "行情", "我的"]) {
+    if (!tabLabels.some((text) => text.includes(label))) issues.push(`TabBar 缺少“${label}”`);
+  }
+  const primaryTargets = [
+    ["首页", "/pages/dashboard/dashboard"],
+    ["找房", "/pages/listing-filter/listing-filter"],
+    ["地图", "/pages/map-view/map-view"],
+    ["行情", "/pages/market/market"],
+    ["我的", "/pages/settings/settings"]
+  ];
+  for (const [label, path] of primaryTargets) {
+    await open("/#/pages/dashboard/dashboard", 300);
+    await clickPrimaryTab(label, path);
+  }
+  await open("/#/pages/dashboard/dashboard", 900);
+
+  console.log("\n=== 首页城市与行情入口 ===");
+  const cityButton = page.locator(".home-v122-city");
+  if (await cityButton.count()) {
+    await cityButton.click({ force: true });
+    await page.waitForTimeout(300);
+    const cityOption = page.locator(".sheet-item:visible").filter({ hasText: "深圳" }).last();
+    if (await cityOption.count()) {
+      await cityOption.click({ force: true });
+      await page.waitForTimeout(900);
+      const pulse = await page.locator("[data-home-market-pulse]").textContent();
+      if (!pulse?.includes("深圳")) issues.push("首页切换深圳后市场脉搏未同步");
+    } else {
+      issues.push("首页城市面板没有深圳选项");
+    }
+  } else {
+    issues.push("首页缺少城市入口");
+  }
+
+  console.log("\n=== 找房三模式与详情收藏 ===");
+  await open("/#/pages/listing-filter/listing-filter", 900);
+  for (const mode of ["community", "school"]) {
+    await page.locator(`[data-find-mode="${mode}"]:visible`).click({ force: true });
+    await page.waitForTimeout(350);
+    const rows = await page.locator(
+      mode === "community" ? "[data-community-card]:visible" : "[data-school-card]:visible"
+    ).count();
+    if (rows === 0) issues.push(`找房 ${mode} 模式没有结果`);
+  }
+  await page.locator('[data-find-mode="listing"]:visible').click({ force: true });
+  await page.waitForTimeout(900);
+  const firstListing = page.locator("[data-listing-card]:visible").first();
+  if (await firstListing.count()) {
+    await Promise.all([
+      page.waitForFunction(
+        () => window.location.href.includes("/pages/listing-detail/listing-detail"),
+        undefined,
+        { timeout: 30_000 }
+      ),
+      firstListing.click({ force: true })
+    ]);
+    await page.waitForTimeout(500);
+  } else {
+    issues.push("找房默认筛选没有可进入的房源");
+    await open("/#/pages/listing-detail/listing-detail?id=1227");
+  }
+  if (!page.url().includes("/pages/listing-detail/listing-detail")) {
+    issues.push(`房源卡未进入详情：${page.url()}`);
+  }
+  const favorite = page.locator(".favorite-button").first();
+  if (await favorite.count()) {
+    const wasSaved = await favorite.getAttribute("aria-label");
+    if (wasSaved === "取消收藏") {
+      await favorite.click({ force: true });
+      await page.waitForTimeout(150);
+    }
+    await favorite.click({ force: true });
+    await page.waitForTimeout(300);
+    if ((await favorite.getAttribute("aria-label")) !== "取消收藏") {
+      issues.push("房源收藏状态未更新");
+    }
+  } else {
+    issues.push("房源详情缺少收藏按钮");
+  }
+
+  console.log("\n=== 地图找房到详情 ===");
+  await open("/#/pages/map-view/map-view", 1100);
+  // H5 地图 marker 不是 DOM；使用页面提供的 E2E 钩子模拟点小区气泡，打开真实房源底栏。
+  for (const communityId of [24, 1]) {
+    await page.evaluate((id) => window.__realtyMapFind?.openCommunitySheet?.(id), communityId);
+    await page.waitForTimeout(300);
+    if (await page.locator("[data-find-listing-id]:visible").count()) break;
+  }
+  const mapListing = page.locator("[data-find-listing-id]:visible").first();
+  if (await mapListing.count()) {
+    await Promise.all([
+      page.waitForFunction(
+        () => window.location.href.includes("/pages/listing-detail/listing-detail"),
+        undefined,
+        { timeout: 30_000 }
+      ),
+      mapListing.click({ force: true })
+    ]);
+    await page.waitForTimeout(800);
+    if (!page.url().includes("/pages/listing-detail/listing-detail")) {
+      issues.push("地图房源未进入详情");
+    }
+  } else {
+    issues.push("地图找房模式没有房源列表");
+  }
+
+  console.log("\n=== 我的仅本机收藏 ===");
+  await open("/#/pages/settings/settings", 700);
+  const localBadge = await page.locator(".local-only-badge:visible").textContent().catch(() => "");
+  if (!localBadge?.includes("仅本机")) issues.push("我的页面未明确标注仅本机");
+  await page.locator('[data-library-tab="favorites"]').click({ force: true });
+  const savedRows = await page.locator(".library-row:visible").count();
+  if (savedRows === 0) issues.push("收藏后“我的”中没有对应记录");
+
+  console.log("\n=== 行情聚合入口 ===");
+  if (!await clickPrimaryTab("行情", "/pages/market/market")) {
+    await open("/#/pages/market/market");
+  }
+  const marketTabs = await page.locator(".segmented-tabs__item:visible").count();
+  const marketEntries = await page.locator(".entity-list-item:visible").count();
+  if (marketTabs < 4) issues.push(`行情分类不足 4 个：${marketTabs}`);
+  if (marketEntries === 0) issues.push("行情聚合页没有二级入口");
+
+  await page.screenshot({
+    path: resolve(OUT_DIR, "v1.122-flow-final.png"),
+    fullPage: true
+  });
+
+  if (consoleErrors.length) issues.push(`consoleErrors=${JSON.stringify(consoleErrors)}`);
+  if (pageErrors.length) issues.push(`pageErrors=${JSON.stringify(pageErrors)}`);
+  if (issues.length) {
+    console.error(`完整交互验收失败：${issues.length} 项`);
+    for (const issue of issues) console.error(`- ${issue}`);
+    process.exitCode = 1;
+  } else {
+    console.log("完整交互验收通过：五栏、找房三模式、详情、地图、收藏与行情闭环");
+    console.log("consoleErrors=[]");
+    console.log("pageErrors=[]");
+  }
+} finally {
+  await browser.close();
+}

@@ -34,19 +34,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4 lxml xlrd==2.0.1 pypdf
 
-      - name: 跑爬虫（m.anjuke.com）
-        id: crawl
+      - name: P0 · 抓取安居客挂牌
+        id: p0_crawl
+        shell: bash
         run: |
+          set -o pipefail
           cd realty_app
-          # Phase C：少于 --min-rows（默认 50）会 exit 2，不覆盖已有 listings（告警=红）
-          python scripts/crawl_anjuke.py --min-rows 50 2>&1 | tee crawl.log
-        continue-on-error: false
+          mkdir -p weekly-logs
+          # 少于 50 行会 exit 2，且原子写保护 last-good listings。
+          python scripts/crawl_anjuke.py --min-rows 50 2>&1 \
+            | tee weekly-logs/p0-anjuke.log
 
-      - name: 校验 REAL 挂牌写入（成功爬取后）
-        if: success()
+      - name: P0 · 校验 REAL 挂牌
+        id: p0_validate
+        shell: bash
         run: |
+          set -o pipefail
           cd realty_app
-          python - <<'PY'
+          python - 2>&1 <<'PY' | tee weekly-logs/p0-validate.log
           import csv
           from pathlib import Path
           p = Path("static/seed/listings.csv")
@@ -59,74 +64,159 @@ jobs:
           print("latest REAL crawl_date=", max(dates) if dates else None)
           PY
 
-      - name: 看结果
+      - name: P0 · 重建挂牌派生与快照指纹
+        id: p0_rebuild
+        shell: bash
         run: |
+          set -o pipefail
           cd realty_app
-          echo "===== listings.csv 前 3 行 ====="
-          head -3 static/seed/listings.csv
-          echo "===== 行数 ====="
-          wc -l static/seed/listings.csv
-          echo "===== crawl.log ====="
-          cat crawl.log
+          python scripts/rebuild_listing_derivatives.py 2>&1 \
+            | tee weekly-logs/p0-rebuild.log
+          python scripts/publish_csv.py 2>&1 \
+            | tee -a weekly-logs/p0-rebuild.log
 
-      - name: 重建房源派生数据并发布完整快照指纹
+      - name: P0 · 提交挂牌核心快照
+        id: p0_commit
+        shell: bash
         run: |
-          cd realty_app
-          python scripts/rebuild_listing_derivatives.py
-          python scripts/publish_csv.py
-
-      - name: 刷新广深珠教育 + 深圳计划入市 + 广州住房计划/居住用地/保障房 + 深圳居住用地 + 珠海安居进展
-        run: |
-          cd realty_app
-          python scripts/crawl_gz_education_overview.py
-          python scripts/crawl_sz_education_overview.py
-          python scripts/crawl_zh_education_overview.py
-          python scripts/crawl_sz_planned_supply.py --max 12
-          python scripts/crawl_gz_housing_plan.py
-          python scripts/crawl_gz_affordable_projects.py --max 12
-          python scripts/crawl_gz_affordable_targets.py --max 12
-          python scripts/crawl_gz_land_deals.py --pages 12 --max-detail 120
-          python scripts/crawl_sz_land_deals.py --pages 4 --page-size 50
-          python scripts/crawl_sz_affordable_projects.py --max 8
-          python scripts/crawl_zh_affordable_progress.py --max 8
-          python scripts/crawl_zh_price_filing.py --max-pages 8
-          python scripts/crawl_sz_provident_annual.py --max 6
-          python scripts/crawl_gz_provident_annual.py
-          python scripts/crawl_zh_provident_dynamics.py
-          python scripts/crawl_gd_provident_annual.py
-          python scripts/crawl_gd_real_estate_brief.py --max 12
-          python scripts/crawl_gd_fa_investment.py --max 8
-          python scripts/crawl_gd_construction.py --max 8
-          python scripts/crawl_gd_economy.py --max 12
-          python scripts/crawl_gd_industrial.py --max 12
-          python scripts/crawl_gd_retail.py --max 12
-          python scripts/crawl_gd_services.py --max 12
-          python scripts/crawl_mlf_history.py --max 24 || true
-          python scripts/crawl_omo_rr.py --max 36 || true
-          python scripts/crawl_chinabond_yield.py --backfill-days 21 || true
-          python scripts/crawl_shibor.py --backfill-days 21 || true
-          python scripts/crawl_repo_fixing.py --backfill-days 21 || true
-          python scripts/crawl_pbc_fin_stats.py --max 18 || true
-          python scripts/crawl_pbc_region_sf.py --max 8 || true
-          python scripts/crawl_safe_forex.py --max 50 --news-pages 30 || true
-          python scripts/crawl_safe_settle.py --max 30 --news-pages 16 || true
-          python scripts/crawl_safe_fx_market.py --max 30 --news-pages 20 || true
-          python scripts/crawl_safe_usd_mid.py --months 6 || true
-          python scripts/crawl_safe_ora.py || true
-          python scripts/crawl_safe_bop_trade.py --max 24 --news-pages 16 || true
-          python scripts/crawl_safe_iip.py --max 24 --news-pages 30 || true
-          python scripts/crawl_safe_bop.py --max 20 --news-pages 36 || true
-
-      - name: 提交 CSV
-        run: |
+          set -o pipefail
           cd realty_app
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet HEAD -- static/seed/listings.csv static/education_overview.csv static/sz_planned_supply.csv static/gz_housing_plan.csv static/gz_affordable_projects.csv static/gz_affordable_targets.csv static/gz_land_deals.csv static/sz_land_deals.csv static/sz_affordable_projects.csv static/zh_affordable_progress.csv static/zh_price_filing.csv static/sz_provident_annual.csv static/gz_provident_annual.csv static/zh_provident_dynamics.csv static/gd_provident_annual.csv static/gd_real_estate_brief.csv static/gd_fa_investment.csv static/gd_construction.csv static/gd_economy.csv static/gd_industrial.csv static/gd_retail.csv static/gd_services.csv static/seed/mlf_history.csv static/seed/omo_rr_history.csv static/seed/chinabond_yield.csv static/seed/shibor.csv static/seed/repo_fixing.csv static/seed/pbc_fin_stats.csv static/seed/pbc_region_sf.csv static/seed/safe_forex.csv static/seed/safe_settle.csv static/seed/safe_fx_market.csv static/seed/safe_usd_mid.csv static/seed/safe_ora.csv static/seed/safe_bop_trade.csv static/seed/safe_iip.csv static/seed/safe_bop.csv; then
-            git add static/seed/*.csv static/seed/crawl_meta.json static/education_overview.csv static/sz_planned_supply.csv static/gz_housing_plan.csv static/gz_affordable_projects.csv static/gz_affordable_targets.csv static/gz_land_deals.csv static/sz_land_deals.csv static/sz_affordable_projects.csv static/zh_affordable_progress.csv static/zh_price_filing.csv static/sz_provident_annual.csv static/gz_provident_annual.csv static/zh_provident_dynamics.csv static/gd_provident_annual.csv static/gd_real_estate_brief.csv static/gd_fa_investment.csv static/gd_construction.csv static/gd_economy.csv static/gd_industrial.csv static/gd_retail.csv static/gd_services.csv static/seed/mlf_history.csv static/seed/omo_rr_history.csv static/seed/chinabond_yield.csv static/seed/shibor.csv static/seed/repo_fixing.csv static/seed/pbc_fin_stats.csv static/seed/pbc_region_sf.csv static/seed/safe_forex.csv static/seed/safe_settle.csv static/seed/safe_fx_market.csv static/seed/safe_usd_mid.csv static/seed/safe_ora.csv static/seed/safe_bop_trade.csv static/seed/safe_iip.csv static/seed/safe_bop.csv
-            git commit -m "data(anjuke): 刷新二手房挂牌 $(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
-              || echo "no commit needed"
+          if ! git diff --quiet HEAD -- static/seed; then
+            git add -- static/seed/*.csv static/seed/crawl_meta.json
+            git commit -m "data(anjuke): 刷新二手房挂牌 $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
             git push
           else
-            echo "数据无变化，跳过 commit"
+            echo "挂牌与派生数据无变化，跳过核心 commit"
           fi
+
+      - name: P1 · 必需官方周更来源（全量执行，末尾统一判失败）
+        id: p1_required
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          cd realty_app
+          python scripts/run_weekly_source_group.py \
+            --group p1 \
+            --log-dir weekly-logs \
+            --status-file weekly-logs/p1-status.tsv \
+            --summary-file "$GITHUB_STEP_SUMMARY"
+
+      - name: P2 · 尽力刷新宏观来源（失败告警但不阻塞）
+        id: p2_optional
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          cd realty_app
+          python scripts/run_weekly_source_group.py \
+            --group p2 \
+            --log-dir weekly-logs \
+            --status-file weekly-logs/p2-status.tsv \
+            --summary-file "$GITHUB_STEP_SUMMARY"
+
+      - name: 提交 P1/P2 成功结果并刷新完整快照指纹
+        id: supplementary_commit
+        if: always() && steps.p0_commit.outcome == 'success'
+        shell: bash
+        run: |
+          set -o pipefail
+          cd realty_app
+          supplement_paths=(
+            static/education_overview.csv
+            static/sz_planned_supply.csv
+            static/gz_housing_plan.csv
+            static/gz_affordable_projects.csv
+            static/gz_affordable_targets.csv
+            static/gz_land_deals.csv
+            static/sz_land_deals.csv
+            static/sz_affordable_projects.csv
+            static/zh_affordable_progress.csv
+            static/zh_price_filing.csv
+            static/sz_provident_annual.csv
+            static/gz_provident_annual.csv
+            static/zh_provident_dynamics.csv
+            static/gd_provident_annual.csv
+            static/gd_real_estate_brief.csv
+            static/gd_fa_investment.csv
+            static/gd_construction.csv
+            static/gd_economy.csv
+            static/gd_industrial.csv
+            static/gd_retail.csv
+            static/gd_services.csv
+            static/seed/mlf_history.csv
+            static/seed/omo_rr_history.csv
+            static/seed/chinabond_yield.csv
+            static/seed/shibor.csv
+            static/seed/repo_fixing.csv
+            static/seed/pbc_fin_stats.csv
+            static/seed/pbc_region_sf.csv
+            static/seed/safe_forex.csv
+            static/seed/safe_settle.csv
+            static/seed/safe_fx_market.csv
+            static/seed/safe_usd_mid.csv
+            static/seed/safe_ora.csv
+            static/seed/safe_bop_trade.csv
+            static/seed/safe_iip.csv
+            static/seed/safe_bop.csv
+          )
+
+          if ! git diff --quiet HEAD -- "${supplement_paths[@]}"; then
+            if ! git diff --quiet HEAD -- static/seed; then
+              python scripts/publish_csv.py 2>&1 \
+                | tee weekly-logs/supplementary-snapshot.log
+            fi
+            git add -- "${supplement_paths[@]}" static/seed/crawl_meta.json
+            git commit -m "data(weekly): 刷新官方与宏观来源 $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git push
+          else
+            echo "P1/P2 数据无变化，跳过补充 commit"
+          fi
+
+      - name: 上传 weekly 分源日志
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crawl-weekly-logs
+          path: realty_app/weekly-logs
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: P0/P1 最终质量门禁
+        if: always()
+        env:
+          P0_CRAWL: ${{ steps.p0_crawl.outcome }}
+          P0_VALIDATE: ${{ steps.p0_validate.outcome }}
+          P0_REBUILD: ${{ steps.p0_rebuild.outcome }}
+          P0_COMMIT: ${{ steps.p0_commit.outcome }}
+          P1_REQUIRED: ${{ steps.p1_required.outcome }}
+          P2_OPTIONAL: ${{ steps.p2_optional.outcome }}
+          SUPPLEMENTARY_COMMIT: ${{ steps.supplementary_commit.outcome }}
+        shell: bash
+        run: |
+          failed=0
+          for pair in \
+            "P0 crawl:$P0_CRAWL" \
+            "P0 validate:$P0_VALIDATE" \
+            "P0 rebuild:$P0_REBUILD" \
+            "P0 commit:$P0_COMMIT" \
+            "P1 required:$P1_REQUIRED"; do
+            name=${pair%%:*}
+            outcome=${pair#*:}
+            if [ "$outcome" != "success" ]; then
+              echo "::error title=weekly 质量门禁::${name} outcome=${outcome}"
+              failed=1
+            fi
+          done
+          # P2 单源失败由组内 warning 表达；只有组装脚本自身异常才会 outcome=failure。
+          if [ "$P2_OPTIONAL" = "failure" ]; then
+            echo "::error title=weekly P2 编排失败::请查看分源日志"
+            failed=1
+          fi
+          if [ "$P0_COMMIT" = "success" ] && [ "$SUPPLEMENTARY_COMMIT" != "success" ]; then
+            echo "::error title=weekly 补充数据提交失败::outcome=${SUPPLEMENTARY_COMMIT}"
+            failed=1
+          fi
+          exit "$failed"

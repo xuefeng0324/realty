@@ -5,17 +5,39 @@ import { resolve } from "node:path";
 const BASE_URL = (process.env.E2E_BASE_URL ?? "http://127.0.0.1:5174").replace(/\/$/, "");
 const OUT_DIR = resolve(process.cwd(), "tests/e2e/artifacts/theme");
 mkdirSync(OUT_DIR, { recursive: true });
+const UPGRADE_PATH = "/#/pages/upgrade-popup/upgrade-popup";
+const UPGRADE_PENDING_KEY = "realty_app.update.pendingManifest";
+const UPGRADE_MANIFEST = {
+  versionName: "1.122.0",
+  versionCode: 279,
+  publishedAt: "2026-08-18T00:00:00+08:00",
+  notes: "移动端五栏、行情聚合与本地收藏改版验收。",
+  force: false
+};
 
 const pages = [
   { name: "dashboard", path: "/#/pages/dashboard/dashboard" },
-  { name: "settings", path: "/#/pages/settings/settings" },
   { name: "listings", path: "/#/pages/listing-filter/listing-filter" },
-  { name: "map", path: "/#/pages/map-view/map-view" },
   { name: "listing-detail", path: "/#/pages/listing-detail/listing-detail?id=1227" },
   { name: "community", path: "/#/pages/community/community?id=24" },
   { name: "school", path: "/#/pages/school/school" },
   { name: "school-detail", path: "/#/pages/school-detail/school-detail?id=1" },
-  { name: "stats70", path: "/#/pages/stats70/stats70" }
+  { name: "stats70", path: "/#/pages/stats70/stats70" },
+  { name: "wangqian", path: "/#/pages/wangqian/wangqian" },
+  { name: "profile", path: "/#/pages/settings/settings" },
+  { name: "gov-webview", path: "/#/pages/gov-webview/gov-webview" },
+  { name: "map", path: "/#/pages/map-view/map-view" },
+  { name: "market", path: "/#/pages/market/market" },
+  { name: "upgrade", path: "/#/pages/upgrade-popup/upgrade-popup" },
+  { name: "macro-rates", path: "/#/pages/macro-rates/macro-rates" },
+  { name: "macro-fx", path: "/#/pages/macro-fx/macro-fx" },
+  { name: "macro-industry", path: "/#/pages/macro-industry/macro-industry" },
+  { name: "macro-region", path: "/#/pages/macro-region/macro-region" },
+  { name: "macro-trade", path: "/#/pages/macro-trade/macro-trade" },
+  { name: "data-tools", path: "/#/pages/data-tools/data-tools" },
+  { name: "supply", path: "/#/pages/supply/supply" },
+  { name: "trend-analysis", path: "/#/pages/trend-analysis/trend-analysis" },
+  { name: "map-analysis", path: "/#/pages/map-analysis/map-analysis" }
 ];
 
 const browser = await chromium.launch();
@@ -23,6 +45,18 @@ const context = await browser.newContext({ viewport: { width: 420, height: 900 }
 const page = await context.newPage();
 const issues = [];
 const snapshots = new Map();
+const consoleErrors = [];
+const pageErrors = [];
+let activeAuditKey = "bootstrap";
+
+page.on("console", (message) => {
+  if (message.type() === "error") {
+    consoleErrors.push(`${activeAuditKey}: ${message.text()}`);
+  }
+});
+page.on("pageerror", (error) => {
+  pageErrors.push(`${activeAuditKey}: ${error.message}`);
+});
 
 const parseHex = (value) => {
   const raw = value?.replace("#", "").trim();
@@ -57,10 +91,27 @@ const contrast = (foreground, background) => {
 try {
   for (const mode of ["light", "dark"]) {
     for (const target of pages) {
-      await page.goto(`${BASE_URL}${target.path}`, { waitUntil: "domcontentloaded" });
-      await page.evaluate((theme) => localStorage.setItem("realty:themeMode", theme), mode);
-      await page.reload({ waitUntil: "domcontentloaded" });
-      await page.waitForTimeout(target.name === "dashboard" ? 1800 : 1000);
+      activeAuditKey = `${target.name}:${mode}:420px`;
+      if (target.path === UPGRADE_PATH) {
+        await page.goto(`${BASE_URL}/#/pages/dashboard/dashboard`, { waitUntil: "domcontentloaded" });
+        await page.evaluate(
+          ({ theme, key, manifest }) => {
+            localStorage.setItem("realty:themeMode", theme);
+            localStorage.setItem(key, JSON.stringify(manifest));
+          },
+          { theme: mode, key: UPGRADE_PENDING_KEY, manifest: UPGRADE_MANIFEST }
+        );
+        await page.goto(`${BASE_URL}${target.path}`, { waitUntil: "domcontentloaded" });
+      } else {
+        await page.goto(`${BASE_URL}${target.path}`, { waitUntil: "domcontentloaded" });
+        await page.evaluate((theme) => localStorage.setItem("realty:themeMode", theme), mode);
+        await page.reload({ waitUntil: "domcontentloaded" });
+      }
+      await page.waitForTimeout(target.name === "dashboard" ? 1400 : 650);
+      if (!page.url().includes(target.path.split("?")[0])) {
+        issues.push(`${target.name}:${mode} 路由被重定向到 ${page.url()}`);
+        continue;
+      }
 
       const audit = await page.evaluate(() => {
         const firstVisible = (selector) => Array.from(document.querySelectorAll(selector)).find((element) => {
@@ -150,10 +201,27 @@ try {
   await page.setViewportSize({ width: 320, height: 800 });
   for (const mode of ["light", "dark"]) {
     for (const target of pages) {
-      await page.goto(`${BASE_URL}${target.path}`, { waitUntil: "domcontentloaded" });
-      await page.evaluate((theme) => localStorage.setItem("realty:themeMode", theme), mode);
-      await page.reload({ waitUntil: "domcontentloaded" });
-      await page.waitForTimeout(target.name === "dashboard" ? 1800 : 900);
+      activeAuditKey = `${target.name}:${mode}:320px`;
+      if (target.path === UPGRADE_PATH) {
+        await page.goto(`${BASE_URL}/#/pages/dashboard/dashboard`, { waitUntil: "domcontentloaded" });
+        await page.evaluate(
+          ({ theme, key, manifest }) => {
+            localStorage.setItem("realty:themeMode", theme);
+            localStorage.setItem(key, JSON.stringify(manifest));
+          },
+          { theme: mode, key: UPGRADE_PENDING_KEY, manifest: UPGRADE_MANIFEST }
+        );
+        await page.goto(`${BASE_URL}${target.path}`, { waitUntil: "domcontentloaded" });
+      } else {
+        await page.goto(`${BASE_URL}${target.path}`, { waitUntil: "domcontentloaded" });
+        await page.evaluate((theme) => localStorage.setItem("realty:themeMode", theme), mode);
+        await page.reload({ waitUntil: "domcontentloaded" });
+      }
+      await page.waitForTimeout(target.name === "dashboard" ? 1400 : 600);
+      if (!page.url().includes(target.path.split("?")[0])) {
+        issues.push(`${target.name}:${mode}:320px 路由被重定向到 ${page.url()}`);
+        continue;
+      }
       const compact = await page.evaluate(() => {
         const width = window.innerWidth;
         const documentWidth = Math.max(
@@ -178,6 +246,9 @@ try {
       for (const text of compact.clippedButtons) issues.push(`${key} 按钮被裁切：“${text}”`);
     }
   }
+
+  for (const error of consoleErrors) issues.push(`console.error ${error}`);
+  for (const error of pageErrors) issues.push(`pageerror ${error}`);
 
   if (issues.length > 0) {
     console.error(`主题视觉审计失败：${issues.length} 项`);

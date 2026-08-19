@@ -3,7 +3,7 @@
     {
       "path": "pages/dashboard/dashboard",
       "style": {
-        "navigationBarTitleText": "Realty · 总览",
+        "navigationBarTitleText": "Realty · 首页",
         "enablePullDownRefresh": true
       }
     },
@@ -16,7 +16,7 @@
     {
       "path": "pages/listing-filter/listing-filter",
       "style": {
-        "navigationBarTitleText": "房源筛选"
+        "navigationBarTitleText": "找房"
       }
     },
     {
@@ -53,7 +53,7 @@
     {
       "path": "pages/settings/settings",
       "style": {
-        "navigationBarTitleText": "设置"
+        "navigationBarTitleText": "我的"
       }
     },
     {
@@ -66,6 +66,13 @@
       "path": "pages/map-view/map-view",
       "style": {
         "navigationBarTitleText": "地图找房"
+      }
+    },
+    {
+      "path": "pages/market/market",
+      "style": {
+        "navigationBarTitleText": "行情",
+        "navigationStyle": "custom"
       }
     },
     {
@@ -150,23 +157,33 @@
     "list": [
       {
         "pagePath": "pages/dashboard/dashboard",
-        "text": "总览"
+        "text": "首页",
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home-active.png"
       },
       {
         "pagePath": "pages/listing-filter/listing-filter",
-        "text": "房源"
-      },
-      {
-        "pagePath": "pages/school/school",
-        "text": "学校"
-      },
-      {
-        "pagePath": "pages/settings/settings",
-        "text": "设置"
+        "text": "找房",
+        "iconPath": "static/tabbar/search.png",
+        "selectedIconPath": "static/tabbar/search-active.png"
       },
       {
         "pagePath": "pages/map-view/map-view",
-        "text": "地图"
+        "text": "地图",
+        "iconPath": "static/tabbar/map.png",
+        "selectedIconPath": "static/tabbar/map-active.png"
+      },
+      {
+        "pagePath": "pages/market/market",
+        "text": "行情",
+        "iconPath": "static/tabbar/market.png",
+        "selectedIconPath": "static/tabbar/market-active.png"
+      },
+      {
+        "pagePath": "pages/settings/settings",
+        "text": "我的",
+        "iconPath": "static/tabbar/profile.png",
+        "selectedIconPath": "static/tabbar/profile-active.png"
       }
     ]
   },

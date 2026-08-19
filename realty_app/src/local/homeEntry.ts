@@ -6,6 +6,9 @@
 
 export type HomeSearchMode = "school" | "listing" | "page";
 
+/** 五栏改版后的统一找房入口模式。旧 school 路由仍保留深链兼容。 */
+export type FindHubMode = "listing" | "community" | "school";
+
 export type HomeChannelKey =
   | "price"
   | "wangqian"
@@ -18,6 +21,7 @@ export type HomeEntryTone = "blue" | "green" | "red" | "amber" | "violet" | "ros
 
 export type HomeKingkongAction =
   | { kind: "tab"; tab: "overview" | "price" | "school" | "transit" | "map" }
+  | { kind: "find"; mode: FindHubMode }
   | { kind: "switchTab"; path: string }
   | { kind: "navigate"; path: string }
   | { kind: "scroll"; anchor: string }
@@ -27,6 +31,7 @@ export type HomeKingkongAction =
 export type HomeChannelAction =
   | { kind: "navigate"; path: string }
   | { kind: "switchTab"; path: string }
+  | { kind: "find"; mode: FindHubMode }
   | { kind: "tab"; tab: "overview" | "price" | "school" | "transit" | "map" };
 
 export interface HomeChannel {
@@ -51,25 +56,26 @@ export const HOME_SEARCH_MODES: { key: HomeSearchMode; label: string; placeholde
 
 /** 频道条：一律跳独立页 / Tab，禁止只滚本页长流 */
 export const HOME_CHANNELS: HomeChannel[] = [
-  { key: "price", label: "房价", action: { kind: "navigate", path: "/pages/stats70/stats70" } },
+  { key: "price", label: "房价", action: { kind: "switchTab", path: "/pages/market/market" } },
   { key: "wangqian", label: "网签", action: { kind: "navigate", path: "/pages/wangqian/wangqian" } },
   { key: "macro", label: "宏观", action: { kind: "navigate", path: "/pages/macro-region/macro-region" } },
   { key: "supply", label: "供需", action: { kind: "navigate", path: "/pages/supply/supply" } },
-  { key: "amenity", label: "配套", action: { kind: "switchTab", path: "/pages/school/school" } },
+  { key: "amenity", label: "配套", action: { kind: "find", mode: "school" } },
   { key: "tools", label: "工具", action: { kind: "navigate", path: "/pages/data-tools/data-tools" } }
 ];
 
 export const HOME_KINGKONG: HomeKingkongItem[] = [
-  { key: "listing", icon: "🏠", label: "房源", tone: "green", action: { kind: "switchTab", path: "/pages/listing-filter/listing-filter" } },
-  { key: "school", icon: "🏫", label: "学校", tone: "amber", action: { kind: "switchTab", path: "/pages/school/school" } },
+  { key: "listing", icon: "🏠", label: "房源", tone: "green", action: { kind: "find", mode: "listing" } },
+  { key: "community", icon: "🏙️", label: "小区", tone: "blue", action: { kind: "find", mode: "community" } },
+  { key: "school", icon: "🏫", label: "学校", tone: "amber", action: { kind: "find", mode: "school" } },
   { key: "map", icon: "🗺️", label: "地图", tone: "blue", action: { kind: "switchTab", path: "/pages/map-view/map-view" } },
   { key: "wangqian", icon: "📋", label: "网签", tone: "red", action: { kind: "navigate", path: "/pages/wangqian/wangqian" } },
   { key: "stats70", icon: "📈", label: "70城", tone: "violet", action: { kind: "navigate", path: "/pages/stats70/stats70" } },
   { key: "macro", icon: "🏛️", label: "宏观", tone: "slate", action: { kind: "navigate", path: "/pages/macro-region/macro-region" } },
   { key: "inventory", icon: "🏗️", label: "库存", tone: "amber", action: { kind: "navigate", path: "/pages/supply/supply?focus=inventory" } },
   { key: "land", icon: "🗺️", label: "土地", tone: "green", action: { kind: "navigate", path: "/pages/supply/supply?focus=land" } },
-  { key: "price-tab", icon: "💰", label: "价格", tone: "red", action: { kind: "tab", tab: "price" } },
-  { key: "settings", icon: "⚙️", label: "设置", tone: "rose", action: { kind: "switchTab", path: "/pages/settings/settings" } }
+  { key: "price-tab", icon: "💰", label: "行情", tone: "red", action: { kind: "switchTab", path: "/pages/market/market" } },
+  { key: "settings", icon: "👤", label: "我的", tone: "rose", action: { kind: "switchTab", path: "/pages/settings/settings" } }
 ];
 
 /** 本页搜索关键词 → 独立页（不再滚锚点） */
@@ -98,6 +104,18 @@ export type HomeSearchResolve =
 
 let pendingSchoolQuery = "";
 let pendingListingQuery = "";
+let pendingFindMode: FindHubMode | null = null;
+
+export function setPendingFindMode(mode: FindHubMode): void {
+  pendingFindMode = mode;
+}
+
+/** 消费一次找房模式；避免后续返回 Tab 时反复覆盖用户当前选择。 */
+export function takePendingFindMode(): FindHubMode | null {
+  const mode = pendingFindMode;
+  pendingFindMode = null;
+  return mode;
+}
 
 export function setPendingSchoolQuery(q: string): void {
   pendingSchoolQuery = String(q ?? "").trim();

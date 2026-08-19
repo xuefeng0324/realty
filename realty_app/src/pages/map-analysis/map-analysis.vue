@@ -68,8 +68,18 @@
             v-for="m in districtMap.markers"
             :key="'m_' + m.communityId"
             class="map-marker-g tap-row"
+            role="button"
+            tabindex="0"
+            :aria-label="`打开小区：${m.communityName}`"
             @click="goCommunity(m.communityId)"
+            @keyup.enter="goCommunity(m.communityId)"
           >
+            <circle
+              :cx="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
+              :cy="mapY(m.lat, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
+              r="32"
+              class="map-marker-hit"
+            />
             <circle
               :cx="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
               :cy="mapY(m.lat, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
@@ -84,17 +94,31 @@
           </g>
         </g>
         <g v-else-if="mapMode === 'marker'">
-          <circle
+          <g
             v-for="m in districtMap.markers"
             :key="'mb_' + m.communityId"
-            :cx="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
-            :cy="mapY(m.lat, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
-            r="3"
-            class="map-marker-bare tap-row"
+            class="map-marker-g tap-row"
             :data-community-id="m.communityId"
             :data-name="m.communityName"
+            role="button"
+            tabindex="0"
+            :aria-label="`打开小区：${m.communityName}`"
             @click="goCommunity(m.communityId)"
-          ><title>{{ m.communityName }}</title></circle>
+            @keyup.enter="goCommunity(m.communityId)"
+          >
+            <circle
+              :cx="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
+              :cy="mapY(m.lat, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
+              r="32"
+              class="map-marker-hit"
+            />
+            <circle
+              :cx="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
+              :cy="mapY(m.lat, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
+              r="3"
+              class="map-marker-bare"
+            ><title>{{ m.communityName }}</title></circle>
+          </g>
         </g>
         <g v-else>
           <text
@@ -412,6 +436,7 @@ watch(
 .map-district-val { font-size: 12px; fill: #1e293b; font-weight: 700; pointer-events: none; }
 
 .map-marker { fill: #4f46e5; stroke: #fff; stroke-width: 1.5; }
+.map-marker-hit { fill: transparent; pointer-events: all; }
 .map-marker-lbl { font-size: 12px; fill: #4f46e5; font-weight: 500; }
 .map-marker-bare { fill: #4f46e5; cursor: pointer; }
 .map-marker-g:hover .map-marker { fill: #ef4444; }

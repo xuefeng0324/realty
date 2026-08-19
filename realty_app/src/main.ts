@@ -9,5 +9,5 @@ export function createApp() {
   return { app };
 }
 
-// dev 环境注入 eruda 控制台；prod 构建时被 tree-shake 剥离
+// dev 下仅 `?eruda=1` 显式启用，避免浮层覆盖原生 TabBar / 干扰 E2E。
 void loadErudaInDev();

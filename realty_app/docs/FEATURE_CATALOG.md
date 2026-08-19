@@ -25,6 +25,46 @@
 
 ---
 
+## 0b. 五栏壳层、行情与本地资料库
+
+### F-ENTRY-02 · 五个一级入口
+
+| 项 | 内容 |
+|----|------|
+| 入口 | 原生 TabBar：`首页 / 找房 / 地图 / 行情 / 我的` |
+| 风险 | U, F, L |
+| 对照 | [APP_SHELL_ACCEPTANCE.md](./APP_SHELL_ACCEPTANCE.md) |
+
+**期望**：五个 Tab 路由契约正确；学校旧深链兼容；浅/深主题和窄屏均可用。<br>
+**不期望**：自绘重复底栏；Tab 页使用 `navigateTo`；非 Tab 页使用 `switchTab`。
+**自动化**：unit `navigation.test.ts`；core `smoke_full_interactions.mjs` / `smoke_full_pages.mjs`。
+
+### F-MKT-01 · 行情聚合页
+
+| 项 | 内容 |
+|----|------|
+| 入口 | Tab「行情」→ `/pages/market/market` |
+| 风险 | U, F, L |
+| 对照 | [APP_SHELL_ACCEPTANCE.md](./APP_SHELL_ACCEPTANCE.md)、HOUSING_PRICE |
+
+**期望**：网签、70 城、供需、宏观、趋势、工具均可达；来源/更新时间和 REAL/DERIVED 语义可见。<br>
+**不期望**：复制完整长页；把指数或挂牌误标为成交均价。
+**自动化**：unit `navigation.test.ts` / 页面映射门禁；core navigation/full-pages。
+
+### F-MINE-01 · 本地收藏与浏览历史
+
+| 项 | 内容 |
+|----|------|
+| 入口 | Tab「我的」→ 收藏 / 浏览历史 |
+| 风险 | U, F, L |
+| 对照 | [APP_SHELL_ACCEPTANCE.md](./APP_SHELL_ACCEPTANCE.md) |
+
+**期望**：房源/小区/学校按 `type:id` 去重收藏；历史最多 100 条且仅保留 90 天；坏 storage 安全回空；仅成功详情写历史。<br>
+**不期望**：暗示账号同步；无效 ID 写历史；重复访问堆重复行。
+**自动化**：unit `userLibrary.test.ts`；core `smoke_full_interactions.mjs`。
+
+---
+
 ## 1b. 供需独立页 `pages/supply/supply`
 
 ### F-SUPPLY-01 · 广州库存住宅 + 商业/办公/车位
@@ -542,6 +582,7 @@
 | 总览专业 Tab | [DASHBOARD_TABS_ACCEPTANCE.md](./DASHBOARD_TABS_ACCEPTANCE.md) | F-DASH-04 |
 | 总览去缝 | [DASHBOARD_FEED_ACCEPTANCE.md](./DASHBOARD_FEED_ACCEPTANCE.md) | F-DASH-02 |
 | 房价三轴 | [HOUSING_PRICE_ACCEPTANCE.md](./HOUSING_PRICE_ACCEPTANCE.md) | F-DASH-03/05/06/07, F-MAP-01, F-X-01, F-S70, F-WQ |
+| 五栏壳层与本地资料库 | [APP_SHELL_ACCEPTANCE.md](./APP_SHELL_ACCEPTANCE.md) | F-ENTRY-02 / F-MKT-01 / F-MINE-01 |
 
 ---
 

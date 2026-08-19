@@ -16,7 +16,7 @@
     页面：https://zfcj.gz.gov.cn/zfcj/tjxx/spfxstjxx
 
 ⚠️  两城接口均只返回「最近一个交易日」快照，不支持按日期回溯。
-    历史序列靠每日定时跑本脚本、--merge 追加到 CSV 积累。
+    历史序列靠每日定时跑本脚本，默认 merge 追加到 CSV 积累。
 
 ⚠️  广州二手房仅有月度图片公告（存量房交易登记统计信息），暂无稳定日更 API；
     本脚本对广州仅抓「新房/住宅签约」。
@@ -34,7 +34,7 @@
 
 使用：
   python scripts/crawl_daily_wangqian.py fetch
-  python scripts/crawl_daily_wangqian.py fetch --merge
+  python scripts/crawl_daily_wangqian.py fetch --no-merge  # 仅在需要整表重写时使用
   python scripts/crawl_daily_wangqian.py fetch --city 深圳 --sz-days 90
 
 依赖：优先 pip install requests；若无 requests 则自动回退标准库 urllib（本地 venv/pip 损坏时可用）。
@@ -546,7 +546,7 @@ def cmd_fetch(args: argparse.Namespace) -> int:
     return 0
 
 
-def main() -> int:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="深圳/广州政府网签日更抓取")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
@@ -556,6 +556,14 @@ def main() -> int:
         "--no-merge",
         action="store_true",
         help="禁用 merge，仅写出本次抓取窗口（会抹掉更早历史）",
+    )
+    # 兼容旧 workflow/本地脚本。默认本来就是 merge，因此该别名只负责
+    # 接受旧参数，不在 --help 中继续宣传已经废弃的正向开关。
+    p.add_argument(
+        "--merge",
+        dest="no_merge",
+        action="store_false",
+        help=argparse.SUPPRESS,
     )
     p.add_argument(
         "--city",
@@ -568,7 +576,15 @@ def main() -> int:
         default=90,
         help="深圳全市历史回溯天数（getFjzsInfoData），0 表示跳过",
     )
-    p.set_defaults(func=cmd_fetch)
+    # 两个相反 action 共用同一 dest 时必须显式锁默认值；否则后注册的
+    # store_false 会把“无参数”默认成 no_merge=True。
+    p.set_defaults(func=cmd_fetch, no_merge=False)
+
+    return parser
+
+
+def main() -> int:
+    parser = build_parser()
 
     args = parser.parse_args()
     return args.func(args)

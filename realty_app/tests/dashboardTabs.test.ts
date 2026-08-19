@@ -55,7 +55,7 @@ describe("F-DASH-04 dashboard tabs acceptance", () => {
     });
 
     it("U2/F3: 页面根绑定 data-dash-tab（App 无 document 也能过滤）", () => {
-      expect(dash).toMatch(/class="page"[^>]*:data-dash-tab="activeTab"|:data-dash-tab="activeTab"[^>]*class="page"/);
+      expect(dash).toMatch(/class="page(?:\s+[^"]*)?"[^>]*:data-dash-tab="activeTab"|:data-dash-tab="activeTab"[^>]*class="page(?:\s+[^"]*)?"/);
       // 允许 attribute 换行
       expect(dash).toMatch(/:data-dash-tab="activeTab"/);
       expect(dash).toMatch(/\.page\[data-dash-tab="price"\]/);
@@ -69,13 +69,16 @@ describe("F-DASH-04 dashboard tabs acceptance", () => {
       expect(pageRules).toBeGreaterThanOrEqual(5);
     });
 
-    it("X3/U4: 金刚区价格 → tab:price，且切换走 setDashTab 反馈", () => {
+    it("X3/U4: 旧价格入口迁入行情一级 Tab", () => {
       const price = HOME_KINGKONG.find((k) => k.key === "price-tab");
       expect(price).toBeTruthy();
-      expect(price!.label).toBe("价格");
-      expect(price!.action).toEqual({ kind: "tab", tab: "price" });
+      expect(price!.label).toBe("行情");
+      expect(price!.action).toEqual({
+        kind: "switchTab",
+        path: "/pages/market/market"
+      });
       expect(home).toContain('key: "price-tab"');
-      expect(dash).toContain("setDashTab");
+      expect(dash).toContain("openMarket");
       expect(dash).toContain('data-home-king');
     });
 

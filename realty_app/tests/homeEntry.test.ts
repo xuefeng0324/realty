@@ -27,7 +27,7 @@ describe("homeEntry F-ENTRY-01", () => {
 
   it("频道条全部为独立页/Tab 跳转，禁止纯滚动", () => {
     for (const c of HOME_CHANNELS) {
-      expect(["navigate", "switchTab", "tab"]).toContain(c.action.kind);
+      expect(["navigate", "switchTab", "tab", "find"]).toContain(c.action.kind);
     }
     expect(HOME_CHANNELS.find((c) => c.key === "tools")?.action).toEqual({
       kind: "navigate",

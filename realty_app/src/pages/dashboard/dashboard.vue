@@ -1,6 +1,139 @@
 <template>
-  <view class="page" :data-dash-tab="activeTab" :data-realty-theme="realtyTheme" :class="[{ 'city-scoped': cityScoped }, 'realty-theme-' + realtyTheme]">
+  <view class="page home-v122" :data-dash-tab="activeTab" :data-realty-theme="realtyTheme" :class="[{ 'city-scoped': cityScoped }, 'realty-theme-' + realtyTheme]">
     <view class="container">
+      <view class="home-v122-shell" data-home-entry>
+        <view class="home-v122-hero">
+          <view class="home-v122-topline">
+            <view>
+              <text class="home-v122-brand">REALTY INSIGHT</text>
+              <view class="home-v122-title">住得明白，选得从容</view>
+            </view>
+            <button class="home-v122-city" hover-class="home-v122-tap" data-home-city @click="pickCity">
+              <text class="home-v122-city-dot" />
+              <text>{{ currentCityLabel || "选城市" }}</text>
+              <text class="home-v122-city-caret">⌄</text>
+            </button>
+          </view>
+
+          <view class="home-v122-search" data-home-search>
+            <text class="home-v122-search-icon">⌕</text>
+            <input
+              class="home-v122-search-input"
+              type="text"
+              confirm-type="search"
+              :placeholder="homeSearchPlaceholder"
+              :value="homeSearchText"
+              @input="onHomeSearchInput"
+              @confirm="submitHomeSearch"
+            />
+            <button class="home-v122-search-btn" size="mini" @click="submitHomeSearch">搜索</button>
+          </view>
+          <view class="home-v122-search-modes">
+            <view
+              v-for="m in HOME_SEARCH_MODES"
+              :key="'v122-' + m.key"
+              class="home-v122-mode"
+              :class="{ 'home-v122-mode--active': homeSearchMode === m.key }"
+              :data-home-mode="m.key"
+              @click="homeSearchMode = m.key"
+            >{{ m.key === "page" ? "找功能" : `找${m.label}` }}</view>
+          </view>
+        </view>
+
+        <view class="home-v122-pulse" data-home-market-pulse @click="openMarket">
+          <view class="home-v122-section-head">
+            <view>
+              <text class="home-v122-eyebrow">MARKET PULSE</text>
+              <view class="home-v122-section-title">{{ currentCityLabel || "本地" }}市场脉搏</view>
+            </view>
+            <view class="home-v122-live"><text class="home-v122-live-dot" />数据已连接</view>
+          </view>
+          <view class="home-v122-metrics">
+            <view class="home-v122-metric">
+              <text class="home-v122-metric-label">挂牌中位单价</text>
+              <text class="home-v122-metric-value">{{ homeMedianUnitPriceLabel }}</text>
+              <text class="home-v122-metric-note">卖方挂牌 · 非成交</text>
+            </view>
+            <view class="home-v122-metric home-v122-metric--accent">
+              <text class="home-v122-metric-label">二手价格指数</text>
+              <text class="home-v122-metric-value" :class="homeMarketIndexTone">{{ homeMarketIndexLabel }}</text>
+              <text class="home-v122-metric-note">{{ homeMarketIndexDelta }}</text>
+            </view>
+            <view class="home-v122-metric">
+              <text class="home-v122-metric-label">在库房源</text>
+              <text class="home-v122-metric-value">{{ listingCount.toLocaleString() }}</text>
+              <text class="home-v122-metric-note">覆盖 {{ communityCount }} 个小区</text>
+            </view>
+          </view>
+          <view class="home-v122-pulse-foot">
+            <text>查看完整行情与数据来源</text><text>→</text>
+          </view>
+        </view>
+
+        <view class="home-v122-block">
+          <view class="home-v122-section-head home-v122-section-head--compact">
+            <view class="home-v122-section-title">从哪里开始</view>
+            <text class="home-v122-section-sub">五个核心入口</text>
+          </view>
+          <view class="home-v122-quick" data-home-kingkong>
+            <button class="home-v122-quick-item" data-home-king="listing" @click="openFindHub('listing')">
+              <text class="home-v122-quick-icon home-v122-quick-icon--green">住</text><text>房源</text>
+            </button>
+            <button class="home-v122-quick-item" data-home-king="community" @click="openFindHub('community')">
+              <text class="home-v122-quick-icon home-v122-quick-icon--blue">区</text><text>小区</text>
+            </button>
+            <button class="home-v122-quick-item" data-home-king="school" @click="openFindHub('school')">
+              <text class="home-v122-quick-icon home-v122-quick-icon--amber">校</text><text>学校</text>
+            </button>
+            <button class="home-v122-quick-item" data-home-king="map" @click="openMapTab">
+              <text class="home-v122-quick-icon home-v122-quick-icon--cyan">图</text><text>地图</text>
+            </button>
+            <button class="home-v122-quick-item" data-home-king="market" @click="openMarket">
+              <text class="home-v122-quick-icon home-v122-quick-icon--violet">势</text><text>行情</text>
+            </button>
+          </view>
+        </view>
+
+        <view class="home-v122-block" data-home-recommendations>
+          <view class="home-v122-section-head home-v122-section-head--compact">
+            <view>
+              <view class="home-v122-section-title">值得看看</view>
+              <text class="home-v122-section-sub">优先展示真实来源与信息完整房源</text>
+            </view>
+            <text class="home-v122-more" @click="openFindHub('listing')">全部 {{ listingCount }} 套 →</text>
+          </view>
+          <view v-if="homeRecommendedListings.length" class="home-v122-list">
+            <view
+              v-for="listing in homeRecommendedListings"
+              :key="listing.listingId"
+              class="home-v122-listing"
+              @click="goListing(listing.listingId)"
+            >
+              <image v-if="listing.coverUrl" class="home-v122-cover" :src="listing.coverUrl" mode="aspectFill" lazy-load />
+              <view v-else class="home-v122-cover home-v122-cover--empty"><text>REALTY</text></view>
+              <view class="home-v122-listing-main">
+                <view class="home-v122-listing-title">{{ listing.title }}</view>
+                <text class="home-v122-listing-meta">{{ homeListingCommunity(listing.communityId) }} · {{ listing.areaSqm ? `${listing.areaSqm}㎡` : "面积待补" }}</text>
+                <view class="home-v122-listing-foot">
+                  <text class="home-v122-listing-price">{{ listing.totalPrice10k ? `${listing.totalPrice10k} 万` : "价格待补" }}</text>
+                  <text class="home-v122-source" :class="{ 'home-v122-source--real': listing.sourceKind === 'REAL' }">{{ listing.sourceKind === "REAL" ? "真实来源" : "派生参考" }}</text>
+                </view>
+              </view>
+              <text class="home-v122-arrow">›</text>
+            </view>
+          </view>
+          <view v-else class="home-v122-empty">
+            当前城市暂无房源，切换城市或稍后刷新。
+          </view>
+        </view>
+
+        <view class="home-v122-trust">
+          <text class="home-v122-trust-mark">✓</text>
+          <view><view class="home-v122-trust-title">数据口径透明</view><text>价格、指数与网签分开呈现，不把挂牌价写成成交价。</text></view>
+          <text class="home-v122-more" @click="openMarket">了解 →</text>
+        </view>
+      </view>
+
       <!-- 首屏壳（对照美团/淘宝）：城市 + 搜索 + 频道 + 金刚；次要能力进设置 / 独立页 -->
       <view class="card home-entry-card" data-home-entry data-tab="all,overview,price,school,transit,map">
         <view class="home-loc-search">
@@ -4852,8 +4985,10 @@ import {
   homeSupplyEntryOwner,
   resolveHomeScrollAnchor,
   resolveHomeSearch,
+  setPendingFindMode,
   setPendingSchoolQuery,
   setPendingListingQuery,
+  type FindHubMode,
   type HomeChannel,
   type HomeKingkongItem,
   type HomeScrollAvailability,
@@ -5806,6 +5941,28 @@ function goTrendAnalysis(): void {
 function goMapAnalysis(): void {
   uni.navigateTo({ url: "/pages/map-analysis/map-analysis" });
 }
+
+function openFindHub(mode: FindHubMode): void {
+  setPendingFindMode(mode);
+  uni.switchTab({
+    url: "/pages/listing-filter/listing-filter",
+    fail: (e) => showToast(`打开找房失败：${toErrorMessage(e)}`)
+  });
+}
+
+function openMapTab(): void {
+  uni.switchTab({
+    url: "/pages/map-view/map-view",
+    fail: (e) => showToast(`打开地图失败：${toErrorMessage(e)}`)
+  });
+}
+
+function openMarket(): void {
+  uni.switchTab({
+    url: "/pages/market/market",
+    fail: (e) => showToast(`打开行情失败：${toErrorMessage(e)}`)
+  });
+}
 const homeSearchMode = ref<HomeSearchMode>("school");
 const homeSearchText = ref("");
 const homeSearchPlaceholder = computed(
@@ -5869,6 +6026,10 @@ function jumpHomeAnchor(anchor: string) {
 /** F-ENTRY-01：频道条跳独立页 / Tab，禁止本页长滚 */
 function onHomeChannel(c: HomeChannel) {
   const a = c.action;
+  if (a.kind === "find") {
+    openFindHub(a.mode);
+    return;
+  }
   if (a.kind === "tab") {
     setDashTab(a.tab);
     return;
@@ -5902,14 +6063,16 @@ function submitHomeSearch() {
     return;
   }
   if (resolved.kind === "school") {
+    setPendingFindMode("school");
     setPendingSchoolQuery(resolved.q);
     uni.switchTab({
-      url: "/pages/school/school",
+      url: "/pages/listing-filter/listing-filter",
       fail: (e) => showToast(`打开学校失败：${toErrorMessage(e)}`)
     });
     return;
   }
   if (resolved.kind === "listing") {
+    setPendingFindMode("listing");
     if (resolved.q) setPendingListingQuery(resolved.q);
     uni.switchTab({
       url: resolved.path,
@@ -5934,6 +6097,10 @@ function submitHomeSearch() {
 }
 function onHomeKingkong(k: HomeKingkongItem) {
   const a = k.action;
+  if (a.kind === "find") {
+    openFindHub(a.mode);
+    return;
+  }
   if (a.kind === "tab") {
     setDashTab(a.tab);
     return;
@@ -6036,7 +6203,7 @@ function jumpOverviewGroup(key: OverviewGroupKey) {
     return;
   }
   if (key === "school") {
-    uni.switchTab({ url: "/pages/school/school" });
+    openFindHub("school");
     return;
   }
   if (key === "lpr") {
@@ -6122,6 +6289,43 @@ const medianTotalPrice = computed<number>(() => {
   const mid = Math.floor(arr.length / 2);
   return arr.length % 2 === 0 ? Math.round((arr[mid - 1] + arr[mid]) / 2) : arr[mid];
 });
+
+const homeMedianUnitPriceLabel = computed(() =>
+  medianUnitPrice.value > 0
+    ? `${(medianUnitPrice.value / 10000).toFixed(1)} 万/㎡`
+    : "—"
+);
+
+const homeMarketIndexLabel = computed(() => {
+  const value = currentCityIndex.value?.secondMoM;
+  return value == null ? "—" : formatIndex(value);
+});
+
+const homeMarketIndexDelta = computed(() => {
+  const value = currentCityIndex.value?.secondMoM;
+  return value == null ? "等待最新月度数据" : `${deltaLabel(value)} · 上月=100`;
+});
+
+const homeMarketIndexTone = computed(() =>
+  trendClass(currentCityIndex.value?.secondMoM ?? null)
+);
+
+const homeRecommendedListings = computed(() =>
+  [...store.getListingsByCity(app.cityId)]
+    .sort((a, b) => {
+      const score = (row: typeof a) =>
+        (row.sourceKind === "REAL" ? 8 : 0) +
+        (row.coverUrl ? 4 : 0) +
+        (row.totalPrice10k != null ? 2 : 0) +
+        (row.areaSqm != null ? 1 : 0);
+      return score(b) - score(a) || String(b.crawlDate ?? "").localeCompare(String(a.crawlDate ?? ""));
+    })
+    .slice(0, 3)
+);
+
+function homeListingCommunity(communityId: number): string {
+  return store.getCommunityById(communityId)?.communityName ?? "小区待补";
+}
 
 // v0.55.0 hero-1: 顶部大盘轮播
 type HeroSlide = {
@@ -10314,6 +10518,413 @@ onShow(async () => {
 .topnav-p-btn--disabled {
   opacity: 0.35;
   pointer-events: none;
+}
+
+/* F-ENTRY-02：1.122.0 首页——翡翠绿品牌层、核心指标、五入口与推荐房源。 */
+.home-v122 {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(16, 185, 129, 0.12), transparent 34%),
+    var(--color-bg, #f4f7f6);
+}
+.home-v122 .container > :not(.home-v122-shell):not(.sheet-mask) { display: none !important; }
+.home-v122-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  /* 原生/H5 TabBar 固定在底部；留出完整点击区，避免最后一张推荐卡压在其下。 */
+  padding-bottom: calc(128rpx + var(--safe-area-bottom, 0px));
+}
+.home-v122-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 36rpx 32rpx 30rpx;
+  border-radius: 32rpx;
+  color: #f8fffc;
+  background:
+    radial-gradient(circle at 95% 5%, rgba(56, 189, 248, 0.28), transparent 38%),
+    linear-gradient(135deg, #063d35 0%, #075f50 54%, #087d6a 100%);
+  box-shadow: 0 22rpx 54rpx rgba(4, 78, 67, 0.2);
+}
+.home-v122-hero::after {
+  content: "";
+  position: absolute;
+  right: -90rpx;
+  bottom: -120rpx;
+  width: 280rpx;
+  height: 280rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.13);
+  border-radius: 50%;
+  box-shadow: 0 0 0 44rpx rgba(255, 255, 255, 0.035), 0 0 0 88rpx rgba(255, 255, 255, 0.025);
+  pointer-events: none;
+}
+.home-v122-topline,
+.home-v122-section-head,
+.home-v122-listing-foot,
+.home-v122-pulse-foot,
+.home-v122-trust {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.home-v122-brand,
+.home-v122-eyebrow {
+  display: block;
+  color: #7fffd4;
+  font-size: 18rpx;
+  font-weight: 800;
+  letter-spacing: 3rpx;
+}
+.home-v122-title {
+  margin-top: 8rpx;
+  font-size: 38rpx;
+  font-weight: 800;
+  letter-spacing: -1rpx;
+}
+.home-v122-city,
+.home-v122-search-btn,
+.home-v122-quick-item {
+  box-sizing: border-box;
+  margin: 0;
+  border: 0;
+  line-height: 1;
+}
+.home-v122-city {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  min-height: 64rpx;
+  padding: 0 20rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.18);
+  border-radius: 999rpx;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 24rpx;
+  backdrop-filter: blur(12px);
+}
+.home-v122-city::after,
+.home-v122-search-btn::after,
+.home-v122-quick-item::after { border: 0; }
+.home-v122-city-dot,
+.home-v122-live-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: #5eead4;
+  box-shadow: 0 0 0 6rpx rgba(94, 234, 212, 0.14);
+}
+.home-v122-city-caret { color: rgba(255, 255, 255, 0.72); }
+.home-v122-search {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  height: 88rpx;
+  margin-top: 32rpx;
+  padding: 0 12rpx 0 24rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.18);
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 14rpx 36rpx rgba(0, 31, 27, 0.2);
+}
+.home-v122-search-icon {
+  color: #0f766e;
+  font-size: 38rpx;
+  transform: rotate(-15deg);
+}
+.home-v122-search-input {
+  flex: 1;
+  min-width: 0;
+  height: 72rpx;
+  color: #12342f;
+  font-size: 27rpx;
+}
+.home-v122-search-btn {
+  min-width: 104rpx;
+  min-height: 64rpx;
+  padding: 0 22rpx;
+  border-radius: 18rpx;
+  color: #fff;
+  background: linear-gradient(135deg, #059669, #0d9488);
+  font-size: 24rpx;
+  font-weight: 700;
+}
+.home-v122-search-modes {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 10rpx;
+  margin-top: 18rpx;
+}
+.home-v122-mode {
+  min-height: 48rpx;
+  padding: 0 18rpx;
+  border-radius: 999rpx;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 22rpx;
+  line-height: 48rpx;
+}
+.home-v122-mode--active {
+  color: #ecfdf5;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.home-v122-pulse,
+.home-v122-block,
+.home-v122-trust {
+  border: 1rpx solid var(--color-border, rgba(15, 118, 110, 0.1));
+  border-radius: 28rpx;
+  background: var(--color-panel, #fff);
+  box-shadow: 0 12rpx 36rpx rgba(15, 48, 42, 0.07);
+}
+.home-v122-pulse { padding: 28rpx 28rpx 0; }
+.home-v122-section-head--compact { margin-bottom: 22rpx; }
+.home-v122-section-title {
+  color: var(--color-heading, #102b27);
+  font-size: 31rpx;
+  font-weight: 800;
+}
+.home-v122-section-sub {
+  display: block;
+  margin-top: 6rpx;
+  color: var(--color-muted, #6b807c);
+  font-size: 21rpx;
+}
+.home-v122-pulse .home-v122-eyebrow {
+  margin-bottom: 6rpx;
+  color: #0f9880;
+}
+.home-v122-live {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  color: #0f9880;
+  font-size: 21rpx;
+}
+.home-v122-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 26rpx;
+}
+.home-v122-metric {
+  display: flex;
+  min-width: 0;
+  padding: 0 18rpx 24rpx;
+  border-right: 1rpx solid var(--color-border, #e7efed);
+  flex-direction: column;
+}
+.home-v122-metric:first-child { padding-left: 0; }
+.home-v122-metric:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+.home-v122-metric-label,
+.home-v122-metric-note {
+  overflow: hidden;
+  color: var(--color-muted, #6b807c);
+  font-size: 20rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.home-v122-metric-value {
+  overflow: hidden;
+  margin: 10rpx 0 7rpx;
+  color: var(--color-heading, #102b27);
+  font-size: 31rpx;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.home-v122-pulse-foot {
+  min-height: 70rpx;
+  border-top: 1rpx solid var(--color-border, #e7efed);
+  color: #0f8b76;
+  font-size: 22rpx;
+}
+.home-v122-block { padding: 28rpx; }
+.home-v122-quick {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8rpx;
+}
+.home-v122-quick-item {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 120rpx;
+  padding: 0;
+  color: var(--color-heading, #17322d);
+  background: transparent;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12rpx;
+  font-size: 22rpx;
+}
+.home-v122-quick-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 68rpx;
+  height: 68rpx;
+  border-radius: 22rpx;
+  font-size: 25rpx;
+  font-weight: 900;
+}
+.home-v122-quick-icon--green { color: #047857; background: #dff8ef; }
+.home-v122-quick-icon--blue { color: #2563eb; background: #e7efff; }
+.home-v122-quick-icon--amber { color: #b45309; background: #fff3d6; }
+.home-v122-quick-icon--cyan { color: #087f8c; background: #def7f8; }
+.home-v122-quick-icon--violet { color: #7c3aed; background: #f0e8ff; }
+.home-v122-more {
+  flex-shrink: 0;
+  color: #0f8b76;
+  font-size: 21rpx;
+}
+
+.home-v122-list {
+  display: flex;
+  flex-direction: column;
+}
+.home-v122-listing {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  min-height: 150rpx;
+  padding: 20rpx 0;
+  border-top: 1rpx solid var(--color-border, #edf2f1);
+}
+.home-v122-listing:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.home-v122-listing:last-child { padding-bottom: 0; }
+.home-v122-cover {
+  display: flex;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  width: 176rpx;
+  height: 124rpx;
+  border-radius: 20rpx;
+  flex-shrink: 0;
+  background: #dce8e5;
+  /* uni-image 的 H5 内部命中层不得越过封面去拦截固定 TabBar。 */
+  pointer-events: none;
+}
+.home-v122-cover--empty {
+  color: rgba(255, 255, 255, 0.84);
+  background: linear-gradient(135deg, #0f766e, #38bdf8);
+  font-size: 18rpx;
+  font-weight: 800;
+  letter-spacing: 2rpx;
+}
+.home-v122-listing-main {
+  flex: 1;
+  min-width: 0;
+}
+.home-v122-listing-title {
+  overflow: hidden;
+  color: var(--color-heading, #17322d);
+  font-size: 27rpx;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.home-v122-listing-meta {
+  display: block;
+  overflow: hidden;
+  margin-top: 12rpx;
+  color: var(--color-muted, #6b807c);
+  font-size: 21rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.home-v122-listing-foot { margin-top: 13rpx; }
+.home-v122-listing-price {
+  color: #e24a3b;
+  font-size: 27rpx;
+  font-weight: 800;
+}
+.home-v122-source {
+  padding: 6rpx 10rpx;
+  border-radius: 8rpx;
+  color: #64748b;
+  background: var(--color-soft, #f1f5f4);
+  font-size: 18rpx;
+}
+.home-v122-source--real {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.1);
+}
+.home-v122-arrow {
+  color: var(--color-muted, #8da09c);
+  font-size: 38rpx;
+}
+.home-v122-empty {
+  padding: 42rpx 20rpx;
+  color: var(--color-muted, #6b807c);
+  text-align: center;
+  font-size: 23rpx;
+}
+.home-v122-trust {
+  gap: 18rpx;
+  padding: 24rpx 26rpx;
+  color: var(--color-muted, #6b807c);
+  font-size: 20rpx;
+}
+.home-v122-trust > view {
+  flex: 1;
+  min-width: 0;
+}
+.home-v122-trust-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54rpx;
+  height: 54rpx;
+  border-radius: 18rpx;
+  color: #047857;
+  background: #dff8ef;
+  flex-shrink: 0;
+  font-weight: 900;
+}
+.home-v122-trust-title {
+  margin-bottom: 5rpx;
+  color: var(--color-heading, #17322d);
+  font-size: 23rpx;
+  font-weight: 700;
+}
+.home-v122-tap,
+.home-v122-quick-item:active,
+.home-v122-listing:active,
+.home-v122-pulse:active {
+  opacity: 0.78;
+  transform: scale(0.99);
+}
+@media (min-width: 700px) {
+  .home-v122-shell {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .home-v122-title { font-size: 32px; }
+  .home-v122-metric-value { font-size: 24px; }
+}
+@media (max-width: 340px) {
+  .home-v122-hero,
+  .home-v122-block,
+  .home-v122-pulse { border-radius: 22rpx; }
+  .home-v122-title { font-size: 32rpx; }
+  .home-v122-city { padding: 0 14rpx; }
+  .home-v122-metric {
+    padding-right: 10rpx;
+    padding-left: 10rpx;
+  }
+  .home-v122-metric-value { font-size: 27rpx; }
+  .home-v122-cover {
+    width: 150rpx;
+    height: 112rpx;
+  }
 }
 
 </style>
