@@ -1393,6 +1393,14 @@ onUnmounted(() => {
   height: 64rpx;
   min-height: 64rpx;
   line-height: 64rpx;
+}
+
+.search-input .btn {
+  /* 与 .search-input .input 同高、同 line-height，
+   * 避免 uni-app mini button 默认 min-height 偏小导致上下偏。 */
+  height: 64rpx;
+  line-height: 64rpx;
+  line-height: 64rpx;
   padding: 0 20rpx;
   border-radius: 12rpx;
   background: var(--color-soft);
