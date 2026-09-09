@@ -1,4 +1,5 @@
 month,publish_date,cpi_yoy_pct,cpi_mom_pct,residence_yoy_pct,rent_yoy_pct,source_url
+2026-08,2026-09-09,0.8,0.4,-0.3,-0.6,https://www.stats.gov.cn/sj/zxfb/202609/t20260909_1965263.html
 2026-06,2026-07-09,1.0,-0.3,-0.3,-0.6,https://www.stats.gov.cn/sj/zxfb/202607/t20260709_1964084.html
 2026-05,2026-06-10,1.2,-0.1,-0.2,-0.6,https://www.stats.gov.cn/sj/zxfbhjd/202606/t20260610_1963923.html
 2026-04,2026-05-11,1.2,0.3,-0.2,-0.6,https://www.stats.gov.cn/sj/zxfb/202605/t20260511_1963659.html
