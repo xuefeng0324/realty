@@ -3,7 +3,7 @@
 # 用法：
 #   powershell -File scripts/check.ps1
 #   powershell -File scripts/check.ps1 -SkipSmoke       # 跳过 E2E（dev server 未起时）
-#   powershell -File scripts/check.ps1 -SmokeUrl "http://127.0.0.1:9001/"
+#   powershell -File scripts/check.ps1 -SmokeUrl "http://127.0.0.1:5174/"
 #
 # 输出结构：
 #   [CHECK] type-check ... PASS/FAIL (X errors)
@@ -18,7 +18,7 @@
 
 param(
   [switch]$SkipSmoke = $false,
-  [string]$SmokeUrl = "http://127.0.0.1:9001/",
+  [string]$SmokeUrl = "http://127.0.0.1:5174/",
   [int]$DevServerStartupWaitSec = 20
 )
 
