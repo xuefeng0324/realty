@@ -10636,13 +10636,15 @@ onShow(async () => {
 .home-v122-search-input {
   flex: 1;
   min-width: 0;
-  height: 72rpx;
+  height: 64rpx;
+  line-height: 64rpx;
   color: #12342f;
   font-size: 27rpx;
 }
 .home-v122-search-btn {
   min-width: 104rpx;
-  min-height: 64rpx;
+  height: 64rpx;
+  line-height: 64rpx;
   padding: 0 22rpx;
   border-radius: 18rpx;
   color: #fff;

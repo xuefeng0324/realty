@@ -46,6 +46,7 @@ import csv
 import json
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -185,6 +186,39 @@ class _UrllibSession:
         return self._open(req, timeout)
 
 
+def _post_with_retry(
+    sess: Any,
+    url: str,
+    headers: dict[str, str] | None,
+    body: dict[str, Any],
+    tries: int = 3,
+    base_delay: float = 2.0,
+) -> Any:
+    """对单 POST 加重试：网络层错误 / 5xx / 阿里云 WAF 412 都退避后重试。
+
+    WAF 412 偶发（同一 IP 短时多次请求被风控），3 次之间错峰通常可恢复；
+    若重试后仍 412，raise 上去由 cmd_fetch 捕获并降级（保留旧数据）。
+    """
+    last_err: Exception | None = None
+    for i in range(tries):
+        try:
+            r = sess.post(url, headers=headers, json=body, timeout=30)
+            if r.status_code < 400:
+                return r
+            last_err = RuntimeError(f"HTTP {r.status_code}")
+        except Exception as e:  # noqa: BLE001
+            last_err = e
+        # 412/网络错误：第 i 次后等 base_delay * 2**i 秒再试
+        if i < tries - 1:
+            delay = base_delay * (2 ** i)
+            print(
+                f"[retry] 第 {i + 1}/{tries} 次失败（{last_err}），{delay:.1f}s 后重试",
+                file=sys.stderr,
+            )
+            time.sleep(delay)
+    raise last_err if last_err else RuntimeError("unknown error")
+
+
 def _session() -> Any:
     if requests is None:
         print("[crawl_daily_wangqian] requests 不可用，改用 urllib", file=sys.stderr)
@@ -253,16 +287,25 @@ def fetch_shenzhen_city_trend(sess: Any, days: int) -> list[Row]:
     end = date.today()
     start = end - timedelta(days=days)
     headers = _fdc_json_headers("/public/marketInfo/housePriceTrendInfo.html")
-    r = sess.post(
-        SZ_TREND_API,
-        headers=headers,
-        json={
-            "startDate": start.isoformat(),
-            "endDate": end.isoformat(),
-            "dateType": "",
-        },
-        timeout=45,
-    )
+    try:
+        r = _post_with_retry(
+            sess,
+            SZ_TREND_API,
+            headers=headers,
+            body={
+                "startDate": start.isoformat(),
+                "endDate": end.isoformat(),
+                "dateType": "",
+            },
+        )
+    except Exception as e:  # noqa: BLE001
+        # 阿里云 WAF 412 等偶发：保留旧数据，警告后退出
+        print(
+            f"[warn] 深圳趋势接口连续失败（{e}）；保留 CSV 中既有数据，"
+            "稍后 cron 再次尝试",
+            file=sys.stderr,
+        )
+        return []
     r.raise_for_status()
     body = r.json()
     if body.get("status") != 1:
@@ -316,7 +359,11 @@ def fetch_shenzhen_district_latest(sess: Any) -> list[Row]:
         ("二手", SCOPE_ALL, SZ_SECOND_API, "tmcDayDealInfo.html"),
     ]:
         headers["Referer"] = f"{SZ_BASE}/public/marketInfo/{referer_page}"
-        r = sess.post(api, headers=headers, json={}, timeout=30)
+        try:
+            r = _post_with_retry(sess, api, headers=headers, body={})
+        except Exception as e:  # noqa: BLE001
+            print(f"[warn] 深圳{category}分区接口失败（{e}），跳过该口径", file=sys.stderr)
+            continue
         r.raise_for_status()
         body = r.json()
         if body.get("status") != 1:
@@ -373,7 +420,11 @@ def fetch_shenzhen_month_latest(sess: Any) -> list[Row]:
         ("二手", SCOPE_ALL, SZ_SECOND_MONTH_API, "tmcMonthDealInfo.html"),
     ]:
         headers["Referer"] = f"{SZ_BASE}/public/marketInfo/{referer_page}"
-        r = sess.post(api, headers=headers, json={}, timeout=30)
+        try:
+            r = _post_with_retry(sess, api, headers=headers, body={})
+        except Exception as e:  # noqa: BLE001
+            print(f"[warn] 深圳{category}月度接口失败（{e}），跳过", file=sys.stderr)
+            continue
         r.raise_for_status()
         body = r.json()
         if body.get("status") != 1:
@@ -418,7 +469,13 @@ def fetch_shenzhen(sess: Any, sz_days: int) -> list[Row]:
 
 def fetch_guangzhou(sess: Any) -> list[Row]:
     headers = {"Referer": GZ_SOURCE}
-    r = sess.get(GZ_NEW_API, headers=headers, timeout=30)
+    try:
+        r = _post_with_retry(
+            sess, GZ_NEW_API, headers=headers, body={}, tries=2
+        ) if False else sess.get(GZ_NEW_API, headers=headers, timeout=30)
+    except Exception as e:  # noqa: BLE001
+        print(f"[warn] 广州签约接口失败（{e}），跳过", file=sys.stderr)
+        return []
     r.raise_for_status()
     body = r.json()
     items = body.get("data") or []
@@ -524,10 +581,13 @@ def cmd_fetch(args: argparse.Namespace) -> int:
 
     if not cities or "广州" in cities:
         print("[fetch] 广州 mrxjspfqyxx.ashx …")
-        gz_rows = fetch_guangzhou(sess)
-        fresh.extend(gz_rows)
-        city_days = sorted({r.date for r in gz_rows if r.granularity == "city"})
-        print(f"  → {len(gz_rows)} 行，交易日 {city_days}")
+        try:
+            gz_rows = fetch_guangzhou(sess)
+            fresh.extend(gz_rows)
+            city_days = sorted({r.date for r in gz_rows if r.granularity == "city"})
+            print(f"  → {len(gz_rows)} 行，交易日 {city_days}")
+        except Exception as e:  # noqa: BLE001
+            print(f"[warn] 广州抓取失败（{e}），跳过", file=sys.stderr)
 
     out_path = Path(args.out)
     # 默认 merge，避免「仅最新窗口」覆盖抹掉历史；整表重写用 --no-merge。

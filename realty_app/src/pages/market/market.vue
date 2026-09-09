@@ -1,5 +1,5 @@
 <template>
-  <PageShell>
+  <PageShell safe-top>
     <template #header>
       <AppHeader
         eyebrow="MARKET"
