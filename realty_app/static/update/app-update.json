@@ -1,12 +1,12 @@
 {
-  "versionName": "1.122.9",
-  "versionCode": "288",
-  "publishedAt": "2026-09-09T11:31:50Z",
+  "versionName": "1.122.10",
+  "versionCode": "289",
+  "publishedAt": "2026-09-09T11:35:15Z",
   "force": false,
-  "notes": "fix(ops): check_csv_freshness \u5b57\u6bb5\u7b56\u7565\u6536\u7d27 (v1.122.9 / 288)\n\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n",
+  "notes": "feat(cron): \u628a append_recent_stats70 \u63a5\u8fdb crawl-monthly-stats70 (v1.122.10 / 289)\n\n2026-07-25-v1.115.0-\u533b\u9662\u5750\u6807\u63a5\u5165\u4e0e\u6d3e\u751f: v1.115.0 \u2014 \u533b\u9662\u5750\u6807\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/288/app.wgt",
-    "sha256": "a937a52337efa821630a28a20b5dfb7e1526633e000f80692e334e4d1bee6556"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/289/app.wgt",
+    "sha256": "16448ed43939d6e0b6feed9bfecb786ebfd4819392ee403c931b9c0f949bf0d4"
   },
   "ios": {
     "available": false,
