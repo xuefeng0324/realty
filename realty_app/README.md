@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.122.1 | 2026-09-09 | 修复 E2E 视觉回归 baseline 过期导致每日 cron 失败；新增 baseline 同步护栏；APK 云打包 job 加 continue-on-error 兜底；强化 AGENTS.md「提交/push 即时报告」（versionCode 280） |
 | v1.122.0 | 2026-08-18 | 移动端 22 路由全量改版：五栏 IA、行情聚合、本机收藏/历史、统一明暗主题；治理 daily/monthly/weekly CI 告警（versionCode 279） |
 | v1.121.157 | 2026-07-29 | 交通运输部货运/港口经济运行接入 macro-industry（versionCode 278） |
 | v1.121.156 | 2026-07-29 | NBS 服务业生产指数接入（含租赁商务分项）；macro-industry（versionCode 277） |
