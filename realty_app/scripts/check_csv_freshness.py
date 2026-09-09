@@ -148,7 +148,7 @@ def latest_date(csv_path: Path) -> tuple[date | None, str | None]:
         return None, None
 
 
-def grade(stale_days: int | None, warn_days: int, hard_stale_days: int) -> tuple[str, str]:
+def _grade_fn(stale_days: int | None, warn_days: int, hard_stale_days: int) -> tuple[str, str]:
     """返回 (等级, emoji)。等级：OK / WARN / STALE / UNKNOWN。"""
     if stale_days is None:
         return "UNKNOWN", "❔"
@@ -188,6 +188,16 @@ def main() -> int:
         help="只打印 WARN/STALE/UNKNOWN，OK 静默（CI 邮件用）",
     )
     ap.add_argument(
+        "--exempt-from-stale",
+        type=str,
+        default="",
+        help=(
+            "逗号分隔的文件名白名单（不含路径），匹配项标记为 EXEMPT，不计入 worst 退出码。"
+            "用于年初/季度/月度一次性发布的源（如 provident_fund_rates / education_overview /"
+            " zh_bdc_registration / zh_price_filing），源站发布节奏与 freshness 默认阈值不匹配。"
+        ),
+    )
+    ap.add_argument(
         "--today",
         default=None,
         help="YYYY-MM-DD 覆盖今天（测试用）",
@@ -204,52 +214,68 @@ def main() -> int:
     else:
         today = date.today()
 
+    exempt_set = {name.strip() for name in args.exempt_from_stale.split(",") if name.strip()}
+
     rows = []
     worst = 0  # 0=ok, 1=warn, 2=stale
     for csv_path in iter_csvs(args.static_dir):
+        is_exempt = csv_path.name in exempt_set
         latest, field = latest_date(csv_path)
         if latest is None:
+            grade = "EXEMPT" if is_exempt else "UNKNOWN"
             rows.append(
                 {
                     "file": csv_path.name,
                     "field": field,
                     "latest": None,
                     "stale_days": None,
-                    "grade": "UNKNOWN",
+                    "grade": grade,
                 }
             )
-            # UNKNOWN 不计入 worst（不是失败信号，是「该文件没有可用的 freshness
-            # 字段」的中性状态）。避免「项目立项年的 CSV」一直把 cron 推红。
+            # UNKNOWN / EXEMPT 不计入 worst（不是失败信号）。
+            # EXEMPT 用来对年初/季度/月度一次性发布源静音；
+            # UNKNOWN 是「该文件没有可用的 freshness 字段」的中性状态。
             continue
         sd = (today - latest).days
-        g, _ = grade(sd, args.warn_days, args.stale_days)
+        if is_exempt:
+            grade = "EXEMPT"
+        else:
+            grade, _grade_emoji = _grade_fn(sd, args.warn_days, args.stale_days)
         rows.append(
             {
                 "file": csv_path.name,
                 "field": field,
                 "latest": latest.isoformat(),
                 "stale_days": sd,
-                "grade": g,
+                "grade": grade,
             }
         )
-        if g == "STALE":
+        if grade == "STALE":
             worst = max(worst, 2)
-        elif g == "WARN":
+        elif grade == "WARN":
             worst = max(worst, 1)
+        # EXEMPT 不参与 worst 计算
 
     if args.json:
-        print(json.dumps({"today": today.isoformat(), "rows": rows}, ensure_ascii=False, indent=2))
+        print(json.dumps(
+            {"today": today.isoformat(), "exempt": sorted(exempt_set), "rows": rows},
+            ensure_ascii=False, indent=2))
     else:
         # markdown 表格输出
         print(f"# CSV 新鲜度快照 ({today.isoformat()})")
         print(f"warn ≥ {args.warn_days} 天 / hard ≥ {args.stale_days} 天")
+        if exempt_set:
+            print(f"豁免白名单: {', '.join(sorted(exempt_set))}")
         print()
         print("| 等级 | 文件 | 字段 | 最新 | 陈旧天数 |")
         print("|------|------|------|------|----------|")
         for r in rows:
             if args.only_stale and r["grade"] == "OK":
                 continue
-            _, emoji = grade(r["stale_days"], args.warn_days, args.stale_days)
+            if r["grade"] == "EXEMPT":
+                emoji = "⏸"
+            else:
+                _g, emoji = _grade_fn(r["stale_days"], args.warn_days, args.stale_days)
             latest = r["latest"] or "-"
             sd = r["stale_days"] if r["stale_days"] is not None else "-"
             print(

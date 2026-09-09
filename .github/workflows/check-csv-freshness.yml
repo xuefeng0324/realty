@@ -54,13 +54,28 @@ jobs:
       - name: 跑扫描（markdown 表格）
         id: md
         run: |
-          python scripts/check_csv_freshness.py > freshness.md
+          # 豁免名单（年初/季度/月度一次性发布的源，freshness 默认阈值不适用）：
+          #   provident_fund_rates.csv        — 公积金利率年度调整（5 月初一次发布）
+          #   education_overview.csv           — 教育事业统计年报（6 月发 2025 年报）
+          #   gz/sz_provident_annual.csv       — 公积金年度报告（3 月底一次）
+          #   zh_provident_dynamics.csv        — 珠海公积金动态月报（源站偶发不发）
+          #   zh_bdc_registration.csv          — 珠海不动产登记季报（9 月才出 Q3）
+          #   zh_price_filing.csv               — 珠海源站 404（等源恢复后从白名单移除）
+          #   nbs_avg_wage.csv                  — 国家统计局城镇平均工资年报（5 月发）
+          #   stats_70.csv                      — 70 城指数月度（每月 18 日发布下月）
+          python scripts/check_csv_freshness.py \
+            --exempt-from-stale \
+              gz_provident_annual.csv,sz_provident_annual.csv,provident_fund_rates.csv,zh_provident_dynamics.csv,education_overview.csv,zh_bdc_registration.csv,zh_price_filing.csv,nbs_avg_wage.csv,stats_70.csv \
+            > freshness.md
           echo "exit=$?" >> $GITHUB_OUTPUT
 
       - name: 跑扫描（JSON 给归档）
         if: always()
         run: |
-          python scripts/check_csv_freshness.py --json > freshness.json || true
+          python scripts/check_csv_freshness.py \
+            --exempt-from-stale \
+              gz_provident_annual.csv,sz_provident_annual.csv,provident_fund_rates.csv,zh_provident_dynamics.csv,education_overview.csv,zh_bdc_registration.csv,zh_price_filing.csv,nbs_avg_wage.csv,stats_70.csv \
+            --json > freshness.json || true
 
       - name: 输出 markdown 到 job summary
         if: always()

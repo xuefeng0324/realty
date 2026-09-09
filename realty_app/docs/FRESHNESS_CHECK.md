@@ -68,6 +68,36 @@
 - CI realty_app tests / build: 不再因数据已补而 false-positive 失败
 - 下次任何爬取脚本静默挂，CI 立即红邮件报警——根治「21 天陈旧没人发现」
 
+## EXEMPT_FROM_STALE 白名单（v1.122.16 起生效）
+
+cron email 的 false-positive 噪音根因：provident / education / bdc 等源站是
+**年度 / 季度 / 月度一次性发布**，freshness 默认阈值 30 / 60 天对这些源
+不适用。
+
+v1.122.16 起 `check_csv_freshness.py` 加 `--exempt-from-stale` 参数，
+匹配文件标记为 `⏸ EXEMPT`，**不计入 worst 退出码**（但保留在报告里
+供人眼扫）。check-csv-freshness.yml 当前白名单：
+
+| 文件 | 真实发布节奏 | 备注 |
+|------|--------------|------|
+| `provident_fund_rates.csv` | 年度（5 月初） | 利率年度调整 |
+| `education_overview.csv` | 年度（6 月底） | 教育事业统计年报 |
+| `gz_provident_annual.csv` | 年度（3 月底） | 广州公积金年报 |
+| `sz_provident_annual.csv` | 年度（3 月底） | 深圳公积金年报 |
+| `zh_provident_dynamics.csv` | 月度（源站偶发不发） | 珠海公积金动态 |
+| `zh_bdc_registration.csv` | 季度（9 月才出 Q3） | 珠海不动产登记 |
+| `zh_price_filing.csv` | 源站 404 / 已下架 | 珠海价格备案 |
+| `nbs_avg_wage.csv` | 年度（5 月发） | 城镇平均工资 |
+| `stats_70.csv` | 月度（每月 18 日发布下月） | 70 城指数 |
+
+**仍保留 STALE 警告**（数据真过期，需要人补）的源：
+`gd_construction / gd_services / gd_provident_annual / gz_housing_plan /
+sz_land_deals / sz_planned_supply` —— 这些**真的需要新发布数据**，不豁免
+让 cron 邮件继续提示；用户/AI 看到后可手动跑脚本尝试触发。
+
+注：`gd_provident_annual` 当前 2025-04-29 = 498 天，应**已经**是年度发布
+节奏，**后续可考虑也豁免**。本次未一起改，避免一次扩大范围。
+
 ## 验证清单（修改后必跑）
 
 `npm test` 不能被「我本地跑过」代替，必须配合：
