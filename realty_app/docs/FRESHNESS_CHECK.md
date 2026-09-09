@@ -79,23 +79,35 @@
 
 > 「用户不该每次都把报错截图给你」—— AI 应主动验证 CI status，而不只是本地跑通。
 
-## 仍然 STALE 的源（待 v1.122.x 修）
+## 仍然 STALE 的源（截至 v1.122.16 / 2026-09-09 真实状态）
 
-- `gd_construction.csv` (133 天)
-- `gz_housing_plan.csv` (98 天)
-- `gz_provident_annual.csv` (531 天)
-- `nbs_avg_wage.csv` (117 天)
-- `provident_fund_rates.csv` (489 天)
-- `zh_prov_vent_dynamics.csv` (135 天)
-- `sz_provident_annual.csv` (162 天)
-- `gd_provident_annual.csv` (498 天)
-- `gz_land_deals.csv` (65 天)
-- `zh_bdc_registration.csv` (63 天)
-- `zh_price_filing.csv` (68 天)
-- `gd_services.csv` (70 天)
-- `sz_land_deals.csv` (77 天)
-- `sz_planned_supply.csv` (65 天)
-- `stats_70.csv` (100 天)
+本会话 4 次探针（v1.122.8 → v1.122.15 多次运行）确认：**STALE 报告是真 STALE，不是脚本假阳性**。
+字节级对比 HEAD vs 探针输出：
+
+| 源 | 探针字节级 | 实际原因 |
+|-----|------|------|
+| `gz_housing_plan.csv` | **与 HEAD SAME** | v1.122.11 (commit 56995de) 已补；STALE 报告是源站 6 月发 2026 年度计划后未再更新 |
+| `gz_land_deals.csv` | **与 HEAD SAME** | v1.122.11 已补；STALE 报告是源站 9 月未发新地块 |
+| `sz_land_deals.csv` | **与 HEAD SAME** | v1.122.11 已补；STALE 报告是源站 7 月后无新成交公示 |
+| `sz_planned_supply.csv` | **HEAD 反而比探针多 2 行**（2024Q4 + 2025Q1） | v1.122.11 已补 8 行；STALE 报告是源站 7 月后无新季度公示 |
+| `gd_construction.csv` | 探针 4 行 vs HEAD 4 行 1 行微差 | 源站 4 月发 2026Q1 后无新季度数据（季度发布） |
+| `gd_services.csv` | 探针成功但脚本硬写正式 CSV | 源站 7 月发 1-5 月累计后无新数据 |
+| `nbs_avg_wage.csv` | 探针成功但脚本硬写正式 CSV | 国家统计局 5 月发 2025 年报后无新数据（年度发布） |
+| `stats_70.csv` | 探针无法跑 | 70 城指数月度 6 月发后无新数据（18 日发布日已过） |
+| `gz_provident_annual.csv` (531d) | — | 广州公积金年度报告，**年初一次发布**（freshness 永远会显示 STALE） |
+| `gd_provident_annual.csv` (498d) | — | 广东公积金年度报告，同上 |
+| `sz_provident_annual.csv` (162d) | — | 深圳公积金年度报告，3 月底一次发布 |
+| `provident_fund_rates.csv` (489d) | — | 公积金利率年度调整，5 月初一次发布 |
+| `education_overview.csv` (86d) | — | 教育事业统计，6 月发 2025 年报后等 2026 年报 |
+| `zh_bdc_registration.csv` (63d) | — | 珠海不动产登记**季报**，9 月才出 Q3 |
+| `zh_price_filing.csv` (68d) | — | 珠海价格备案列表页 404，**源站问题**（等恢复后改入口） |
+| `zh_provident_dynamics.csv` (135d) | — | 珠海公积金动态月报，源站偶发不发 |
+
+**真正仍然需要做的"治本"**（按优先级）：
+1. `check_csv_freshness.py` 字段策略扩展：把 "年初/季度/月度一次性发布" 的源标 UNKNOWN 排除，**避免误报**
+   引入 `EXEMPT_FROM_STALE` 白名单（如 `provident_fund_rates.csv`、`education_overview.csv`）
+2. `zh_price_filing.py` 入口改 HTTPS 新 URL（源站恢复后）
+3. 把 9-10 月新 NBS / 政府源数据真出后，再批量跑一次 crawl 补齐
 
 这些是 GD/广州/深圳/珠海政府源与 provident 利率，结构不统一，下次需要单独排查。
 
