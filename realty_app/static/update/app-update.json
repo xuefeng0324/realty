@@ -1,12 +1,12 @@
 {
-  "versionName": "1.122.10",
-  "versionCode": "289",
-  "publishedAt": "2026-09-09T11:35:15Z",
+  "versionName": "1.122.14",
+  "versionCode": "293",
+  "publishedAt": "2026-09-09T12:15:31Z",
   "force": false,
-  "notes": "feat(cron): \u628a append_recent_stats70 \u63a5\u8fdb crawl-monthly-stats70 (v1.122.10 / 289)\n\n2026-07-25-v1.115.0-\u533b\u9662\u5750\u6807\u63a5\u5165\u4e0e\u6d3e\u751f: v1.115.0 \u2014 \u533b\u9662\u5750\u6807\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n",
+  "notes": "chore(test+ci): \u4fee7\u4e2a\u8fc7\u671f\u65ad\u8a00 + cron swallow stderr \u6cbb\u7406 (v1.122.13+14 / 292+293)\n\n2026-07-25-v1.113.0-\u884c\u653f\u533a\u5212\u63a5\u5165\u4e0e\u6d3e\u751f: v1.113.0 \u2014 \u884c\u653f\u533a\u5212\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.114.0-\u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f: v1.114.0 \u2014 \u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f\n2026-07-25-v1.115.0-\u533b\u9662\u5750\u6807\u63a5\u5165\u4e0e\u6d3e\u751f: v1.115.0 \u2014 \u533b\u9662\u5750\u6807\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/289/app.wgt",
-    "sha256": "16448ed43939d6e0b6feed9bfecb786ebfd4819392ee403c931b9c0f949bf0d4"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/293/app.wgt",
+    "sha256": "59b36c352ae5878d4808a9c27cd320e7cabd995513e85ed3d5bb76ceefcfd1a3"
   },
   "ios": {
     "available": false,
