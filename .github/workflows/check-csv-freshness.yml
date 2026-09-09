@@ -1,0 +1,78 @@
+# check-csv-freshness.yml — 每天扫描 static/*.csv 数据陈旧度
+#
+# 背景：之前 wangqian 抓取连续 21 天陈旧没人发现，是因为只盯一个数据源。
+# 仓库里 41 个 CSV 各自有爬取脚本，绝大部分陈旧是静默的。本 workflow 在
+# realty-app-e2e 之后 30 分钟跑，给一份统一陈旧度仪表盘：
+#   - OK   < warn-days（默认 30）
+#   - WARN 30..stale-days（默认 60）
+#   - STALE ≥ stale-days（默认 60）
+#
+# 触发：每天 02:30 UTC = 10:30 北京时间（避开 crawl-daily-wangqian 01:30 UTC
+# 和 e2e 18:00 UTC，避免互相挤 cron runner）。
+#
+# 输出：
+#   1. GITHUB_STEP_SUMMARY：markdown 表格，人眼扫
+#   2. artifact：raw markdown + json，方便归档比对
+#   3. 退出码 ≥1 → workflow 标红，邮件告警（与 e2e 一致）
+#
+# 不自动开 issue：避免半夜被批量 issue 轰炸；改成「人在 PR 里能一眼看到陈旧源」。
+
+name: realty_app csv freshness
+
+on:
+  schedule:
+    - cron: "30 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: realty_app-freshness
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: 扫描 static/*.csv
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: realty_app
+
+    steps:
+      - name: 拉代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 跑扫描（markdown 表格）
+        id: md
+        run: |
+          python scripts/check_csv_freshness.py > freshness.md
+          echo "exit=$?" >> $GITHUB_OUTPUT
+
+      - name: 跑扫描（JSON 给归档）
+        if: always()
+        run: |
+          python scripts/check_csv_freshness.py --json > freshness.json || true
+
+      - name: 输出 markdown 到 job summary
+        if: always()
+        run: |
+          cat freshness.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 上传 artifact（30 天）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: realty_app-freshness
+          path: |
+            realty_app/freshness.md
+            realty_app/freshness.json
+          retention-days: 30

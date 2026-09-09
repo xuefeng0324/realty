@@ -486,6 +486,38 @@
 
 ---
 
+### F-CSV-FRESHNESS · 全站 CSV 数据陈旧度统一扫描
+
+| 项 | 内容 |
+|----|------|
+| 入口 | `.github/workflows/check-csv-freshness.yml`（每天 02:30 UTC）+ `scripts/check_csv_freshness.py` |
+| 风险 | L |
+| 状态 | ✅ 有门禁（cron 退出码 0=全 OK，1=WARN，2=STALE） |
+
+**期望**：
+- 扫 `realty_app/static/*.csv` 共 41 个文件，按各自表头日期字段（`date` / `publish_date` / `as_of_date` / `effective_date` / `year` / `period` / `month` / `quarter`）算陈旧天数；
+- 三档分级：`OK < 30 天`、`WARN 30..60 天`、`STALE ≥ 60 天`；
+- 退出码与等级挂钩：CI 红时用户会收到与 e2e 一致的邮件告警；
+- 输出 markdown 表格进 `GITHUB_STEP_SUMMARY`，artifact 归档 30 天。
+
+**为什么需要**：
+- 之前 wangqian 抓取连续 21 天陈旧没人发现，是因为只盯单一数据源；
+- 仓库里 41 个 CSV 各自有爬取脚本，绝大部分陈旧是静默的；
+- 这个工具一次性把全部 41 个数据源暴露在统一视图里，杜绝下一个"21 天陈旧没人发现"。
+
+**不期望**：
+- 半夜被自动 issue 轰炸（**故意不开**自动开 issue，由人在 PR / workflow 摘要里看到）；
+- 取代各 crawl_*.py 本身的 fetch + commit 流程（只负责**侦测**，不负责修复）。
+
+**自动化**：
+- `python scripts/check_csv_freshness.py --only-stale` 看本月需要补的源；
+- `python scripts/check_csv_freshness.py --json` 给 CI / 外部分析用；
+- `python scripts/check_csv_freshness.py --today 2026-08-25` 测试模式（隔离过去某天）。
+
+**手工**：看 workflow run 的 `GITHUB_STEP_SUMMARY` markdown 表格即可，无需额外动作。
+
+---
+
 ### F-OTA-01 · 检查更新与升级弹层
 
 | 项 | 内容 |
