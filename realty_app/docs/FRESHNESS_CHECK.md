@@ -84,6 +84,7 @@ v1.122.16 起 `check_csv_freshness.py` 加 `--exempt-from-stale` 参数，
 | `education_overview.csv` | 年度（6 月底） | 教育事业统计年报 |
 | `gz_provident_annual.csv` | 年度（3 月底） | 广州公积金年报 |
 | `sz_provident_annual.csv` | 年度（3 月底） | 深圳公积金年报 |
+| `gd_provident_annual.csv` | 年度（5 月初） | 广东公积金年报（v1.122.17 加） |
 | `zh_provident_dynamics.csv` | 月度（源站偶发不发） | 珠海公积金动态 |
 | `zh_bdc_registration.csv` | 季度（9 月才出 Q3） | 珠海不动产登记 |
 | `zh_price_filing.csv` | 源站 404 / 已下架 | 珠海价格备案 |
