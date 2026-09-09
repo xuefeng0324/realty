@@ -350,17 +350,41 @@ def load_existing(path: Path) -> dict[str, dict]:
     if not path.exists():
         return {}
     with path.open("r", encoding="utf-8-sig", newline="") as f:
-        return {r["period"]: r for r in csv.DictReader(f) if r.get("period")}
+        out: dict[str, dict] = {}
+        for r in csv.DictReader(f):
+            if not r.get("period"):
+                continue
+            # v1.122.24 起防御性过滤：旧 CSV 行可能因多逗号产生 None key 列
+            # DictWriter 写时 key=None 会 ValueError
+            safe = {k: v for k, v in r.items() if k is not None and k in FIELDS}
+            out[safe["period"]] = safe
+        return out
 
 
 def atomic_write(path: Path, rows: list[dict]) -> None:
+    """写入 rows 到 path，CSV 防御性过滤：
+    1. 过滤 row 里 key 为 None 的项（DictReader 遇到空 header 会给 None key，
+       旧 CSV 行多一个逗号就会触发，DictWriter 会拒绝并报错）。
+    2. 过滤不在 FIELDS 里的 key（防御性，未来加字段不会破旧 row）。
+    3. 给缺 FIELDS 列的 row 补默认值 ""。
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
+    safe_rows = []
+    for r in rows:
+        safe = {}
+        for k, v in r.items():
+            if k is None or k not in FIELDS:
+                continue
+            safe[k] = v
+        for k in FIELDS:
+            safe.setdefault(k, "")
+        safe_rows.append(safe)
     with tempfile.NamedTemporaryFile(
         "w", encoding="utf-8-sig", newline="", delete=False, dir=str(path.parent), suffix=".tmp"
     ) as tmp:
         w = csv.DictWriter(tmp, fieldnames=FIELDS)
         w.writeheader()
-        w.writerows(rows)
+        w.writerows(safe_rows)
         tmp_path = Path(tmp.name)
     tmp_path.replace(path)
 
