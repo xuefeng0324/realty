@@ -20,7 +20,7 @@ import urllib.request
 from html.parser import HTMLParser
 from pathlib import Path
 
-INDEX_URL = "https://www.stats.gov.cn/sj/"
+INDEX_URL = "https://www.stats.gov.cn/sj/zxfb/"
 OUTPUT = Path(__file__).resolve().parents[1] / "static" / "nbs_real_estate.csv"
 
 # 2026 年已发布累计期（1—N），用于回填；后续可继续追加

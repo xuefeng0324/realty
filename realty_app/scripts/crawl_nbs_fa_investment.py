@@ -22,7 +22,7 @@ import urllib.request
 from html.parser import HTMLParser
 from pathlib import Path
 
-INDEX_URL = "https://www.stats.gov.cn/sj/"
+INDEX_URL = "https://www.stats.gov.cn/sj/zxfb/"
 OUTPUT = Path(__file__).resolve().parents[1] / "static" / "nbs_fa_investment.csv"
 
 BACKFILL_URLS_2026 = [
