@@ -214,7 +214,16 @@ def main() -> int:
     else:
         today = date.today()
 
-    exempt_set = {name.strip() for name in args.exempt_from_stale.split(",") if name.strip()}
+    # 接受 "foo.csv" / "foo" / ".csv" 三种写法；最终比较时跟文件名（含 .csv 后缀）做 == 比对
+    # 这样 EXEMPT 白名单、CI workflow yml、文档示例都统一写 "foo.csv" 即可，跟 `csv_path.name` 直接比对。
+    exempt_set: set[str] = set()
+    for name in args.exempt_from_stale.split(","):
+        n = name.strip()
+        if not n:
+            continue
+        if not n.endswith(".csv"):
+            n = n + ".csv"
+        exempt_set.add(n)
 
     rows = []
     worst = 0  # 0=ok, 1=warn, 2=stale
