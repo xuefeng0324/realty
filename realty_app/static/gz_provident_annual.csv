@@ -1,3 +1,8 @@
-city,year,publish_date,paid_units_wan,paid_persons_wan,deposit_amount_yi,deposit_balance_yi,extract_amount_yi,loan_issued_wan,loan_issued_yi,loan_balance_yi,support_purchase_wan_sqm,public_rental_supplement_yi,title,source_org,source_url
+﻿city,year,publish_date,paid_units_wan,paid_persons_wan,deposit_amount_yi,deposit_balance_yi,extract_amount_yi,loan_issued_wan,loan_issued_yi,loan_balance_yi,support_purchase_wan_sqm,public_rental_supplement_yi,title,source_org,source_url
 广州,2024,2025-03-27,17.65,533.62,1312.54,3058.97,1132.68,3.87,306.89,2233.93,369.7,42.46,广州住房公积金2024年年度报告,广州住房公积金管理中心,https://gjj.gz.gov.cn/gkmlpt/content/10/10186/post_10186442.html
 广州,2023,2024-03-29,16.56,534.89,1251.44,2879.11,1024.6,5.18,349.28,2160.77,491.72,38.35,广州住房公积金2023年年度报告,广州住房公积金管理中心,https://gjj.gz.gov.cn/xxgk/xxgkml/qt/zjbg/content/post_9663474.html
+广州,2022,,15.17,531.87,1162.02,2652.27,847.92,5.42,366.41,2021.69,513.18,34.83,广州住房公积金2022年年度报告,广州住房公积金管理中心,http://gjj.gz.gov.cn/xxgk/xxgkml/qt/zjbg/content/post_8894301.html
+广州,2021,,13.7,519.03,1058.63,2338.17,798.81,7.11,474.85,1826.06,652.81,24.77,广州住房公积金2021年年度报告,广州住房公积金管理中心,http://gjj.gz.gov.cn/xxgk/xxgkml/qt/zjbg/content/post_8391961.html
+广州,2020,,11.75,486.47,949.75,2078.35,717.51,5.21,344.17,1516.25,483.33,18.85,广州住房公积金2020年年度报告,广州住房公积金管理中心,http://gjj.gz.gov.cn/xxgk/xxgkml/qt/zjbg/content/post_7193516.html
+广州,2019,,10.52,479.72,851.06,1846.11,628.49,4.05,266.06,1340.13,371.81,0,广州住房公积金2019年年度报告,广州住房公积金管理中心,http://gjj.gz.gov.cn/xxgk/xxgkml/qt/zjbg/content/post_5751603.html
+广州,2018,,9.04,461.53,763.39,1623.54,613.8,2.5,156.73,1210.5,217.03,0,广州住房公积金2018年年度报告,广州住房公积金管理中心,http://gjj.gz.gov.cn/xxgk/xxgkml/qt/zjbg/content/post_1334259.html
