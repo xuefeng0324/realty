@@ -56,21 +56,36 @@ FIELDS = [
 
 
 def fetch_text(url: str) -> str:
+    """抓 HTML 文本，处理 zfcxjst.gd.gov.cn 等"Content-Type 错标 utf-8 但实际 GBK"的源站。
+
+    服务器 header 标 utf-8 但 body 是 GBK；utf-8 解 GBK 字节"看似成功"（GBK
+    单字节 ASCII 段与 utf-8 兼容）但中文段解码成乱码 → 后续正则全失效。
+
+    修法：依次按 gbk / gb18030 / utf-8 (errors=replace) 试解码，**第一个能
+    在解码结果里找到"建筑业"或"经济"等中文高频词的编码**就是正确编码；
+    全不命中则 fallback utf-8 replace（不硬失败）。
+    """
     last_err: Exception | None = None
     candidates = [url]
     if url.startswith("https://"):
         candidates.append("http://" + url[len("https://") :])
     elif url.startswith("http://"):
         candidates.append("https://" + url[len("http://") :])
+    # 中文高频词：源站正文必然包含（任一即可，避免对不完整页面过度严格）
+    probe = ("建筑业", "经济", "人民政府", "广东")
     for candidate in candidates:
         for attempt in range(3):
             try:
                 raw = urlopen(Request(candidate, headers=UA), context=CTX, timeout=60).read()
-                for enc in ("utf-8", "gbk"):
-                    try:
-                        return raw.decode(enc)
-                    except Exception:
-                        continue
+                # 探测正确编码：任一 probe 词出现即选。
+                # 注意：zfcxjst.gd.gov.cn 的 raw 含 GBK 范围外的字节（0xae/0x85 等），
+                # strict 解码必抛 UnicodeDecodeError，所以**必须**用 errors='replace'
+                # 容错，让 GBK 字节都能映射成 '?'（不抛）以解码出有效中文。
+                for enc in ("gbk", "gb18030"):
+                    text = raw.decode(enc, errors="replace")
+                    if any(w in text for w in probe):
+                        return text
+                # fallback
                 return raw.decode("utf-8", "replace")
             except Exception as e:
                 last_err = e
