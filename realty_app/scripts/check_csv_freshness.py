@@ -70,6 +70,8 @@ DATE_FIELD_CANDIDATES = (
     "updated_at",
     "as_of",
     "time",
+    # zh_affordable_progress.csv 的月度发布日期字段（2026-09-10 加）
+    "report_date",
 )
 
 
