@@ -1,12 +1,12 @@
 {
-  "versionName": "1.122.20",
-  "versionCode": "299",
-  "publishedAt": "2026-09-09T17:00:18Z",
+  "versionName": "1.122.21",
+  "versionCode": "300",
+  "publishedAt": "2026-09-09T17:06:23Z",
   "force": false,
-  "notes": "fix(realty_app): check.ps1 smoke URL \u7aef\u53e3 9001\u21925174 (v1.122.20 / 299)\n\n2026-07-25-v1.115.0-\u533b\u9662\u5750\u6807\u63a5\u5165\u4e0e\u6d3e\u751f: v1.115.0 \u2014 \u533b\u9662\u5750\u6807\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n",
+  "notes": "fix(realty_app): check_csv_freshness.py EXEMPT \u540e\u7f00 bug \u771f\u751f\u6548 (v1.122.21 / 300)\n\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n2026-07-25-v1.119.0-\u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730map-view: v1.119.0 \u00b7 \u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730 map-view\n2026-07-25-v1.120.0-\u4fee\u590dOTA\u68c0\u67e5\u66f4\u65b0fetch: v1.120.0 \u00b7 \u4fee\u590d OTA \u68c0\u67e5\u66f4\u65b0\uff08fetch is not a function\uff09\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/299/app.wgt",
-    "sha256": "09b7908379ee08e7b745c20b9a21e573f674a84a51f006fa6a1af0b3eb045186"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/300/app.wgt",
+    "sha256": "9c331bbab1b3a4c6eefc22b99be24f27ebdb8314cb1b2bc4eed90837dab8cd57"
   },
   "ios": {
     "available": false,
