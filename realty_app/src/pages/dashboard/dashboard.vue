@@ -8393,7 +8393,9 @@ onShow(async () => {
 }
 
 .combo-input {
+  box-sizing: border-box;
   height: 66rpx;
+  line-height: 66rpx;
   padding: 0 14rpx;
   border: 1rpx solid var(--color-border);
   border-radius: 10rpx;
@@ -8736,9 +8738,10 @@ onShow(async () => {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  height: 56rpx;
+  height: 64rpx;
+  min-height: 64rpx;
   padding: 0 20rpx;
-  line-height: 1;
+  line-height: 64rpx;
 }
 .home-search-modes {
   display: flex;

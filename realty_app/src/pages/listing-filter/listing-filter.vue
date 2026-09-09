@@ -1523,6 +1523,13 @@ onUnmounted(() => {
   gap: 8rpx;
 }
 
+/* v1.122.7: .form-item.search-input 需水平 flex 让 input+button 同高居中。
+ * 否则 .form-item 的 column 方向在后面覆盖了 .search-input 的 row。 */
+.form-item.search-input {
+  flex-direction: row;
+  align-items: center;
+}
+
 .form-label {
   color: var(--color-muted);
   font-size: 24rpx;

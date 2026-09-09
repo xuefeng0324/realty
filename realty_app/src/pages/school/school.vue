@@ -362,8 +362,9 @@ async function loadCities() {
 .search-input {
   display: flex;
   flex-direction: row;
-  align-items: flex-end;
+  align-items: center;
   gap: 8rpx;
+  margin-bottom: 16rpx;
 }
 
 .form-label {
@@ -381,6 +382,23 @@ async function loadCities() {
   padding: 12rpx 16rpx;
   color: var(--color-heading);
   font-size: 26rpx;
+}
+
+.search-input .input {
+  flex: 1;
+  min-width: 0;
+  height: 64rpx;
+  line-height: 64rpx;
+}
+
+.search-input .btn {
+  /* 与 .search-input .input 同高、同 line-height，
+   * 避免 uni-app mini button 默认 min-height 偏小导致上下偏。 */
+  height: 64rpx;
+  min-height: 64rpx;
+  line-height: 64rpx;
+  padding: 0 20rpx;
+  border-radius: 12rpx;
 }
 
 .edu-grid {
