@@ -1,12 +1,12 @@
 {
-  "versionName": "1.122.22",
-  "versionCode": "301",
-  "publishedAt": "2026-09-09T17:26:53Z",
+  "versionName": "1.122.23",
+  "versionCode": "302",
+  "publishedAt": "2026-09-09T17:37:09Z",
   "force": false,
-  "notes": "feat(realty_app): 5 UNKNOWN \u5168\u8bc6\u522b + zh_affordable_progress \u8865 7-8 \u6708\u6570\u636e (v1.122.22 / 301)\n\n2026-07-25-v1.109.0-\u793e\u533a\u603b\u4ef7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f: v1.109.0 \u2014 \u793e\u533a\u603b\u4ef7\u00d7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f\n2026-07-25-v1.110.0-\u89c4\u5212\u5730\u94c1\u6d3e\u751f: v1.110.0 \u2014 \u89c4\u5212\u5730\u94c1\u6d3e\u751f\n2026-07-25-v1.111.0-LPR\u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f: v1.111.0 \u2014 LPR \u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f\n",
+  "notes": "fix(realty_app): crawl_gd_construction.py fetch_text \u52a0 GBK \u63a2\u6d4b fallback (v1.122.23 / 302)\n\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n2026-07-25-v1.119.0-\u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730map-view: v1.119.0 \u00b7 \u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730 map-view\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/301/app.wgt",
-    "sha256": "22e27a2692b931d9b23301cffb45518dc2a00f4ed07cd40c67de0e14f0e833ea"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/302/app.wgt",
+    "sha256": "bbad1e05569d79b937f30f52638d841efdff380fe3061607bf38c63041a6ca1e"
   },
   "ios": {
     "available": false,
