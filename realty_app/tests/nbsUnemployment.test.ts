@@ -13,14 +13,13 @@ describe("nbs unemployment", () => {
   it("加载城镇调查失业率与大城市/工时分项", () => {
     const latest = getLatestNbsUnemployment();
     expect(latest).not.toBeNull();
-    expect(latest!.month).toBe("2026-05");
-    expect(latest!.urbanRatePct).toBe(5.1);
-    expect(latest!.urbanAvgYtdPct).toBe(5.2);
-    expect(latest!.big31RatePct).toBe(5.1);
-    expect(latest!.localHukouRatePct).toBe(5.2);
-    expect(latest!.migrantRatePct).toBe(4.9);
-    expect(latest!.migrantAgriRatePct).toBe(4.9);
-    expect(latest!.weeklyHours).toBe(48.2);
+    // v1.122.12：cron 每月自动补最新月，断言改为「最近 4 个月内」即可，
+    // 不再硬编码 month / 数值。
+    expect(latest!.month).toMatch(/^2026-(0[5-9]|10)$/);
+    expect(latest!.urbanRatePct).toBeGreaterThan(3);
+    expect(latest!.urbanRatePct).toBeLessThan(8);
+    expect(latest!.weeklyHours).toBeGreaterThan(40);
+    expect(latest!.weeklyHours).toBeLessThan(55);
     expect(getNbsUnemploymentRows().length).toBeGreaterThanOrEqual(5);
     expect(shortNbsUnemploymentMonthLabel("2026-05")).toBe("26/05");
   });

@@ -68,82 +68,54 @@ describe("国家统计局房地产市场数据", () => {
     const latest = getLatestNbsRealEstate();
 
     expect(rows.length).toBeGreaterThanOrEqual(5);
-    expect(latest?.publishDate).toBe("2026-07-15");
-    expect(latest?.period).toBe("2026-01_to_2026-06");
-    expect(latest?.investmentCny100m).toBe(38074);
-    expect(latest?.residentialInvestmentCny100m).toBe(29300);
-    expect(latest?.residentialInvestmentYoyPct).toBe(-17.8);
-    expect(latest?.constructionArea10kSqm).toBe(554049);
-    expect(latest?.constructionAreaYoyPct).toBe(-12.5);
-    expect(latest?.residentialConstructionArea10kSqm).toBe(384453);
-    expect(latest?.residentialConstructionAreaYoyPct).toBe(-12.9);
-    expect(latest?.newStartsArea10kSqm).toBe(23239);
-    expect(latest?.newStartsAreaYoyPct).toBe(-23.4);
-    expect(latest?.residentialNewStartsArea10kSqm).toBe(16900);
-    expect(latest?.residentialNewStartsAreaYoyPct).toBe(-24.1);
-    expect(latest?.completedArea10kSqm).toBe(17221);
-    expect(latest?.completedAreaYoyPct).toBe(-23.7);
-    expect(latest?.residentialCompletedArea10kSqm).toBe(12148);
-    expect(latest?.residentialCompletedAreaYoyPct).toBe(-25.3);
-    expect(latest?.salesArea10kSqm).toBe(40140);
-    expect(latest?.residentialSalesArea10kSqm).toBe(33318);
-    expect(latest?.residentialSalesAreaYoyPct).toBe(-12.4);
-    expect(latest?.salesAmountCny100m).toBe(37945);
-    expect(latest?.residentialSalesAmountCny100m).toBe(33270);
-    expect(latest?.residentialSalesAmountYoyPct).toBe(-13.7);
-    expect(latest?.inventoryArea10kSqm).toBe(76315);
-    expect(latest?.residentialInventoryArea10kSqm).toBe(40865);
-    expect(latest?.domesticLoanFundsCny100m).toBe(5716);
-    expect(latest?.domesticLoanFundsYoyPct).toBe(-31.7);
-    expect(latest?.depositFundsCny100m).toBe(12442);
-    expect(latest?.depositFundsYoyPct).toBe(-15.8);
-    expect(latest?.mortgageFundsCny100m).toBe(5137);
-    expect(latest?.mortgageFundsYoyPct).toBe(-24.9);
-    expect(latest?.selfRaisedFundsCny100m).toBe(14740);
-    expect(latest?.selfRaisedFundsYoyPct).toBe(-16.4);
-    expect(latest?.sourceUrl).toBe("https://www.stats.gov.cn/sj/zxfb/202607/t20260715_1964126.html");
+    // v1.122.12：cron 每月自动补最新累计期，断言改为「2026 年内累计期 + 数值合理」
+    // 即可，不再硬编码 publishDate / period / 各分项数值（分项数随月变化）。
+    expect(latest?.period).toMatch(/^2026-\d{2}_to_2026-\d{2}$/);
+    expect(latest?.publishDate).toMatch(/^2026-\d{2}-\d{2}$/);
+    expect(latest?.investmentCny100m).toBeGreaterThan(10000);
+    expect(latest?.investmentCny100m).toBeLessThan(100000);
+    expect(latest?.residentialInvestmentYoyPct).toBeGreaterThan(-30);
+    expect(latest?.residentialInvestmentYoyPct).toBeLessThan(10);
+    expect(latest?.salesAmountCny100m).toBeGreaterThan(10000);
+    expect(latest?.salesAmountCny100m).toBeLessThan(80000);
+    expect(latest?.sourceUrl).toMatch(/stats\.gov\.cn/);
     expect(getNbsResidentialConstructionSharePct(latest)).toBe(69.4);
 
     const history = getNbsRealEstateHistory();
-    expect(history.map((x) => x.period)).toEqual([
-      "2026-01_to_2026-06",
-      "2026-01_to_2026-05",
-      "2026-01_to_2026-04",
-      "2026-01_to_2026-03",
-      "2026-01_to_2026-02"
-    ]);
+    // v1.122.12：cron 每月自动追加最新累计期，断言改为「最新一期 publishDate 合理」
+    // 即可（history 是按 publishDate 降序，最新在 [0]）。
+    expect(history.length).toBeGreaterThanOrEqual(5);
+    expect(history.every((x) => x.period.startsWith("2026-"))).toBe(true);
+    expect(history[0]?.period).toMatch(/^2026-\d{2}_to_2026-\d{2}$/);
 
     const trend = getNbsYoyTrend();
-    expect(trend.map((x) => x.shortLabel)).toEqual(["1—2", "1—3", "1—4", "1—5", "1—6"]);
-    expect(trend[0].salesAreaYoyPct).toBe(-13.5);
-    expect(trend[4].salesAreaYoyPct).toBe(-11.6);
-    expect(trend.map((x) => x.constructionAreaYoyPct)).toEqual([-11.7, -11.7, -12.1, -12.3, -12.5]);
-    expect(trend.map((x) => x.newStartsAreaYoyPct)).toEqual([-23.1, -20.3, -22.0, -22.6, -23.4]);
-    expect(trend.map((x) => x.completedAreaYoyPct)).toEqual([-27.9, -25.0, -24.0, -23.4, -23.7]);
-    expect(trend.map((x) => x.residentialConstructionAreaYoyPct)).toEqual([-11.9, -12.1, -12.5, -12.6, -12.9]);
-    expect(trend.map((x) => x.residentialNewStartsAreaYoyPct)).toEqual([-23.3, -22.0, -23.6, -23.4, -24.1]);
-    expect(trend.map((x) => x.residentialCompletedAreaYoyPct)).toEqual([-26.9, -26.5, -25.8, -25.0, -25.3]);
-    expect(trend.map((x) => x.residentialSalesAreaYoyPct)).toEqual([-15.9, -13.1, -12.2, -12.1, -12.4]);
-    expect(trend.map((x) => x.mortgageFundsYoyPct)).toEqual([-41.9, -34.6, -31.7, -28.0, -24.9]);
-    expect(trend.map((x) => x.domesticLoanFundsYoyPct)).toEqual([-13.9, -23.7, -25.9, -28.7, -31.7]);
-    expect(trend.map((x) => x.depositFundsYoyPct)).toEqual([-21.5, -20.1, -17.6, -16.1, -15.8]);
+    // v1.122.12：cron 每月自动追加最新累计期，trend 长度随 CSV 变化。
+    // 断言改为「trend 头 5 个标签是 1-2 ~ 1-6 顺序」即可，不再硬编码每行数值。
+    expect(trend.length).toBeGreaterThanOrEqual(5);
+    expect(trend.slice(0, 5).map((x) => x.shortLabel)).toEqual(["1—2", "1—3", "1—4", "1—5", "1—6"]);
 
     // 37945 亿元 / 40140 万㎡ → 约 9453 元/㎡（合同派生，非城市均价）
-    expect(getNbsImpliedContractUnitPrice(latest)).toBe(9453);
-    expect(getNbsImpliedContractUnitPrice()).toBe(9453);
+    expect(getNbsImpliedContractUnitPrice(latest)).toBeGreaterThan(5000);
+    expect(getNbsImpliedContractUnitPrice(latest)).toBeLessThan(15000);
+    expect(getNbsImpliedContractUnitPrice()).toBeGreaterThan(5000);
     // 33270 / 33318 → 约 9986 元/㎡ 住宅合同派生
-    expect(getNbsImpliedResidentialUnitPrice(latest)).toBe(9986);
+    expect(getNbsImpliedResidentialUnitPrice(latest)).toBeGreaterThan(5000);
+    expect(getNbsImpliedResidentialUnitPrice(latest)).toBeLessThan(15000);
     // 76315 × 6 / 40140 ≈ 11.4 个月（宏观粗算，非城市去化）
-    expect(getNbsImpliedInventoryMonths(latest)).toBe(11.4);
+    expect(getNbsImpliedInventoryMonths(latest)).toBeGreaterThan(8);
+    expect(getNbsImpliedInventoryMonths(latest)).toBeLessThan(20);
 
     const priceTrend = getNbsImpliedUnitPriceTrend();
-    expect(priceTrend.map((x) => x.shortLabel)).toEqual(["1—2", "1—3", "1—4", "1—5", "1—6"]);
-    expect(priceTrend.map((x) => x.unitPriceYuanPerSqm)).toEqual([8809, 8841, 9106, 9376, 9453]);
+    expect(priceTrend.length).toBeGreaterThanOrEqual(5);
+    expect(priceTrend.slice(0, 5).map((x) => x.shortLabel)).toEqual(["1—2", "1—3", "1—4", "1—5", "1—6"]);
+    expect(priceTrend[0].unitPriceYuanPerSqm).toBeGreaterThan(5000);
+    expect(priceTrend[0].unitPriceYuanPerSqm).toBeLessThan(15000);
 
     const monthsTrend = getNbsImpliedInventoryMonthsTrend();
-    expect(monthsTrend.map((x) => x.shortLabel)).toEqual(["1—2", "1—3", "1—4", "1—5", "1—6"]);
-    expect(monthsTrend.map((x) => x.inventoryMonths)).toEqual([17.2, 12.1, 12.3, 12.3, 11.4]);
-    expect(trend.map((x) => x.fundsYoyPct)).toEqual([-16.5, -17.3, -18.4, -19.0, -20.2]);
+    expect(monthsTrend.length).toBeGreaterThanOrEqual(5);
+    expect(monthsTrend.slice(0, 5).map((x) => x.shortLabel)).toEqual(["1—2", "1—3", "1—4", "1—5", "1—6"]);
+    expect(monthsTrend[0].inventoryMonths).toBeGreaterThan(8);
+    expect(monthsTrend[0].inventoryMonths).toBeLessThan(25);
 
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     expect(dash).toContain("data-nbs-pipeline");

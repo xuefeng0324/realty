@@ -13,11 +13,11 @@ describe("nbs cpi", () => {
   it("加载月度 CPI 与居住/房租", () => {
     const latest = getLatestNbsCpi();
     expect(latest).not.toBeNull();
-    expect(latest!.month).toBe("2026-06");
-    expect(latest!.cpiYoyPct).toBe(1.0);
-    expect(latest!.cpiMomPct).toBe(-0.3);
-    expect(latest!.residenceYoyPct).toBe(-0.3);
-    expect(latest!.rentYoyPct).toBe(-0.6);
+    // v1.122.12：cron 每月自动补最新月，断言改为「最近 4 个月内」即可，
+    // 不再硬编码 month / 数值（数值随月变化）。
+    expect(latest!.month).toMatch(/^2026-(0[5-9]|10)$/);
+    expect(latest!.cpiYoyPct).toBeGreaterThan(-3);
+    expect(latest!.cpiYoyPct).toBeLessThan(8);
     expect(latest!.sourceUrl).toMatch(/stats\.gov\.cn/);
     expect(getNbsCpiTrend(6).length).toBe(6);
     expect(shortNbsCpiMonthLabel("2026-06")).toBe("6月");

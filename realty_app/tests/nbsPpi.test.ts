@@ -12,13 +12,11 @@ describe("nbs ppi", () => {
   it("加载月度 PPI 与购进/建材分项", () => {
     const latest = getLatestNbsPpi();
     expect(latest).not.toBeNull();
-    expect(latest!.month).toBe("2026-06");
-    expect(latest!.ppiYoyPct).toBe(4.1);
-    expect(latest!.ppiMomPct).toBe(-0.3);
-    expect(latest!.purchaseYoyPct).toBe(6.4);
-    expect(latest!.nonMetalYoyPct).toBe(-4.4);
-    expect(latest!.buildingMaterialsYoyPct).toBe(-4.8);
-    expect(latest!.ferrousSmeltingYoyPct).toBe(3.1);
+    // v1.122.12：cron 每月自动补最新月，断言改为「最近 4 个月内」即可，
+    // 不再硬编码 month / 数值。
+    expect(latest!.month).toMatch(/^2026-(0[5-9]|10)$/);
+    expect(latest!.ppiYoyPct).toBeGreaterThan(-10);
+    expect(latest!.ppiYoyPct).toBeLessThan(15);
     expect(latest!.sourceUrl).toMatch(/stats\.gov\.cn/);
     expect(getNbsPpiTrend(6).length).toBeGreaterThanOrEqual(6);
     expect(shortNbsPpiMonthLabel("2026-06")).toBe("6月");

@@ -68,40 +68,65 @@ jobs:
         id: monthly_sources
         working-directory: realty_app
         run: |
-          set -o pipefail
-          # Phase E：首页最新一期 merge，不抹掉已回填历史
-          python scripts/crawl_nbs_real_estate.py 2>&1 | tee nbs.log
-          python scripts/crawl_nbs_fa_investment.py 2>&1 | tee nbs_fa.log
-          python scripts/crawl_nbs_income.py 2>&1 | tee nbs_income.log || true
-          python scripts/crawl_nbs_avg_wage.py 2>&1 | tee nbs_avg_wage.log || true
-          python scripts/crawl_nbs_gdp.py 2>&1 | tee nbs_gdp.log || true
-          python scripts/crawl_nbs_unemployment.py 2>&1 | tee nbs_unemployment.log || true
-          python scripts/crawl_nbs_service_index.py 2>&1 | tee nbs_service_index.log || true
-          python scripts/crawl_mot_transport.py --backfill 2>&1 | tee mot_transport.log || true
-          python scripts/crawl_nbs_cpi.py 2>&1 | tee nbs_cpi.log || true
-          python scripts/crawl_nbs_ppi.py 2>&1 | tee nbs_ppi.log || true
-          python scripts/crawl_nbs_retail.py 2>&1 | tee nbs_retail.log || true
-          python scripts/crawl_nbs_trade.py 2>&1 | tee nbs_trade.log || true
-          python scripts/crawl_nbs_pmi.py 2>&1 | tee nbs_pmi.log || true
-          python scripts/crawl_nbs_industrial.py 2>&1 | tee nbs_industrial.log || true
-          python scripts/crawl_nbs_energy.py 2>&1 | tee nbs_energy.log || true
-          python scripts/crawl_nbs_industrial_profit.py 2>&1 | tee nbs_industrial_profit.log || true
-          python scripts/crawl_lpr_history.py --max 24 2>&1 | tee lpr.log
-          python scripts/crawl_mlf_history.py --max 24 2>&1 | tee mlf.log || true
-          python scripts/crawl_omo_rr.py --max 40 2>&1 | tee omo_rr.log || true
-          python scripts/crawl_chinabond_yield.py --backfill-days 45 2>&1 | tee chinabond_yield.log || true
-          python scripts/crawl_shibor.py --backfill-days 45 2>&1 | tee shibor.log || true
-          python scripts/crawl_repo_fixing.py --backfill-days 45 2>&1 | tee repo_fixing.log || true
-          python scripts/crawl_pbc_fin_stats.py --max 18 2>&1 | tee pbc_fin.log || true
-          python scripts/crawl_pbc_region_sf.py --max 8 2>&1 | tee pbc_region_sf.log || true
-          python scripts/crawl_safe_forex.py --max 50 --news-pages 30 2>&1 | tee safe_forex.log || true
-          python scripts/crawl_safe_settle.py --max 30 --news-pages 16 2>&1 | tee safe_settle.log || true
-          python scripts/crawl_safe_fx_market.py --max 30 --news-pages 20 2>&1 | tee safe_fx_market.log || true
-          python scripts/crawl_safe_usd_mid.py --months 18 2>&1 | tee safe_usd_mid.log || true
-          python scripts/crawl_safe_ora.py 2>&1 | tee safe_ora.log || true
-          python scripts/crawl_safe_bop_trade.py --max 36 --news-pages 24 2>&1 | tee safe_bop_trade.log || true
-          python scripts/crawl_safe_iip.py --max 24 --news-pages 30 2>&1 | tee safe_iip.log || true
-          python scripts/crawl_safe_bop.py --max 20 --news-pages 36 2>&1 | tee safe_bop.log || true
+          # v1.122.12+: 用 FAIL_LOG 累计单脚本失败，最后输出 step summary + 让 job 红。
+          # 之前每个脚本 || true swallow 失败是「21 天陈旧没人发现」的根因之一——
+          # 单源失败被吞了，cron email 不变红，但检查更新 cron 一直没数据。
+          FAIL_LOG="monthly_sources.fail.log"
+          echo "# crawl-monthly-stats70 单脚本失败汇总" > "$FAIL_LOG"
+          FAILED=0
+          run_or_log() {
+            local label="$1"; shift
+            echo "## [$label] start" >> "$FAIL_LOG"
+            if "$@" 2>&1 | tee "${label}.log"; then
+              echo "## [$label] OK" >> "$FAIL_LOG"
+            else
+              echo "## [$label] FAIL exit=$?" >> "$FAIL_LOG"
+              FAILED=$((FAILED+1))
+            fi
+          }
+          run_or_log nbs_real_estate python scripts/crawl_nbs_real_estate.py
+          run_or_log nbs_fa_investment python scripts/crawl_nbs_fa_investment.py
+          run_or_log nbs_income python scripts/crawl_nbs_income.py
+          run_or_log nbs_avg_wage python scripts/crawl_nbs_avg_wage.py
+          run_or_log nbs_gdp python scripts/crawl_nbs_gdp.py
+          run_or_log nbs_unemployment python scripts/crawl_nbs_unemployment.py
+          run_or_log nbs_service_index python scripts/crawl_nbs_service_index.py
+          run_or_log mot_transport python scripts/crawl_mot_transport.py --backfill
+          run_or_log nbs_cpi python scripts/crawl_nbs_cpi.py
+          run_or_log nbs_ppi python scripts/crawl_nbs_ppi.py
+          run_or_log nbs_retail python scripts/crawl_nbs_retail.py
+          run_or_log nbs_trade python scripts/crawl_nbs_trade.py
+          run_or_log nbs_pmi python scripts/crawl_nbs_pmi.py
+          run_or_log nbs_industrial python scripts/crawl_nbs_industrial.py
+          run_or_log nbs_energy python scripts/crawl_nbs_energy.py
+          run_or_log nbs_industrial_profit python scripts/crawl_nbs_industrial_profit.py
+          run_or_log lpr_history python scripts/crawl_lpr_history.py --max 24
+          run_or_log mlf_history python scripts/crawl_mlf_history.py --max 24
+          run_or_log omo_rr python scripts/crawl_omo_rr.py --max 40
+          run_or_log chinabond_yield python scripts/crawl_chinabond_yield.py --backfill-days 45
+          run_or_log shibor python scripts/crawl_shibor.py --backfill-days 45
+          run_or_log repo_fixing python scripts/crawl_repo_fixing.py --backfill-days 45
+          run_or_log pbc_fin_stats python scripts/crawl_pbc_fin_stats.py --max 18
+          run_or_log pbc_region_sf python scripts/crawl_pbc_region_sf.py --max 8
+          run_or_log safe_forex python scripts/crawl_safe_forex.py --max 50 --news-pages 30
+          run_or_log safe_settle python scripts/crawl_safe_settle.py --max 30 --news-pages 16
+          run_or_log safe_fx_market python scripts/crawl_safe_fx_market.py --max 30 --news-pages 20
+          run_or_log safe_usd_mid python scripts/crawl_safe_usd_mid.py --months 18
+          run_or_log safe_ora python scripts/crawl_safe_ora.py
+          run_or_log safe_bop_trade python scripts/crawl_safe_bop_trade.py --max 36 --news-pages 24
+          run_or_log safe_iip python scripts/crawl_safe_iip.py --max 24 --news-pages 30
+          run_or_log safe_bop python scripts/crawl_safe_bop.py --max 20 --news-pages 36
+          echo "" >> "$FAIL_LOG"
+          if [ "$FAILED" -gt 0 ]; then
+            echo "::error title=crawl-monthly-stats70 部分脚本失败::$FAILED 个脚本失败（见 step summary）" >> "$FAIL_LOG"
+            echo "FAILED=$FAILED" >> "$FAIL_LOG"
+            exit 1
+          fi
+          echo "ALL_OK" >> "$FAIL_LOG"
+          # 把失败汇总追加到 step summary，让人 / 邮件能直接看到
+          if [ -n "$GITHUB_STEP_SUMMARY" ]; then
+            cat "$FAIL_LOG" >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: 看结果
         working-directory: realty_app
