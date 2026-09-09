@@ -10,6 +10,33 @@
 - 凡是用户说"继续"、"提交"、"push"等收尾指令后
 - 凡是一次完整任务结束、准备进入下一轮用户交互前
 
+## 提交 / push 即时报告（强制）
+
+agent 一旦执行 `git commit`、`git push`、或调用 `commit.ps1` / 内部 git
+plumbing 成功落地新 commit **或**把已有 commit 推到 origin，
+**必须立刻**在对话里给出一段「提交落地」短报告，
+**不能等用户问**、**不能塞进任务汇报末尾**、**不能用"详见 X"代替**。
+
+「提交落地」短报告固定包含：
+
+```text
+- 落地了 N 个新 commit：
+    - <short_sha>  <subject>           # 第 1 个
+    - <short_sha>  <subject>           # 第 2 个（可多行）
+- 当前分支状态：ahead X / behind Y / clean
+- 已 push 到 origin：✅ / ❌（原因）
+- 触发的下游：例如 push 触发了 .github/workflows/*.yml；如有失败的 CI 必单独点出
+```
+
+适用规则：
+
+- 即使本次任务是「提交 / push 这一个动作」，也要输出上面 5 段任务汇报
+  + 这段「提交落地」短报告（前者更详细，后者聚焦提交/远端状态）
+- 报告时机：在 commit 成功返回的下一个 assistant turn 的**第一条可见消息**
+  里就要出现，远早于任何后续分析；不要让用户翻聊天历史去找
+- 本机 push 被网络抽风挡掉（CN 出境 443 抖动等常见现象）→ 也算「未 push」，
+  必须如实报「未 push：xxx」，并给出手动重试命令，不能假装已 push
+
 ## 任务结束汇报模板
 
 每次任务结束**必须**输出以下 5 个段落（中文），缺一项视为未完成：
@@ -101,4 +128,6 @@ deleted   path/to/old_file.ts        # 一句话说明删除原因
 
 ---
 
-最后更新：2026-07-26（强制 FEATURE_QA_PROCESS + FEATURE_CATALOG）
+最后更新：2026-09-09（强制「提交 / push 即时报告」，避免用户在手机上翻 GitHub 邮箱/网页才能看到 agent 提交了啥）
+
+# 之前更新：2026-07-26（强制 FEATURE_QA_PROCESS + FEATURE_CATALOG）
