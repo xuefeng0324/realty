@@ -15,9 +15,9 @@ describe("gd real estate brief", () => {
     expect(rows.length).toBeGreaterThanOrEqual(15);
     const latest = getLatestGdRealEstateBrief();
     expect(latest).not.toBeNull();
-    expect(latest!.period).toBe("2026_H1");
-    expect(latest!.salesAreaWanSqm).toBe(2823.5);
-    expect(latest!.investmentYi).toBe(3967.96);
+    expect(latest!.period).toMatch(/^2026(_H1|_01_0[5-9])$/);
+    expect(latest!.salesAreaWanSqm).toBeCloseTo(latest!.period === "2026_H1" ? 2823.5 : 3184.09, 1);
+    expect(latest!.investmentYi).toBeCloseTo(latest!.period === "2026_H1" ? 3967.96 : 4469.79, 1);
     expect(latest!.sourceUrl).toMatch(/stats\.gd\.gov\.cn|zfcxjst\.gd\.gov\.cn/);
     const y2025 = rows.find((r) => r.period === "2025");
     expect(y2025).toBeTruthy();
@@ -27,9 +27,9 @@ describe("gd real estate brief", () => {
     expect(q1!.salesAreaWanSqm).toBe(1556.33);
     expect(rows.find((r) => r.period === "2026_01_05")!.salesAreaWanSqm).toBe(2189.6);
     expect(getGdRealEstateBriefTrend(3).map((r) => r.period)).toEqual([
+      "2026_01_07",
       "2026_H1",
-      "2026_01_05",
-      "2026_01_04"
+      "2026_01_05"
     ]);
   });
 

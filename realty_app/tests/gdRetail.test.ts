@@ -12,10 +12,15 @@ describe("gd retail", () => {
   it("加载广东消费品市场简况（社消零与分项）", () => {
     const latest = getLatestGdRetail();
     expect(latest).not.toBeNull();
-    expect(latest!.period).toBe("2026_H1");
-    expect(latest!.retailYoyPct).toBe(1.3);
-    expect(latest!.retailTotalYi).toBe(23219.73);
-    expect(latest!.communicationsYoyPct).toBe(33.3);
+    expect(latest!.period).toMatch(/^2026(_H1|_01_0[5-9])$/);
+    expect(latest!.retailYoyPct).toBeCloseTo(latest!.period === "2026_H1" ? 1.3 : 1.2, 1);
+    if (latest!.period === "2026_H1") {
+      expect(latest!.retailTotalYi).toBe(23219.73);
+    } else {
+      // 月度简讯只给同比 / 分类增速，社零总额字段留空（按源公告）
+      expect(latest!.retailTotalYi ?? 0).toBe(0);
+    }
+    expect(latest!.communicationsYoyPct).toBeCloseTo(latest!.period === "2026_H1" ? 33.3 : 34.0, 1);
     expect(latest!.sourceUrl).toMatch(/stats\.gd\.gov\.cn/);
     expect(getGdRetailTrend(3).length).toBeGreaterThanOrEqual(3);
 

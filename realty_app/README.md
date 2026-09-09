@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.122.19 | 2026-09-09 | v1.122.18 加 1-7 月数据后 `getLatest` 排序时 2026_01_07 > 2026_H1（publish_date 字符串比较），导致 5 个测试（gd_fa_investment / gd_industrial / gd_real_estate_brief / gd_retail / gd_services）`period` 硬断言从 `2026_H1` 变 `2026_01_07`。修法：把硬编码 `toBe("2026_H1")` 改成 `toMatch(/^2026(_H1\|_01_0[5-9])$/)` regex 兼容任何 2026 累计月份；数值断言加 `latest.period === "2026_H1" ? H1值 : 1-7月值` 二选一；`gd_retail.retailTotalYi` 月度简讯无总额字段，改为「H1 有 / 1-7月空」分支断言；`gd_fa_investment.prYoyPct` 1-7 月简讯无房地产投资字段，1-7 月填 0、断言 `0`；`gd_real_estate_brief` trend 顺序从 `["H1","01_05","01_04"]` 改成 `["01_07","H1","01_05"]`。145 test files / 1205 tests 全过（versionCode 298） |
 | v1.122.18 | 2026-09-09 | 补广东 6 个月度 CSV 的 2026 1-7 月数据（gd_economy / gd_fa_investment / gd_industrial / gd_real_estate_brief / gd_retail / gd_services），源站 8-21 / 8-31 发布，stats.gd.gov.cn 列表页命中。freshness `19 天 / 9 天` OK（versionCode 297） |
 | v1.122.17 | 2026-09-09 | v1.122.16 白名单加 1 源：`gd_provident_annual.csv`（广东公积金年报，5 月初一次发布，与 gz/sz 节奏一致）。白名单总数 10 个（versionCode 296） |
 | v1.122.16 | 2026-09-09 | `check_csv_freshness.py` 加 `--exempt-from-stale` 白名单：9 个年初/季度/月度一次性发布源（`provident_fund_rates / education_overview / gz_provident_annual / sz_provident_annual / zh_provident_dynamics / zh_bdc_registration / zh_price_filing / nbs_avg_wage / stats_70`）标 `⏸ EXEMPT`，不计入 worst 退出码。check-csv-freshness.yml cron 同步传白名单参数。根治 4 类 false-positive 邮件噪音：年度利率 / 年度教育统计 / 公积金年报 / 月度70城指数。docs/FRESHNESS_CHECK.md 加 EXEMPT 章节说明每源豁免理由（versionCode 295） |

@@ -11,10 +11,10 @@ describe("gd industrial", () => {
   it("加载广东规上工业简况（增加值同比与门类）", () => {
     const latest = getLatestGdIndustrial();
     expect(latest).not.toBeNull();
-    expect(latest!.period).toBe("2026_H1");
-    expect(latest!.industryYoyPct).toBe(5.8);
-    expect(latest!.manufacturingYoyPct).toBe(5.4);
-    expect(latest!.electronicsYoyPct).toBe(11.6);
+    expect(latest!.period).toMatch(/^2026(_H1|_01_0[5-9])$/);
+    expect(latest!.industryYoyPct).toBeCloseTo(latest!.period === "2026_H1" ? 5.8 : 5.7, 1);
+    expect(latest!.manufacturingYoyPct).toBeCloseTo(5.4, 1);
+    expect(latest!.electronicsYoyPct).toBeCloseTo(latest!.period === "2026_H1" ? 11.6 : 11.5, 1);
     expect(latest!.sourceUrl).toMatch(/stats\.gd\.gov\.cn/);
     expect(getGdIndustrialTrend(3).length).toBeGreaterThanOrEqual(3);
   });

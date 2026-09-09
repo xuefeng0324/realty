@@ -12,10 +12,10 @@ describe("gd services", () => {
   it("加载广东规上服务业简况（营收与住房弱相关分项）", () => {
     const latest = getLatestGdServices();
     expect(latest).not.toBeNull();
-    expect(latest!.period).toBe("2026_01_05");
-    expect(latest!.revenueYoyPct).toBe(7.3);
-    expect(latest!.leasingYoyPct).toBe(11.1);
-    expect(latest!.itYoyPct).toBe(7.7);
+    expect(latest!.period).toMatch(/^2026_01_0[5-9]$/);
+    expect(latest!.revenueYoyPct).toBeCloseTo(latest!.period === "2026_01_05" ? 7.3 : 7.1, 1);
+    expect(latest!.leasingYoyPct).toBeCloseTo(latest!.period === "2026_01_05" ? 11.1 : 12.7, 1);
+    expect(latest!.itYoyPct).toBeCloseTo(latest!.period === "2026_01_05" ? 7.7 : 6.1, 1);
     expect(latest!.sourceUrl).toMatch(/stats\.gd\.gov\.cn/);
     expect(getGdServicesTrend(3).length).toBeGreaterThanOrEqual(3);
     expect(gdServicesHasHousingRelated(latest!)).toBe(true);

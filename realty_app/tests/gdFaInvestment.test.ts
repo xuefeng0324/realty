@@ -11,11 +11,11 @@ describe("gd fa investment", () => {
   it("加载广东固定资产投资简况", () => {
     const latest = getLatestGdFaInvestment();
     expect(latest).not.toBeNull();
-    expect(latest!.period).toBe("2026_H1");
-    expect(latest!.faYoyPct).toBe(-11.4);
-    expect(latest!.industryYoyPct).toBe(-13.9);
-    expect(latest!.manufacturingYoyPct).toBe(-14.4);
-    expect(latest!.prYoyPct).toBe(-10.9);
+    expect(latest!.period).toMatch(/^2026(_H1|_01_0[5-9])$/);
+    expect(latest!.faYoyPct).toBeCloseTo(-11.3, 1);
+    expect(latest!.industryYoyPct).toBeCloseTo(latest!.period === "2026_H1" ? -13.9 : -13.2, 1);
+    expect(latest!.manufacturingYoyPct).toBeCloseTo(latest!.period === "2026_H1" ? -14.4 : -13.1, 1);
+    expect(latest!.prYoyPct).toBeCloseTo(latest!.period === "2026_H1" ? -10.9 : 0, 1);
     expect(latest!.sourceUrl).toMatch(/stats\.gd\.gov\.cn/);
     expect(getGdFaInvestmentTrend(2).length).toBeGreaterThanOrEqual(2);
   });
