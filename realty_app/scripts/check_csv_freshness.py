@@ -52,20 +52,24 @@ except Exception:
 REPO = Path(__file__).resolve().parents[1]
 DEFAULT_STATIC = REPO / "static"
 
-# 字段优先级：扫 CSV 表头，命中以下任一字段视为「日期字段」。
-# 注意：很多 CSV 用 publish_date（发布日期）而 stats_70.csv 用 date（统计期）。
+# 字段优先级：扫 CSV 表头，命中以下任一字段视为「数据发布日期字段」。
+# 注意：
+#  - date 是 NBS / 官方源最常见的「统计期」（如 daily_wangqian 的网签日期）；
+#    但它也是「数据获取时间」的代理——只要爬取脚本每天跑，最新 date 就是昨天。
+#  - publish_date / as_of_date / effective_date 是显式的「数据发布时间」，
+#    强烈优先。
+#  - year / period / month / quarter 这些只是「统计期标识」，不等同于
+#    「数据获取时间」（如 gz_affordable_projects.csv 的 year=2024 是项目
+#    立项年份，不是数据爬取时间）。v1.122.9 起把它们从默认候选剔除，
+#    避免「立项 1 年的项目」被误报「数据陈旧 982 天」。
 DATE_FIELD_CANDIDATES = (
-    "date",
     "publish_date",
     "as_of_date",
     "effective_date",
-    "year",
-    "period",
-    "month",
-    "quarter",
-    "time",
+    "date",
     "updated_at",
     "as_of",
+    "time",
 )
 
 
@@ -214,7 +218,8 @@ def main() -> int:
                     "grade": "UNKNOWN",
                 }
             )
-            worst = max(worst, 2)
+            # UNKNOWN 不计入 worst（不是失败信号，是「该文件没有可用的 freshness
+            # 字段」的中性状态）。避免「项目立项年的 CSV」一直把 cron 推红。
             continue
         sd = (today - latest).days
         g, _ = grade(sd, args.warn_days, args.stale_days)
