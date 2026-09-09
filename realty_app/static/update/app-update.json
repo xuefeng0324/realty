@@ -1,12 +1,12 @@
 {
-  "versionName": "1.122.21",
-  "versionCode": "300",
-  "publishedAt": "2026-09-09T17:18:17Z",
+  "versionName": "1.122.22",
+  "versionCode": "301",
+  "publishedAt": "2026-09-09T17:26:53Z",
   "force": false,
-  "notes": "docs(realty_app): FRESHNESS_CHECK.md \u52a0 v1.122.22 4 \u6e90\u590d\u67e5\u7ed3\u8bba\n\n2026-07-25-v1.114.0-\u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f: v1.114.0 \u2014 \u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f\n2026-07-25-v1.115.0-\u533b\u9662\u5750\u6807\u63a5\u5165\u4e0e\u6d3e\u751f: v1.115.0 \u2014 \u533b\u9662\u5750\u6807\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n",
+  "notes": "feat(realty_app): 5 UNKNOWN \u5168\u8bc6\u522b + zh_affordable_progress \u8865 7-8 \u6708\u6570\u636e (v1.122.22 / 301)\n\n2026-07-25-v1.109.0-\u793e\u533a\u603b\u4ef7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f: v1.109.0 \u2014 \u793e\u533a\u603b\u4ef7\u00d7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f\n2026-07-25-v1.110.0-\u89c4\u5212\u5730\u94c1\u6d3e\u751f: v1.110.0 \u2014 \u89c4\u5212\u5730\u94c1\u6d3e\u751f\n2026-07-25-v1.111.0-LPR\u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f: v1.111.0 \u2014 LPR \u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/300/app.wgt",
-    "sha256": "d22af18a76494445f4c8c325fdc5e3d13cf5c004312a1e1d7119a193cbc2adc1"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/301/app.wgt",
+    "sha256": "22e27a2692b931d9b23301cffb45518dc2a00f4ed07cd40c67de0e14f0e833ea"
   },
   "ios": {
     "available": false,
