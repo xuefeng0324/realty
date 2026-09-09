@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.122.15 | 2026-09-09 | `daily_wangqian.csv` 补广州 2026-09-08 各区网签 12 行（全市 105 套 / 12594.42 ㎡）：越秀 0 / 荔湾 4 / 海珠 1 / 天河 4 / 白云 9 / 黄埔 14 / 花都 35 / 番禺 8 / 南沙 4 / 从化 2 / 增城 24 / 全市。cron 抓取 1 天内会重补，本批提前补避免 9-8 当日用户看不到当日数据（versionCode 294） |
 | v1.122.4 | 2026-09-09 | 系统自测：设置页"REAL为公开…代表逐套成交"段换行截断，改 `<text>` + word-break: break-all；地图 tab 城市切换按钮溢出，改 `flex: 1 1 auto`（versionCode 283） |
 | v1.122.5 | 2026-09-09 | 找房页搜索框按钮（小区/标题/行政区关键字）不垂直居中，`.search-input .btn` 显式 height 64rpx + line-height 64rpx（versionCode 284） |
 | v1.122.6 | 2026-09-09 | 找房页 DISCOVER 顶部搜索按钮（搜索房源标题、小区或行政区）也修垂直居中：`.find-hub-search-input` 加 line-height 70rpx；`.find-hub-search-btn` height/min-height 70rpx + line-height 70rpx（versionCode 285） |
