@@ -178,9 +178,14 @@ jobs:
   build-apk:
     # 仅在 secrets.DCLOUD_USERNAME & DCLOUD_PASSWORD 配置时尝试云打包；
     # 否则 skip（CI 仍为绿），开发者本地 HBuilderX 完整打包即可。
+    #
+    # continue-on-error=true：APK 云打包是「可选」通道，本地 HBuilderX 仍是
+    # 官方推荐路径；wgt OTA 已经独立发版。避免 secrets 临时拿不到或镜像
+    # 抖动时整个 workflow 红掉、阻塞 OTA 推送。
     name: 云端打包 APK（可选）
     needs: build-wgt
     runs-on: ubuntu-latest
+    continue-on-error: true
     if: ${{ vars.ANDROID_ENABLE != 'false' && github.event_name == 'push' }}
     timeout-minutes: 60
     defaults:
@@ -190,12 +195,16 @@ jobs:
       - name: 检查 DCloud 凭据
         id: creds
         run: |
+          # 强制以 success 收尾：纯判断脚本不应阻塞 build-apk（continue-on-error
+          # 已兜底一次，但 2026-09 仍观察到 $GITHUB_OUTPUT 写入偶发失败导致
+          # step 标红，故这里再显式 exit 0）。
           if [ -z "${{ secrets.DCLOUD_USERNAME }}" ] || [ -z "${{ secrets.DCLOUD_PASSWORD }}" ]; then
-            echo "skipped=true" >> $GITHUB_OUTPUT
+            echo "skipped=true" >> "$GITHUB_OUTPUT" || true
             echo "缺少 DCLOUD_USERNAME/DCLOUD_PASSWORD secret，跳过 APK 云打包（wgt 仍正常发布）"
-          else
-            echo "skipped=false" >> $GITHUB_OUTPUT
+            exit 0
           fi
+          echo "skipped=false" >> "$GITHUB_OUTPUT" || true
+          exit 0
 
       - name: 拉代码（拿 wgt 产物）
         if: steps.creds.outputs.skipped != 'true'
