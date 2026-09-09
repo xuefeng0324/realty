@@ -10,15 +10,29 @@ check_stats70_freshness.py
   python scripts/check_stats70_freshness.py --csv static/stats_70.csv --deadline-day 20
 
 退出码：0 新鲜 / 2 落后或无数据 / 1 参数错误
+
+v1.122.8：去掉 zoneinfo('Asia/Shanghai')，改用 date.today()。CI runner 上
+有 tzdata 时无差异，本机 Windows Python 缺 tzdata 时不再崩（与
+check_csv_freshness.py 保持一致行为）。如果 UTC 与 Asia/Shanghai 跨日刚好
+相邻，差异最多 1 天，与 publish_day=18 比较时无影响。
 """
 from __future__ import annotations
 
 import argparse
 import csv
+import io
 import sys
 from datetime import date, datetime
 from pathlib import Path
-from zoneinfo import ZoneInfo
+
+# Windows GBK console 输出 emoji/中文会崩；强制把 stdout / stderr 切到 UTF-8。
+# Linux / CI runner 默认就是 UTF-8，reconfigure 不影响。
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
+except Exception:
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 REPO = Path(__file__).resolve().parents[1]
 DEFAULT_CSV = REPO / "static" / "stats_70.csv"
@@ -96,7 +110,9 @@ def main() -> int:
         y, m, d = map(int, args.today.split("-"))
         today = date(y, m, d)
     else:
-        today = datetime.now(ZoneInfo("Asia/Shanghai")).date()
+        # 本机 / CI runner 都用本地时区的「今天」；cron 多数在 UTC runner 上跑，
+        # UTC 与 Asia/Shanghai 跨日最多差 1 天，与 publish_day=18 比较无实质影响。
+        today = date.today()
     try:
         got = max_month(args.csv)
     except (OSError, csv.Error) as exc:
