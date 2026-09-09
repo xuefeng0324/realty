@@ -1239,13 +1239,15 @@ onUnmounted(() => {
   flex: 1;
   min-width: 0;
   height: 70rpx;
+  line-height: 70rpx;
   color: var(--color-heading, #17322d);
   font-size: 25rpx;
 }
 
 .find-hub-search-btn {
   min-width: 96rpx;
-  min-height: 60rpx;
+  height: 70rpx;
+  line-height: 70rpx;
   padding: 0 20rpx;
   border-radius: 16rpx;
   color: #fff;
