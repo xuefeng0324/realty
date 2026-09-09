@@ -1,12 +1,12 @@
 {
   "versionName": "1.122.1",
   "versionCode": "280",
-  "publishedAt": "2026-09-09T07:42:25Z",
+  "publishedAt": "2026-09-09T08:12:11Z",
   "force": false,
-  "notes": "chore(release): bump to 1.122.1 (280) for OTA after \u5de5\u7a0b CI \u4fee\u590d\n\n2026-07-25-v1.110.0-\u89c4\u5212\u5730\u94c1\u6d3e\u751f: v1.110.0 \u2014 \u89c4\u5212\u5730\u94c1\u6d3e\u751f\n2026-07-25-v1.111.0-LPR\u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f: v1.111.0 \u2014 LPR \u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f\n2026-07-25-v1.112.0-\u5468\u8fb9\u5546\u4e1aPOI\u63a5\u5165\u4e0e\u6d3e\u751f: v1.112.0 \u2014 \u5468\u8fb9\u5546\u4e1a POI \u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n",
+  "notes": "fix(realty_app): wangqian graceful degrade + \u884c\u60c5 safe-top + \u9996\u9875\u641c\u7d22\u6846\u5782\u76f4\u5c45\u4e2d\n\n2026-07-25-v1.121.2-OTA\u68c0\u67e5\u66f4\u65b0\u4fee\u590d: v1.121.2 \u2014 OTA \u68c0\u67e5\u66f4\u65b0\u65e0\u53cd\u5e94\u4fee\u590d\n2026-07-25-v1.121.4-OTA\u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316: v1.121.4 \u2014 OTA \u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316\n2026-07-25-v1.121.5-\u542f\u52a8\u9875\u4e0eOTA\u6839\u6cbb: v1.121.5 / v1.121.6 \u2014 \u542f\u52a8\u9875 + OTA \u6839\u6cbb\u4e0e\u9a8c\u8bc1\n",
   "wgt": {
     "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/280/app.wgt",
-    "sha256": "e18427a7416d4bcb9b7e64e2832c6100c797215ae6fccd229bb9c07116ad969d"
+    "sha256": "49fc5d5781370572304b893d0622700130f8817fcb50b18215b02431a9e965b0"
   },
   "ios": {
     "available": false,
