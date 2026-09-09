@@ -1,12 +1,12 @@
 {
   "versionName": "1.122.0",
   "versionCode": "279",
-  "publishedAt": "2026-09-09T06:48:50Z",
+  "publishedAt": "2026-09-09T07:03:18Z",
   "force": false,
-  "notes": "ci(realty_app): E2E \u52a0 baseline \u540c\u6b65\u62a4\u680f\n\n2026-07-25-v1.121.9-OTA\u9a8c\u8bc1130: v1.121.9 \u2014 OTA \u9a8c\u8bc1\u5305 130\n2026-07-25-v0.93.0-\u5206\u533a\u8fd112\u5468\u5747\u4ef7\u53d8\u52a8: v0.93.0 \u2014 \u5206\u533a\u8fd1 12 \u5468\u5747\u4ef7\u53d8\u52a8\uff08dashboard mini \u5361\uff09\n2026-07-25-v0.93.1-\u5206\u533a12\u5468\u53e3\u5f84\u4e25\u683c\u5316: v0.93.1 \u2014 \u5206\u533a 12 \u5468\u53d8\u52a8\u53e3\u5f84\u4e25\u683c\u5316\n",
+  "notes": "ci(realty_app): APK \u4e91\u6253\u5305 job \u6539 continue-on-error + \u663e\u5f0f exit 0\n\n2026-07-25-v1.110.0-\u89c4\u5212\u5730\u94c1\u6d3e\u751f: v1.110.0 \u2014 \u89c4\u5212\u5730\u94c1\u6d3e\u751f\n2026-07-25-v1.111.0-LPR\u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f: v1.111.0 \u2014 LPR \u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f\n2026-07-25-v1.112.0-\u5468\u8fb9\u5546\u4e1aPOI\u63a5\u5165\u4e0e\u6d3e\u751f: v1.112.0 \u2014 \u5468\u8fb9\u5546\u4e1a POI \u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n",
   "wgt": {
     "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/279/app.wgt",
-    "sha256": "b4ec1e16142ff89640e8d8b525e98ffa67e61820953db2e8448a3d0ee5f88e94"
+    "sha256": "fd579b0eec11867afe2f9269dec633d2e77610d4c259030076739bed8139e30c"
   },
   "ios": {
     "available": false,
