@@ -122,7 +122,8 @@ sz_land_deals / sz_planned_supply` —— 这些**真的需要新发布数据**�
 | `sz_land_deals.csv` | **与 HEAD SAME** | v1.122.11 已补；STALE 报告是源站 7 月后无新成交公示 |
 | `sz_planned_supply.csv` | **HEAD 反而比探针多 2 行**（2024Q4 + 2025Q1） | v1.122.11 已补 8 行；STALE 报告是源站 7 月后无新季度公示 |
 | `gd_construction.csv` | 探针 4 行 vs HEAD 4 行 1 行微差 | 源站 4 月发 2026Q1 后无新季度数据（季度发布） |
-| `gd_services.csv` | 探针成功但脚本硬写正式 CSV | 源站 7 月发 1-5 月累计后无新数据 |
+| `gd_services.csv` | **v1.122.18 已补 2026_01_07**（2026-08-31 公告） | gd_economy/fa_investment/industrial/real_estate_brief/retail/services 6 个月度 CSV 全部已 OK |
+| `gd_economy / gd_fa_investment / gd_industrial / gd_real_estate_brief / gd_retail` | **v1.122.18 已补 2026_01_07**（2026-08-21 公告） | 见 changelog/2026-09-09-v1.122.18 |
 | `nbs_avg_wage.csv` | 探针成功但脚本硬写正式 CSV | 国家统计局 5 月发 2025 年报后无新数据（年度发布） |
 | `stats_70.csv` | 探针无法跑 | 70 城指数月度 6 月发后无新数据（18 日发布日已过） |
 | `gz_provident_annual.csv` (531d) | — | 广州公积金年度报告，**年初一次发布**（freshness 永远会显示 STALE） |

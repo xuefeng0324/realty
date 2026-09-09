@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.122.18 | 2026-09-09 | 补广东 6 个月度 CSV 的 2026 1-7 月数据（gd_economy / gd_fa_investment / gd_industrial / gd_real_estate_brief / gd_retail / gd_services），源站 8-21 / 8-31 发布，stats.gd.gov.cn 列表页命中。freshness `19 天 / 9 天` OK（versionCode 297） |
 | v1.122.17 | 2026-09-09 | v1.122.16 白名单加 1 源：`gd_provident_annual.csv`（广东公积金年报，5 月初一次发布，与 gz/sz 节奏一致）。白名单总数 10 个（versionCode 296） |
 | v1.122.16 | 2026-09-09 | `check_csv_freshness.py` 加 `--exempt-from-stale` 白名单：9 个年初/季度/月度一次性发布源（`provident_fund_rates / education_overview / gz_provident_annual / sz_provident_annual / zh_provident_dynamics / zh_bdc_registration / zh_price_filing / nbs_avg_wage / stats_70`）标 `⏸ EXEMPT`，不计入 worst 退出码。check-csv-freshness.yml cron 同步传白名单参数。根治 4 类 false-positive 邮件噪音：年度利率 / 年度教育统计 / 公积金年报 / 月度70城指数。docs/FRESHNESS_CHECK.md 加 EXEMPT 章节说明每源豁免理由（versionCode 295） |
 | v1.122.15 | 2026-09-09 | `daily_wangqian.csv` 补广州 2026-09-08 各区网签 12 行（全市 105 套 / 12594.42 ㎡）：越秀 0 / 荔湾 4 / 海珠 1 / 天河 4 / 白云 9 / 黄埔 14 / 花都 35 / 番禺 8 / 南沙 4 / 从化 2 / 增城 24 / 全市。cron 抓取 1 天内会重补，本批提前补避免 9-8 当日用户看不到当日数据（versionCode 294） |
