@@ -10638,6 +10638,7 @@ onShow(async () => {
   min-width: 0;
   height: 64rpx;
   line-height: 64rpx;
+  padding-left: 16rpx;
   color: #12342f;
   font-size: 27rpx;
 }
