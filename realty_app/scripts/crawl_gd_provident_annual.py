@@ -20,6 +20,9 @@ from html import unescape
 from pathlib import Path
 from urllib.request import Request, urlopen
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _gbk_probe import fetch_text_gbk  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "static" / "gd_provident_annual.csv"
 UA = {"User-Agent": "Mozilla/5.0 (compatible; realty-crawler/1.0)"}
@@ -45,13 +48,8 @@ FIELDS = [
 
 
 def fetch_text(url: str) -> str:
-    raw = urlopen(Request(url, headers=UA), context=CTX, timeout=45).read()
-    for enc in ("utf-8", "gbk"):
-        try:
-            return raw.decode(enc)
-        except Exception:
-            continue
-    return raw.decode("utf-8", "replace")
+    """v1.122.25 起改用 _gbk_probe.fetch_text_gbk（共用 helper）。"""
+    return fetch_text_gbk(url, ua=UA, ctx=CTX)
 
 
 def plain(html: str) -> str:

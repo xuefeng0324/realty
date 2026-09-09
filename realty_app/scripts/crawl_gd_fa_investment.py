@@ -22,6 +22,9 @@ from html import unescape
 from pathlib import Path
 from urllib.request import Request, urlopen
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _gbk_probe import fetch_text_gbk  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "static" / "gd_fa_investment.csv"
 LIST_URL = "http://stats.gd.gov.cn/tjkx185/index.html"
@@ -57,26 +60,8 @@ FIELDS = [
 
 
 def fetch_text(url: str) -> str:
-    last_err: Exception | None = None
-    candidates = [url]
-    if url.startswith("https://"):
-        candidates.append("http://" + url[len("https://") :])
-    elif url.startswith("http://"):
-        candidates.append("https://" + url[len("http://") :])
-    for candidate in candidates:
-        for attempt in range(3):
-            try:
-                raw = urlopen(Request(candidate, headers=UA), context=CTX, timeout=60).read()
-                for enc in ("utf-8", "gbk"):
-                    try:
-                        return raw.decode(enc)
-                    except Exception:
-                        continue
-                return raw.decode("utf-8", "replace")
-            except Exception as e:
-                last_err = e
-                time.sleep(0.5 * (attempt + 1))
-    raise last_err or RuntimeError(f"fetch failed: {url}")
+    """v1.122.25 起改用 _gbk_probe.fetch_text_gbk（共用 helper）。"""
+    return fetch_text_gbk(url, ua=UA, ctx=CTX)
 
 
 def plain(html: str) -> str:

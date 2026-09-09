@@ -23,6 +23,9 @@ from html import unescape
 from pathlib import Path
 from urllib.request import Request, urlopen
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _gbk_probe import fetch_text_gbk  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "static" / "gd_services.csv"
 LIST_PAGES = [
@@ -64,26 +67,12 @@ FIELDS = [
 
 
 def fetch_text(url: str) -> str:
-    last_err: Exception | None = None
-    candidates = [url]
-    if url.startswith("https://"):
-        candidates.append("http://" + url[len("https://") :])
-    elif url.startswith("http://"):
-        candidates.append("https://" + url[len("http://") :])
-    for candidate in candidates:
-        for attempt in range(3):
-            try:
-                raw = urlopen(Request(candidate, headers=UA), context=CTX, timeout=60).read()
-                for enc in ("utf-8", "gbk"):
-                    try:
-                        return raw.decode(enc)
-                    except Exception:
-                        continue
-                return raw.decode("utf-8", "replace")
-            except Exception as e:
-                last_err = e
-                time.sleep(0.5 * (attempt + 1))
-    raise last_err or RuntimeError(f"fetch failed: {url}")
+    """v1.122.25 起改用 _gbk_probe.fetch_text_gbk（共用 helper），
+
+    解决 stats.gd.gov.cn 等 GD 政府源"Content-Type 标 utf-8 但 body 实际 GBK"
+    导致解析静默失败的问题（GBK 单字节 ASCII 段与 utf-8 兼容→utf-8 解码看似
+    成功但中文段乱码→后续正则全失效）。"""
+    return fetch_text_gbk(url, ua=UA, ctx=CTX)
 
 
 def plain(html: str) -> str:
