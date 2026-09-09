@@ -1,12 +1,12 @@
 {
-  "versionName": "1.122.23",
-  "versionCode": "302",
-  "publishedAt": "2026-09-09T17:37:09Z",
+  "versionName": "1.122.24",
+  "versionCode": "303",
+  "publishedAt": "2026-09-09T17:53:44Z",
   "force": false,
-  "notes": "fix(realty_app): crawl_gd_construction.py fetch_text \u52a0 GBK \u63a2\u6d4b fallback (v1.122.23 / 302)\n\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n2026-07-25-v1.119.0-\u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730map-view: v1.119.0 \u00b7 \u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730 map-view\n",
+  "notes": "fix(realty_app): crawl_gd_economy.py atomic_write \u9632 None key \u62a5\u9519 (v1.122.24 / 303)\n\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n2026-07-25-v1.119.0-\u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730map-view: v1.119.0 \u00b7 \u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730 map-view\n2026-07-25-v1.120.0-\u4fee\u590dOTA\u68c0\u67e5\u66f4\u65b0fetch: v1.120.0 \u00b7 \u4fee\u590d OTA \u68c0\u67e5\u66f4\u65b0\uff08fetch is not a function\uff09\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/302/app.wgt",
-    "sha256": "bbad1e05569d79b937f30f52638d841efdff380fe3061607bf38c63041a6ca1e"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/303/app.wgt",
+    "sha256": "9c710bec3cf02cbcca2b65d1144d8135ec44a79c8f553624b4e14f8d8f2d980f"
   },
   "ios": {
     "available": false,
