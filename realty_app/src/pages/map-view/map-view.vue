@@ -1463,7 +1463,8 @@ onUnmounted(() => {
 }
 
 .city-option {
-  min-width: 96rpx;
+  min-width: 0;
+  flex: 1 1 auto;
   margin: 0;
   padding: 6rpx 18rpx;
   background: transparent;

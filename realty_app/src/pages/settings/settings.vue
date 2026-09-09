@@ -130,9 +130,9 @@
         <view class="muted" style="margin-top: 4rpx; font-size: 22rpx">
           70城指数：{{ stats70FreshnessLine }}
         </view>
-        <view class="muted" style="margin-top: 4rpx; font-size: 20rpx">
+        <text class="muted" style="margin-top: 4rpx; font-size: 20rpx; word-break: break-all; white-space: normal; display: block">
           REAL 为公开页解析的真实挂牌；DERIVED 为分析样本，不代表逐套成交。见 HOUSING_PRICE Phase C/D。
-        </view>
+        </text>
 
         <view class="row-gap" style="margin-top: 16rpx">
           <button class="btn" size="mini" @click="resetToSeed">重置为内置快照</button>

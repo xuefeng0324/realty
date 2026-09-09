@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.122.4 | 2026-09-09 | 系统自测：设置页"REAL为公开…代表逐套成交"段换行截断，改 `<text>` + word-break: break-all；地图 tab 城市切换按钮溢出，改 `flex: 1 1 auto`（versionCode 283） |
 | v1.122.3 | 2026-09-09 | 首页搜索框输入框 padding-left 16rpx，让"搜学校名"placeholder 与"搜"图标之间留出空隙（versionCode 282） |
 | v1.122.2 | 2026-09-09 | 首页搜索框按钮垂直居中；行情页 AppHeader eyebrow 在 iOS safe area 内；wangqian 抓取加 retry+graceful degrade（深圳 fdc 被 WAF 拦截时保留旧数据，不再让 cron 红）；本机调试产物加入 .gitignore（versionCode 281） |
 | v1.122.1 | 2026-09-09 | 修复 E2E 视觉回归 baseline 过期导致每日 cron 失败；新增 baseline 同步护栏；APK 云打包 job 加 continue-on-error 兜底；强化 AGENTS.md「提交/push 即时报告」（versionCode 280） |
