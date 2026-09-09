@@ -42,3 +42,6 @@ Thumbs.db
 # 仓库根目录的 git plumbing 临时 message 文件（commit.ps1 一次性写入）
 /.git_commit_msg_*.txt
 /.git_commit_*.ps1
+
+# 个人调试截图与本地 wgt 包（不入仓，避免污染 PR diff）
+/截图/
