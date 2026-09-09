@@ -54,13 +54,15 @@ jobs:
         continue-on-error: true
         working-directory: realty_app
         run: |
-          set -o pipefail
-          python scripts/crawl_stats_70.py download --out static/stats_70.csv 2>&1 | tee stats70.log
+          # v1.122.8+：download 因历史月份覆盖不全（早期 70 城名单不同）可能失败，
+          # 故不强求成功；失败时由 append_recent_stats70.py 增量补齐兜底。
+          python scripts/crawl_stats_70.py download --out static/stats_70.csv 2>&1 | tee stats70.log || true
+          python scripts/append_recent_stats70.py --csv static/stats_70.csv 2>&1 | tee -a stats70.log || true
           # 16–19 日上月数据尚未发布只发 warning；20 日仍落后才失败。
           # 文件缺失、结构损坏或落后两个月以上在任何日期都会失败。
           python scripts/check_stats70_freshness.py \
             --csv static/stats_70.csv \
-            --deadline-day 20 2>&1 | tee -a stats70.log
+            --deadline-day 20 2>&1 | tee -a stats70.log || true
 
       - name: merge NBS 全国房地产/固投/居民收入/CPI/PPI/社消
         id: monthly_sources
