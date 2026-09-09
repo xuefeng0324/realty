@@ -1,12 +1,12 @@
 {
   "versionName": "1.122.15",
   "versionCode": "294",
-  "publishedAt": "2026-09-09T12:42:32Z",
+  "publishedAt": "2026-09-09T12:48:28Z",
   "force": false,
-  "notes": "data(realty_app): daily_wangqian \u8865 9-8 \u5e7f\u5dde\u5404\u533a\u7f51\u7b7e 12 \u884c (v1.122.15 / 294)\n\n2026-07-25-v1.120.0-\u4fee\u590dOTA\u68c0\u67e5\u66f4\u65b0fetch: v1.120.0 \u00b7 \u4fee\u590d OTA \u68c0\u67e5\u66f4\u65b0\uff08fetch is not a function\uff09\n2026-07-25-v1.121.0-\u5730\u56fefetch-\u4fee\u590d\u4e0eAPK\u56fe\u6807: v1.121.0 \u2014 \u5730\u56fe fetch \u4fee\u590d + \u81ea\u52a8 APK \u53ef\u9009 job + \u5e94\u7528\u56fe\u6807\u91cd\u505a\n2026-07-25-v1.121.2-OTA\u68c0\u67e5\u66f4\u65b0\u4fee\u590d: v1.121.2 \u2014 OTA \u68c0\u67e5\u66f4\u65b0\u65e0\u53cd\u5e94\u4fee\u590d\n",
+  "notes": "docs(realty_app): \u4fee\u6b63 FRESHNESS_CHECK.md \u4ecd STALE \u6e90\u7684\u771f\u56e0\u5206\u6790\n\n2026-07-25-v1.121.7-\u623f\u6e90\u6253\u5f00\u8d1d\u58f3App: v1.121.7 \u2014 \u623f\u6e90\u8df3\u8d1d\u58f3 + \u79bb\u7ebf APK \u8865 zip4j\uff08\u4fee OTA 100% \u95ea\u9000\uff09\n2026-07-25-v1.121.8-\u79bb\u7ebfOTA\u81ea\u68c0\u52a0\u56fa: v1.121.8 \u2014 \u79bb\u7ebf\u5305 OTA \u81ea\u68c0\u52a0\u56fa\uff08zip4j + install-apk + \u5ba1\u8ba1\u811a\u672c\uff09\n2026-07-25-v1.121.9-OTA\u9a8c\u8bc1130: v1.121.9 \u2014 OTA \u9a8c\u8bc1\u5305 130\n",
   "wgt": {
     "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/294/app.wgt",
-    "sha256": "ba86b496cb0b9e4f5084626263f30abce171c3f23a84c56ba144f8b343938178"
+    "sha256": "22f83dbed2ea2a66be715635523cd6fb5edbef6448f1c3d93393496ce46e58fc"
   },
   "ios": {
     "available": false,
