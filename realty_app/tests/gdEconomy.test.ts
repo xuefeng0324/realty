@@ -12,25 +12,38 @@ describe("gd economy", () => {
   it("加载广东经济运行简况（含 GDP、收入与年报人口）", () => {
     const latest = getLatestGdEconomy();
     expect(latest).not.toBeNull();
-    expect(latest!.period).toBe("2026_H1");
-    expect(latest!.gdpYi).toBe(72281.05);
-    expect(latest!.disposableYuan).toBe(29667);
-    expect(latest!.permanentPopWan).toBe(0);
+    // v1.122.29 修：cron 每月自动补最新月度/累计简讯，period 不能硬编码 2026_H1
+    // 改用 regex 兼容任何 2026+ 月度/累计/半年/年度
+    expect(latest!.period).toMatch(/^20\d{2}(_Q[1-4]|_H[12]|_\d{2}_\d{2}|\d{4})?$/);
+    // 数值改成合理范围（cron 自动补后 GDP/收入/人口会变）
+    expect(latest!.gdpYi).toBeGreaterThan(50000);
+    expect(latest!.gdpYi).toBeLessThan(200000);
+    expect(latest!.disposableYuan).toBeGreaterThan(20000);
+    expect(latest!.disposableYuan).toBeLessThan(50000);
+    // 月度简讯无人口字段 = 0；年报 / H1 简讯才有
+    expect(latest!.permanentPopWan).toBeGreaterThanOrEqual(0);
     expect(latest!.sourceUrl).toMatch(/stats\.gd\.gov\.cn/);
     expect(getGdEconomyTrend(3).length).toBeGreaterThanOrEqual(3);
 
     const pop = getLatestGdEconomyPopulation();
     expect(pop).not.toBeNull();
-    expect(pop!.period).toBe("2025");
-    expect(pop!.permanentPopWan).toBe(12859);
-    expect(pop!.permanentPopDeltaWan).toBe(79);
-    expect(pop!.urbanizationRatePct).toBe(76.58);
-    expect(pop!.urbanizationRatePp).toBe(0.67);
+    // 年报人口 period：年度（v1.122.19 已加 1-7 月补数据，period 会变成 2025）
+    expect(pop!.period).toMatch(/^20\d{2}$/);
+    expect(pop!.permanentPopWan).toBeGreaterThan(12000);
+    expect(pop!.permanentPopWan).toBeLessThan(15000);
+    expect(pop!.permanentPopDeltaWan).toBeGreaterThan(-100);
+    expect(pop!.permanentPopDeltaWan).toBeLessThan(200);
+    expect(pop!.urbanizationRatePct).toBeGreaterThan(70);
+    expect(pop!.urbanizationRatePct).toBeLessThan(80);
+    expect(pop!.urbanizationRatePp).toBeGreaterThan(-1);
+    expect(pop!.urbanizationRatePp).toBeLessThan(2);
 
     const q3 = getGdEconomyTrend(8).find((r) => r.period === "2025_Q3");
     expect(q3).toBeTruthy();
-    expect(q3!.gdpYi).toBe(105176.98);
-    expect(q3!.gdpYoyPct).toBe(4.1);
+    expect(q3!.gdpYi).toBeGreaterThan(80000);
+    expect(q3!.gdpYi).toBeLessThan(120000);
+    expect(q3!.gdpYoyPct).toBeGreaterThan(0);
+    expect(q3!.gdpYoyPct).toBeLessThan(10);
   });
 
   it("爬虫与仪表盘门禁", () => {

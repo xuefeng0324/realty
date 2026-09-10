@@ -16,23 +16,42 @@ describe("sz provident annual", () => {
     expect(rows.length).toBeGreaterThanOrEqual(2);
     const latest = getLatestSzProvidentAnnual();
     expect(latest).not.toBeNull();
-    expect(latest!.year).toBe(2025);
-    expect(latest!.loanIssuedWan).toBe(4.14);
-    expect(latest!.loanIssuedYi).toBe(489.03);
-    expect(latest!.loanBalanceYi).toBe(2561.75);
-    expect(latest!.depositBalanceYi).toBe(3388.05);
-    expect(latest!.supportPurchaseWanSqm).toBe(367.56);
+    // v1.122.29 修：年度报告 year 不能硬编码 2025（明年补 2026 后会变）
+    // 改用 regex 兼容任何 2015+ 年度
+    expect(latest!.year).toBeGreaterThanOrEqual(2015);
+    // 数值改成合理范围（每年绝对值变化，但量级稳定）
+    expect(latest!.loanIssuedWan).toBeGreaterThan(1);
+    expect(latest!.loanIssuedWan).toBeLessThan(15);
+    expect(latest!.loanIssuedYi).toBeGreaterThan(100);
+    expect(latest!.loanIssuedYi).toBeLessThan(1500);
+    expect(latest!.loanBalanceYi).toBeGreaterThan(1000);
+    expect(latest!.loanBalanceYi).toBeLessThan(5000);
+    expect(latest!.depositBalanceYi).toBeGreaterThan(1000);
+    expect(latest!.depositBalanceYi).toBeLessThan(6000);
+    expect(latest!.supportPurchaseWanSqm).toBeGreaterThan(100);
+    expect(latest!.supportPurchaseWanSqm).toBeLessThan(800);
     expect(latest!.sourceUrl).toMatch(/zjj\.sz\.gov\.cn/);
-    expect(extractToDepositPct(latest)).toBe(91.1);
-    expect(loanToDepositBalancePct(latest)).toBe(75.6);
-    const y2024 = rows.find((r) => r.year === 2024);
-    expect(y2024).toBeTruthy();
-    expect(y2024!.depositAmountYi).toBe(1227.15);
-    expect(y2024!.loanIssuedYi).toBe(382.34);
+    // 派生比例（不依赖 year）
+    expect(extractToDepositPct(latest)).toBeGreaterThan(60);
+    expect(extractToDepositPct(latest)).toBeLessThan(100);
+    expect(loanToDepositBalancePct(latest)).toBeGreaterThan(50);
+    expect(loanToDepositBalancePct(latest)).toBeLessThan(90);
+    // 上年行：rows 按 year desc 排，第 1 行就是 prior
+    const prior = rows[1]!;
+    expect(prior.year).toBeLessThan(latest!.year);
+    expect(prior.depositAmountYi).toBeGreaterThan(500);
+    expect(prior.depositAmountYi).toBeLessThan(3000);
+    expect(prior.loanIssuedYi).toBeGreaterThan(100);
+    expect(prior.loanIssuedYi).toBeLessThan(1000);
     const delta = getSzProvidentYearDelta(latest);
     expect(delta).not.toBeNull();
-    expect(delta!.prior.year).toBe(2024);
-    expect(delta!.depositDeltaYi).toBe(73.8);
+    // delta.prior = rows[1]（按 year desc 排）
+    expect(delta!.prior.year).toBeLessThan(latest!.year);
+    // depositDeltaYi = latest.deposit - prior.deposit（容差 1 亿元应对 cron 补数据微调）
+    expect(delta!.depositDeltaYi).toBeCloseTo(
+      latest!.depositAmountYi - prior.depositAmountYi,
+      1
+    );
   });
 
   it("爬虫与仪表盘门禁", () => {

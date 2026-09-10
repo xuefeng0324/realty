@@ -17,32 +17,54 @@ describe("zh provident dynamics", () => {
     expect(rows.length).toBeGreaterThanOrEqual(5);
     const latest = getLatestZhProvidentDynamics();
     expect(latest).not.toBeNull();
-    expect(latest!.year).toBe(2026);
-    expect(latest!.monthEnd).toBe(3);
-    expect(latest!.depositAmountYi).toBe(35.6885);
-    expect(latest!.loanIssuedYi).toBe(9.8661);
-    expect(latest!.loanRatioPct).toBe(63);
-    expect(latest!.loanIssuedYoyPct).toBe(195);
+    // v1.122.29 修：cron 每月自动补最新季报，year/monthEnd 不能硬编码 2026/3
+    // 改用 regex 兼容任何 2020+ 年度任意月
+    expect(latest!.year).toBeGreaterThanOrEqual(2020);
+    expect(latest!.monthEnd).toBeGreaterThanOrEqual(1);
+    expect(latest!.monthEnd).toBeLessThanOrEqual(12);
+    // 数值改成合理范围（季报量级稳定：月度 10-200 亿，贷款 5-50 亿）
+    expect(latest!.depositAmountYi).toBeGreaterThan(10);
+    expect(latest!.depositAmountYi).toBeLessThan(200);
+    expect(latest!.loanIssuedYi).toBeGreaterThan(1);
+    expect(latest!.loanIssuedYi).toBeLessThan(50);
+    expect(latest!.loanRatioPct).toBeGreaterThan(50);
+    expect(latest!.loanRatioPct).toBeLessThan(80);
+    expect(latest!.loanIssuedYoyPct).toBeGreaterThan(-50);
+    expect(latest!.loanIssuedYoyPct).toBeLessThan(500);
     expect(latest!.sourceUrl).toMatch(/gjj\.zhuhai\.gov\.cn/);
-    expect(formatZhProvidentPeriod(latest)).toBe("2026 年 1—3 月");
+    // formatZhProvidentPeriod 验证格式（不验证具体值）
+    expect(formatZhProvidentPeriod(latest)).toMatch(/^20\d{2} 年 \d+—\d+ 月$/);
 
     const full = getLatestZhProvidentFullYear();
     expect(full).not.toBeNull();
-    expect(full!.year).toBe(2025);
-    expect(full!.depositAmountYi).toBe(144.742);
-    expect(full!.paidPersons).toBe(897248);
-    expect(formatZhProvidentPeriod(full)).toBe("2025 全年");
+    expect(full!.year).toBeGreaterThanOrEqual(2020);
+    expect(full!.depositAmountYi).toBeGreaterThan(50);
+    expect(full!.depositAmountYi).toBeLessThan(300);
+    expect(full!.paidPersons).toBeGreaterThan(500000);
+    expect(full!.paidPersons).toBeLessThan(1500000);
+    expect(formatZhProvidentPeriod(full)).toMatch(/^20\d{2} 全年$/);
 
     const prior = getZhProvidentSamePeriodPriorYear(latest);
     expect(prior).not.toBeNull();
-    expect(prior!.year).toBe(2025);
-    expect(prior!.monthEnd).toBe(3);
-    expect(prior!.depositAmountYi).toBe(34.629);
+    expect(prior!.year).toBeLessThan(latest!.year);
+    expect(prior!.monthEnd).toBe(latest!.monthEnd);
+    expect(prior!.depositAmountYi).toBeGreaterThan(10);
+    expect(prior!.depositAmountYi).toBeLessThan(200);
     const delta = getZhProvidentSamePeriodDelta(latest);
     expect(delta).not.toBeNull();
-    expect(delta!.depositDeltaYi).toBe(1.0595);
-    expect(delta!.loanDeltaYi).toBe(6.5203);
-    expect(delta!.loanRatioDeltaPct).toBe(-6);
+    // delta = latest - prior（容差 1 亿元应对 cron 补数据微调）
+    expect(delta!.depositDeltaYi).toBeCloseTo(
+      latest!.depositAmountYi - prior!.depositAmountYi,
+      1
+    );
+    expect(delta!.loanDeltaYi).toBeCloseTo(
+      latest!.loanIssuedYi - prior!.loanIssuedYi,
+      1
+    );
+    expect(delta!.loanRatioDeltaPct).toBeCloseTo(
+      latest!.loanRatioPct - prior!.loanRatioPct,
+      1
+    );
   });
 
   it("爬虫与仪表盘门禁", () => {

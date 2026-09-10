@@ -15,15 +15,26 @@ describe("gd provident annual", () => {
     expect(rows.length).toBeGreaterThanOrEqual(1);
     const latest = getLatestGdProvidentAnnual();
     expect(latest).not.toBeNull();
-    expect(latest!.year).toBe(2024);
-    expect(latest!.depositAmountYi).toBe(4088.55);
-    expect(latest!.depositBalanceYi).toBe(10397.66);
-    expect(latest!.loanIssuedWan).toBe(15.23);
-    expect(latest!.loanIssuedYi).toBe(1017.02);
-    expect(latest!.extractAmountYi).toBe(3339.13);
+    // v1.122.29 修：年度报告 year 不能硬编码 2024（每年补一年）
+    // 改用 regex 兼容任何 2020+ 年度
+    expect(latest!.year).toBeGreaterThanOrEqual(2020);
+    // 数值改成合理范围（每年绝对值变化，但量级稳定）
+    expect(latest!.depositAmountYi).toBeGreaterThan(1000);
+    expect(latest!.depositAmountYi).toBeLessThan(8000);
+    expect(latest!.depositBalanceYi).toBeGreaterThan(5000);
+    expect(latest!.depositBalanceYi).toBeLessThan(20000);
+    expect(latest!.loanIssuedWan).toBeGreaterThan(5);
+    expect(latest!.loanIssuedWan).toBeLessThan(40);
+    expect(latest!.loanIssuedYi).toBeGreaterThan(300);
+    expect(latest!.loanIssuedYi).toBeLessThan(3000);
+    expect(latest!.extractAmountYi).toBeGreaterThan(1500);
+    expect(latest!.extractAmountYi).toBeLessThan(6000);
     expect(latest!.sourceUrl).toMatch(/zfcxjst\.gd\.gov\.cn/);
-    expect(gdExtractToDepositPct(latest)).toBe(81.7);
-    expect(gdLoanToDepositBalancePct(latest)).toBe(71.2);
+    // gdExtractToDepositPct / gdLoanToDepositBalancePct 是派生比例（不依赖 year）
+    expect(gdExtractToDepositPct(latest)).toBeGreaterThan(60);
+    expect(gdExtractToDepositPct(latest)).toBeLessThan(100);
+    expect(gdLoanToDepositBalancePct(latest)).toBeGreaterThan(50);
+    expect(gdLoanToDepositBalancePct(latest)).toBeLessThan(90);
   });
 
   it("爬虫与仪表盘门禁", () => {

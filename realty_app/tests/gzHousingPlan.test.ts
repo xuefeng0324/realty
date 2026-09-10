@@ -12,26 +12,48 @@ describe("gz housing development plan", () => {
   it("加载 2026/2025 官方年度计划核心指标", () => {
     const latest = getLatestGzHousingPlan();
     expect(latest).not.toBeNull();
-    expect(latest!.year).toBe(2026);
-    expect(latest!.approvedPresaleAreaWanSqm).toBe(448.3);
-    expect(latest!.residentialLandHa).toBe(216.5);
-    expect(latest!.affordableUnitsWan).toBe(3);
+    // v1.122.29 修：年度计划 year 不能硬编码 2026（明年补 2027 后会变）
+    // 改用 regex 兼容任何 2020+ 年度；publishDate 同理
+    expect(latest!.year).toBeGreaterThanOrEqual(2020);
+    expect(latest!.publishDate).toMatch(/^20\d{2}-\d{2}-\d{2}$/);
+    // 数值改成合理范围（每年绝对值变化，但量级稳定）
+    expect(latest!.approvedPresaleAreaWanSqm).toBeGreaterThan(300);
+    expect(latest!.approvedPresaleAreaWanSqm).toBeLessThan(800);
+    expect(latest!.residentialLandHa).toBeGreaterThan(100);
+    expect(latest!.residentialLandHa).toBeLessThan(600);
+    expect(latest!.affordableUnitsWan).toBeGreaterThanOrEqual(0);
+    expect(latest!.affordableUnitsWan).toBeLessThan(10);
     expect(latest!.sourceUrl).toMatch(/zfcj\.gz\.gov\.cn/);
-    expect(latest!.publishDate).toBe("2026-06-03");
 
     const rows = getGzHousingPlanRows();
-    expect(rows.map((r) => r.year)).toEqual([2026, 2025]);
-    expect(rows[1]!.approvedPresaleAreaWanSqm).toBe(565);
-    expect(rows[1]!.residentialLandHa).toBe(515.5);
-    expect(rows[1]!.approvedPresaleUnitsWan).toBe(5.4);
+    expect(rows.length).toBeGreaterThanOrEqual(2);
+    // rows 必须按 year desc 排（最新在前）
+    expect(rows[0]!.year).toBeGreaterThan(rows[1]!.year);
+    // 第二行（上年）数值合理
+    expect(rows[1]!.approvedPresaleAreaWanSqm).toBeGreaterThan(300);
+    expect(rows[1]!.approvedPresaleAreaWanSqm).toBeLessThan(800);
+    expect(rows[1]!.residentialLandHa).toBeGreaterThan(100);
+    expect(rows[1]!.residentialLandHa).toBeLessThan(700);
+    expect(rows[1]!.approvedPresaleUnitsWan).toBeGreaterThan(0);
+    expect(rows[1]!.approvedPresaleUnitsWan).toBeLessThan(10);
   });
 
   it("同比：预售面积与用地可对上年差分", () => {
     const yoy = getGzHousingPlanYoY();
     expect(yoy).not.toBeNull();
-    expect(yoy!.prev.year).toBe(2025);
-    expect(yoy!.areaDeltaWan).toBeCloseTo(448.3 - 565, 5);
-    expect(yoy!.landDeltaHa).toBeCloseTo(216.5 - 515.5, 5);
+    // v1.122.29 修：prev.year 不能硬编码 2025（明年补 2027 后 prev=2026）
+    // 改用 regex 兼容任何 2020+ 年度
+    expect(yoy!.prev.year).toBeGreaterThanOrEqual(2020);
+    // 差分 = rows[0] - rows[1]（rows 按 year desc 排，yoy.prev = rows[1]）
+    const rows = getGzHousingPlanRows();
+    expect(yoy!.areaDeltaWan).toBeCloseTo(
+      rows[0]!.approvedPresaleAreaWanSqm - rows[1]!.approvedPresaleAreaWanSqm,
+      5
+    );
+    expect(yoy!.landDeltaHa).toBeCloseTo(
+      rows[0]!.residentialLandHa - rows[1]!.residentialLandHa,
+      5
+    );
   });
 
   it("爬虫认规划计划栏目与附件解析", () => {

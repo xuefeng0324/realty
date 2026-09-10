@@ -12,12 +12,20 @@ describe("gd construction", () => {
   it("加载广东建筑业生产运行简况", () => {
     const latest = getLatestGdConstruction();
     expect(latest).not.toBeNull();
-    expect(latest!.period).toBe("2026_Q1");
-    expect(latest!.totalOutputYi).toBe(4745.22);
-    expect(latest!.housingOutputYi).toBe(2446.76);
-    expect(latest!.totalOutputYoyPct).toBe(-5.9);
+    // v1.122.29 修：源站每季度发布（Q1/H1/Q3 或年度），period 不能硬编码 2026_Q1
+    // 改用 regex 兼容任何 2026+ 季度/年度
+    expect(latest!.period).toMatch(/^20\d{2}(_Q[1-4]|_H[12]|\d{4})?$/);
+    // 数值改成合理范围（cron 自动补后 Q2/H1/Q3/年度 数据会变）
+    expect(latest!.totalOutputYi).toBeGreaterThan(3000);
+    expect(latest!.totalOutputYi).toBeLessThan(30000);
+    expect(latest!.housingOutputYi).toBeGreaterThan(1500);
+    expect(latest!.housingOutputYi).toBeLessThan(15000);
+    expect(latest!.totalOutputYoyPct).toBeGreaterThan(-15);
+    expect(latest!.totalOutputYoyPct).toBeLessThan(15);
     expect(latest!.sourceUrl).toMatch(/zfcxjst\.gd\.gov\.cn/);
-    expect(gdHousingSharePct(latest)).toBe(51.6);
+    // gdHousingSharePct 计算 = housing/total，不依赖具体 period
+    expect(gdHousingSharePct(latest)).toBeGreaterThan(40);
+    expect(gdHousingSharePct(latest)).toBeLessThan(60);
     expect(getGdConstructionTrend(3).length).toBeGreaterThanOrEqual(3);
   });
 

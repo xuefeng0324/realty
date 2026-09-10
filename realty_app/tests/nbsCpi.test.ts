@@ -48,9 +48,11 @@ describe("nbs cpi", () => {
 describe("nbs income backfill", () => {
   it("含 2025 多期与最新 2026 上半年", () => {
     const latest = getLatestNbsIncome();
-    expect(latest!.period).toBe("2026_H1");
+    // v1.122.29 修：cron 每月自动补最新半年报，period 不能硬编码 2026_H1
+    expect(latest!.period).toMatch(/^20\d{2}_H[12]$/);
     const trend = getNbsIncomeTrend(8);
     expect(trend.length).toBeGreaterThanOrEqual(6);
+    // 趋势中应含年度 + Q3 行（具体 period 值由 CSV 决定，不能硬编码）
     expect(trend.some((r) => r.period === "2025")).toBe(true);
     expect(trend.some((r) => r.period === "2025_Q3")).toBe(true);
   });

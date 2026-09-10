@@ -11,15 +11,26 @@ describe("nbs income", () => {
   it("加载全国居民收入和消费", () => {
     const latest = getLatestNbsIncome();
     expect(latest).not.toBeNull();
-    expect(latest!.period).toBe("2026_H1");
-    expect(latest!.disposableYuan).toBe(22981);
-    expect(latest!.disposableNominalYoyPct).toBe(5.2);
-    expect(latest!.disposableRealYoyPct).toBe(4.2);
-    expect(latest!.urbanDisposableYuan).toBe(30126);
-    expect(latest!.ruralDisposableYuan).toBe(12699);
-    expect(latest!.consumptionYuan).toBe(14836);
-    expect(latest!.housingConsumptionYuan).toBe(3135);
-    expect(latest!.housingConsumptionYoyPct).toBe(1.4);
+    // v1.122.29 修：cron 每月自动补最新半年报，period 不能硬编码为 2026_H1
+    // 改用 regex 兼容任何 2026+ 上/下半年
+    expect(latest!.period).toMatch(/^20\d{2}_H[12]$/);
+    // 数值改成合理范围（cron 自动补半年报后 H2 数值会变）
+    expect(latest!.disposableYuan).toBeGreaterThan(15000);
+    expect(latest!.disposableYuan).toBeLessThan(40000);
+    expect(latest!.disposableNominalYoyPct).toBeGreaterThan(0);
+    expect(latest!.disposableNominalYoyPct).toBeLessThan(10);
+    expect(latest!.disposableRealYoyPct).toBeGreaterThan(0);
+    expect(latest!.disposableRealYoyPct).toBeLessThan(10);
+    expect(latest!.urbanDisposableYuan).toBeGreaterThan(20000);
+    expect(latest!.urbanDisposableYuan).toBeLessThan(50000);
+    expect(latest!.ruralDisposableYuan).toBeGreaterThan(8000);
+    expect(latest!.ruralDisposableYuan).toBeLessThan(25000);
+    expect(latest!.consumptionYuan).toBeGreaterThan(10000);
+    expect(latest!.consumptionYuan).toBeLessThan(30000);
+    expect(latest!.housingConsumptionYuan).toBeGreaterThan(2000);
+    expect(latest!.housingConsumptionYuan).toBeLessThan(6000);
+    expect(latest!.housingConsumptionYoyPct).toBeGreaterThan(-5);
+    expect(latest!.housingConsumptionYoyPct).toBeLessThan(10);
     expect(latest!.sourceUrl).toMatch(/stats\.gov\.cn/);
     expect(getNbsIncomeTrend(8).length).toBeGreaterThanOrEqual(6);
   });
