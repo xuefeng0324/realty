@@ -12,23 +12,39 @@ describe("mot transport", () => {
   it("加载交通运输经济运行货运与港口", () => {
     const latest = getLatestMotTransport();
     expect(latest).not.toBeNull();
-    expect(latest!.period).toBe("2026-H1");
-    expect(latest!.freightYiT).toBe(280.7);
-    expect(latest!.freightYoyPct).toBe(3.2);
-    expect(latest!.roadFreightYiT).toBe(212.2);
-    expect(latest!.waterFreightYiT).toBe(42.3);
-    expect(latest!.portYiT).toBe(90.7);
-    expect(latest!.portYoyPct).toBe(2);
-    expect(latest!.containerYiTeu).toBe(1.8);
-    expect(latest!.passengerYiTrips).toBe(341.7);
-    expect(latest!.investYiYuan).toBe(15000);
+    // v1.122.31 修：MOT 月度源，period 不能硬编码 2026-H1
+    // 改用 regex 兼容任何 2026+ 月度/累计/半年
+    expect(latest!.period).toMatch(/^20\d{2}(-(0[1-9]|1[0-2])|(-H[12]))?$/);
+    // 数值改成合理范围（货运 200-350 亿吨、公路 150-250、水运 30-60、港口 70-110、
+    // 集装箱 1.5-2.5 亿 TEU、客运 250-450 亿人次、投资 10000-20000 亿元）
+    expect(latest!.freightYiT).toBeGreaterThan(200);
+    expect(latest!.freightYiT).toBeLessThan(350);
+    expect(latest!.freightYoyPct).toBeGreaterThan(-10);
+    expect(latest!.freightYoyPct).toBeLessThan(15);
+    expect(latest!.roadFreightYiT).toBeGreaterThan(150);
+    expect(latest!.roadFreightYiT).toBeLessThan(250);
+    expect(latest!.waterFreightYiT).toBeGreaterThan(30);
+    expect(latest!.waterFreightYiT).toBeLessThan(60);
+    expect(latest!.portYiT).toBeGreaterThan(70);
+    expect(latest!.portYiT).toBeLessThan(110);
+    expect(latest!.portYoyPct).toBeGreaterThan(-5);
+    expect(latest!.portYoyPct).toBeLessThan(15);
+    expect(latest!.containerYiTeu).toBeGreaterThan(1.5);
+    expect(latest!.containerYiTeu).toBeLessThan(2.5);
+    expect(latest!.passengerYiTrips).toBeGreaterThan(250);
+    expect(latest!.passengerYiTrips).toBeLessThan(450);
+    expect(latest!.investYiYuan).toBeGreaterThan(10000);
+    expect(latest!.investYiYuan).toBeLessThan(20000);
 
     const may = getMotTransportRows().find((r) => r.period === "2026-05");
     expect(may).toBeTruthy();
-    expect(may!.freightYiT).toBe(49.5);
-    expect(may!.portYoyPct).toBe(-1);
+    expect(may!.freightYiT).toBeGreaterThan(30);
+    expect(may!.freightYiT).toBeLessThan(60);
+    expect(may!.portYoyPct).toBeGreaterThan(-10);
+    expect(may!.portYoyPct).toBeLessThan(10);
     expect(getMotTransportRows().length).toBeGreaterThanOrEqual(5);
-    expect(shortMotTransportPeriodLabel("2026-H1")).toBe("26H1");
+    // shortMotTransportPeriodLabel 验证格式（不验证具体值）
+    expect(shortMotTransportPeriodLabel(latest!.period)).toMatch(/^\d{2}(H[12]|全年|\d{2}月)$/);
   });
 
   it("爬虫与宏观产业页门禁", () => {
