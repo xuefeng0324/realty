@@ -109,7 +109,7 @@ def fetch_history(start: str, end: str) -> list[dict[str, str]]:
     url = f"{HIS_URL}?{qs}"
     payload = json.loads(fetch(url).decode("utf-8"))
     rows: list[dict[str, str]] = []
-      for rec in payload.get("records") or []:
+    for rec in payload.get("records") or []:
         d = str(rec.get("showDateCN") or "").strip()
         if not d:
             continue

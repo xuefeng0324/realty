@@ -1,4 +1,5 @@
 period,label,sf_stock_wan_yi,sf_stock_yoy_pct,sf_flow_ytd_wan_yi,m2_wan_yi,m2_yoy_pct,m1_wan_yi,m1_yoy_pct,rmb_loan_ytd_wan_yi,hh_loan_ytd_yi,hh_ml_loan_ytd_yi,ib_repo_pct,forex_usd_wan_yi,usd_cny,source_url
+2026-07,2026年7月,463.27,7.4,22.25,355.51,7.7,115.46,4,10.17,-8271,1010,1.42,,,http://www.pbc.gov.cn/diaochatongjisi/116219/116225/2026081416320925645/index.html
 2026-06,2026年上半年,462.06,7.4,20.84,356.71,8,118.48,4,10.76,-3668,2212,1.43,3.42,6.8109,http://www.pbc.gov.cn/diaochatongjisi/116219/116225/2026071515025183948/index.html
 2026-05,2026年5月,458.81,7.7,17.48,353.67,8.6,114.89,5.5,9,-6314,628,1.33,,,http://www.pbc.gov.cn/diaochatongjisi/116219/116225/2026061217051611931/index.html
 2026-04,2026年4月,456.89,7.8,15.45,353.04,8.6,114.58,5,8.5,-4902,1199,1.31,,,http://www.pbc.gov.cn/diaochatongjisi/116219/116225/2026051417030520490/index.html

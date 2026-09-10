@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import io
 import re
 import ssl
 import sys
@@ -21,6 +22,12 @@ import time
 from html import unescape
 from pathlib import Path
 from urllib.request import Request, urlopen
+
+# Windows GBK stdout 无法编码 PBOC 公告标题里的 \ufffd / 古汉字 → 强制 UTF-8 包装
+# 仅影响 print 输出，不影响 csv 写文件（atomic_write 显式 encoding="utf-8"）
+if sys.stdout.encoding and sys.stdout.encoding.lower().replace("-", "") != "utf8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding="utf-8", errors="replace")
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
