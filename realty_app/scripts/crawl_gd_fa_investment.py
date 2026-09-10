@@ -23,13 +23,11 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _gbk_probe import fetch_text_gbk  # noqa: E402
+from crawl_common import fetch_text  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "static" / "gd_fa_investment.csv"
 LIST_URL = "http://stats.gd.gov.cn/tjkx185/index.html"
-UA = {"User-Agent": "Mozilla/5.0 (compatible; realty-crawler/1.0)"}
-CTX = ssl.create_default_context()
 
 SEED_BRIEFS: list[tuple[str, str]] = [
     ("http://stats.gd.gov.cn/tjkx185/content/post_4927620.html", "2026年上半年广东固定资产投资运行简况"),
@@ -57,11 +55,6 @@ FIELDS = [
     "source_org",
     "source_url",
 ]
-
-
-def fetch_text(url: str) -> str:
-    """v1.122.25 起改用 _gbk_probe.fetch_text_gbk（共用 helper）。"""
-    return fetch_text_gbk(url, ua=UA, ctx=CTX)
 
 
 def plain(html: str) -> str:

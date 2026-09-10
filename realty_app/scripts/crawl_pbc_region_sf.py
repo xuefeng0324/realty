@@ -26,7 +26,7 @@ from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _gbk_probe import fetch_text_gbk  # noqa: E402
+from crawl_common import fetch_text as _common_fetch_text  # noqa: E402
 
 OUT = ROOT / "static" / "seed" / "pbc_region_sf.csv"
 LIST_URL = "http://www.pbc.gov.cn/diaochatongjisi/116219/116225/index.html"
@@ -54,12 +54,7 @@ def fetch_bytes(url: str) -> bytes:
 
 
 def fetch_text(url: str) -> str:
-    """v1.122.26 起改用 _gbk_probe.fetch_text_gbk（共用 helper）。
-
-    PBC 列表页"Content-Type text/html 但 body 实际 GBK"，旧版 utf-8 优先
-    看似成功但中文段乱码 → 后续"地区社会融资规模"正则全失效 → notices=0。
-    """
-    return fetch_text_gbk(url, ua=UA, ctx=CTX)
+    return _common_fetch_text(url)
 
 
 def abs_url(href: str) -> str:

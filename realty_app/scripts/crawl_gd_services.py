@@ -24,7 +24,7 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _gbk_probe import fetch_text_gbk  # noqa: E402
+from crawl_common import fetch_text  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "static" / "gd_services.csv"
@@ -34,8 +34,6 @@ LIST_PAGES = [
     "https://stats.gd.gov.cn/tjkx185/index_3.html",
     "https://stats.gd.gov.cn/tjkx185/index_4.html",
 ]
-UA = {"User-Agent": "Mozilla/5.0 (compatible; realty-crawler/1.0)"}
-CTX = ssl.create_default_context()
 
 SEED_BRIEFS: list[tuple[str, str]] = [
     ("https://stats.gd.gov.cn/tjkx185/content/post_4918845.html", "2026年1—5月份广东规模以上服务业运行简况"),
@@ -64,15 +62,6 @@ FIELDS = [
     "source_org",
     "source_url",
 ]
-
-
-def fetch_text(url: str) -> str:
-    """v1.122.25 起改用 _gbk_probe.fetch_text_gbk（共用 helper），
-
-    解决 stats.gd.gov.cn 等 GD 政府源"Content-Type 标 utf-8 但 body 实际 GBK"
-    导致解析静默失败的问题（GBK 单字节 ASCII 段与 utf-8 兼容→utf-8 解码看似
-    成功但中文段乱码→后续正则全失效）。"""
-    return fetch_text_gbk(url, ua=UA, ctx=CTX)
 
 
 def plain(html: str) -> str:

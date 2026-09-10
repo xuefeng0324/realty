@@ -14,32 +14,19 @@ from __future__ import annotations
 import argparse
 import csv
 import re
-import ssl
 import sys
 import tempfile
 from html import unescape
 from pathlib import Path
-from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _gbk_probe import fetch_text_gbk  # noqa: E402
+from crawl_common import fetch_text  # noqa: E402
 
 OUT = ROOT / "static" / "seed" / "lpr_history.csv"
 LIST_URL = "http://www.pbc.gov.cn/zhengcehuobisi/125207/125213/125440/3876551/index.html"
-UA = {"User-Agent": "Mozilla/5.0 (compatible; realty-crawler/1.0)"}
-CTX = ssl.create_default_context()
 
 FIELDS = ["month", "lpr_1y", "lpr_5y", "mortgage_first", "mortgage_second", "source"]
-
-
-def fetch_text(url: str) -> str:
-    """v1.122.26 起改用 _gbk_probe.fetch_text_gbk（共用 helper）。
-
-    PBC 列表页"Content-Type text/html 但 body 实际 GBK"，旧版 utf-8 优先
-    看似成功但中文段乱码 → 后续"贷款市场报价利率"正则全失效 → notices=0。
-    """
-    return fetch_text_gbk(url, ua=UA, ctx=CTX)
 
 
 def abs_url(href: str) -> str:
