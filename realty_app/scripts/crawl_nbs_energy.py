@@ -104,7 +104,9 @@ def _f(v: float | None) -> str:
 
 
 def signed_yoy(direction: str, pct: str | None) -> float:
-    if direction == "持平":
+    # v1.122.41: NBS 2026 年公告新增 "略降"/"略增" 措辞（无具体百分比）
+    if direction in ("持平", "略降", "略增"):
+        # 略降/略增 无具体百分比——按 0 处理（数据保留字段，yoy 显示 0）
         return 0.0
     if not pct:
         raise ValueError(f"missing pct for {direction}")
@@ -149,22 +151,22 @@ def parse_release(url: str, body: str) -> dict[str, str]:
 
     coal_m = first_period_match(
         plain,
-        r"原煤产量\s*([\d.]+)\s*(亿吨|万吨)，同比(增长|下降|持平)(?:\s*([\d.]+)\s*%)?",
+        r"原煤产量\s*([\d.]+)\s*(亿吨|万吨)，同比(增长|略增|下降|略降|持平)(?:\s*([\d.]+)\s*%)?",
         allow_cum_lead=allow_cum_lead,
     )
     oil_m = first_period_match(
         plain,
-        r"原油产量\s*([\d.]+)\s*万吨，同比(增长|下降|持平)(?:\s*([\d.]+)\s*%)?",
+        r"原油产量\s*([\d.]+)\s*万吨，同比(增长|略增|下降|略降|持平)(?:\s*([\d.]+)\s*%)?",
         allow_cum_lead=allow_cum_lead,
     )
     gas_m = first_period_match(
         plain,
-        r"天然气产量\s*([\d.]+)\s*亿立方米，同比(增长|下降|持平)(?:\s*([\d.]+)\s*%)?",
+        r"天然气产量\s*([\d.]+)\s*亿立方米，同比(增长|略增|下降|略降|持平)(?:\s*([\d.]+)\s*%)?",
         allow_cum_lead=allow_cum_lead,
     )
     power_m = first_period_match(
         plain,
-        r"(?:规模以上工业)?发电量\s*([\d.]+)\s*亿千瓦时，同比(增长|下降|持平)(?:\s*([\d.]+)\s*%)?",
+        r"(?:规模以上工业)?发电量\s*([\d.]+)\s*亿千瓦时，同比(增长|略增|下降|略降|持平)(?:\s*([\d.]+)\s*%)?",
         allow_cum_lead=allow_cum_lead,
     )
 

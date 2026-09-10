@@ -22,7 +22,7 @@ import urllib.request
 from html.parser import HTMLParser
 from pathlib import Path
 
-INDEX_URL = "https://www.stats.gov.cn/sj/"
+INDEX_URL = "https://www.stats.gov.cn/sj/zxfb/"
 OUTPUT = Path(__file__).resolve().parents[1] / "static" / "nbs_retail.csv"
 
 # Windows GBK stdout/stderr 无法编码 NBS 公告标题里的 \ufffd / 古汉字 → 强制 UTF-8 包装

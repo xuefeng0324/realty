@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.122.41 | 2026-09-10 | 修 NBS 2026 年公告新措辞兼容 + nbs_retail INDEX_URL：crawl_nbs_energy.py 4 个字段 regex + signed_yoy 加「略降/略增」支持（NBS 2026-08 公告改写「发电量 X 亿千瓦时，同比略降」带具体百分比无法匹配原 (增长\|下降\|持平) 模式 → 解析失败 71 天）；crawl_nbs_retail.py INDEX_URL 从 sj/ 改 sj/zxfb/（社会消费品零售总额不在 sj/ 首页被新 PMI 覆盖 → find_release 翻5 页找不到）。修后 nbs_energy +1 行 2026-07 / nbs_retail +1 行 2026-07。HEAD cpi/pmi/ppi 已是 2026-08 最新无需 commit。0 frontend 改动（versionCode 320） |
 | v1.122.40 | 2026-09-10 | 给 15 个 crawl_nbs_*.py 加 GBK stdout+stderr+stdin 三件套 UTF-8 包装（v1.122.37-39 只包了 stdout，漏 stderr）。NBS 系列 Windows 本地跑不再 GBK fail；同时 print(file=sys.stderr) 调用也能正确输出中文。**数据 csv 不动**——cron 月度发布正常节奏下 HEAD nbs_industrial/trade/pmi/cpi 已是 2026-07/08 最新数据。脚本只是恢复 cron 跑通能力，不 commit 数据（HEAD 已最新）。0 frontend 改动（versionCode 319） |
 | v1.122.39 | 2026-09-10 | 修 pbc_fin_stats / pbc_region_sf GBK bug（同 v1.122.37/v1.122.38 sys.stdout UTF-8 包装）+ 补 sz_land_deals +1 行（2026-08-11 福田安托山四路深土[2026]-053 113100 万 起拍价成交）。PBOC 系列爬虫 GBK 包装至此全齐（nbs 15 个 / pbc 2 个 / safe 8 个）。amap 系列（15 个）未审计但仅按需触发平时 cron 不跑。0 frontend 改动（versionCode 318） |
 | v1.122.38 | 2026-09-10 | 给 8 个 crawl_safe_*.py 批量加 sys.stdout UTF-8 包装（修 omo_rr/mlf_history 同款 GBK bug），同时补 6 个 SAFE CSV 月度数据：safe_ora +2 / safe_fx_market +2 / safe_bop_trade +2 / safe_bop +2（含 2023-06 回填）/ safe_iip +1 / safe_settle +1，最新到 2026-08。同时修 v1.122.37 时误判的 safe_ora source_url「可疑」回滚——SAFE 页面 URL 反映创建时间而非数据时间（页面 PubDate 2026-09-07 才是真发布日）。0 frontend 改动（versionCode 317） |

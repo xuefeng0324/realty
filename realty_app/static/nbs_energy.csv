@@ -1,4 +1,5 @@
 month,publish_date,coal_yi_t,coal_yoy_pct,oil_wan_t,oil_yoy_pct,gas_yi_m3,gas_yoy_pct,power_yi_kwh,power_yoy_pct,source_url
+2026-07,2026-08-17,3.4,-10.1,1827,0.8,214,-0.9,9439,0,https://www.stats.gov.cn/sj/zxfb/202608/t20260817_1965051.html
 2026-06,2026-07-15,3.8,-9.7,1812,-0.5,214,1.1,8276,2,https://www.stats.gov.cn/sj/zxfb/202607/t20260715_1964128.html
 2026-05,2026-06-16,4,-1.7,1857,0.5,217,-2.2,7843,4.2,https://www.stats.gov.cn/sj/zxfb/202606/t20260616_1963948.html
 2026-04,2026-05-18,3.9,-1,1794,1.2,219,1.9,7440,2.6,https://www.stats.gov.cn/sj/zxfb/202605/t20260518_1963725.html

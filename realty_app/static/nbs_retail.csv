@@ -1,4 +1,5 @@
 month,publish_date,retail_month_cny_100m,retail_month_yoy_pct,retail_cum_cny_100m,retail_cum_yoy_pct,building_month_cny_100m,building_month_yoy_pct,building_cum_cny_100m,building_cum_yoy_pct,furniture_month_cny_100m,furniture_month_yoy_pct,furniture_cum_cny_100m,furniture_cum_yoy_pct,source_url
+2026-07,2026-08-17,39022.0,0.6,287744.0,1.2,94.0,-14.2,690.0,-9.5,145.0,-8.8,1004.0,-4.5,https://www.stats.gov.cn/sj/zxfb/202608/t20260817_1965052.html
 2026-06,2026-07-15,42691.0,1.0,248722.0,1.3,114.0,-10.5,609.0,-8.8,176.0,-6.6,870.0,-3.7,https://www.stats.gov.cn/sj/zxfb/202607/t20260715_1964127.html
 2026-05,2026-06-16,41090.0,-0.6,206031.0,1.4,100.0,-13.6,500.0,-8.4,150.0,-8.7,696.0,-3.0,https://www.stats.gov.cn/sj/zxfb/202606/t20260616_1963949.html
 2026-04,2026-05-18,37247.0,0.2,164941.0,1.9,101.0,-13.8,411.0,-7.1,134.0,-10.4,552.0,-1.4,https://www.stats.gov.cn/sj/zxfb/202605/t20260518_1963727.html
