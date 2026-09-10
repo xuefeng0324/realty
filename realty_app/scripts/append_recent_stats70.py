@@ -153,7 +153,11 @@ def main() -> int:
     keep_cities = set(cities_last)
     added: list[dict] = []
     skipped_city: set[str] = set()
-    by_month: dict[tuple[int, int], dict[str, dict[str, str]]] = defaultdict(dict)
+    # v1.122.28 修：之前 by_month[mk][city] 最里层 key 用 date_str，导致
+    # hugohe3 CSV 行顺序按 fixed_base 排（定基比 / 同比 / 环比），最后一个
+    # fixed_base（环比）覆盖前面所有 → 7 月只剩 70 行环比，0 行同比，被
+    # 完整性闸门拒绝追加。修法：内层 key 改成 (date, fixed_base) 复合。
+    by_month: dict[tuple[int, int], dict[str, dict[tuple[str, str], dict]]] = defaultdict(dict)
     for r in new_rows:
         mk = month_key(r["date"])
         if mk is None or mk <= last_month_existing:
@@ -161,16 +165,16 @@ def main() -> int:
         if r["city"] not in keep_cities:
             skipped_city.add(r["city"])
             continue
-        # 同 (month, city, fixed_base) 同一行只留一条
-        key = (mk, r["city"], r["fixed_base"])
-        if key in by_month and r["date"] in by_month[mk].get(r["city"], {}):
+        inner_key = (r["date"], r["fixed_base"])
+        bucket = by_month.setdefault(mk, {}).setdefault(r["city"], {})
+        if inner_key in bucket:
             continue
-        by_month.setdefault(mk, {}).setdefault(r["city"], {})[r["date"]] = r
+        bucket[inner_key] = r
 
     for mk in sorted(by_month):
         for city in sorted(by_month[mk]):
-            for date_str in sorted(by_month[mk][city]):
-                added.append(by_month[mk][city][date_str])
+            for inner_key in sorted(by_month[mk][city]):
+                added.append(by_month[mk][city][inner_key])
 
     if not added:
         print("[info] 无新月份可追加", file=sys.stderr)
