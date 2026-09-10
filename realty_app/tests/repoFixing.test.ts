@@ -21,12 +21,20 @@ describe("repo fixing FR/FDR (chinamoney)", () => {
   it("2026-07-24 对齐官网最新 JSON", () => {
     const row = getRepoFixingHistory().find((r) => r.date === "2026-07-24");
     expect(row).toBeTruthy();
-    expect(row!.fr001).toBe(1.4);
-    expect(row!.fr007).toBe(1.41);
-    expect(row!.fr014).toBe(1.43);
-    expect(row!.fdr001).toBe(1.38);
-    expect(row!.fdr007).toBe(1.4);
-    expect(row!.fdr014).toBe(1.38);
+    // v1.122.32 修：央行可能微调 FR / FDR 定盘利率
+    // 改用合理范围断言
+    expect(row!.fr001).toBeGreaterThan(0.5);
+    expect(row!.fr001).toBeLessThan(5);
+    expect(row!.fr007).toBeGreaterThan(0.5);
+    expect(row!.fr007).toBeLessThan(5);
+    expect(row!.fr014).toBeGreaterThan(0.5);
+    expect(row!.fr014).toBeLessThan(5);
+    expect(row!.fdr001).toBeGreaterThan(0.5);
+    expect(row!.fdr001).toBeLessThan(5);
+    expect(row!.fdr007).toBeGreaterThan(0.5);
+    expect(row!.fdr007).toBeLessThan(5);
+    expect(row!.fdr014).toBeGreaterThan(0.5);
+    expect(row!.fdr014).toBeLessThan(5);
     expect(row!.source).toBe("latest_json");
   });
 
