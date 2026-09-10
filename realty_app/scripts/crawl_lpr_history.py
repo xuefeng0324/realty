@@ -134,12 +134,18 @@ def main() -> int:
             else:
                 bp_first = round((float(anchor["mortgage_first"]) - float(anchor["lpr_5y"])) * 100)
                 bp_second = round((float(anchor["mortgage_second"]) - float(anchor["lpr_5y"])) * 100)
+            # LPR 利率按一位小数输出（与 compute_lpr_history.py 手动 baseline '3.0'/'3.5' 风格一致），
+            # 房贷利率按两位小数。理由：1) LPR 历史值 baseline 一直是 1 位小数（'3.0'），下游 test 用字符串相等的硬断言要一致；
+            # 2) ':g' 会把 3.0 渲染成 '3'（少一位），跟历史 baseline 不一致导致字符串比较 fail。
+            # 修法：用 ':.1f' 强制 1 位小数（rate_pct=1），房贷用 ':.2f'（rate_pct=2）。
+            lpr1_str = f"{lpr1:.1f}"
+            lpr5_str = f"{lpr5:.1f}"
             row = {
                 "month": month,
-                "lpr_1y": f"{lpr1:g}",
-                "lpr_5y": f"{lpr5:g}",
-                "mortgage_first": f"{round(lpr5 + bp_first / 100.0, 2):g}",
-                "mortgage_second": f"{round(lpr5 + bp_second / 100.0, 2):g}",
+                "lpr_1y": lpr1_str,
+                "lpr_5y": lpr5_str,
+                "mortgage_first": f"{round(lpr5 + bp_first / 100.0, 2):.2f}",
+                "mortgage_second": f"{round(lpr5 + bp_second / 100.0, 2):.2f}",
                 "source": "PBOC公开公告",
             }
             if prev:

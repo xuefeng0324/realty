@@ -3231,14 +3231,15 @@ describe("build integrity", () => {
 
   // v0.53.0 macro-1: LPR + 房贷利率
   describe("v0.53.0 macro-1 LPR + 房贷利率", () => {
-    it("lpr_history.csv 存在且 80+ 行 (2019-08 ~ 2026-07)", () => {
+    it("lpr_history.csv 存在且 80+ 行 (2019-08 ~ 2026-08)", () => {
       const csv = readFileSync(resolve(ROOT, "static/seed/lpr_history.csv"), "utf8");
       const lines = csv.trim().split(/\r?\n/);
       expect(lines.length).toBeGreaterThanOrEqual(80);
       expect(lines[0]).toMatch(/month,lpr_1y,lpr_5y,mortgage_first,mortgage_second,source/);
       expect(lines[1]).toMatch(/2019-08,4\.25,4\.85/);
+      // v1.122.36：LPR 写到 2026-08（PBOC 9-20 才发 9月数据，故 cron 16-20 还在等）
       const last = lines[lines.length - 1];
-      expect(last).toMatch(/2026-07,3\.0,3\.5/);
+      expect(last).toMatch(/2026-08,3\.0,3\.5/);
     });
 
     it("scripts/compute_lpr_history.py 生成 lpr_history.csv", () => {
