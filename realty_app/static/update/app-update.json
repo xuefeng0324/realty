@@ -1,12 +1,12 @@
 {
-  "versionName": "1.122.26",
-  "versionCode": "305",
-  "publishedAt": "2026-09-10T03:39:29Z",
+  "versionName": "1.122.27",
+  "versionCode": "306",
+  "publishedAt": "2026-09-10T03:51:01Z",
   "force": false,
-  "notes": "fix(realty_app): 5 \u4e2a PBC \u722c\u866b fetch_text \u52a0 GBK \u63a2\u6d4b fallback (v1.122.26 / 305)\n\n2026-07-25-v1.121.9-OTA\u9a8c\u8bc1130: v1.121.9 \u2014 OTA \u9a8c\u8bc1\u5305 130\n2026-07-25-v0.96.0-\u4e09\u5e02\u6807\u7b7e\u6a2a\u8bc4: v0.96.0 \u2014 \u4e09\u5e02\u6807\u7b7e\u6a2a\u8bc4\uff08listing-filter mini \u5361 + \u5168\u94fe\u8def\u63a5\u5165\uff09\n2026-07-25-v0.97.0-\u91cd\u70b9\u5b66\u6821\u7ef4\u5ea6\u7ec6\u5206: v0.97.0 \u2014 \u91cd\u70b9\u5b66\u6821\u7ef4\u5ea6\u7ec6\u5206\uff08school.vue mini \u5361\uff09\n",
+  "notes": "refactor(realty_app): \u62bd crawl_common \u5171\u7528 helper (v1.122.27 / 306)\n\n2026-07-25-v1.114.0-\u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f: v1.114.0 \u2014 \u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f\n2026-07-25-v1.115.0-\u533b\u9662\u5750\u6807\u63a5\u5165\u4e0e\u6d3e\u751f: v1.115.0 \u2014 \u533b\u9662\u5750\u6807\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/305/app.wgt",
-    "sha256": "6d519d6d2e0f732e2099665009d2cca1bbcda4e5bf8920b7645913d00537dce0"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/306/app.wgt",
+    "sha256": "d01419d1e680a0cf599c851d41312d910d08e06be20c57b1b1620ae92f6ba57b"
   },
   "ios": {
     "available": false,
