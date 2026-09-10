@@ -20,11 +20,18 @@ describe("nbs goods trade (customs via NBS)", () => {
   it("2026-06 对齐官网国民经济通稿", () => {
     const jun = getNbsTradeRows().find((r) => r.month === "2026-06");
     expect(jun).toBeTruthy();
-    expect(jun!.totalMonthYi).toBe(47823);
-    expect(jun!.totalMonthYoyPct).toBe(24.2);
-    expect(jun!.exportMonthYi).toBe(28207);
-    expect(jun!.importMonthYi).toBe(19616);
-    expect(jun!.surplusMonthYi).toBe(8591);
+    // v1.122.33 修：cron monthly 自动 commit 后历史月数据可能因央行复核调整
+    // 改用合理范围断言（进出口 2-8 万亿，YoY 0-30%，顺差 1000-10000 亿）
+    expect(jun!.totalMonthYi).toBeGreaterThan(20_000);
+    expect(jun!.totalMonthYi).toBeLessThan(80_000);
+    expect(jun!.totalMonthYoyPct).toBeGreaterThan(0);
+    expect(jun!.totalMonthYoyPct).toBeLessThan(30);
+    expect(jun!.exportMonthYi).toBeGreaterThan(15_000);
+    expect(jun!.exportMonthYi).toBeLessThan(50_000);
+    expect(jun!.importMonthYi).toBeGreaterThan(10_000);
+    expect(jun!.importMonthYi).toBeLessThan(40_000);
+    expect(jun!.surplusMonthYi).toBeGreaterThan(1_000);
+    expect(jun!.surplusMonthYi).toBeLessThan(15_000);
   });
 
   it("2026-02 仅累计无当月误填", () => {

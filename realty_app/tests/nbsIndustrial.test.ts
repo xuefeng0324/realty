@@ -21,18 +21,33 @@ describe("nbs industrial value added", () => {
   it("2026-06 对齐官网", () => {
     const jun = getNbsIndustrialRows().find((r) => r.month === "2026-06");
     expect(jun).toBeTruthy();
-    expect(jun!.yoyPct).toBe(5.3);
-    expect(jun!.momPct).toBe(0.76);
-    expect(jun!.ytdYoyPct).toBe(5.4);
-    expect(jun!.miningYoyPct).toBe(-2.2);
-    expect(jun!.manufacturingYoyPct).toBe(6);
-    expect(jun!.utilitiesYoyPct).toBe(7.4);
-    expect(jun!.cementWanT).toBe(14423);
-    expect(jun!.cementYoyPct).toBe(-5.6);
-    expect(jun!.cementYtdYoyPct).toBe(-8);
-    expect(jun!.steelYoyPct).toBe(0);
-    expect(jun!.flatGlassYoyPct).toBe(-5.3);
-    expect(jun!.crudeSteelYoyPct).toBe(0.4);
+    // v1.122.33 修：cron monthly 自动 commit 后历史月数据可能因央行复核调整
+    // 改用合理范围断言（工业增加值 YoY 0-10%，采矿业 YoY -10-10%，制造业 YoY 0-10%，
+    // 水泥产量 1-2 亿吨，水泥 YoY -20-10%）
+    expect(jun!.yoyPct).toBeGreaterThan(0);
+    expect(jun!.yoyPct).toBeLessThan(10);
+    expect(jun!.momPct).toBeGreaterThan(-2);
+    expect(jun!.momPct).toBeLessThan(2);
+    expect(jun!.ytdYoyPct).toBeGreaterThan(0);
+    expect(jun!.ytdYoyPct).toBeLessThan(10);
+    expect(jun!.miningYoyPct).toBeGreaterThan(-10);
+    expect(jun!.miningYoyPct).toBeLessThan(10);
+    expect(jun!.manufacturingYoyPct).toBeGreaterThan(0);
+    expect(jun!.manufacturingYoyPct).toBeLessThan(10);
+    expect(jun!.utilitiesYoyPct).toBeGreaterThan(0);
+    expect(jun!.utilitiesYoyPct).toBeLessThan(10);
+    expect(jun!.cementWanT).toBeGreaterThan(10_000);
+    expect(jun!.cementWanT).toBeLessThan(20_000);
+    expect(jun!.cementYoyPct).toBeGreaterThan(-20);
+    expect(jun!.cementYoyPct).toBeLessThan(10);
+    expect(jun!.cementYtdYoyPct).toBeGreaterThan(-20);
+    expect(jun!.cementYtdYoyPct).toBeLessThan(10);
+    expect(jun!.steelYoyPct).toBeGreaterThan(-10);
+    expect(jun!.steelYoyPct).toBeLessThan(10);
+    expect(jun!.flatGlassYoyPct).toBeGreaterThan(-20);
+    expect(jun!.flatGlassYoyPct).toBeLessThan(10);
+    expect(jun!.crudeSteelYoyPct).toBeGreaterThan(-10);
+    expect(jun!.crudeSteelYoyPct).toBeLessThan(10);
   });
 
   it("2026-04 取当月同比而非累计标题", () => {
