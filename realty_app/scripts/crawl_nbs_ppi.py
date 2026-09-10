@@ -13,6 +13,7 @@ PPI / 建材出厂价 ≠ 房价均价、≠挂牌、≠70城指数。
 from __future__ import annotations
 
 import argparse
+import io
 import csv
 import html
 import re
@@ -24,6 +25,14 @@ from pathlib import Path
 
 INDEX_URL = "https://www.stats.gov.cn/sj/"
 OUTPUT = Path(__file__).resolve().parents[1] / "static" / "nbs_ppi.csv"
+
+# Windows GBK stdout/stderr 无法编码 NBS 公告标题里的 \ufffd / 古汉字 → 强制 UTF-8 包装
+# 仅影响 print 输出，不影响 csv 写文件（atomic_write 显式 encoding="utf-8"）
+# v1.122.37 fix 只包了 stdout，但爬虫用了 print(..., file=sys.stderr) 也需要包装
+if sys.stdout.encoding and sys.stdout.encoding.lower().replace("-", "") != "utf8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+    sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding="utf-8", errors="replace")
 
 # 2026-01 … 2026-06（与同日 CPI 稿相邻；1–3 月标题常为「降幅收窄/由降转涨」）
 BACKFILL_URLS = [
