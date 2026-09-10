@@ -12,17 +12,26 @@ describe("nbs retail", () => {
   it("加载社消装潢/家具月度", () => {
     const latest = getLatestNbsRetail();
     expect(latest).not.toBeNull();
-    expect(latest!.month).toBe("2026-06");
-    expect(latest!.buildingMonthCny100m).toBe(114);
-    expect(latest!.buildingMonthYoyPct).toBe(-10.5);
-    expect(latest!.buildingCumCny100m).toBe(609);
-    expect(latest!.buildingCumYoyPct).toBe(-8.8);
-    expect(latest!.furnitureMonthCny100m).toBe(176);
-    expect(latest!.furnitureMonthYoyPct).toBe(-6.6);
-    expect(latest!.retailMonthYoyPct).toBe(1.0);
+    // v1.122.30 修：cron 每月自动补社消数据，month 不能硬编码 2026-06
+    expect(latest!.month).toMatch(/^20\d{2}-(0[1-9]|1[0-2])$/);
+    // 数值改成合理范围（建筑装潢月度 50-200 亿、家具月度 100-250 亿、YoY ±15%）
+    expect(latest!.buildingMonthCny100m).toBeGreaterThan(50);
+    expect(latest!.buildingMonthCny100m).toBeLessThan(200);
+    expect(latest!.buildingMonthYoyPct).toBeGreaterThan(-15);
+    expect(latest!.buildingMonthYoyPct).toBeLessThan(15);
+    expect(latest!.buildingCumCny100m).toBeGreaterThan(300);
+    expect(latest!.buildingCumCny100m).toBeLessThan(1200);
+    expect(latest!.buildingCumYoyPct).toBeGreaterThan(-15);
+    expect(latest!.buildingCumYoyPct).toBeLessThan(15);
+    expect(latest!.furnitureMonthCny100m).toBeGreaterThan(100);
+    expect(latest!.furnitureMonthCny100m).toBeLessThan(250);
+    expect(latest!.furnitureMonthYoyPct).toBeGreaterThan(-15);
+    expect(latest!.furnitureMonthYoyPct).toBeLessThan(15);
+    expect(latest!.retailMonthYoyPct).toBeGreaterThan(-5);
+    expect(latest!.retailMonthYoyPct).toBeLessThan(10);
     expect(latest!.sourceUrl).toMatch(/stats\.gov\.cn/);
     expect(getNbsRetailTrend(6).length).toBeGreaterThanOrEqual(5);
-    expect(shortNbsRetailMonthLabel("2026-06")).toBe("6月");
+    expect(shortNbsRetailMonthLabel(latest!.month)).toMatch(/^\d+月$/);
   });
 
   it("爬虫与仪表盘门禁", () => {

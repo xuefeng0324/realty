@@ -14,17 +14,29 @@ describe("nbs energy production", () => {
     expect(rows.length).toBeGreaterThanOrEqual(4);
     const latest = getLatestNbsEnergy();
     expect(latest).not.toBeNull();
-    expect(latest!.month).toBe("2026-06");
-    expect(latest!.coalYiT).toBe(3.8);
-    expect(latest!.coalYoyPct).toBe(-9.7);
-    expect(latest!.oilWanT).toBe(1812);
-    expect(latest!.oilYoyPct).toBe(-0.5);
-    expect(latest!.gasYiM3).toBe(214);
-    expect(latest!.gasYoyPct).toBe(1.1);
-    expect(latest!.powerYiKwh).toBe(8276);
-    expect(latest!.powerYoyPct).toBe(2);
+    // v1.122.30 修：cron 每月自动补能源数据，month 不能硬编码 2026-06
+    // 改用 regex 兼容任何 2025+ 月份
+    expect(latest!.month).toMatch(/^20\d{2}-(0[1-9]|1[0-2])$/);
+    // 数值改成合理范围（煤产 2-6 亿吨、油产 1500-2200 万吨、天然气 150-260 亿立方米、电力 6000-9500 亿千瓦时）
+    expect(latest!.coalYiT).toBeGreaterThan(2);
+    expect(latest!.coalYiT).toBeLessThan(6);
+    expect(latest!.coalYoyPct).toBeGreaterThan(-15);
+    expect(latest!.coalYoyPct).toBeLessThan(15);
+    expect(latest!.oilWanT).toBeGreaterThan(1500);
+    expect(latest!.oilWanT).toBeLessThan(2200);
+    expect(latest!.oilYoyPct).toBeGreaterThan(-10);
+    expect(latest!.oilYoyPct).toBeLessThan(10);
+    expect(latest!.gasYiM3).toBeGreaterThan(150);
+    expect(latest!.gasYiM3).toBeLessThan(260);
+    expect(latest!.gasYoyPct).toBeGreaterThan(-10);
+    expect(latest!.gasYoyPct).toBeLessThan(10);
+    expect(latest!.powerYiKwh).toBeGreaterThan(6000);
+    expect(latest!.powerYiKwh).toBeLessThan(9500);
+    expect(latest!.powerYoyPct).toBeGreaterThan(-5);
+    expect(latest!.powerYoyPct).toBeLessThan(15);
     expect(latest!.sourceUrl).toMatch(/stats\.gov\.cn/);
-    expect(shortNbsEnergyMonthLabel("2026-06")).toBe("6月");
+    // shortNbsEnergyMonthLabel 输出格式验证（不验证具体值）
+    expect(shortNbsEnergyMonthLabel(latest!.month)).toMatch(/^\d+月$/);
   });
 
   it("单月稿跳过累计句且兼容持平", () => {

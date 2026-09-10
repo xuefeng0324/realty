@@ -23,30 +23,50 @@ describe("zh bdc registration (curated quarterly)", () => {
 
     const latestNew = getLatestZhBdcByKind("new_commodity");
     expect(latestNew).not.toBeNull();
-    expect(latestNew!.year).toBe(2026);
-    expect(latestNew!.quarter).toBe(2);
-    expect(latestNew!.residentialUnits).toBe(3933);
-    expect(latestNew!.residentialAreaWanSqm).toBeCloseTo(42.37, 2);
+    // v1.122.30 修：每季度发布，year/quarter 不能硬编码 2026/2
+    expect(latestNew!.year).toBeGreaterThanOrEqual(2020);
+    expect(latestNew!.quarter).toBeGreaterThanOrEqual(1);
+    expect(latestNew!.quarter).toBeLessThanOrEqual(4);
+    // 数值改成合理范围（珠海每季度新增商品房住宅 2000-5000 套）
+    expect(latestNew!.residentialUnits).toBeGreaterThan(2000);
+    expect(latestNew!.residentialUnits).toBeLessThan(5000);
+    expect(latestNew!.residentialAreaWanSqm).toBeGreaterThan(20);
+    expect(latestNew!.residentialAreaWanSqm).toBeLessThan(60);
     expect(latestNew!.sourceUrl).toMatch(/bdc\.zhuhai\.gov\.cn/);
     expect(latestNew!.imageUrl).toMatch(/\.png$/);
-    expect(formatZhBdcPeriod(latestNew!)).toBe("2026 年 Q2");
+    // formatZhBdcPeriod 验证格式（不验证具体值）
+    expect(formatZhBdcPeriod(latestNew!)).toMatch(/^20\d{2} 年 Q[1-4]$/);
     expect(zhBdcMetricLabel("new_commodity")).toContain("新增商品房");
 
     const latestStock = getLatestZhBdcByKind("stock_transfer");
-    expect(latestStock!.residentialUnits).toBe(7833);
-    expect(latestStock!.residentialAreaWanSqm).toBeCloseTo(81.4, 2);
+    // 二手房转让住宅每季度 5000-10000 套
+    expect(latestStock!.residentialUnits).toBeGreaterThan(5000);
+    expect(latestStock!.residentialUnits).toBeLessThan(10000);
+    expect(latestStock!.residentialAreaWanSqm).toBeGreaterThan(50);
+    expect(latestStock!.residentialAreaWanSqm).toBeLessThan(120);
   });
 
   it("相邻季住宅套数环比可算", () => {
     const qoqNew = getZhBdcResidentialQoQ("new_commodity");
     expect(qoqNew).not.toBeNull();
-    expect(qoqNew!.prev.year).toBe(2026);
-    expect(qoqNew!.prev.quarter).toBe(1);
-    expect(qoqNew!.unitsDelta).toBe(3933 - 2875);
+    // v1.122.30 修：prev 是上季度（year/quarter 随 cron 自动 commit 变）
+    expect(qoqNew!.prev.year).toBeGreaterThanOrEqual(2020);
+    expect(qoqNew!.prev.quarter).toBeGreaterThanOrEqual(1);
+    expect(qoqNew!.prev.quarter).toBeLessThanOrEqual(4);
+    // unitsDelta = latest - prev（latest 用 getLatestZhBdcByKind 取）
+    const latestNew = getLatestZhBdcByKind("new_commodity")!;
+    expect(qoqNew!.unitsDelta).toBeCloseTo(
+      latestNew.residentialUnits - qoqNew!.prev.residentialUnits,
+      1
+    );
 
     const qoqStock = getZhBdcResidentialQoQ("stock_transfer");
     expect(qoqStock).not.toBeNull();
-    expect(qoqStock!.unitsDelta).toBe(7833 - 6219);
+    const latestStock = getLatestZhBdcByKind("stock_transfer")!;
+    expect(qoqStock!.unitsDelta).toBeCloseTo(
+      latestStock.residentialUnits - qoqStock!.prev.residentialUnits,
+      1
+    );
   });
 
   it("最新季分区明细合计对齐全市", () => {
