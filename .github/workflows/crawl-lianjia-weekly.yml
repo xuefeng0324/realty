@@ -1,0 +1,144 @@
+name: crawl-lianjia-weekly
+
+on:
+  # 周二 03:00 UTC = 周二 11:00 北京时间
+  # 避开周一链家封号高峰；与 crawl-weekly.yml (周日 21:00 UTC 安居客) 错开 30h
+  schedule:
+    - cron: "0 3 * * 2"
+  workflow_dispatch:
+
+concurrency:
+  group: crawl-lianjia-weekly
+  cancel-in-progress: false
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+
+    steps:
+      - name: 拉代码
+        uses: actions/checkout@v4
+
+      - name: 设 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          # crawl_lianjia_listings.py 仅用标准库，无第三方依赖；用 anjuke 脚本路径走 cache hit
+          cache-dependency-path: realty_app/scripts/crawl_anjuke.py
+
+      - name: 抓取深穗珠链家在售二手（append 模式）
+        id: crawl
+        shell: bash
+        run: |
+          set -o pipefail
+          cd realty_app
+          mkdir -p lianjia-weekly-logs
+          # 每城 10 页 × ~30 条 = ~300 条；3 城合计 ~900 条
+          # --append 按 source_listing_id 去重保留旧行（含 DERIVED 与原 60 套 REAL）
+          # 不带 --update-communities（避免空 district 污染 district compare 测试）
+          # 不安装额外依赖（脚本只用 stdlib）
+          for city in 深圳 广州 珠海; do
+            echo "===== ${city} ====="
+            python scripts/crawl_lianjia_listings.py fetch --city "${city}" --pages 10 --delay 3 --append \
+              2>&1 | tee "lianjia-weekly-logs/${city}.log" || echo "[WARN] ${city} 抓取失败，继续其他城市"
+          done
+
+      - name: 校验 listings.csv
+        id: validate
+        shell: bash
+        run: |
+          set -o pipefail
+          cd realty_app
+          python - 2>&1 | tee lianjia-weekly-logs/validate.log <<'PY'
+          import csv
+          from collections import Counter
+          from pathlib import Path
+          p = Path("static/seed/listings.csv")
+          rows = list(csv.DictReader(p.open(encoding="utf-8-sig")))
+          cnt = Counter((r["city_id"], r["source_kind"]) for r in rows)
+          print(f"listings 总行数: {len(rows)}")
+          print("city_id × source_kind 矩阵:")
+          for k, v in sorted(cnt.items()):
+              print(f"  city={k[0]} kind={k[1]}: {v}")
+          real_sz = [r for r in rows if r["city_id"] == "2" and r["source_kind"] == "REAL"]
+          real_gz = [r for r in rows if r["city_id"] == "1" and r["source_kind"] == "REAL"]
+          real_zh = [r for r in rows if r["city_id"] == "3" and r["source_kind"] == "REAL"]
+          print(f"\nREAL by city: 深圳={len(real_sz)} 广州={len(real_gz)} 珠海={len(real_zh)}")
+          if len(real_sz) + len(real_gz) + len(real_zh) < 50:
+              raise SystemExit("Phase V: REAL 总量 < 50，抓取几乎全失败，请人工排查")
+          dates = [r.get("crawl_date") for r in rows if r.get("crawl_date")]
+          print(f"crawl_date 范围: {min(dates)} ~ {max(dates)}")
+          PY
+
+      - name: 重建学区溢价派生
+        id: rebuild_school_premium
+        shell: bash
+        run: |
+          set -o pipefail
+          cd realty_app
+          python scripts/compute_school_premium.py 2>&1 \
+            | tee lianjia-weekly-logs/school_premium.log
+
+      - name: 重建 listings 派生指标
+        id: rebuild_derivatives
+        shell: bash
+        run: |
+          set -o pipefail
+          cd realty_app
+          # rebuild_listing_derivatives.py 与 publish_csv.py 已在 crawl-weekly.yml 用过
+          # 这里独立调用，避免与 crawl-weekly 冲突（两个 cron 都跑时各自一次）
+          python scripts/rebuild_listing_derivatives.py 2>&1 \
+            | tee lianjia-weekly-logs/derivatives.log || echo "[WARN] rebuild_listing_derivatives 失败，不阻塞提交"
+
+      - name: 提交 listings + 派生数据
+        id: commit
+        shell: bash
+        run: |
+          set -o pipefail
+          cd realty_app
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet HEAD -- static/seed/listings.csv static/seed/school_premium_community.csv static/seed/school_premium_district.csv static/seed/crawl_meta.json 2>/dev/null; then
+            git add -- static/seed/listings.csv static/seed/school_premium_community.csv static/seed/school_premium_district.csv static/seed/crawl_meta.json
+            git commit -m "data(lianjia): 链家在售二手深穗珠 weekly 增量 $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git push
+          else
+            echo "listings/派生 无变化（同周已抓过），跳过 commit"
+          fi
+
+      - name: 上传日志
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crawl-lianjia-weekly-logs
+          path: realty_app/lianjia-weekly-logs
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: 质量门禁
+        if: always()
+        env:
+            CRAWL: ${{ steps.crawl.outcome }}
+            VALIDATE: ${{ steps.validate.outcome }}
+            REBUILD_SP: ${{ steps.rebuild_school_premium.outcome }}
+            REBUILD_DERIV: ${{ steps.rebuild_derivatives.outcome }}
+            COMMIT: ${{ steps.commit.outcome }}
+        shell: bash
+        run: |
+          failed=0
+          for pair in \
+            "crawl:$CRAWL" \
+            "validate:$VALIDATE" \
+            "rebuild_school_premium:$REBUILD_SP" \
+            "commit:$COMMIT"; do
+            name=${pair%%:*}
+            outcome=${pair#*:}
+            if [ "$outcome" != "success" ]; then
+              echo "::error title=lianjia weekly 质量门禁::${name} outcome=${outcome}"
+              failed=1
+            fi
+          done
+          exit "$failed"
