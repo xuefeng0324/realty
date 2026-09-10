@@ -1,4 +1,5 @@
 date,current_account_usd_yi,goods_surplus_usd_yi,services_surplus_usd_yi,primary_income_usd_yi,secondary_income_usd_yi,capital_financial_usd_yi,is_preliminary,source_url
+2026-06-01,1951,2789,-524,-376,63,,1,https://www.safe.gov.cn/safe/2026/0814/27779.html
 2026-03-01,1843,2475,-596,-74,38,-1881,0,https://www.safe.gov.cn/safe/2026/0626/27617.html
 2025-12-01,2438,3103,-485,-249,69,-2348,0,https://www.safe.gov.cn/safe/2026/0327/27297.html
 2025-09-01,1987,2695,-493,-296,81,-2405,0,https://www.safe.gov.cn/safe/2025/1231/26981.html
@@ -10,3 +11,4 @@ date,current_account_usd_yi,goods_surplus_usd_yi,services_surplus_usd_yi,primary
 2024-03-01,392,1213,-612,-243,34,-744,0,https://www.safe.gov.cn/safe/2024/0628/24673.html
 2023-12-01,562,1511,-567,-426,44,-466,0,https://www.safe.gov.cn/safe/2024/0329/24180.html
 2023-09-01,628,1611,-662,-344,23,-623,0,https://www.safe.gov.cn/safe/2023/1229/23730.html
+2023-06-01,647,1633,-550,-467,31,-504,0,https://www.safe.gov.cn/safe/2023/0928/23265.html
