@@ -15,6 +15,7 @@ import argparse
 import csv
 import re
 import ssl
+import sys
 import tempfile
 import time
 import xml.etree.ElementTree as ET
@@ -24,6 +25,9 @@ from urllib.request import Request, urlopen
 from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _gbk_probe import fetch_text_gbk  # noqa: E402
+
 OUT = ROOT / "static" / "seed" / "pbc_region_sf.csv"
 LIST_URL = "http://www.pbc.gov.cn/diaochatongjisi/116219/116225/index.html"
 UA = {"User-Agent": "Mozilla/5.0 (compatible; realty-crawler/1.0)"}
@@ -50,13 +54,12 @@ def fetch_bytes(url: str) -> bytes:
 
 
 def fetch_text(url: str) -> str:
-    raw = fetch_bytes(url)
-    for enc in ("utf-8", "gbk"):
-        try:
-            return raw.decode(enc)
-        except Exception:
-            continue
-    return raw.decode("utf-8", "replace")
+    """v1.122.26 起改用 _gbk_probe.fetch_text_gbk（共用 helper）。
+
+    PBC 列表页"Content-Type text/html 但 body 实际 GBK"，旧版 utf-8 优先
+    看似成功但中文段乱码 → 后续"地区社会融资规模"正则全失效 → notices=0。
+    """
+    return fetch_text_gbk(url, ua=UA, ctx=CTX)
 
 
 def abs_url(href: str) -> str:

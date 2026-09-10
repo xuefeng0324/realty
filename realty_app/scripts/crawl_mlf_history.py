@@ -15,6 +15,7 @@ import argparse
 import csv
 import re
 import ssl
+import sys
 import tempfile
 import time
 from html import unescape
@@ -22,6 +23,9 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _gbk_probe import fetch_text_gbk  # noqa: E402
+
 OUT = ROOT / "static" / "seed" / "mlf_history.csv"
 LIST_URL = "http://www.pbc.gov.cn/zhengcehuobisi/125207/125213/125437/125446/125873/index.html"
 UA = {"User-Agent": "Mozilla/5.0 (compatible; realty-crawler/1.0)"}
@@ -30,13 +34,12 @@ FIELDS = ["date", "mlf_1y_pct", "amount_yi", "balance_yi", "source_url"]
 
 
 def fetch_text(url: str) -> str:
-    raw = urlopen(Request(url, headers=UA), context=CTX, timeout=60).read()
-    for enc in ("utf-8", "gbk"):
-        try:
-            return raw.decode(enc)
-        except Exception:
-            continue
-    return raw.decode("utf-8", "replace")
+    """v1.122.26 起改用 _gbk_probe.fetch_text_gbk（共用 helper）。
+
+    PBC 列表页"Content-Type text/html 但 body 实际 GBK"，旧版 utf-8 优先
+    看似成功但中文段乱码 → 后续"中期借贷便利"正则全失效 → notices=0。
+    """
+    return fetch_text_gbk(url, ua=UA, ctx=CTX)
 
 
 def abs_url(href: str) -> str:
