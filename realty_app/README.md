@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.122.50 | 2026-09-12 | 加 `localSeedSnapshotLoader.test.ts` 15 个用例覆盖 `src/local/snapshotLoader.ts` `loadSnapshotFromBase`：URL 协议验证（ftp throw / http/https ok / 尾随斜杠 normalized / 多个斜杠 / 空格 trim）+ 必需文件 validation + snapshot 非空 validation（cities/communities/listings 三选一为空 → throw）+ orphan listing validation + happy path（**41 次 downloadText**（5 必需 + 36 可选）/ timeout 区分 / source 透传）。`seedSnapshot.ts`（37 个 ?raw import）暂跳过。0 frontend 改动（versionCode 329） |
 | v1.122.49 | 2026-09-12 | 加 `localCsvPriceRepo.test.ts` 37 个用例覆盖 `src/local/` 3 个真业务逻辑（`csv.ts` 76 行 `parseCSV` RFC 4180 + BOM 处理 + `rowsToObjects` / `priceSemantics.ts` 59 行三轴标签 + 禁用词审计 / `repoFixing.ts` 82 行 `mapRow` 过滤 + 排序 + delta 计算）。`csv.ts` BOM 处理有专门注释警告"不去 BOM 让所有匹配都失败"，测试覆盖。0 frontend 改动（versionCode 328） |
 | v1.122.48 | 2026-09-12 | 加 `localSmallHelpers.test.ts` 36 个用例覆盖 `src/local/` 4 个纯函数小 helper（`dataMode.ts` 17 行 + `listingSource.ts` 21 行 + `listingFilterMatch.ts` 38 行 + `dashTabs.ts` 39 行）——本会话扫清 rules/ + composables/ 后继续往 local/ 推进，先做最小高 ROI 模块。跳过 `importer.ts` (1377 行) / `queries.ts` (3307 行) 等大文件。0 frontend 改动（versionCode 327） |
 | v1.122.47 | 2026-09-12 | 加 `composablesUseTrendVisualization.test.ts` 19 个用例覆盖 `src/composables/useTrendVisualization.ts` 5 个 helper 函数（baMaxCount / ofCellLabel / daCellClass / scatterImproveCohort / scatterValueDip）+ reloadAll 并发。**composables/ 整个目录扫清**（1 文件 0 测试 → 1 文件覆盖）。跳过 `api/` 5+ 文件（RPC stub wrapper，单测 ROI 低）。0 frontend 改动（versionCode 326） |
