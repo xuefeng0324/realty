@@ -1,0 +1,77 @@
+city distribution across 52 csv files
+================================================================================
+  2                     5643 行
+  1                     3974 行
+  3                     2423 行
+  深圳                    1556 行
+  广州                     897 行
+  三亚                     494 行
+  上海                     494 行
+  丹东                     494 行
+  乌鲁木齐                   494 行
+  九江                     494 行
+  兰州                     494 行
+  包头                     494 行
+  北京                     494 行
+  北海                     494 行
+  南京                     494 行
+  南充                     494 行
+  南宁                     494 行
+  南昌                     494 行
+  厦门                     494 行
+  合肥                     494 行
+
+by file (only files that have a city column)
+--------------------------------------------------------------------------------
+  admin_districts.csv                      col=city_id    24 rows
+  bedroom_area.csv                         col=city_id    29 rows
+  cities.csv                               col=city_id    3 rows
+  communities.csv                          col=city_id    62 rows
+  communities_geo.csv                      col=city_id    52 rows
+  community_commercial.csv                 col=city_id    52 rows
+  community_scatter.csv                    col=city_id    24 rows
+  community_score.csv                      col=city_id    52 rows
+  commute.csv                              col=city_id    38 rows
+  daily_wangqian.csv                       col=city       1108 rows
+  decorate_age.csv                         col=city_id    48 rows
+  district_index.csv                       col=city_id    266 rows
+  district_meta.csv                        col=city_id    24 rows
+  district_trend.csv                       col=city_id    269 rows
+  education_overview.csv                   col=city       3 rows
+  feature_premium.csv                      col=city_id    54 rows
+  gd_provident_annual.csv                  col=city       1 rows
+  gz_affordable_projects.csv               col=city       5 rows
+  gz_affordable_targets.csv                col=city       8 rows
+  gz_housing_plan.csv                      col=city       2 rows
+  gz_land_deals.csv                        col=city       14 rows
+  gz_provident_annual.csv                  col=city       7 rows
+  hospitals.csv                            col=city_id    50 rows
+  layout_distribution.csv                  col=city_id    54 rows
+  life_convenience.csv                     col=city_id    52 rows
+  listing_freshness.csv                    col=city_id    23 rows
+  listing_keyword.csv                      col=city_id    10 rows
+  listing_school_premium.csv               col=city_id    1286 rows
+  listing_tags.csv                         col=city_id    7517 rows
+  listing_tags_summary.csv                 col=city_id    52 rows
+  listings.csv                             col=city_id    1300 rows
+  metro_benefit.csv                        col=city_id    49 rows
+  metro_planning.csv                       col=city_id    21 rows
+  metro_planning_geo.csv                   col=city_id    21 rows
+  metro_walk.csv                           col=city_id    37 rows
+  orientation_floor.csv                    col=city_id    48 rows
+  school_dimensions.csv                    col=city_id    58 rows
+  school_premium_community.csv             col=city_id    62 rows
+  school_premium_district.csv              col=city_id    15 rows
+  schools.csv                              col=city_id    58 rows
+  stats_70.csv                             col=city       34580 rows
+  sz_affordable_projects.csv               col=city       5 rows
+  sz_land_deals.csv                        col=city       128 rows
+  sz_planned_supply.csv                    col=city       8 rows
+  sz_provident_annual.csv                  col=city       2 rows
+  tag_combination.csv                      col=city_id    324 rows
+  wangqian_district_weekly.csv             col=city       176 rows
+  weather.csv                              col=city_id    6 rows
+  zh_affordable_progress.csv               col=city       12 rows
+  zh_bdc_registration.csv                  col=city       12 rows
+  zh_bdc_registration_district.csv         col=city       60 rows
+  zh_provident_dynamics.csv                col=city       5 rows
