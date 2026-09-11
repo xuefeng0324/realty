@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.122.49 | 2026-09-12 | 加 `localCsvPriceRepo.test.ts` 37 个用例覆盖 `src/local/` 3 个真业务逻辑（`csv.ts` 76 行 `parseCSV` RFC 4180 + BOM 处理 + `rowsToObjects` / `priceSemantics.ts` 59 行三轴标签 + 禁用词审计 / `repoFixing.ts` 82 行 `mapRow` 过滤 + 排序 + delta 计算）。`csv.ts` BOM 处理有专门注释警告"不去 BOM 让所有匹配都失败"，测试覆盖。0 frontend 改动（versionCode 328） |
 | v1.122.48 | 2026-09-12 | 加 `localSmallHelpers.test.ts` 36 个用例覆盖 `src/local/` 4 个纯函数小 helper（`dataMode.ts` 17 行 + `listingSource.ts` 21 行 + `listingFilterMatch.ts` 38 行 + `dashTabs.ts` 39 行）——本会话扫清 rules/ + composables/ 后继续往 local/ 推进，先做最小高 ROI 模块。跳过 `importer.ts` (1377 行) / `queries.ts` (3307 行) 等大文件。0 frontend 改动（versionCode 327） |
 | v1.122.47 | 2026-09-12 | 加 `composablesUseTrendVisualization.test.ts` 19 个用例覆盖 `src/composables/useTrendVisualization.ts` 5 个 helper 函数（baMaxCount / ofCellLabel / daCellClass / scatterImproveCohort / scatterValueDip）+ reloadAll 并发。**composables/ 整个目录扫清**（1 文件 0 测试 → 1 文件覆盖）。跳过 `api/` 5+ 文件（RPC stub wrapper，单测 ROI 低）。0 frontend 改动（versionCode 326） |
 | v1.122.46 | 2026-09-12 | 加 `rulesListingScoring.test.ts` 65 个用例覆盖 `src/rules/listingScoring.ts` `computeListingQualityScoreV1`：5 维度加权（location 0.30 / house 0.25 / age 0.15 / amenity 0.15 / price 0.15）+ metro 4 段 + orientation 11 个值 + layout 5 分支 + floor 5 段 + building_age 5 段 + amenity 8 组合 + price_value 5 段 ratio + adv/dis top3 截断 + 全 NULL 边界。**rules/ 整个目录扫清**（4 文件 0 测试 → 4 文件全部覆盖）。0 frontend 改动（versionCode 325） |
