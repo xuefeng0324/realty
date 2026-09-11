@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.122.44 | 2026-09-12 | 加 `rulesSnapshot.test.ts` 22 个边界用例覆盖 `src/rules/snapshot.ts` 4 个函数（`median` / `computeWeekWindow` / `generateWeeklySnapshot`）：median 空数组返 0 / 不修改原数组；computeWeekWindow 跨月跨年闰年；generateWeeklySnapshot 全过滤返 null / samples < minSamplesForLatest 用 median_robust / samples 充足 + deviation ≤ 0.25 用 latest_non_null / coverageScore < 1.0 / communityId 透传 等。0 frontend 改动（versionCode 323） |
 | v1.122.43 | 2026-09-12 | 加 `rulesScoreUtils.test.ts` 22 个边界用例覆盖 `src/rules/scoreUtils.ts` 5 个纯函数（`clamp` / `parseFloorNumber` / `maybeScaleTrendDelta` / `currentYearFloor` / `jsonListMax`）——前后端共用的评分工具层，前一次 audit 识别 `rules/` 4 文件 0 测试，本次先做最小且最高 ROI 的 scoreUtils。0 frontend 改动（versionCode 322） |
 | v1.122.42 | 2026-09-12 | 加 `dashboardGuide.test.ts` 9 个边界用例覆盖 `isDashboardGuideDismissed` / `shouldShowDashboardGuide`：storage 未设 / 空串 / JSON 字符串 / boolean / parse 失败 / getStorage 抛错 等 8 个边界 + 1 个 `DASHBOARD_GUIDE_KEY` 常量稳定性。0 frontend 改动（versionCode 321） |
 | v1.122.41 | 2026-09-12 | 修 sz 两爬虫覆盖式写入丢历史：crawl_sz_land_deals.py 加 `read_existing + merge_rows` 按 land_no key merge；crawl_sz_planned_supply.py 加同样逻辑按 (year, quarter) merge。HEAD sz_land_deals.csv 128 行保留，新增 B401-0151 福田 2026-08-11 成交 +1 行；sz_planned_supply.csv 8 行无变化（fresh 4 个 key 全部命中现有）。加 `--no-merge` 逃生口。干跑验证 diff 干净（`+1 only`）。无 frontend 改动（versionCode 320） |
