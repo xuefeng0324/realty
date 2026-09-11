@@ -183,6 +183,56 @@ def parse_detail(url: str, title: str, html: str) -> dict | None:
     }
 
 
+def read_existing(path: Path) -> list[dict]:
+    """读 HEAD csv 已有行，按 (year, quarter) merge 时保留未覆盖到的历史.
+
+    把 year / quarter 转 int，方便与 fresh rows 直接比较；其余字段保持 str（CSV 原样）。
+    """
+    if not path.exists():
+        return []
+    rows: list[dict] = []
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        for r in csv.DictReader(f):
+            row = {k: ("" if r.get(k) is None else str(r.get(k))) for k in FIELDS}
+            try:
+                row["year"] = int(row.get("year") or 0)
+                row["quarter"] = int(row.get("quarter") or 0)
+            except ValueError:
+                # CSV 行损坏，跳过
+                continue
+            rows.append(row)
+    return rows
+
+
+def merge_rows(existing: list[dict], fresh: list[dict]) -> list[dict]:
+    """按 (year, quarter) key merge：fresh 优先，existing 缺失保留.
+
+    顺序策略同 crawl_sz_land_deals：existing 按 HEAD 顺序 + fresh 同 key 替换；
+    fresh 中 new key append 到末尾。
+    """
+    def key(r: dict) -> tuple[int, int]:
+        return (int(r.get("year") or 0), int(r.get("quarter") or 0))
+
+    fresh_by_key: dict[tuple[int, int], dict] = {}
+    for r in fresh:
+        k = key(r)
+        if k not in fresh_by_key:
+            fresh_by_key[k] = r
+
+    seen: set[tuple[int, int]] = set()
+    merged: list[dict] = []
+    for r in existing:
+        k = key(r)
+        merged.append(fresh_by_key.get(k, r))
+        seen.add(k)
+
+    for r in fresh:
+        if key(r) not in seen:
+            merged.append(r)
+            seen.add(key(r))
+    return merged
+
+
 def write_csv(rows: list[dict], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     rows = sorted(rows, key=lambda r: (r["year"], r["quarter"]), reverse=True)
@@ -210,6 +260,11 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--max", type=int, default=12, help="最多抓取几条公示")
     ap.add_argument("--out", type=Path, default=OUT)
+    ap.add_argument(
+        "--no-merge",
+        action="store_true",
+        help="覆盖式写入（默认会读 existing 按 (year, quarter) merge，避免丢历史）",
+    )
     args = ap.parse_args()
 
     list_html = fetch(LIST_URL)
@@ -238,8 +293,16 @@ def main() -> int:
         print("无有效行", file=sys.stderr)
         return 2
 
-    write_csv(rows, args.out)
-    print(f"wrote {len(rows)} rows -> {args.out}")
+    if args.no_merge:
+        merged = rows
+        print(f"[no-merge] 仅写入本次抓取窗口 n={len(rows)}")
+    else:
+        existing = read_existing(args.out)
+        merged = merge_rows(existing, rows)
+        print(f"[merge] existing={len(existing)} fresh={len(rows)} merged={len(merged)}")
+
+    write_csv(merged, args.out)
+    print(f"wrote {len(merged)} rows -> {args.out}")
     return 0
 
 

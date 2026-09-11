@@ -176,6 +176,52 @@ def crawl(pages: int, page_size: int, sold_only: bool) -> list[dict]:
     return rows
 
 
+def read_existing(path: Path) -> list[dict]:
+    """读取 HEAD 已有的 csv 行（utf-8-sig），返回 list[dict]；文件不存在返 [].
+
+    用于 merge：fresh rows 用 land_no 当 key；missing rows 保留在 merged 中，
+    避免覆盖式写入丢历史（cron 每周只跑 pages=6 可能只爬到最近 30 条成交）。
+    """
+    if not path.exists():
+        return []
+    rows: list[dict] = []
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        for r in csv.DictReader(f):
+            rows.append({k: ("" if r.get(k) is None else str(r.get(k))) for k in FIELDS})
+    return rows
+
+
+def merge_rows(existing: list[dict], fresh: list[dict]) -> list[dict]:
+    """按 land_no key merge：fresh 优先（同 key 用 fresh 覆盖），missing 保留.
+
+    顺序策略：existing 中已存在的 key 按 HEAD 顺序 + fresh 同 key 行替换；
+    fresh 中 new key append 到末尾。
+    """
+    def key(r: dict) -> str:
+        ln = (r.get("land_no") or "").strip()
+        return ln or f"{r.get('publish_date','')}|{r.get('location','')}|{r.get('start_price_wan','')}"
+
+    # 先建 fresh 的 key → row 索引（key 冲突时取 first）
+    fresh_by_key: dict[str, dict] = {}
+    for r in fresh:
+        k = key(r)
+        if k not in fresh_by_key:
+            fresh_by_key[k] = r
+
+    seen: set[str] = set()
+    merged: list[dict] = []
+    for r in existing:
+        k = key(r)
+        merged.append(fresh_by_key.get(k, r))
+        seen.add(k)
+
+    for r in fresh:
+        if key(r) not in seen:
+            merged.append(r)
+            seen.add(key(r))
+    return merged
+
+
 def atomic_write(path: Path, rows: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(
@@ -194,6 +240,11 @@ def main() -> int:
     ap.add_argument("--page-size", type=int, default=50, help="page size (default 50)")
     ap.add_argument("--include-unsold", action="store_true", help="include non-sold parcels")
     ap.add_argument("--out", type=Path, default=OUT)
+    ap.add_argument(
+        "--no-merge",
+        action="store_true",
+        help="覆盖式写入（默认会读 existing 按 land_no merge，避免丢历史）",
+    )
     args = ap.parse_args()
     try:
         rows = crawl(args.pages, args.page_size, sold_only=not args.include_unsold)
@@ -203,8 +254,19 @@ def main() -> int:
     if len(rows) < 3:
         print(f"ERROR: too few rows ({len(rows)}), refuse overwrite", file=sys.stderr)
         return 2
-    atomic_write(args.out, rows)
-    print(f"wrote {args.out} n={len(rows)}", flush=True)
+
+    if args.no_merge:
+        merged = rows
+        print(f"[no-merge] 仅写入本次抓取窗口 n={len(rows)}")
+    else:
+        existing = read_existing(args.out)
+        merged = merge_rows(existing, rows)
+        # 不重排序：保留 HEAD 顺序 + fresh new rows append 末尾
+        # 缺点：新行不在日期序位（破坏 HEAD publish_date 倒序），但比 reorder 整文件好
+        print(f"[merge] existing={len(existing)} fresh={len(rows)} merged={len(merged)}")
+
+    atomic_write(args.out, merged)
+    print(f"wrote {args.out} n={len(merged)}", flush=True)
     return 0
 
 
