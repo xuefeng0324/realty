@@ -1,12 +1,12 @@
 {
   "versionName": "1.122.41",
   "versionCode": "320",
-  "publishedAt": "2026-09-11T16:36:41Z",
+  "publishedAt": "2026-09-11T16:46:30Z",
   "force": false,
-  "notes": "docs(realty_app): opendata.sz.gov.cn / cnstats \u6570\u636e\u6e90\u8c03\u7814\u7ed3\u8bba\n\n2026-07-25-v1.112.0-\u5468\u8fb9\u5546\u4e1aPOI\u63a5\u5165\u4e0e\u6d3e\u751f: v1.112.0 \u2014 \u5468\u8fb9\u5546\u4e1a POI \u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.113.0-\u884c\u653f\u533a\u5212\u63a5\u5165\u4e0e\u6d3e\u751f: v1.113.0 \u2014 \u884c\u653f\u533a\u5212\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.114.0-\u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f: v1.114.0 \u2014 \u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f\n",
+  "notes": "docs(realty_app): \u4ed3\u5e93\u5ba1\u8ba1\u811a\u672c\u5f52\u6863\u5230 changelog/audit-reports/\n\n2026-07-25-v1.109.0-\u793e\u533a\u603b\u4ef7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f: v1.109.0 \u2014 \u793e\u533a\u603b\u4ef7\u00d7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f\n2026-07-25-v1.110.0-\u89c4\u5212\u5730\u94c1\u6d3e\u751f: v1.110.0 \u2014 \u89c4\u5212\u5730\u94c1\u6d3e\u751f\n2026-07-25-v1.111.0-LPR\u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f: v1.111.0 \u2014 LPR \u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f\n",
   "wgt": {
     "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/320/app.wgt",
-    "sha256": "670ab797d229635c32cfdf08e2b49176f6f23b0e1f5b9b4a250fb6d2bf3cc4fd"
+    "sha256": "14e54fbe247c6d66834b44ce101da06db0c23348b91d03317445976b45fe4312"
   },
   "ios": {
     "available": false,
