@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.122.45 | 2026-09-12 | 加 `rulesSchoolScoring.test.ts` 17 个用例覆盖 `src/rules/schoolScoring.ts` `computeSchoolFutureScoreV1`：happy path 加权聚合 + 4 因子 NULL fallback 各一（latest / group / district / trend）+ group=false 走非集团分支 + group=true 但 strength null 用 80 fallback + previousIndicator 自动反推 trend delta + delta 上升/下降/已 scale/极端正负 clamp + 全 NULL 边界。0 frontend 改动（versionCode 324） |
 | v1.122.44 | 2026-09-12 | 加 `rulesSnapshot.test.ts` 22 个边界用例覆盖 `src/rules/snapshot.ts` 4 个函数（`median` / `computeWeekWindow` / `generateWeeklySnapshot`）：median 空数组返 0 / 不修改原数组；computeWeekWindow 跨月跨年闰年；generateWeeklySnapshot 全过滤返 null / samples < minSamplesForLatest 用 median_robust / samples 充足 + deviation ≤ 0.25 用 latest_non_null / coverageScore < 1.0 / communityId 透传 等。0 frontend 改动（versionCode 323） |
 | v1.122.43 | 2026-09-12 | 加 `rulesScoreUtils.test.ts` 22 个边界用例覆盖 `src/rules/scoreUtils.ts` 5 个纯函数（`clamp` / `parseFloorNumber` / `maybeScaleTrendDelta` / `currentYearFloor` / `jsonListMax`）——前后端共用的评分工具层，前一次 audit 识别 `rules/` 4 文件 0 测试，本次先做最小且最高 ROI 的 scoreUtils。0 frontend 改动（versionCode 322） |
 | v1.122.42 | 2026-09-12 | 加 `dashboardGuide.test.ts` 9 个边界用例覆盖 `isDashboardGuideDismissed` / `shouldShowDashboardGuide`：storage 未设 / 空串 / JSON 字符串 / boolean / parse 失败 / getStorage 抛错 等 8 个边界 + 1 个 `DASHBOARD_GUIDE_KEY` 常量稳定性。0 frontend 改动（versionCode 321） |
