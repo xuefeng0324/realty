@@ -1,0 +1,26 @@
+flag script                                   csv                               HEAD mode            
+----------------------------------------------------------------------------------------------------
+    crawl_daily_wangqian.py                daily_wangqian.csv                1109 merge           
+    crawl_gd_construction.py               gd_construction.csv                  5 atomic-refuse   
+    crawl_gd_economy.py                    gd_economy.csv                       6 atomic-refuse   
+    crawl_gd_fa_investment.py              gd_fa_investment.csv                 5 atomic-refuse   
+    crawl_gd_industrial.py                 gd_industrial.csv                   13 merge           
+    crawl_gd_provident_annual.py           gd_provident_annual.csv              2 atomic-refuse   
+    crawl_gd_real_estate_brief.py          gd_real_estate_brief.csv            19 atomic-refuse   
+    crawl_gd_retail.py                     gd_retail.csv                       13 merge           
+    crawl_gd_services.py                   gd_services.csv                     12 merge           
+    crawl_gz_affordable_projects.py        gz_affordable_projects.csv           6 atomic-refuse   
+    crawl_gz_affordable_targets.py         gz_affordable_targets.csv            9 atomic-refuse   
+    crawl_gz_housing_plan.py               gz_housing_plan.csv                  3 atomic-refuse   
+    crawl_gz_land_deals.py                 gz_land_deals.csv                   15 atomic-refuse   
+    crawl_gz_new_house_inventory.py        gz_new_house_inventory.csv         100 merge           
+    crawl_gz_provident_annual.py           gz_provident_annual.csv              8 atomic-refuse   
+    crawl_sz_affordable_projects.py        sz_affordable_projects.csv           6 atomic-refuse   
+    crawl_sz_land_deals.py                 sz_land_deals.csv                  129 merge           
+    crawl_sz_planned_supply.py             sz_planned_supply.csv                9 merge           
+    crawl_sz_provident_annual.py           sz_provident_annual.csv              3 atomic-refuse   
+    crawl_zh_affordable_progress.py        zh_affordable_progress.csv          13 atomic-refuse   
+    crawl_zh_price_filing.py               zh_price_filing.csv                337 atomic-refuse   
+    crawl_zh_provident_dynamics.py         zh_provident_dynamics.csv            6 atomic-refuse   
+
+!! REAL risky (atomic-overwrite + HEAD>10 + no refuse-guard): 0
