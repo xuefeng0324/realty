@@ -1,0 +1,79 @@
+# Dependabot — 自动盯 GitHub Actions 和 npm 依赖版本
+#
+# 背景：2026-09-11 手工把 9 个 workflow 的 actions/checkout v4→v6 / setup-python v5→v6
+# 之前差点拍脑袋写 v5 当主线（其实是中间档，v6 才是主线）。以后让 Dependabot 自动开
+# PR，避免再人工遗漏 / 拍脑袋。
+#
+# 配置原则：
+#   - 周一早上开 PR（避开周末，让你周一上班 review）
+#   - 每月最多 5 个 npm PR / 10 个 action PR，避免 PR 风暴
+#   - 标签 dependabot 让 CI 自动跑 tests + type-check
+#   - 不升 major（major 由人工判断），其它走自动
+
+version: 2
+updates:
+  # 1. GitHub Actions 版本
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Shanghai"
+    open-pull-requests-limit: 10
+    groups:
+      # 同一类 action（如所有 actions/checkout 开一起）合一个 PR，少噪音
+      github-actions-minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+      github-actions-major:
+        applies-to: version-updates
+        update-types:
+          - "major"
+    labels:
+      - "dependabot"
+      - "ci"
+    commit-message:
+      prefix: "ci"
+    # 不自动 rebase，CI 失败时手工介入
+
+  # 2. realty_app 子目录的 npm 依赖
+  - package-ecosystem: "npm"
+    directory: "/realty_app"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Shanghai"
+    open-pull-requests-limit: 5
+    groups:
+      # 关键运行时框架（vue / pinia / vue-i18n）走 major 单独组，其它合一起
+      realty-app-runtime-major:
+        applies-to: version-updates
+        update-types:
+          - "major"
+        patterns:
+          - "vue"
+          - "pinia"
+          - "vue-i18n"
+      realty-app-build-major:
+        applies-to: version-updates
+        update-types:
+          - "major"
+        patterns:
+          - "@dcloudio/*"
+          - "vite"
+          - "typescript"
+      realty-app-minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+    labels:
+      - "dependabot"
+      - "deps"
+    commit-message:
+      prefix: "deps"
+    # 升级会跑 package-lock / tests；不锁 commit，dependabot 自动 squash
