@@ -1,12 +1,12 @@
 {
-  "versionName": "1.122.43",
-  "versionCode": "322",
-  "publishedAt": "2026-09-11T16:54:58Z",
+  "versionName": "1.122.44",
+  "versionCode": "323",
+  "publishedAt": "2026-09-11T16:58:02Z",
   "force": false,
-  "notes": "test(realty_app): scoreUtils 5 \u4e2a\u5de5\u5177\u51fd\u6570\u5355\u6d4b\u8986\u76d6\uff08v1.122.43 / 322\uff09\n\n2026-07-25-v1.121.0-\u5730\u56fefetch-\u4fee\u590d\u4e0eAPK\u56fe\u6807: v1.121.0 \u2014 \u5730\u56fe fetch \u4fee\u590d + \u81ea\u52a8 APK \u53ef\u9009 job + \u5e94\u7528\u56fe\u6807\u91cd\u505a\n2026-07-25-v1.121.2-OTA\u68c0\u67e5\u66f4\u65b0\u4fee\u590d: v1.121.2 \u2014 OTA \u68c0\u67e5\u66f4\u65b0\u65e0\u53cd\u5e94\u4fee\u590d\n2026-07-25-v1.121.4-OTA\u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316: v1.121.4 \u2014 OTA \u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316\n",
+  "notes": "test(realty_app): snapshot \u5468\u5feb\u7167\u89c4\u5219\u5355\u6d4b\u8986\u76d6\uff08v1.122.44 / 323\uff09\n\n2026-07-25-v1.121.8-\u79bb\u7ebfOTA\u81ea\u68c0\u52a0\u56fa: v1.121.8 \u2014 \u79bb\u7ebf\u5305 OTA \u81ea\u68c0\u52a0\u56fa\uff08zip4j + install-apk + \u5ba1\u8ba1\u811a\u672c\uff09\n2026-07-25-v1.121.9-OTA\u9a8c\u8bc1130: v1.121.9 \u2014 OTA \u9a8c\u8bc1\u5305 130\n2026-07-25-v1.108.0-\u533b\u9662\u8d44\u6e90\u6d3e\u751f: v1.108.0 \u533b\u9662\u8d44\u6e90\u6d3e\u751f\uff08\u4ec5\u6570\u636e\u5c42\uff09\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/322/app.wgt",
-    "sha256": "db8bf851dba23f39720fa3772e7b7b6e7875ad07181d47c4e8e3710869c8300f"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/323/app.wgt",
+    "sha256": "0320f1ce677d59d9ae6c2474b26f499a3f45b37d47bc5884a27a976ba6ea4b68"
   },
   "ios": {
     "available": false,
