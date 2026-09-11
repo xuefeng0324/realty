@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.122.43 | 2026-09-12 | 加 `rulesScoreUtils.test.ts` 22 个边界用例覆盖 `src/rules/scoreUtils.ts` 5 个纯函数（`clamp` / `parseFloorNumber` / `maybeScaleTrendDelta` / `currentYearFloor` / `jsonListMax`）——前后端共用的评分工具层，前一次 audit 识别 `rules/` 4 文件 0 测试，本次先做最小且最高 ROI 的 scoreUtils。0 frontend 改动（versionCode 322） |
 | v1.122.42 | 2026-09-12 | 加 `dashboardGuide.test.ts` 9 个边界用例覆盖 `isDashboardGuideDismissed` / `shouldShowDashboardGuide`：storage 未设 / 空串 / JSON 字符串 / boolean / parse 失败 / getStorage 抛错 等 8 个边界 + 1 个 `DASHBOARD_GUIDE_KEY` 常量稳定性。0 frontend 改动（versionCode 321） |
 | v1.122.41 | 2026-09-12 | 修 sz 两爬虫覆盖式写入丢历史：crawl_sz_land_deals.py 加 `read_existing + merge_rows` 按 land_no key merge；crawl_sz_planned_supply.py 加同样逻辑按 (year, quarter) merge。HEAD sz_land_deals.csv 128 行保留，新增 B401-0151 福田 2026-08-11 成交 +1 行；sz_planned_supply.csv 8 行无变化（fresh 4 个 key 全部命中现有）。加 `--no-merge` 逃生口。干跑验证 diff 干净（`+1 only`）。无 frontend 改动（versionCode 320） |
 | v1.122.40 | 2026-09-10 | 修 NBS 2026 年公告新措辞兼容 + nbs_retail INDEX_URL：crawl_nbs_energy.py 4 个字段 regex + signed_yoy 加「略降/略增」支持（NBS 2026-08 公告改写「发电量 X 亿千瓦时，同比略降」带具体百分比无法匹配原 (增长\|下降\|持平) 模式 → 解析失败 71 天）；crawl_nbs_retail.py INDEX_URL 从 sj/ 改 sj/zxfb/（社会消费品零售总额不在 sj/ 首页被新 PMI 覆盖 → find_release 翻5 页找不到）。修后 nbs_energy +1 行 2026-07 / nbs_retail +1 行 2026-07。HEAD cpi/pmi/ppi 已是 2026-08 最新无需 commit。0 frontend 改动（versionCode 319） |
