@@ -43,7 +43,7 @@ jobs:
 
     steps:
       - name: 拉代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: true
@@ -208,7 +208,7 @@ jobs:
 
       - name: 拉代码（拿 wgt 产物）
         if: steps.creds.outputs.skipped != 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: true

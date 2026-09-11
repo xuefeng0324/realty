@@ -58,7 +58,7 @@ jobs:
 
     steps:
       - name: 拉代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: true
@@ -202,7 +202,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 拉代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: 读 manifest
         id: version
         working-directory: realty_app
