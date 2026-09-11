@@ -1,12 +1,12 @@
 {
-  "versionName": "1.122.40",
-  "versionCode": "319",
-  "publishedAt": "2026-09-11T15:15:36Z",
+  "versionName": "1.122.41",
+  "versionCode": "320",
+  "publishedAt": "2026-09-11T16:23:22Z",
   "force": false,
-  "notes": "chore(ci): \u5168\u4ed3\u5e93 GitHub Actions \u5347\u7ea7 checkout@v4\u2192@v6\u3001setup-python@v5\u2192@v6\n\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n2026-07-25-v1.119.0-\u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730map-view: v1.119.0 \u00b7 \u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730 map-view\n2026-07-25-v1.120.0-\u4fee\u590dOTA\u68c0\u67e5\u66f4\u65b0fetch: v1.120.0 \u00b7 \u4fee\u590d OTA \u68c0\u67e5\u66f4\u65b0\uff08fetch is not a function\uff09\n",
+  "notes": "fix(realty_app): sz \u4e24\u722c\u866b merge-existing-rows \u907f\u514d\u4e22\u5386\u53f2 (v1.122.41 / 320)\n\n2026-07-25-v1.121.2-OTA\u68c0\u67e5\u66f4\u65b0\u4fee\u590d: v1.121.2 \u2014 OTA \u68c0\u67e5\u66f4\u65b0\u65e0\u53cd\u5e94\u4fee\u590d\n2026-07-25-v1.121.4-OTA\u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316: v1.121.4 \u2014 OTA \u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316\n2026-07-25-v1.121.5-\u542f\u52a8\u9875\u4e0eOTA\u6839\u6cbb: v1.121.5 / v1.121.6 \u2014 \u542f\u52a8\u9875 + OTA \u6839\u6cbb\u4e0e\u9a8c\u8bc1\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/319/app.wgt",
-    "sha256": "566e42c24859c800086e8fd1721e2de0080c380f2167dafdd8a6942d3971d85d"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/320/app.wgt",
+    "sha256": "12b90502ad17822771e0494fed9f9f6ecb52f530aa63fabd9516a135cb337a64"
   },
   "ios": {
     "available": false,
