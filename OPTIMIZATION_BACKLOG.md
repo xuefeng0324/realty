@@ -54,12 +54,12 @@
 
 | 等级 | 编号 | 任务 | 状态 | 前置 |
 |------|------|------|------|------|
-| 🔴 P0 | data-1 | 接入链家真 listings（xjkj123/Lianjia 地图 API） | 🚧 | ✅ API 可达（实测：HTTP 200, 70+ 卡片） |
+| 🔴 P0 | data-1 | 接入链家真 listings（xjkj123/Lianjia 地图 API） | ✅ v0.4.0 | listings.csv 1301 行 + listings_tags / listing_school_premium / listing_keyword / listing_freshness 全有；社区 49 个深圳 + 关联 listings；社区详情/列表 UI 已集成 |
 | 🔴 P0 | data-2 | 接入链家 chengjiao 成交数据 | ⚠️ | ❌ 本机被 captcha 拦（HTTP 200 但 6KB CAPTCHA 页）；需云函数/代理 IP 或换源（禧泰/CnOpenData） |
-| 🟡 P1 | data-3 | 接入高德 POI 配套距离 | 🚧 | ✅ API 可达 + Key 已提供（f22d0a9...a139）；周围/搜索/地理编码 3 接口实测 HTTP 200 |
-| 🟡 P1 | data-4 | 调研 opendata.sz.gov.cn 其它 70 个数据集 | ⏳ | — |
-| 🟡 P1 | data-5 | 接 cnstats 国家统计局月度宏观指标 | ⏳ | — |
-| 🟡 P1 | data-6 | 学校数据从 14 个扩到 100+ | ⏳ | — |
+| 🟡 P1 | data-3 | 接入高德 POI 配套距离 | ✅ v0.4.1 | 周边/搜索/地理编码 3 接口；poi_seed 679 行（49 社区 × 13 类别）+ poi_market 148 + poi_commercial 417；listing/community UI 已集成（hosp-5 + metro-4 等） |
+| 🟡 P1 | data-4 | 调研 opendata.sz.gov.cn 其它 70 个数据集 | ⚠️ 已调研 | 现有 opendata 源审计：4 个学校候选数据集全 `eligible_for_import: false`（陈旧/标题不匹配）；一手/二手商品房成交信息（29200/01903510 等 6 个 id）需 `OPENDATA_SZ_TOKEN` appToken 注册账号；建筑/商事主体等公开数据集跟本项目无关；**结论：opendata 不是补 100+ 学校的可行源** |
+| 🟡 P1 | data-5 | 接 cnstats 国家统计局月度宏观指标 | ✅ 已隐式完成 | 15 个 `crawl_nbs_*.py` 在爬 NBS（nbs_energy/cpi/pmi/ppi/trade/retail/industrial/income/gdp/fa_investment/unemployment/industrial_profit/service_index/avg_wage/real_estate）；data-5 实际就是 data-nbs-* 这 9 个集合的别名 |
+| 🟡 P1 | data-6 | 学校数据从 14 个扩到 100+ | 🟡 部分 | schools.csv HEAD 58 行（精选 49 社区相关）；seed 含 school_premium_district/community/dimensions/indicators；OPENDATA 调研结论：**opendata 不是可行源**，需找新源（看 OPT 里 `enrich-3 ~ 4` v0.4.2 已用 listings 关联 49 社区方式补数） |
 | 🟢 P2 | data-7 | 数据 quality 单测 + schema 版本号 | ✅ v0.57.0 | source_kind + snapshot schema/hash/row-count 校验 |
 | 🟢 P2 | ui-1 | App 地图视图（用上 listings 经纬度） | ⏳ | 依赖 data-1 |
 | 🟢 P2 | ui-2 | 成交 vs 挂牌对比视图 | ⏳ | 依赖 data-2 |
