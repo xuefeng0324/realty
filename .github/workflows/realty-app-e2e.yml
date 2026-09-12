@@ -32,10 +32,10 @@ jobs:
 
     steps:
       - name: 拉代码
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: 设 Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           # Node.js 20 已被 GitHub Actions 弃用（2025-09-19）；
           # 升级到 Node 22 LTS 是稳定选择，避免 deprecation 警告干扰日志。
@@ -84,7 +84,7 @@ jobs:
 
       - name: 上传 E2E artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: realty_app-e2e
           path: |
