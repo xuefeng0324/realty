@@ -21,6 +21,7 @@ import sys
 import tempfile
 import types
 import zipfile
+from datetime import date
 from html import unescape
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -77,6 +78,7 @@ FIELDS = [
     "title",
     "source_org",
     "source_url",
+    "publish_date",
 ]
 
 YEAR_RE = re.compile(r"(20\d{2})年")
@@ -265,6 +267,39 @@ def atomic_write(path: Path, rows: list[dict]) -> None:
     tmp_path.replace(path)
 
 
+def read_existing(path: Path) -> list[dict]:
+    """读旧 CSV，避免 cron weekly 覆盖式写入丢历史行。"""
+    if not path.exists():
+        return []
+    try:
+        with path.open("r", encoding="utf-8-sig", newline="") as f:
+            return list(csv.DictReader(f))
+    except Exception:
+        return []
+
+
+def merge_rows(existing: list[dict], fresh: list[dict]) -> list[dict]:
+    """按 (year, kind, category) 合并：fresh 命中时覆盖该 key 行；existing 中
+    fresh 没命中的历史行保留。publish_date 统一为 today。"""
+    today = date.today().isoformat()
+    for row in fresh:
+        row.setdefault("publish_date", today)
+    key = lambda r: (r.get("year", ""), r.get("kind", ""), r.get("category", ""))
+    by_key: dict[tuple[str, str, str], dict] = {key(r): r for r in existing}
+    for r in fresh:
+        by_key[key(r)] = r
+    merged = list(by_key.values())
+    merged.sort(
+        key=lambda r: (
+            int(r.get("year") or 0),
+            r.get("kind", ""),
+            r.get("category", ""),
+        ),
+        reverse=True,
+    )
+    return merged
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--max", type=int, default=8)
@@ -314,12 +349,16 @@ def main() -> int:
             print(f"ERR {title}: {e}", flush=True)
 
     rows = list(best.values())
-    rows.sort(key=lambda r: (int(r["year"]), r["kind"], r["category"]), reverse=True)
     if len(rows) < 1:
         print("ERROR: no rows", file=sys.stderr)
         return 2
-    atomic_write(args.out, rows)
-    print(f"wrote {args.out} n={len(rows)}", flush=True)
+    existing = read_existing(args.out)
+    merged = merge_rows(existing, rows)
+    atomic_write(args.out, merged)
+    print(
+        f"wrote {args.out} n={len(merged)} (fresh={len(rows)}, existing={len(existing)})",
+        flush=True,
+    )
     return 0
 
 

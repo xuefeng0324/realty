@@ -15,7 +15,7 @@
 - 扫 `realty_app/static/*.csv` 共 41 个文件
 - 按表头自动识别 `date` / `publish_date` / `as_of_date` / `effective_date` /
   `as_of` / `updated_at` / `time` 等
-- 三档分级：✅ OK < 30 天 / ⚠️ WARN 30..60 天 / ❗ STALE ≥ 60 天
+- 三档分级（v1.122.51 起）：✅ OK < 90 天 / ⚠️ WARN 90..180 天 / ❗ STALE ≥ 180 天
 - 退出码：0=全 OK / 1=有 WARN / 2=有 STALE
 - `cron` 每天 02:30 UTC 跑 → `GITHUB_STEP_SUMMARY` 表格 + artifact 归档 30 天
 

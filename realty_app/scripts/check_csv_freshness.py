@@ -11,13 +11,18 @@ check_csv_freshness.py
      陈旧是静默的。本脚本提供一个统一视图，把陈旧超过 60 天的主动报出来。
 
 用法：
-  python scripts/check_csv_freshness.py [--static-dir static] [--stale-days 60] [--warn-days 30]
+  python scripts/check_csv_freshness.py [--static-dir static] [--stale-days 180] [--warn-days 90]
   python scripts/check_csv_freshness.py --json      # 输出 JSON 给 CI 用
 
 退出码：
   0  所有 CSV 都 OK
   1  至少一个 WARN（陈旧 > warn-days）
   2  至少一个 STALE（陈旧 > stale-days）或读不出日期
+
+默认值说明（v1.122.51 起从 30/60 调到 90/180）：
+  仓库里很多源是年度/半年度一次性发布的（保障房项目/住房规划/公积金年报等），
+  默认 30/60 天会让 false-positive 邮件轰炸。90/180 是「真月度源给两次月报机会，
+  半年度源给 1 年报警」折中。具体豁免仍走 --exempt-from-stale 白名单。
 
 设计原则：
   - 只依赖 stdlib（csv / datetime / os / json / argparse）
@@ -26,6 +31,8 @@ check_csv_freshness.py
   - 在 Windows GBK console 下也能直接 print（emoji / 中文走 UTF-8 stdout）
 
 v1.122.7 新增。详见 docs/FRESHNESS_CHECK.md。
+
+v1.122.51 默认值 30/60 → 90/180（理由见 docstring）。
 """
 from __future__ import annotations
 
@@ -174,14 +181,14 @@ def main() -> int:
     ap.add_argument(
         "--stale-days",
         type=int,
-        default=60,
-        help="陈旧天数超过此值记为 STALE（默认 60）",
+        default=180,
+        help="陈旧天数超过此值记为 STALE（默认 180，v1.122.51 起从 60 放宽）",
     )
     ap.add_argument(
         "--warn-days",
         type=int,
-        default=30,
-        help="陈旧天数超过此值记为 WARN（默认 30）",
+        default=90,
+        help="陈旧天数超过此值记为 WARN（默认 90，v1.122.51 起从 30 放宽）",
     )
     ap.add_argument("--json", action="store_true", help="输出 JSON 给 CI")
     ap.add_argument(

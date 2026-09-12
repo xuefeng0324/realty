@@ -63,9 +63,11 @@ jobs:
           #   zh_price_filing.csv               — 珠海源站 404（等源恢复后从白名单移除）
           #   nbs_avg_wage.csv                  — 国家统计局城镇平均工资年报（5 月发）
           #   stats_70.csv                      — 70 城指数月度（每月 18 日发布下月）
+          #   gd_construction.csv               — 广东省建筑业生产运行简况（半年/季度发）
+          #   gz_housing_plan.csv               — 广州住房发展年度计划（年初发）
           python scripts/check_csv_freshness.py \
             --exempt-from-stale \
-              gz_provident_annual.csv,sz_provident_annual.csv,gd_provident_annual.csv,provident_fund_rates.csv,zh_provident_dynamics.csv,education_overview.csv,zh_bdc_registration.csv,zh_price_filing.csv,nbs_avg_wage.csv,stats_70.csv \
+              gz_provident_annual.csv,sz_provident_annual.csv,gd_provident_annual.csv,provident_fund_rates.csv,zh_provident_dynamics.csv,education_overview.csv,zh_bdc_registration.csv,zh_price_filing.csv,nbs_avg_wage.csv,stats_70.csv,gd_construction.csv,gz_housing_plan.csv \
             > freshness.md
           echo "exit=$?" >> $GITHUB_OUTPUT
 
@@ -74,7 +76,7 @@ jobs:
         run: |
           python scripts/check_csv_freshness.py \
             --exempt-from-stale \
-              gz_provident_annual.csv,sz_provident_annual.csv,gd_provident_annual.csv,provident_fund_rates.csv,zh_provident_dynamics.csv,education_overview.csv,zh_bdc_registration.csv,zh_price_filing.csv,nbs_avg_wage.csv,stats_70.csv \
+              gz_provident_annual.csv,sz_provident_annual.csv,gd_provident_annual.csv,provident_fund_rates.csv,zh_provident_dynamics.csv,education_overview.csv,zh_bdc_registration.csv,zh_price_filing.csv,nbs_avg_wage.csv,stats_70.csv,gd_construction.csv,gz_housing_plan.csv \
             --json > freshness.json || true
 
       - name: 输出 markdown 到 job summary

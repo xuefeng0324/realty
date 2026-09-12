@@ -495,10 +495,11 @@
 | 状态 | ✅ 有门禁（cron 退出码 0=全 OK，1=WARN，2=STALE） |
 
 **期望**：
-- 扫 `realty_app/static/*.csv` 共 41 个文件，按各自表头日期字段（`date` / `publish_date` / `as_of_date` / `effective_date` / `year` / `period` / `month` / `quarter`）算陈旧天数；
-- 三档分级：`OK < 30 天`、`WARN 30..60 天`、`STALE ≥ 60 天`；
+- 扫 `realty_app/static/*.csv` 共 41 个文件，按各自表头日期字段（`date` / `publish_date` / `as_of_date` / `effective_date` / `report_date` 等）算陈旧天数；
+- 三档分级（v1.122.51 起）：`OK < 90 天`、`WARN 90..180 天`、`STALE ≥ 180 天`；
 - 退出码与等级挂钩：CI 红时用户会收到与 e2e 一致的邮件告警；
-- 输出 markdown 表格进 `GITHUB_STEP_SUMMARY`，artifact 归档 30 天。
+- 输出 markdown 表格进 `GITHUB_STEP_SUMMARY`，artifact 归档 30 天；
+- EXEMPT 白名单（v1.122.51 共 12 项）：`gz/sz/gd_provident_annual.csv`、`provident_fund_rates.csv`、`zh_provident_dynamics.csv`、`education_overview.csv`、`zh_bdc_registration.csv`、`zh_price_filing.csv`、`nbs_avg_wage.csv`、`stats_70.csv`、`gd_construction.csv`、`gz_housing_plan.csv`。**警告**：EXEMPT 项 cron 邮件不报警，扩 EXEMPT 会掩盖真信号（v1.122.51 changelog 诚实记录）。
 
 **为什么需要**：
 - 之前 wangqian 抓取连续 21 天陈旧没人发现，是因为只盯单一数据源；
