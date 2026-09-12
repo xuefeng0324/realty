@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: 设 Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           # crawl_lianjia_listings.py 仅用标准库，无第三方依赖；用 anjuke 脚本路径走 cache hit
