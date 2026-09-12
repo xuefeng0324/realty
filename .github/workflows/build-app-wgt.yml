@@ -43,13 +43,13 @@ jobs:
 
     steps:
       - name: 拉代码
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           persist-credentials: true
 
       - name: 设 Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm
@@ -169,7 +169,7 @@ jobs:
           fi
 
       - name: 上传 wgt 与 APK 产物作为 workflow artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: realty_app-wgt-${{ steps.read_manifest.outputs.version_code }}
           path: realty_app/static/update/${{ steps.read_manifest.outputs.version_code }}/app.wgt
@@ -208,14 +208,14 @@ jobs:
 
       - name: 拉代码（拿 wgt 产物）
         if: steps.creds.outputs.skipped != 'true'
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           persist-credentials: true
 
       - name: 设 Node.js
         if: steps.creds.outputs.skipped != 'true'
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm
@@ -250,7 +250,7 @@ jobs:
 
       - name: 上传 APK artifact（若产出）
         if: steps.creds.outputs.skipped != 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: realty_app-apk-${{ steps.read_manifest.outputs.version_code }}
           path: realty_app/unpackage/release/apk/*.apk

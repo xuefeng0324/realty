@@ -58,7 +58,7 @@ jobs:
 
     steps:
       - name: 拉代码
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           persist-credentials: true
@@ -105,7 +105,7 @@ jobs:
 
       - name: 设 Node.js
         if: steps.keystore_check.outputs.skip != 'true'
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm
@@ -163,7 +163,7 @@ jobs:
 
       - name: 上传 APK 为 artifact
         if: steps.keystore_check.outputs.skip != 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: realty_app-apk-${{ needs.read-version.outputs.code }}
           path: realty_app/unpackage/release/apk/*.apk
@@ -186,7 +186,7 @@ jobs:
 
       - name: 创建 GitHub Release (Draft)
         if: steps.keystore_check.outputs.skip != 'true' && (github.event_name == 'workflow_dispatch' || github.event.inputs.release == 'draft')
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ needs.read-version.outputs.name }}
           name: "Realty App v${{ needs.read-version.outputs.name }} (build ${{ needs.read-version.outputs.code }})"
@@ -202,7 +202,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 拉代码
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: 读 manifest
         id: version
         working-directory: realty_app
