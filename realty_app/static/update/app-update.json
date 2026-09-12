@@ -1,12 +1,12 @@
 {
-  "versionName": "1.122.50",
-  "versionCode": "329",
-  "publishedAt": "2026-09-12T02:02:48Z",
+  "versionName": "1.122.51",
+  "versionCode": "330",
+  "publishedAt": "2026-09-12T07:53:40Z",
   "force": false,
-  "notes": "fix(ci): \u8865\u9f50 8 \u4e2a workflow \u7684 actions/setup-(node|python)@v5\u2192@v6 \u5347\u7ea7\n\n2026-07-25-v1.121.8-\u79bb\u7ebfOTA\u81ea\u68c0\u52a0\u56fa: v1.121.8 \u2014 \u79bb\u7ebf\u5305 OTA \u81ea\u68c0\u52a0\u56fa\uff08zip4j + install-apk + \u5ba1\u8ba1\u811a\u672c\uff09\n2026-07-25-v1.121.9-OTA\u9a8c\u8bc1130: v1.121.9 \u2014 OTA \u9a8c\u8bc1\u5305 130\n2026-07-25-v1.108.0-\u533b\u9662\u8d44\u6e90\u6d3e\u751f: v1.108.0 \u533b\u9662\u8d44\u6e90\u6d3e\u751f\uff08\u4ec5\u6570\u636e\u5c42\uff09\n",
+  "notes": "fix(realty_app): csv freshness cron \u62a5\u7ea2 + 3 \u4e2a affordable \u722c\u866b merge-existing (v1.122.51 / 330)\n\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/329/app.wgt",
-    "sha256": "40db77d34132f537e3251fbf589c852c23c2a7130a04fb41d4c131667b2c7f4e"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/330/app.wgt",
+    "sha256": "96ad7954f0c5645e51d83f023b7a85863e6d4545deb0a390992a794caf0761c2"
   },
   "ios": {
     "available": false,
