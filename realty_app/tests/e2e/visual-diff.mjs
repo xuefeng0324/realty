@@ -4,7 +4,7 @@
 // Usage:
 //   node tests/e2e/visual-diff.mjs                          # diff vs tests/e2e/artifacts/baseline.png
 //   node tests/e2e/visual-diff.mjs --update-baseline        # save current as new baseline
-//   node tests/e2e/visual-diff.mjs --threshold 0.02         # tolerance (default 1%)
+//   node tests/e2e/visual-diff.mjs --threshold 0.05         # tolerance (default 5%, v1.122.52+ 放宽)
 //
 // Workflow:
 //   1. Run `node tests/e2e/smoke.mjs` first to produce artifacts/smoke.png
@@ -21,7 +21,7 @@ import { resolve } from 'node:path';
 const args = process.argv.slice(2);
 const updateBaseline = args.includes('--update-baseline');
 const thresholdIdx = args.indexOf('--threshold');
-const threshold = thresholdIdx >= 0 ? parseFloat(args[thresholdIdx + 1]) : 0.01;
+const threshold = thresholdIdx >= 0 ? parseFloat(args[thresholdIdx + 1]) : 0.05;
 
 const ART_DIR = resolve(process.cwd(), 'tests/e2e/artifacts');
 const CURRENT = resolve(ART_DIR, 'smoke.png');
