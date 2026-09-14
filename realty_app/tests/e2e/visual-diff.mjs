@@ -122,8 +122,14 @@ for (let i = 0; i < len; i += 4) {
   const dr = Math.abs(b[i] - c[i]);
   const dg = Math.abs(b[i + 1] - c[i + 1]);
   const db = Math.abs(b[i + 2] - c[i + 2]);
-  // Per-pixel "different" threshold (RGB sum > 12 = visually different)
-  if (dr + dg + db > 12) {
+  // Per-pixel "different" threshold (RGB sum > 60 = visually different)
+  // 阈值选择：纯抗锯齿差异通常 RGB 各通道差 5-20，求和 15-60；
+  // 真实 UI 改动（颜色块位移）通常 > 100。60 是分界：
+  // - 抗锯齿 noise < 60 → 视为相同（不影响视觉回归门禁）
+  // - 颜色块 / 字体字形差异 > 60 → 计入 diff
+  // GitHub CI runner 字体抗锯齿与本机 Windows 不同导致原 12 阈值大量误报；
+  // 60 阈值保留视觉回归门禁能力但显著降低 false-positive。
+  if (dr + dg + db > 60) {
     diffPx++;
     diffBuf[i] = 255;     // red channel
     diffBuf[i + 1] = 0;
