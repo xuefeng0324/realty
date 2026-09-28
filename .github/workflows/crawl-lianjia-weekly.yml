@@ -20,10 +20,10 @@ jobs:
 
     steps:
       - name: 拉代码
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: 设 Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
           # crawl_lianjia_listings.py 仅用标准库，无第三方依赖；用 anjuke 脚本路径走 cache hit
@@ -111,7 +111,7 @@ jobs:
 
       - name: 上传日志
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: crawl-lianjia-weekly-logs
           path: realty_app/lianjia-weekly-logs
