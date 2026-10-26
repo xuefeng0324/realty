@@ -99,6 +99,49 @@ sz_land_deals / sz_planned_supply` —— 这些**真的需要新发布数据**�
 注：`gd_provident_annual` 当前 2025-04-29 = 498 天，应**已经**是年度发布
 节奏，**后续可考虑也豁免**。本次未一起改，避免一次扩大范围。
 
+## v1.122.54：--cadence 节奏口径（不是豁免，是「该等多久」）
+
+2026-10-26 排查「csv freshness 连续 15 天红」时发现两个不同的问题：
+
+**问题 A（真 bug）**：`crawl_nbs_income.py` 的正则只认「人均居住**消费**支出」，
+而国家统计局 2026-10 起的前三季度公告改成了「人均居住支出」→ 整页解析失败，
+`nbs_income.csv` 停在 2026-07。已修：`人均居住(?:消费)?支出`。
+
+**问题 B（口径缺陷）**：所有源共用一套 90/180 天阈值，对季更/半年更源必然误报。
+`mot_transport`（交通运输部经济运行）源站**没有可解析的列表页**
+（`xxgk.mot.gov.cn/jigou/zhghs/` 只返回 6 字节空页，`www.mot.gov.cn` 各栏目 404），
+爬虫 `crawl_mot_transport.py` 靠硬编码 `BACKFILL_URLS` 清单，最新一期是 2026-H1
+（2026-07-21）—— 本质是半年/季度频率。
+
+### 机制
+
+`check_csv_freshness.py` 新增 `--cadence` 参数，格式 `文件名=节奏`（逗号分隔）：
+
+| 节奏 | WARN 预算 | STALE 预算 | 适用 |
+|------|-----------|-----------|------|
+| daily | 7 天 | 14 天 | 日更源 |
+| weekly | 30 天 | 60 天 | 周更源 |
+| monthly | 90 天 | 180 天 | 月更源（= 默认值） |
+| quarterly | 180 天 | 360 天 | 季更/半年更源 |
+| annual | 400 天 | 800 天 | 年更源 |
+
+命中项按自己的预算判定，**不计入豁免**：源真的停更，360 天后照样 STALE、workflow 照样红。
+markdown 表格新增「节奏」列，JSON 输出新增 `cadence` 字段。
+
+### 为什么不直接扩 EXEMPT 白名单
+
+本文档上一节的作者原意是「`sz_land_deals` / `sz_planned_supply` / `gd_construction` 这些
+源要**保留告警**，让 cron 邮件提示人手动补数据」。v1.122.54 的做法是**先查清根因**：
+
+- `sz_land_deals` / `sz_planned_supply` 陈旧的真因是 `crawl-weekly` 的 P0 失败把 P1 整段
+  跳过了，源站其实**有**新数据（本地补跑各 +1 行）→ 修 P0 即可，**不豁免**
+- `nbs_gdp` / `nbs_income` 陈旧的真因是 `crawl-monthly-stats70` 的 15 分钟超时把 job 取消
+  → 修超时 + 修解析器即可（本地补跑各 +1 行）→ **不豁免**
+- 只有 `mot_transport` 是结构性的（源站无列表页 + 半年/季度发布）→ 用 `quarterly` 节奏
+  预算**继续监控**，而不是豁免
+
+`--exempt-from-stale` 白名单在 v1.122.54 **没有扩大**。
+
 ## 验证清单（修改后必跑）
 
 `npm test` 不能被「我本地跑过」代替，必须配合：

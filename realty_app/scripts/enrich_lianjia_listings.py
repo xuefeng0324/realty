@@ -30,7 +30,7 @@ COMMUNITIES_CSV = REPO_ROOT / "static" / "seed" / "communities.csv"
 
 def load_communities_by_city() -> dict[int, list[int]]:
     """{city_id: [community_id...]}"""
-    with open(COMMUNITIES_CSV, encoding='utf-8') as f:
+    with open(COMMUNITIES_CSV, encoding='utf-8-sig') as f:
         rows = list(csv.DictReader(f))
     by_city: dict[int, list[int]] = {}
     for r in rows:
@@ -42,9 +42,23 @@ def load_communities_by_city() -> dict[int, list[int]]:
 
 def enrich(args):
     by_city = load_communities_by_city()
-    rows = list(csv.DictReader(open(LISTINGS_CSV, encoding='utf-8', newline='')))
-    # 仅处理 source = '链家在售' + community_id = 0
-    target = [r for r in rows if r['source'] == '链家在售' and r['community_id'] in ('', '0')]
+    valid_ids = {cid for ids in by_city.values() for cid in ids}
+    rows = list(csv.DictReader(open(LISTINGS_CSV, encoding='utf-8-sig', newline='')))
+
+    def _unlinked(r: dict) -> bool:
+        """未关联 = community_id 为空/0，**或者**指向 communities.csv 里不存在的孤儿 id。
+
+        孤儿 id 来自历史遗留：链家爬虫曾把「本次新发现但没有落盘到 communities.csv
+        的小区」也写回 community_map，导致同小区的第 2 条房源引用了一个根本不存在的
+        community_id。这类行必须一起重挂，否则 buildIntegrity 的「无孤儿」断言永远红。
+        """
+        raw_id = (r.get('community_id') or '').strip()
+        if raw_id in ('', '0'):
+            return True
+        return not raw_id.isdigit() or int(raw_id) not in valid_ids
+
+    # 仅处理 source = '链家在售' + 未关联/孤儿
+    target = [r for r in rows if r['source'] == '链家在售' and _unlinked(r)]
     if not target:
         print('无可 enrich 的链家 listings（要么全已映射，要么 source 缺失）')
         return

@@ -161,7 +161,10 @@ def parse_release(url: str, body: str) -> dict[str, str | float]:
         plain,
     )
     housing = re.search(
-        r"人均居住消费支出\s*([\d,\s]+)\s*元[，,]?\s*(增长|下降)\s*([\d.]+)\s*%",
+        # v1.122.54: 国家统计局 2026-10 起的前三季度公告把正文表述从
+        # 「人均居住消费支出」改成「人均居住支出」（表 1 里叫「居住」），
+        # 旧正则只认「居住消费支出」→ 整页解析失败，数据停在 2026-07。
+        r"人均居住(?:消费)?支出\s*([\d,\s]+)\s*元[，,]?\s*(增长|下降)\s*([\d.]+)\s*%",
         plain,
     )
     if not disp or not urban or not rural or not cons or not housing:

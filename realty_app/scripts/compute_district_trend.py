@@ -28,13 +28,16 @@ OUT_CSV = REPO_ROOT / "static" / "seed" / "district_trend.csv"
 
 
 def week_end_from_date(iso: str) -> str:
-    """取最近的周日（向过去回溯）"""
+    """取当天或之后最近的周日（Mon~Sun 一周，以周日收尾）。
+
+    与 src/local/weekEnd.ts 保持同一口径：统计窗口是 [week_end-6, week_end]，
+    所以「回溯到上一个周日」会让周一~周六抓的房源落到窗口外。
+    """
     d = datetime.strptime(iso, "%Y-%m-%d")
-    weekday = d.weekday()  # 0=Mon
-    days_back = (weekday + 1) % 7  # 0=Sun -> 0; 1=Mon -> 1; ... 6=Sat -> 6
+    days_forward = (6 - d.weekday()) % 7  # 0=Mon..6=Sun → 周一 +6 … 周日 +0
     d = d.replace(hour=0, minute=0, second=0, microsecond=0)
     from datetime import timedelta
-    d = d - timedelta(days=days_back)
+    d = d + timedelta(days=days_forward)
     return d.strftime("%Y-%m-%d")
 
 

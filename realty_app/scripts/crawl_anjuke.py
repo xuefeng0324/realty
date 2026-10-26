@@ -287,7 +287,90 @@ def load_communities(csv_path: Path) -> dict[int, list[tuple[int, str]]]:
     return out
 
 
+def read_existing(path: Path) -> list[dict[str, Any]]:
+    """读取已存在的 listings.csv 行（utf-8-sig）；文件不存在返 [].
+
+    用于 merge：安居客只是 listings.csv 的**一个**来源，同一份文件里还有
+    链家在售（REAL）、以及各城公开指标派生样本（DERIVED）。覆盖式写入会把
+    这些全抹掉，所以必须先读 existing 再 merge。
+    """
+    if not path.exists():
+        return []
+    rows: list[dict[str, Any]] = []
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        for r in csv.DictReader(f):
+            rows.append({k: ("" if v is None else v) for k, v in r.items()})
+    return rows
+
+
+def _merge_key(row: dict[str, Any]) -> str:
+    """跨来源唯一键：source + source_listing_id（没有 id 时退化到 source_url）。"""
+    src = (row.get("source") or "").strip()
+    sid = (row.get("source_listing_id") or "").strip()
+    if sid:
+        return f"{src}|{sid}"
+    url = (row.get("source_url") or "").strip()
+    return f"{src}|{url}" if url else ""
+
+
+def merge_rows(existing: list[dict[str, Any]], fresh: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """按 (source, source_listing_id) merge：同 key 用 fresh 覆盖，missing 保留.
+
+    顺序策略：existing 保持 HEAD 顺序（同 key 行就地替换，listing_id 沿用旧值，
+    避免派生 CSV 的 listing_id 关系被打乱）；fresh 中的新 key 追加到末尾。
+    """
+    fresh_by_key: dict[str, dict[str, Any]] = {}
+    for r in fresh:
+        k = _merge_key(r)
+        if k and k not in fresh_by_key:
+            fresh_by_key[k] = r
+
+    seen: set[str] = set()
+    merged: list[dict[str, Any]] = []
+    for r in existing:
+        k = _merge_key(r)
+        if k and k in fresh_by_key:
+            new_row = dict(fresh_by_key[k])
+            # 沿用旧 listing_id：listing_school_premium / listing_tags 等派生表
+            # 按 listing_id 关联，重编号会让历史派生行对不上。
+            old_lid = (r.get("listing_id") or "").strip()
+            if old_lid:
+                new_row["listing_id"] = old_lid
+            merged.append(new_row)
+        else:
+            merged.append(r)
+        if k:
+            seen.add(k)
+
+    next_id = 1
+    for r in existing:
+        lid = (r.get("listing_id") or "").strip()
+        if lid.isdigit():
+            next_id = max(next_id, int(lid) + 1)
+    for r in fresh:
+        k = _merge_key(r)
+        if k in seen:
+            continue
+        seen.add(k)
+        new_row = dict(r)
+        new_row["listing_id"] = str(next_id)
+        next_id += 1
+        merged.append(new_row)
+    return merged
+
+
 def write_csv(rows: list[dict[str, Any]], out_path: Path) -> None:
+    # 列集合 = OUT_FIELDS ∪ 已有文件的列（保留 cover_url 等历史列）
+    fields = list(OUT_FIELDS)
+    if out_path.exists():
+        try:
+            with open(out_path, encoding="utf-8-sig", newline="") as f:
+                head = next(csv.reader(f), [])
+            for col in head:
+                if col and col not in fields:
+                    fields.append(col)
+        except StopIteration:
+            pass
     out_path.parent.mkdir(parents=True, exist_ok=True)
     tmp_path: Path | None = None
     try:
@@ -300,7 +383,7 @@ def write_csv(rows: list[dict[str, Any]], out_path: Path) -> None:
             suffix=".tmp",
         ) as f:
             tmp_path = Path(f.name)
-            w = csv.DictWriter(f, fieldnames=OUT_FIELDS)
+            w = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
             w.writeheader()
             w.writerows(rows)
         tmp_path.replace(out_path)
@@ -351,7 +434,13 @@ def main():
         sys.exit(2)
 
     if not args.dry_run:
-        write_csv(all_rows, args.out)
+        # merge 而不是覆盖：listings.csv 里还有链家在售 + DERIVED 样本，
+        # 覆盖式写入会在安居客抓通的那天把 1700+ 行历史一次性抹掉。
+        existing = read_existing(args.out)
+        merged = merge_rows(existing, all_rows)
+        added = len(merged) - len(existing)
+        print(f"[merge] 原有 {len(existing)} 行 + 本次抓取 {len(all_rows)} 行 → 合并后 {len(merged)} 行（净增 {added}）")
+        write_csv(merged, args.out)
         try:
             import subprocess
             subprocess.run(["python", str(Path(__file__).parent / "publish_csv.py")], check=True)

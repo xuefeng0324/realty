@@ -11,9 +11,12 @@ describe("nbs income", () => {
   it("加载全国居民收入和消费", () => {
     const latest = getLatestNbsIncome();
     expect(latest).not.toBeNull();
-    // v1.122.29 修：cron 每月自动补最新半年报，period 不能硬编码为 2026_H1
-    // 改用 regex 兼容任何 2026+ 上/下半年
-    expect(latest!.period).toMatch(/^20\d{2}_H[12]$/);
+    // v1.122.54 修：统计局「居民收入和消费支出情况」同样是**累计**口径，期次有 4 种：
+    // Q1（一季度）/ H1（上半年）/ Q3（前三季度）/ 年度。
+    // 爬虫 crawl_nbs_income.parse_period 产出的正是这 4 种（CSV 里本来就有
+    // _Q1 / _Q3 行），旧断言 /^20\d{2}_H[12]$/ 把「最新一期」写死成半年报，
+    // 月更 cron 一抓到前三季度就会把 CI 打成红。
+    expect(latest!.period).toMatch(/^20\d{2}(_[HQ][1-4])?$/);
     // 数值改成合理范围（cron 自动补半年报后 H2 数值会变）
     expect(latest!.disposableYuan).toBeGreaterThan(15000);
     expect(latest!.disposableYuan).toBeLessThan(40000);

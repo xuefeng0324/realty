@@ -46,6 +46,19 @@ jobs:
               2>&1 | tee "lianjia-weekly-logs/${city}.log" || echo "[WARN] ${city} 抓取失败，继续其他城市"
           done
 
+      - name: 关联链家房源到真实小区
+        id: enrich
+        shell: bash
+        run: |
+          set -o pipefail
+          cd realty_app
+          # v1.122.54: 链家列表页不落盘新小区，抓到的房源 community_id 初始为 0，
+          # 必须 enrich 到真实小区，否则：
+          #   1) buildIntegrity「链家 community_id 关联率 ≥ 90% / 无孤儿」断言直接红；
+          #   2) 小区排行 / 区对比因为挂不上小区而查不到数据（广州排行长期 0 行）。
+          python scripts/enrich_lianjia_listings.py assign --no-backup 2>&1 \
+            | tee lianjia-weekly-logs/enrich.log
+
       - name: 校验 listings.csv
         id: validate
         shell: bash
@@ -69,6 +82,19 @@ jobs:
           print(f"\nREAL by city: 深圳={len(real_sz)} 广州={len(real_gz)} 珠海={len(real_zh)}")
           if len(real_sz) + len(real_gz) + len(real_zh) < 50:
               raise SystemExit("Phase V: REAL 总量 < 50，抓取几乎全失败，请人工排查")
+          # 链家房源必须挂到真实小区（关联率 ≥ 90% 且无孤儿 id）
+          comm = {r["community_id"] for r in csv.DictReader(
+              Path("static/seed/communities.csv").open(encoding="utf-8-sig"))}
+          lj = [r for r in rows if r["source"] == "链家在售"]
+          linked = [r for r in lj if (r.get("community_id") or "0") not in ("", "0")]
+          ratio = 100.0 * len(linked) / len(lj) if lj else 0
+          orphan = [r for r in lj if (r.get("community_id") or "0") not in ("", "0")
+                    and r["community_id"] not in comm]
+          print(f"链家关联率: {ratio:.1f}% ({len(linked)}/{len(lj)})，孤儿 community_id: {len(orphan)}")
+          if lj and ratio < 90:
+              raise SystemExit(f"链家 community_id 关联率 {ratio:.1f}% < 90%，请检查 enrich 步骤")
+          if orphan:
+              raise SystemExit(f"存在 {len(orphan)} 条孤儿 community_id，请检查 enrich 步骤")
           dates = [r.get("crawl_date") for r in rows if r.get("crawl_date")]
           print(f"crawl_date 范围: {min(dates)} ~ {max(dates)}")
           PY
@@ -122,6 +148,7 @@ jobs:
         if: always()
         env:
             CRAWL: ${{ steps.crawl.outcome }}
+            ENRICH: ${{ steps.enrich.outcome }}
             VALIDATE: ${{ steps.validate.outcome }}
             REBUILD_SP: ${{ steps.rebuild_school_premium.outcome }}
             REBUILD_DERIV: ${{ steps.rebuild_derivatives.outcome }}
@@ -131,6 +158,7 @@ jobs:
           failed=0
           for pair in \
             "crawl:$CRAWL" \
+            "enrich:$ENRICH" \
             "validate:$VALIDATE" \
             "rebuild_school_premium:$REBUILD_SP" \
             "commit:$COMMIT"; do

@@ -36,13 +36,9 @@ import {
 import { computeSchoolFutureScoreV1 } from "../rules/schoolScoring";
 import { computeListingQualityScoreV1, type SchoolFutureForListing } from "../rules/listingScoring";
 import { matchesDecorateTypeFilter, matchesListingTypeFilter } from "./listingFilterMatch";
+import { weekEndFromDate } from "./weekEnd";
 import { matchBedroomBand, type MapBedroomBand } from "./mapFind";
 
-function weekEndFromDate(iso: string): string {
-  const d = new Date(iso + "T00:00:00Z");
-  d.setUTCDate(d.getUTCDate() - d.getUTCDay());
-  return d.toISOString().slice(0, 10);
-}
 
 // ---------- meta ----------
 export async function getCities(): Promise<{ items: CityItem[] }> {

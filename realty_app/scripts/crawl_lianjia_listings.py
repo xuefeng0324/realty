@@ -304,28 +304,49 @@ CSV_COLS = [
     "area_sqm", "listing_type", "bedrooms", "bathrooms", "orientation",
     "floor_number", "has_elevator", "decorate_type", "build_year",
     "nearest_metro_distance_m", "school_ids_json", "tags_json", "crawl_date",
+    # cover_url 是 seed schema 的可选列（importer 读它渲染封面图）。
+    # 不写进 CSV_COLS 会在每次 append 时把整列静默丢掉。
+    "cover_url",
 ]
 
 
 def write_csv(rows: list[dict], out: Path = OUT_CSV):
     out.parent.mkdir(parents=True, exist_ok=True)
+    # 列集合 = CSV_COLS ∪ 已有文件的列（保留历史列，不静默丢字段）
+    fields = list(CSV_COLS)
+    if out.exists():
+        try:
+            with open(out, encoding="utf-8-sig", newline="") as f:
+                head = next(csv.reader(f), [])
+            for col in head:
+                if col and col not in fields:
+                    fields.append(col)
+        except StopIteration:
+            pass
     with open(out, "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=CSV_COLS, extrasaction="ignore")
+        w = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
         w.writeheader()
         for i, r in enumerate(rows, 1):
-            r["listing_id"] = i
-            w.writerow({k: r.get(k) for k in CSV_COLS})
+            if not (r.get("listing_id") or "").strip():
+                r["listing_id"] = i
+            w.writerow({k: r.get(k) for k in fields})
     print(f"  wrote {out} ({len(rows)} rows)")
 
 
 # ---------- 主流程 ----------
 
-def fetch_city(city: str, pages: int, delay_sec: float = 2.0) -> tuple[list[dict], list[tuple[int, int, str, str]]]:
+def fetch_city(city: str, pages: int, delay_sec: float = 2.0,
+               persist_new_communities: bool = False) -> tuple[list[dict], list[tuple[int, int, str, str]]]:
     """抓取单城 listings。
 
     返回 (cards, new_communities)
       cards            list[dict]  每条房源（community_id 已分配）
       new_communities  list[(cid, city_id, district, name)]  本次新发现的小区（追加到 communities.csv）
+
+    persist_new_communities=True 时新小区会真正落盘到 communities.csv，
+    此时它们的 community_id 可以被后续房源引用；False（默认）时**绝不能**引用——
+    否则同小区的第 2 条房源会指向一个 communities.csv 里根本不存在的 id（孤儿），
+    链家 listings 的关联率会从 100% 掉到 14%，buildIntegrity 测试直接红。
     """
     if city not in CITY_CONFIG:
         print(f"[ERR] 未知城市：{city}（可选：{list(CITY_CONFIG.keys())}）")
@@ -365,12 +386,14 @@ def fetch_city(city: str, pages: int, delay_sec: float = 2.0) -> tuple[list[dict
                 card["community_id"] = community_map[cn]
             elif cn:
                 # 新小区：写 0（避免被 queries.ts 用 communityId 找到但 district 为空跳过）。
-                # 真实 community_id 由后续 enrich_communities.py 补全后写入。
+                # 真实 community_id 由 enrich_lianjia_listings.py 轮询指派到真实小区。
                 card["community_id"] = 0
                 # 但**只在显式 --update-communities 时**才把新小区登记到 communities.csv
                 new_cid = next_cid
                 next_cid += 1
-                community_map[cn] = new_cid  # 仅供后续 enrich 阶段使用
+                if persist_new_communities:
+                    # 只有真正落盘的小区才可以被引用，否则会产生孤儿 community_id。
+                    community_map[cn] = new_cid
                 new_communities.append((new_cid, city_id, "", cn))
             else:
                 card["community_id"] = 0
@@ -388,12 +411,15 @@ def load_existing_rows() -> list[dict]:
     """读现有 listings.csv 的全部行（用于 append 模式去重）"""
     if not OUT_CSV.exists():
         return []
-    with open(OUT_CSV, encoding="utf-8", newline="") as f:
+    with open(OUT_CSV, encoding="utf-8-sig", newline="") as f:
         return list(csv.DictReader(f))
 
 
 def cmd_fetch(args):
-    new_rows, new_communities = fetch_city(args.city, args.pages, args.delay)
+    new_rows, new_communities = fetch_city(
+        args.city, args.pages, args.delay,
+        persist_new_communities=bool(args.update_communities),
+    )
     if not new_rows:
         sys.exit(2)
 

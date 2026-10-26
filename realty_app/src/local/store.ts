@@ -55,6 +55,7 @@ import type {
   LocalWangqianDistrictWeekly,
   LocalWeather
 } from "./types";
+import { weekEndFromDate } from "./weekEnd";
 
 let snapshot: DataSnapshot | null = null;
 
@@ -849,11 +850,8 @@ export function getAvailableWeeks(cityId?: number): { weekStartDate: string; wee
 
 /**
  * 给定一个日期字符串（YYYY-MM-DD），返回它所在的 week_end（周日）。
- * 简化策略：取最近的周日（向过去回溯到周日）。
+ *
+ * 口径：Mon~Sun 一周，以周日收尾；week_end 取「当天或之后最近的周日」。
+ * 统一实现在 ./weekEnd.ts，避免 TS / Python / 派生 CSV 三处口径漂移。
  */
-export function weekEndFromDate(iso: string): string {
-  const d = new Date(iso + "T00:00:00Z");
-  const day = d.getUTCDay(); // 0=Sun
-  d.setUTCDate(d.getUTCDate() - day);
-  return d.toISOString().slice(0, 10);
-}
+export { weekEndFromDate };

@@ -36,7 +36,10 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # v1.122.54: 15 分钟不够跑完 30+ 个抓取脚本（含各自的网络重试与退避），
+    # job 每次都在「merge NBS ...」这一步被超时取消 → 月更源永远不提交数据
+    # （mot_transport / nbs_gdp / nbs_income 等一直陈旧，freshness 天天报警）。
+    timeout-minutes: 60
     permissions:
       contents: write
 

@@ -157,6 +157,17 @@ def latest_date(csv_path: Path) -> tuple[date | None, str | None]:
         return None, None
 
 
+# 各发布节奏的「陈旧预算」：超过 budget 天没更新才算 WARN，2×budget 算 STALE。
+# 用于源站本身就是季更/半年更/年更的数据——用统一的 90/180 天阈值会永远误报。
+CADENCE_BUDGET_DAYS: dict[str, int] = {
+    "daily": 7,
+    "weekly": 30,
+    "monthly": 90,
+    "quarterly": 180,
+    "annual": 400,
+}
+
+
 def _grade_fn(stale_days: int | None, warn_days: int, hard_stale_days: int) -> tuple[str, str]:
     """返回 (等级, emoji)。等级：OK / WARN / STALE / UNKNOWN。"""
     if stale_days is None:
@@ -207,6 +218,17 @@ def main() -> int:
         ),
     )
     ap.add_argument(
+        "--cadence",
+        type=str,
+        default="",
+        help=(
+            "逗号分隔的「文件名=节奏」列表，节奏取值 "
+            + "/".join(CADENCE_BUDGET_DAYS)
+            + "。命中项用该节奏自己的陈旧预算判定（budget 天 WARN，2×budget STALE），"
+            "其余源仍用 --warn-days / --stale-days。用于季更/半年更/年更源。"
+        ),
+    )
+    ap.add_argument(
         "--today",
         default=None,
         help="YYYY-MM-DD 覆盖今天（测试用）",
@@ -234,10 +256,34 @@ def main() -> int:
             n = n + ".csv"
         exempt_set.add(n)
 
+    # --cadence：文件名 → (warn_days, stale_days)
+    cadence_map: dict[str, tuple[int, int]] = {}
+    for pair in args.cadence.split(","):
+        p2 = pair.strip()
+        if not p2:
+            continue
+        if "=" not in p2:
+            raise SystemExit(f"--cadence 格式错误（应为 文件名=节奏）: {p2!r}")
+        name, kind = (x.strip() for x in p2.split("=", 1))
+        if not name.endswith(".csv"):
+            name = name + ".csv"
+        if kind not in CADENCE_BUDGET_DAYS:
+            raise SystemExit(
+                f"--cadence 未知节奏 {kind!r}，可用: {', '.join(CADENCE_BUDGET_DAYS)}"
+            )
+        budget = CADENCE_BUDGET_DAYS[kind]
+        cadence_map[name] = (budget, budget * 2)
+
     rows = []
     worst = 0  # 0=ok, 1=warn, 2=stale
     for csv_path in iter_csvs(args.static_dir):
         is_exempt = csv_path.name in exempt_set
+        file_warn, file_stale = cadence_map.get(csv_path.name, (args.warn_days, args.stale_days))
+        cadence_kind = next(
+            (k for k, v in CADENCE_BUDGET_DAYS.items()
+             if csv_path.name in cadence_map and cadence_map[csv_path.name][0] == v),
+            None,
+        )
         latest, field = latest_date(csv_path)
         if latest is None:
             grade = "EXEMPT" if is_exempt else "UNKNOWN"
@@ -258,7 +304,7 @@ def main() -> int:
         if is_exempt:
             grade = "EXEMPT"
         else:
-            grade, _grade_emoji = _grade_fn(sd, args.warn_days, args.stale_days)
+            grade, _grade_emoji = _grade_fn(sd, file_warn, file_stale)
         rows.append(
             {
                 "file": csv_path.name,
@@ -266,6 +312,9 @@ def main() -> int:
                 "latest": latest.isoformat(),
                 "stale_days": sd,
                 "grade": grade,
+                "cadence": cadence_kind,
+                "warn_days": file_warn,
+                "stale_days_limit": file_stale,
             }
         )
         if grade == "STALE":
@@ -276,7 +325,12 @@ def main() -> int:
 
     if args.json:
         print(json.dumps(
-            {"today": today.isoformat(), "exempt": sorted(exempt_set), "rows": rows},
+            {
+                "today": today.isoformat(),
+                "exempt": sorted(exempt_set),
+                "cadence": {k: list(v) for k, v in sorted(cadence_map.items())},
+                "rows": rows,
+            },
             ensure_ascii=False, indent=2))
     else:
         # markdown 表格输出
@@ -285,20 +339,31 @@ def main() -> int:
         if exempt_set:
             print(f"豁免白名单: {', '.join(sorted(exempt_set))}")
         print()
-        print("| 等级 | 文件 | 字段 | 最新 | 陈旧天数 |")
-        print("|------|------|------|------|----------|")
+        if cadence_map:
+            print(
+                "节奏口径: "
+                + ", ".join(f"{k}→{v[0]}/{v[1]}天" for k, v in sorted(cadence_map.items()))
+            )
+        print()
+        print("| 等级 | 文件 | 字段 | 最新 | 陈旧天数 | 节奏 |")
+        print("|------|------|------|------|----------|------|")
         for r in rows:
             if args.only_stale and r["grade"] == "OK":
                 continue
             if r["grade"] == "EXEMPT":
                 emoji = "⏸"
             else:
-                _g, emoji = _grade_fn(r["stale_days"], args.warn_days, args.stale_days)
+                _g, emoji = _grade_fn(
+                    r["stale_days"],
+                    r.get("warn_days", args.warn_days),
+                    r.get("stale_days_limit", args.stale_days),
+                )
             latest = r["latest"] or "-"
             sd = r["stale_days"] if r["stale_days"] is not None else "-"
+            cad = r.get("cadence") or "-"
             print(
                 f"| {emoji} {r['grade']:<7} | `{r['file']}` | "
-                f"`{r['field'] or '-'}` | {latest} | {sd} |"
+                f"`{r['field'] or '-'}` | {latest} | {sd} | {cad} |"
             )
         if args.only_stale:
             ok = sum(1 for r in rows if r["grade"] == "OK")

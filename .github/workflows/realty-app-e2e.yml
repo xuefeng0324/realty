@@ -74,13 +74,22 @@ jobs:
 
       - name: 跑 E2E smoke
         # console error / failed request / Vue 未挂载都应阻塞合并。
+        # 同时产出 artifacts/layout.json（平台无关的 UI 布局指纹）。
         run: node tests/e2e/smoke.mjs
 
-      - name: 跑视觉回归（diff vs baseline）
-        # baseline 缺失、尺寸不一致或像素差异超阈值都应阻塞合并。
-        # 若 UI/数据展示结构导致截图高度变化，必须先在同一构建产物上更新
-        # realty_app/tests/e2e/artifacts/baseline.png，再提交基线。
-        run: node tests/e2e/visual-diff.mjs --threshold 0.05
+      - name: 跑 UI 结构回归（DOM 布局指纹 diff）
+        # v1.122.55: 门禁从「像素 diff」换成「DOM 布局指纹 diff」。
+        # 原因（本地实测，同一份构建产物 + 同一份数据）：
+        #   - Windows 渲染 390x1092 vs CI(Linux) 渲染 390x1096 → 高度差 4px，
+        #     旧的像素脚本直接判 size-mismatch，ratio=1，必红；
+        #   - 裁剪到公共区域后，pixelmatch(抗锯齿免疫) 差异仍有 6.39%，
+        #     而真实 UI 回归的信号只有 0.4~1.7%（改色 / 区块消失）。
+        #   即「跨平台噪声」比「真实回归信号」大一个量级：收紧阈值=100% 误报，
+        #     放宽阈值=抓不到任何回归 —— 像素门禁在跨平台场景下原理上不成立。
+        #   而且数据每天变（挂牌数、均价、小区数），PNG 基线本来也会被数据打穿。
+        # 新的门禁只看 CSS 派生的签名集合 + 壳层锚点几何，
+        # 与字体栅格化无关、与数据内容无关。
+        run: node tests/e2e/layout-diff.mjs
 
       - name: 上传 E2E artifacts
         if: always()
@@ -96,37 +105,51 @@ jobs:
         run: |
           echo "===== smoke.json ====="
           cat realty_app/tests/e2e/artifacts/smoke.json || true
+          echo "===== layout-diff.json ====="
+          cat realty_app/tests/e2e/artifacts/layout-diff.json || true
           echo "===== dist 目录大小 ====="
           du -sh realty_app/dist 2>/dev/null || true
           echo "===== serve 日志（如果上一步还活着）====="
           jobs -l || true
 
       - name: baseline 同步护栏（CI 守门员）
-        # 总是跑。当 src/** 的最后提交比 baseline.png 的最后提交新时，CI 红，
-        # 提示是 baseline 过期而不是回归 bug。
-        # 修复：本地 cd realty_app && node tests/e2e/visual-diff.mjs --update-baseline 后提交。
+        # 总是跑。当 src/** 的最后提交比 layout-baseline.json 的最后提交新时，CI 红，
+        # 提示是基线过期而不是回归 bug。
+        # 修复：本地 cd realty_app && npm run build:h5 && 起服务 &&
+        #       node tests/e2e/smoke.mjs && node tests/e2e/layout-diff.mjs --update-baseline
+        # v1.122.55：基线从 baseline.png 换成 layout-baseline.json（DOM 布局指纹）——
+        #   指纹与平台无关，任意机器都能重建；PNG 基线只能在 CI 平台重建。
         if: always()
         run: |
           UI_LAST=$(git log -1 --format='%H %ci %s' -- realty_app/src/ 2>/dev/null || echo "")
-          BASE_LAST=$(git log -1 --format='%H %ci %s' -- realty_app/tests/e2e/artifacts/baseline.png 2>/dev/null || echo "")
+          BASE_LAST=$(git log -1 --format='%H %ci %s' -- realty_app/tests/e2e/artifacts/layout-baseline.json 2>/dev/null || echo "")
           if [ -z "$UI_LAST" ]; then
             echo "[baseline-guard] 无 src 提交历史，跳过"
             exit 0
           fi
+          if [ -z "$BASE_LAST" ]; then
+            echo "::error title=缺少布局基线::未找到 realty_app/tests/e2e/artifacts/layout-baseline.json"
+            echo "::error::本地修复（realty_app/ 目录）："
+            echo "::error::  1) npm run build:h5"
+            echo "::error::  2) npx --yes serve -s dist/build/h5 -l 5173 &  (另开终端)"
+            echo "::error::  3) \$env:E2E_URL='http://127.0.0.1:5173/'; node tests/e2e/smoke.mjs"
+            echo "::error::  4) node tests/e2e/layout-diff.mjs --update-baseline"
+            exit 1
+          fi
           UI_SHA=$(echo "$UI_LAST" | awk '{print $1}')
           BASE_SHA=$(echo "$BASE_LAST" | awk '{print $1}')
           if [ "$UI_SHA" = "$BASE_SHA" ]; then
-            echo "[baseline-guard] OK baseline 与最新 UI 提交同步"
+            echo "[baseline-guard] OK layout-baseline.json 与最新 UI 提交同步"
             echo "  $UI_LAST"
             exit 0
           fi
-          echo "::error title=baseline 过期::src/** 比 baseline.png 新，CI 视觉回归大概率是 baseline 过期"
+          echo "::error title=布局基线过期::src/** 比 layout-baseline.json 新，CI UI 结构回归大概率是基线过期"
           echo "::error::src/** 最后提交:   $UI_LAST"
-          echo "::error::baseline 最后提交: $BASE_LAST"
+          echo "::error::基线最后提交: $BASE_LAST"
           echo "::error::本地修复（realty_app/ 目录）："
           echo "::error::  1) npm run build:h5"
           echo "::error::  2) npx --yes serve -s dist/build/h5 -l 5173 &  (另开终端)"
           echo "::error::  3) \$env:E2E_URL='http://127.0.0.1:5173/'; node tests/e2e/smoke.mjs"
-          echo "::error::  4) node tests/e2e/visual-diff.mjs --update-baseline"
-          echo "::error::  5) git add realty_app/tests/e2e/artifacts/baseline.png && git commit"
+          echo "::error::  4) node tests/e2e/layout-diff.mjs --update-baseline"
+          echo "::error::  5) git add realty_app/tests/e2e/artifacts/layout-baseline.json && git commit"
           exit 1

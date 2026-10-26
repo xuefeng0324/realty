@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   getLatestNbsCpi,
+  getNbsCpiRows,
   getNbsCpiTrend,
   loadNbsCpiFromCSV,
   shortNbsCpiMonthLabel
@@ -13,9 +14,13 @@ describe("nbs cpi", () => {
   it("加载月度 CPI 与居住/房租", () => {
     const latest = getLatestNbsCpi();
     expect(latest).not.toBeNull();
-    // v1.122.12：cron 每月自动补最新月，断言改为「最近 4 个月内」即可，
-    // 不再硬编码 month / 数值（数值随月变化）。
-    expect(latest!.month).toMatch(/^2026-(0[5-9]|10)$/);
+    // v1.122.12：cron 每月自动补最新月，数值随月变化，只断言量级。
+    // v1.122.54 修：旧断言把月份写死在 2026-05..2026-10，12 月 cron 抓到
+    // 2026-11 CPI 就会红。改成「格式合法 + 是全表最大月 + 月份不重复」。
+    expect(latest!.month).toMatch(/^20\d{2}-(0[1-9]|1[0-2])$/);
+    const allMonths = getNbsCpiRows().map((r) => r.month);
+    expect(latest!.month).toBe(allMonths[0]);
+    expect(new Set(allMonths).size).toBe(allMonths.length);
     expect(latest!.cpiYoyPct).toBeGreaterThan(-3);
     expect(latest!.cpiYoyPct).toBeLessThan(8);
     expect(latest!.sourceUrl).toMatch(/stats\.gov\.cn/);
@@ -46,10 +51,11 @@ describe("nbs cpi", () => {
 });
 
 describe("nbs income backfill", () => {
-  it("含 2025 多期与最新 2026 上半年", () => {
+  it("含 2025 多期与最新一期（期次由 CSV 决定）", () => {
     const latest = getLatestNbsIncome();
-    // v1.122.29 修：cron 每月自动补最新半年报，period 不能硬编码 2026_H1
-    expect(latest!.period).toMatch(/^20\d{2}_H[12]$/);
+    // v1.122.54 修：同 nbsIncome.test —— 累计口径期次有 Q1/H1/Q3/年度 4 种，
+    // 不能把「最新一期」写死成半年报。
+    expect(latest!.period).toMatch(/^20\d{2}(_[HQ][1-4])?$/);
     const trend = getNbsIncomeTrend(8);
     expect(trend.length).toBeGreaterThanOrEqual(6);
     // 趋势中应含年度 + Q3 行（具体 period 值由 CSV 决定，不能硬编码）

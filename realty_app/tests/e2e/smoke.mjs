@@ -9,6 +9,7 @@
 import { chromium } from 'playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { captureInPage, normalize } from './layout-fingerprint.mjs';
 
 const URL = process.env.E2E_URL || 'http://localhost:5174/';
 const OUT_DIR = resolve(process.cwd(), 'tests/e2e/artifacts');
@@ -82,9 +83,35 @@ try {
   result.bodySnippet = (await page.locator('body').innerText()).slice(0, 400);
   result.elementCount = await page.locator('*').count();
 
+  // 平台无关的 UI 布局指纹（供 layout-diff.mjs 做结构门禁）。
+  // 像素截图仍然保留，作为人工排查用的产物，但不再作为门禁依据 ——
+  // 跨平台字体栅格化 + 每日数据变动会让像素 diff 恒为红。
+  // 顺序放在截图之前：指纹是门禁数据，必须先拿到；截图失败不该连累门禁。
+  try {
+    const fp = normalize(await page.evaluate(captureInPage));
+    const fpPath = resolve(OUT_DIR, 'layout.json');
+    writeFileSync(fpPath, JSON.stringify(fp, null, 1), 'utf8');
+    result.layoutFingerprint = fpPath;
+    result.layout = {
+      docHeight: fp.docHeight,
+      elementCount: fp.elementCount,
+      signatureCount: fp.signatures.length,
+      anchorGroups: fp.anchors.length,
+    };
+  } catch (e) {
+    result.layoutError = String(e);
+  }
+
+  // 截图是辅助产物：页面里有 WebGL/canvas，软件渲染下 fullPage 截图可能超时。
+  // 超时只告警，不阻塞门禁（门禁看的是上面的布局指纹）。
   const shotPath = resolve(OUT_DIR, 'smoke.png');
-  await page.screenshot({ path: shotPath, fullPage: true });
-  result.screenshot = shotPath;
+  try {
+    await page.screenshot({ path: shotPath, fullPage: true, timeout: 60000 });
+    result.screenshot = shotPath;
+  } catch (e) {
+    result.screenshotError = String(e).split('\n')[0];
+    console.warn(`[smoke] 截图失败（不影响门禁）: ${result.screenshotError}`);
+  }
 
   const hasVueMount = await page.evaluate(() => Boolean(document.querySelector('#app')?.children.length));
   result.vueMounted = hasVueMount;

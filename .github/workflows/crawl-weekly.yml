@@ -34,14 +34,44 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4 lxml xlrd==2.0.1 pypdf
 
-      - name: P0 · 抓取安居客挂牌
+      - name: P0 · 刷新挂牌快照（链家为主源）
         id: p0_crawl
         shell: bash
         run: |
           set -o pipefail
           cd realty_app
           mkdir -p weekly-logs
-          # 少于 50 行会 exit 2，且原子写保护 last-good listings。
+          # 链家：目前唯一稳定可达的挂牌源（纯 stdlib，无三方依赖）。
+          # --append 按 source_listing_id 去重保留旧行；抓完后统一 enrich 到真实小区。
+          for city in 深圳 广州 珠海; do
+            echo "===== ${city} ====="
+            python scripts/crawl_lianjia_listings.py fetch --city "${city}" --pages 10 --delay 3 --append \
+              2>&1 | tee "weekly-logs/p0-lianjia-${city}.log" || echo "[WARN] ${city} 链家抓取失败，继续其他城市"
+          done
+
+      - name: P0 · 关联链家房源到真实小区
+        id: p0_enrich
+        shell: bash
+        run: |
+          set -o pipefail
+          cd realty_app
+          # 新抓到的链家房源 community_id 初始为 0（链家列表页不落盘新小区），
+          # 必须 enrich 到真实小区，否则小区排行 / 区对比会因为挂不上小区而查不到数据。
+          python scripts/enrich_lianjia_listings.py assign --no-backup 2>&1 \
+            | tee weekly-logs/p0-enrich.log
+
+      - name: P0 · 安居客挂牌（尽力而为，源站已上 JS 风控）
+        id: p0_anjuke
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          cd realty_app
+          # v1.122.54: m.anjuke.com 现在对所有请求返回 JS 网关反爬页
+          # （esfcommon-captcha-geetest → callback.58.com/antibot/verifycode），
+          # 纯 HTTP 爬虫拿不到列表，2026-07-26 起该步骤一直 exit 2，
+          # 导致整条周更流水线（P1/P2 官方+宏观源）全部被跳过、数据停更。
+          # 降级为尽力而为：源站恢复后这条数据会自动回来。
           python scripts/crawl_anjuke.py --min-rows 50 2>&1 \
             | tee weekly-logs/p0-anjuke.log
 
@@ -94,6 +124,9 @@ jobs:
       - name: P1 · 必需官方周更来源（全量执行，末尾统一判失败）
         id: p1_required
         continue-on-error: true
+        # v1.122.54: 之前没有 if: always()，P0 一失败整条流水线就停在这里，
+        # 官方周更源（土地成交 / 供应计划 / 保障房 / 学区…）全部停更。
+        if: always()
         shell: bash
         run: |
           set -o pipefail
@@ -107,6 +140,7 @@ jobs:
       - name: P2 · 尽力刷新宏观来源（失败告警但不阻塞）
         id: p2_optional
         continue-on-error: true
+        if: always()
         shell: bash
         run: |
           set -o pipefail
@@ -188,6 +222,8 @@ jobs:
         if: always()
         env:
           P0_CRAWL: ${{ steps.p0_crawl.outcome }}
+          P0_ENRICH: ${{ steps.p0_enrich.outcome }}
+          P0_ANJUKE: ${{ steps.p0_anjuke.outcome }}
           P0_VALIDATE: ${{ steps.p0_validate.outcome }}
           P0_REBUILD: ${{ steps.p0_rebuild.outcome }}
           P0_COMMIT: ${{ steps.p0_commit.outcome }}
@@ -199,6 +235,7 @@ jobs:
           failed=0
           for pair in \
             "P0 crawl:$P0_CRAWL" \
+            "P0 enrich:$P0_ENRICH" \
             "P0 validate:$P0_VALIDATE" \
             "P0 rebuild:$P0_REBUILD" \
             "P0 commit:$P0_COMMIT" \
@@ -210,6 +247,10 @@ jobs:
               failed=1
             fi
           done
+          # 安居客源站已上 JS 风控（2026-07-26 起），失败只告警不阻塞周更。
+          if [ "$P0_ANJUKE" != "success" ]; then
+            echo "::warning title=weekly 安居客不可达::outcome=${P0_ANJUKE}（源站 JS 风控，链家主源不受影响）"
+          fi
           # P2 单源失败由组内 warning 表达；只有组装脚本自身异常才会 outcome=failure。
           if [ "$P2_OPTIONAL" = "failure" ]; then
             echo "::error title=weekly P2 编排失败::请查看分源日志"

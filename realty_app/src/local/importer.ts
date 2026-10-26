@@ -16,6 +16,7 @@
 
 import { parseCSV, rowsToObjects } from "./csv";
 import { normalizeListingSourceKind } from "./listingSource";
+import { weekEndFromDate } from "./weekEnd";
 import type {
   DataSnapshot,
   LocalCity,
@@ -164,12 +165,6 @@ export interface SnapshotInputs {
   lprHistoryCSV?: string;
 }
 
-function weekEndFromDate(iso: string): string {
-  const d = new Date(iso + "T00:00:00Z");
-  const day = d.getUTCDay();
-  d.setUTCDate(d.getUTCDate() - day);
-  return d.toISOString().slice(0, 10);
-}
 
 const LAYOUT_DIMS = new Set(["bedrooms", "area_sqm", "orientation", "decorate"]);
 

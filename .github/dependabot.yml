@@ -8,7 +8,17 @@
 #   - 周一早上开 PR（避开周末，让你周一上班 review）
 #   - 每月最多 5 个 npm PR / 10 个 action PR，避免 PR 风暴
 #   - 标签 dependabot 让 CI 自动跑 tests + type-check
-#   - 不升 major（major 由人工判断），其它走自动
+#   - **不升 major**（major 由人工判断），其它走自动
+#
+# v1.122.54 为什么加 ignore semver-major：
+#   2026-10-26 实测，Dependabot 开的 3 个 major 组 PR（vue/vite/typescript/@dcloudio）
+#   全部把 CI 打成红的，仓库开始每天收「Run failed」邮件，而 major 升级本来就要人工评估。
+#   ignore 规则与本文件原有注释「不升 major」一致：只让 Dependabot 管 minor/patch，
+#   major 留给人手工判断。改配置后 Dependabot 会自动关掉不再匹配的 open PR。
+#
+#   实际踩坑：只 grep `actions/checkout@v4` 一个 pattern 是不够的，漏扫过 setup-node /
+#   setup-python / upload-artifact 等，升级后 e2e 一直 fail。扫 action 版本必须用脚本
+#   扫全部 .github/workflows/*.yml。
 
 version: 2
 updates:
@@ -22,16 +32,16 @@ updates:
       timezone: "Asia/Shanghai"
     open-pull-requests-limit: 10
     groups:
-      # 同一类 action（如所有 actions/checkout 开一起）合一个 PR，少噪音
+      # 只开 minor/patch 组；major 组已在 v1.122.54 移除
       github-actions-minor-and-patch:
         applies-to: version-updates
         update-types:
           - "minor"
           - "patch"
-      github-actions-major:
-        applies-to: version-updates
-        update-types:
-          - "major"
+    ignore:
+      # major 升级由人工判断（action 大版本可能改运行时行为）
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     labels:
       - "dependabot"
       - "ci"
@@ -49,28 +59,17 @@ updates:
       timezone: "Asia/Shanghai"
     open-pull-requests-limit: 5
     groups:
-      # 关键运行时框架（vue / pinia / vue-i18n）走 major 单独组，其它合一起
-      realty-app-runtime-major:
-        applies-to: version-updates
-        update-types:
-          - "major"
-        patterns:
-          - "vue"
-          - "pinia"
-          - "vue-i18n"
-      realty-app-build-major:
-        applies-to: version-updates
-        update-types:
-          - "major"
-        patterns:
-          - "@dcloudio/*"
-          - "vite"
-          - "typescript"
+      # 只开 minor/patch 组；runtime-major / build-major 两个 major 组已在 v1.122.54 移除
+      # （vue / pinia / vue-i18n / @dcloudio / vite / typescript 的 major 会打红 CI）
       realty-app-minor-and-patch:
         applies-to: version-updates
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # major 升级由人工判断（vue3→vue4 / vite 大版本 / typescript 大版本都会改行为）
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     labels:
       - "dependabot"
       - "deps"

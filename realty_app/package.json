@@ -1,6 +1,6 @@
 {
   "name": "realty-app",
-  "version": "1.122.53",
+  "version": "1.122.54",
   "private": true,
   "description": "Realty Analytics 手机端 App（基于 uni-app，复用 backend FastAPI）",
   "scripts": {
@@ -40,6 +40,7 @@
     "@dcloudio/vite-plugin-uni": "3.0.0-4030620241128001",
     "@vitest/coverage-v8": "^2.1.9",
     "@vue/tsconfig": "^0.5.1",
+    "pixelmatch": "^8.0.0",
     "playwright": "^1.61.1",
     "sass": "^1.69.5",
     "sharp": "^0.35.3",

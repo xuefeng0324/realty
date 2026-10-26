@@ -4,7 +4,7 @@
 // Usage:
 //   node tests/e2e/visual-diff.mjs                          # diff vs tests/e2e/artifacts/baseline.png
 //   node tests/e2e/visual-diff.mjs --update-baseline        # save current as new baseline
-//   node tests/e2e/visual-diff.mjs --threshold 0.05         # tolerance (default 5%, v1.122.52+ 放宽)
+//   node tests/e2e/visual-diff.mjs --threshold 0.05         # tolerance (default 5%)
 //
 // Workflow:
 //   1. Run `node tests/e2e/smoke.mjs` first to produce artifacts/smoke.png
@@ -12,8 +12,14 @@
 //   3. Commit new baseline alongside the change
 //   4. Future runs auto-fail if pixel-diff exceeds --threshold
 //
-// Dependencies: pure Node + sharp (loaded lazily). If sharp missing, falls back to
-// raw bytes-comparison (less precise, but works for "did the file change at all").
+// 比对方式：pixelmatch（感知级 + 抗锯齿识别）
+//   v1.122.54 之前是「RGB 通道差求和 > 阈值」的手写比较，对字体抗锯齿极其敏感：
+//   GitHub runner（Linux）与本机（Windows）的字形栅格化不同，同样一段文字会产生
+//   大量 RGB 求和 15~60 的像素差，于是整页被误判成 >5% 的回归，CI 天天红。
+//   pixelmatch 默认 includeAA=false，会识别并忽略抗锯齿像素，只把真正的
+//   颜色块/布局位移算成 diff；同时保留 strict 计数供人工排查。
+//
+// Dependencies: pure Node + sharp + pixelmatch.
 
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -22,6 +28,10 @@ const args = process.argv.slice(2);
 const updateBaseline = args.includes('--update-baseline');
 const thresholdIdx = args.indexOf('--threshold');
 const threshold = thresholdIdx >= 0 ? parseFloat(args[thresholdIdx + 1]) : 0.05;
+const pixelThresholdIdx = args.indexOf('--pixel-threshold');
+// pixelmatch 的 threshold 是「感知色差」上限（0~1），不是像素占比。
+// 0.1 是官方默认值：肉眼能看出来的颜色变化才算差异。
+const pixelThreshold = pixelThresholdIdx >= 0 ? parseFloat(args[pixelThresholdIdx + 1]) : 0.1;
 
 const ART_DIR = resolve(process.cwd(), 'tests/e2e/artifacts');
 const CURRENT = resolve(ART_DIR, 'smoke.png');
@@ -59,6 +69,7 @@ const report = {
   baselineBytes: baseBytes.length,
   currentBytes: currBytes.length,
   threshold,
+  pixelThreshold,
   ratio: 0,
   status: 'unknown'
 };
@@ -74,6 +85,7 @@ if (baseBytes.length === currBytes.length && baseBytes.equals(currBytes)) {
 
 // Try sharp for real pixel diff
 let sharp = null;
+let pixelmatch = null;
 try {
   sharp = (await import('sharp')).default;
 } catch {
@@ -84,6 +96,17 @@ try {
   writeFileSync(REPORT, JSON.stringify(report, null, 2));
   console.warn(`[visual-diff] bytes differ (${baseBytes.length} vs ${currBytes.length})`);
   console.warn('[visual-diff] install sharp for real pixel diff: npm i -D sharp');
+  process.exit(1);
+}
+
+try {
+  pixelmatch = (await import('pixelmatch')).default;
+} catch {
+  console.warn('[visual-diff] pixelmatch not installed; falling back to byte hash');
+  report.status = 'changed-no-pixelmatch';
+  report.ratio = 1;
+  writeFileSync(REPORT, JSON.stringify(report, null, 2));
+  console.warn('[visual-diff] install pixelmatch: npm i -D pixelmatch');
   process.exit(1);
 }
 
@@ -112,42 +135,31 @@ if (
 
 const w = baseImg.info.width;
 const h = baseImg.info.height;
-const b = baseImg.data;
-const c = currImg.data;
-const len = b.length;
-let diffPx = 0;
-const diffBuf = Buffer.alloc(len);
-
-for (let i = 0; i < len; i += 4) {
-  const dr = Math.abs(b[i] - c[i]);
-  const dg = Math.abs(b[i + 1] - c[i + 1]);
-  const db = Math.abs(b[i + 2] - c[i + 2]);
-  // Per-pixel "different" threshold (RGB sum > 60 = visually different)
-  // 阈值选择：纯抗锯齿差异通常 RGB 各通道差 5-20，求和 15-60；
-  // 真实 UI 改动（颜色块位移）通常 > 100。60 是分界：
-  // - 抗锯齿 noise < 60 → 视为相同（不影响视觉回归门禁）
-  // - 颜色块 / 字体字形差异 > 60 → 计入 diff
-  // GitHub CI runner 字体抗锯齿与本机 Windows 不同导致原 12 阈值大量误报；
-  // 60 阈值保留视觉回归门禁能力但显著降低 false-positive。
-  if (dr + dg + db > 60) {
-    diffPx++;
-    diffBuf[i] = 255;     // red channel
-    diffBuf[i + 1] = 0;
-    diffBuf[i + 2] = 0;
-    diffBuf[i + 3] = 255; // opaque
-  } else {
-    // Dim the matching region to highlight diff
-    diffBuf[i] = Math.floor(b[i] * 0.3);
-    diffBuf[i + 1] = Math.floor(b[i + 1] * 0.3);
-    diffBuf[i + 2] = Math.floor(b[i + 2] * 0.3);
-    diffBuf[i + 3] = 255;
-  }
-}
-
 const totalPx = w * h;
+
+const diffBuf = Buffer.alloc(baseImg.data.length);
+// includeAA=false（默认）：忽略抗锯齿像素 —— 跨平台字体差异不再被当成回归
+const diffPx = pixelmatch(baseImg.data, currImg.data, diffBuf, w, h, {
+  threshold: pixelThreshold,
+  includeAA: false,
+  alpha: 0.25,
+  diffColor: [255, 0, 0],
+  aaColor: [255, 255, 0]
+});
+
+// strict 计数：把抗锯齿像素也算进来，仅用于诊断，不参与门禁
+const strictBuf = Buffer.alloc(baseImg.data.length);
+const strictPx = pixelmatch(baseImg.data, currImg.data, strictBuf, w, h, {
+  threshold: pixelThreshold,
+  includeAA: true,
+  alpha: 0.25,
+  diffColor: [255, 0, 0]
+});
+
 const ratio = diffPx / totalPx;
 report.ratio = ratio;
 report.diffPixels = diffPx;
+report.strictDiffPixels = strictPx;
 report.totalPixels = totalPx;
 report.width = w;
 report.height = h;
@@ -158,7 +170,10 @@ report.diffImage = DIFF_OUT;
 if (ratio <= threshold) {
   report.status = 'pass';
   writeFileSync(REPORT, JSON.stringify(report, null, 2));
-  console.log(`[visual-diff] PASS diff=${(ratio * 100).toFixed(3)}% (≤ ${threshold * 100}%)`);
+  console.log(
+    `[visual-diff] PASS diff=${(ratio * 100).toFixed(3)}% (≤ ${threshold * 100}%) ` +
+    `| 抗锯齿已忽略 | strict(含AA)=${(strictPx / totalPx * 100).toFixed(3)}%`
+  );
   process.exit(0);
 } else {
   report.status = 'fail';
