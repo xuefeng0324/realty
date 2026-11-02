@@ -33,7 +33,8 @@ const suites = {
     "smoke_metro_walk.mjs",
     "smoke_school_community.mjs",
     "smoke_wangqian_heatmap.mjs",
-    "smoke_stats70_filter.mjs"
+    "smoke_stats70_filter.mjs",
+    "smoke_data_tools_nav.mjs"
   ],
   "v093_097": [
     "smoke_v093_district_drift_strict.mjs",

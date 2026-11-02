@@ -6,6 +6,33 @@
         <view class="page-header-sub muted">从仪表盘迁入的派生数据卡 · Batch 1-6 已迁 16 张 / 共 16 张</view>
       </view>
 
+      <!-- v1.123.3 锚点分组导航：17 张卡（16 迁移 + 行政区划）按主题分组，点击 chip 滚动到对应卡 -->
+      <view class="dt-nav" data-dt-nav>
+        <scroll-view scroll-x class="dt-nav-scroll" :show-scrollbar="false">
+          <view class="dt-nav-row">
+            <button
+              class="dt-nav-chip dt-nav-chip--tool"
+              size="mini"
+              hover-class="dt-nav-chip--hover"
+              data-dt-nav-item="card-manager"
+              @click="scrollToDtCard('card-manager')"
+            >⚙️ 卡片管理</button>
+            <template v-for="g in DT_NAV_GROUPS" :key="g.key">
+              <view class="dt-nav-group">{{ g.label }}</view>
+              <button
+                v-for="it in g.items"
+                :key="it.anchor"
+                class="dt-nav-chip"
+                size="mini"
+                hover-class="dt-nav-chip--hover"
+                :data-dt-nav-item="it.anchor"
+                @click="scrollToDtCard(it.anchor)"
+              >{{ it.label }}</button>
+            </template>
+          </view>
+        </scroll-view>
+      </view>
+
       <!-- v1.121.145 首页卡片管理（设置入口） -->
       <view class="card" data-dt-card-manager>
         <view class="row-between">
@@ -1561,6 +1588,89 @@ import { type LocalSchoolPremiumCommunity } from "../../local/types";
 
 const app = useAppStore();
 
+// v1.123.3 锚点分组导航：17 张卡（16 张迁入 + 行政区划）按主题分组（市场/交通/学区/挂牌），
+// chip 点击平滑滚动到对应卡；卡无数据（v-if 未渲染）时 toast 提示。
+interface DtNavItem {
+  anchor: string;
+  label: string;
+}
+interface DtNavGroup {
+  key: string;
+  label: string;
+  items: DtNavItem[];
+}
+const DT_NAV_GROUPS: DtNavGroup[] = [
+  {
+    key: "market",
+    label: "市场",
+    items: [
+      { anchor: "stats70-drift", label: "70城趋势" },
+      { anchor: "district-trend", label: "分区均价" },
+      { anchor: "wangqian-rank", label: "网签热度" },
+      { anchor: "admin-district", label: "行政区划" }
+    ]
+  },
+  {
+    key: "transit",
+    label: "交通",
+    items: [
+      { anchor: "metro-walk", label: "步行可达" },
+      { anchor: "commute-walk", label: "步行通勤" },
+      { anchor: "plan-benefit", label: "规划受益" },
+      { anchor: "metro-plan", label: "规划地铁" }
+    ]
+  },
+  {
+    key: "school",
+    label: "学区",
+    items: [
+      { anchor: "edu-overview", label: "教育事业" },
+      { anchor: "district-meta", label: "区情画像" },
+      { anchor: "school-indicator", label: "学校指标" },
+      { anchor: "school-dimension", label: "重点学校" },
+      { anchor: "school-top", label: "学区Top" }
+    ]
+  },
+  {
+    key: "listing",
+    label: "挂牌",
+    items: [
+      { anchor: "listing-structure", label: "挂牌结构" },
+      { anchor: "feature-premium", label: "特征溢价" },
+      { anchor: "listing-tags", label: "挂牌标签" },
+      { anchor: "tag-combination", label: "标签组合" }
+    ]
+  }
+];
+
+function scrollToDtCard(anchor: string) {
+  const sel = `[data-dt-${anchor}]`;
+  // H5：uni.pageScrollTo 不透传 offset（uni-h5 未解构），吸顶导航会盖住卡顶，
+  // 自行计算 scrollTop：目标卡顶 − uni-page-head − 吸顶导航 − 8px 呼吸位。
+  if (typeof document !== "undefined") {
+    const el = document.querySelector(sel);
+    if (el) {
+      const head = document.querySelector("uni-page-head");
+      const nav = document.querySelector("[data-dt-nav]");
+      const top =
+        el.getBoundingClientRect().top +
+        window.pageYOffset -
+        (head ? (head as HTMLElement).offsetHeight : 0) -
+        (nav ? (nav as HTMLElement).offsetHeight : 0) -
+        8;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+      return;
+    }
+    uni.showToast({ title: "该卡片暂无数据", icon: "none" });
+    return;
+  }
+  uni.pageScrollTo({
+    selector: sel,
+    duration: 280,
+    fail: () => uni.showToast({ title: "该卡片暂无数据", icon: "none" })
+  });
+}
+
 // v1.121.143 Batch 5: feature_premium (迁移自 dashboard)
 const featurePremium = ref<FeaturePremiumResponse | null>(null);
 async function reloadFeaturePremium() {
@@ -2269,6 +2379,55 @@ onShow(async () => {
 .page-header-sub {
   font-size: 22rpx;
   margin-top: 4rpx;
+}
+/* v1.123.3 锚点分组导航：吸顶（让出 uni-page-head）+ 横滚 chips */
+.dt-nav {
+  position: sticky;
+  top: var(--window-top, 0px);
+  z-index: 40;
+  margin: 0 -24rpx 16rpx;
+  padding: 12rpx 24rpx;
+  background: var(--color-bg);
+  border-bottom: 1rpx solid var(--color-border-soft, #eee);
+}
+.dt-nav-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+.dt-nav-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10rpx;
+}
+.dt-nav-group {
+  flex: 0 0 auto;
+  margin-left: 4rpx;
+  padding-left: 12rpx;
+  border-left: 1rpx solid var(--color-border);
+  font-size: 20rpx;
+  color: var(--color-muted);
+}
+.dt-nav-chip {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0 20rpx;
+  height: 52rpx;
+  line-height: 52rpx;
+  font-size: 22rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-soft);
+  color: var(--color-text);
+}
+.dt-nav-chip::after {
+  border: none;
+}
+.dt-nav-chip--tool {
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+  font-weight: 600;
+}
+.dt-nav-chip--hover {
+  opacity: 0.75;
 }
 .edu-summary {
   display: flex;

@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.123.3 | 2026-11-03 | 数据工具页锚点分组导航：17 张 `[data-dt-*]` 卡（Batch 1-6 迁入 16 张 + 行政区划）页面过长难定位 → 页头下新增吸顶横滚导航 `[data-dt-nav]`，按「市场/交通/学区/挂牌」四组 chip + ⚙️ 卡片管理，点击平滑滚动到对应卡；吸顶用 `top: var(--window-top)` 让出 uni-page-head；滚动定位自算 scrollTop（实测 uni-h5 的 `pageScrollTo` 不透传 `offset`），扣除 page-head + 吸顶导航高度 + 8px 呼吸位，卡顶不被遮挡；目标卡无数据（v-if 未渲染）时 toast 提示不静默失败；FEATURE_CATALOG 新增 F-DTOOLS-01，ext `smoke_data_tools_nav` 真实验证吸顶可见 + 点击滚动 + 卡顶让位（versionCode 338） |
 | v1.123.2 | 2026-11-03 | 首页瘦身收官：dashboard v122 壳层隐藏的最后两张卡正式迁入数据工具页 Batch 6——「近 4 周二手网签热度榜」（`[data-dt-wangqian-rank]`）+「学区评分 Top 小区」含区过滤/最低评分/排序控件（`[data-dt-school-top]`），dashboard 原卡模板与孤儿逻辑（sp* refs/watch、`wangqianPct`、4 个派生 computed、`.spc-*` 样式、失效 ADVANCED_CARDS 条目）全部删除，`hero 市场脉搏` 的网签套数指标保留；卡片管理清单同步划掉两卡（16/16=100%）；两个 e2e（`smoke_school_community`/`smoke_wangqian_heatmap`）从「attached 断言+强制取消隐藏截图」升级为「data-tools 页 visible 真实可见」断言；4 处 buildIntegrity 契约 + 1 处 data-tab 预算契约同步指向新位置；FEATURE_CATALOG F-DASH-06/F-DASH-08 已登记（versionCode 337） |
 | v1.123.1 | 2026-11-03 | 修地图找房 legend 文案回退：v0.27.0 起低缩放按密度过滤（仅保留挂牌较多小区）的逻辑一直在跑，但 legend 说明文案在某次改写中丢失，用户无法发现该行为 → 恢复「缩小到城市级时按密度过滤，放大后恢复」说明；顺手修 extended e2e 两个硬编码 `127.0.0.1:5175` 的脚本（`smoke_community_metrics`/`smoke_listing_minidim` 在 run_suite 5174 下永远 CONNECTION_REFUSED，改走 `REALTY_E2E_BASE_URL`），并补 stats70 过滤框交互 e2e（收窄/名次保持/空态/清空，挂 extended）（versionCode 336） |
 | v1.123.0 | 2026-11-03 | 70 城榜单加城市过滤框：输入即筛（子串匹配），筛选后 `#N` 保留全表原始名次（先记名次后过滤，不随筛选重排），无匹配有空态提示，「清空」一键恢复 70 行；FEATURE_CATALOG F-S70-01 已登记三类验收点，unit 契约 +2（versionCode 335） |
