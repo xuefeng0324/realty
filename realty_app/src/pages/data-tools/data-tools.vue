@@ -1848,7 +1848,6 @@ const DASHBOARD_CARDS: DashboardCardEntry[] = [
   { key: "macro-lpr", label: "宏观·LPR+房贷利率" },
   { key: "stats70-drift", label: "70 城涨跌 Top" },
   { key: "lpr-mortgage-signal", label: "LPR 与房贷利率信号" },
-  { key: "hospital-rank", label: "医疗资源榜" },
   { key: "poi-commercial", label: "周边商业 POI" },
   { key: "life-convenience", label: "生活便利度榜 v2 (6 维)" },
   { key: "school-premium-rank", label: "学区溢价榜" },

@@ -2982,269 +2982,6 @@
         </template>
       </view>
 
-      <!-- v1.121.12 医疗资源榜（hospitalRanking 已派生，此前未接 UI） -->
-      <view v-if="!isCardHidden('hospital-rank') && (hospitalCitySummary)" class="card" data-card-key="hospital-rank">
-        <view class="row-between">
-          <view class="card-title">🏥 医疗资源 · {{ hospitalCityName }}</view>
-          <button
-            class="card-hide-btn"
-            hover-class="tap-row--active"
-            data-dash-card-hide="hospital-rank"
-            @click.stop="toggleCardHidden('hospital-rank')"
-          >✕</button>
-          <view class="muted">{{ hospitalCitySummary.hospitalCount }} 家</view>
-        </view>
-        <view class="hosp-summary">
-          <view class="hosp-kpi">
-            <text class="hosp-kpi-val">{{ hospitalCitySummary.sanJiaCount }}</text>
-            <text class="hosp-kpi-label muted">三甲</text>
-          </view>
-          <view class="hosp-kpi">
-            <text class="hosp-kpi-val">{{ (hospitalCitySummary.sanJiaShare * 100).toFixed(0) }}%</text>
-            <text class="hosp-kpi-label muted">三甲占比</text>
-          </view>
-          <view class="hosp-kpi">
-            <text class="hosp-kpi-val">{{ hospitalCitySummary.keyFlagCount }}</text>
-            <text class="hosp-kpi-label muted">重点</text>
-          </view>
-        </view>
-        <view v-if="hospitalDistrictTop.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
-          分区医院数 Top
-        </view>
-        <view
-          v-for="d in hospitalDistrictTop"
-          :key="d.districtName"
-          class="hosp-dist-row"
-        >
-          <text class="hosp-dist-rank muted">{{ d.rankInCity }}</text>
-          <text class="hosp-dist-name">{{ d.districtName }}</text>
-          <text class="hosp-dist-count">{{ d.hospitalCount }} 家</text>
-          <text v-if="d.sanJiaCount" class="hosp-dist-sj muted">三甲 {{ d.sanJiaCount }}</text>
-        </view>
-        <view v-if="hospitalFocusDistrictList.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          「{{ hospitalDistrictCrossName }}」医院名录
-        </view>
-        <view
-          v-for="(h, idx) in hospitalFocusDistrictList"
-          :key="'hfd-' + h.hospitalId"
-          class="hosp-top-row"
-        >
-          <text class="hosp-top-rank muted">{{ idx + 1 }}</text>
-          <view class="hosp-top-mid">
-            <text class="hosp-top-name">{{ h.displayName || h.officialName }}</text>
-            <text class="hosp-top-meta muted">{{ h.hospitalType || "医院" }}</text>
-          </view>
-          <text class="hosp-top-level" :class="'hosp-lv--' + (h.hospitalLevel || '其他')">
-            {{ h.hospitalLevel || "其他" }}
-          </text>
-        </view>
-        <view v-if="hospitalTopList.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          等级优先 Top {{ hospitalTopList.length }}
-        </view>
-        <view
-          v-for="(h, idx) in hospitalTopList"
-          :key="h.hospitalId"
-          class="hosp-top-row"
-        >
-          <text class="hosp-top-rank muted">{{ idx + 1 }}</text>
-          <view class="hosp-top-mid">
-            <text class="hosp-top-name">{{ h.displayName || h.officialName }}</text>
-            <text class="hosp-top-meta muted">
-              {{ h.districtName || "—" }} · {{ h.hospitalType || "医院" }}
-              <text v-if="h.keyFlag"> · 重点</text>
-            </text>
-          </view>
-          <text class="hosp-top-level" :class="'hosp-lv--' + (h.hospitalLevel || '其他')">
-            {{ h.hospitalLevel || "其他" }}
-          </text>
-        </view>
-        <view v-if="hospitalKeyList.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          重点医院名录
-        </view>
-        <view
-          v-for="(h, idx) in hospitalKeyList"
-          :key="'hk-' + h.hospitalId"
-          class="hosp-top-row"
-        >
-          <text class="hosp-top-rank muted">{{ idx + 1 }}</text>
-          <view class="hosp-top-mid">
-            <text class="hosp-top-name">{{ h.displayName || h.officialName }}</text>
-            <text class="hosp-top-meta muted">{{ h.districtName || "—" }}</text>
-          </view>
-          <text class="hosp-top-level" :class="'hosp-lv--' + (h.hospitalLevel || '其他')">
-            {{ h.hospitalLevel || "其他" }}
-          </text>
-        </view>
-        <view v-if="hospitalTcmList.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          中医医院
-        </view>
-        <view
-          v-for="(h, idx) in hospitalTcmList"
-          :key="'htcm-' + h.hospitalId"
-          class="hosp-top-row"
-        >
-          <text class="hosp-top-rank muted">{{ idx + 1 }}</text>
-          <view class="hosp-top-mid">
-            <text class="hosp-top-name">{{ h.displayName || h.officialName }}</text>
-            <text class="hosp-top-meta muted">{{ h.districtName || "—" }}</text>
-          </view>
-          <text class="hosp-top-level" :class="'hosp-lv--' + (h.hospitalLevel || '其他')">
-            {{ h.hospitalLevel || "其他" }}
-          </text>
-        </view>
-        <view v-if="hospitalMaternityList.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          妇幼保健院
-        </view>
-        <view
-          v-for="(h, idx) in hospitalMaternityList"
-          :key="'hmat-' + h.hospitalId"
-          class="hosp-top-row"
-        >
-          <text class="hosp-top-rank muted">{{ idx + 1 }}</text>
-          <view class="hosp-top-mid">
-            <text class="hosp-top-name">{{ h.displayName || h.officialName }}</text>
-            <text class="hosp-top-meta muted">{{ h.districtName || "—" }}</text>
-          </view>
-          <text class="hosp-top-level" :class="'hosp-lv--' + (h.hospitalLevel || '其他')">
-            {{ h.hospitalLevel || "其他" }}
-          </text>
-        </view>
-        <view v-if="hospitalSpecialtyList.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          专科医院
-        </view>
-        <view
-          v-for="(h, idx) in hospitalSpecialtyList"
-          :key="'hsp-' + h.hospitalId"
-          class="hosp-top-row"
-        >
-          <text class="hosp-top-rank muted">{{ idx + 1 }}</text>
-          <view class="hosp-top-mid">
-            <text class="hosp-top-name">{{ h.displayName || h.officialName }}</text>
-            <text class="hosp-top-meta muted">{{ h.districtName || "—" }}</text>
-          </view>
-          <text class="hosp-top-level" :class="'hosp-lv--' + (h.hospitalLevel || '其他')">
-            {{ h.hospitalLevel || "其他" }}
-          </text>
-        </view>
-        <view v-if="hospitalDistrictCross.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          同名区医院对照 · {{ hospitalDistrictCrossName }}
-        </view>
-        <view
-          v-for="d in hospitalDistrictCross"
-          :key="'hdx-' + d.cityId + d.districtName"
-          class="hosp-dist-row"
-        >
-          <text class="hosp-dist-name">{{ cityNameForId(d.cityId) }} · {{ d.districtName }}</text>
-          <text class="hosp-dist-count">{{ d.hospitalCount }} 家</text>
-          <text v-if="d.sanJiaCount" class="hosp-dist-sj muted">三甲 {{ d.sanJiaCount }}</text>
-        </view>
-        <view v-if="hospitalGeoSummary" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          坐标覆盖（hospitals_geo）
-        </view>
-        <view v-if="hospitalGeoSummary" class="hosp-summary">
-          <view class="hosp-kpi">
-            <text class="hosp-kpi-val">{{ hospitalGeoSummary.geoCount }}</text>
-            <text class="hosp-kpi-label muted">有坐标</text>
-          </view>
-          <view class="hosp-kpi">
-            <text class="hosp-kpi-val">{{ ((hospitalGeoConfRatio?.ratio ?? 0) * 100).toFixed(0) }}%</text>
-            <text class="hosp-kpi-label muted">高置信</text>
-          </view>
-          <view class="hosp-kpi">
-            <text class="hosp-kpi-val">{{ hospitalGeoSummary.confidence.medium + hospitalGeoSummary.confidence.low }}</text>
-            <text class="hosp-kpi-label muted">中/低置信</text>
-          </view>
-        </view>
-        <view v-if="hospitalGeoCoverage" class="muted" style="margin-top: 4rpx; font-size: 22rpx">
-          全国坐标覆盖
-          {{ hospitalGeoCoverage.withCoords }}/{{ hospitalGeoCoverage.total }}
-          （{{ (hospitalGeoCoverage.coverageRatio * 100).toFixed(0) }}%）
-          <text v-if="hospitalGeoDupCount > 0">
-            · 重复 amapPoi {{ hospitalGeoDupCount }} 组
-          </text>
-        </view>
-        <view v-if="hospitalGeoConfNational.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
-          全国医院坐标置信分布
-        </view>
-        <view
-          v-for="c in hospitalGeoConfNational"
-          :key="'hgcn-' + c.level"
-          class="hosp-dist-row"
-        >
-          <text class="hosp-dist-name">{{ c.level }}</text>
-          <text class="hosp-dist-count">{{ c.count }} 家 · {{ c.cityCount }} 城</text>
-        </view>
-        <view v-if="hospitalGeoDistricts.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
-          地址分区 Top
-        </view>
-        <view
-          v-for="d in hospitalGeoDistricts"
-          :key="'geo-' + d.districtName"
-          class="hosp-dist-row"
-        >
-          <text class="hosp-dist-name">{{ d.districtName }}</text>
-          <text class="hosp-dist-count">{{ d.count }} 家</text>
-        </view>
-        <view v-if="hospitalGeoNearest.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
-          市内最近医院对
-        </view>
-        <view
-          v-for="(p, idx) in hospitalGeoNearest"
-          :key="'np-' + p.hospitalIdA + '-' + p.hospitalIdB"
-          class="hosp-geo-pair"
-        >
-          <text class="hosp-geo-rank muted">{{ idx + 1 }}</text>
-          <text class="hosp-geo-names">
-            {{ hospitalDisplayName(p.hospitalIdA) }} · {{ hospitalDisplayName(p.hospitalIdB) }}
-          </text>
-          <text class="hosp-geo-km">{{ p.distanceKm.toFixed(2) }} km</text>
-        </view>
-        <view data-cross-city v-if="hospitalGeoCrossCity.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
-          跨城最近医院对
-        </view>
-        <view
-          v-for="(p, idx) in hospitalGeoCrossCity"
-          :key="'hxc-' + p.hospitalIdA + '-' + p.hospitalIdB"
-          class="hosp-geo-pair"
-        >
-          <text class="hosp-geo-rank muted">{{ idx + 1 }}</text>
-          <text class="hosp-geo-names">
-            {{ cityNameForId(p.cityIdA) }} {{ hospitalDisplayName(p.hospitalIdA) }}
-            ·
-            {{ cityNameForId(p.cityIdB) }} {{ hospitalDisplayName(p.hospitalIdB) }}
-          </text>
-          <text class="hosp-geo-km">{{ p.distanceKm.toFixed(1) }} km</text>
-        </view>
-        <view v-if="hospitalCbdRadius" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
-          CBD {{ hospitalCbdRadius.radiusKm }}km 内医院
-          {{ hospitalCbdRadius.withinCount }} 家
-          <text v-if="hospitalCbdName">（{{ hospitalCbdName }}）</text>
-        </view>
-        <view
-          v-for="(hid, idx) in (hospitalCbdRadius?.hospitalIds ?? []).slice(0, 3)"
-          :key="'cbd-h-' + hid"
-          class="hosp-geo-pair"
-        >
-          <text class="hosp-geo-rank muted">{{ idx + 1 }}</text>
-          <text class="hosp-geo-names">{{ hospitalDisplayName(hid) }}</text>
-        </view>
-        <view v-if="hospitalGeoLowConf.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
-          低置信坐标（待复核）
-        </view>
-        <view
-          v-for="(g, idx) in hospitalGeoLowConf"
-          :key="'hgl-' + g.hospitalId"
-          class="hosp-geo-pair"
-        >
-          <text class="hosp-geo-rank muted">{{ idx + 1 }}</text>
-          <text class="hosp-geo-names">{{ hospitalDisplayName(g.hospitalId) }}</text>
-          <text class="hosp-geo-km muted">{{ g.confidence }}</text>
-        </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          名录：hospitals.csv。坐标：hospitals_geo.csv（高德文本检索）。置信度反映 POI 匹配质量。
-        </view>
-      </view>
-
       <!-- v1.121.15 周边商业 POI（poiCommercialRanking，此前未接仪表盘） -->
       <view v-if="commercialReady" class="card">
         <view class="row-between">
@@ -4245,38 +3982,6 @@ import { listingMedianUnitPriceLabel } from "../../local/priceSemantics";
 import { assessStats70Freshness } from "../../local/stats70Freshness";
 import * as store from "../../local/store";
 import {
-  summarizeHospitalByCity,
-  summarizeHospitalByCityDistrict,
-  getHospitalTopByLevelByCity,
-  getHospitalKeyFlagByCity,
-  getHospitalByCityByType,
-  getHospitalCrossCityByDistrict,
-  getHospitalByCityByDistrict,
-  type CityHospitalSummary,
-  type CityDistrictHospitalSummary,
-  type CrossCityHospitalEntry
-} from "../../local/hospitalRanking";
-import {
-  summarizeHospitalGeoByCity,
-  getHospitalGeoByCityHighConfidenceRatio,
-  getHospitalGeoByCityNearestPair,
-  getHospitalGeoByCityAddressDistrict,
-  getHospitalGeoCoverageStats,
-  detectHospitalGeoDuplicateAmapPoi,
-  getHospitalGeoByCityWithinRadius,
-  getHospitalGeoCrossCityByCityPairDistance,
-  getHospitalGeoByCityByConfidence,
-  summarizeHospitalGeoByConfidence,
-  type CityHospitalGeoSummary,
-  type HospitalGeoHighConfidenceRatio,
-  type HospitalGeoNearestPair,
-  type HospitalGeoDistrictSummary,
-  type HospitalGeoCoverageStats,
-  type HospitalGeoWithinRadius,
-  type CrossCityHospitalDistance,
-  type HospitalGeoConfidenceSummary
-} from "../../local/hospitalGeoAnalysis";
-import {
   getPoiCommercialByCommunityWalkScore,
   getPoiCommercialCrossCommunityByCategoryDistance,
   getPoiCommercialByCityBankCoverage,
@@ -4441,7 +4146,7 @@ import {
   type CrossCityOrientationFloorEntry,
   type CityOrientationFloorSummary
 } from "../../local/orientationFloorRanking";
-import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict, LocalMetroLine, LocalCommunityScatter, LocalCommunityCommercial, LocalCommute, LocalLprRow, LocalLifeConvenience, LocalHospitalGeo, LocalPoiCommercial, LocalMetroLineGeo } from "../../local/types";
+import type { LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict, LocalMetroLine, LocalCommunityScatter, LocalCommunityCommercial, LocalCommute, LocalLprRow, LocalLifeConvenience, LocalPoiCommercial, LocalMetroLineGeo } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -4612,7 +4317,6 @@ const ADVANCED_CARDS: { key: string; label: string; hint: string; hot?: boolean 
   { key: "district-map", label: "行政区+社区 地图", hint: "districtMap 地图聚合 marker/count/price/school/metro 模式", hot: true },
   { key: "school-dim-weighted", label: "学区指标加权", hint: "schoolDimensions 加权细分明细", hot: true },
   { key: "macro-lpr-card", label: "LPR+房贷利率", hint: "LPR 1y/5y + 房贷利率快照", hot: true },
-  { key: "hospital-rank", label: "医疗资源榜", hint: "hospitalRanking 周边医院" },
   { key: "commercial-heat", label: "商业热度榜", hint: "commercialRanking 小区维度", hot: true },
   { key: "listing-school-premium", label: "Listing 学区溢价", hint: "listingPremiumOverview 房源学区溢价" },
   { key: "stats70-drift", label: "70 城涨跌 Top", hint: "stats70 城市 12 月同比趋势" },
@@ -4688,87 +4392,7 @@ const districtChange = ref<DistrictChangeResponse | null>(null);
 const lifeConvenience = ref<LifeConvenienceResponse | null>(null);
 const communityScore = ref<CommunityScoreResponse | null>(null);
 
-// v1.121.12 医疗资源（同步派生，跟 cityId）
-const hospitalCitySummary = computed<CityHospitalSummary | null>(() => {
-  const all = summarizeHospitalByCity();
-  return all.find((x) => x.cityId === app.cityId) ?? null;
-});
 const hospitalCityName = computed(() => cityNameForId(app.cityId));
-const hospitalDistrictTop = computed<CityDistrictHospitalSummary[]>(() =>
-  summarizeHospitalByCityDistrict(app.cityId).slice(0, 6)
-);
-const hospitalTopList = computed<LocalHospital[]>(() =>
-  getHospitalTopByLevelByCity(app.cityId, 5)
-);
-const hospitalKeyList = computed<LocalHospital[]>(() =>
-  getHospitalKeyFlagByCity(app.cityId).slice(0, 5)
-);
-const hospitalTcmList = computed<LocalHospital[]>(() =>
-  getHospitalByCityByType(app.cityId, "中医医院").slice(0, 5)
-);
-const hospitalMaternityList = computed<LocalHospital[]>(() =>
-  getHospitalByCityByType(app.cityId, "妇幼保健院").slice(0, 5)
-);
-const hospitalSpecialtyList = computed<LocalHospital[]>(() =>
-  getHospitalByCityByType(app.cityId, "专科医院").slice(0, 5)
-);
-const hospitalDistrictCrossName = computed(
-  () => hospitalDistrictTop.value[0]?.districtName ?? ""
-);
-const hospitalDistrictCross = computed<CrossCityHospitalEntry[]>(() => {
-  const name = hospitalDistrictCrossName.value;
-  if (!name) return [];
-  return getHospitalCrossCityByDistrict(name);
-});
-const hospitalFocusDistrictList = computed<LocalHospital[]>(() => {
-  const name = hospitalDistrictCrossName.value;
-  if (!name) return [];
-  return getHospitalByCityByDistrict(app.cityId, name).slice(0, 5);
-});
-
-// v1.121.15 医院坐标覆盖
-const hospitalGeoSummary = computed<CityHospitalGeoSummary | null>(() => {
-  return summarizeHospitalGeoByCity().find((x) => x.cityId === app.cityId) ?? null;
-});
-const hospitalGeoConfRatio = computed<HospitalGeoHighConfidenceRatio | null>(() => {
-  return getHospitalGeoByCityHighConfidenceRatio().find((x) => x.cityId === app.cityId) ?? null;
-});
-const hospitalGeoCoverage = computed<HospitalGeoCoverageStats>(() => getHospitalGeoCoverageStats());
-const hospitalGeoDupCount = computed(
-  () => detectHospitalGeoDuplicateAmapPoi().length
-);
-const hospitalGeoNearest = computed<HospitalGeoNearestPair[]>(() =>
-  getHospitalGeoByCityNearestPair(app.cityId, 3)
-);
-const hospitalGeoCrossCity = computed<CrossCityHospitalDistance[]>(() =>
-  crossCityRows(getHospitalGeoCrossCityByCityPairDistance(5))
-);
-const hospitalCbdRef = computed(() => {
-  const rows = store.getCommutesByCity(app.cityId);
-  const hit = rows.find((x) => x.cbdLat != null && x.cbdLng != null);
-  if (!hit) return null;
-  return { lat: hit.cbdLat, lng: hit.cbdLng, name: hit.cbdName };
-});
-const hospitalCbdName = computed(() => hospitalCbdRef.value?.name ?? null);
-const hospitalCbdRadius = computed<HospitalGeoWithinRadius | null>(() => {
-  const ref = hospitalCbdRef.value;
-  if (!ref) return null;
-  return getHospitalGeoByCityWithinRadius(app.cityId, ref.lat, ref.lng, 3);
-});
-const hospitalGeoDistricts = computed<HospitalGeoDistrictSummary[]>(() =>
-  getHospitalGeoByCityAddressDistrict(app.cityId).slice(0, 5)
-);
-const hospitalGeoLowConf = computed<LocalHospitalGeo[]>(() =>
-  getHospitalGeoByCityByConfidence(app.cityId, "low").slice(0, 5)
-);
-const hospitalGeoConfNational = computed<HospitalGeoConfidenceSummary[]>(() =>
-  summarizeHospitalGeoByConfidence()
-);
-
-function hospitalDisplayName(hospitalId: number): string {
-  const h = store.getHospitalById(hospitalId);
-  return h?.displayName || h?.officialName || `#${hospitalId}`;
-}
 
 function communityDisplayName(communityId: number): string {
   return store.getCommunityById(communityId)?.communityName ?? `小区#${communityId}`;
@@ -8597,8 +8221,7 @@ onShow(async () => {
   font-variant-numeric: tabular-nums;
 }
 
-/* v1.121.15 医院坐标对 / 周边商业 / 菜市场 */
-.hosp-geo-pair,
+/* v1.121.15 周边商业 / 菜市场 */
 .pc-row {
   display: flex;
   align-items: center;
@@ -8606,26 +8229,14 @@ onShow(async () => {
   padding: 8rpx 0;
   border-bottom: 1rpx solid var(--color-border);
 }
-.hosp-geo-pair:last-child,
 .pc-row:last-child {
   border-bottom: none;
 }
-.hosp-geo-rank,
 .pc-rank {
   width: 36rpx;
   font-size: 22rpx;
   text-align: center;
 }
-.hosp-geo-names {
-  flex: 1;
-  min-width: 0;
-  font-size: 24rpx;
-  color: var(--color-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.hosp-geo-km,
 .pc-dist,
 .pc-score {
   font-size: 24rpx;

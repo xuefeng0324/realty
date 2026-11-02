@@ -344,6 +344,12 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(homeEntrySrc).not.toMatch(/export (const|function|type|interface)\s+(HOME_CHANNELS|HOME_KINGKONG|homeKingkongCount|HomeChannel\b|HomeChannelKey|HomeChannelAction|HomeKingkongItem|HomeKingkongAction|HomeEntryTone)/);
     expect(homeEntrySrc).toContain("HOME_SEARCH_MODES");
     expect(homeEntrySrc).toContain("resolveHomeSearch");
+    // v1.123.13：医疗资源榜死 DOM 已删除（库 hospitalRanking/hospitalGeoAnalysis 与单测保留；
+    // listing-detail/community「周边医院」卡不受影响；hospitalCityName 与周边商业/菜市场共用故保留）
+    expect(dashSrc).not.toMatch(/hospital-rank|hospitalCitySummary|hospitalGeoSummary|hospitalDisplayName/);
+    expect(dashSrc).not.toMatch(/hospitalRanking|hospitalGeoAnalysis/);
+    expect(dashSrc).not.toMatch(/hosp-geo|hosp-top|hosp-dist|hosp-kpi|hosp-summary|hosp-lv/);
+    expect(toolsSrc).not.toContain('"hospital-rank"');
     const settingsSrc = readFileSync(
       resolve(__dirname, "../src/pages/settings/settings.vue"),
       "utf8"
