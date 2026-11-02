@@ -1,4 +1,5 @@
 date,fr001,fr007,fr014,fdr001,fdr007,fdr014,source,source_url
+2026-11-02,1.35,1.38,1.41,1.29,1.36,1.37,latest_json,https://www.chinamoney.com.cn/r/cms/www/chinamoney/data/currency/frr.json
 2026-10-30,1.42,1.43,1.43,1.2808,1.38,1.35,latest_json,https://www.chinamoney.com.cn/r/cms/www/chinamoney/data/currency/frr.json
 2026-10-29,1.33,1.37,1.395,1.28,1.3341,1.3467,his_api,https://www.chinamoney.com.cn/ags/ms/cm-u-bk-currency/FrrHis
 2026-10-28,1.33,1.38,1.4,1.28,1.3327,1.35,his_api,https://www.chinamoney.com.cn/ags/ms/cm-u-bk-currency/FrrHis
