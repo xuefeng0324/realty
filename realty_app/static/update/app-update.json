@@ -1,12 +1,12 @@
 {
   "versionName": "1.122.55",
   "versionCode": "334",
-  "publishedAt": "2026-11-02T16:14:03Z",
+  "publishedAt": "2026-11-02T16:53:28Z",
   "force": false,
-  "notes": "ci: \u4fee\u5468\u66f4\u7f16\u6392\u5355\u6e90\u5361\u6b7b\uff08\u5355\u6e90 420s \u8d85\u65f6 + step \u7ea7\u786c\u4e0a\u9650\uff09\n\n2026-07-25-v1.114.0-\u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f: v1.114.0 \u2014 \u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f\n2026-07-25-v1.115.0-\u533b\u9662\u5750\u6807\u63a5\u5165\u4e0e\u6d3e\u751f: v1.115.0 \u2014 \u533b\u9662\u5750\u6807\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n",
+  "notes": "ci: P1/P2 \u9996\u8f6e\u5931\u8d25\u6765\u6e90\u6574\u7ec4\u8dd1\u5b8c\u540e\u91cd\u8bd5\u4e00\u6b21\uff0cstep \u8d85\u65f6\u515c\u5e95\n\n2026-07-25-v1.114.0-\u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f: v1.114.0 \u2014 \u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f\n2026-07-25-v1.115.0-\u533b\u9662\u5750\u6807\u63a5\u5165\u4e0e\u6d3e\u751f: v1.115.0 \u2014 \u533b\u9662\u5750\u6807\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n",
   "wgt": {
     "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/334/app.wgt",
-    "sha256": "2959cfad5ccbd82d07083c8749754eb1fd5e3dcae01a930e32e7880425645f33"
+    "sha256": "d38ade4a1b88157746e5ee4bf77942fec96a11192e9eb1f3cdbf2dec2778234e"
   },
   "ios": {
     "available": false,
