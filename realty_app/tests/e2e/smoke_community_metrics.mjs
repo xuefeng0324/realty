@@ -8,7 +8,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const SCREENSHOT_DIR = resolve(__dirname, "../../screenshots");
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
 
-const BASE = "http://127.0.0.1:5175/#/pages/dashboard/dashboard";
+const ORIGIN = (process.env.REALTY_E2E_BASE_URL || "http://127.0.0.1:5175").replace(/\/$/, "");
+const BASE = `${ORIGIN}/#/pages/dashboard/dashboard`;
 
 async function pickCity(page, cityName) {
   const current = (await page.locator(".picker-value").first().textContent()) ?? "";
@@ -34,7 +35,7 @@ async function run() {
 
   try {
     // 直接进 community 详情页 (id=1 京基100)
-    const baseUrl = "http://127.0.0.1:5175/#/pages/community/community?id=7";
+    const baseUrl = `${ORIGIN}/#/pages/community/community?id=7`;
     await page.goto(baseUrl, { waitUntil: "networkidle", timeout: 15000 });
     await page.waitForTimeout(3500);
 
@@ -99,7 +100,7 @@ async function run() {
     }
 
     // 7) 不同小区 (id=15 保利天悦) 也应该有指标
-    await page.goto("http://127.0.0.1:5175/#/pages/community/community?id=15", {
+    await page.goto(`${ORIGIN}/#/pages/community/community?id=15`, {
       waitUntil: "networkidle",
       timeout: 15000
     });
