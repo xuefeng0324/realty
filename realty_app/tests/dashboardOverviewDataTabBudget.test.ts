@@ -16,9 +16,10 @@ describe("概览页长度守护：关键大卡 data-tab 不应混入 overview", 
     return m?.[1] ?? null;
   }
 
-  it("district-8w-trend / wangqian-rank-4w 不应出现在概览", () => {
+  it("district-8w-trend 不应出现在概览；wangqian-rank-4w 已迁至 data-tools", () => {
     expect(getCardDataTab("district-8w-trend")).toBe("price");
-    expect(getCardDataTab("wangqian-rank-4w")).toBe("price");
+    // v1.123.2：wangqian-rank-4w 卡迁入数据工具页（data-tools.vue [data-dt-wangqian-rank]），dashboard 不再渲染
+    expect(getCardDataTab("wangqian-rank-4w")).toBeNull();
   });
 
   it("district-map / listing-tag-cloud / hospital-rank 不应出现在概览", () => {

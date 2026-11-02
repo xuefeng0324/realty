@@ -185,10 +185,10 @@
 | 风险 | L, F |
 | 对照 | HOUSING_PRICE；DATA_SOURCES §2 |
 
-**期望**：只谈套数/面积/活跃度；周聚合新鲜度跟得上 daily（CI 重建）。  
+**期望**：只谈套数/面积/活跃度；周聚合新鲜度跟得上 daily（CI 重建）。「近 4 周二手网签热度榜」卡 v1.123.2 起迁入数据工具页（`pages/data-tools/data-tools`，`[data-dt-wangqian-rank]`），入口：数据工具。  
 **不期望**：出现「网签均价 XXX 元/㎡」当官方价。  
-**自动化**：unit `dailyWangqian` / `wangqianTrendRanking`；ext `smoke_wangqian_heatmap`  
-**手工**：打开网签卡看日期；进网签页核对全市套数。
+**自动化**：unit `dailyWangqian` / `wangqianTrendRanking`；ext `smoke_wangqian_heatmap`（v1.123.2 起断言 data-tools 页可见）  
+**手工**：数据工具页打开网签热度榜卡看日期；进网签页核对全市套数。
 
 ---
 
@@ -214,10 +214,10 @@
 | 入口 | 总览 · 学区配套 |
 | 风险 | F, L |
 
-**期望**：列表可点进学校/小区（有 id 时）；城市过滤正确；**广深珠教育事业概览**有官方数据时展示（城市名须走同步 `store.getCityById`，不可等异步 cities）；深圳用「普通中小学」口径；珠海期间展示为「学年」非自然年「YYYY 年」；分项城市学校页仍展示幼儿园。  
+**期望**：列表可点进学校/小区（有 id 时）；城市过滤正确；**广深珠教育事业概览**有官方数据时展示（城市名须走同步 `store.getCityById`，不可等异步 cities）；深圳用「普通中小学」口径；珠海期间展示为「学年」非自然年「YYYY 年」；分项城市学校页仍展示幼儿园。「学区评分 Top 小区」卡（含区过滤/最低评分/排序控件）v1.123.2 起迁入数据工具页（`[data-dt-school-top]`）。  
 **不期望**：跨城串数据；伪造在校生/民办；首屏因 `city#id` 占位丢卡。  
-**自动化**：matrix（含「教育事业」+ `[data-education-overview]`）；unit `educationOverview` / `adversarialEducationBugs`  
-**手工**：三城切换看教育卡口径差异。
+**自动化**：matrix（含「教育事业」+ `[data-education-overview]`）；unit `educationOverview` / `adversarialEducationBugs`；ext `smoke_school_community`（v1.123.2 起断言 data-tools 页可见）  
+**手工**：三城切换看教育卡口径差异；数据工具页验证学区评分卡过滤/排序。
 
 ---
 

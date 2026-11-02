@@ -1775,59 +1775,7 @@
         </view>
       </view>
 
-      <!-- v0.10.0 近 4 周网签热度榜 -->
-      <view v-if="!isCardHidden('wangqian-rank-4w') && (wangqianOverview && wangqianOverview.items.length > 0)" class="card" data-card-key="wangqian-rank-4w" data-tab="price">
-        <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">
-            近 4 周二手网签热度榜 · {{ wangqianOverview.cityName }}
-          </view>
-          <button
-            class="card-hide-btn"
-            hover-class="tap-row--active"
-            data-dash-card-hide="wangqian-rank-4w"
-            @click.stop="toggleCardHidden('wangqian-rank-4w')"
-          >✕</button>
-          <view class="muted" style="font-size: 22rpx">
-            累计 {{ wangqianOverview.totalUnits }} 套
-          </view>
-        </view>
-        <view v-for="it in wangqianOverview.items" :key="it.district" class="wq-row">
-          <text class="wq-rank" :class="rankClass(it.rank)">{{ it.rank }}</text>
-          <text class="wq-name">{{ it.district }}</text>
-          <view class="wq-track">
-            <view
-              class="wq-fill"
-              :style="{ width: wangqianPct(it) + '%' }"
-            ></view>
-          </view>
-          <text class="wq-units">
-            {{ it.totalUnits }} 套
-            <text class="muted" style="font-size: 20rpx">({{ formatWqArea(it.totalAreaSqm) }})</text>
-          </text>
-        </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：深圳市/广州市住建局公示的每日网签，按周聚合；只看二手住宅。
-          网签活跃度反映板块热度，与挂牌价互补（挂牌 = 卖家意愿，网签 = 真实成交）。
-        </view>
-        <view v-if="wangqianWeeklyDistrictTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          派生区周累计 Top（二手）
-        </view>
-        <view
-          v-for="(it, idx) in wangqianWeeklyDistrictTop"
-          :key="'wqd-' + it.district + it.category"
-          class="wq-row"
-        >
-          <text class="wq-rank" :class="rankClass(idx + 1)">{{ idx + 1 }}</text>
-          <text class="wq-name">{{ it.district }}</text>
-          <text class="wq-units">
-            累计 {{ it.totalUnits }} 套
-            <text class="muted" style="font-size: 20rpx">
-              · 日均 {{ it.avgDailyUnits.toFixed(1) }}
-              <text v-if="it.latestUnits != null"> · 近周 {{ it.latestUnits }}</text>
-            </text>
-          </text>
-        </view>
-      </view>
+      <!-- v1.123.2：近 4 周二手网签热度榜卡已迁入数据工具页 pages/data-tools/data-tools（[data-dt-wangqian-rank]） -->
 
       <!-- v0.23.0 trend-9: 全品类区级网签热度榜 (新房/二手/全部 tab 切换) -->
       <view
@@ -4090,151 +4038,7 @@
         </view>
       </view>
 
-      <!-- v0.14.0 + v0.26.0 学区评分 Top 小区 (增强) -->
-      <view v-if="!isCardHidden('school-top-community') && (schoolPremiumCommunityItems.length > 0)" class="card" data-card-key="school-top-community">
-        <view class="row-between">
-          <view class="card-title">学区评分 Top 小区 · {{ schoolPremiumCommunityItems.length }}</view>
-          <view class="muted">{{ spSortLabel }}</view>
-        </view>
-
-        <!-- v0.26.0 trend-11 过滤 + 排序 -->
-        <view class="spc-controls">
-          <view class="spc-row">
-            <text class="spc-label">区</text>
-            <view class="spc-chips">
-              <text
-                v-for="d in spDistrictOptions"
-                :key="d"
-                :class="['spc-chip', spDistrictFilter.includes(d) ? 'spc-chip-on' : '']"
-                @click="toggleSpDistrict(d)"
-              >
-                {{ d }}
-              </text>
-            </view>
-          </view>
-          <view class="spc-row">
-            <text class="spc-label">最低评分</text>
-            <view class="spc-chips">
-              <text
-                v-for="opt in spMinScoreOptions"
-                :key="opt"
-                :class="['spc-chip', spMinScore === opt ? 'spc-chip-on' : '']"
-                @click="spMinScore = opt"
-              >
-                {{ opt === 0 ? '不限' : opt + '+' }}
-              </text>
-            </view>
-          </view>
-          <view class="spc-row">
-            <text class="spc-label">排序</text>
-            <view class="spc-chips">
-              <text
-                v-for="opt in spSortOptions"
-                :key="opt.value"
-                :class="['spc-chip', spSort === opt.value ? 'spc-chip-on' : '']"
-                @click="spSort = opt.value"
-              >
-                {{ opt.label }}
-              </text>
-            </view>
-          </view>
-        </view>
-
-        <view v-if="schoolPremiumCommunityItems.length === 0" class="empty">暂无数据</view>
-        <view
-          v-for="item in schoolPremiumCommunityItems"
-          :key="item.communityId"
-          class="community-row tap-target"
-          role="button"
-          tabindex="0"
-          hover-class="row-active"
-          @click="goCommunity(item.communityId)"
-        >
-          <view class="community-rank">
-            <text :class="['sp-medal-mini', spMedalClass(item.rank)]">{{ item.rank }}</text>
-          </view>
-          <view class="community-main">
-            <view class="community-name">{{ item.communityName }}</view>
-            <view class="muted">
-              {{ item.districtName }} · 评分 {{ item.avgSchoolScore.toFixed(1) }} · {{ item.schoolCount }} 所学校 · {{ item.listingCount }} 套
-            </view>
-          </view>
-          <view class="community-sp-price">
-            <text v-if="item.medianUnitPrice > 0" class="sp-up">¥{{ formatNum(item.medianUnitPrice) }}</text>
-            <text v-else class="muted">—</text>
-            <view class="muted" style="font-size: 20rpx">中位/㎡</view>
-          </view>
-        </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：schools.csv (district_name) + school_indicators.csv (latest_level_score_raw)。
-          支持按区过滤、最低评分筛选、4 种排序 (评分/均价/挂牌/校数)。
-        </view>
-        <view v-if="schoolPremiumCommunityDeriveTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          派生层学区评分 Top
-        </view>
-        <view
-          v-for="(it, idx) in schoolPremiumCommunityDeriveTop"
-          :key="'spcdt-' + it.communityId"
-          class="community-row tap-target"
-          hover-class="row-active"
-          @click="goCommunity(it.communityId)"
-        >
-          <view class="community-rank">
-            <text class="sp-medal-mini">{{ idx + 1 }}</text>
-          </view>
-          <view class="community-main">
-            <view class="community-name">{{ it.communityName }}</view>
-            <view class="muted">
-              {{ it.districtName }} · 评分 {{ it.avgSchoolScore.toFixed(1) }} · {{ it.schoolCount }} 所
-            </view>
-          </view>
-        </view>
-        <view v-if="schoolPremiumCommunityByFocusDistrict.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          「{{ schoolPremiumFocusDistrictName }}」区内小区学区分
-        </view>
-        <view
-          v-for="(it, idx) in schoolPremiumCommunityByFocusDistrict"
-          :key="'spfd-' + it.communityId"
-          class="community-row tap-target"
-          hover-class="row-active"
-          @click="goCommunity(it.communityId)"
-        >
-          <view class="community-rank">
-            <text class="sp-medal-mini">{{ idx + 1 }}</text>
-          </view>
-          <view class="community-main">
-            <view class="community-name">{{ it.communityName }}</view>
-            <view class="muted">评分 {{ it.avgSchoolScore.toFixed(1) }} · {{ it.schoolCount }} 所 · {{ it.listingCount }} 套</view>
-          </view>
-        </view>
-        <view data-cross-city v-if="schoolPremiumCommunityCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          跨城学区小区均分
-        </view>
-        <view
-          v-for="c in schoolPremiumCommunityCitySummaries"
-          :key="'spccs-' + c.cityId"
-          class="community-row"
-        >
-          <view class="community-main">
-            <view class="community-name">{{ cityNameForId(c.cityId) }}</view>
-            <view class="muted">
-              {{ c.communityCount }} 小区 · {{ c.totalListings }} 套
-              <text v-if="c.topCommunity"> · Top {{ c.topCommunity.communityName }}</text>
-            </view>
-          </view>
-          <view class="community-sp-price">
-            <text class="sp-up">{{ c.avgSchoolScore.toFixed(1) }}</text>
-          </view>
-        </view>
-        <view v-if="schoolPremiumTier" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          学区挂牌三层一致性：
-          小区合计 {{ schoolPremiumTier.communityListings }} ·
-          分区合计 {{ schoolPremiumTier.districtListings }}
-          <text :class="schoolPremiumTier.consistent ? 'trend-up' : 'trend-down'">
-            {{ schoolPremiumTier.consistent ? " · 一致" : " · 不一致" }}
-          </text>
-        </view>
-      </view>
+      <!-- v1.123.2：学区评分 Top 小区卡（含过滤/排序控件）已迁入数据工具页 pages/data-tools/data-tools（[data-dt-school-top]） -->
 
       <!-- 天气快照 + 4 天预报 -->
       <view v-if="weatherResp && (weatherResp.live || weatherResp.forecast.length > 0)" class="card">
@@ -4623,14 +4427,14 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getSchoolPremiumCommunityRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, getMetroWalkRanking, getMetroBenefitRanking,
+import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, getMetroWalkRanking, getMetroBenefitRanking,
   getListingFreshnessRanking,
   getDistrictMap,
   getSchoolDimensions,
   getLprOverview,
   type SchoolDimResponse,
   type LprResponse,
-  type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type SchoolPremiumCommunityItem, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type DistrictMapResponse } from "../../local/queries";
+  type DistrictTrendItem, type WangqianOverviewItem, type SchoolPremiumOverview, type WeatherResponse, type ListingSchoolPremiumOverview, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type DistrictMapResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -4675,12 +4479,10 @@ import {
   getWangqianWeeklyRecentSpikes,
   getWangqianWeeklyVolatility,
   getWangqianWeeklyByCityCategoryTrend,
-  summarizeWangqianWeeklyByDistrict,
   type DistrictWoWChange,
   type DistrictSpike,
   type DistrictVolatility,
-  type CityCategoryTrend,
-  type DistrictWeeklySummary
+  type CityCategoryTrend
 } from "../../local/wangqianTrendRanking";
 import {
   listingMedianUnitPriceLabel,
@@ -4854,16 +4656,10 @@ import {
   type CityTopComposite
 } from "../../local/schoolDimensionRanking";
 import {
-  getSchoolPremiumThreeTierConsistency,
   getSchoolPremiumDistrictByCityTop,
   getSchoolPremiumDistrictCrossCityByDistrict,
-  getSchoolPremiumCommunityTopByScore,
-  summarizeSchoolPremiumCommunityByCity,
   summarizeSchoolPremiumDistrictByCity,
-  getSchoolPremiumCommunityByDistrict,
-  type ThreeTierConsistency,
   type CrossCityDistrictEntry,
-  type CitySchoolPremiumCommunitySummary,
   type CitySchoolPremiumDistrictSummary
 } from "../../local/schoolPremiumRanking";
 import {
@@ -4892,7 +4688,7 @@ import {
   type CrossCityOrientationFloorEntry,
   type CityOrientationFloorSummary
 } from "../../local/orientationFloorRanking";
-import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict, LocalSchoolPremiumCommunity, LocalMetroLine, LocalCommunityScatter, LocalCommunityCommercial, LocalCommute, LocalLprRow, LocalLifeConvenience, LocalHospitalGeo, LocalPoiCommercial, LocalMetroLineGeo } from "../../local/types";
+import type { LocalHospital, LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalSchoolPremiumDistrict, LocalMetroLine, LocalCommunityScatter, LocalCommunityCommercial, LocalCommute, LocalLprRow, LocalLifeConvenience, LocalHospitalGeo, LocalPoiCommercial, LocalMetroLineGeo } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -5074,7 +4870,6 @@ const ADVANCED_CARDS: { key: string; label: string; hint: string; hot?: boolean 
   { key: "macro-lpr-card", label: "LPR+房贷利率", hint: "LPR 1y/5y + 房贷利率快照", hot: true },
   { key: "hospital-rank", label: "医疗资源榜", hint: "hospitalRanking 周边医院" },
   { key: "commercial-heat", label: "商业热度榜", hint: "commercialRanking 小区维度", hot: true },
-  { key: "school-top-community", label: "学区评分 Top 小区", hint: "schoolPremiumCommunityItems Top 评分小区", hot: true },
   { key: "listing-school-premium", label: "Listing 学区溢价", hint: "listingPremiumOverview 房源学区溢价" },
   { key: "stats70-drift", label: "70 城涨跌 Top", hint: "stats70 城市 12 月同比趋势" },
   { key: "lpr-mortgage-signal", label: "LPR 与房贷利率信号", hint: "lprOverview 信号卡" },
@@ -5624,11 +5419,7 @@ function mbBandClass(score: number) {
   return "mb-tag-red";
 }
 const schoolPremiumOverview = ref<SchoolPremiumOverview | null>(null);
-const schoolPremiumCommunityItems = ref<SchoolPremiumCommunityItem[]>([]);
-// v0.26.0 trend-11: 过滤 + 排序 controls
-const spDistrictFilter = ref<string>(""); // '|'-separated district names
-const spMinScore = ref<number>(0);
-const spSort = ref<import("../../local/store").SchoolPremiumCommunitySort>("avg_school_score");
+// v1.123.2: 学区评分 Top 小区卡状态（schoolPremiumCommunityItems/sp*）随卡迁入 data-tools.vue
 const weatherResp = ref<WeatherResponse | null>(null);
 const listingPremiumOverview = ref<ListingSchoolPremiumOverview | null>(null);
 const commercialResp = ref<CommercialRankingResponse | null>(null);
@@ -6827,15 +6618,7 @@ async function loadRankingAndDistrict() {
         cityId: app.cityId,
         limit: 10
       });
-      // v0.14.0 + v0.26.0 学区评分 Top 小区 (增强：过滤 + 排序)
-      const spc = await getSchoolPremiumCommunityRank({
-        cityId: app.cityId,
-        minScore: spMinScore.value,
-        districtFilter: spDistrictFilter.value,
-        sort: spSort.value,
-        limit: 10
-      });
-      schoolPremiumCommunityItems.value = spc?.items ?? [];
+      // v1.123.2: 学区评分 Top 小区卡数据获取迁入 data-tools.vue
     }
 
     // v0.16.0 实时天气 + 4 天预报
@@ -6937,14 +6720,7 @@ function rankClass(rank: number): string {
   return "wq-rank-normal";
 }
 
-function wangqianMaxUnits(): number {
-  if (!wangqianOverview.value || wangqianOverview.value.items.length === 0) return 1;
-  return Math.max(1, ...wangqianOverview.value.items.map((i) => i.totalUnits));
-}
-
-function wangqianPct(it: { totalUnits: number }): number {
-  return (it.totalUnits / wangqianMaxUnits()) * 100;
-}
+// v1.123.2: wangqianPct 随网签热度榜卡迁入 data-tools.vue
 
 // ----- v0.23.0 trend-9 全品类区级网签热度榜 -----
 function wqRankPct(it: { totalUnits: number }): number {
@@ -7011,36 +6787,7 @@ function spMedalClass(rank: number): string {
   return "medal-flat-mini";
 }
 
-// v0.26.0 trend-11 过滤 + 排序 controls
-function _computeDistrictOptions(): string[] {
-  const districts = new Set<string>();
-  for (const c of schoolPremiumCommunityItems.value) {
-    districts.add(c.districtName);
-  }
-  return [...districts].sort();
-}
-
-const spDistrictOptions = computed<string[]>(() => _computeDistrictOptions());
-const spMinScoreOptions = [0, 70, 75, 80, 85];
-const spSortOptions = [
-  { value: "avg_school_score", label: "评分" },
-  { value: "median_unit_price", label: "均价" },
-  { value: "listing_count", label: "挂牌" },
-  { value: "school_count", label: "校数" }
-] as const;
-
-function toggleSpDistrict(d: string): void {
-  const list = spDistrictFilter.value ? spDistrictFilter.value.split("|") : [];
-  const idx = list.indexOf(d);
-  if (idx >= 0) list.splice(idx, 1);
-  else list.push(d);
-  spDistrictFilter.value = list.filter(Boolean).join("|");
-}
-
-const spSortLabel = computed(() => {
-  const opt = spSortOptions.find((o) => o.value === spSort.value);
-  return opt ? `按${opt.label}排序` : "";
-});
+// v1.123.2: sp* 过滤/排序控件逻辑随学区评分卡迁入 data-tools.vue
 
 // v0.17.0 listing 学区评分等级 → medal class
 function lpScoreClass(score: number): string {
@@ -7576,9 +7323,7 @@ function idxTone(v: number | null): string {
 const schoolCompositeCrossCity = computed<CityTopComposite[]>(() =>
   crossCityRows(getCityByCompositeRank())
 );
-const schoolPremiumTier = computed<ThreeTierConsistency | null>(() =>
-  getSchoolPremiumThreeTierConsistency().find((x) => x.cityId === app.cityId) ?? null
-);
+// v1.123.2: schoolPremiumTier 随学区评分卡迁入 data-tools.vue
 const schoolPremiumDistrictTop = computed<LocalSchoolPremiumDistrict[]>(() =>
   getSchoolPremiumDistrictByCityTop(app.cityId, 5)
 );
@@ -7593,14 +7338,7 @@ const schoolPremiumDistrictCross = computed<CrossCityDistrictEntry[]>(() => {
 const schoolPremiumDistrictCitySummaries = computed<CitySchoolPremiumDistrictSummary[]>(() =>
   summarizeSchoolPremiumDistrictByCity()
 );
-const schoolPremiumFocusDistrictName = computed(
-  () => schoolPremiumDistrictTop.value[0]?.districtName ?? ""
-);
-const schoolPremiumCommunityByFocusDistrict = computed<LocalSchoolPremiumCommunity[]>(() => {
-  const name = schoolPremiumFocusDistrictName.value;
-  if (!name) return [];
-  return getSchoolPremiumCommunityByDistrict(app.cityId, name).slice(0, 5);
-});
+// v1.123.2: schoolPremiumFocusDistrictName/ByFocusDistrict 随学区评分卡迁入 data-tools.vue
 const orientationFloorCityBest = computed<CityOrientationFloorTopEntry[]>(() =>
   getOrientationFloorBestWorstByCity(2).best.filter((x) => x.cityId === app.cityId)
 );
@@ -7636,12 +7374,7 @@ const commercialScoreTop = computed<LocalCommunityCommercial[]>(() =>
 const commercialCitySummary = computed<CityCommercialSummary[]>(() =>
   summarizeCommunityCommercialByCity()
 );
-const schoolPremiumCommunityDeriveTop = computed<LocalSchoolPremiumCommunity[]>(() =>
-  getSchoolPremiumCommunityTopByScore(app.cityId, 5)
-);
-const schoolPremiumCommunityCitySummaries = computed<CitySchoolPremiumCommunitySummary[]>(() =>
-  summarizeSchoolPremiumCommunityByCity()
-);
+// v1.123.2: schoolPremiumCommunityDeriveTop/CitySummaries 随学区评分卡迁入 data-tools.vue
 const decorateAgeDistBuckets = computed<DistributionRow[]>(() =>
   getDistributionByCityDimension(app.cityId, "精装").slice(0, 6)
 );
@@ -7923,13 +7656,7 @@ function formatWangqianArea(v: number | null): string {
   return `${Math.round(v)} ㎡`;
 }
 
-const wangqianWeeklyDistrictTop = computed<DistrictWeeklySummary[]>(() => {
-  const city = hospitalCityName.value.replace(/市$/, "");
-  return summarizeWangqianWeeklyByDistrict()
-    .filter((x) => x.city === city && x.category === "二手")
-    .sort((a, b) => b.totalUnits - a.totalUnits)
-    .slice(0, 5);
-});
+// v1.123.2: wangqianWeeklyDistrictTop 随网签热度榜卡迁入 data-tools.vue
 
 // v0.48.0 dashboard-tabs: H5 only — apply active tab via body attribute
 function applyTabClass() {
@@ -7989,29 +7716,8 @@ watch(
     if (cityId === _lastCityId && weekEnd === _lastWeekEnd) return;
     _lastCityId = cityId;
     _lastWeekEnd = weekEnd;
-    // v0.26.0 trend-11: 切城市时重置过滤 (区/最低评分/排序保留)
-    spDistrictFilter.value = "";
-    spMinScore.value = 0;
-    spSort.value = "avg_school_score";
     tagCloudFilteredHint.value = "";
     await loadAll();
-  }
-);
-
-// v0.26.0 trend-11: 过滤/排序变化时重新加载该卡
-watch(
-  () => [spDistrictFilter.value, spMinScore.value, spSort.value] as const,
-  async () => {
-    const cid = app.cityId;
-    if (cid == null) return;
-    const spc = await getSchoolPremiumCommunityRank({
-      cityId: cid,
-      minScore: spMinScore.value,
-      districtFilter: spDistrictFilter.value,
-      sort: spSort.value,
-      limit: 10
-    });
-    schoolPremiumCommunityItems.value = spc?.items ?? [];
   }
 );
 
@@ -9461,43 +9167,7 @@ onShow(async () => {
   font-variant-numeric: tabular-nums;
 }
 
-/* v0.26.0 trend-11 学区评分小区榜 - 过滤/排序控件 */
-.spc-controls {
-  padding: 8rpx 0 12rpx;
-  border-bottom: 1rpx dashed var(--color-soft-strong);
-  margin-bottom: 6rpx;
-}
-.spc-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 8rpx;
-  padding: 4rpx 0;
-  font-size: 22rpx;
-}
-.spc-label {
-  flex: 0 0 90rpx;
-  color: var(--color-muted);
-  padding-top: 6rpx;
-}
-.spc-chips {
-  flex: 1 1 auto;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6rpx;
-}
-.spc-chip {
-  padding: 4rpx 12rpx;
-  border-radius: 999rpx;
-  background: var(--color-panel);
-  border: 1rpx solid #334155;
-  color: #cbd5e1;
-  font-size: 22rpx;
-}
-.spc-chip-on {
-  background: #0ea5e9;
-  color: #fff;
-  border-color: #38bdf8;
-}
+/* v1.123.2: .spc-* 过滤/排序控件样式随学区评分卡迁入 data-tools.vue */
 
 /* v0.28.0 new-6 标签云 */
 .tag-cloud {

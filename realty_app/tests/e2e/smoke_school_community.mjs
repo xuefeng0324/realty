@@ -1,10 +1,7 @@
 // smoke_school_community.mjs — v0.14.0 学区评分 Top 小区卡 E2E
-// v1.122+ 改写：dashboard 改版为纯壳层（.home-v122 .container > :not(.home-v122-shell) 全部 display:none），
-// 「学区评分 Top 小区」卡仍在 DOM 中渲染但默认不可见（待迁移，见 data-tools「剩余派生数据」）。
-// 因此本测试：
-//   1) 用 attached 断言验证数据层渲染（行数 / Top1 / 评分格式）；
-//   2) 用真实 pickCity 交互（[data-home-city] → sheet-item）切城验证数据联动；
-//   3) 注入样式临时取消隐藏后对卡片元素截图（视觉回归存档）。
+// v1.123.2 改写：该卡已正式迁入数据工具页 pages/data-tools/data-tools（[data-dt-school-top]），
+// 断言从「dashboard attached + 内联 display 截图」升级为「data-tools 页 visible 真实可见」。
+// 切城方式：dashboard 壳层真实 pickCity 交互（写 Pinia store）→ hash 导航 → reload 强制全新加载。
 import { chromium } from "playwright";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
@@ -16,38 +13,63 @@ const OUT_DIR = resolve(__dirname, "../../screenshots");
 mkdirSync(OUT_DIR, { recursive: true });
 
 const BASE = (process.env.REALTY_E2E_BASE_URL || process.env.E2E_BASE_URL || "http://127.0.0.1:5174").replace(/\/$/, "");
-const PAGE_URL = `${BASE}/#/pages/dashboard/dashboard`;
-const CARD = "[data-card-key='school-top-community']";
-// scoped CSS 会给隐藏规则追加 [data-v-hash] 提高优先级；
-// 样式表覆盖不稳，直接写内联 display:block !important（优先级最高）。
-async function unhideCard(page) {
-  await page.evaluate((sel) => {
-    document.querySelector(sel)?.style.setProperty("display", "block", "important");
-  }, CARD);
-}
+const DASH_URL = `${BASE}/#/pages/dashboard/dashboard`;
+const DASH_HASH = "#/pages/dashboard/dashboard";
+const DT_HASH = "#/pages/data-tools/data-tools";
+const CARD = "[data-dt-school-top]";
 
-async function gotoDashboard(page) {
-  await page.goto(PAGE_URL, { waitUntil: "networkidle", timeout: 20000 });
-  await page.locator(CARD).waitFor({ state: "attached", timeout: 20000 });
-}
+// 城市 → 该卡可能出现的区名（用于等数据真正切到目标城市）
+const CITY_DISTRICTS = {
+  "深圳": /南山|福田|罗湖|宝安|龙岗|龙华|盐田|坪山|光明/,
+  "广州": /天河|越秀|海珠|荔湾|白云|黄埔|番禺|花都|南沙|增城|从化/
+};
 
+// 真实交互切城：dashboard 壳层 [data-home-city] → sheet 选城市（写 Pinia store）。
 async function pickCity(page, cityName) {
-  // v122 壳层里 [data-home-city] 可见（hero 顶部）；旧 entry-card 里的同名按钮被 CSS 隐藏
+  const cur = (await page.locator("[data-home-city]").first().textContent()) ?? "";
+  if (cur.includes(cityName)) return;
   await page.locator("[data-home-city]").first().click({ force: true });
   await page.locator(".sheet-mask").waitFor({ state: "visible", timeout: 8000 });
   await page.locator(".sheet-item", { hasText: cityName }).first().click({ force: true });
   await page.locator(".sheet-mask").waitFor({ state: "hidden", timeout: 8000 }).catch(() => null);
-  await page.waitForTimeout(3500);
+  await page.waitForTimeout(1200);
+}
+
+async function gotoDataTools(page, cityName) {
+  await page.locator("[data-home-city]").first().waitFor({ state: "visible", timeout: 20000 });
+  await pickCity(page, cityName);
+  await page.evaluate((h) => { location.hash = h; }, DT_HASH);
+  // uni-app H5 会缓存已挂载页面（onMounted 不重跑）；reload 强制按持久化城市全新加载
+  await page.reload({ waitUntil: "networkidle" });
+  await page.locator(CARD).waitFor({ state: "visible", timeout: 20000 });
+  // 等第一行小区 meta 出现目标城市的区名，确保数据切到目标城市
+  await page
+    .locator(`${CARD} .community-row .muted`)
+    .filter({ hasText: CITY_DISTRICTS[cityName] })
+    .first()
+    .waitFor({ state: "visible", timeout: 15000 });
+}
+
+async function backToDashboard(page) {
+  await page.evaluate((h) => { location.hash = h; }, DASH_HASH);
+  await page.reload({ waitUntil: "networkidle" });
+  await page.locator("[data-home-city]").first().waitFor({ state: "visible", timeout: 20000 });
 }
 
 async function expectSchoolCommunityCard(page, label) {
   const card = page.locator(CARD);
-  await card.waitFor({ state: "attached", timeout: 15000 });
+  await card.waitFor({ state: "visible", timeout: 15000 });
   const title = (await card.locator(".card-title").first().textContent()) ?? "";
   if (!title.includes("学区评分 Top")) {
     throw new Error(`[${label}] 卡标题异常: ${title}`);
   }
   console.log(`[${label}] 学区评分 Top 小区卡 ✓ (${title.trim()})`);
+  // 过滤/排序控件随卡迁移：3 个 spc-row 必须可见
+  const spcRows = await card.locator(".spc-row").count();
+  console.log(`[${label}] spc 控件行: ${spcRows}`);
+  if (spcRows < 3) {
+    throw new Error(`[${label}] spc 控件缺失（${spcRows} < 3）`);
+  }
   // 至少 1 个小区行
   const items = await card.locator(".sp-medal-mini").count();
   console.log(`[${label}] 小区数: ${items}`);
@@ -67,7 +89,6 @@ async function expectSchoolCommunityCard(page, label) {
 }
 
 async function screenshotCard(page, label, filename) {
-  await unhideCard(page);
   const card = page.locator(CARD);
   await card.scrollIntoViewIfNeeded();
   await page.waitForTimeout(300);
@@ -81,17 +102,25 @@ async function run() {
   const page = await ctx.newPage();
 
   try {
-    // === 广州（默认 cityId=1）===
-    await gotoDashboard(page);
-    await expectSchoolCommunityCard(page, "广州");
+    await page.goto(DASH_URL, { waitUntil: "networkidle", timeout: 20000 });
+
+    // === 广州 ===
+    await gotoDataTools(page, "广州");
+    const gzTop1 = await expectSchoolCommunityCard(page, "广州");
     await screenshotCard(page, "gz", "smoke_school_community_gz.png");
 
-    // === 深圳（真实 pickCity 交互）===
-    await pickCity(page, "深圳");
-    await expectSchoolCommunityCard(page, "深圳");
+    // === 深圳（真实 pickCity 交互 + hash 往返）===
+    await backToDashboard(page);
+    await gotoDataTools(page, "深圳");
+    const szTop1 = await expectSchoolCommunityCard(page, "深圳");
     const cardText = await page.locator(CARD).textContent();
     if (!/南山|福田|罗湖/.test(cardText ?? "")) {
       console.warn("[sz] 学区评分榜 Top 区不在南山/福田/罗湖");
+    }
+    if (gzTop1 && szTop1 && gzTop1 !== szTop1) {
+      console.log("✅ 广深 Top1 不同 — 数据按城市正确切换");
+    } else {
+      console.warn(`⚠️ 广深 Top1 相同 (${szTop1})`);
     }
     await screenshotCard(page, "sz", "smoke_school_community_sz.png");
 

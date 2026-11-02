@@ -854,9 +854,9 @@ describe("build integrity", () => {
       expect(content).toMatch(/export function getSchoolPremiumCommunityRank/);
     });
 
-    it("dashboard.vue 含 '学区评分 Top' 卡", () => {
+    it("data-tools.vue 含 '学区评分 Top' 卡（v1.123.2 自 dashboard 迁入）", () => {
       const content = readFileSync(
-        resolve(ROOT, "src/pages/dashboard/dashboard.vue"),
+        resolve(ROOT, "src/pages/data-tools/data-tools.vue"),
         "utf-8"
       );
       expect(content).toMatch(/学区评分 Top/);
@@ -1511,14 +1511,14 @@ describe("build integrity", () => {
       expect(body).toMatch(/sort/);
     });
 
-    it("dashboard.vue 含 3 个 spc-row (区 / 最低评分 / 排序)", () => {
-      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+    it("data-tools.vue 含 3 个 spc-row (区 / 最低评分 / 排序)（v1.123.2 自 dashboard 迁入）", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/data-tools/data-tools.vue"), "utf8");
       const matches = content.match(/class="spc-row"/g) || [];
       expect(matches.length).toBeGreaterThanOrEqual(3);
     });
 
-    it("dashboard.vue 含 spDistrictOptions / spMinScoreOptions / spSortOptions 控件", () => {
-      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+    it("data-tools.vue 含 spDistrictOptions / spMinScoreOptions / spSortOptions 控件（v1.123.2 自 dashboard 迁入）", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/data-tools/data-tools.vue"), "utf8");
       expect(content).toMatch(/spDistrictOptions/);
       expect(content).toMatch(/spMinScoreOptions/);
       expect(content).toMatch(/spSortOptions/);
@@ -1526,8 +1526,8 @@ describe("build integrity", () => {
       expect(content).toMatch(/spSortLabel/);
     });
 
-    it("dashboard.vue loadAll 透传 minScore/districtFilter/sort", () => {
-      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
+    it("data-tools.vue 学区卡请求透传 minScore/districtFilter/sort（v1.123.2 自 dashboard 迁入）", () => {
+      const content = readFileSync(resolve(ROOT, "src/pages/data-tools/data-tools.vue"), "utf8");
       expect(content).toMatch(/spMinScore\.value/);
       expect(content).toMatch(/spDistrictFilter\.value/);
       expect(content).toMatch(/spSort\.value/);
