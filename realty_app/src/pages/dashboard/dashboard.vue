@@ -135,7 +135,7 @@
       </view>
 
       <!-- 首屏壳（对照美团/淘宝）：城市 + 搜索 + 频道 + 金刚；次要能力进设置 / 独立页 -->
-      <view class="card home-entry-card" data-home-entry data-tab="all,overview,price,school,transit,map">
+      <view class="card home-entry-card" data-home-entry>
         <view class="home-loc-search">
           <button class="home-city-chip" hover-class="tap-row--active" data-home-city @click="pickCity">
             <text class="home-city-name">{{ currentCityLabel || "选城市" }}</text>
@@ -764,7 +764,6 @@
         v-if="zhBdcNew && zhBdcStock"
         id="entry-zh-bdc-registration"
         class="card"
-        data-tab="price"
         data-zh-bdc-registration
       >
         <view class="row-between">
@@ -863,7 +862,6 @@
         v-if="zhPriceFiling"
         id="entry-zh-price-filing"
         class="card"
-        data-tab="price"
         data-zh-price-filing
       >
         <view class="row-between">
@@ -957,7 +955,7 @@
       </view>
 
       <!-- 官方宏观对照：全国 / 广东分组；≠城市挂牌·网签均价 -->
-      <view v-if="nbsMacro" id="entry-macro" class="card macro-card" data-tab="price" data-nbs-macro>
+      <view v-if="nbsMacro" id="entry-macro" class="card macro-card" data-nbs-macro>
         <view class="macro-kicker">全国 · 官方累计</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">房地产开发与销售</view>
@@ -1070,7 +1068,6 @@
         v-if="gzInventory"
         :id="supplyEntryOwner === 'gz' ? 'entry-supply' : undefined"
         class="card gz-inventory-card"
-        data-tab="archived"
       >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 广州新房库存</view>
@@ -1145,7 +1142,6 @@
         v-if="szPlannedSupply"
         :id="supplyEntryOwner === 'sz' ? 'entry-supply' : undefined"
         class="card"
-        data-tab="archived"
         data-sz-planned-supply
       >
         <view class="row-between">
@@ -1187,7 +1183,6 @@
         v-if="gzHousingPlan && !isOverviewCompact"
         :id="supplyEntryOwner === 'gz-plan' ? 'entry-supply' : undefined"
         class="card"
-        data-tab="archived"
         data-gz-housing-plan
       >
         <view class="row-between">
@@ -1221,7 +1216,7 @@
         </view>
       </view>
 
-      <view v-if="(gzAffordableRaised || gzAffordableCompleted) && !isOverviewCompact" class="card" data-tab="archived" data-gz-affordable-projects>
+      <view v-if="(gzAffordableRaised || gzAffordableCompleted) && !isOverviewCompact" class="card" data-gz-affordable-projects>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 广州保障房项目清单</view>
           <view class="muted" style="font-size: 22rpx">
@@ -1319,7 +1314,6 @@
         v-if="gzLandSummary && !isOverviewCompact"
         :id="landEntryOwner === 'gz' ? 'entry-land' : undefined"
         class="card"
-        data-tab="archived"
         data-gz-land-deals
       >
         <view class="row-between">
@@ -1382,7 +1376,6 @@
         v-if="szLandSummary"
         :id="landEntryOwner === 'sz' ? 'entry-land' : undefined"
         class="card"
-        data-tab="archived"
         data-sz-land-deals
       >
         <view class="row-between">
@@ -1445,7 +1438,7 @@
         </view>
       </view>
 
-      <view v-if="(szAffordableRaised || szAffordableCompleted) && !isOverviewCompact" class="card" data-tab="archived" data-sz-affordable-projects>
+      <view v-if="(szAffordableRaised || szAffordableCompleted) && !isOverviewCompact" class="card" data-sz-affordable-projects>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 深圳保障房项目表</view>
           <view class="muted" style="font-size: 22rpx">
@@ -1478,7 +1471,6 @@
         v-if="zhAffordable && !isOverviewCompact"
         :id="supplyEntryOwner === 'zh' ? 'entry-supply' : undefined"
         class="card"
-        data-tab="archived"
         data-zh-affordable-progress
       >
         <view class="row-between">
@@ -1544,7 +1536,7 @@
         <text> · 数据量: 城市 {{ runtime.data_counts.cities }} / 小区 {{ runtime.data_counts.communities }} / 房源 {{ runtime.data_counts.listings }}</text>
       </view>
 
-      <view v-if="coverage" class="card" data-tab="overview">
+      <view v-if="coverage" class="card">
         <view class="card-title">数据覆盖</view>
         <view class="muted">
           来源：{{ coverage.source_used || "全部" }} ·
@@ -1587,7 +1579,6 @@
         v-if="app.weekEnd"
         id="week-bound-strip"
         class="card week-bound-strip"
-        data-tab="all,overview,price"
       >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">本周速览 · {{ currentCityLabel }}</view>
@@ -1663,7 +1654,6 @@
         id="overview-region"
         class="card overview-card"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('region') }"
-        data-tab="overview,price"
         data-card-key="region-compare"
         @click="onOverviewCardClick('region')"
       >
@@ -1713,7 +1703,7 @@
       </view>
 
       <!-- v0.8.0 区级近 8 周价格趋势 -->
-      <view v-if="!isCardHidden('district-8w-trend') && (trendItems.length > 0)" class="card" data-card-key="district-8w-trend" data-tab="price">
+      <view v-if="!isCardHidden('district-8w-trend') && (trendItems.length > 0)" class="card" data-card-key="district-8w-trend">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">区级近 8 周房价趋势</view>
           <button
@@ -1769,7 +1759,6 @@
         id="overview-wangqian"
         class="card overview-card"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('wangqian') }"
-        data-tab="price"
         @click="onOverviewCardClick('wangqian')"
       >
         <view class="row-between">
@@ -1832,7 +1821,7 @@
       </view>
 
       <!-- 网签周环比 + 异常突增（wangqianTrendRanking 派生，随 cityId） -->
-      <view v-if="wangqianTrendWeeklyReady" class="card" data-tab="price">
+      <view v-if="wangqianTrendWeeklyReady" class="card">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">
             📈 网签周环比 · {{ wangqianTrendCityName }}
@@ -1929,7 +1918,6 @@
         id="overview-transit"
         class="card overview-card"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('transit') }"
-        data-tab="overview,transit"
         @click="onOverviewCardClick('transit')"
       >
         <view class="row-between">
@@ -2045,7 +2033,7 @@
       </view>
 
       <!-- v0.25.0 户型/面积/朝向/装修分布 -->
-      <view v-if="layoutDistribution && layoutDistribution.totalListings > 0" class="card" data-tab="price">
+      <view v-if="layoutDistribution && layoutDistribution.totalListings > 0" class="card">
         <view class="row-between">
           <view class="card-title">🏠 户型分布 · {{ layoutDistribution.cityName }}</view>
           <view class="muted">共 {{ layoutDistribution.totalListings }} 套</view>
@@ -2095,7 +2083,7 @@
       </view>
 
       <!-- v0.28.0 new-6 房源 tags 标签云 -->
-      <view v-if="!isCardHidden('listing-tag-cloud') && (tagCloud && tagCloud.tags.length > 0)" class="card" data-card-key="listing-tag-cloud" data-tab="school">
+      <view v-if="!isCardHidden('listing-tag-cloud') && (tagCloud && tagCloud.tags.length > 0)" class="card" data-card-key="listing-tag-cloud">
         <view class="row-between">
           <view class="card-title">🏷️ 房源标签云 · {{ tagCloud.cityName }}</view>
           <button
@@ -2126,7 +2114,7 @@
       </view>
 
       <!-- v0.29.0 trend-13 区房价指数 -->
-      <view v-if="!isCardHidden('district-index') && (districtIndex && districtIndex.items.length > 0)" class="card" data-card-key="district-index" data-tab="price">
+      <view v-if="!isCardHidden('district-index') && (districtIndex && districtIndex.items.length > 0)" class="card" data-card-key="district-index">
         <view class="row-between">
           <view class="card-title">📈 区房价指数 · {{ districtIndex.cityName }}</view>
           <button
@@ -2177,7 +2165,7 @@
       </view>
 
       <!-- v0.30.0 trend-14 区涨幅榜 (4 周累计) -->
-      <view v-if="!isCardHidden('district-4w-change') && (districtChange && districtChange.items.length > 0)" class="card" data-card-key="district-4w-change" data-tab="price">
+      <view v-if="!isCardHidden('district-4w-change') && (districtChange && districtChange.items.length > 0)" class="card" data-card-key="district-4w-change">
         <view class="row-between">
           <view class="card-title">🚀 区涨幅榜 (近 4 周) · {{ districtChange.cityName }}</view>
           <button
@@ -2226,7 +2214,6 @@
         id="overview-community"
         class="card overview-card"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('community') }"
-        data-tab="overview,price"
         @click="onOverviewCardClick('community')"
       >
         <view class="row-between">
@@ -2482,7 +2469,7 @@
       </view>
 
       <!-- v0.41.0 trend-21 房源新鲜度 (新挂牌多 + 滞销) -->
-      <view v-if="!isCardHidden('listing-freshness') && (listingFreshness && listingFreshness.totalCount > 0)" class="card" data-card-key="listing-freshness" data-tab="price">
+      <view v-if="!isCardHidden('listing-freshness') && (listingFreshness && listingFreshness.totalCount > 0)" class="card" data-card-key="listing-freshness">
         <view class="row-between">
           <view class="card-title">📅 房源新鲜度 · {{ listingFreshness.cityName }}</view>
           <button
@@ -2605,7 +2592,7 @@
         </view>
       </view>
 
-      <view v-if="!isCardHidden('district-map') && (districtMap && districtMap.districts.length > 0)" class="card" data-card-key="district-map" data-tab="map">
+      <view v-if="!isCardHidden('district-map') && (districtMap && districtMap.districts.length > 0)" class="card" data-card-key="district-map">
         <view class="row-between">
           <view class="card-title">🗺️ 行政区域图 · {{ districtMap.cityName }}</view>
           <button
@@ -2723,7 +2710,6 @@
         id="overview-school"
         class="card overview-card"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('school') }"
-        data-tab="school"
         @click="onOverviewCardClick('school')"
       >
         <view class="row-between">
@@ -2830,7 +2816,6 @@
         id="overview-lpr"
         class="card overview-card"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('lpr') }"
-        data-tab="price"
         @click="onOverviewCardClick('lpr')"
       >
         <view class="row-between">
@@ -3178,7 +3163,7 @@
       </view>
 
       <!-- v1.121.12 医疗资源榜（hospitalRanking 已派生，此前未接 UI） -->
-      <view v-if="!isCardHidden('hospital-rank') && (hospitalCitySummary)" class="card" data-card-key="hospital-rank" data-tab="school">
+      <view v-if="!isCardHidden('hospital-rank') && (hospitalCitySummary)" class="card" data-card-key="hospital-rank">
         <view class="row-between">
           <view class="card-title">🏥 医疗资源 · {{ hospitalCityName }}</view>
           <button
@@ -3441,7 +3426,7 @@
       </view>
 
       <!-- v1.121.15 周边商业 POI（poiCommercialRanking，此前未接仪表盘） -->
-      <view v-if="commercialReady" class="card" data-tab="transit">
+      <view v-if="commercialReady" class="card">
         <view class="row-between">
           <view class="card-title">🏪 周边商业 · {{ hospitalCityName }}</view>
           <view class="muted">{{ commercialCommunityCount }} 小区</view>
@@ -3636,7 +3621,7 @@
       </view>
 
       <!-- v1.121.15 菜市场/超市可达（poiMarketRanking） -->
-      <view v-if="marketNearTop.length" class="card" data-tab="transit">
+      <view v-if="marketNearTop.length" class="card">
         <view class="row-between">
           <view class="card-title">🥬 菜市场可达 · {{ hospitalCityName }}</view>
           <view class="muted">最近 Top {{ marketNearTop.length }}</view>
@@ -3719,7 +3704,7 @@
       </view>
 
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
-      <view v-if="!isCardHidden('life-convenience') && (lifeConvenience && lifeConvenience.items.length > 0)" class="card" data-card-key="life-convenience" data-tab="transit">
+      <view v-if="!isCardHidden('life-convenience') && (lifeConvenience && lifeConvenience.items.length > 0)" class="card" data-card-key="life-convenience">
         <view class="row-between">
           <view class="card-title">🧭 生活便利度 Top 小区 · {{ lifeConvenience.cityName }}</view>
           <view class="muted">Top {{ lifeConvenience.items.length }}</view>
@@ -3896,7 +3881,7 @@
       </view>
 
       <!-- v0.11.0 学区溢价榜 -->
-      <view v-if="schoolPremiumOverview && schoolPremiumOverview.items.length > 0" class="card" data-tab="school">
+      <view v-if="schoolPremiumOverview && schoolPremiumOverview.items.length > 0" class="card">
         <view class="row-between">
           <view class="card-title">学区溢价榜 · {{ schoolPremiumOverview.cityName }}</view>
           <view class="muted">Top {{ schoolPremiumOverview.items.length }}</view>
@@ -3991,7 +3976,7 @@
       </view>
 
       <!-- 小区排行（随周切换） -->
-      <view id="week-ranking-card" class="card" data-tab="all,overview,price">
+      <view id="week-ranking-card" class="card">
         <view class="row-between">
           <view class="card-title">小区周榜 Top {{ ranking.length }} · {{ app.weekEnd }}</view>
           <button
@@ -4085,7 +4070,7 @@
       </view>
 
       <!-- v0.17.0 listing 学区溢价榜（Top 高评分房源） -->
-      <view v-if="!isCardHidden('listing-school-premium') && (listingPremiumOverview && listingPremiumOverview.items.length > 0)" class="card" data-card-key="listing-school-premium" data-tab="price">
+      <view v-if="!isCardHidden('listing-school-premium') && (listingPremiumOverview && listingPremiumOverview.items.length > 0)" class="card" data-card-key="listing-school-premium">
         <view class="row-between">
           <view class="card-title">🏫 高学区评分房源 · {{ listingPremiumOverview.cityName }}</view>
           <view class="muted">Top {{ listingPremiumOverview.items.length }} / 共 {{ listingPremiumOverview.total }}</view>
@@ -4195,7 +4180,7 @@
       </view>
 
       <!-- v0.19.0 商业热度榜 (小区维度) -->
-      <view v-if="!isCardHidden('commercial-heat') && (commercialResp && commercialResp.items.length > 0)" class="card" data-card-key="commercial-heat" data-tab="transit">
+      <view v-if="!isCardHidden('commercial-heat') && (commercialResp && commercialResp.items.length > 0)" class="card" data-card-key="commercial-heat">
         <view class="row-between">
           <view class="card-title">🛒 商业热度 Top {{ commercialResp.items.length }} · {{ commercialResp.cityName }}</view>
           <view class="muted">共 {{ commercialResp.total }} 个小区上榜</view>
@@ -4331,7 +4316,7 @@
       </view>
 
       <!-- v0.20.0 trend-8: 同区多小区对比 (点区/板块对比 区名后展示) -->
-      <view v-if="!isCardHidden('multi-community-compare') && (districtCompareResp && districtCompareResp.items.length > 0)" class="card" data-card-key="multi-community-compare" data-tab="school">
+      <view v-if="!isCardHidden('multi-community-compare') && (districtCompareResp && districtCompareResp.items.length > 0)" class="card" data-card-key="multi-community-compare">
         <view class="row-between">
           <view class="card-title">📊 {{ districtCompareResp.districtName }} · {{ districtCompareResp.cityName }} 小区对比</view>
           <view class="muted tap-target" @click="closeDistrictCompare">✕ 关闭</view>
@@ -5699,7 +5684,6 @@ function resetCombo() {
 }
 
 // F-ENTRY-01 首页多入口
-const filterWorkbenchExpanded = ref(false);
 // v1.121.138：跳转到数据工具独立页（14 张派生卡已迁移至此）
 function goDataTools(): void {
   uni.navigateTo({ url: "/pages/data-tools/data-tools" });
@@ -5864,11 +5848,6 @@ function onHomeKingkong(k: HomeKingkongItem) {
   }
   if (a.kind === "city") {
     pickCity();
-    return;
-  }
-  if (a.kind === "period") {
-    uni.pageScrollTo({ scrollTop: 0, duration: 200 });
-    filterWorkbenchExpanded.value = true;
     return;
   }
   if (a.kind === "scroll") {

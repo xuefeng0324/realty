@@ -43,8 +43,20 @@ v1.122 之前，F-DASH-04 使用首页专业 Tabs（`overview / price / school /
   改为导航 `/pages/data-tools/data-tools`）；
 - 历史测试 `tests/dashboardTabs.test.ts`（price-tab 迁移接线门禁迁入
   `tests/homeEntry.test.ts`）、`tests/e2e/smoke_drill_down.mjs`（旧 5189 端口
-  死脚本）与 `buildIntegrity.test.ts` 的 v0.48.0 Tab 断言组；
-- 遗留长卡上的 `data-tab` 属性暂保留（已无消费者，后续轮次再清理）。
+  死脚本）与 `buildIntegrity.test.ts` 的 v0.48.0 Tab 断言组。
+
+**v1.123.7 清零残余**：
+
+- 剥离遗留长卡与数据工具页上的 `data-tab` 死属性（`dashboard.vue` 37 处 +
+  `data-tools.vue` 11 处；消费者 CSS/JS 已于 v1.123.6 删净）；
+- 删除孤儿 `filterWorkbenchExpanded`（模板无消费）与 `homeEntry.ts` 中无数据项
+  产生的 `{ kind: "period" }` 动作变体及其分支；
+- 删除断言各卡 `data-tab` 配置的 `tests/dashboardOverviewDataTabBudget.test.ts`
+  （前提已失效），防回归门禁并入 `tests/dataToolsEntry.test.ts`
+  （dashboard/data-tools 均不得再出现 `data-tab` 属性）；
+  `tests/dashboardOverviewBudget.test.ts` 的 macro-card 计数改为不依赖
+  `data-tab` 的全页统计；
+- 顺带删除垃圾快照 `scripts/_head.txt`、`scripts/_dashboard_v121137.txt`。
 
 不得让历史选择器重新成为首页入口（验收 X6 仍然有效）。
 

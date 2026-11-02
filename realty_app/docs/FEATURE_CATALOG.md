@@ -152,7 +152,7 @@
 | 风险 | F, U |
 | 状态 | ⛔ 已删除（v1.123.6 移除全部实现代码与历史测试） |
 
-**现状**：v1.122 首页收敛为新版壳（`.home-v122-shell`）后旧专业 Tab 即不可见；v1.123.6 删除全部实现——`#dash-tabs` 模板条、`activeTab`/`setDashTab`/`DASHBOARD_TABS`/`applyTabClass`/`.page[data-dash-tab]` 过滤 CSS、`src/local/dashTabs.ts`、`homeEntry.ts` 的 `{kind:'tab'}` 动作变体（首页搜索「通勤/地铁」改导航数据工具页），以及历史测试 `dashboardTabs.test.ts`、`smoke_drill_down.mjs` 与 buildIntegrity v0.48.0 断言组。遗留长卡的 `data-tab` 属性暂保留（无消费者，后续清理）。不得恢复其作为首页第二套导航（验收 X6）。  
+**现状**：v1.122 首页收敛为新版壳（`.home-v122-shell`）后旧专业 Tab 即不可见；v1.123.6 删除全部实现——`#dash-tabs` 模板条、`activeTab`/`setDashTab`/`DASHBOARD_TABS`/`applyTabClass`/`.page[data-dash-tab]` 过滤 CSS、`src/local/dashTabs.ts`、`homeEntry.ts` 的 `{kind:'tab'}` 动作变体（首页搜索「通勤/地铁」改导航数据工具页），以及历史测试 `dashboardTabs.test.ts`、`smoke_drill_down.mjs` 与 buildIntegrity v0.48.0 断言组。v1.123.7 清零残余：剥离遗留长卡与数据工具页的 `data-tab` 死属性（48 处），删除孤儿 `filterWorkbenchExpanded` 与 `homeEntry.ts` 无数据项的 `{kind:'period'}` 变体，断言 data-tab 配置的 `dashboardOverviewDataTabBudget.test.ts` 随之删除（防回归门禁并入 `dataToolsEntry.test.ts`）。不得恢复其作为首页第二套导航（验收 X6）。  
 **不期望**：把隐藏旧 DOM 存在当作当前 UI 验收通过证据。  
 **自动化**：unit `tests/homeEntry.test.ts`（旧价格入口迁行情接线门禁）与 `navigation.test.ts`（28 项迁移映射），对照 [DASHBOARD_TABS_ACCEPTANCE.md](./DASHBOARD_TABS_ACCEPTANCE.md)。注意：`smoke_dashboard_feature_matrix.mjs` 验收的是行情页（F-MKT-01），与本项无关。  
 **手工**：无需手工；当前入口验收见 F-MKT-01。

@@ -284,7 +284,7 @@
       <!-- v1.121.140 Batch 2：教育事业概览 -->
 
   <!-- v1.121.16 教育事业概览（educationOverview，学校页已有，仪表盘此前未展示） -->
-  <view v-if="eduOverview" class="card" data-tab="all,school" data-education-overview data-dt-edu-overview>
+  <view v-if="eduOverview" class="card" data-education-overview data-dt-edu-overview>
     <view class="row-between">
       <view class="card-title">📚 教育事业 · {{ eduOverview.city }}</view>
       <view class="muted">{{ formatEducationPeriodLabel(eduOverview) }}</view>
@@ -335,7 +335,7 @@
 
       <!-- v1.121.141 Batch 3：地铁步行通勤 Top -->
   <!-- v0.35.0 map-9 地铁步行通勤榜 (community → 最近地铁站, 步行时长) -->
-  <view v-if="metroWalk && metroWalk.items.length > 0" class="card" data-tab="all,transit" data-dt-commute-walk>
+  <view v-if="metroWalk && metroWalk.items.length > 0" class="card" data-dt-commute-walk>
     <view class="row-between">
       <view class="card-title">🚶 地铁步行通勤 Top · {{ metroWalk.cityName }}</view>
       <view class="muted">Top {{ metroWalk.items.length }}</view>
@@ -389,7 +389,7 @@
 
       <!-- v1.121.141 Batch 3：地铁规划受益 Top -->
   <!-- v0.36.0 map-10 地铁规划受益榜 (规划/在建线路 + 距离 → 受益分) -->
-  <view v-if="metroBenefit && metroBenefit.items.length > 0" class="card" data-tab="all,transit" data-dt-plan-benefit>
+  <view v-if="metroBenefit && metroBenefit.items.length > 0" class="card" data-dt-plan-benefit>
     <view class="row-between">
       <view class="card-title">🚇 地铁规划受益 Top · {{ metroBenefit.cityName }}</view>
       <view class="muted">Top {{ metroBenefit.items.length }}</view>
@@ -426,7 +426,7 @@
 
       <!-- v1.121.142 Batch 4：挂牌结构占比 -->
   <!-- v1.121.18 挂牌结构占比（distributionRanking + layout_distribution） -->
-  <view v-if="layoutBedroomShare.length || layoutOrientShare.length" class="card" data-tab="all,price" data-dt-listing-structure>
+  <view v-if="layoutBedroomShare.length || layoutOrientShare.length" class="card" data-dt-listing-structure>
     <view class="row-between">
       <view class="card-title">📐 挂牌结构占比 · {{ hospitalCityName }}</view>
       <view class="muted">layout</view>
@@ -571,7 +571,7 @@
     </view>
   </view>
       <!-- v0.38.0 trend-18 区情画像 (行政区代码 + 房价指数 + 学区评分 + 挂牌量 + 楼龄) -->
-      <view v-if="districtMeta && districtMeta.items.length > 0" class="card" data-tab="all,school" data-dt-district-meta>
+      <view v-if="districtMeta && districtMeta.items.length > 0" class="card" data-dt-district-meta>
         <view class="row-between">
           <view class="card-title">📋 区情画像 · {{ districtMeta.cityName }}</view>
           <view class="muted">{{ districtMeta.items.length }} 区 · {{ districtMeta.withPrice }} 有均价 · {{ districtMeta.withSchool }} 有学区</view>
@@ -635,7 +635,7 @@
   
       <!-- v0.39.0 trend-19 特征画像溢价 (户型/面积/朝向/装修 哪类更贵/更便宜) -->
       <!-- v0.39.0 trend-19 特征画像溢价 (户型/面积/朝向/装修 哪类更贵/更便宜) -->
-      <view v-if="featurePremium && featurePremium.totalCount > 0" class="card" data-tab="all,price" data-dt-feature-premium>
+      <view v-if="featurePremium && featurePremium.totalCount > 0" class="card" data-dt-feature-premium>
         <view class="row-between">
           <view class="card-title">💎 特征画像溢价 · {{ featurePremium.cityName }}</view>
           <view class="muted">基线 = 城市中位单价 · {{ featurePremium.totalCount }} 桶 · minCount ≥ 5</view>
@@ -751,7 +751,7 @@
       </view>
   
       <!-- v1.121.14 挂牌标签热度（listingTagsComparison，筛选项页已用，仪表盘此前未展示） -->
-      <view v-if="listingTagCitySummary" class="card" data-tab="all,price">
+      <view v-if="listingTagCitySummary" class="card">
         <view class="row-between">
           <view class="card-title">🔖 挂牌标签热度 · {{ listingTagCitySummary.cityName }}</view>
           <view class="muted">{{ listingTagCitySummary.totalTags }} 标签</view>
@@ -862,7 +862,7 @@
   
       <!-- v1.121.142 Batch 4：挂牌标签热度 -->
   <!-- v1.121.14 挂牌标签热度（listingTagsComparison，筛选项页已用，仪表盘此前未展示） -->
-  <view v-if="listingTagCitySummary" class="card" data-tab="all,price" data-dt-listing-tags>
+  <view v-if="listingTagCitySummary" class="card" data-dt-listing-tags>
     <view class="row-between">
       <view class="card-title">🔖 挂牌标签热度 · {{ listingTagCitySummary.cityName }}</view>
       <view class="muted">{{ listingTagCitySummary.totalTags }} 标签</view>
@@ -970,7 +970,7 @@
       <text class="ltk-share">{{ (k.share * 100).toFixed(1) }}%</text>
     </view>
   </view>
-      <view v-if="tagCombination && tagCombination.topN.length > 0" class="card" data-tab="all,price" data-dt-tag-combination>
+      <view v-if="tagCombination && tagCombination.topN.length > 0" class="card" data-dt-tag-combination>
         <view class="row-between">
           <view class="card-title">🏷️ 标签组合热度 · {{ tagCombination.cityName }}</view>
           <view class="muted">top {{ tagCombination.topN.length }} · 共 {{ tagCombination.totalCount }} 对</view>
@@ -1191,7 +1191,7 @@
 
       <!-- v1.121.142 Batch 4：重点学校维度 -->
   <!-- v1.121.17 重点学校维度（schoolDimensionRanking，学校页已有；仪表盘此前只有无校名的指标 ID） -->
-  <view v-if="dimCityReady" class="card" data-tab="all,school" data-dt-school-dimension>
+  <view v-if="dimCityReady" class="card" data-dt-school-dimension>
     <view class="row-between">
       <view class="card-title">🏫 重点学校维度 · {{ hospitalCityName }}</view>
       <view class="muted">{{ dimCitySummaryLocal?.schoolCount ?? 0 }} 所</view>
@@ -1266,7 +1266,7 @@
         </view>
       </view>
       <!-- v1.121.14 规划地铁线路概览（metroPlanningRanking 已派生，此前未接 UI） -->
-      <view v-if="metroPlanSummary" class="card" data-tab="all,transit" data-dt-metro-plan>
+      <view v-if="metroPlanSummary" class="card" data-dt-metro-plan>
         <view class="row-between">
           <view class="card-title">🛤️ 规划地铁 · {{ metroPlanCityName }}</view>
           <view class="muted">{{ metroPlanSummary.lineCount }} 条</view>

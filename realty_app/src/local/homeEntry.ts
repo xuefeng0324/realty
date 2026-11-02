@@ -24,8 +24,7 @@ export type HomeKingkongAction =
   | { kind: "switchTab"; path: string }
   | { kind: "navigate"; path: string }
   | { kind: "scroll"; anchor: string }
-  | { kind: "city" }
-  | { kind: "period" };
+  | { kind: "city" };
 
 export type HomeChannelAction =
   | { kind: "navigate"; path: string }

@@ -20,11 +20,13 @@ describe("总览长度预算 DASHBOARD_OVERVIEW_BUDGET", () => {
   const MAX_OVERVIEW_CARDS_HARD = 4; // v1.121.144 真删 14 张派生卡 + 派生 dead code 清理后：当前 1 张（nbsMacro）；硬规则 ≤ 4 锁死
   const MAX_TOTAL_LINES_HARD = 11_500; // v1.121.144 派生 dead code 清理后：当前 10 975；硬规则 ≤ 11.5k 锁死
 
+  // v1.123.7：旧专业 Tab 机制与 data-tab 属性已全部剥离，macro-card 不再按 tab
+  // 区分，直接统计全页 macro-card 数（当前 1 张：nbsMacro）。
   const overviewCards = (src.match(
-    /class="card[^"]*macro-card[^"]*"\s+data-tab="overview,price"/g
+    /class="card[^"]*macro-card[^"]*"/g
   ) ?? []).length;
 
-  it("overview tab 下 macro-card 数 ≤ 4（硬规则：禁止再涨）", () => {
+  it("全页 macro-card 数 ≤ 4（硬规则：禁止再涨）", () => {
     // 远期目标 ≤ 4；本轮任何新增卡 → 立刻 fail。
     expect(overviewCards).toBeLessThanOrEqual(MAX_OVERVIEW_CARDS_HARD);
   });
