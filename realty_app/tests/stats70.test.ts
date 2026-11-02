@@ -222,3 +222,26 @@ describe("stats70 end-to-end with real CSV", () => {
     expect(map.size).toBe(5);
   });
 });
+
+describe("stats70 页面城市过滤框", () => {
+  const page = fs.readFileSync(
+    path.resolve(__dirname, "../src/pages/stats70/stats70.vue"),
+    "utf8"
+  );
+
+  test("过滤框 + 清空 + 空态提示接线完整", () => {
+    expect(page).toContain('data-stats70-filter');
+    expect(page).toContain('v-model="cityQuery"');
+    expect(page).toContain("clearCityQuery");
+    expect(page).toContain("没有匹配");
+    expect(page).toContain("filteredRanking.length");
+  });
+
+  test("筛选后保留全表原始名次（#N 不随筛选重排）", () => {
+    // computed 里先 map 出全表名次再 filter；模板渲染 it.rank 而不是 idx+1
+    expect(page).toContain("rank: idx + 1");
+    expect(page).toContain("it.city.includes(q)");
+    expect(page).toContain("#{{ it.rank }}");
+    expect(page).not.toContain("#{{ idx + 1 }}");
+  });
+});

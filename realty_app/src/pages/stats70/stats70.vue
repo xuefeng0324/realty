@@ -79,8 +79,29 @@
           </text>
         </view>
 
+        <view class="filter-row" data-stats70-filter>
+          <input
+            v-model="cityQuery"
+            class="filter-input"
+            type="text"
+            confirm-type="search"
+            placeholder="筛选城市（如：深圳）"
+          />
+          <text
+            v-if="cityQuery"
+            class="tab chip-btn"
+            role="button"
+            tabindex="0"
+            hover-class="row-active"
+            @click="clearCityQuery"
+          >清空</text>
+        </view>
+        <view v-if="cityQuery.trim() && !filteredRanking.length" class="muted filter-empty">
+          没有匹配「{{ cityQuery.trim() }}」的城市
+        </view>
+
         <view
-          v-for="(it, idx) in ranking"
+          v-for="it in filteredRanking"
           :key="it.city"
           class="rank-row tap-target"
           role="button"
@@ -88,7 +109,7 @@
           hover-class="row-active"
           @click="onPickCity(it.city)"
         >
-          <view class="rank-no">#{{ idx + 1 }}</view>
+          <view class="rank-no">#{{ it.rank }}</view>
           <view class="rank-name">{{ it.city }}</view>
           <view class="rank-bar-track">
             <view
@@ -233,6 +254,18 @@ const ranking = computed(() => {
   const all = getRanking(base.value, kind.value);
   return sortDir.value === "desc" ? all : [...all].reverse();
 });
+
+// 城市过滤：保留原始名次（筛选后 #N 仍是全表里的真实名次），子串匹配。
+const cityQuery = ref("");
+const filteredRanking = computed(() => {
+  const q = cityQuery.value.trim();
+  const list = ranking.value.map((it, idx) => ({ ...it, rank: idx + 1 }));
+  return q ? list.filter((it) => it.city.includes(q)) : list;
+});
+
+function clearCityQuery() {
+  cityQuery.value = "";
+}
 
 const sortLabel = computed(() => (sortDir.value === "desc" ? "降序" : "升序"));
 
@@ -388,6 +421,31 @@ function onPickCity(city: string) {
   background: rgba(34, 197, 94, 0.18);
   color: #4ade80;
   border-color: #4ade80;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 8rpx;
+}
+
+.filter-input {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  height: 64rpx;
+  line-height: 64rpx;
+  background: var(--color-surface-raised);
+  border-radius: 8rpx;
+  padding: 0 16rpx;
+  color: var(--color-heading);
+  font-size: 26rpx;
+}
+
+.filter-empty {
+  padding: 16rpx 0 4rpx;
+  font-size: 24rpx;
 }
 
 .rank-row {
