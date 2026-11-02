@@ -298,7 +298,7 @@ describe("CI workflow contracts", () => {
       "gd-services"
     ]);
     expect(inventory.p2).toEqual([
-      "mlf",
+      // 2026-11-03 停更：mlf（央行 MLF 栏目改版为招标公告，无中标利率）
       "omo-rr",
       "chinabond-yield",
       "shibor",

@@ -164,7 +164,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/gd_services.csv` | `gdServices.ts` + macro-region「规上服务业」 | `crawl_gd_services.py`（**周更 CI**） | 省统计局「规模以上服务业运行简况」：营业收入同比 + 交运/IT/科研等门类；**租赁和商务 / 房地产（不含房地产开发）** 住房弱相关（≠房价、≠商品房开发销售） |
 | `static/gd_economy.csv` | `gdEconomy.ts` + 仪表盘「广东经济运行」卡（**多期默认折叠**） | `crawl_gd_economy.py`（**周更 CI**；多页列表；仅入库含 GDP 的期次） | 省统计局「经济运行简况」：不变价 GDP/三产；规上工业、社消零、固投、房开、CPI；人均可支配收入；**年报另含常住人口/城镇化率**；**≠城市挂牌/网签均价**；月度无 GDP 则跳过 |
 | `static/seed/lpr_history.csv` | LPR 卡 / 组合贷 | `compute_lpr_history.py`（基线）+ `crawl_lpr_history.py`（**月更 CI**） | 央行 PBOC 公告 1Y/5Y LPR；房贷加点沿用示意 bp |
-| `static/seed/mlf_history.csv` | `mlfHistory.ts` + dashboard「🏛️ 中期借贷便利（MLF）」 | `crawl_mlf_history.py`（**周/月更 CI**） | 央行「开展情况」公告：中标利率/操作量/余额；**2025-03 起多重价位中标，专栏多为招标量无单一利率**；**≠房价**；与 LPR 对照 |
+| `static/seed/mlf_history.csv` | `mlfHistory.ts` + dashboard「🏛️ 中期借贷便利（MLF）」 | `crawl_mlf_history.py`（**已停更**：央行 MLF 栏目 2026 改版为「招标公告」，公告无中标利率，2026-11-03 起移出周更；CSV 保留 last-good） | 央行「开展情况」公告：中标利率/操作量/余额；**2025-03 起多重价位中标，专栏多为招标量无单一利率**；**≠房价**；与 LPR 对照 |
 | `static/seed/omo_rr_history.csv` | `omoRrHistory.ts` + dashboard「🏦 公开市场逆回购」 | `crawl_omo_rr.py`（**周/月更 CI**） | 央行「公开市场业务交易公告」7 天期逆回购利率/中标量；**≠房价**；可与 LPR/MLF 对照 |
 | `static/seed/chinabond_yield.csv` | `chinaBondYield.ts` + dashboard「📈 国债收益率」 | `crawl_chinabond_yield.py`（**周/月更 CI**） | 中债国债收益率曲线关键期限（最新以监管展示表 HTML 覆盖）；**≠房价**；可与 LPR/MLF/逆回购对照 |
 | `static/seed/shibor.csv` | `shibor.ts` + dashboard「💹 Shibor」 | `crawl_shibor.py`（**周/月更 CI**） | 中国货币网 Shibor 隔夜～1Y；最新 JSON + ShiborHis 回填；**≠房价**；可与 LPR/国债收益率对照 |

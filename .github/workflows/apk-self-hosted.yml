@@ -1,6 +1,9 @@
 # apk-self-hosted.yml — 自托管 Runner 出整包 APK（路径 C 落地）
 #
-# 触发：push 到 main（realty_app 改动时） + workflow_dispatch
+# 触发：仅 workflow_dispatch（2026-11-03 起）。
+#   之前是 push + dispatch，但没有在线的自托管 runner 时，push 触发的 run
+#   会永远 queued、污染每个提交的 checks 列表。等有 runner 在线了，
+#   想恢复 push 触发直接回退本文件的触发器即可。
 #
 # 前置配置（一次性）：
 #   1. 机器装 Android SDK + cmdline-tools + platform-30 + build-tools 34
@@ -21,13 +24,6 @@
 name: realty_app apk (self-hosted)
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "realty_app/src/**"
-      - "realty_app/static/**"
-      - "realty_app/scripts/**"
-      - ".github/workflows/apk-self-hosted.yml"
   workflow_dispatch:
     inputs:
       release:
@@ -51,9 +47,6 @@ jobs:
     name: 自托管 runner 编译 APK
     runs-on: [self-hosted, windows, realty-app]
     needs: read-version
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'push' && vars.APK_ENABLE != 'false')
     timeout-minutes: 60
 
     steps:
@@ -185,7 +178,9 @@ jobs:
           Write-Host "sha256: $sha"
 
       - name: 创建 GitHub Release (Draft)
-        if: steps.keystore_check.outputs.skip != 'true' && (github.event_name == 'workflow_dispatch' || github.event.inputs.release == 'draft')
+        # 仅手动触发后，release 输入就是唯一开关：选 skip 则不建 Release。
+        # （旧条件里 event_name == 'workflow_dispatch' 恒真，skip 输入实际被忽略。）
+        if: steps.keystore_check.outputs.skip != 'true' && github.event.inputs.release != 'skip'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.read-version.outputs.name }}

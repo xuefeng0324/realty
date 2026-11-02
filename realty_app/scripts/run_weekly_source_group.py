@@ -129,8 +129,11 @@ DEFAULT_SOURCE_GROUPS: dict[str, tuple[SourceSpec, ...]] = {
         SourceSpec("gd-retail", _python_command("crawl_gd_retail.py", "--max", "12")),
         SourceSpec("gd-services", _python_command("crawl_gd_services.py", "--max", "12")),
     ),
+    # 2026-11-03 停更：mlf。央行 MLF 栏目已改版为「招标公告」，
+    # 公告里只有招标量/期限，没有中标利率，拿不到 mlf_1y_pct（实测 46 个
+    # 「中期借贷便利」标题全是招标公告，0 个「开展情况」结果公告）。
+    # CSV 保留 last-good；栏目恢复发布结果公告后再加回。
     "p2": (
-        SourceSpec("mlf", _python_command("crawl_mlf_history.py", "--max", "24")),
         SourceSpec("omo-rr", _python_command("crawl_omo_rr.py", "--max", "36")),
         SourceSpec(
             "chinabond-yield",

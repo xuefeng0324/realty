@@ -65,6 +65,8 @@ jobs:
           #   stats_70.csv                      — 70 城指数月度（每月 18 日发布下月）
           #   gd_construction.csv               — 广东省建筑业生产运行简况（半年/季度发）
           #   gz_housing_plan.csv               — 广州住房发展年度计划（年初发）
+          #   mlf_history.csv                   — 央行 MLF 栏目 2026 改版为招标公告（无中标利率），
+          #                                     2026-11-03 起停更（等栏目恢复后从白名单移除）
           #
           # 节奏口径（--cadence）：这些源本身是季更/半年更，但仍在正常监控范围内，
           # 不能用统一的 90 天阈值判定（否则天天误报），也不能直接豁免（会失去监控）。
@@ -75,7 +77,7 @@ jobs:
           # 命中项按自己的预算判定：180 天才 WARN，360 天才 STALE（源真停更仍会报警）。
           python scripts/check_csv_freshness.py \
             --exempt-from-stale \
-              gz_provident_annual.csv,sz_provident_annual.csv,gd_provident_annual.csv,provident_fund_rates.csv,zh_provident_dynamics.csv,education_overview.csv,zh_bdc_registration.csv,zh_price_filing.csv,nbs_avg_wage.csv,stats_70.csv,gd_construction.csv,gz_housing_plan.csv \
+              gz_provident_annual.csv,sz_provident_annual.csv,gd_provident_annual.csv,provident_fund_rates.csv,zh_provident_dynamics.csv,education_overview.csv,zh_bdc_registration.csv,zh_price_filing.csv,nbs_avg_wage.csv,stats_70.csv,gd_construction.csv,gz_housing_plan.csv,mlf_history.csv \
             --cadence \
               mot_transport.csv=quarterly,nbs_gdp.csv=quarterly,nbs_income.csv=quarterly \
             > freshness.md
@@ -86,7 +88,7 @@ jobs:
         run: |
           python scripts/check_csv_freshness.py \
             --exempt-from-stale \
-              gz_provident_annual.csv,sz_provident_annual.csv,gd_provident_annual.csv,provident_fund_rates.csv,zh_provident_dynamics.csv,education_overview.csv,zh_bdc_registration.csv,zh_price_filing.csv,nbs_avg_wage.csv,stats_70.csv,gd_construction.csv,gz_housing_plan.csv \
+              gz_provident_annual.csv,sz_provident_annual.csv,gd_provident_annual.csv,provident_fund_rates.csv,zh_provident_dynamics.csv,education_overview.csv,zh_bdc_registration.csv,zh_price_filing.csv,nbs_avg_wage.csv,stats_70.csv,gd_construction.csv,gz_housing_plan.csv,mlf_history.csv \
             --cadence \
               mot_transport.csv=quarterly,nbs_gdp.csv=quarterly,nbs_income.csv=quarterly \
             --json > freshness.json || true

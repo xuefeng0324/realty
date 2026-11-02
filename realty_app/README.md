@@ -665,6 +665,10 @@ gh auth setup-git
 
 详细变更见 [changelog/](./changelog/) 目录。
 
+### CI 卫生：apk 仅手动触发与 MLF 停更（2026-11-03，不发版）
+
+`apk-self-hosted.yml` 移除 push 触发（无自托管 runner 时 run 永远 queued 污染 checks），顺手修了 `release: skip` 输入被恒真条件忽略的潜伏 bug；`mlf` 因央行栏目改版为「招标公告」（无中标利率）停更、CSV 保留 last-good 并加入新鲜度豁免名单；清理仓库根未跟踪垃圾（`%TEMP%/`、一次性 probe 脚本）。详见 [changelog/2026-11-03-CI卫生apk触发与MLF停更.md](./changelog/2026-11-03-CI卫生apk触发与MLF停更.md)。
+
 ### 周更 sz 源降级与新鲜度门禁（2026-11-03，不发版）
 
 `crawl-weekly` 结构修复后仍红，剩余全是源站侧问题：`sz-education` / `sz-planned-supply` / `sz-affordable-projects` 在 GitHub runner 上系统性 `Connection reset`（本机可通），`zh-price-filing` 的珠海备案栏目 2026-07 起 404（导航挂链接但页面不存在）。处理：sz 三源从 P1 硬门禁降级到 P2 尽力而为，`zh-price-filing` 停更保留 last-good；同时新增 `static/source_health.json` 健康档案 + `scripts/check_source_freshness.py` 新鲜度门禁——降级来源超过 21 天没有一次成功抓取仍会打红，防止「降级后静默停更」。详见 [changelog/2026-11-03-周更sz源降级与新鲜度门禁.md](./changelog/2026-11-03-周更sz源降级与新鲜度门禁.md)。
