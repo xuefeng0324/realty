@@ -336,6 +336,14 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(dashSrc).not.toMatch(/home-entry-card|home-loc-search|home-city-chip|home-search-modes|home-mode-chip|home-channel-chip|home-king-tile|home-king-icon|home-king-label|home-entry-hint/);
     expect(dashSrc).not.toMatch(/onHomeChannel|onHomeKingkong|HOME_CHANNELS|HOME_KINGKONG|data-home-channels/);
     expect(dashSrc).not.toMatch(/\.home-search\b|\.home-search-input|\.home-search-btn/);
+    // v1.123.11：homeEntry.ts 库级死定义已删除（v1.123.10 起无任何 UI/脚本消费者）
+    const homeEntrySrc = readFileSync(
+      resolve(__dirname, "../src/local/homeEntry.ts"),
+      "utf8"
+    );
+    expect(homeEntrySrc).not.toMatch(/export (const|function|type|interface)\s+(HOME_CHANNELS|HOME_KINGKONG|homeKingkongCount|HomeChannel\b|HomeChannelKey|HomeChannelAction|HomeKingkongItem|HomeKingkongAction|HomeEntryTone)/);
+    expect(homeEntrySrc).toContain("HOME_SEARCH_MODES");
+    expect(homeEntrySrc).toContain("resolveHomeSearch");
     const settingsSrc = readFileSync(
       resolve(__dirname, "../src/pages/settings/settings.vue"),
       "utf8"

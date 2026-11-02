@@ -59,10 +59,10 @@ describe("宏观 5 子页骨架 PAGES_MACRO_*", () => {
     }
   });
 
-  it("homeEntry.ts 宏观 tile 改 navigate → macro-region（非 scroll）", () => {
+  it("homeEntry.ts 宏观关键词路由 navigate → macro-region（非 scroll；v1.123.11 起匹配 PAGE_KEYWORD_ROUTES）", () => {
     const homeEntry = readFileSync(resolve(configDir, "local/homeEntry.ts"), "utf8");
     expect(homeEntry).toMatch(
-      /key:\s*"macro"[\s\S]{0,200}kind:\s*"navigate"[\s\S]{0,200}macro-region/
+      /keys:\s*\[[^\]]*"宏观"[\s\S]{0,200}?kind:\s*"navigate"[\s\S]{0,120}?macro-region/
     );
   });
 

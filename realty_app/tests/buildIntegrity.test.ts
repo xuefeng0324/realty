@@ -3267,12 +3267,9 @@ describe("build integrity", () => {
 
     it("dashboard.vue: 首页金刚区 + 搜索入口 (F-ENTRY-01)", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      const entry = readFileSync(resolve(ROOT, "src/local/homeEntry.ts"), "utf8");
       expect(dash).toMatch(/data-home-entry/);
       expect(dash).toMatch(/data-home-kingkong/);
       expect(dash).toMatch(/id="entry-macro"/);
-      expect(entry).toMatch(/key: "settings"/);
-      expect(entry).toMatch(/pages\/settings\/settings/);
     });
 
     it("dashboard.vue: hero 用 swiper 自动滚动 + listingCount/medianUnitPrice 聚合", () => {

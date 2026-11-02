@@ -2,10 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
-  HOME_CHANNELS,
-  HOME_KINGKONG,
   HOME_SEARCH_MODES,
-  homeKingkongCount,
   homeLandEntryOwner,
   homeSupplyEntryOwner,
   resolveHomeScrollAnchor,
@@ -15,42 +12,8 @@ import {
 } from "../src/local/homeEntry";
 
 describe("homeEntry F-ENTRY-01", () => {
-  it("金刚区与频道数量达标", () => {
-    expect(homeKingkongCount()).toBeGreaterThanOrEqual(8);
-    expect(HOME_CHANNELS.length).toBeGreaterThanOrEqual(5);
+  it("搜索模式三栏固定（v1.123.11 起频道/金刚库定义已删，仅保留壳层消费面）", () => {
     expect(HOME_SEARCH_MODES.map((m) => m.key)).toEqual(["school", "listing", "page"]);
-    expect(HOME_KINGKONG.some((k) => k.label === "宏观")).toBe(true);
-    expect(HOME_KINGKONG.some((k) => k.action.kind === "navigate")).toBe(true);
-    expect(HOME_KINGKONG.some((k) => k.key === "inventory")).toBe(true);
-    expect(HOME_KINGKONG.some((k) => k.key === "land")).toBe(true);
-  });
-
-  it("频道条全部为独立页/Tab 跳转，禁止纯滚动", () => {
-    for (const c of HOME_CHANNELS) {
-      expect(["navigate", "switchTab", "find"]).toContain(c.action.kind);
-    }
-    expect(HOME_CHANNELS.find((c) => c.key === "tools")?.action).toEqual({
-      kind: "navigate",
-      path: "/pages/data-tools/data-tools"
-    });
-    expect(HOME_CHANNELS.find((c) => c.key === "supply")?.action).toEqual({
-      kind: "navigate",
-      path: "/pages/supply/supply"
-    });
-    expect(HOME_CHANNELS.find((c) => c.key === "macro")?.action).toEqual({
-      kind: "navigate",
-      path: "/pages/macro-region/macro-region"
-    });
-  });
-
-  it("旧价格入口 price-tab 只能迁往行情一级 Tab（原 dashboardTabs.test.ts X3/U4 门禁）", () => {
-    const price = HOME_KINGKONG.find((k) => k.key === "price-tab");
-    expect(price).toBeTruthy();
-    expect(price!.label).toBe("行情");
-    expect(price!.action).toEqual({
-      kind: "switchTab",
-      path: "/pages/market/market"
-    });
   });
 
   it("搜索路由解析", () => {
@@ -141,7 +104,7 @@ describe("homeEntry F-ENTRY-01", () => {
   });
 
   it("入口文案不误标成交均价", () => {
-    const blob = JSON.stringify(HOME_KINGKONG) + JSON.stringify(HOME_CHANNELS);
+    const blob = JSON.stringify(HOME_SEARCH_MODES);
     expect(blob).not.toMatch(/成交均价/);
   });
 
@@ -177,18 +140,5 @@ describe("homeEntry F-ENTRY-01", () => {
     expect(ia).toContain("验收标准");
     expect(ia).toContain("pending listing");
     expect(ia).toContain("独立页");
-  });
-
-  it("金刚区库存/土地点击跳供需独立页（非本页滚动）", () => {
-    const inv = HOME_KINGKONG.find((k) => k.key === "inventory");
-    expect(inv?.action).toEqual({
-      kind: "navigate",
-      path: "/pages/supply/supply?focus=inventory"
-    });
-    const land = HOME_KINGKONG.find((k) => k.key === "land");
-    expect(land?.action).toEqual({
-      kind: "navigate",
-      path: "/pages/supply/supply?focus=land"
-    });
   });
 });

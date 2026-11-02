@@ -1,7 +1,9 @@
 /**
  * 总览首页多入口配置（F-ENTRY-01）
- * 对照：美团定位+搜索、淘宝/拼多多频道+金刚区；房价三轴不误标成交价。
+ * 对照：美团定位+搜索；房价三轴不误标成交价。
  * v1.121.143：频道/金刚「供需·工具」等改为 navigate 独立页，不再本页滚动。
+ * v1.123.11：HOME_CHANNELS / HOME_KINGKONG 库定义删除（v1.123.10 起已无 UI 消费者）；
+ * 保留搜索模式 / 关键词路由 / 锚点解析 / pending query（v122 壳层与 listing-filter/school 消费）。
  */
 
 export type HomeSearchMode = "school" | "listing" | "page";
@@ -9,70 +11,10 @@ export type HomeSearchMode = "school" | "listing" | "page";
 /** 五栏改版后的统一找房入口模式。旧 school 路由仍保留深链兼容。 */
 export type FindHubMode = "listing" | "community" | "school";
 
-export type HomeChannelKey =
-  | "price"
-  | "wangqian"
-  | "macro"
-  | "supply"
-  | "amenity"
-  | "tools";
-
-export type HomeEntryTone = "blue" | "green" | "red" | "amber" | "violet" | "rose" | "slate";
-
-export type HomeKingkongAction =
-  | { kind: "find"; mode: FindHubMode }
-  | { kind: "switchTab"; path: string }
-  | { kind: "navigate"; path: string }
-  | { kind: "scroll"; anchor: string }
-  | { kind: "city" };
-
-export type HomeChannelAction =
-  | { kind: "navigate"; path: string }
-  | { kind: "switchTab"; path: string }
-  | { kind: "find"; mode: FindHubMode };
-
-export interface HomeChannel {
-  key: HomeChannelKey;
-  label: string;
-  action: HomeChannelAction;
-}
-
-export interface HomeKingkongItem {
-  key: string;
-  icon: string;
-  label: string;
-  tone: HomeEntryTone;
-  action: HomeKingkongAction;
-}
-
 export const HOME_SEARCH_MODES: { key: HomeSearchMode; label: string; placeholder: string }[] = [
   { key: "school", label: "学校", placeholder: "搜学校名，如 实验、外国语" },
   { key: "listing", label: "房源", placeholder: "去房源页按区/总价筛选" },
   { key: "page", label: "本页", placeholder: "宏观 / 网签 / 库存 / 70城…" }
-];
-
-/** 频道条：一律跳独立页 / Tab，禁止只滚本页长流 */
-export const HOME_CHANNELS: HomeChannel[] = [
-  { key: "price", label: "房价", action: { kind: "switchTab", path: "/pages/market/market" } },
-  { key: "wangqian", label: "网签", action: { kind: "navigate", path: "/pages/wangqian/wangqian" } },
-  { key: "macro", label: "宏观", action: { kind: "navigate", path: "/pages/macro-region/macro-region" } },
-  { key: "supply", label: "供需", action: { kind: "navigate", path: "/pages/supply/supply" } },
-  { key: "amenity", label: "配套", action: { kind: "find", mode: "school" } },
-  { key: "tools", label: "工具", action: { kind: "navigate", path: "/pages/data-tools/data-tools" } }
-];
-
-export const HOME_KINGKONG: HomeKingkongItem[] = [
-  { key: "listing", icon: "🏠", label: "房源", tone: "green", action: { kind: "find", mode: "listing" } },
-  { key: "community", icon: "🏙️", label: "小区", tone: "blue", action: { kind: "find", mode: "community" } },
-  { key: "school", icon: "🏫", label: "学校", tone: "amber", action: { kind: "find", mode: "school" } },
-  { key: "map", icon: "🗺️", label: "地图", tone: "blue", action: { kind: "switchTab", path: "/pages/map-view/map-view" } },
-  { key: "wangqian", icon: "📋", label: "网签", tone: "red", action: { kind: "navigate", path: "/pages/wangqian/wangqian" } },
-  { key: "stats70", icon: "📈", label: "70城", tone: "violet", action: { kind: "navigate", path: "/pages/stats70/stats70" } },
-  { key: "macro", icon: "🏛️", label: "宏观", tone: "slate", action: { kind: "navigate", path: "/pages/macro-region/macro-region" } },
-  { key: "inventory", icon: "🏗️", label: "库存", tone: "amber", action: { kind: "navigate", path: "/pages/supply/supply?focus=inventory" } },
-  { key: "land", icon: "🗺️", label: "土地", tone: "green", action: { kind: "navigate", path: "/pages/supply/supply?focus=land" } },
-  { key: "price-tab", icon: "💰", label: "行情", tone: "red", action: { kind: "switchTab", path: "/pages/market/market" } },
-  { key: "settings", icon: "👤", label: "我的", tone: "rose", action: { kind: "switchTab", path: "/pages/settings/settings" } }
 ];
 
 /** 本页搜索关键词 → 独立页（不再滚锚点） */
@@ -153,10 +95,6 @@ export function resolveHomeSearch(mode: HomeSearchMode, raw: string): HomeSearch
     }
   }
   return { kind: "none", reason: "未识别关键词，可试：宏观、网签、库存、70城、工具" };
-}
-
-export function homeKingkongCount(): number {
-  return HOME_KINGKONG.length;
 }
 
 /** 首页滚动锚点在当前城市下的可达性（库存/土地按城挂 id；遗留兼容） */
