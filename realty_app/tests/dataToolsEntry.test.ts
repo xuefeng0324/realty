@@ -330,6 +330,8 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(dashSrc).not.toContain("filterWorkbenchExpanded");
     expect(toolsSrc).not.toMatch(/\sdata-tab="/);
     expect(dashSrc).not.toMatch(/data-home-workbench|toggleCityScoped|pickMetric/);
+    // v1.123.9：topnav 周期条 + 本周速览条 + 小区周榜卡死 DOM 已删除
+    expect(dashSrc).not.toMatch(/topnav-period|stepPeriod|currentPeriodIdx|week-bound-strip|week-ranking-card|rankingTotal|getCommunityRanking/);
     const settingsSrc = readFileSync(
       resolve(__dirname, "../src/pages/settings/settings.vue"),
       "utf8"

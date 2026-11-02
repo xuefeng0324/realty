@@ -1480,61 +1480,6 @@
 
       <view v-if="errorMsg" class="error">{{ errorMsg }}</view>
 
-      <!-- v0.49.0 topnav-1: 周期切换 sticky 顶栏 -->
-      <view v-if="app.weekEnd && periods.length > 1" class="topnav-period">
-        <view class="topnav-p-week">
-          📅 第 <text class="topnav-p-num">{{ currentPeriodIdx + 1 }}</text>
-          / {{ periods.length }} 周 · {{ app.weekEnd }}
-        </view>
-        <view class="topnav-p-btns">
-          <button
-            class="topnav-p-btn tap-row"
-            :class="{ 'topnav-p-btn--disabled': currentPeriodIdx <= 0 }"
-            hover-class="tap-row--active"
-            :disabled="currentPeriodIdx <= 0"
-            @click="stepPeriod(-1)"
-          >‹ 上一周</button>
-          <button
-            class="topnav-p-btn tap-row"
-            :class="{ 'topnav-p-btn--disabled': currentPeriodIdx >= periods.length - 1 }"
-            hover-class="tap-row--active"
-            :disabled="currentPeriodIdx >= periods.length - 1"
-            @click="stepPeriod(1)"
-          >下一周 ›</button>
-        </view>
-      </view>
-
-      <!-- 本周速览：切换周时这里数字必须变，避免用户以为控件坏了 -->
-      <view
-        v-if="app.weekEnd"
-        id="week-bound-strip"
-        class="card week-bound-strip"
-      >
-        <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">本周速览 · {{ currentCityLabel }}</view>
-          <view class="muted" style="font-size: 22rpx">{{ app.weekEnd }}</view>
-        </view>
-        <view class="week-bound-grid">
-          <view class="week-bound-kpi">
-            <text class="cell-label">上榜小区</text>
-            <text class="week-bound-value">{{ rankingTotal }}</text>
-          </view>
-          <view class="week-bound-kpi">
-            <text class="cell-label">有数据的区</text>
-            <text class="week-bound-value">{{ districtItems.length }}</text>
-          </view>
-          <view class="week-bound-kpi">
-            <text class="cell-label">周榜 Top1</text>
-            <text class="week-bound-value week-bound-value--sm">
-              {{ ranking[0]?.community_name || "—" }}
-            </text>
-          </view>
-        </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 20rpx">
-          按 crawl_date 落在本周窗口的挂牌聚合；宏观 / 网签日更 / 地铁规划等快照不随周切换。
-        </view>
-      </view>
-
       <!-- v0.55.0 hero-1: 顶部大盘轮播 + 快捷入口图标网格 -->
       <view class="hero-section" v-if="heroSlides.length > 0">
         <view class="hero-carousel">
@@ -3905,40 +3850,6 @@
         </view>
       </view>
 
-      <!-- 小区排行（随周切换） -->
-      <view id="week-ranking-card" class="card">
-        <view class="row-between">
-          <view class="card-title">小区周榜 Top {{ ranking.length }} · {{ app.weekEnd }}</view>
-          <button
-            class="card-hide-btn"
-            hover-class="tap-row--active"
-            data-dash-card-hide="school-top-community"
-            @click.stop="toggleCardHidden('school-top-community')"
-          >✕</button>
-          <view class="muted" v-if="rankingTotal">共 {{ rankingTotal }} 条</view>
-        </view>
-
-        <view v-if="ranking.length === 0" class="empty">暂无数据</view>
-        <view
-          v-for="item in ranking"
-          :key="item.community_id"
-          class="community-row tap-target"
-          role="button"
-          tabindex="0"
-          hover-class="row-active"
-          @click="goCommunity(item.community_id)"
-        >
-          <view class="community-rank">#{{ item.rank }}</view>
-          <view class="community-main">
-            <view class="community-name">{{ item.community_name }}</view>
-            <view class="muted">
-              均价 {{ formatUnitPrice(item.avg_unit_price) }} · 挂牌 {{ item.listing_count }}
-            </view>
-          </view>
-          <view class="muted" style="font-size: 22rpx">置信 {{ coverageText(item.coverage_score) }}</view>
-        </view>
-      </view>
-
       <!-- v1.123.2：学区评分 Top 小区卡（含过滤/排序控件）已迁入数据工具页 pages/data-tools/data-tools（[data-dt-school-top]） -->
 
       <!-- 天气快照 + 4 天预报 -->
@@ -4328,7 +4239,7 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getCommunityRanking, getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, getMetroWalkRanking, getMetroBenefitRanking,
+import { getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getSchoolPremiumRank, getWeather, getTopListingsBySchoolPremium, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, getMetroWalkRanking, getMetroBenefitRanking,
   getListingFreshnessRanking,
   getDistrictMap,
   getSchoolDimensions,
@@ -4590,13 +4501,12 @@ import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
   CityItem,
-  CommunityRankingItem,
   CoverageResponse,
   DistrictCompareItem,
   RuntimeMetaResponse,
   SourceStatItem
 } from "../../api/contracts";
-import { coverageText, formatMacro100m, formatMacroArea, formatMacroPct, formatMacroYuan, formatUnitPrice, macroTrendBand, macroTrendClass, showToast, daysAgoFromToday } from "../../utils/format";
+import { formatMacro100m, formatMacroArea, formatMacroPct, formatMacroYuan, formatUnitPrice, macroTrendBand, macroTrendClass, showToast, daysAgoFromToday } from "../../utils/format";
 import { SNAPSHOT_UPDATED_EVENT } from "../../config";
 import {
   getLatestNbsRealEstate,
@@ -4806,8 +4716,6 @@ const sourceOptions = ref<SourceStatItem[]>([]);
 const runtime = ref<RuntimeMetaResponse | null>(null);
 const coverage = ref<CoverageResponse | null>(null);
 
-const ranking = ref<CommunityRankingItem[]>([]);
-const rankingTotal = ref<number>(0);
 const districtItems = ref<DistrictCompareItem[]>([]);
 const trendItems = ref<DistrictTrendItem[]>([]);
 const wangqianOverview = ref<WangqianOverviewItem | null>(null);
@@ -6002,33 +5910,6 @@ function onHeroChange(e: any) {
   heroIdx.value = Math.max(0, Math.min(idx, heroSlides.value.length - 1));
 }
 
-// v0.49.0 topnav-1: 周期切换 helper
-const currentPeriodIdx = computed(() => {
-  if (!app.weekEnd || periods.value.length === 0) return -1;
-  return periods.value.indexOf(app.weekEnd);
-});
-function stepPeriod(delta: number) {
-  const list = periods.value;
-  if (list.length === 0) return;
-  const cur = currentPeriodIdx.value;
-  const next = cur + delta;
-  if (next < 0 || next >= list.length) return;
-  const target = list[next];
-  if (!target || target === app.weekEnd) return;
-  app.setWeekEnd(target);
-  loadRankingAndDistrict().then(() => {
-    showToast(`已切到 ${target} · 上榜 ${rankingTotal.value} 小区`);
-    // 滚到本周速览，让数字变化可见
-    setTimeout(() => {
-      try {
-        uni.pageScrollTo({ selector: "#week-bound-strip", duration: 280 });
-      } catch (_) {
-        /* H5 / 部分端可能无 selector */
-      }
-    }, 50);
-  });
-}
-
 const cityScoped = ref(true);
 function applyCityScopedClass(on: boolean) {
   // .page.city-scoped 已由模板 :class 绑定（App 可达）；H5 双写 body 兼容旧 e2e
@@ -6180,24 +6061,11 @@ async function loadRuntime() {
 async function loadRankingAndDistrict() {
   if (!app.cityId || !app.weekEnd) return;
   try {
-    const [r, d] = await Promise.all([
-      getCommunityRanking({
-        cityId: app.cityId,
-        weekEnd: app.weekEnd,
-        metric: app.metric,
-        top: 20,
-        page: 1,
-        pageSize: 20,
-        source: app.source || undefined
-      }),
-      getDistrictCompare({
-        cityId: app.cityId,
-        weekEnd: app.weekEnd,
-        source: app.source || undefined
-      })
-    ]);
-    ranking.value = r.data || [];
-    rankingTotal.value = Number(r.total || r.data?.length || 0);
+    const d = await getDistrictCompare({
+      cityId: app.cityId,
+      weekEnd: app.weekEnd,
+      source: app.source || undefined
+    });
     districtItems.value = d.items || [];
     // v0.8.0 区级近 N 周趋势
     if (app.cityId) {
@@ -9785,64 +9653,6 @@ onShow(async () => {
 }
 .map-marker-bare.tap-row:hover {
   fill: #ef4444;
-}
-
-/* v0.49.0 topnav-1: 周次切换 sticky bar
- * 信息流同色表面（对照贝壳/链家顶栏：浅底+细分隔，非深色浮岛）
- */
-.topnav-period {
-  display: flex;
-  flex-direction: column;
-  gap: 8rpx;
-  padding: 16rpx 24rpx 12rpx;
-  background: var(--color-surface);
-  color: var(--color-text);
-  border-radius: 0;
-  margin: 0;
-  box-shadow: none;
-  border-bottom: 1rpx solid var(--color-border);
-  position: sticky;
-  top: 0;
-  z-index: 50;
-}
-.topnav-p-week {
-  font-size: 28rpx;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6rpx;
-  color: var(--color-text-secondary);
-}
-.topnav-p-num {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: var(--color-primary);
-  font-family: "SF Mono", Consolas, monospace;
-}
-.topnav-p-btns {
-  display: flex;
-  gap: 12rpx;
-}
-.topnav-p-btn {
-  flex: 1;
-  padding: 10rpx 0;
-  border-radius: 10rpx;
-  background: var(--color-soft);
-  color: var(--color-text);
-  font-size: 24rpx;
-  font-weight: 600;
-  text-align: center;
-  border: 1rpx solid var(--color-border);
-  transition: background 0.15s, transform 0.1s;
-}
-.topnav-p-btn:active {
-  background: var(--color-primary-soft, rgba(29, 78, 216, 0.12));
-  transform: scale(0.97);
-}
-.topnav-p-btn--disabled {
-  opacity: 0.35;
-  pointer-events: none;
 }
 
 /* F-ENTRY-02：1.122.0 首页——翡翠绿品牌层、核心指标、五入口与推荐房源。 */

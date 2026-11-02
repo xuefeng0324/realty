@@ -99,9 +99,9 @@
 | 风险 | F, L |
 | 状态 | ⛔ 已删除（v1.123.8 移除全部实现代码） |
 
-**现状**：v1.122 首页收敛为新版壳（`.home-v122-shell`）后工作台即不可见（壳层 CSS 对非壳层直子级 `display:none!important`），与 F-DASH-04 同性质；v1.123.8 删除全部实现——`data-home-workbench` 模板块（周期/来源/指标三个 picker、仅本市/含跨城切换、数据构成与周期注记）、`toggleCityScoped` / `pickPeriod` / `pickSource` / `pickMetric` / `periodHint` / `metricLabels` / `metricIndex` / `listingTrust` / `priceAxesHint`、`.filter-card` / `.filter-card-head` / `.data-trust-badge` / `.filter-actions` / `.period-hint` CSS，以及孤儿 e2e `smoke_topnav_period.mjs`（不在任何 suite、指向死端口 5188）。保留：`cityScoped` / `applyCityScopedClass` / `crossCityRows`（7 处隐藏跨城块仍消费，行为不变）、`pickCity`（壳层城市按钮复用）、`periods` / `sourceOptions`（隐藏周榜与 `loadAll` 仍消费）、`summarizeListingTrust` 库函数（`listingTrustSummary.test.ts` 在测）。REAL 占比可见性验收在 F-SET-02 设置页。  
+**现状**：v1.122 首页收敛为新版壳（`.home-v122-shell`）后工作台即不可见（壳层 CSS 对非壳层直子级 `display:none!important`），与 F-DASH-04 同性质；v1.123.8 删除全部实现——`data-home-workbench` 模板块（周期/来源/指标三个 picker、仅本市/含跨城切换、数据构成与周期注记）、`toggleCityScoped` / `pickPeriod` / `pickSource` / `pickMetric` / `periodHint` / `metricLabels` / `metricIndex` / `listingTrust` / `priceAxesHint`、`.filter-card` / `.filter-card-head` / `.data-trust-badge` / `.filter-actions` / `.period-hint` CSS，以及孤儿 e2e `smoke_topnav_period.mjs`（不在任何 suite、指向死端口 5188）。v1.123.9 续删同区块残留——`topnav-period` 周期切换 sticky 条（v0.49.0）、`week-bound-strip` 本周速览条、`week-ranking-card` 小区周榜卡，连同 `stepPeriod` / `currentPeriodIdx` / `ranking` / `rankingTotal` / dashboard 内 `getCommunityRanking` 调用与 `CommunityRankingItem` / `coverageText` 孤儿 import、`.topnav-*` 7 组 CSS；历史 buildIntegrity「v0.49.0 topnav-1」4 条断言随之删除，防回归门禁并入 `dataToolsEntry.test.ts`。保留：`cityScoped` / `applyCityScopedClass` / `crossCityRows`（7 处隐藏跨城块仍消费，行为不变）、`pickCity`（壳层城市按钮复用）、`periods` / `sourceOptions`（`loadAll` 默认周与来源校验仍消费）、`getCommunityRanking` 库函数（`apiWrappers.test.ts` / `pipeline.test.ts` 在测）、`summarizeListingTrust` 库函数（`listingTrustSummary.test.ts` 在测）。REAL 占比可见性验收在 F-SET-02 设置页。  
 **不期望**：把隐藏旧 DOM 存在当作当前 UI 验收通过证据；恢复工作台作为首页第二套筛选（同 X6）。  
-**自动化**：unit `dataToolsEntry.test.ts`（断言 `data-home-workbench` / `toggleCityScoped` / `pickMetric` 不再出现）。  
+**自动化**：unit `dataToolsEntry.test.ts`（断言 `data-home-workbench` / `toggleCityScoped` / `pickMetric` / `topnav-period` / `stepPeriod` / `week-ranking-card` 等不再出现）。  
 **手工**：无需手工；城市切换验收见壳层 `[data-home-city]`。
 
 ---
