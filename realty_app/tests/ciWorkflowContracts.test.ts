@@ -53,7 +53,33 @@ function writeFakeCommand(dir: string): string {
   return script;
 }
 
-function runFakeGroup(dir: string, group: "p0" | "p1" | "p2", sources: FakeSource[]) {
+function writeSleepingCommand(dir: string): string {
+  const script = join(dir, "sleeping_source.py");
+  writeFileSync(
+    script,
+    [
+      "from pathlib import Path",
+      "import sys",
+      "import time",
+      "name, trace_path, sleep_seconds = sys.argv[1:4]",
+      "with Path(trace_path).open('a', encoding='utf-8') as trace:",
+      "    trace.write(name + '\\n')",
+      "print('stdout:' + name, flush=True)",
+      "time.sleep(float(sleep_seconds))",
+      "print('stdout:' + name + ':end', flush=True)",
+      ""
+    ].join("\n"),
+    "utf8"
+  );
+  return script;
+}
+
+function runFakeGroup(
+  dir: string,
+  group: "p0" | "p1" | "p2",
+  sources: FakeSource[],
+  extraEnv: Record<string, string> = {}
+) {
   const manifest = join(dir, `${group}-manifest.json`);
   const logDir = join(dir, "logs");
   const statusFile = join(dir, `${group}-status.tsv`);
@@ -77,7 +103,12 @@ function runFakeGroup(dir: string, group: "p0" | "p1" | "p2", sources: FakeSourc
     {
       cwd: APP_ROOT,
       encoding: "utf8",
-      env: { ...process.env, PYTHONIOENCODING: "utf-8", PYTHONUTF8: "1" }
+      env: {
+        ...process.env,
+        PYTHONIOENCODING: "utf-8",
+        PYTHONUTF8: "1",
+        ...extraEnv
+      }
     }
   );
   return { result, logDir, statusFile, summaryFile };
@@ -357,6 +388,39 @@ describe("CI workflow contracts", () => {
       expect(readFileSync(summaryFile, "utf8")).toContain(
         "| spawn-error | 125 | 编排失败 |"
       );
+    });
+  });
+
+  it("P2 kills a hung source on timeout and keeps running later sources", () => {
+    withTempDir((dir) => {
+      const fake = writeFakeCommand(dir);
+      const sleeper = writeSleepingCommand(dir);
+      const trace = join(dir, "trace.txt");
+      const sources: FakeSource[] = [
+        { name: "slow-source", command: [PYTHON, sleeper, "slow-source", trace, "5"] },
+        { name: "after-timeout", command: [PYTHON, fake, "after-timeout", trace, "0"] }
+      ];
+      const { result, logDir, statusFile, summaryFile } = runFakeGroup(dir, "p2", sources, {
+        WEEKLY_SOURCE_TIMEOUT_SECONDS: "1"
+      });
+
+      expect(result.error).toBeUndefined();
+      expect(result.status, result.stderr).toBe(0);
+      expect(readFileSync(trace, "utf8").trim().split(/\r?\n/)).toEqual([
+        "slow-source",
+        "after-timeout"
+      ]);
+      expect(readFileSync(statusFile, "utf8")).toBe("slow-source\t124\nafter-timeout\t0\n");
+      expect(result.stdout).toContain("::warning title=P2 周更来源超时::");
+      expect(result.stdout).toContain("slow-source 超时 1s 未结束，已 kill");
+      expect(result.stdout).not.toContain("::warning title=P2 周更来源失败::");
+      expect(readFileSync(join(logDir, "p2-slow-source.log"), "utf8")).toContain(
+        "[orchestration-error] 超时 1s 未结束，已 kill"
+      );
+      expect(readFileSync(join(logDir, "p2-after-timeout.log"), "utf8")).toContain(
+        "stdout:after-timeout"
+      );
+      expect(readFileSync(summaryFile, "utf8")).toContain("| slow-source | 124 | 超时 |");
     });
   });
 

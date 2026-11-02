@@ -665,6 +665,10 @@ gh auth setup-git
 
 详细变更见 [changelog/](./changelog/) 目录。
 
+### 周更单源卡死修复（2026-11-03，不发版）
+
+`crawl-weekly` 的 P2 曾整整 20+ 小时 `in_progress`，把 concurrency 组堵死、后续周更全部 `pending`。根因是 `run_weekly_source_group.py` 无超时地读子进程 stdout：只要某个源站 socket 卡住，编排器就永远等下去。现在单源默认 420s 上限（`WEEKLY_SOURCE_TIMEOUT_SECONDS` 可调），到点 kill 并记 `124/超时`，P2 只告警继续跑；workflow 再加 P1 20 分钟 / P2 12 分钟 step 级硬上限。详见 [changelog/2026-11-03-CI周更单源卡死.md](./changelog/2026-11-03-CI周更单源卡死.md)。
+
 ### 自动提交并发 push 竞态修复（2026-11-02，不发版）
 
 抓取 workflow 在 run 开始时检出 main，P0 跑约 10 分钟后直接 `git push`；这期间 OTA / 日更 / 周更 / 人工 push 都可能推进 main → 非快进必红（`crawl-weekly` 长期红的主因之一）。新增 `scripts/git_push_retry.sh`（rebase + 4 次重试），5 条自动提交 workflow 全部改用它。顺带补齐 `stats_70.csv` 的 2026-08 / 2026-09 两期（+280 行，历史行未改），App 的 70 城页从「落后」回到「已跟上发布节奏」。详见 [changelog/2026-11-02-CI并发push竞态.md](./changelog/2026-11-02-CI并发push竞态.md)。

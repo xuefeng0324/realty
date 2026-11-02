@@ -13,7 +13,9 @@ concurrency:
 jobs:
   crawl:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # 30 分钟对 P0(~10min) + P1(23 源) + P2(15 源) + 两次提交太紧；
+    # 上限放宽到 60，真正的防挂死由下面每个 step 的 timeout-minutes 负责。
+    timeout-minutes: 60
     permissions:
       contents: write  # 自动 commit 需要 write 权限
 
@@ -125,6 +127,9 @@ jobs:
       - name: P1 · 必需官方周更来源（全量执行，末尾统一判失败）
         id: p1_required
         continue-on-error: true
+        # 单个来源卡死时 orchestrator 会在 420s 内 kill 并继续（status=124）；
+        # 这里再加 step 级硬上限，保证整组不会把 concurrency 组堵死。
+        timeout-minutes: 20
         # v1.122.54: 之前没有 if: always()，P0 一失败整条流水线就停在这里，
         # 官方周更源（土地成交 / 供应计划 / 保障房 / 学区…）全部停更。
         if: always()
@@ -141,6 +146,9 @@ jobs:
       - name: P2 · 尽力刷新宏观来源（失败告警但不阻塞）
         id: p2_optional
         continue-on-error: true
+        # P2 曾经因为一个源站 socket 卡住而 in_progress 20+ 小时，占住 concurrency 组，
+        # 后续所有周更 pending。组内 420s 单源超时 + 这里 12 分钟 step 上限双保险。
+        timeout-minutes: 12
         if: always()
         shell: bash
         run: |

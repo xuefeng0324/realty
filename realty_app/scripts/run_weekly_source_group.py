@@ -16,11 +16,14 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import queue
 import re
 import shlex
 import shutil
 import subprocess
 import sys
+import threading
+import time
 from collections import deque
 from dataclasses import dataclass
 from pathlib import Path
@@ -30,6 +33,9 @@ from typing import Sequence
 EXIT_SOURCE_FAILURE = 1
 EXIT_ORCHESTRATION_FAILURE = 2
 STATUS_SPAWN_FAILURE = 125
+# 124 = 单个来源超时被杀。与 GNU timeout 的约定一致，归入「来源失败」而不是编排失败。
+STATUS_TIMEOUT = 124
+DEFAULT_SOURCE_TIMEOUT_SECONDS = 420
 SOURCE_NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 
 
@@ -205,6 +211,20 @@ def _emit_annotation(level: str, title: str, message: str) -> None:
     print(f"::{level} title={_escape_annotation(title)}::{_escape_annotation(message)}", flush=True)
 
 
+def _source_timeout_seconds() -> int:
+    """单个来源的墙钟上限，默认 420s；可用 WEEKLY_SOURCE_TIMEOUT_SECONDS 覆盖。
+
+    没有上限时，某个源站 socket 卡住会让 orchestrator 永久阻塞：P2 曾经卡了
+    20+ 小时，占住 concurrency 组，导致后续周更全部排队不跑。
+    """
+    raw = os.environ.get("WEEKLY_SOURCE_TIMEOUT_SECONDS", "")
+    try:
+        value = int(raw)
+    except ValueError:
+        return DEFAULT_SOURCE_TIMEOUT_SECONDS
+    return max(1, value)
+
+
 def _command_preflight_error(command: Sequence[str]) -> str | None:
     executable = command[0]
     executable_path = Path(executable)
@@ -232,6 +252,8 @@ def _append_summary(path: Path, title: str, results: Sequence[SourceResult]) -> 
                 state = "编排失败"
             elif result.exit_code == 0:
                 state = "成功"
+            elif result.exit_code == STATUS_TIMEOUT:
+                state = "超时"
             else:
                 state = "来源失败"
             summary.write(f"| {result.name} | {result.exit_code} | {state} |\n")
@@ -307,13 +329,52 @@ def run_group(
                             )
                         else:
                             assert process.stdout is not None
-                            for line in process.stdout:
+                            # 先绑定 stdout：线程启动有延迟，若循环已进入下一个来源，
+                            # 闭包里再读 process.stdout 会串到新进程的管道上。
+                            stdout_stream = process.stdout
+                            timeout_s = _source_timeout_seconds()
+                            stream: queue.Queue[str | None] = queue.Queue()
+
+                            def _pump_stdout() -> None:
+                                try:
+                                    for raw_line in stdout_stream:
+                                        stream.put(raw_line)
+                                finally:
+                                    stream.put(None)
+
+                            threading.Thread(target=_pump_stdout, daemon=True).start()
+                            deadline = time.monotonic() + timeout_s
+                            timed_out = False
+                            while True:
+                                remaining = deadline - time.monotonic()
+                                if remaining <= 0:
+                                    timed_out = True
+                                    process.kill()
+                                    break
+                                try:
+                                    line = stream.get(timeout=min(remaining, 1.0))
+                                except queue.Empty:
+                                    continue
+                                if line is None:
+                                    break
                                 log.write(line)
                                 log.flush()
                                 print(line, end="", flush=True)
                                 tail.append(line.rstrip())
                             exit_code = process.wait()
-                            result = SourceResult(source.name, exit_code)
+                            if timed_out:
+                                detail = f"超时 {timeout_s}s 未结束，已 kill"
+                                log.write(f"[orchestration-error] {detail}\n")
+                                log.flush()
+                                print(f"[timeout] {detail}", flush=True)
+                                _emit_annotation(
+                                    policy.annotation_level,
+                                    f"{group.upper()} 周更来源超时",
+                                    f"{source.name} {detail}",
+                                )
+                                result = SourceResult(source.name, STATUS_TIMEOUT)
+                            else:
+                                result = SourceResult(source.name, exit_code)
             except OSError as exc:
                 raise OrchestrationError(f"cannot write source log {log_path}: {exc}") from exc
 
@@ -327,20 +388,21 @@ def run_group(
                 continue
             if result.exit_code != 0:
                 source_failed = True
-                suffix = "已保留 last-good 并继续其它来源" if not policy.fail_fast else "硬门禁立即停止"
-                _emit_annotation(
-                    policy.annotation_level,
-                    f"{group.upper()} 周更来源失败",
-                    f"{result.name} exit={result.exit_code}；{suffix}",
-                )
-                # 失败日志末尾同步成 annotation：公开仓库无需登录也能在
-                # Actions 页面直接看到失败原因（下载 artifact / logs 需要权限）。
-                if tail:
+                if result.exit_code != STATUS_TIMEOUT:
+                    suffix = "已保留 last-good 并继续其它来源" if not policy.fail_fast else "硬门禁立即停止"
                     _emit_annotation(
                         policy.annotation_level,
-                        f"{group.upper()} 周更来源失败 · {result.name} 尾部日志",
-                        " | ".join(tail)[-2000:],
+                        f"{group.upper()} 周更来源失败",
+                        f"{result.name} exit={result.exit_code}；{suffix}",
                     )
+                    # 失败日志末尾同步成 annotation：公开仓库无需登录也能在
+                    # Actions 页面直接看到失败原因（下载 artifact / logs 需要权限）。
+                    if tail:
+                        _emit_annotation(
+                            policy.annotation_level,
+                            f"{group.upper()} 周更来源失败 · {result.name} 尾部日志",
+                            " | ".join(tail)[-2000:],
+                        )
                 if policy.fail_fast:
                     break
 
