@@ -8,7 +8,12 @@
 
       <!-- v1.123.3 锚点分组导航：17 张卡（16 迁移 + 行政区划）按主题分组，点击 chip 滚动到对应卡 -->
       <view class="dt-nav" data-dt-nav>
-        <scroll-view scroll-x class="dt-nav-scroll" :show-scrollbar="false">
+        <scroll-view
+          scroll-x
+          class="dt-nav-scroll"
+          :show-scrollbar="false"
+          :scroll-into-view="dtNavScrollInto"
+        >
           <view class="dt-nav-row">
             <button
               class="dt-nav-chip dt-nav-chip--tool"
@@ -22,6 +27,7 @@
               <button
                 v-for="it in g.items"
                 :key="it.anchor"
+                :id="'dt-nav-chip-' + it.anchor"
                 class="dt-nav-chip"
                 :class="{ 'dt-nav-chip--active': activeDtAnchor === it.anchor }"
                 size="mini"
@@ -1718,6 +1724,15 @@ function teardownDtScrollSpy() {
     _dtSpyRaf = 0;
   }
 }
+
+// v1.123.5 高亮 chip 自动横滚进可视区：active 变化时把 scroll-view 的
+// scroll-into-view 指向对应 chip（同值不重复触发，watch 只在变化时点火）。
+// 不开 scroll-with-animation：uni-h5 动画实现是 transform + 动画期 overflow hidden，
+// 滚动反选连续点火会反复锁横滚，即时跳转更稳。
+const dtNavScrollInto = ref("");
+watch(activeDtAnchor, (a) => {
+  dtNavScrollInto.value = a ? `dt-nav-chip-${a}` : "";
+});
 
 // v1.121.143 Batch 5: feature_premium (迁移自 dashboard)
 const featurePremium = ref<FeaturePremiumResponse | null>(null);

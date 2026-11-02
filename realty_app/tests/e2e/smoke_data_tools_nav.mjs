@@ -94,7 +94,22 @@ async function clickChipAndAssert(page, anchor, cardSel) {
 }
 
 // v1.123.4 纯滚动反选：不点任何 chip，直接 scrollTo 到某卡，对应 chip 应自动高亮且唯一
+// v1.123.5 加强：目标 chip 初始应在导航视口右侧之外；反选触发 scroll-into-view 后完整落入视口
 async function assertScrollSpy(page, anchor, cardSel) {
+  const pre = await page.evaluate((a) => {
+    const chip = document.querySelector(`[data-dt-nav-item="${a}"]`);
+    const sv = document.querySelector("[data-dt-nav] .dt-nav-scroll");
+    if (!chip || !sv) return null;
+    const c = chip.getBoundingClientRect();
+    const s = sv.getBoundingClientRect();
+    return { chipLeft: c.left, chipRight: c.right, svLeft: s.left, svRight: s.right };
+  }, anchor);
+  if (!pre) fail(`找不到 chip[${anchor}] 或导航 scroll-view`);
+  console.log(`[dt_nav] 反选前 chip[${anchor}] 位置: [${pre.chipLeft.toFixed(0)}, ${pre.chipRight.toFixed(0)}] / 导航视口 [${pre.svLeft.toFixed(0)}, ${pre.svRight.toFixed(0)}]`);
+  if (pre.chipLeft >= pre.svLeft && pre.chipRight <= pre.svRight) {
+    fail(`前置条件不成立：chip[${anchor}] 初始已在导航视口内，无法验证横滚跟随`);
+  }
+
   await page.evaluate(({ cardSel2 }) => {
     const el = document.querySelector(cardSel2);
     if (!el) return;
@@ -109,7 +124,7 @@ async function assertScrollSpy(page, anchor, cardSel) {
     window.scrollTo({ top: Math.max(0, top) });
   }, { cardSel2: cardSel });
   await waitScrollSettled(page);
-  await page.waitForTimeout(350); // 等 rAF 反选跑完
+  await page.waitForTimeout(700); // 等 rAF 反选 + scroll-into-view 横滚动画跑完
   const res = await page.evaluate(() => {
     const actives = [...document.querySelectorAll(".dt-nav-chip--active")].map((el) =>
       el.getAttribute("data-dt-nav-item")
@@ -120,6 +135,21 @@ async function assertScrollSpy(page, anchor, cardSel) {
   if (res.length !== 1 || res[0] !== anchor) {
     fail(`纯滚动反选应为唯一 [${anchor}]，实际 ${JSON.stringify(res)}`);
   }
+  // v1.123.5：高亮 chip 应被 scroll-into-view 带进导航视口（完整可见）
+  const post = await page.evaluate((a) => {
+    const chip = document.querySelector(`[data-dt-nav-item="${a}"]`);
+    const sv = document.querySelector("[data-dt-nav] .dt-nav-scroll");
+    if (!chip || !sv) return null;
+    const c = chip.getBoundingClientRect();
+    const s = sv.getBoundingClientRect();
+    return { chipLeft: c.left, chipRight: c.right, svLeft: s.left, svRight: s.right };
+  }, anchor);
+  if (!post) fail(`反选后找不到 chip[${anchor}] 或导航 scroll-view`);
+  console.log(`[dt_nav] 反选后 chip[${anchor}] 位置: [${post.chipLeft.toFixed(0)}, ${post.chipRight.toFixed(0)}] / 导航视口 [${post.svLeft.toFixed(0)}, ${post.svRight.toFixed(0)}]`);
+  if (post.chipLeft < post.svLeft - 1 || post.chipRight > post.svRight + 1) {
+    fail(`高亮 chip[${anchor}] 未被横滚带进导航视口（chip=[${post.chipLeft.toFixed(0)},${post.chipRight.toFixed(0)}] vs 视口=[${post.svLeft.toFixed(0)},${post.svRight.toFixed(0)}]）`);
+  }
+  console.log(`[dt_nav] chip[${anchor}] 横滚跟随进视口 ✓`);
 }
 
 async function run() {
