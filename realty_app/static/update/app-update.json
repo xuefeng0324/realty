@@ -1,12 +1,12 @@
 {
   "versionName": "1.122.55",
   "versionCode": "334",
-  "publishedAt": "2026-11-02T18:53:46Z",
+  "publishedAt": "2026-11-02T19:02:25Z",
   "force": false,
-  "notes": "ci(weekly): sz \u4e09\u6e90\u964d\u7ea7 P2 + zh-price-filing \u505c\u66f4 + \u6570\u636e\u65b0\u9c9c\u5ea6\u95e8\u7981\n\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n",
+  "notes": "ci: apk \u6539\u4ec5\u624b\u52a8\u89e6\u53d1\uff08\u4fee release \u8f93\u5165\u5931\u6548\uff09+ mlf \u505c\u66f4 + \u6e05\u7406\u672a\u8ddf\u8e2a\u5783\u573e\n\n2026-07-25-v1.111.0-LPR\u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f: v1.111.0 \u2014 LPR \u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f\n2026-07-25-v1.112.0-\u5468\u8fb9\u5546\u4e1aPOI\u63a5\u5165\u4e0e\u6d3e\u751f: v1.112.0 \u2014 \u5468\u8fb9\u5546\u4e1a POI \u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.113.0-\u884c\u653f\u533a\u5212\u63a5\u5165\u4e0e\u6d3e\u751f: v1.113.0 \u2014 \u884c\u653f\u533a\u5212\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n",
   "wgt": {
     "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/334/app.wgt",
-    "sha256": "344a4df71faace77d0710e5224b49a143e002ffc3bf460342d6c943519878b91"
+    "sha256": "ee53e99a6b57b4cb9d98f6878a9312c17a3a1e9485f85e28f8b9d9320061d7d4"
   },
   "ios": {
     "available": false,
