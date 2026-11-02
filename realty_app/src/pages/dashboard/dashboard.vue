@@ -134,61 +134,6 @@
         </view>
       </view>
 
-      <!-- 首屏壳（对照美团/淘宝）：城市 + 搜索 + 频道 + 金刚；次要能力进设置 / 独立页 -->
-      <view class="card home-entry-card" data-home-entry>
-        <view class="home-loc-search">
-          <button class="home-city-chip" hover-class="tap-row--active" data-home-city @click="pickCity">
-            <text class="home-city-name">{{ currentCityLabel || "选城市" }}</text>
-            <text class="home-city-caret">▾</text>
-          </button>
-          <view class="home-search" data-home-search>
-            <input
-              class="home-search-input"
-              type="text"
-              confirm-type="search"
-              :placeholder="homeSearchPlaceholder"
-              :value="homeSearchText"
-              @input="onHomeSearchInput"
-              @confirm="submitHomeSearch"
-            />
-            <button class="home-search-btn" size="mini" @click="submitHomeSearch">搜索</button>
-          </view>
-        </view>
-        <view class="home-search-modes">
-          <view
-            v-for="m in HOME_SEARCH_MODES"
-            :key="m.key"
-            class="home-mode-chip"
-            :class="{ 'home-mode-chip--on': homeSearchMode === m.key }"
-            :data-home-mode="m.key"
-            @click="homeSearchMode = m.key"
-          >{{ m.label }}</view>
-        </view>
-        <scroll-view class="home-channel-scroll" scroll-x :show-scrollbar="false" data-home-channels>
-          <view class="home-channel-row">
-            <view
-              v-for="c in HOME_CHANNELS"
-              :key="c.key"
-              class="home-channel-chip"
-              :data-home-channel="c.key"
-              @click="onHomeChannel(c)"
-            >{{ c.label }}</view>
-          </view>
-        </scroll-view>
-        <view class="home-kingkong" data-home-kingkong>
-          <view
-            v-for="k in HOME_KINGKONG"
-            :key="k.key"
-            class="home-king-tile"
-            :data-home-king="k.key"
-            @click="onHomeKingkong(k)"
-          >
-            <view class="home-king-icon" :class="'home-king-icon--' + k.tone">{{ k.icon }}</view>
-            <text class="home-king-label">{{ k.label }}</text>
-          </view>
-        </view>
-      </view>
-
       <!-- 今日要点：参考贝壳/链家「首页速览」收敛首屏信息密度 -->
       <view v-if="todayHighlights.length" class="card today-highlights-card">
         <view class="row-between">
@@ -4581,8 +4526,6 @@ import {
 } from "../../local/zhPriceFiling";
 import { assessGzInventoryFreshness } from "../../local/gzInventoryFreshness";
 import {
-  HOME_CHANNELS,
-  HOME_KINGKONG,
   HOME_SEARCH_MODES,
   homeLandEntryOwner,
   homeSupplyEntryOwner,
@@ -4592,8 +4535,6 @@ import {
   setPendingSchoolQuery,
   setPendingListingQuery,
   type FindHubMode,
-  type HomeChannel,
-  type HomeKingkongItem,
   type HomeScrollAvailability,
   type HomeSearchMode
 } from "../../local/homeEntry";
@@ -5610,35 +5551,6 @@ function jumpHomeAnchor(anchor: string) {
   });
 }
 
-/** F-ENTRY-01：频道条跳独立页 / Tab，禁止本页长滚 */
-function onHomeChannel(c: HomeChannel) {
-  const a = c.action;
-  if (a.kind === "find") {
-    openFindHub(a.mode);
-    return;
-  }
-  if (a.kind === "switchTab") {
-    uni.switchTab({
-      url: a.path,
-      fail: (e) => showToast(`打开失败：${toErrorMessage(e)}`)
-    });
-    return;
-  }
-  if (a.kind === "navigate") {
-    let url = a.path;
-    if (url.includes("wangqian")) {
-      const name = currentWangqianCityName.value;
-      if (name === "深圳" || name === "广州" || name === "珠海") {
-        url = `/pages/wangqian/wangqian?city=${encodeURIComponent(name)}`;
-      }
-    }
-    uni.navigateTo({
-      url,
-      fail: (e) => showToast(`打开失败：${toErrorMessage(e)}`)
-    });
-  }
-}
-
 function submitHomeSearch() {
   const resolved = resolveHomeSearch(homeSearchMode.value, homeSearchText.value);
   if (resolved.kind === "none") {
@@ -5672,41 +5584,6 @@ function submitHomeSearch() {
   }
   if (resolved.kind === "scroll") {
     jumpHomeAnchor(resolved.anchor);
-  }
-}
-function onHomeKingkong(k: HomeKingkongItem) {
-  const a = k.action;
-  if (a.kind === "find") {
-    openFindHub(a.mode);
-    return;
-  }
-  if (a.kind === "city") {
-    pickCity();
-    return;
-  }
-  if (a.kind === "scroll") {
-    jumpHomeAnchor(a.anchor);
-    return;
-  }
-  if (a.kind === "switchTab") {
-    uni.switchTab({
-      url: a.path,
-      fail: (e) => showToast(`打开失败：${toErrorMessage(e)}`)
-    });
-    return;
-  }
-  if (a.kind === "navigate") {
-    let url = a.path;
-    if (url.includes("wangqian")) {
-      const name = currentWangqianCityName.value;
-      if (name === "深圳" || name === "广州" || name === "珠海") {
-        url = `/pages/wangqian/wangqian?city=${encodeURIComponent(name)}`;
-      }
-    }
-    uni.navigateTo({
-      url,
-      fail: (e) => showToast(`打开失败：${toErrorMessage(e)}`)
-    });
   }
 }
 
@@ -7896,159 +7773,6 @@ onShow(async () => {
   color: #4ade80;
 }
 
-/* F-ENTRY-01 首页多入口 */
-.home-entry-card {
-  padding-bottom: 18rpx;
-}
-.home-loc-search {
-  display: flex;
-  gap: 12rpx;
-  align-items: stretch;
-}
-.home-city-chip {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4rpx;
-  box-sizing: border-box;
-  min-height: 76rpx;
-  padding: 0 18rpx;
-  margin: 0;
-  border-radius: 999rpx;
-  border: 1rpx solid var(--color-border);
-  background: var(--color-soft);
-  color: var(--color-heading);
-  font-size: 26rpx;
-  line-height: 1.2;
-}
-.home-city-chip::after {
-  border: none;
-}
-.home-city-name {
-  max-width: 140rpx;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 600;
-}
-.home-city-caret {
-  opacity: 0.6;
-  font-size: 22rpx;
-}
-.home-search {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  padding: 6rpx 8rpx 6rpx 18rpx;
-  border-radius: 999rpx;
-  border: 1rpx solid var(--color-border);
-  background: var(--color-surface);
-}
-.home-search-input {
-  flex: 1;
-  min-width: 0;
-  box-sizing: border-box;
-  height: 64rpx;
-  line-height: 64rpx;
-  padding: 0;
-  font-size: 26rpx;
-  color: var(--color-text);
-}
-.home-search-btn {
-  margin: 0;
-  border-radius: 999rpx !important;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  height: 64rpx;
-  min-height: 64rpx;
-  padding: 0 20rpx;
-  line-height: 64rpx;
-}
-.home-search-modes {
-  display: flex;
-  gap: 10rpx;
-  margin-top: 14rpx;
-}
-.home-mode-chip {
-  padding: 8rpx 18rpx;
-  border-radius: 999rpx;
-  font-size: 22rpx;
-  color: var(--color-muted);
-  background: var(--color-soft);
-  border: 1rpx solid transparent;
-}
-.home-mode-chip--on {
-  color: var(--color-heading);
-  border-color: var(--color-border);
-  background: var(--color-surface);
-  font-weight: 600;
-}
-.home-channel-scroll {
-  margin-top: 14rpx;
-  width: 100%;
-  white-space: nowrap;
-}
-.home-channel-row {
-  display: inline-flex;
-  gap: 12rpx;
-  padding: 2rpx 0;
-}
-.home-channel-chip {
-  display: inline-flex;
-  padding: 10rpx 22rpx;
-  border-radius: 12rpx;
-  font-size: 24rpx;
-  font-weight: 600;
-  color: var(--color-heading);
-  background: var(--color-soft);
-  border: 1rpx solid var(--color-border);
-}
-.home-kingkong {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 12rpx 6rpx;
-  margin-top: 18rpx;
-}
-.home-king-tile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8rpx;
-  padding: 8rpx 0;
-}
-.home-king-icon {
-  width: 72rpx;
-  height: 72rpx;
-  border-radius: 20rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 34rpx;
-  background: var(--color-soft);
-}
-.home-king-icon--blue { background: rgba(37, 99, 235, 0.12); }
-.home-king-icon--green { background: rgba(22, 163, 74, 0.14); }
-.home-king-icon--red { background: rgba(220, 38, 38, 0.12); }
-.home-king-icon--amber { background: rgba(217, 119, 6, 0.14); }
-.home-king-icon--violet { background: rgba(79, 70, 229, 0.12); }
-.home-king-icon--rose { background: rgba(225, 29, 72, 0.12); }
-.home-king-icon--slate { background: rgba(71, 85, 105, 0.14); }
-.home-king-label {
-  font-size: 22rpx;
-  color: var(--color-text);
-}
-.home-entry-hint {
-  display: block;
-  margin-top: 12rpx;
-  font-size: 20rpx;
-  line-height: 1.45;
-}
-
 .macro-kicker {
   font-size: 20rpx;
   color: var(--color-muted, #888);
@@ -9771,6 +9495,7 @@ onShow(async () => {
 .home-v122-search-input {
   flex: 1;
   min-width: 0;
+  box-sizing: border-box;
   height: 64rpx;
   line-height: 64rpx;
   padding-left: 16rpx;
@@ -9778,6 +9503,9 @@ onShow(async () => {
   font-size: 27rpx;
 }
 .home-v122-search-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-width: 104rpx;
   height: 64rpx;
   line-height: 64rpx;

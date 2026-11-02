@@ -3270,8 +3270,6 @@ describe("build integrity", () => {
       const entry = readFileSync(resolve(ROOT, "src/local/homeEntry.ts"), "utf8");
       expect(dash).toMatch(/data-home-entry/);
       expect(dash).toMatch(/data-home-kingkong/);
-      expect(dash).toMatch(/HOME_KINGKONG/);
-      expect(dash).toMatch(/function onHomeKingkong/);
       expect(dash).toMatch(/id="entry-macro"/);
       expect(entry).toMatch(/key: "settings"/);
       expect(entry).toMatch(/pages\/settings\/settings/);

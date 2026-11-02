@@ -36,15 +36,15 @@ describe("single-line control vertical centering (source guard)", () => {
     expect(body).toContain("box-sizing: border-box");
   });
 
-  it("dashboard home search input uses height == line-height", () => {
-    const body = ruleBody(read("src/pages/dashboard/dashboard.vue"), ".home-search-input");
+  it("dashboard v122 home search input uses height == line-height", () => {
+    const body = ruleBody(read("src/pages/dashboard/dashboard.vue"), ".home-v122-search-input");
     expect(body).toMatch(/height:\s*64rpx/);
     expect(body).toMatch(/line-height:\s*64rpx/);
     expect(body).toContain("box-sizing: border-box");
   });
 
-  it("dashboard home search button is flex-centered", () => {
-    expectFlexCenter(ruleBody(read("src/pages/dashboard/dashboard.vue"), ".home-search-btn"), "home-search-btn");
+  it("dashboard v122 home search button is flex-centered", () => {
+    expectFlexCenter(ruleBody(read("src/pages/dashboard/dashboard.vue"), ".home-v122-search-btn"), "home-v122-search-btn");
   });
 
   it("listing-detail source dock buttons are flex-centered", () => {

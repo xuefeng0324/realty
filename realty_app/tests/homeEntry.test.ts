@@ -150,8 +150,6 @@ describe("homeEntry F-ENTRY-01", () => {
     expect(dash).toContain("data-home-entry");
     expect(dash).toContain("data-home-search");
     expect(dash).toContain("data-home-kingkong");
-    expect(dash).toContain("HOME_KINGKONG");
-    expect(dash).toContain("onHomeChannel");
     expect(dash).toContain("id=\"entry-macro\"");
     expect(dash).toContain("resolveHomeScrollAnchor");
     expect(dash).toContain("supplyEntryOwner");
@@ -192,11 +190,5 @@ describe("homeEntry F-ENTRY-01", () => {
       kind: "navigate",
       path: "/pages/supply/supply?focus=land"
     });
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
-    expect(dash).toContain("onHomeChannel");
-    expect(dash).toContain("onHomeKingkong");
-    const smoke = readFileSync(resolve(process.cwd(), "tests/e2e/smoke_entry_supply.mjs"), "utf8");
-    expect(smoke).toContain("pages/supply/supply");
-    expect(smoke).toContain("库存");
   });
 });

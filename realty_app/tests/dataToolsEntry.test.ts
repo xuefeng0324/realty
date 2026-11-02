@@ -332,6 +332,10 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(dashSrc).not.toMatch(/data-home-workbench|toggleCityScoped|pickMetric/);
     // v1.123.9：topnav 周期条 + 本周速览条 + 小区周榜卡死 DOM 已删除
     expect(dashSrc).not.toMatch(/topnav-period|stepPeriod|currentPeriodIdx|week-bound-strip|week-ranking-card|rankingTotal|getCommunityRanking/);
+    // v1.123.10：旧 home-entry-card（与 v122 壳重复的城市/搜索/频道/金刚）死 DOM 已删除
+    expect(dashSrc).not.toMatch(/home-entry-card|home-loc-search|home-city-chip|home-search-modes|home-mode-chip|home-channel-chip|home-king-tile|home-king-icon|home-king-label|home-entry-hint/);
+    expect(dashSrc).not.toMatch(/onHomeChannel|onHomeKingkong|HOME_CHANNELS|HOME_KINGKONG|data-home-channels/);
+    expect(dashSrc).not.toMatch(/\.home-search\b|\.home-search-input|\.home-search-btn/);
     const settingsSrc = readFileSync(
       resolve(__dirname, "../src/pages/settings/settings.vue"),
       "utf8"
