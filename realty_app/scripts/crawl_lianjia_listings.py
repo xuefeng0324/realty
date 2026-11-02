@@ -327,7 +327,10 @@ def write_csv(rows: list[dict], out: Path = OUT_CSV):
         w = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
         w.writeheader()
         for i, r in enumerate(rows, 1):
-            if not (r.get("listing_id") or "").strip():
+            # 新行在 cmd_fetch 里拿到的是 int 类型的 listing_id（沿用上一轮最大 id 递增），
+            # 直接 .strip() 会 AttributeError → 整个 append 写盘失败（2026-11 线上复现）。
+            raw_id = r.get("listing_id")
+            if not ("" if raw_id is None else str(raw_id)).strip():
                 r["listing_id"] = i
             w.writerow({k: r.get(k) for k in fields})
     print(f"  wrote {out} ({len(rows)} rows)")
@@ -368,6 +371,10 @@ def fetch_city(city: str, pages: int, delay_sec: float = 2.0,
             print(f"  page {page}: HTTP {code}, skip")
             time.sleep(delay_sec)
             continue
+        # 链家风控页是 200 + <title>CAPTCHA</title>，继续翻页只会加重封禁、白等。
+        if re.search(r"<title>\s*CAPTCHA", body, re.IGNORECASE):
+            print(f"  page {page}: 触发链家风控（CAPTCHA），停止本城后续分页")
+            break
 
         blocks = find_li_blocks(body)
         page_count = 0
