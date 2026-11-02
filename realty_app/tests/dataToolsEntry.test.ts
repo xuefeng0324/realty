@@ -324,11 +324,12 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(dashSrc).toMatch(/isOverviewGroupCollapsed[\s\S]*?return false/);
     // v1.123.6：旧专业 Tab 机制（activeTab/dash-tabs）已删除，工作台不再有 v-if 门禁，
     // 与遗留长卡一样由 v122 壳层 CSS 统一隐藏；
-    // v1.123.7：遗留长卡/数据工具页的 data-tab 死属性与孤儿 filterWorkbenchExpanded 已剥离
+    // v1.123.7：遗留长卡/数据工具页的 data-tab 死属性与孤儿 filterWorkbenchExpanded 已剥离；
+    // v1.123.8：工作台死 DOM 已删除（城市选择由壳层 data-home-city/pickCity 接管）
     expect(dashSrc).not.toMatch(/activeTab|data-dash-tab|id="dash-tabs"|\sdata-tab="/);
     expect(dashSrc).not.toContain("filterWorkbenchExpanded");
     expect(toolsSrc).not.toMatch(/\sdata-tab="/);
-    expect(dashSrc).toMatch(/<view class="card filter-card" data-home-workbench>/);
+    expect(dashSrc).not.toMatch(/data-home-workbench|toggleCityScoped|pickMetric/);
     const settingsSrc = readFileSync(
       resolve(__dirname, "../src/pages/settings/settings.vue"),
       "utf8"

@@ -91,23 +91,18 @@
 
 ## 1. 总览壳层 `pages/dashboard/dashboard`
 
-### F-DASH-01 · 市场数据工作台（城市/周期/来源/仅本市）
+### F-DASH-01 · 市场数据工作台（城市/周期/来源/仅本市）· v1.123.8 实现已删除
 
 | 项 | 内容 |
 |----|------|
-| 入口 | 总览顶卡 |
+| 入口 | ~~总览顶卡~~ v1.122 起首页不再可见；城市选择由壳层 `[data-home-city]` / `pickCity` 接管 |
 | 风险 | F, L |
-| 对照 | 贝壳首页筛选；本仓 cityScoped |
+| 状态 | ⛔ 已删除（v1.123.8 移除全部实现代码） |
 
-**期望**
-1. （F）点城市/周期/来源弹出可选列表并生效  
-2. （L）默认「仅本市」时跨城块不可见；「含跨城」后可见  
-3. （F）刷新后卡片数字与所选周一致（本周速览类）
-
-**不期望**：周切换无 toast/滚动反馈；跨城默认混进本市。
-
-**自动化**：unit 相关 store/query；smoke: `smoke_topnav_period.mjs`（未全进 core 则手工补）  
-**手工**：广州→深圳→改周期→看「本周速览」数字变化；切「含跨城」再切回。
+**现状**：v1.122 首页收敛为新版壳（`.home-v122-shell`）后工作台即不可见（壳层 CSS 对非壳层直子级 `display:none!important`），与 F-DASH-04 同性质；v1.123.8 删除全部实现——`data-home-workbench` 模板块（周期/来源/指标三个 picker、仅本市/含跨城切换、数据构成与周期注记）、`toggleCityScoped` / `pickPeriod` / `pickSource` / `pickMetric` / `periodHint` / `metricLabels` / `metricIndex` / `listingTrust` / `priceAxesHint`、`.filter-card` / `.filter-card-head` / `.data-trust-badge` / `.filter-actions` / `.period-hint` CSS，以及孤儿 e2e `smoke_topnav_period.mjs`（不在任何 suite、指向死端口 5188）。保留：`cityScoped` / `applyCityScopedClass` / `crossCityRows`（7 处隐藏跨城块仍消费，行为不变）、`pickCity`（壳层城市按钮复用）、`periods` / `sourceOptions`（隐藏周榜与 `loadAll` 仍消费）、`summarizeListingTrust` 库函数（`listingTrustSummary.test.ts` 在测）。REAL 占比可见性验收在 F-SET-02 设置页。  
+**不期望**：把隐藏旧 DOM 存在当作当前 UI 验收通过证据；恢复工作台作为首页第二套筛选（同 X6）。  
+**自动化**：unit `dataToolsEntry.test.ts`（断言 `data-home-workbench` / `toggleCityScoped` / `pickMetric` 不再出现）。  
+**手工**：无需手工；城市切换验收见壳层 `[data-home-city]`。
 
 ---
 
@@ -229,9 +224,9 @@
 | 入口 | 总览 · 通勤地铁 |
 | 风险 | F, L |
 
-**期望**：通勤分钟与 CBD 名合理；规划线可区分状态。  
+**期望**：通勤分钟与 CBD 名合理；规划线可区分状态。「地铁步行可达性」（metro_walk）与「地铁规划受益」（metro_benefit）卡已迁入数据工具页（`[data-dt-metro-walk]` / `[data-dt-plan-benefit]`），ext smoke 断言 data-tools 页可见。  
 **自动化**：commute / metro_* smoke；unit metro* / commute  
-**手工**：通勤 Tab 看 Top1 可点或有说明。
+**手工**：通勤 Tab 看 Top1 可点或有说明；数据工具页验证 metro_walk / metro_benefit 卡。
 
 ---
 
@@ -496,16 +491,16 @@
 | 状态 | ✅ 有门禁（cron 退出码 0=全 OK，1=WARN，2=STALE） |
 
 **期望**：
-- 扫 `realty_app/static/*.csv` 共 41 个文件，按各自表头日期字段（`date` / `publish_date` / `as_of_date` / `effective_date` / `report_date` 等）算陈旧天数；
+- 扫 `realty_app/static/*.csv` 共 43 个文件，按各自表头日期字段（`date` / `publish_date` / `as_of_date` / `effective_date` / `report_date` 等）算陈旧天数；
 - 三档分级（v1.122.51 起）：`OK < 90 天`、`WARN 90..180 天`、`STALE ≥ 180 天`；
 - 退出码与等级挂钩：CI 红时用户会收到与 e2e 一致的邮件告警；
 - 输出 markdown 表格进 `GITHUB_STEP_SUMMARY`，artifact 归档 30 天；
-- EXEMPT 白名单（v1.122.51 共 12 项）：`gz/sz/gd_provident_annual.csv`、`provident_fund_rates.csv`、`zh_provident_dynamics.csv`、`education_overview.csv`、`zh_bdc_registration.csv`、`zh_price_filing.csv`、`nbs_avg_wage.csv`、`stats_70.csv`、`gd_construction.csv`、`gz_housing_plan.csv`。**警告**：EXEMPT 项 cron 邮件不报警，扩 EXEMPT 会掩盖真信号（v1.122.51 changelog 诚实记录）。
+- EXEMPT 白名单（v1.122.51 起，当前共 13 项）：`gz/sz/gd_provident_annual.csv`、`provident_fund_rates.csv`、`zh_provident_dynamics.csv`、`education_overview.csv`、`zh_bdc_registration.csv`、`zh_price_filing.csv`、`nbs_avg_wage.csv`、`stats_70.csv`、`gd_construction.csv`、`gz_housing_plan.csv`、`mlf_history.csv`。**警告**：EXEMPT 项 cron 邮件不报警，扩 EXEMPT 会掩盖真信号（v1.122.51 changelog 诚实记录）。
 
 **为什么需要**：
 - 之前 wangqian 抓取连续 21 天陈旧没人发现，是因为只盯单一数据源；
-- 仓库里 41 个 CSV 各自有爬取脚本，绝大部分陈旧是静默的；
-- 这个工具一次性把全部 41 个数据源暴露在统一视图里，杜绝下一个"21 天陈旧没人发现"。
+- 仓库里 43 个 CSV 各自有爬取脚本，绝大部分陈旧是静默的；
+- 这个工具一次性把全部 43 个数据源暴露在统一视图里，杜绝下一个"21 天陈旧没人发现"。
 
 **不期望**：
 - 半夜被自动 issue 轰炸（**故意不开**自动开 issue，由人在 PR / workflow 摘要里看到）；

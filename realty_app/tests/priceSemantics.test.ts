@@ -53,8 +53,9 @@ describe("房价语义门禁（源码）", () => {
   it("总览 Hero 中位单价走 priceSemantics 标签", () => {
     const dash = read("src/pages/dashboard/dashboard.vue");
     expect(dash).toContain("listingMedianUnitPriceLabel");
-    expect(dash).toContain("priceAxesDisclaimer");
-    expect(dash).toContain("priceAxesHint");
+    // v1.123.8：priceAxesHint 随工作台死 DOM 删除；三轴口径由上方
+    // priceAxesDisclaimer 直接单测与壳层「数据口径透明」行兜底
+    expect(dash).toContain("不把挂牌价写成成交价");
   });
 
   it("验收文档存在并引用开源对照", () => {

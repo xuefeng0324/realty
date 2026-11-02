@@ -189,76 +189,6 @@
         </view>
       </view>
 
-      <!-- 工作台：v1.123.6 起随旧专业 Tab 一并下线，整块由 v122 壳层 CSS 隐藏（同其他遗留长卡） -->
-      <view class="card filter-card" data-home-workbench>
-        <view class="row-between">
-          <view>
-            <view class="dashboard-eyebrow">工作台</view>
-            <view class="card-title" style="margin-bottom: 0">周期 · 来源 · 指标</view>
-          </view>
-          <view class="muted" style="font-size: 22rpx">
-            {{ currentCityLabel || "—" }} · {{ app.weekEnd || "—" }}
-          </view>
-        </view>
-        <view class="filter-card-head" style="margin-top: 12rpx">
-          <view class="data-trust-badge">官方与公开数据</view>
-        </view>
-        <view class="row-gap">
-          <button class="form-row tap-row" hover-class="tap-row--active" @click="pickCity">
-            <text class="form-label">城市</text>
-            <view class="picker-value">
-              <text>{{ currentCityLabel || "请选择" }}</text>
-              <text class="picker-caret">▾</text>
-            </view>
-          </button>
-          <button class="form-row tap-row" hover-class="tap-row--active" @click="pickPeriod">
-            <text class="form-label">周期结束日</text>
-            <view class="picker-value">
-              <text>{{ app.weekEnd || "请选择" }}</text>
-              <text class="picker-caret">▾</text>
-            </view>
-          </button>
-          <button class="form-row tap-row" hover-class="tap-row--active" @click="pickSource">
-            <text class="form-label">数据来源</text>
-            <view class="picker-value">
-              <text>{{ app.source || "全部" }}</text>
-              <text class="picker-caret">▾</text>
-            </view>
-          </button>
-          <button class="form-row tap-row" hover-class="tap-row--active" @click="pickMetric">
-            <text class="form-label">指标</text>
-            <view class="picker-value">
-              <text>{{ metricLabels[metricIndex] }}</text>
-              <text class="picker-caret">▾</text>
-            </view>
-          </button>
-        </view>
-        <view class="row-gap filter-actions" style="margin-top: 16rpx">
-          <button class="btn" size="mini" @click="reload">刷新</button>
-          <button
-            class="btn btn-ghost"
-            size="mini"
-            :class="{ 'btn-on': !cityScoped }"
-            @click="toggleCityScoped"
-          >
-            {{ cityScoped ? "仅本市" : "含跨城" }}
-          </button>
-        </view>
-        <text v-if="periodHint" class="muted period-hint">{{ periodHint }}</text>
-        <text class="muted period-hint">
-          默认仅展示本市卡片；点「含跨城」才显示对照块。周切换只刷新「本周速览 / 区对比 / 小区周榜」。
-        </text>
-        <text class="muted period-hint">
-          数据构成：真实挂牌 {{ listingTrust.real }}（{{ listingTrust.realPct }}%）/
-          派生样本 {{ listingTrust.derived }} / 其他 {{ listingTrust.other }}；派生样本不代表逐套成交。
-          <text v-if="listingTrust.latestRealCrawlDate">
-            真实挂牌最新 crawl_date {{ listingTrust.latestRealCrawlDate }}。
-          </text>
-          <text v-else>当前城市尚无带日期的真实挂牌。</text>
-        </text>
-        <text class="muted period-hint">{{ priceAxesHint }}</text>
-      </view>
-
       <!-- 今日要点：参考贝壳/链家「首页速览」收敛首屏信息密度 -->
       <view v-if="todayHighlights.length" class="card today-highlights-card">
         <view class="row-between">
@@ -4455,11 +4385,7 @@ import {
   type DistrictVolatility,
   type CityCategoryTrend
 } from "../../local/wangqianTrendRanking";
-import {
-  listingMedianUnitPriceLabel,
-  priceAxesDisclaimer
-} from "../../local/priceSemantics";
-import { summarizeListingTrust } from "../../local/listingTrustSummary";
+import { listingMedianUnitPriceLabel } from "../../local/priceSemantics";
 import { assessStats70Freshness } from "../../local/stats70Freshness";
 import * as store from "../../local/store";
 import {
@@ -5928,7 +5854,6 @@ const overviewLprSummary = computed(() => {
 
 // v0.55.0 hero-1: 顶部大盘轮播 — 城市级聚合 (从 snapshot 实时计算)
 const listingCount = computed<number>(() => store.getListingsByCity(app.cityId).length);
-const listingTrust = computed(() => summarizeListingTrust(store.getListingsByCity(app.cityId)));
 const communityCount = computed<number>(() => {
   const seen = new Set<number>();
   for (const l of store.getListingsByCity(app.cityId)) seen.add(l.communityId);
@@ -6110,32 +6035,16 @@ function applyCityScopedClass(on: boolean) {
   if (typeof document === "undefined") return;
   document.body.classList.toggle("city-scoped", on);
 }
-function toggleCityScoped() {
-  cityScoped.value = !cityScoped.value;
-  applyCityScopedClass(cityScoped.value);
-  showToast(cityScoped.value ? "已隐藏跨城对照" : "已显示跨城对照");
-}
 /** 仅本市模式下清空跨城数组，列表自然不渲染 */
 function crossCityRows<T>(rows: T[]): T[] {
   return cityScoped.value ? [] : rows;
 }
-
-// 房源按周聚合，来源可能是真实挂牌或公开指标派生样本。
-const periodHint = computed(() => {
-  const list = periods.value;
-  if (list.length === 0) return "";
-  const latest = list[list.length - 1];
-  return `房源快照最新周期 ${latest}（周维度，不代表当日实时挂牌）`;
-});
 
 // Picker 辅助
 const currentCityLabel = computed(() => {
   const c = cities.value.find((c) => c.city_id === app.cityId);
   return c?.city_name || store.getCityById(app.cityId)?.cityName || "";
 });
-
-const metricLabels = ["均价", "挂牌数"];
-const metricIndex = computed(() => (app.metric === "avg_unit_price" ? 0 : 1));
 
 // 内置 popup 状态（比 uni.showActionSheet 更可靠，所有 uni-app 平台都通用）
 const sheet = ref<{
@@ -6185,61 +6094,6 @@ function pickCity() {
       showToast(`已切换到 ${c.city_name}`);
     }
   });
-}
-
-function pickPeriod() {
-  if (periods.value.length === 0) {
-    showToast("暂无周期数据");
-    return;
-  }
-  const list = periods.value.slice().reverse();   // 最近的在前
-  const cur = periods.value.indexOf(app.weekEnd);
-  const listCur = list.indexOf(app.weekEnd);
-  openSheet(
-    "选择周期（最近的在前）",
-    list,
-    listCur >= 0 ? listCur : 0,
-    (idx) => {
-      const p = list[idx];
-      if (p) {
-        app.setWeekEnd(p);
-        loadRankingAndDistrict();
-        showToast(`已选周期 ${p}`);
-      }
-    }
-  );
-}
-
-function pickSource() {
-  const items = ["全部", ...sourceOptions.value.map((s) => s.source || "(空来源)")];
-  // 计算当前索引
-  let cur = 0;
-  if (app.source) {
-    const idx = sourceOptions.value.findIndex((s) => s.source === app.source);
-    if (idx >= 0) cur = idx + 1;
-  }
-  openSheet("数据来源", items, cur, (idx) => {
-    if (idx === 0) {
-      app.setSource("");
-    } else {
-      const s = sourceOptions.value[idx - 1];
-      if (s) app.setSource(s.source);
-    }
-    loadRankingAndDistrict();
-    loadCoverage();
-  });
-}
-
-function pickMetric() {
-  openSheet(
-    "指标",
-    metricLabels,
-    metricIndex.value,
-    (idx) => {
-      app.setMetric(idx === 0 ? "avg_unit_price" : "listing_count");
-      loadRankingAndDistrict();
-    }
-  );
 }
 
 async function loadAll() {
@@ -7385,8 +7239,6 @@ const todayHighlights = computed(() => {
   return items.slice(0, 4);
 });
 
-const priceAxesHint = priceAxesDisclaimer();
-
 function formatIndex(v: number | null): string {
   if (v == null) return "—";
   return v.toFixed(1);
@@ -7772,45 +7624,12 @@ onShow(async () => {
   background: var(--color-surface);
 }
 
-/* 页头筛选：允许轻微抬起，作为唯一「浮层」锚点 */
-.filter-card {
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 16rpx;
-  border-radius: 16rpx;
-  border: 1rpx solid rgba(34, 197, 94, 0.24);
-  box-shadow: var(--shadow-card);
-  background: linear-gradient(145deg, var(--color-surface) 0%, rgba(22, 163, 74, 0.055) 100%);
-}
-
-.filter-card-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20rpx;
-  margin-bottom: 22rpx;
-}
-
 .dashboard-eyebrow {
   color: var(--color-primary);
   font-size: 19rpx;
   font-weight: 700;
   letter-spacing: 2rpx;
   margin-bottom: 5rpx;
-}
-
-.data-trust-badge {
-  flex: 0 0 auto;
-  padding: 8rpx 14rpx;
-  border: 1rpx solid rgba(34, 197, 94, 0.28);
-  border-radius: 999rpx;
-  background: rgba(34, 197, 94, 0.1);
-  color: #4ade80;
-  font-size: 21rpx;
-}
-
-.filter-actions {
-  justify-content: flex-end;
 }
 
 .gz-inventory-grid {
@@ -8056,14 +7875,6 @@ onShow(async () => {
   color: var(--color-muted);
   font-size: 22rpx;
   margin-left: 8rpx;
-}
-
-.period-hint {
-  display: block;
-  margin-top: 12rpx;
-  color: var(--color-muted);
-  font-size: 22rpx;
-  line-height: 1.4;
 }
 
 /* 内置 sheet popup */

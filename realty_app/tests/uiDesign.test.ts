@@ -18,8 +18,6 @@ describe("dashboard visual system", () => {
   it("uses a four-column desktop metric grid while retaining mobile wrapping", () => {
     const dashboard = read("src/pages/dashboard/dashboard.vue");
     expect(dashboard).toContain("grid-template-columns: repeat(4, minmax(0, 1fr))");
-    expect(dashboard).toContain("class=\"card filter-card\"");
-    expect(dashboard).toContain("官方与公开数据");
     expect(dashboard).toContain("data-home-entry");
     expect(dashboard).toContain("data-home-kingkong");
   });
