@@ -74,6 +74,32 @@ function writeSleepingCommand(dir: string): string {
   return script;
 }
 
+function writeFlakyCommand(dir: string): string {
+  const script = join(dir, "flaky_source.py");
+  writeFileSync(
+    script,
+    [
+      "from pathlib import Path",
+      "import sys",
+      "name, trace_path, marker_path, first_exit = sys.argv[1:5]",
+      "with Path(trace_path).open('a', encoding='utf-8') as trace:",
+      "    trace.write(name + '\\n')",
+      "marker = Path(marker_path)",
+      "if marker.exists():",
+      "    marker.unlink()",
+      "    print('stdout:' + name + ':recovered')",
+      "    raise SystemExit(0)",
+      "marker.write_text('first-run', encoding='utf-8')",
+      "print('stdout:' + name + ':first-failure')",
+      "print('stderr:' + name, file=sys.stderr)",
+      "raise SystemExit(int(first_exit))",
+      ""
+    ].join("\n"),
+    "utf8"
+  );
+  return script;
+}
+
 function runFakeGroup(
   dir: string,
   group: "p0" | "p1" | "p2",
@@ -314,7 +340,9 @@ describe("CI workflow contracts", () => {
       expect(readFileSync(trace, "utf8").trim().split(/\r?\n/)).toEqual([
         "required-ok",
         "required-fail",
-        "required-after"
+        "required-after",
+        // 首轮失败的 required-fail 会在整组跑完后重试一次
+        "required-fail"
       ]);
       expect(readFileSync(statusFile, "utf8")).toBe(
         "required-ok\t0\nrequired-fail\t7\nrequired-after\t0\n"
@@ -344,7 +372,9 @@ describe("CI workflow contracts", () => {
       expect(result.status, result.stderr).toBe(0);
       expect(readFileSync(trace, "utf8").trim().split(/\r?\n/)).toEqual([
         "optional-fail",
-        "optional-after"
+        "optional-after",
+        // 首轮失败的 optional-fail 会重试一次，失败结论保持不变
+        "optional-fail"
       ]);
       expect(readFileSync(statusFile, "utf8")).toBe(
         "optional-fail\t9\noptional-after\t0\n"
@@ -421,6 +451,37 @@ describe("CI workflow contracts", () => {
         "stdout:after-timeout"
       );
       expect(readFileSync(summaryFile, "utf8")).toContain("| slow-source | 124 | 超时 |");
+    });
+  });
+
+  it("P1 retries a failed source once and turns green when it recovers", () => {
+    withTempDir((dir) => {
+      const flaky = writeFlakyCommand(dir);
+      const trace = join(dir, "trace.txt");
+      const marker = join(dir, "flaky-marker.txt");
+      const sources: FakeSource[] = [
+        {
+          name: "flaky-required",
+          command: [PYTHON, flaky, "flaky-required", trace, marker, "7"]
+        }
+      ];
+      const { result, logDir, statusFile, summaryFile } = runFakeGroup(dir, "p1", sources);
+
+      expect(result.error).toBeUndefined();
+      expect(result.status, result.stderr).toBe(0);
+      expect(readFileSync(trace, "utf8").trim().split(/\r?\n/)).toEqual([
+        "flaky-required",
+        "flaky-required"
+      ]);
+      expect(readFileSync(statusFile, "utf8")).toBe("flaky-required\t0\n");
+      expect(result.stdout).toContain("::notice title=P1 周更重试::");
+      expect(result.stdout).toContain("::notice title=P1 周更重试成功::");
+      expect(
+        readFileSync(join(logDir, "p1-flaky-required-retry.log"), "utf8")
+      ).toContain("stdout:flaky-required:recovered");
+      expect(readFileSync(summaryFile, "utf8")).toContain(
+        "| flaky-required | 0 | 成功 |"
+      );
     });
   });
 

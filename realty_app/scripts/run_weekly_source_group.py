@@ -36,6 +36,8 @@ STATUS_SPAWN_FAILURE = 125
 # 124 = 单个来源超时被杀。与 GNU timeout 的约定一致，归入「来源失败」而不是编排失败。
 STATUS_TIMEOUT = 124
 DEFAULT_SOURCE_TIMEOUT_SECONDS = 420
+# 第一遍失败后到重试之间的等待，避免立刻重锤同一个源站。
+RETRY_FAILED_SOURCE_DELAY_SECONDS = 2
 SOURCE_NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 
 
@@ -58,6 +60,7 @@ class GroupPolicy:
     source_failure_is_fatal: bool
     annotation_level: str
     summary_title: str
+    retry_failed: bool = False
 
 
 POLICIES: dict[str, GroupPolicy] = {
@@ -72,12 +75,15 @@ POLICIES: dict[str, GroupPolicy] = {
         source_failure_is_fatal=True,
         annotation_level="error",
         summary_title="P1 必需官方周更",
+        # GitHub runner 访问国内政务站偶发 Connection reset，重试一次可避免整周变红。
+        retry_failed=True,
     ),
     "p2": GroupPolicy(
         fail_fast=False,
         source_failure_is_fatal=False,
         annotation_level="warning",
         summary_title="P2 尽力刷新宏观来源",
+        retry_failed=True,
     ),
 }
 
@@ -260,6 +266,115 @@ def _append_summary(path: Path, title: str, results: Sequence[SourceResult]) -> 
         summary.write("\n")
 
 
+def _execute_source(
+    group: str,
+    source: SourceSpec,
+    log_dir: Path,
+    policy: GroupPolicy,
+    log_suffix: str = "",
+) -> SourceResult:
+    """执行单个来源，带墙钟超时；日志、annotation 都在这里落盘。"""
+    log_path = log_dir / f"{group}-{source.name}{log_suffix}.log"
+    print(f"===== {group.upper()} {source.name}{log_suffix} =====", flush=True)
+    with log_path.open("w", encoding="utf-8", newline="\n") as log:
+        log.write(f"$ {shlex.join(source.command)}\n")
+        log.flush()
+        tail: deque[str] = deque(maxlen=12)
+        preflight_error = _command_preflight_error(source.command)
+        if preflight_error is not None:
+            log.write(f"[orchestration-error] {preflight_error}\n")
+            _emit_annotation(
+                "error",
+                f"{group.upper()} 周更编排失败",
+                f"{source.name} 无法启动：{preflight_error}",
+            )
+            return SourceResult(source.name, STATUS_SPAWN_FAILURE, True)
+
+        try:
+            process = subprocess.Popen(
+                source.command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                bufsize=1,
+            )
+        except OSError as exc:
+            detail = f"{type(exc).__name__}: {exc}"
+            log.write(f"[orchestration-error] {detail}\n")
+            _emit_annotation(
+                "error",
+                f"{group.upper()} 周更编排失败",
+                f"{source.name} 无法启动：{detail}",
+            )
+            return SourceResult(source.name, STATUS_SPAWN_FAILURE, True)
+
+        assert process.stdout is not None
+        # 先绑定 stdout：线程启动有延迟，若循环已进入下一个来源，
+        # 闭包里再读 process.stdout 会串到新进程的管道上。
+        stdout_stream = process.stdout
+        timeout_s = _source_timeout_seconds()
+        stream: queue.Queue[str | None] = queue.Queue()
+
+        def _pump_stdout() -> None:
+            try:
+                for raw_line in stdout_stream:
+                    stream.put(raw_line)
+            finally:
+                stream.put(None)
+
+        threading.Thread(target=_pump_stdout, daemon=True).start()
+        deadline = time.monotonic() + timeout_s
+        timed_out = False
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                timed_out = True
+                process.kill()
+                break
+            try:
+                line = stream.get(timeout=min(remaining, 1.0))
+            except queue.Empty:
+                continue
+            if line is None:
+                break
+            log.write(line)
+            log.flush()
+            print(line, end="", flush=True)
+            tail.append(line.rstrip())
+        exit_code = process.wait()
+
+        if timed_out:
+            detail = f"超时 {timeout_s}s 未结束，已 kill"
+            log.write(f"[orchestration-error] {detail}\n")
+            log.flush()
+            print(f"[timeout] {detail}", flush=True)
+            _emit_annotation(
+                policy.annotation_level,
+                f"{group.upper()} 周更来源超时",
+                f"{source.name} {detail}",
+            )
+            return SourceResult(source.name, STATUS_TIMEOUT)
+
+        if exit_code != 0:
+            suffix = "已保留 last-good 并继续其它来源" if not policy.fail_fast else "硬门禁立即停止"
+            _emit_annotation(
+                policy.annotation_level,
+                f"{group.upper()} 周更来源失败",
+                f"{source.name} exit={exit_code}；{suffix}",
+            )
+            # 失败日志末尾同步成 annotation：公开仓库无需登录也能在
+            # Actions 页面直接看到失败原因（下载 artifact / logs 需要权限）。
+            if tail:
+                _emit_annotation(
+                    policy.annotation_level,
+                    f"{group.upper()} 周更来源失败 · {source.name} 尾部日志",
+                    " | ".join(tail)[-2000:],
+                )
+        return SourceResult(source.name, exit_code)
+
+
 def run_group(
     group: str,
     sources: Sequence[SourceSpec],
@@ -277,8 +392,6 @@ def run_group(
         raise OrchestrationError(f"cannot prepare output paths: {exc}") from exc
 
     results: list[SourceResult] = []
-    source_failed = False
-    orchestration_failed = False
 
     try:
         status_handle = status_file.open("w", encoding="utf-8", newline="\n")
@@ -287,124 +400,56 @@ def run_group(
 
     with status_handle:
         for source in sources:
-            log_path = log_dir / f"{group}-{source.name}.log"
-            print(f"===== {group.upper()} {source.name} =====", flush=True)
-            result: SourceResult
             try:
-                with log_path.open("w", encoding="utf-8", newline="\n") as log:
-                    log.write(f"$ {shlex.join(source.command)}\n")
-                    log.flush()
-                    tail: deque[str] = deque(maxlen=12)
-                    preflight_error = _command_preflight_error(source.command)
-                    if preflight_error is not None:
-                        detail = preflight_error
-                        log.write(f"[orchestration-error] {detail}\n")
-                        result = SourceResult(source.name, STATUS_SPAWN_FAILURE, True)
-                        orchestration_failed = True
-                        _emit_annotation(
-                            "error",
-                            f"{group.upper()} 周更编排失败",
-                            f"{source.name} 无法启动：{detail}",
-                        )
-                    else:
-                        try:
-                            process = subprocess.Popen(
-                                source.command,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.STDOUT,
-                                text=True,
-                                encoding="utf-8",
-                                errors="replace",
-                                bufsize=1,
-                            )
-                        except OSError as exc:
-                            detail = f"{type(exc).__name__}: {exc}"
-                            log.write(f"[orchestration-error] {detail}\n")
-                            result = SourceResult(source.name, STATUS_SPAWN_FAILURE, True)
-                            orchestration_failed = True
-                            _emit_annotation(
-                                "error",
-                                f"{group.upper()} 周更编排失败",
-                                f"{source.name} 无法启动：{detail}",
-                            )
-                        else:
-                            assert process.stdout is not None
-                            # 先绑定 stdout：线程启动有延迟，若循环已进入下一个来源，
-                            # 闭包里再读 process.stdout 会串到新进程的管道上。
-                            stdout_stream = process.stdout
-                            timeout_s = _source_timeout_seconds()
-                            stream: queue.Queue[str | None] = queue.Queue()
-
-                            def _pump_stdout() -> None:
-                                try:
-                                    for raw_line in stdout_stream:
-                                        stream.put(raw_line)
-                                finally:
-                                    stream.put(None)
-
-                            threading.Thread(target=_pump_stdout, daemon=True).start()
-                            deadline = time.monotonic() + timeout_s
-                            timed_out = False
-                            while True:
-                                remaining = deadline - time.monotonic()
-                                if remaining <= 0:
-                                    timed_out = True
-                                    process.kill()
-                                    break
-                                try:
-                                    line = stream.get(timeout=min(remaining, 1.0))
-                                except queue.Empty:
-                                    continue
-                                if line is None:
-                                    break
-                                log.write(line)
-                                log.flush()
-                                print(line, end="", flush=True)
-                                tail.append(line.rstrip())
-                            exit_code = process.wait()
-                            if timed_out:
-                                detail = f"超时 {timeout_s}s 未结束，已 kill"
-                                log.write(f"[orchestration-error] {detail}\n")
-                                log.flush()
-                                print(f"[timeout] {detail}", flush=True)
-                                _emit_annotation(
-                                    policy.annotation_level,
-                                    f"{group.upper()} 周更来源超时",
-                                    f"{source.name} {detail}",
-                                )
-                                result = SourceResult(source.name, STATUS_TIMEOUT)
-                            else:
-                                result = SourceResult(source.name, exit_code)
+                result = _execute_source(group, source, log_dir, policy)
             except OSError as exc:
-                raise OrchestrationError(f"cannot write source log {log_path}: {exc}") from exc
-
+                raise OrchestrationError(f"cannot write source log for {source.name}: {exc}") from exc
             results.append(result)
             status_handle.write(f"{result.name}\t{result.exit_code}\n")
             status_handle.flush()
+            if policy.fail_fast and (result.orchestration_error or result.exit_code != 0):
+                break
 
-            if result.orchestration_error:
-                if policy.fail_fast:
-                    break
-                continue
-            if result.exit_code != 0:
-                source_failed = True
-                if result.exit_code != STATUS_TIMEOUT:
-                    suffix = "已保留 last-good 并继续其它来源" if not policy.fail_fast else "硬门禁立即停止"
-                    _emit_annotation(
-                        policy.annotation_level,
-                        f"{group.upper()} 周更来源失败",
-                        f"{result.name} exit={result.exit_code}；{suffix}",
-                    )
-                    # 失败日志末尾同步成 annotation：公开仓库无需登录也能在
-                    # Actions 页面直接看到失败原因（下载 artifact / logs 需要权限）。
-                    if tail:
-                        _emit_annotation(
-                            policy.annotation_level,
-                            f"{group.upper()} 周更来源失败 · {result.name} 尾部日志",
-                            " | ".join(tail)[-2000:],
+        # 网络抖动（如 GitHub runner 访问国内政务站 Connection reset）不是数据问题：
+        # P1/P2 首轮失败的来源在整组跑完后再补一次，成功即恢复绿色。
+        if policy.retry_failed:
+            retryable = [
+                item
+                for item in results
+                if not item.orchestration_error and item.exit_code not in (0, STATUS_TIMEOUT)
+            ]
+            if retryable:
+                _emit_annotation(
+                    "notice",
+                    f"{group.upper()} 周更重试",
+                    "首轮失败，整组跑完后重试一次：" + ", ".join(item.name for item in retryable),
+                )
+                specs = {item.name: item for item in sources}
+                for previous in retryable:
+                    time.sleep(RETRY_FAILED_SOURCE_DELAY_SECONDS)
+                    try:
+                        recovered = _execute_source(
+                            group, specs[previous.name], log_dir, policy, "-retry"
                         )
-                if policy.fail_fast:
-                    break
+                    except OSError as exc:
+                        raise OrchestrationError(
+                            f"cannot write retry log for {previous.name}: {exc}"
+                        ) from exc
+                    results[results.index(previous)] = recovered
+                    if recovered.exit_code == 0:
+                        _emit_annotation(
+                            "notice",
+                            f"{group.upper()} 周更重试成功",
+                            f"{previous.name} 第二次通过，首轮失败视为网络抖动",
+                        )
+                status_handle.seek(0)
+                status_handle.truncate()
+                for result in results:
+                    status_handle.write(f"{result.name}\t{result.exit_code}\n")
+                status_handle.flush()
+
+    orchestration_failed = any(item.orchestration_error for item in results)
+    source_failed = any(not item.orchestration_error and item.exit_code != 0 for item in results)
 
     try:
         _append_summary(summary_file, policy.summary_title, results)

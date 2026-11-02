@@ -667,7 +667,7 @@ gh auth setup-git
 
 ### 周更单源卡死修复（2026-11-03，不发版）
 
-`crawl-weekly` 的 P2 曾整整 20+ 小时 `in_progress`，把 concurrency 组堵死、后续周更全部 `pending`。根因是 `run_weekly_source_group.py` 无超时地读子进程 stdout：只要某个源站 socket 卡住，编排器就永远等下去。现在单源默认 420s 上限（`WEEKLY_SOURCE_TIMEOUT_SECONDS` 可调），到点 kill 并记 `124/超时`，P2 只告警继续跑；workflow 再加 P1 20 分钟 / P2 12 分钟 step 级硬上限。详见 [changelog/2026-11-03-CI周更单源卡死.md](./changelog/2026-11-03-CI周更单源卡死.md)。
+`crawl-weekly` 的 P2 曾整整 20+ 小时 `in_progress`，把 concurrency 组堵死、后续周更全部 `pending`。根因是 `run_weekly_source_group.py` 无超时地读子进程 stdout：只要某个源站 socket 卡住，编排器就永远等下去。现在单源默认 420s 上限（`WEEKLY_SOURCE_TIMEOUT_SECONDS` 可调），到点 kill 并记 `124/超时`，P2 只告警继续跑；P1/P2 首轮失败的来源整组跑完后各重试一次（实测 sz 三个政务源 `Connection reset` 导致整周变红）；workflow 再加 P1 30 分钟 / P2 18 分钟 step 级硬上限、job 上限 30→90 分钟。详见 [changelog/2026-11-03-CI周更单源卡死.md](./changelog/2026-11-03-CI周更单源卡死.md)。
 
 ### 自动提交并发 push 竞态修复（2026-11-02，不发版）
 
