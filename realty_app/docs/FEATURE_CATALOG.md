@@ -106,7 +106,7 @@
 
 **不期望**：周切换无 toast/滚动反馈；跨城默认混进本市。
 
-**自动化**：unit 相关 store/query；smoke: `smoke_topnav_period.mjs`、`smoke_dashboard_tabs.mjs`（未全进 core 则手工补）  
+**自动化**：unit 相关 store/query；smoke: `smoke_topnav_period.mjs`（未全进 core 则手工补）  
 **手工**：广州→深圳→改周期→看「本周速览」数字变化；切「含跨城」再切回。
 
 ---
@@ -144,17 +144,18 @@
 
 ---
 
-### F-DASH-04 · 专业 Tab（概览/价格/学区/通勤/地图）
+### F-DASH-04 · 专业 Tab（概览/价格/学区/通勤/地图）· v1.122 已下线
 
 | 项 | 内容 |
 |----|------|
-| 入口 | `dash-tabs` |
+| 入口 | ~~`dash-tabs`~~ v1.122 起首页不再可见；能力由 F-MKT-01 行情聚合页接管 |
 | 风险 | F, U |
+| 状态 | ⛔ 已下线（历史功能，隐藏 DOM 与兼容代码暂保留） |
 
-**期望**：点 Tab / 金刚区「价格」后仅相关卡可见；`.page[data-dash-tab]` 在 App 与 H5 均过滤正确；有 toast + Tab 高亮。  
-**不期望**：切到「价格」无反应（仅写 document.body）；Tab 条埋在长页中部。  
-**自动化**：`tests/dashboardTabs.test.ts`（对照 [DASHBOARD_TABS_ACCEPTANCE.md](./DASHBOARD_TABS_ACCEPTANCE.md)）；`smoke_dashboard_tabs.mjs`；core `smoke_dashboard_feature_matrix.mjs`  
-**手工**：见 DASHBOARD_TABS_ACCEPTANCE §3。
+**现状**：v1.122 首页收敛为新版壳（`.home-v122-shell`），`.home-v122 .container > :not(.home-v122-shell):not(.sheet-mask) { display:none !important }` 把 `#dash-tabs` 及全部旧长卡永久隐藏，用户不可见不可点；`setDashTab` / `.page[data-dash-tab]` 过滤 / `cardVisibleOnDashTab` 均为历史兼容代码。删除旧实现前，不得恢复其作为首页第二套导航（验收 X6）；删除时应先删历史测试与兼容代码再同步文档。  
+**不期望**：把隐藏 `.dash-tab` DOM 存在当作当前 UI 验收通过证据。  
+**自动化**：unit `tests/dashboardTabs.test.ts`（历史纯逻辑矩阵 + 旧价格入口迁行情接线门禁）与 `navigation.test.ts`（28 项迁移映射），对照 [DASHBOARD_TABS_ACCEPTANCE.md](./DASHBOARD_TABS_ACCEPTANCE.md)。注意：`smoke_dashboard_feature_matrix.mjs` 验收的是行情页（F-MKT-01），与本项无关；历史 E2E `smoke_dashboard_tabs.mjs` 已删除（旧 5187 端口、非门禁）。  
+**手工**：无需手工；当前入口验收见 F-MKT-01。
 
 ---
 

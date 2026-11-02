@@ -38,12 +38,12 @@ v1.122 之前，F-DASH-04 使用首页专业 Tabs 控制长页卡片集合：
 | 卡片过滤 | `data-tab` 含当前 Tab 或 `all` 时可见，否则隐藏 |
 | 价格入口 | 金刚区 `price-tab` 切换到 `price`，显示 toast 并滚动到 `#dash-tabs` |
 | 历史逻辑测试 | `tests/dashboardTabs.test.ts` 中的 `cardVisibleOnDashTab` 矩阵 |
-| 历史 E2E | `tests/e2e/smoke_dashboard_tabs.mjs` |
+| 历史 E2E | ~~`tests/e2e/smoke_dashboard_tabs.mjs`~~（已删除，旧 5187 端口、非门禁） |
 
 这些契约保留用于解释遗留代码和防止兼容逻辑被误改，但有以下边界：
 
-1. `tests/e2e/smoke_dashboard_tabs.mjs` 仍按旧可见首页编写，**不是** v1.122
-   当前发布门禁，也不在 core E2E 列表中。
+1. 历史 E2E `tests/e2e/smoke_dashboard_tabs.mjs` 按旧可见首页编写、使用旧 5187
+   端口，**不是** v1.122 当前发布门禁，也不在 core E2E 列表中，已删除。
 2. `tests/dashboardTabs.test.ts` 当前同时承担历史纯逻辑回归，以及旧 `price-tab`
    已改为 `switchTab('/pages/market/market')` 的迁移接线门禁；它不能替代行情页可见性验收。
 3. 若后续删除旧 Dashboard 长卡实现，应先删除对应历史测试和兼容代码，再同步更新本节，
@@ -122,7 +122,7 @@ v1.122 之前，F-DASH-04 使用首页专业 Tabs 控制长页卡片集合：
 | X4 | 同一旧能力被映射到多个目标，或旧卡片能力没有迁移记录 |
 | X5 | 将挂牌价、网签量或 70 城指数标成同一类“成交均价” |
 | X6 | 恢复旧专业 Tabs 作为首页第二套导航，造成五栏 IA 与长页工作台并存 |
-| X7 | 用历史 `smoke_dashboard_tabs.mjs` 的结果替代当前行情页 E2E |
+| X7 | 用历史 `smoke_dashboard_tabs.mjs`（已删除）的结果替代当前行情页 E2E |
 
 ## 5. 自动化验证
 
