@@ -2,6 +2,7 @@
 // v1.122+ 改写：dashboard 改版为纯壳层（.home-v122 隐藏旧长页卡），
 // 「🚇 地铁规划受益 Top」卡已迁入数据工具页 pages/data-tools/data-tools（[data-dt-plan-benefit]）。
 // 切城方式：dashboard 壳层真实 pickCity 交互（写 Pinia store）→ hash 导航到数据工具页。
+// v1.123.12 flake 加固：networkidle → domcontentloaded + 显式选择器等待；固定 sleep → 条件等待。
 import { chromium } from "playwright";
 import { mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
@@ -26,7 +27,12 @@ async function pickCity(page, cityName) {
   await page.locator(".sheet-mask").waitFor({ state: "visible", timeout: 8000 });
   await page.locator(".sheet-item", { hasText: cityName }).first().click({ force: true });
   await page.locator(".sheet-mask").waitFor({ state: "hidden", timeout: 8000 }).catch(() => null);
-  await page.waitForTimeout(1200);
+  // 条件等待替代固定 sleep：壳层城市文案真正切到目标城市才继续（防 flake）
+  await page.waitForFunction(
+    (name) => (document.querySelector("[data-home-city]")?.textContent ?? "").includes(name),
+    cityName,
+    { timeout: 15000 }
+  );
 }
 
 async function gotoDataTools(page, cityName) {
@@ -34,7 +40,8 @@ async function gotoDataTools(page, cityName) {
   await pickCity(page, cityName);
   await page.evaluate((h) => { location.hash = h; }, DT_HASH);
   // uni-app H5 会缓存已挂载页面（onMounted 不重跑）；reload 强制按持久化城市全新加载
-  await page.reload({ waitUntil: "networkidle" });
+  // domcontentloaded 足够：后续 CARD/标题显式等待已覆盖应用渲染，networkidle 易受挂起请求影响
+  await page.reload({ waitUntil: "domcontentloaded", timeout: 30000 });
   await page.locator(CARD).waitFor({ state: "visible", timeout: 20000 });
   // 卡片标题带城市名（🚇 地铁规划受益 Top · 深圳），等数据切到目标城市
   await page
@@ -45,7 +52,7 @@ async function gotoDataTools(page, cityName) {
 
 async function backToDashboard(page) {
   await page.evaluate((h) => { location.hash = h; }, DASH_HASH);
-  await page.reload({ waitUntil: "networkidle" });
+  await page.reload({ waitUntil: "domcontentloaded", timeout: 30000 });
   await page.locator("[data-home-city]").first().waitFor({ state: "visible", timeout: 20000 });
 }
 
@@ -67,7 +74,7 @@ async function run() {
   });
 
   try {
-    await page.goto(DASH_URL, { waitUntil: "networkidle", timeout: 20000 });
+    await page.goto(DASH_URL, { waitUntil: "domcontentloaded", timeout: 20000 });
     await gotoDataTools(page, "深圳");
 
     // 1) 卡片存在（waitFor 已保证）

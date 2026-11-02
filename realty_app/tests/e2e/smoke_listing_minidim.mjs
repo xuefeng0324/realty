@@ -1,4 +1,6 @@
 // smoke_listing_minidim.mjs — v0.37.0 trend-17 listing 列表迷你评分条 E2E
+// v1.123.12 flake 加固：默认端口 5175→5174（对齐 serve）；networkidle → domcontentloaded
+// + 显式选择器等待；固定 sleep → 条件等待（picker 文案切城 + 行数达标）。
 import { chromium } from "playwright";
 import { mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
@@ -8,15 +10,23 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const SCREENSHOT_DIR = resolve(__dirname, "../../screenshots");
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
 
-const BASE = `${(process.env.REALTY_E2E_BASE_URL || "http://127.0.0.1:5175").replace(/\/$/, "")}/#/pages/listing-filter/listing-filter`;
+const BASE = `${(process.env.REALTY_E2E_BASE_URL || "http://127.0.0.1:5174").replace(/\/$/, "")}/#/pages/listing-filter/listing-filter`;
 
 async function pickCity(page, cityName) {
   const current = (await page.locator(".picker-value").first().textContent()) ?? "";
   if (current.includes(cityName)) return;
   await page.locator(".picker-value.tap").first().click({ force: true });
-  await page.waitForTimeout(800);
+  await page.locator(".sheet-item", { hasText: cityName }).first().waitFor({ state: "visible", timeout: 8000 });
   await page.locator(".sheet-item", { hasText: cityName }).first().click({ force: true });
-  await page.waitForTimeout(3500);
+  // 条件等待替代固定 sleep：picker 文案真正切到目标城市 + 列表行重新渲染
+  await page.waitForFunction(
+    (name) => (document.querySelector(".picker-value")?.textContent ?? "").includes(name),
+    cityName,
+    { timeout: 15000 }
+  );
+  await page.locator(".listing-row").first().waitFor({ state: "visible", timeout: 15000 });
+  // 条件满足后给短暂 settle，覆盖 picker 文案先于列表重渲染的窗口
+  await page.waitForTimeout(500);
 }
 
 async function run() {
@@ -33,18 +43,23 @@ async function run() {
   });
 
   try {
-    await page.goto(BASE, { waitUntil: "networkidle", timeout: 15000 });
-    await page.waitForTimeout(1500);
+    await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 20000 });
+    await page.locator(".picker-value").first().waitFor({ state: "visible", timeout: 20000 });
     await pickCity(page, "深圳");
 
     // 触发筛选
     const applyBtn = page.locator("button", { hasText: "应用" });
     if (await applyBtn.count() > 0) {
       await applyBtn.first().click({ force: true });
-      await page.waitForTimeout(3500);
+      await page.locator(".minidim-row").first().waitFor({ state: "visible", timeout: 15000 });
     }
 
-    // 1) 列表卡片存在
+    // 1) 列表卡片存在（先等行数达标再读数，防首屏渲染慢导致读数偏低的 flake）
+    await page.waitForFunction(
+      () => document.querySelectorAll(".listing-row").length >= 3,
+      undefined,
+      { timeout: 15000 }
+    );
     const rowCount = await page.locator(".listing-row").count();
     console.log(`[v0.37.0] 房源行数: ${rowCount}`);
     if (rowCount < 3) {
