@@ -1,12 +1,12 @@
 {
-  "versionName": "1.123.7",
-  "versionCode": "342",
-  "publishedAt": "2026-11-02T22:12:18Z",
+  "versionName": "1.123.8",
+  "versionCode": "343",
+  "publishedAt": "2026-11-02T22:36:15Z",
   "force": false,
-  "notes": "refactor(realty_app): \u65e7\u4e13\u4e1a Tab \u6b8b\u4f59\u6e05\u96f6\uff08data-tab \u6b7b\u5c5e\u6027+\u5b64\u513f ref\uff09v1.123.7\n\n2026-07-25-v1.121.2-OTA\u68c0\u67e5\u66f4\u65b0\u4fee\u590d: v1.121.2 \u2014 OTA \u68c0\u67e5\u66f4\u65b0\u65e0\u53cd\u5e94\u4fee\u590d\n2026-07-25-v1.121.4-OTA\u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316: v1.121.4 \u2014 OTA \u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316\n2026-07-25-v1.121.5-\u542f\u52a8\u9875\u4e0eOTA\u6839\u6cbb: v1.121.5 / v1.121.6 \u2014 \u542f\u52a8\u9875 + OTA \u6839\u6cbb\u4e0e\u9a8c\u8bc1\n",
+  "notes": "refactor(realty_app): \u5220\u9664 F-DASH-01 \u5de5\u4f5c\u53f0\u6b7b DOM + \u76ee\u5f55\u5de1\u68c0\u6f02\u79fb\u4fee\u6b63 v1.123.8\n\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n2026-07-25-v1.119.0-\u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730map-view: v1.119.0 \u00b7 \u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730 map-view\n2026-07-25-v1.120.0-\u4fee\u590dOTA\u68c0\u67e5\u66f4\u65b0fetch: v1.120.0 \u00b7 \u4fee\u590d OTA \u68c0\u67e5\u66f4\u65b0\uff08fetch is not a function\uff09\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/342/app.wgt",
-    "sha256": "b6f25be635c8006b59abcf6171268f3d7140a3f502381b99b92d0be5164f095e"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/343/app.wgt",
+    "sha256": "1761496b13a0cc8d0ef3e8f0208b1be16fb1a2f2550ff2206a6016ed66a1e55c"
   },
   "ios": {
     "available": false,
