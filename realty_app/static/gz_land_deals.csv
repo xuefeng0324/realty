@@ -1,4 +1,8 @@
 city,deal_date,publish_date,district,location,land_use,area_sqm,price_wan,buyer,source_org,source_url
+广州,2026-10-14,2026-10-14,黄埔区,,二类居住用地兼容商业用地（R2/B1）,34822.0,166534.0,,广州市规划和自然资源局,https://ghzyj.gz.gov.cn/ywpd/tdgl/tdjysc/cjgs/content/post_11042485.html
+广州,2026-10-12,2026-10-12,海珠区,海珠区琶洲南区HZ0305401-CZTB地块,二类居住用地兼容其他交通设施用地（R2/S9）,31325.0,381687.0,广州穗鸿置业有限公司,广州市规划和自然资源局,https://ghzyj.gz.gov.cn/ywpd/tdgl/tdjysc/cjgs/content/post_11033513.html
+广州,2026-10-08,2026-10-08,黄埔区,黄埔区鱼珠车辆基地综合体AP0508018一期地块,公共交通场站用地兼容二类居住用地兼容中小学用地、公园绿地兼容道路与交通设施用地（S41/R2/A33、G1/S）,148461.7,410000.0,广州市品隽房地产开发有限公司,广州市规划和自然资源局,https://ghzyj.gz.gov.cn/ywpd/tdgl/tdjysc/cjgs/content/post_11031416.html
+广州,2026-09-17,2026-09-17,荔湾区,荔湾区坑口AF0211019地块,"二类居住用地R2兼容商业用地B1,商务用地B2",17042.86,186514.0,广州聚广投资发展有限公司,广州市规划和自然资源局,https://ghzyj.gz.gov.cn/ywpd/tdgl/tdjysc/cjgs/content/post_11005059.html
 广州,2026-09-08,2026-09-08,海珠区,海珠区琶洲南区石榴岗路HZ0401003-CZTBGX地块,二类居住用地兼容商业设施用地R2/B1,66249.9,805629.0,广州市润尚房地产开发有限公司,广州市规划和自然资源局,https://ghzyj.gz.gov.cn/ywpd/tdgl/tdjysc/cjgs/content/post_10994333.html
 广州,2026-08-05,2026-08-05,荔湾区,荔湾区花地大道以东AF021637地块,"二类居住用地R2兼容商业用地B1,商务用地B2",24660.11,168593.0,广州绿晟房地产开发有限公司,广州市规划和自然资源局,https://ghzyj.gz.gov.cn/ywpd/tdgl/tdjysc/cjgs/content/post_10952474.html
 广州,2026-08-04,2026-08-04,白云区,白云区政通路西侧AB2914005、AB2914006地块,二类居住用地（R2）、文化设施用地（A2）,26440.0,101213.0,广州越秀华城房地产开发有限公司,广州市规划和自然资源局,https://ghzyj.gz.gov.cn/ywpd/tdgl/tdjysc/cjgs/content/post_10951261.html
@@ -9,7 +13,3 @@ city,deal_date,publish_date,district,location,land_use,area_sqm,price_wan,buyer,
 广州,2026-06-22,2026-06-22,白云区,白云区黄边北路北侧AB2902026地块,二类居住用地（R2）,23484.0,134937.27,广州穗泰置业有限公司,广州市规划和自然资源局,https://ghzyj.gz.gov.cn/ywpd/tdgl/tdjysc/cjgs/content/post_10861561.html
 广州,2026-05-19,2026-05-19,花都区,花都区东边路以西、花都大道以北CC0604008地块,二类居住用地（R2）,68576.01,75441.0,广州市宝信房地产开发有限公司,广州市规划和自然资源局,https://ghzyj.gz.gov.cn/ywpd/tdgl/tdjysc/cjgs/content/post_10815874.html
 广州,2026-04-14,2026-04-14,荔湾区,荔湾区中山八立交东北侧AL011119地块,二类居住用地R2兼容体育用地A4，交通场站用地S4,26067.26,148762.0,广州金茂置业有限公司,广州市规划和自然资源局,https://ghzyj.gz.gov.cn/ywpd/tdgl/tdjysc/cjgs/content/post_10776298.html
-广州,2026-03-04,2026-03-04,天河区,天河区黄埔大道以南、马场路以东地块（马场1期地块）,商业用地B1兼容商务用地B2；其它交通设施用地S9；商务用地B2兼容商业用地B1；其它交通设施用地S9；二类居住用地R2；服务设施用地R22；中小学用地A33,194500.39,2360365.0,广州越诚达有限公司,广州市规划和自然资源局,https://ghzyj.gz.gov.cn/ywpd/tdgl/tdjysc/cjgs/content/post_10709090.html
-广州,2026-03-04,2026-03-04,番禺区,番禺区钟村街市广路北侧地块,二类居住用地R2,70364.49,79741.0,广州璟恒房地产开发有限公司,广州市规划和自然资源局,https://ghzyj.gz.gov.cn/ywpd/tdgl/tdjysc/cjgs/content/post_10709074.html
-广州,2026-03-04,2026-03-04,花都区,花都区雅瑶东路以北、广花公路以东CA0303020地块,二类居住用地,37593.57,56955.0,广州市花都区恒悦房地产开发有限公司,广州市规划和自然资源局,https://ghzyj.gz.gov.cn/ywpd/tdgl/tdjysc/cjgs/content/post_10709081.html
-广州,2026-01-21,2026-01-21,白云区,白云区太和镇未来产业创新核心区AB1208028地块,二类居住用地（R2）,106579.0,31470.52,广州海耀投资开发有限公司,广州市规划和自然资源局,https://ghzyj.gz.gov.cn/ywpd/tdgl/tdjysc/cjgs/content/post_10655275.html
