@@ -51,6 +51,15 @@ jobs:
               2>&1 | tee "weekly-logs/p0-lianjia-${city}.log" || echo "[WARN] ${city} 链家抓取失败，继续其他城市"
           done
 
+          # 机房 IP 常年被链家风控：三城全部命中 CAPTCHA 时本步骤依然"成功"，
+          # 但一条新房源都没追加，属于「绿灯停更」。补一条 warning，避免静默。
+          added=$(cat weekly-logs/p0-lianjia-*.log 2>/dev/null \
+            | sed -nE 's/.*新增 ([0-9]+) 条.*/\1/p' | awk '{s+=$1} END {print s+0}')
+          echo "本轮链家新增房源合计=${added:-0}"
+          if [ "${added:-0}" -eq 0 ]; then
+            echo "::warning title=weekly 挂牌无新增数据::链家 3 城全部被 CAPTCHA 拦截或未返回房源，挂牌快照保持 last-good"
+          fi
+
       - name: P0 · 关联链家房源到真实小区
         id: p0_enrich
         shell: bash
