@@ -1,5 +1,5 @@
 <template>
-  <view class="page home-v122" :data-dash-tab="activeTab" :data-realty-theme="realtyTheme" :class="[{ 'city-scoped': cityScoped }, 'realty-theme-' + realtyTheme]">
+  <view class="page home-v122" :data-realty-theme="realtyTheme" :class="[{ 'city-scoped': cityScoped }, 'realty-theme-' + realtyTheme]">
     <view class="container">
       <view class="home-v122-shell" data-home-entry>
         <view class="home-v122-hero">
@@ -189,22 +189,8 @@
         </view>
       </view>
 
-      <!-- F-DASH-04：专业 Tab 置于入口下方（App/H5 均靠 .page[data-dash-tab] 过滤） -->
-      <view id="dash-tabs" class="dash-tabs" data-dash-tabs>
-        <view
-          v-for="t in DASHBOARD_TABS"
-          :key="t.key"
-          :class="['dash-tab', { 'dash-tab--active': activeTab === t.key }]"
-          @click="setDashTab(t.key)"
-          :data-tab="t.key"
-        >
-          <text class="dash-tab-icon">{{ t.icon }}</text>
-          <text class="dash-tab-label">{{ t.label }}</text>
-        </view>
-      </view>
-
-      <!-- 工作台：概览首屏不占位；专业 Tab 下直接展示筛选项（不折叠） -->
-      <view v-if="activeTab !== 'overview'" class="card filter-card" data-home-workbench>
+      <!-- 工作台：v1.123.6 起随旧专业 Tab 一并下线，整块由 v122 壳层 CSS 隐藏（同其他遗留长卡） -->
+      <view class="card filter-card" data-home-workbench>
         <view class="row-between">
           <view>
             <view class="dashboard-eyebrow">工作台</view>
@@ -1644,7 +1630,7 @@
               v-for="(s, i) in heroSlides"
               :key="'hero_' + i"
             >
-              <view :class="['hero-slide', 'hero-slide--' + s.tone]" @click="heroClick(i)">
+              <view :class="['hero-slide', 'hero-slide--' + s.tone]">
                 <view class="hero-slide-row">
                   <view class="hero-slide-icon">{{ s.icon }}</view>
                   <view class="hero-slide-mid">
@@ -4790,10 +4776,6 @@ import {
   type HomeScrollAvailability,
   type HomeSearchMode
 } from "../../local/homeEntry";
-import {
-  dashTabSwitchFeedback,
-  type DashTabKey
-} from "../../local/dashTabs";
 import { getLatestProvidentFundRate, monthlyPayment } from "../../local/providentFund";
 import {
   getLatestSzProvidentAnnual,
@@ -5782,10 +5764,6 @@ function jumpHomeAnchor(anchor: string) {
     return;
   }
   const target = resolved.id;
-  // 供需/土地等卡挂在 overview|price；从学校/通勤/地图 tab 点金刚区需先切回可见 tab
-  if (activeTab.value === "school" || activeTab.value === "transit" || activeTab.value === "map") {
-    activeTab.value = "overview";
-  }
   const doScroll = () => {
     if (typeof document !== "undefined") {
       const el = document.getElementById(target);
@@ -5819,10 +5797,6 @@ function onHomeChannel(c: HomeChannel) {
   const a = c.action;
   if (a.kind === "find") {
     openFindHub(a.mode);
-    return;
-  }
-  if (a.kind === "tab") {
-    setDashTab(a.tab);
     return;
   }
   if (a.kind === "switchTab") {
@@ -5871,10 +5845,6 @@ function submitHomeSearch() {
     });
     return;
   }
-  if (resolved.kind === "tab") {
-    setDashTab(resolved.tab);
-    return;
-  }
   if (resolved.kind === "navigate") {
     uni.navigateTo({
       url: resolved.path,
@@ -5890,10 +5860,6 @@ function onHomeKingkong(k: HomeKingkongItem) {
   const a = k.action;
   if (a.kind === "find") {
     openFindHub(a.mode);
-    return;
-  }
-  if (a.kind === "tab") {
-    setDashTab(a.tab);
     return;
   }
   if (a.kind === "city") {
@@ -5931,87 +5897,14 @@ function onHomeKingkong(k: HomeKingkongItem) {
   }
 }
 
-// v0.48.0 dashboard-tabs: 顶部 tab 切换
-const activeTab = ref<DashTabKey>("overview");
-
-// 概览页「精简模式」：默认尽量收敛信息流长度
-const isOverviewCompact = computed(
-  () => activeTab.value === "overview" && featuredMode.value
-);
-
-function setDashTab(tab: DashTabKey) {
-  activeTab.value = tab;
-  const fb = dashTabSwitchFeedback(tab);
-  showToast(fb.toast);
-  nextTick(() => {
-    if (typeof document !== "undefined") {
-      const el = document.getElementById("dash-tabs");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-        return;
-      }
-    }
-    uni.pageScrollTo({
-      selector: fb.scrollSelector,
-      duration: 280,
-      fail: () => {
-        /* App 部分端无 selector 时仍保留 toast + data-dash-tab */
-      }
-    });
-  });
-}
+// 概览页「精简模式」：默认尽量收敛信息流长度（v1.123.6 起不再受旧专业 Tab 状态影响）
+const isOverviewCompact = computed(() => featuredMode.value);
 
 type OverviewGroupKey = "region" | "wangqian" | "transit" | "community" | "school" | "lpr";
-const OVERVIEW_GROUP_KEYS: OverviewGroupKey[] = ["region", "wangqian", "transit", "community", "school", "lpr"];
-const OVERVIEW_JUMPS: { key: OverviewGroupKey; label: string }[] = [
-  { key: "region", label: "区域" },
-  { key: "wangqian", label: "网签" },
-  { key: "transit", label: "通勤" },
-  { key: "community", label: "小区" },
-  { key: "school", label: "学校" },
-  { key: "lpr", label: "利率" }
-];
-
-const overviewOpenGroups = ref<Set<OverviewGroupKey>>(new Set());
-
-const overviewAllExpanded = computed(() =>
-  OVERVIEW_GROUP_KEYS.every((k) => overviewOpenGroups.value.has(k))
-);
 
 /** 概览分组不再折叠：始终展开（用户明确禁止折叠套路） */
 function isOverviewGroupCollapsed(_key: OverviewGroupKey): boolean {
   return false;
-}
-
-function expandOverviewGroup(_key: OverviewGroupKey) {
-  /* no-op：已取消折叠 */
-}
-
-function jumpOverviewGroup(key: OverviewGroupKey) {
-  // 遗留兼容：改为进独立页 / Tab，禁止 scrollIntoView
-  if (key === "wangqian") {
-    uni.navigateTo({ url: "/pages/wangqian/wangqian" });
-    return;
-  }
-  if (key === "school") {
-    openFindHub("school");
-    return;
-  }
-  if (key === "lpr") {
-    uni.navigateTo({ url: "/pages/macro-rates/macro-rates" });
-    return;
-  }
-  if (key === "transit") {
-    setDashTab("transit");
-    return;
-  }
-  if (key === "region" || key === "community") {
-    setDashTab("price");
-  }
-}
-
-function toggleOverviewAll() {
-  /* no-op：已取消全部展开/收起 */
 }
 
 function onOverviewCardClick(_key: OverviewGroupKey) {
@@ -6126,7 +6019,6 @@ type HeroSlide = {
   unit?: string;
   sub: string;
   tone: "blue" | "green" | "red" | "amber" | "violet" | "rose";
-  tab?: DashTabKey;
 };
 const heroIdx = ref(0);
 const heroSlides = computed<HeroSlide[]>(() => {
@@ -6140,8 +6032,7 @@ const heroSlides = computed<HeroSlide[]>(() => {
     value: totalListings.toLocaleString(),
     unit: "套",
     sub: `${communityCount.value} 个小区在监控`,
-    tone: "blue",
-    tab: "overview"
+    tone: "blue"
   });
   // 2. 平均单价
   if (medianUnitPrice.value > 0) {
@@ -6151,8 +6042,7 @@ const heroSlides = computed<HeroSlide[]>(() => {
       value: medianUnitPrice.value.toLocaleString(),
       unit: "元/㎡",
       sub: `周 ${app.weekEnd || ""} · 卖方挂牌`,
-      tone: "red",
-      tab: "price"
+      tone: "red"
     });
   }
   // 3. 平均总价
@@ -6163,8 +6053,7 @@ const heroSlides = computed<HeroSlide[]>(() => {
       value: medianTotalPrice.value.toString(),
       unit: "万",
       sub: `覆盖 ${listingCount.value} 套`,
-      tone: "amber",
-      tab: "price"
+      tone: "amber"
     });
   }
   // 4. LPR
@@ -6175,8 +6064,7 @@ const heroSlides = computed<HeroSlide[]>(() => {
       value: lpr.value.latest.mortgageFirst.toFixed(2),
       unit: "%",
       sub: `5Y LPR ${lpr.value.latest.lpr5y.toFixed(2)}% · 累计 -${lpr.value.cumDrop5y}pp`,
-      tone: "violet",
-      tab: "price"
+      tone: "violet"
     });
   }
   // 5. 平均通勤
@@ -6188,8 +6076,7 @@ const heroSlides = computed<HeroSlide[]>(() => {
       value: commuteRanking.value.cityAvgMinutes.toFixed(0),
       unit: "min",
       sub: `最快 ${fastestMin != null ? fastestMin.toFixed(0) + "min" : "—"} · ${commuteRanking.value.totalCommunities} 小区`,
-      tone: "green",
-      tab: "transit"
+      tone: "green"
     });
   }
   // 6. 学区评分
@@ -6200,8 +6087,7 @@ const heroSlides = computed<HeroSlide[]>(() => {
       value: schoolDims.value.total.toString(),
       unit: "校",
       sub: "5 维评分加权排名",
-      tone: "rose",
-      tab: "school"
+      tone: "rose"
     });
   }
   return slides;
@@ -6211,18 +6097,6 @@ function onHeroChange(e: any) {
   const idx = Number(e?.detail?.current ?? 0);
   heroIdx.value = Math.max(0, Math.min(idx, heroSlides.value.length - 1));
 }
-function heroClick(i: number) {
-  const s = heroSlides.value[i];
-  if (s?.tab) setDashTab(s.tab);
-}
-
-const DASHBOARD_TABS: Array<{ key: DashTabKey; icon: string; label: string }> = [
-  { key: "overview", icon: "📊", label: "概览" },
-  { key: "price", icon: "💰", label: "价格画像" },
-  { key: "school", icon: "🏫", label: "学区配套" },
-  { key: "transit", icon: "🚇", label: "通勤地铁" },
-  { key: "map", icon: "🗺️", label: "地图视图" }
-];
 
 // v0.49.0 topnav-1: 周期切换 helper
 const currentPeriodIdx = computed(() => {
@@ -7658,21 +7532,10 @@ function formatWangqianArea(v: number | null): string {
 
 // v1.123.2: wangqianWeeklyDistrictTop 随网签热度榜卡迁入 data-tools.vue
 
-// v0.48.0 dashboard-tabs: H5 only — apply active tab via body attribute
-function applyTabClass() {
-  if (typeof document === "undefined") return;
-  const k = activeTab.value;
-  document.body.setAttribute("data-dash-tab", k);
-}
-watch(activeTab, () => {
-  applyTabClass();
-});
-
 onMounted(async () => {
   uni.$on(SNAPSHOT_UPDATED_EVENT, loadAll);
   loadHiddenCards();
   loadUiState();
-  applyTabClass();
   applyCityScopedClass(cityScoped.value);
   const res = await getCities();
   cities.value = res.items || [];
@@ -7689,7 +7552,6 @@ onMounted(async () => {
 onUnmounted(() => {
   uni.$off(SNAPSHOT_UPDATED_EVENT, loadAll);
   if (typeof document !== "undefined") {
-    document.body.removeAttribute("data-dash-tab");
     document.body.classList.remove("city-scoped");
   }
 });
@@ -10605,21 +10467,7 @@ onShow(async () => {
 
 </style>
 
-<!-- v0.48.0 / v1.121.117：App+H5 用 .page[data-dash-tab]；H5 双写 body 兼容旧 smoke -->
 <style lang="scss">
-.page[data-dash-tab="overview"] .card[data-tab]:not([data-tab*="overview"]):not([data-tab*="all"]),
-body[data-dash-tab="overview"] .card[data-tab]:not([data-tab*="overview"]):not([data-tab*="all"]),
-.page[data-dash-tab="price"] .card[data-tab]:not([data-tab*="price"]):not([data-tab*="all"]),
-body[data-dash-tab="price"] .card[data-tab]:not([data-tab*="price"]):not([data-tab*="all"]),
-.page[data-dash-tab="school"] .card[data-tab]:not([data-tab*="school"]):not([data-tab*="all"]),
-body[data-dash-tab="school"] .card[data-tab]:not([data-tab*="school"]):not([data-tab*="all"]),
-.page[data-dash-tab="transit"] .card[data-tab]:not([data-tab*="transit"]):not([data-tab*="all"]),
-body[data-dash-tab="transit"] .card[data-tab]:not([data-tab*="transit"]):not([data-tab*="all"]),
-.page[data-dash-tab="map"] .card[data-tab]:not([data-tab*="map"]):not([data-tab*="all"]),
-body[data-dash-tab="map"] .card[data-tab]:not([data-tab*="map"]):not([data-tab*="all"]) {
-  display: none !important;
-}
-
 /* 默认仅看本市：隐藏标注了跨城对照的区块 */
 .page.city-scoped [data-cross-city],
 body.city-scoped [data-cross-city] {

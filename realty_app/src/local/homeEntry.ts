@@ -20,7 +20,6 @@ export type HomeChannelKey =
 export type HomeEntryTone = "blue" | "green" | "red" | "amber" | "violet" | "rose" | "slate";
 
 export type HomeKingkongAction =
-  | { kind: "tab"; tab: "overview" | "price" | "school" | "transit" | "map" }
   | { kind: "find"; mode: FindHubMode }
   | { kind: "switchTab"; path: string }
   | { kind: "navigate"; path: string }
@@ -31,8 +30,7 @@ export type HomeKingkongAction =
 export type HomeChannelAction =
   | { kind: "navigate"; path: string }
   | { kind: "switchTab"; path: string }
-  | { kind: "find"; mode: FindHubMode }
-  | { kind: "tab"; tab: "overview" | "price" | "school" | "transit" | "map" };
+  | { kind: "find"; mode: FindHubMode };
 
 export interface HomeChannel {
   key: HomeChannelKey;
@@ -91,14 +89,13 @@ const PAGE_KEYWORD_ROUTES: Array<{
   { keys: ["利率", "lpr", "房贷"], resolve: { kind: "navigate", path: "/pages/macro-rates/macro-rates" } },
   { keys: ["学校", "学区", "教育"], resolve: { kind: "school", q: "" } },
   { keys: ["工具", "派生"], resolve: { kind: "navigate", path: "/pages/data-tools/data-tools" } },
-  { keys: ["通勤", "地铁"], resolve: { kind: "tab", tab: "transit" } }
+  { keys: ["通勤", "地铁"], resolve: { kind: "navigate", path: "/pages/data-tools/data-tools" } }
 ];
 
 export type HomeSearchResolve =
   | { kind: "school"; q: string }
   | { kind: "listing"; path: string; q: string }
   | { kind: "navigate"; path: string }
-  | { kind: "tab"; tab: "overview" | "price" | "school" | "transit" | "map" }
   | { kind: "scroll"; anchor: string }
   | { kind: "none"; reason: string };
 

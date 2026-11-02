@@ -27,7 +27,7 @@ describe("homeEntry F-ENTRY-01", () => {
 
   it("频道条全部为独立页/Tab 跳转，禁止纯滚动", () => {
     for (const c of HOME_CHANNELS) {
-      expect(["navigate", "switchTab", "tab", "find"]).toContain(c.action.kind);
+      expect(["navigate", "switchTab", "find"]).toContain(c.action.kind);
     }
     expect(HOME_CHANNELS.find((c) => c.key === "tools")?.action).toEqual({
       kind: "navigate",
@@ -40,6 +40,16 @@ describe("homeEntry F-ENTRY-01", () => {
     expect(HOME_CHANNELS.find((c) => c.key === "macro")?.action).toEqual({
       kind: "navigate",
       path: "/pages/macro-region/macro-region"
+    });
+  });
+
+  it("旧价格入口 price-tab 只能迁往行情一级 Tab（原 dashboardTabs.test.ts X3/U4 门禁）", () => {
+    const price = HOME_KINGKONG.find((k) => k.key === "price-tab");
+    expect(price).toBeTruthy();
+    expect(price!.label).toBe("行情");
+    expect(price!.action).toEqual({
+      kind: "switchTab",
+      path: "/pages/market/market"
     });
   });
 

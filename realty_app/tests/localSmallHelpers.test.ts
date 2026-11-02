@@ -13,20 +13,14 @@ import {
   matchesListingTypeFilter,
   matchesDecorateTypeFilter
 } from "../src/local/listingFilterMatch";
-import {
-  DASH_TAB_KEYS,
-  cardVisibleOnDashTab,
-  dashTabSwitchFeedback
-} from "../src/local/dashTabs";
 
 /**
- * 本文件覆盖 src/local/ 4 个小 helper 文件（都是纯函数，无 uni 依赖）。
+ * 本文件覆盖 src/local/ 3 个小 helper 文件（都是纯函数，无 uni 依赖）。
  *  - dataMode.ts (17 行)
  *  - listingSource.ts (21 行)
  *  - listingFilterMatch.ts (38 行)
- *  - dashTabs.ts (39 行)
  *
- * 合计 33 个用例覆盖。
+ * 合计 24 个用例覆盖（v1.123.6 移除已删除的 dashTabs.ts 用例）。
  */
 describe("local/dataMode", () => {
   it("normalizeDataMode 'csv-url' → 'csv-url'", () => {
@@ -187,61 +181,6 @@ describe("local/listingFilterMatch", () => {
 
     it("不 match → false（不走 alias）", () => {
       expect(matchesDecorateTypeFilter("简装", "精装")).toBe(false);
-    });
-  });
-});
-
-describe("local/dashTabs", () => {
-  it("DASH_TAB_KEYS 含 5 个 Tab（overview/price/school/transit/map）", () => {
-    expect(DASH_TAB_KEYS).toEqual(["overview", "price", "school", "transit", "map"]);
-  });
-
-  describe("cardVisibleOnDashTab", () => {
-    it("无 dataTabAttr → 始终可见", () => {
-      expect(cardVisibleOnDashTab(null, "price")).toBe(true);
-      expect(cardVisibleOnDashTab(undefined, "price")).toBe(true);
-      expect(cardVisibleOnDashTab("", "price")).toBe(true);
-      expect(cardVisibleOnDashTab("   ", "price")).toBe(true); // 纯空格
-    });
-
-    it("dataTabAttr 含 'all' → 全 Tab 可见", () => {
-      expect(cardVisibleOnDashTab("all", "price")).toBe(true);
-      expect(cardVisibleOnDashTab("overview,all,transit", "school")).toBe(true);
-    });
-
-    it("dataTabAttr 含当前 activeTab → 可见", () => {
-      expect(cardVisibleOnDashTab("price", "price")).toBe(true);
-      expect(cardVisibleOnDashTab("overview,price,transit", "price")).toBe(true);
-    });
-
-    it("dataTabAttr 不含当前 activeTab → 不可见", () => {
-      expect(cardVisibleOnDashTab("overview", "price")).toBe(false);
-      expect(cardVisibleOnDashTab("school,transit", "price")).toBe(false);
-    });
-
-    it("空格分隔的多值列表", () => {
-      expect(cardVisibleOnDashTab("  price  ,  transit  ", "price")).toBe(true);
-    });
-  });
-
-  describe("dashTabSwitchFeedback", () => {
-    it("overview → '已切换到概览' + '#dash-tabs'", () => {
-      expect(dashTabSwitchFeedback("overview")).toEqual({
-        toast: "已切换到概览",
-        scrollSelector: "#dash-tabs"
-      });
-    });
-
-    it("price / school / transit / map 各对应正确 label", () => {
-      expect(dashTabSwitchFeedback("price").toast).toBe("已切换到价格画像");
-      expect(dashTabSwitchFeedback("school").toast).toBe("已切换到学区配套");
-      expect(dashTabSwitchFeedback("transit").toast).toBe("已切换到通勤地铁");
-      expect(dashTabSwitchFeedback("map").toast).toBe("已切换到地图视图");
-    });
-
-    it("scrollSelector 固定 #dash-tabs", () => {
-      expect(dashTabSwitchFeedback("overview").scrollSelector).toBe("#dash-tabs");
-      expect(dashTabSwitchFeedback("map").scrollSelector).toBe("#dash-tabs");
     });
   });
 });

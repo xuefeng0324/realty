@@ -2,7 +2,7 @@
 
 > 当前功能 ID：**F-MKT-01** · v1.122 行情聚合页与旧能力迁移
 >
-> 历史功能 ID：**F-DASH-04** · 首页专业 Tabs（保留兼容说明，不再是当前可见入口）
+> 历史功能 ID：**F-DASH-04** · 首页专业 Tabs（**v1.123.6 实现已删除**，本文仅保留迁移映射与当前验收）
 >
 > 总流程：[TEST_ACCEPTANCE.md](./TEST_ACCEPTANCE.md) · [FEATURE_QA_PROCESS.md](./FEATURE_QA_PROCESS.md)
 
@@ -16,9 +16,7 @@ v1.122 将首页收敛为用户入口与市场摘要，原 F-DASH-04 的
 - 行情页先区分挂牌价、网签量、70 城指数，再按「本地 / 全国 / 宏观 / 工具」
   四类提供二级入口；
 - 旧专业卡片的每项能力必须在 `LEGACY_DASHBOARD_MIGRATIONS` 中有唯一去向，
-  且该去向必须同时存在于 `MARKET_ENTRIES`；
-- 隐藏的旧 `.dash-tab` DOM、`.page[data-dash-tab]` 过滤逻辑和旧滚动反馈不构成
-  v1.122 当前 UI 验收通过的证据。
+  且该去向必须同时存在于 `MARKET_ENTRIES`。
 
 当前实现的单一事实来源：
 
@@ -27,39 +25,28 @@ v1.122 将首页收敛为用户入口与市场摘要，原 F-DASH-04 的
 - `src/pages/market/market.vue`：行情页的真实可见 UI；
 - `src/pages.json`：页面注册与原生五栏配置。
 
-## 1. 历史说明：F-DASH-04
+## 1. 历史说明：F-DASH-04（实现已删除）
 
-v1.122 之前，F-DASH-04 使用首页专业 Tabs 控制长页卡片集合：
+v1.122 之前，F-DASH-04 使用首页专业 Tabs（`overview / price / school / transit / map`）
+控制长页卡片集合：根节点绑定 `.page[data-dash-tab]`，`data-tab` 含当前 Tab 或 `all`
+的卡可见，否则被全局 CSS 隐藏。
 
-| 历史项 | 历史契约 |
-|---|---|
-| Tab | `overview / price / school / transit / map` |
-| 页面状态 | 根节点绑定 `.page[data-dash-tab]`，App 端不能只依赖 `document.body` |
-| 卡片过滤 | `data-tab` 含当前 Tab 或 `all` 时可见，否则隐藏 |
-| 价格入口 | 金刚区 `price-tab` 切换到 `price`，显示 toast 并滚动到 `#dash-tabs` |
-| 历史逻辑测试 | `tests/dashboardTabs.test.ts` 中的 `cardVisibleOnDashTab` 矩阵 |
-| 历史 E2E | ~~`tests/e2e/smoke_dashboard_tabs.mjs`~~（已删除，旧 5187 端口、非门禁） |
+**v1.123.6 已删除全部实现**，包括：
 
-这些契约保留用于解释遗留代码和防止兼容逻辑被误改，但有以下边界：
+- `dashboard.vue` 的 `#dash-tabs` 模板条、`activeTab` / `setDashTab` /
+  `DASHBOARD_TABS` / `applyTabClass` 与 body 属性同步、`.page[data-dash-tab]`
+  过滤 CSS、HeroSlide 的 `tab` 字段与 `heroClick`，以及只服务于旧 Tab 跳转的
+  `jumpOverviewGroup` 等概览分组死函数；
+- `src/local/dashTabs.ts`（`DashTabKey` / `DASH_TAB_KEYS` /
+  `cardVisibleOnDashTab` / `dashTabSwitchFeedback`）；
+- `homeEntry.ts` 三个动作联合类型中的 `{ kind: "tab" }` 变体（首页搜索「通勤/地铁」
+  改为导航 `/pages/data-tools/data-tools`）；
+- 历史测试 `tests/dashboardTabs.test.ts`（price-tab 迁移接线门禁迁入
+  `tests/homeEntry.test.ts`）、`tests/e2e/smoke_drill_down.mjs`（旧 5189 端口
+  死脚本）与 `buildIntegrity.test.ts` 的 v0.48.0 Tab 断言组；
+- 遗留长卡上的 `data-tab` 属性暂保留（已无消费者，后续轮次再清理）。
 
-1. 历史 E2E `tests/e2e/smoke_dashboard_tabs.mjs` 按旧可见首页编写、使用旧 5187
-   端口，**不是** v1.122 当前发布门禁，也不在 core E2E 列表中，已删除。
-2. `tests/dashboardTabs.test.ts` 当前同时承担历史纯逻辑回归，以及旧 `price-tab`
-   已改为 `switchTab('/pages/market/market')` 的迁移接线门禁；它不能替代行情页可见性验收。
-3. 若后续删除旧 Dashboard 长卡实现，应先删除对应历史测试和兼容代码，再同步更新本节，
-   不得让历史选择器重新成为首页入口。
-
-### 历史可见性矩阵
-
-| data-tab | activeTab | 历史预期 |
-|---|---|---|
-| 空或缺失 | 任意 | 可见 |
-| `all,price` | `school` | 可见（含 `all`） |
-| `overview,price` | `price` | 可见 |
-| `overview,price` | `school` | 隐藏 |
-| `overview,school` | `price` | 隐藏 |
-| `overview` | `price` | 隐藏 |
-| `all,map` | `price` | 可见（含 `all`） |
+不得让历史选择器重新成为首页入口（验收 X6 仍然有效）。
 
 ## 2. v1.122 迁移映射
 
@@ -110,14 +97,14 @@ v1.122 之前，F-DASH-04 使用首页专业 Tabs 控制长页卡片集合：
 | L2 | 映射能力集合精确等于 28 项验收基线 | `navigation.test.ts` |
 | L3 | 四个行情分类均非空 | `navigation.test.ts` |
 | L4 | 挂牌价、网签量、70 城指数在 UI 中分开呈现 | `smoke_dashboard_feature_matrix.mjs` |
-| L5 | 旧 `price-tab` 只能迁往行情一级 Tab，不再触发 `setDashTab('price')` | `dashboardTabs.test.ts` |
+| L5 | 旧 `price-tab` 只能迁往行情一级 Tab（v1.123.6 起 `{kind:'tab'}` 动作类型已删除） | `homeEntry.test.ts` |
 
 ## 4. 不期望
 
 | # | 现象 |
 |---|---|
-| X1 | 把隐藏的 `.dash-tab`、`[data-home-channel]` 或旧 `.card[data-tab]` 数量当成 v1.122 当前 UI 通过证据 |
-| X2 | 首页「行情」仍执行 `{ kind: 'tab', tab: 'price' }`，而不是进入 `/pages/market/market` |
+| X1 | 把隐藏的旧 `.card[data-tab]` 数量或 `[data-home-channel]` 当成 v1.122 当前 UI 通过证据 |
+| X2 | 首页「行情」仍切旧 Tab 状态，而不是进入 `/pages/market/market`（v1.123.6 起 `{kind:'tab'}` 已从类型层面移除） |
 | X3 | `LEGACY_DASHBOARD_MIGRATIONS` 中存在能力，但其目标不在 `MARKET_ENTRIES`，用户实际不可达 |
 | X4 | 同一旧能力被映射到多个目标，或旧卡片能力没有迁移记录 |
 | X5 | 将挂牌价、网签量或 70 城指数标成同一类“成交均价” |
@@ -129,11 +116,11 @@ v1.122 之前，F-DASH-04 使用首页专业 Tabs 控制长页卡片集合：
 ### 单元与源码契约
 
 ```powershell
-npx vitest run tests/navigation.test.ts tests/dashboardTabs.test.ts
+npx vitest run tests/navigation.test.ts tests/homeEntry.test.ts
 ```
 
 - `tests/navigation.test.ts`：当前五栏、22 个页面、行情四分类、入口注册和 28 项迁移映射的主门禁。
-- `tests/dashboardTabs.test.ts`：历史 `data-tab` 逻辑兼容，以及旧价格入口迁往行情的接线门禁。
+- `tests/homeEntry.test.ts`：旧价格入口迁往行情一级 Tab 的接线门禁（v1.123.6 起承接原 `dashboardTabs.test.ts`）。
 
 ### 当前 E2E
 

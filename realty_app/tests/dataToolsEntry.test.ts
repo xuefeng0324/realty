@@ -322,7 +322,10 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(dashSrc).not.toContain("data-dash-advanced-expand");
     expect(dashSrc).not.toContain("overview-toggle-all");
     expect(dashSrc).toMatch(/isOverviewGroupCollapsed[\s\S]*?return false/);
-    expect(dashSrc).toMatch(/activeTab !== ['"]overview['"]/);
+    // v1.123.6：旧专业 Tab 机制（activeTab/dash-tabs）已删除，工作台不再有 v-if 门禁，
+    // 与遗留长卡一样由 v122 壳层 CSS 统一隐藏
+    expect(dashSrc).not.toMatch(/activeTab|data-dash-tab|id="dash-tabs"/);
+    expect(dashSrc).toMatch(/<view class="card filter-card" data-home-workbench>/);
     const settingsSrc = readFileSync(
       resolve(__dirname, "../src/pages/settings/settings.vue"),
       "utf8"

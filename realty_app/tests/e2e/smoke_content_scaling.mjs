@@ -33,7 +33,7 @@ try {
           return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
         };
         const isScrollable = (element) => Boolean(
-          element.closest("scroll-view, .uni-scroll-view, .map-mode-scroll, .dash-tabs")
+          element.closest("scroll-view, .uni-scroll-view, .map-mode-scroll")
         );
         const interactive = Array.from(document.querySelectorAll(
           "button, .btn, .theme-option, .map-mode-btn, [role='button']"

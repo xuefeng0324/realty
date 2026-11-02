@@ -3047,56 +3047,6 @@ describe("build integrity", () => {
     });
   });
 
-  // v0.48.0 dashboard-tabs: 顶部 tab 分类切换
-  describe("v0.48.0 dashboard-tabs Tab 分类", () => {
-    it("dashboard.vue: 含 5 个 tab (overview/price/school/transit/map)", () => {
-      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/DASHBOARD_TABS/);
-      expect(dash).toMatch(/activeTab = ref<DashTabKey>\("overview"\)/);
-      expect(dash).toMatch(/setDashTab\(t\.key\)|@click="setDashTab/);
-      // 5 tab labels
-      expect(dash).toMatch(/"概览"/);
-      expect(dash).toMatch(/"价格画像"/);
-      expect(dash).toMatch(/"学区配套"/);
-      expect(dash).toMatch(/"通勤地铁"/);
-      expect(dash).toMatch(/"地图视图"/);
-      expect(dash).toContain('id="dash-tabs"');
-    });
-
-    it("dashboard.vue: 至少 25 个 card 有 data-tab 属性", () => {
-      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      // 至少 24 张数据卡 + 1 张 tab 按钮 = 25
-      const matches = dash.match(/data-tab=/g) || [];
-      expect(matches.length).toBeGreaterThanOrEqual(25);
-      // tab 维度：概览仍有 overview,price / overview,transit；学区配套卡已迁出概览（频道跳学校 Tab）
-      expect(dash).toMatch(/data-tab="overview,price"/);
-      expect(dash).toMatch(/data-tab="school"/);
-      expect(dash).toMatch(/data-tab="overview,transit"/);
-      // 供需卡归档到独立页后用 archived，保证总览不再渲染
-      expect(dash).toMatch(/data-tab="archived"/);
-      // v1.121.139：为压缩概览页长度，district-map 从 data-tab="all,map" 收敛到 data-tab="map"
-      expect(dash).toMatch(/data-tab="map"/);
-    });
-
-    it("dashboard.vue: 全局 style 用 .page[data-dash-tab] 隐藏卡片（App 可达）", () => {
-      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/\.page\[data-dash-tab="price"\] \.card\[data-tab\]:not\(\[data-tab\*="price"\]\):not\(\[data-tab\*="all"\]\)/);
-      expect(dash).toMatch(/\.page\[data-dash-tab="overview"\]/);
-      expect(dash).toMatch(/\.page\[data-dash-tab="school"\]/);
-      expect(dash).toMatch(/\.page\[data-dash-tab="transit"\]/);
-      expect(dash).toMatch(/\.page\[data-dash-tab="map"\]/);
-      expect(dash).toMatch(/\.page\.city-scoped \[data-cross-city\]/);
-      expect(dash).toMatch(/:data-dash-tab="activeTab"/);
-    });
-
-    it("dashboard.vue: applyTabClass + watch 联动", () => {
-      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/applyTabClass/);
-      expect(dash).toMatch(/document\.body\.setAttribute\("data-dash-tab"/);
-      expect(dash).toMatch(/watch\(activeTab/);
-    });
-  });
-
   // v0.49.0 topnav-1: 周期 sticky 切换
   describe("v0.49.0 topnav-1 周期 sticky 顶栏", () => {
     it("dashboard.vue: 含 topnav-period + stepPeriod + currentPeriodIdx", () => {

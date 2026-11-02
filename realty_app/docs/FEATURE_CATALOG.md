@@ -144,17 +144,17 @@
 
 ---
 
-### F-DASH-04 · 专业 Tab（概览/价格/学区/通勤/地图）· v1.122 已下线
+### F-DASH-04 · 专业 Tab（概览/价格/学区/通勤/地图）· v1.123.6 实现已删除
 
 | 项 | 内容 |
 |----|------|
 | 入口 | ~~`dash-tabs`~~ v1.122 起首页不再可见；能力由 F-MKT-01 行情聚合页接管 |
 | 风险 | F, U |
-| 状态 | ⛔ 已下线（历史功能，隐藏 DOM 与兼容代码暂保留） |
+| 状态 | ⛔ 已删除（v1.123.6 移除全部实现代码与历史测试） |
 
-**现状**：v1.122 首页收敛为新版壳（`.home-v122-shell`），`.home-v122 .container > :not(.home-v122-shell):not(.sheet-mask) { display:none !important }` 把 `#dash-tabs` 及全部旧长卡永久隐藏，用户不可见不可点；`setDashTab` / `.page[data-dash-tab]` 过滤 / `cardVisibleOnDashTab` 均为历史兼容代码。删除旧实现前，不得恢复其作为首页第二套导航（验收 X6）；删除时应先删历史测试与兼容代码再同步文档。  
-**不期望**：把隐藏 `.dash-tab` DOM 存在当作当前 UI 验收通过证据。  
-**自动化**：unit `tests/dashboardTabs.test.ts`（历史纯逻辑矩阵 + 旧价格入口迁行情接线门禁）与 `navigation.test.ts`（28 项迁移映射），对照 [DASHBOARD_TABS_ACCEPTANCE.md](./DASHBOARD_TABS_ACCEPTANCE.md)。注意：`smoke_dashboard_feature_matrix.mjs` 验收的是行情页（F-MKT-01），与本项无关；历史 E2E `smoke_dashboard_tabs.mjs` 已删除（旧 5187 端口、非门禁）。  
+**现状**：v1.122 首页收敛为新版壳（`.home-v122-shell`）后旧专业 Tab 即不可见；v1.123.6 删除全部实现——`#dash-tabs` 模板条、`activeTab`/`setDashTab`/`DASHBOARD_TABS`/`applyTabClass`/`.page[data-dash-tab]` 过滤 CSS、`src/local/dashTabs.ts`、`homeEntry.ts` 的 `{kind:'tab'}` 动作变体（首页搜索「通勤/地铁」改导航数据工具页），以及历史测试 `dashboardTabs.test.ts`、`smoke_drill_down.mjs` 与 buildIntegrity v0.48.0 断言组。遗留长卡的 `data-tab` 属性暂保留（无消费者，后续清理）。不得恢复其作为首页第二套导航（验收 X6）。  
+**不期望**：把隐藏旧 DOM 存在当作当前 UI 验收通过证据。  
+**自动化**：unit `tests/homeEntry.test.ts`（旧价格入口迁行情接线门禁）与 `navigation.test.ts`（28 项迁移映射），对照 [DASHBOARD_TABS_ACCEPTANCE.md](./DASHBOARD_TABS_ACCEPTANCE.md)。注意：`smoke_dashboard_feature_matrix.mjs` 验收的是行情页（F-MKT-01），与本项无关。  
 **手工**：无需手工；当前入口验收见 F-MKT-01。
 
 ---
