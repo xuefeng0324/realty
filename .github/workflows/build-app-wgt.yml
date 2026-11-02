@@ -159,7 +159,9 @@ jobs:
             git commit -m "ci(realty_app): 发布 OTA 清单 ${{ steps.read_manifest.outputs.version_name }} (${{ steps.read_manifest.outputs.version_code }})"
             # GitHub Actions GITHUB_TOKEN 默认对 protected branch 有 read-only；
             # 显式 token URL 绕开 actions/checkout 默认 credential helper 死区。
-            git push "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:${BRANCH}" 2>&1 || {
+            # 用 rebase 重试脚本，避免与抓取 bot 的 push 撞非快进。
+            bash realty_app/scripts/git_push_retry.sh origin main \
+              "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" 2>&1 || {
               echo "==== git push failed; dump diagnostics ===="
               git remote -v
               cat ~/.gitconfig 2>/dev/null || true

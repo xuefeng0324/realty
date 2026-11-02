@@ -130,7 +130,7 @@ jobs:
           if ! git diff --quiet HEAD -- static/seed/listings.csv static/seed/school_premium_community.csv static/seed/school_premium_district.csv static/seed/crawl_meta.json 2>/dev/null; then
             git add -- static/seed/listings.csv static/seed/school_premium_community.csv static/seed/school_premium_district.csv static/seed/crawl_meta.json
             git commit -m "data(lianjia): 链家在售二手深穗珠 weekly 增量 $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-            git push
+            bash scripts/git_push_retry.sh origin main || exit 1
           else
             echo "listings/派生 无变化（同周已抓过），跳过 commit"
           fi

@@ -665,6 +665,10 @@ gh auth setup-git
 
 详细变更见 [changelog/](./changelog/) 目录。
 
+### 自动提交并发 push 竞态修复（2026-11-02，不发版）
+
+抓取 workflow 在 run 开始时检出 main，P0 跑约 10 分钟后直接 `git push`；这期间 OTA / 日更 / 周更 / 人工 push 都可能推进 main → 非快进必红（`crawl-weekly` 长期红的主因之一）。新增 `scripts/git_push_retry.sh`（rebase + 4 次重试），5 条自动提交 workflow 全部改用它。顺带补齐 `stats_70.csv` 的 2026-08 / 2026-09 两期（+280 行，历史行未改），App 的 70 城页从「落后」回到「已跟上发布节奏」。详见 [changelog/2026-11-02-CI并发push竞态.md](./changelog/2026-11-02-CI并发push竞态.md)。
+
 ### v1.122.55（2026-11-02）：TabBar 图标与 70 城点击
 
 底部五个 TabBar 图标在 H5 / APK 里全部 404：图标放在仓库根 `static/`，而 uni-app CLI 只拷贝 `src/static/`，`pages.json` 又按 `src` 解析 `iconPath`。图标已移到 `src/static/tabbar/`，单测同步改为按打包口径校验。另修 70 城榜单点击无反馈（详情卡在 70 行之后，现在会自动滚过去）。详见 [changelog/2026-11-02-v1.122.55-TabBar图标与70城点击.md](./changelog/2026-11-02-v1.122.55-TabBar图标与70城点击.md)。

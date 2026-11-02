@@ -116,7 +116,8 @@ jobs:
           if ! git diff --quiet HEAD -- static/seed; then
             git add -- static/seed/*.csv static/seed/crawl_meta.json
             git commit -m "data(anjuke): 刷新二手房挂牌 $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-            git push
+            # 裸 push 会与 OTA / 日更 / 月更 / 人工 push 撞非快进 → 先 rebase 再重试
+            bash scripts/git_push_retry.sh origin main || exit 1
           else
             echo "挂牌与派生数据无变化，跳过核心 commit"
           fi
@@ -204,7 +205,7 @@ jobs:
             fi
             git add -- "${supplement_paths[@]}" static/seed/crawl_meta.json
             git commit -m "data(weekly): 刷新官方与宏观来源 $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-            git push
+            bash scripts/git_push_retry.sh origin main || exit 1
           else
             echo "P1/P2 数据无变化，跳过补充 commit"
           fi

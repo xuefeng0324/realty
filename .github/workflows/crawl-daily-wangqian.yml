@@ -69,7 +69,7 @@ jobs:
           if ! git diff --quiet HEAD -- static/daily_wangqian.csv static/wangqian_meta.json static/seed/wangqian_district_weekly.csv static/gz_new_house_inventory.csv; then
             git add static/daily_wangqian.csv static/wangqian_meta.json static/seed/wangqian_district_weekly.csv static/gz_new_house_inventory.csv
             git commit -m "data(wangqian+gz-inv): 日更网签/周聚合与广州库存 $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-            git push
+            bash scripts/git_push_retry.sh origin main || exit 1
           else
             echo "数据无变化（同日已抓过），跳过 commit"
           fi
