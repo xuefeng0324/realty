@@ -12,17 +12,20 @@ describe("gd retail", () => {
   it("加载广东消费品市场简况（社消零与分项）", () => {
     const latest = getLatestGdRetail();
     expect(latest).not.toBeNull();
-    expect(latest!.period).toMatch(/^2026(_H1|_01_0[5-9])$/);
-    expect(latest!.retailYoyPct).toBeCloseTo(latest!.period === "2026_H1" ? 1.3 : 1.2, 1);
-    if (latest!.period === "2026_H1") {
-      expect(latest!.retailTotalYi).toBe(23219.73);
-    } else {
-      // 月度简讯只给同比 / 分类增速，社零总额字段留空（按源公告）
-      expect(latest!.retailTotalYi ?? 0).toBe(0);
-    }
-    expect(latest!.communicationsYoyPct).toBeCloseTo(latest!.period === "2026_H1" ? 33.3 : 34.0, 1);
+    // 官方口径会按季/月推进（H1 → 1-8月 → 前三季度…），只校验期次形状，
+    // 避免每次新发布都把 CI 打成红（v1.122.54 起同类断言已多次踩坑）。
+    expect(latest!.period).toMatch(/^20\d{2}_(H1|Q[1-4]|0\d_\d{2})$/);
+    expect(latest!.retailYoyPct).toBeGreaterThan(-20);
+    expect(latest!.retailYoyPct).toBeLessThan(20);
     expect(latest!.sourceUrl).toMatch(/stats\.gd\.gov\.cn/);
     expect(getGdRetailTrend(3).length).toBeGreaterThanOrEqual(3);
+
+    // 用已发布的固定期次做数值断言（期次本身不会变）
+    const h1 = getGdRetailTrend(24).find((r) => r.period === "2026_H1");
+    expect(h1).toBeTruthy();
+    expect(h1!.retailTotalYi).toBe(23219.73);
+    expect(h1!.retailYoyPct).toBeCloseTo(1.3, 1);
+    expect(h1!.communicationsYoyPct).toBeCloseTo(33.3, 1);
 
     const m15 = getGdRetailTrend(12).find((r) => r.period === "2026_01_05");
     expect(m15).toBeTruthy();

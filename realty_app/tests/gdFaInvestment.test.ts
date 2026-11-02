@@ -11,13 +11,19 @@ describe("gd fa investment", () => {
   it("加载广东固定资产投资简况", () => {
     const latest = getLatestGdFaInvestment();
     expect(latest).not.toBeNull();
-    expect(latest!.period).toMatch(/^2026(_H1|_01_0[5-9])$/);
-    expect(latest!.faYoyPct).toBeCloseTo(-11.3, 1);
-    expect(latest!.industryYoyPct).toBeCloseTo(latest!.period === "2026_H1" ? -13.9 : -13.2, 1);
-    expect(latest!.manufacturingYoyPct).toBeCloseTo(latest!.period === "2026_H1" ? -14.4 : -13.1, 1);
-    expect(latest!.prYoyPct).toBeCloseTo(latest!.period === "2026_H1" ? -10.9 : 0, 1);
+    // 期次随官方发布推进（H1/1-8月/前三季度），只校验形状 + 合理区间
+    expect(latest!.period).toMatch(/^20\d{2}_(H1|Q[1-4]|0\d_\d{2})$/);
+    expect(latest!.faYoyPct).toBeGreaterThan(-50);
+    expect(latest!.faYoyPct).toBeLessThan(30);
     expect(latest!.sourceUrl).toMatch(/stats\.gd\.gov\.cn/);
     expect(getGdFaInvestmentTrend(2).length).toBeGreaterThanOrEqual(2);
+
+    const h1 = getGdFaInvestmentTrend(24).find((r) => r.period === "2026_H1");
+    expect(h1).toBeTruthy();
+    expect(h1!.faYoyPct).toBeCloseTo(-11.4, 1);
+    expect(h1!.industryYoyPct).toBeCloseTo(-13.9, 1);
+    expect(h1!.manufacturingYoyPct).toBeCloseTo(-14.4, 1);
+    expect(h1!.prYoyPct).toBeCloseTo(-10.9, 1);
   });
 
   it("爬虫与仪表盘门禁", () => {

@@ -243,7 +243,16 @@ def main() -> int:
     ap.add_argument("--out", type=Path, default=OUT)
     args = ap.parse_args()
 
-    first = fetch(list_url(1))
+    try:
+        first = fetch(list_url(1))
+    except Exception as exc:  # noqa: BLE001
+        # 源站列表页 2026 起长期 404（见 docs/FRESHNESS_CHECK.md），
+        # 不该让整条 P1 周更门禁变红；有 last-good 就保留并明确告警。
+        if args.out.exists():
+            print(f"[warn] 列表页不可达（{type(exc).__name__}: {exc}），保留 last-good {args.out.name}")
+            return 0
+        print(f"[fail] 列表页不可达且无 last-good：{type(exc).__name__}: {exc}")
+        return 1
     last_page = discover_last_page(first)
     if args.max_pages > 0:
         last_page = min(last_page, args.max_pages)
@@ -252,7 +261,11 @@ def main() -> int:
     entries: list[tuple[str, str]] = []
     seen_url: set[str] = set()
     for page in range(1, last_page + 1):
-        html = first if page == 1 else fetch(list_url(page))
+        try:
+            html = first if page == 1 else fetch(list_url(page))
+        except Exception as exc:  # noqa: BLE001
+            print(f"[warn] 第 {page} 页拉取失败（{type(exc).__name__}: {exc}），用已发现条目继续")
+            break
         batch = parse_list(html)
         for url, title in batch:
             if url in seen_url:
@@ -265,6 +278,13 @@ def main() -> int:
 
     if args.max_posts > 0:
         entries = entries[: args.max_posts]
+
+    if not entries:
+        if args.out.exists():
+            print(f"[warn] 列表未解析到条目，保留 last-good {args.out.name}")
+            return 0
+        print("[fail] 列表未解析到条目且无 last-good")
+        return 2
 
     rows: list[dict[str, str]] = []
     skipped = 0

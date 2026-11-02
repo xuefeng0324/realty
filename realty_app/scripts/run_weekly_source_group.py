@@ -21,6 +21,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+from collections import deque
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
@@ -271,6 +272,7 @@ def run_group(
                 with log_path.open("w", encoding="utf-8", newline="\n") as log:
                     log.write(f"$ {shlex.join(source.command)}\n")
                     log.flush()
+                    tail: deque[str] = deque(maxlen=12)
                     preflight_error = _command_preflight_error(source.command)
                     if preflight_error is not None:
                         detail = preflight_error
@@ -309,6 +311,7 @@ def run_group(
                                 log.write(line)
                                 log.flush()
                                 print(line, end="", flush=True)
+                                tail.append(line.rstrip())
                             exit_code = process.wait()
                             result = SourceResult(source.name, exit_code)
             except OSError as exc:
@@ -330,6 +333,14 @@ def run_group(
                     f"{group.upper()} 周更来源失败",
                     f"{result.name} exit={result.exit_code}；{suffix}",
                 )
+                # 失败日志末尾同步成 annotation：公开仓库无需登录也能在
+                # Actions 页面直接看到失败原因（下载 artifact / logs 需要权限）。
+                if tail:
+                    _emit_annotation(
+                        policy.annotation_level,
+                        f"{group.upper()} 周更来源失败 · {result.name} 尾部日志",
+                        " | ".join(tail)[-2000:],
+                    )
                 if policy.fail_fast:
                     break
 

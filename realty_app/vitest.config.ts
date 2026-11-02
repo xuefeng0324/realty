@@ -25,6 +25,12 @@ export default defineConfig({
         "src/store/**",
         "src/main.ts",
         "tests/e2e/**",
+        // 本机 HBuilderX 构建产物会混进 v8 分母（CI 上没有这些目录），
+        // 会让本地覆盖率虚低到 35% 而 CI 通过；显式排除保证两边口径一致。
+        "unpackage/**",
+        "dist/**",
+        "coverage/**",
+        "node_modules/**",
         "**/*.d.ts",
         "**/*.mjs"
       ]

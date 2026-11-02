@@ -664,6 +664,10 @@ gh auth setup-git
 
 详细变更见 [changelog/](./changelog/) 目录。
 
+### CI 修复（2026-11-02，v1.122.54 补丁，不发版）
+
+`crawl-weekly` P1 门禁红的三个来源：`sz/gz_provident_annual` 在 Python 3.11 下 f-string 反斜杠 SyntaxError（本机 3.12 看不到）、`zh_price_filing` 列表页 404 未兜底；`realty_app tests` 红的四个广东单测把「最新期次」写死成 `2026_H1`，官方发布 `2026_Q3` 后必红。修法见 [changelog/2026-11-02-v1.122.54-...](./changelog/2026-11-02-v1.122.54-CI修复P1源与GD期次测试.md)。
+
 ### v1.122.0 (2026-08-18)
 
 完成 22 个移动端路由与五个一级入口的全量改版，新增行情聚合页和仅本机收藏/浏览历史，并统一翡翠绿 + 科技蓝的浅色、深色与响应式设计系统；同时修复 daily 网签 merge、70 城发布窗口和 weekly P0/P1/P2 告警策略。详见 [changelog/2026-08-18-v1.122.0-移动端全量改版与CI告警治理.md](./changelog/2026-08-18-v1.122.0-移动端全量改版与CI告警治理.md)。

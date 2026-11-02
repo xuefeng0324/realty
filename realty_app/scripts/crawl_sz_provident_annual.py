@@ -144,20 +144,29 @@ def parse_report(url: str, title: str, html: str) -> dict | None:
     if pm:
         pub = pm.group(1)
 
+    # Python 3.11 的 f-string 不允许表达式里出现反斜杠（PEP 701 到 3.12 才放开），
+    # CI 用 3.11 会在解析阶段直接 SyntaxError，所以裸正则先算好再拼字符串。
+    paid_units_wan = one(r"实缴单位([\d.]+)万家")
+    paid_persons_wan = one(r"实缴人数([\d.]+)万人")
+    deposit_amount_yi = one(r"缴存额([\d.,]+)亿元")
+    extract_amount_yi = one(r"提取额([\d.,]+)亿元")
+    support_purchase_wan_sqm = one(r"支持缴存人购建房([\d.]+)万平方米")
+    public_rental_supplement_yi = one(r"城市公共租赁住房（廉租住房）建设补充资金([\d.,]+)亿元")
+
     row = {
         "city": "深圳",
         "year": str(year),
         "publish_date": pub,
-        "paid_units_wan": f"{one(r'实缴单位([\d.]+)万家'):g}",
-        "paid_persons_wan": f"{one(r'实缴人数([\d.]+)万人'):g}",
-        "deposit_amount_yi": f"{one(r'缴存额([\d.,]+)亿元'):g}",
+        "paid_units_wan": f"{paid_units_wan:g}",
+        "paid_persons_wan": f"{paid_persons_wan:g}",
+        "deposit_amount_yi": f"{deposit_amount_yi:g}",
         "deposit_balance_yi": f"{balance_after_label('缴存余额'):g}",
-        "extract_amount_yi": f"{one(r'提取额([\d.,]+)亿元'):g}",
+        "extract_amount_yi": f"{extract_amount_yi:g}",
         "loan_issued_wan": f"{loan_issued_wan:g}",
         "loan_issued_yi": f"{loan_issued_yi:g}",
         "loan_balance_yi": f"{balance_after_label('贷款余额'):g}",
-        "support_purchase_wan_sqm": f"{one(r'支持缴存人购建房([\d.]+)万平方米'):g}",
-        "public_rental_supplement_yi": f"{one(r'城市公共租赁住房（廉租住房）建设补充资金([\d.,]+)亿元'):g}",
+        "support_purchase_wan_sqm": f"{support_purchase_wan_sqm:g}",
+        "public_rental_supplement_yi": f"{public_rental_supplement_yi:g}",
         "title": title if "住房公积金" in title else f"深圳市住房公积金{year}年年度报告",
         "source_org": "深圳市住房公积金管理中心",
         "source_url": url,

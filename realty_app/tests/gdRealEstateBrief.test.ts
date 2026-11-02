@@ -15,10 +15,17 @@ describe("gd real estate brief", () => {
     expect(rows.length).toBeGreaterThanOrEqual(15);
     const latest = getLatestGdRealEstateBrief();
     expect(latest).not.toBeNull();
-    expect(latest!.period).toMatch(/^2026(_H1|_01_0[5-9])$/);
-    expect(latest!.salesAreaWanSqm).toBeCloseTo(latest!.period === "2026_H1" ? 2823.5 : 3184.09, 1);
-    expect(latest!.investmentYi).toBeCloseTo(latest!.period === "2026_H1" ? 3967.96 : 4469.79, 1);
+    // 期次随官方发布推进（H1/1-8月/前三季度…），只校验形状，不锁死具体期次
+    expect(latest!.period).toMatch(/^20\d{2}_(H1|Q[1-4]|0\d_\d{2})$/);
     expect(latest!.sourceUrl).toMatch(/stats\.gd\.gov\.cn|zfcxjst\.gd\.gov\.cn/);
+    // 固定期次数值断言（1-8月只披露投资额；销售面积在 1-7月 一期）
+    const m18 = rows.find((r) => r.period === "2026_01_08");
+    expect(m18).toBeTruthy();
+    expect(m18!.investmentYi).toBeCloseTo(5000.51, 1);
+    const m17 = rows.find((r) => r.period === "2026_01_07");
+    expect(m17).toBeTruthy();
+    expect(m17!.salesAreaWanSqm).toBeCloseTo(3184.09, 1);
+    expect(m17!.investmentYi).toBeCloseTo(4469.79, 1);
     const y2025 = rows.find((r) => r.period === "2025");
     expect(y2025).toBeTruthy();
     expect(y2025!.salesAmountYi).toBe(9720.13);
@@ -26,12 +33,12 @@ describe("gd real estate brief", () => {
     const q1 = rows.find((r) => r.period === "2025_Q1");
     expect(q1!.salesAreaWanSqm).toBe(1556.33);
     expect(rows.find((r) => r.period === "2026_01_05")!.salesAreaWanSqm).toBe(2189.6);
-    // v1.122.32 修：cron monthly 自动 commit 后 trend 顺序可能变（新增月度行）
-    // 改用断言 trend 包含前 3 行（不强制具体顺序）
+    // trend 按 sort_key 降序：只校验排序稳定，不锁死具体期次
     const trend3 = getGdRealEstateBriefTrend(3);
     expect(trend3.length).toBe(3);
-    expect(trend3.map((r) => r.period)).toContain("2026_H1");
-    expect(trend3.map((r) => r.period)).toContain("2026_01_05");
+    expect(trend3[0]!.sortKey >= trend3[1]!.sortKey).toBe(true);
+    expect(trend3[1]!.sortKey >= trend3[2]!.sortKey).toBe(true);
+    expect(trend3[0]!.period).toBe(latest!.period);
   });
 
   it("爬虫与仪表盘门禁", () => {

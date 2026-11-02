@@ -11,12 +11,18 @@ describe("gd industrial", () => {
   it("加载广东规上工业简况（增加值同比与门类）", () => {
     const latest = getLatestGdIndustrial();
     expect(latest).not.toBeNull();
-    expect(latest!.period).toMatch(/^2026(_H1|_01_0[5-9])$/);
-    expect(latest!.industryYoyPct).toBeCloseTo(latest!.period === "2026_H1" ? 5.8 : 5.7, 1);
-    expect(latest!.manufacturingYoyPct).toBeCloseTo(5.4, 1);
-    expect(latest!.electronicsYoyPct).toBeCloseTo(latest!.period === "2026_H1" ? 11.6 : 11.5, 1);
+    // 期次会随官方发布推进（H1/1-8月/前三季度），只校验形状 + 合理区间
+    expect(latest!.period).toMatch(/^20\d{2}_(H1|Q[1-4]|0\d_\d{2})$/);
+    expect(latest!.industryYoyPct).toBeGreaterThan(-20);
+    expect(latest!.industryYoyPct).toBeLessThan(20);
     expect(latest!.sourceUrl).toMatch(/stats\.gd\.gov\.cn/);
     expect(getGdIndustrialTrend(3).length).toBeGreaterThanOrEqual(3);
+
+    const h1 = getGdIndustrialTrend(24).find((r) => r.period === "2026_H1");
+    expect(h1).toBeTruthy();
+    expect(h1!.industryYoyPct).toBeCloseTo(5.8, 1);
+    expect(h1!.manufacturingYoyPct).toBeCloseTo(5.4, 1);
+    expect(h1!.electronicsYoyPct).toBeCloseTo(11.6, 1);
   });
 
   it("爬虫与宏观区域页门禁", () => {
