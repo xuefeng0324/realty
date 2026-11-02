@@ -97,7 +97,9 @@ describe("five-tab information architecture", () => {
       expect(isPrimaryTabPath(`/${tab.pagePath}`)).toBe(true);
       for (const iconPath of [tab.iconPath, tab.selectedIconPath]) {
         expect(iconPath).toMatch(/\.png$/);
-        const absolute = resolve(root, iconPath);
+        // uni-app CLI 只把 src/static 拷进 H5 / App 产物（仓库根的 static/
+        // 不会被拷贝），所以图标必须相对 src/ 存在，否则构建后 tabBar 404。
+        const absolute = resolve(root, "src", iconPath);
         expect(existsSync(absolute), iconPath).toBe(true);
         expect(statSync(absolute).size, iconPath).toBeGreaterThan(0);
         expect(statSync(absolute).size, iconPath).toBeLessThan(40 * 1024);

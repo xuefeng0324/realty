@@ -144,7 +144,7 @@
       </view>
 
       <!-- 单城市时间序列（点击 row 时显示） -->
-      <view v-if="pickedCity" class="card">
+      <view v-if="pickedCity" class="card" id="city-detail">
         <view class="card-title">
           {{ pickedCity }} · 近期 {{ trend.length }} 个月 ·
           {{ kind === "new" ? "新建" : "二手" }}{{ base }}
@@ -189,7 +189,7 @@
 
 <script setup lang="ts">
 import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
-import { computed, ref } from "vue";
+import { computed, nextTick, ref } from "vue";
 import {
   getLatestMonth,
   getRanking,
@@ -340,6 +340,10 @@ function onPickCity(city: string) {
     kind.value === "second" ? "second" : "new",
     base.value
   );
+  // 榜单最长 70 行，详情卡在列表之后；不滚动的话点完看不到任何反馈。
+  nextTick(() => {
+    uni.pageScrollTo({ selector: "#city-detail", duration: 280 });
+  });
 }
 </script>
 
