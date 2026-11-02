@@ -2,7 +2,7 @@
   "csv_url": "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/seed/listings.csv",
   "meta_url": "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/seed/crawl_meta.json",
   "sha256": "e106cd22004f454c",
-  "snapshot_sha256": "76dbf71fa86dad8b",
+  "snapshot_sha256": "d273ba5926e1fd2f",
   "schema_version": 2,
   "row_count": 1744,
   "file_count": 58,
@@ -66,6 +66,6 @@
     "weather.csv": 6,
     "xq_seed.csv": 23
   },
-  "generated_at": "2026-11-02T00:26:47+00:00",
+  "generated_at": "2026-11-02T16:14:07+00:00",
   "source": "full-snapshot"
 }
