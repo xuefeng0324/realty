@@ -12,13 +12,23 @@ describe("gd services", () => {
   it("加载广东规上服务业简况（营收与住房弱相关分项）", () => {
     const latest = getLatestGdServices();
     expect(latest).not.toBeNull();
-    expect(latest!.period).toMatch(/^2026_01_0[5-9]$/);
-    expect(latest!.revenueYoyPct).toBeCloseTo(latest!.period === "2026_01_05" ? 7.3 : 7.1, 1);
-    expect(latest!.leasingYoyPct).toBeCloseTo(latest!.period === "2026_01_05" ? 11.1 : 12.7, 1);
-    expect(latest!.itYoyPct).toBeCloseTo(latest!.period === "2026_01_05" ? 7.7 : 6.1, 1);
+    // 上游会按月 / 按季 / 按半年追加（2026-11 新增了季度口径 2026_Q3），
+    // 所以这里只约束年份与排序位置，具体数值改校验固定的历史月份，
+    // 避免每次上游换口径就把测试打挂。
+    expect(latest!.period).toMatch(/^2026(_Q[1-4]|_H[12]|_01_\d{2})$/);
+    expect(latest!.sortKey >= "2026-05").toBe(true);
+    expect(latest!.revenueYoyPct).toBeGreaterThan(0);
+    expect(latest!.leasingYoyPct).toBeGreaterThan(0);
+    expect(latest!.itYoyPct).toBeGreaterThan(0);
     expect(latest!.sourceUrl).toMatch(/stats\.gd\.gov\.cn/);
     expect(getGdServicesTrend(3).length).toBeGreaterThanOrEqual(3);
     expect(gdServicesHasHousingRelated(latest!)).toBe(true);
+
+    const m107 = getGdServicesTrend(12).find((r) => r.period === "2026_01_07");
+    expect(m107).toBeTruthy();
+    expect(m107!.revenueYoyPct).toBe(7.1);
+    expect(m107!.leasingYoyPct).toBe(12.7);
+    expect(m107!.itYoyPct).toBe(6.1);
 
     const full2025 = getGdServicesTrend(12).find((r) => r.period === "2025");
     expect(full2025).toBeTruthy();
