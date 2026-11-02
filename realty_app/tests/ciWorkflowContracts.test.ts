@@ -104,7 +104,8 @@ function runFakeGroup(
   dir: string,
   group: "p0" | "p1" | "p2",
   sources: FakeSource[],
-  extraEnv: Record<string, string> = {}
+  extraEnv: Record<string, string> = {},
+  extraArgs: string[] = []
 ) {
   const manifest = join(dir, `${group}-manifest.json`);
   const logDir = join(dir, "logs");
@@ -124,7 +125,8 @@ function runFakeGroup(
       "--status-file",
       statusFile,
       "--summary-file",
-      summaryFile
+      summaryFile,
+      ...extraArgs
     ],
     {
       cwd: APP_ROOT,
@@ -243,6 +245,21 @@ describe("CI workflow contracts", () => {
     expect(p2).toBeGreaterThan(p1);
     expect(supplement).toBeGreaterThan(p2);
     expect(gate).toBeGreaterThan(supplement);
+
+    // 降级来源的新鲜度门禁：P1/P2 写健康档案，独立 step 判定，最终门禁汇总
+    const freshness = workflow.indexOf("id: freshness_gate");
+    expect(freshness).toBeGreaterThan(supplement);
+    expect(gate).toBeGreaterThan(freshness);
+    expect(workflow).toContain("check_source_freshness.py");
+    expect(workflow).toContain("--max-age-days 21");
+    expect(workflow).toContain("sz-education sz-planned-supply sz-affordable-projects");
+    expect(workflow).toContain("FRESHNESS: ${{ steps.freshness_gate.outcome }}");
+    expect(workflow).toContain('"freshness:$FRESHNESS"');
+    // P1 写、P2 写、freshness gate 读，共 3 处
+    expect(workflow.match(/--health-file static\/source_health\.json/g)).toHaveLength(3);
+    expect(workflow).toContain("static/source_health.json");
+    expect(runner).toContain("--health-file");
+    expect(runner).toContain("_update_health_file");
   });
 
   it("weekly runner keeps the complete P1/P2 source inventory without executing crawlers", () => {
@@ -261,17 +278,13 @@ describe("CI workflow contracts", () => {
     const inventory = JSON.parse(result.stdout.trim()) as Record<string, string[]>;
     expect(inventory.p1).toEqual([
       "gz-education",
-      "sz-education",
       "zh-education",
-      "sz-planned-supply",
       "gz-housing-plan",
       "gz-affordable-projects",
       "gz-affordable-targets",
       "gz-land-deals",
       "sz-land-deals",
-      "sz-affordable-projects",
       "zh-affordable-progress",
-      "zh-price-filing",
       "sz-provident-annual",
       "gz-provident-annual",
       "zh-provident-dynamics",
@@ -299,8 +312,15 @@ describe("CI workflow contracts", () => {
       "safe-ora",
       "safe-bop-trade",
       "safe-iip",
-      "safe-bop"
+      "safe-bop",
+      // 2026-11-03 起从 P1 降级：runner 到 sz.gov.cn 系统性不可达
+      "sz-education",
+      "sz-planned-supply",
+      "sz-affordable-projects"
     ]);
+    // zh-price-filing 不在任何组：珠海价格备案栏目 2026-07 起 404，已停更
+    expect(inventory.p1).not.toContain("zh-price-filing");
+    expect(inventory.p2).not.toContain("zh-price-filing");
   });
 
   it("P0 fake command failure is fail-fast and returns non-zero", () => {
@@ -491,6 +511,103 @@ describe("CI workflow contracts", () => {
       expect(script, name).toContain("NamedTemporaryFile");
       expect(script, name).toContain(".replace(out_path)");
       expect(script, name).toContain("missing_ok=True");
+    }
+  });
+
+  it("runner --health-file 只记录最终成功的来源", () => {
+    withTempDir((dir) => {
+      const fake = writeFakeCommand(dir);
+      const trace = join(dir, "trace.txt");
+      const healthFile = join(dir, "health.json");
+      const sources: FakeSource[] = [
+        { name: "optional-ok", command: [PYTHON, fake, "optional-ok", trace, "0"] },
+        { name: "optional-fail", command: [PYTHON, fake, "optional-fail", trace, "7"] }
+      ];
+      const { result } = runFakeGroup(dir, "p2", sources, {}, ["--health-file", healthFile]);
+
+      expect(result.status, result.stderr).toBe(0); // P2 来源失败不致命
+      const health = JSON.parse(readFileSync(healthFile, "utf8")) as Record<
+        string,
+        { last_success?: string; group?: string }
+      >;
+      expect(Object.keys(health)).toEqual(["optional-ok"]);
+      expect(health["optional-ok"]!.group).toBe("p2");
+      expect(Number.isNaN(Date.parse(health["optional-ok"]!.last_success!))).toBe(false);
+    });
+  });
+
+  it("runner --health-file 全组失败时不写档案（避免空提交）", () => {
+    withTempDir((dir) => {
+      const fake = writeFakeCommand(dir);
+      const trace = join(dir, "trace.txt");
+      const healthFile = join(dir, "health.json");
+      const sources: FakeSource[] = [
+        { name: "optional-fail", command: [PYTHON, fake, "optional-fail", trace, "7"] }
+      ];
+      const { result } = runFakeGroup(dir, "p2", sources, {}, ["--health-file", healthFile]);
+
+      expect(result.status, result.stderr).toBe(0);
+      expect(existsSync(healthFile)).toBe(false);
+    });
+  });
+
+  it("check_source_freshness 对新鲜/过期/无记录/坏档案的判定", () => {
+    const script = resolve(APP_ROOT, "scripts/check_source_freshness.py");
+    const run = (healthFile: string, sources: string[]) =>
+      spawnSync(
+        PYTHON,
+        [script, "--health-file", healthFile, "--max-age-days", "21", ...sources],
+        {
+          cwd: APP_ROOT,
+          encoding: "utf8",
+          env: { ...process.env, PYTHONIOENCODING: "utf-8", PYTHONUTF8: "1" }
+        }
+      );
+
+    withTempDir((dir) => {
+      const healthFile = join(dir, "health.json");
+      const fresh = new Date(Date.now() - 2 * 86400_000).toISOString();
+      const stale = new Date(Date.now() - 30 * 86400_000).toISOString();
+      writeFileSync(
+        healthFile,
+        JSON.stringify({
+          "fresh-source": { last_success: fresh, group: "p2" },
+          "stale-source": { last_success: stale, group: "p2" }
+        }),
+        "utf8"
+      );
+
+      const ok = run(healthFile, ["fresh-source"]);
+      expect(ok.status, ok.stderr).toBe(0);
+      expect(ok.stdout).toContain("::notice title=weekly 数据新鲜度门禁::");
+
+      const old = run(healthFile, ["stale-source"]);
+      expect(old.status, old.stderr).toBe(1);
+      expect(old.stdout).toContain("::error title=weekly 数据新鲜度门禁::");
+      expect(old.stdout).toContain("已 30 天");
+
+      const missing = run(healthFile, ["never-crawled"]);
+      expect(missing.status, missing.stderr).toBe(1);
+      expect(missing.stdout).toContain("无任何成功记录");
+
+      const noFile = run(join(dir, "absent.json"), ["fresh-source"]);
+      expect(noFile.status, noFile.stderr).toBe(1);
+
+      const badFile = join(dir, "bad.json");
+      writeFileSync(badFile, "{not json", "utf8");
+      const bad = run(badFile, ["fresh-source"]);
+      expect(bad.status, bad.stderr).toBe(1);
+      expect(bad.stdout).toContain("健康档案不可读");
+    });
+  });
+
+  it("仓库内 source_health.json 覆盖三个降级 sz 来源（结构检查，不随时间腐坏）", () => {
+    const health = JSON.parse(
+      readFileSync(resolve(APP_ROOT, "static/source_health.json"), "utf8")
+    ) as Record<string, { last_success?: string }>;
+    for (const name of ["sz-education", "sz-planned-supply", "sz-affordable-projects"]) {
+      expect(health[name], name).toBeDefined();
+      expect(Number.isNaN(Date.parse(health[name]!.last_success!)), name).toBe(false);
     }
   });
 });

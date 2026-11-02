@@ -665,6 +665,10 @@ gh auth setup-git
 
 详细变更见 [changelog/](./changelog/) 目录。
 
+### 周更 sz 源降级与新鲜度门禁（2026-11-03，不发版）
+
+`crawl-weekly` 结构修复后仍红，剩余全是源站侧问题：`sz-education` / `sz-planned-supply` / `sz-affordable-projects` 在 GitHub runner 上系统性 `Connection reset`（本机可通），`zh-price-filing` 的珠海备案栏目 2026-07 起 404（导航挂链接但页面不存在）。处理：sz 三源从 P1 硬门禁降级到 P2 尽力而为，`zh-price-filing` 停更保留 last-good；同时新增 `static/source_health.json` 健康档案 + `scripts/check_source_freshness.py` 新鲜度门禁——降级来源超过 21 天没有一次成功抓取仍会打红，防止「降级后静默停更」。详见 [changelog/2026-11-03-周更sz源降级与新鲜度门禁.md](./changelog/2026-11-03-周更sz源降级与新鲜度门禁.md)。
+
 ### 周更单源卡死修复（2026-11-03，不发版）
 
 `crawl-weekly` 的 P2 曾整整 20+ 小时 `in_progress`，把 concurrency 组堵死、后续周更全部 `pending`。根因是 `run_weekly_source_group.py` 无超时地读子进程 stdout：只要某个源站 socket 卡住，编排器就永远等下去。现在单源默认 420s 上限（`WEEKLY_SOURCE_TIMEOUT_SECONDS` 可调），到点 kill 并记 `124/超时`，P2 只告警继续跑；P1/P2 首轮失败的来源整组跑完后各重试一次（实测 sz 三个政务源 `Connection reset` 导致整周变红）；并发 run 重写 `crawl_meta.json` 造成的 rebase 冲突改为保留本次新生成的数据；链家抓取脚本把 int 型 `listing_id` 当字符串 `.strip()` 导致整城写盘失败（挂牌数据已静默停更）也已修复，并在命中 `<title>CAPTCHA</title>` 时提前停止翻页；workflow 再加 P1 30 分钟 / P2 18 分钟 step 级硬上限、job 上限 30→90 分钟。详见 [changelog/2026-11-03-CI周更单源卡死.md](./changelog/2026-11-03-CI周更单源卡死.md)。

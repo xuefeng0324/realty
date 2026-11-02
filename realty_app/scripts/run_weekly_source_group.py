@@ -26,6 +26,7 @@ import threading
 import time
 from collections import deque
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Sequence
 
@@ -93,11 +94,17 @@ def _python_command(script: str, *args: str) -> tuple[str, ...]:
 
 
 DEFAULT_SOURCE_GROUPS: dict[str, tuple[SourceSpec, ...]] = {
+    # 2026-11-03 调整：
+    # - sz-education / sz-planned-supply / sz-affordable-projects 降级到 P2。
+    #   GitHub runner 到 szeb.sz.gov.cn / zjj.sz.gov.cn 系统性 Connection reset
+    #   （本地可通、runner 两轮重试均不通），留在 P1 只会周周红；
+    #   停更风险改由 check_source_freshness.py 的「N 天未成功才红」门禁兜底。
+    # - zh-price-filing 停更：珠海「商品房价格备案公示」栏目 2026-07 起 404
+    #   （官网导航仍挂链接但目标页不存在，本地与 runner 均复现），
+    #   CSV 保留 last-good；源站恢复或迁移完成后再加回。
     "p1": (
         SourceSpec("gz-education", _python_command("crawl_gz_education_overview.py")),
-        SourceSpec("sz-education", _python_command("crawl_sz_education_overview.py")),
         SourceSpec("zh-education", _python_command("crawl_zh_education_overview.py")),
-        SourceSpec("sz-planned-supply", _python_command("crawl_sz_planned_supply.py", "--max", "12")),
         SourceSpec("gz-housing-plan", _python_command("crawl_gz_housing_plan.py")),
         SourceSpec("gz-affordable-projects", _python_command("crawl_gz_affordable_projects.py", "--max", "12")),
         SourceSpec("gz-affordable-targets", _python_command("crawl_gz_affordable_targets.py", "--max", "12")),
@@ -109,9 +116,7 @@ DEFAULT_SOURCE_GROUPS: dict[str, tuple[SourceSpec, ...]] = {
             "sz-land-deals",
             _python_command("crawl_sz_land_deals.py", "--pages", "4", "--page-size", "50"),
         ),
-        SourceSpec("sz-affordable-projects", _python_command("crawl_sz_affordable_projects.py", "--max", "8")),
         SourceSpec("zh-affordable-progress", _python_command("crawl_zh_affordable_progress.py", "--max", "8")),
-        SourceSpec("zh-price-filing", _python_command("crawl_zh_price_filing.py", "--max-pages", "8")),
         SourceSpec("sz-provident-annual", _python_command("crawl_sz_provident_annual.py", "--max", "6")),
         SourceSpec("gz-provident-annual", _python_command("crawl_gz_provident_annual.py")),
         SourceSpec("zh-provident-dynamics", _python_command("crawl_zh_provident_dynamics.py")),
@@ -161,6 +166,11 @@ DEFAULT_SOURCE_GROUPS: dict[str, tuple[SourceSpec, ...]] = {
             "safe-bop",
             _python_command("crawl_safe_bop.py", "--max", "20", "--news-pages", "36"),
         ),
+        # 原 P1 官方周更源：runner 到 sz.gov.cn 各站长期 Connection reset（2026-11 观察）。
+        # 降级为尽力而为；连续 21 天无一次成功会被 check_source_freshness.py 门禁打红。
+        SourceSpec("sz-education", _python_command("crawl_sz_education_overview.py")),
+        SourceSpec("sz-planned-supply", _python_command("crawl_sz_planned_supply.py", "--max", "12")),
+        SourceSpec("sz-affordable-projects", _python_command("crawl_sz_affordable_projects.py", "--max", "8")),
     ),
 }
 
@@ -375,12 +385,50 @@ def _execute_source(
         return SourceResult(source.name, exit_code)
 
 
+def _update_health_file(path: Path, group: str, results: Sequence[SourceResult]) -> None:
+    """把本周成功来源的 last_success 时间戳写进健康档案（JSON）。
+
+    档案是 check_source_freshness.py 的输入：这些源本身按季度/年度发布，
+    publish_date 不能反映「抓取通路是否还活着」，所以以「上次成功抓取」为准。
+    只记成功：全失败的周档案不变，避免产生没有信息量的空提交。
+    """
+    try:
+        raw = path.read_text(encoding="utf-8") if path.exists() else ""
+    except OSError as exc:
+        raise OrchestrationError(f"cannot read health file {path}: {exc}") from exc
+    health: dict[str, object] = {}
+    if raw.strip():
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise OrchestrationError(f"cannot parse health file {path}: {exc}") from exc
+        if isinstance(parsed, dict):
+            health = parsed
+    succeeded = [
+        item for item in results if not item.orchestration_error and item.exit_code == 0
+    ]
+    if not succeeded:
+        return
+    now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    for item in succeeded:
+        health[item.name] = {"last_success": now, "group": group}
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps(health, ensure_ascii=False, indent=1, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+    except OSError as exc:
+        raise OrchestrationError(f"cannot write health file {path}: {exc}") from exc
+
+
 def run_group(
     group: str,
     sources: Sequence[SourceSpec],
     log_dir: Path,
     status_file: Path,
     summary_file: Path,
+    health_file: Path | None = None,
 ) -> int:
     policy = POLICIES[group]
     sources = _validate_sources(sources)
@@ -451,6 +499,10 @@ def run_group(
     orchestration_failed = any(item.orchestration_error for item in results)
     source_failed = any(not item.orchestration_error and item.exit_code != 0 for item in results)
 
+    # 健康档案记录的是「重试后的最终结论」，所以放在 retry pass 之后。
+    if health_file is not None:
+        _update_health_file(health_file, group, results)
+
     try:
         _append_summary(summary_file, policy.summary_title, results)
     except OSError as exc:
@@ -474,6 +526,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--log-dir", type=Path, default=Path("weekly-logs"))
     parser.add_argument("--status-file", type=Path)
     parser.add_argument("--summary-file", type=Path)
+    parser.add_argument(
+        "--health-file",
+        type=Path,
+        help="可选：把本周成功来源的 last_success 写入该 JSON（新鲜度门禁的输入）",
+    )
     return parser
 
 
@@ -495,7 +552,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             if not summary_env:
                 raise OrchestrationError("--summary-file or GITHUB_STEP_SUMMARY is required")
             summary_file = Path(summary_env)
-        return run_group(group, sources, args.log_dir, status_file, summary_file)
+        return run_group(
+            group, sources, args.log_dir, status_file, summary_file, args.health_file
+        )
     except OrchestrationError as exc:
         _emit_annotation("error", "weekly source-group 编排失败", str(exc))
         return EXIT_ORCHESTRATION_FAILURE

@@ -13,7 +13,7 @@ concurrency:
 jobs:
   crawl:
     runs-on: ubuntu-latest
-    # 30 分钟对 P0(~10min) + P1(23 源，失败源还会重试一次) + P2(15 源) + 两次提交太紧；
+    # 30 分钟对 P0(~10min) + P1(19 源，失败源还会重试一次) + P2(18 源) + 两次提交太紧；
     # 上限放宽到 90，真正的防挂死由下面每个 step 的 timeout-minutes 负责。
     timeout-minutes: 90
     permissions:
@@ -150,14 +150,16 @@ jobs:
             --group p1 \
             --log-dir weekly-logs \
             --status-file weekly-logs/p1-status.tsv \
-            --summary-file "$GITHUB_STEP_SUMMARY"
+            --summary-file "$GITHUB_STEP_SUMMARY" \
+            --health-file static/source_health.json
 
       - name: P2 · 尽力刷新宏观来源（失败告警但不阻塞）
         id: p2_optional
         continue-on-error: true
         # P2 曾经因为一个源站 socket 卡住而 in_progress 20+ 小时，占住 concurrency 组，
-        # 后续所有周更 pending。组内 420s 单源超时 + 失败重试 + 这里 18 分钟 step 上限双保险。
-        timeout-minutes: 18
+        # 后续所有周更 pending。组内 420s 单源超时 + 失败重试 + step 级上限双保险。
+        # 2026-11-03 起 P2 多了 3 个降级下来的 sz 官方源，step 上限 18 → 25。
+        timeout-minutes: 25
         if: always()
         shell: bash
         run: |
@@ -167,7 +169,8 @@ jobs:
             --group p2 \
             --log-dir weekly-logs \
             --status-file weekly-logs/p2-status.tsv \
-            --summary-file "$GITHUB_STEP_SUMMARY"
+            --summary-file "$GITHUB_STEP_SUMMARY" \
+            --health-file static/source_health.json
 
       - name: 提交 P1/P2 成功结果并刷新完整快照指纹
         id: supplementary_commit
@@ -198,6 +201,7 @@ jobs:
             static/gd_industrial.csv
             static/gd_retail.csv
             static/gd_services.csv
+            static/source_health.json
             static/seed/mlf_history.csv
             static/seed/omo_rr_history.csv
             static/seed/chinabond_yield.csv
@@ -227,6 +231,20 @@ jobs:
             echo "P1/P2 数据无变化，跳过补充 commit"
           fi
 
+      - name: P1/P2 · 降级来源数据新鲜度门禁
+        id: freshness_gate
+        if: always()
+        shell: bash
+        run: |
+          set -o pipefail
+          cd realty_app
+          # sz 三源在 P2 尽力而为（runner 到 sz.gov.cn 长期不通），
+          # 但超过 21 天没有一次成功抓取就说明数据真的停更了，必须打红。
+          python scripts/check_source_freshness.py \
+            --max-age-days 21 \
+            --health-file static/source_health.json \
+            sz-education sz-planned-supply sz-affordable-projects
+
       - name: 上传 weekly 分源日志
         if: always()
         uses: actions/upload-artifact@v4
@@ -248,6 +266,7 @@ jobs:
           P1_REQUIRED: ${{ steps.p1_required.outcome }}
           P2_OPTIONAL: ${{ steps.p2_optional.outcome }}
           SUPPLEMENTARY_COMMIT: ${{ steps.supplementary_commit.outcome }}
+          FRESHNESS: ${{ steps.freshness_gate.outcome }}
         shell: bash
         run: |
           failed=0
@@ -257,7 +276,8 @@ jobs:
             "P0 validate:$P0_VALIDATE" \
             "P0 rebuild:$P0_REBUILD" \
             "P0 commit:$P0_COMMIT" \
-            "P1 required:$P1_REQUIRED"; do
+            "P1 required:$P1_REQUIRED" \
+            "freshness:$FRESHNESS"; do
             name=${pair%%:*}
             outcome=${pair#*:}
             if [ "$outcome" != "success" ]; then
