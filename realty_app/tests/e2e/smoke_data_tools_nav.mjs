@@ -2,9 +2,11 @@
 // 验证：
 //   1) [data-dt-nav] 可见，含 18 个 chip（16 迁移卡 + 行政区划卡 + ⚙️ 卡片管理）+ 4 个组名
 //   2) 滚到页底后导航仍吸顶（top ≈ uni-page-head 高度，不丢不被盖）
-//   3) 点「网签热度」chip 真实滚动，[data-dt-wangqian-rank] 卡顶不被吸顶导航遮挡
+//   3) 点「网签热度」chip 真实滚动，[data-dt-wangqian-rank] 卡顶不被吸顶导航遮挡，且该 chip 高亮
 //   4) 点「步行通勤」chip（交通组）同样生效
 //   5) 点 ⚙️ 卡片管理回到页顶
+//   6) v1.123.4 滚动反选：不点 chip，纯 window.scrollTo 到「区情画像」卡，
+//      [data-dt-nav-item="district-meta"] 自动获得 dt-nav-chip--active 且唯一
 // 切城模式与 smoke_metro_walk 相同：dashboard pickCity → hash 导航 → reload。
 import { chromium } from "playwright";
 import { mkdirSync } from "node:fs";
@@ -81,6 +83,43 @@ async function clickChipAndAssert(page, anchor, cardSel) {
   if (geo.cardTop >= geo.vh) {
     fail(`卡 ${cardSel} 未进入视口（cardTop=${geo.cardTop.toFixed(1)} >= vh=${geo.vh}）`);
   }
+  // v1.123.4：点击 chip 后该 chip 应持 active class（rAF 反选已随滚动完成）
+  await page.waitForTimeout(350);
+  const activeOk = await page.evaluate((a) => {
+    const chip = document.querySelector(`[data-dt-nav-item="${a}"]`);
+    return chip ? chip.classList.contains("dt-nav-chip--active") : false;
+  }, anchor);
+  if (!activeOk) fail(`点 chip[${anchor}] 滚动到位后该 chip 未高亮（无 dt-nav-chip--active）`);
+  console.log(`[dt_nav] chip[${anchor}] 高亮 ✓`);
+}
+
+// v1.123.4 纯滚动反选：不点任何 chip，直接 scrollTo 到某卡，对应 chip 应自动高亮且唯一
+async function assertScrollSpy(page, anchor, cardSel) {
+  await page.evaluate(({ cardSel2 }) => {
+    const el = document.querySelector(cardSel2);
+    if (!el) return;
+    const head = document.querySelector("uni-page-head");
+    const nav = document.querySelector("[data-dt-nav]");
+    const top =
+      el.getBoundingClientRect().top +
+      window.pageYOffset -
+      (head ? head.offsetHeight : 0) -
+      (nav ? nav.offsetHeight : 0) -
+      8;
+    window.scrollTo({ top: Math.max(0, top) });
+  }, { cardSel2: cardSel });
+  await waitScrollSettled(page);
+  await page.waitForTimeout(350); // 等 rAF 反选跑完
+  const res = await page.evaluate(() => {
+    const actives = [...document.querySelectorAll(".dt-nav-chip--active")].map((el) =>
+      el.getAttribute("data-dt-nav-item")
+    );
+    return actives;
+  });
+  console.log(`[dt_nav] 纯滚动至 ${cardSel} 后 active chips: ${res.join(",") || "(无)"}`);
+  if (res.length !== 1 || res[0] !== anchor) {
+    fail(`纯滚动反选应为唯一 [${anchor}]，实际 ${JSON.stringify(res)}`);
+  }
 }
 
 async function run() {
@@ -136,7 +175,10 @@ async function run() {
     // 4) 交通组：步行通勤
     await clickChipAndAssert(page, "commute-walk", "[data-dt-commute-walk]");
 
-    // 5) ⚙️ 卡片管理 → 回页顶
+    // 5) v1.123.4 纯滚动反选：不点 chip，scrollTo 到「区情画像」卡 → district-meta chip 自动唯一高亮
+    await assertScrollSpy(page, "district-meta", "[data-dt-district-meta]");
+
+    // 6) ⚙️ 卡片管理 → 回页顶
     await page.locator('[data-dt-nav-item="card-manager"]').click({ force: true });
     const top = await waitScrollSettled(page);
     console.log(`[dt_nav] 卡片管理 chip → scrollY=${top}`);

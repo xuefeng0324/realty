@@ -23,6 +23,7 @@
                 v-for="it in g.items"
                 :key="it.anchor"
                 class="dt-nav-chip"
+                :class="{ 'dt-nav-chip--active': activeDtAnchor === it.anchor }"
                 size="mini"
                 hover-class="dt-nav-chip--hover"
                 :data-dt-nav-item="it.anchor"
@@ -1526,8 +1527,8 @@ import { resolvedThemeRef as realtyTheme } from "../../utils/theme";
  *  - v1.123.2 Batch 6：近 4 周二手网签热度榜 + 学区评分 Top 小区（dashboard v122 壳层隐藏的最后两张）。
  *  - 提供「设置入口」式导航：dashboard 入口卡 → 独立页 → 完整派生数据。
  */
-import { computed, ref, onMounted, watch } from "vue";
-import { onShow } from "@dcloudio/uni-app";
+import { computed, ref, onMounted, onUnmounted, nextTick, watch } from "vue";
+import { onShow, onHide } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import * as store from "../../local/store";
 import { summarizeAdminDistrictByCity, type CityAdminDistrictSummary } from "../../local/adminDistrictRanking";
@@ -1658,6 +1659,7 @@ function scrollToDtCard(anchor: string) {
         (head ? (head as HTMLElement).offsetHeight : 0) -
         (nav ? (nav as HTMLElement).offsetHeight : 0) -
         8;
+      activeDtAnchor.value = anchor; // 点击即高亮，滚动反选随后接管
       window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
       return;
     }
@@ -1669,6 +1671,52 @@ function scrollToDtCard(anchor: string) {
     duration: 280,
     fail: () => uni.showToast({ title: "该卡片暂无数据", icon: "none" })
   });
+}
+
+// v1.123.4 滚动反选高亮：当前可视区（吸顶导航下方 ~ 视口 60% 带状区）内
+// 最靠上的卡对应 chip 高亮；H5 端用 window scroll + rAF 节流，其它端仅点击高亮。
+const activeDtAnchor = ref("");
+let _dtSpyRaf = 0;
+function updateDtActiveAnchor() {
+  if (typeof document === "undefined") return;
+  const head = document.querySelector("uni-page-head");
+  const nav = document.querySelector("[data-dt-nav]");
+  const topOffset =
+    (head ? (head as HTMLElement).offsetHeight : 0) +
+    (nav ? (nav as HTMLElement).offsetHeight : 0) +
+    8;
+  const bandBottom = window.innerHeight * 0.6;
+  let best: { anchor: string; top: number } | null = null;
+  for (const g of DT_NAV_GROUPS) {
+    for (const it of g.items) {
+      const el = document.querySelector(`[data-dt-${it.anchor}]`);
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      if (r.bottom <= topOffset || r.top >= bandBottom) continue;
+      if (!best || r.top < best.top) best = { anchor: it.anchor, top: r.top };
+    }
+  }
+  if (best) activeDtAnchor.value = best.anchor;
+}
+function onDtScroll() {
+  if (_dtSpyRaf) return;
+  _dtSpyRaf = requestAnimationFrame(() => {
+    _dtSpyRaf = 0;
+    updateDtActiveAnchor();
+  });
+}
+function setupDtScrollSpy() {
+  if (typeof window === "undefined") return;
+  window.addEventListener("scroll", onDtScroll, { passive: true });
+  nextTick(updateDtActiveAnchor);
+}
+function teardownDtScrollSpy() {
+  if (typeof window === "undefined") return;
+  window.removeEventListener("scroll", onDtScroll);
+  if (_dtSpyRaf) {
+    cancelAnimationFrame(_dtSpyRaf);
+    _dtSpyRaf = 0;
+  }
 }
 
 // v1.121.143 Batch 5: feature_premium (迁移自 dashboard)
@@ -2305,6 +2353,7 @@ onMounted(async () => {
   await reloadWangqianRank();
   await reloadSchoolPremiumCommunity();
   _lastDtCityId = app.cityId;
+  setupDtScrollSpy();
 });
 
 onShow(async () => {
@@ -2317,6 +2366,16 @@ onShow(async () => {
     await reloadSchoolPremiumCommunity();
   }
   _lastDtCityId = app.cityId;
+  // keep-alive 返回时不重跑 onMounted：滚动反选监听在 onHide 摘除后这里补挂
+  setupDtScrollSpy();
+});
+
+onHide(() => {
+  teardownDtScrollSpy();
+});
+
+onUnmounted(() => {
+  teardownDtScrollSpy();
 });
 </script>
 
@@ -2422,6 +2481,11 @@ onShow(async () => {
   border: none;
 }
 .dt-nav-chip--tool {
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+  font-weight: 600;
+}
+.dt-nav-chip--active {
   background: var(--color-primary);
   color: var(--color-primary-text);
   font-weight: 600;
