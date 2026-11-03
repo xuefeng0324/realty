@@ -1414,16 +1414,6 @@ describe("build integrity", () => {
       expect(dims.has("decorate")).toBe(true);
     });
 
-    it("queries.ts 增加 getLayoutDistribution 函数", () => {
-      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
-      expect(content).toMatch(/export function getLayoutDistribution/);
-    });
-
-    it("queries.ts 导出 LayoutDistributionResponse 接口", () => {
-      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
-      expect(content).toMatch(/export interface LayoutDistributionResponse/);
-    });
-
     it("store.ts 增加 getLayoutDistributionsByCity 函数", () => {
       const content = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
       expect(content).toMatch(/export function getLayoutDistributionsByCity/);
@@ -1448,16 +1438,7 @@ describe("build integrity", () => {
     it("seedSnapshot.ts 导入 layout_distribution.csv", () => {
       const content = readFileSync(resolve(ROOT, "src/local/seedSnapshot.ts"), "utf8");
       expect(content).toMatch(/layout_distribution\.csv\?raw/);
-    });
-
-    it("dashboard.vue 渲染户型分布卡片", () => {
-      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(content).toMatch(/layoutDistribution/);
-      expect(content).toMatch(/户型分布/);
-      expect(content).toMatch(/getLayoutDistribution/);
-      expect(content).toMatch(/layoutDims/);
-    });
-  });
+    });  });
 
   // ────────────────────────────────────────────────────────────────────
   // v0.26.0 trend-11 学区评分小区榜增强
@@ -1586,16 +1567,6 @@ describe("build integrity", () => {
       expect(tags.size).toBeGreaterThanOrEqual(10);
     });
 
-    it("queries.ts 增加 getListingTagCloud 函数", () => {
-      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
-      expect(content).toMatch(/export function getListingTagCloud/);
-    });
-
-    it("queries.ts 导出 TagCloudResponse 接口", () => {
-      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
-      expect(content).toMatch(/export interface TagCloudResponse/);
-    });
-
     it("store.ts 增加 getListingTagsByCity 函数", () => {
       const content = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
       expect(content).toMatch(/export function getListingTagsByCity/);
@@ -1610,17 +1581,7 @@ describe("build integrity", () => {
       const content = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
       expect(content).toMatch(/listingTagsCSV\?: string/);
       expect(content).toMatch(/parseListingTags/);
-    });
-
-    it("dashboard.vue 渲染标签云卡片", () => {
-      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(content).toMatch(/tagCloud/);
-      expect(content).toMatch(/房源标签云|🏷️/);
-      expect(content).toMatch(/getListingTagCloud/);
-      expect(content).toMatch(/tag-size-/);
-      expect(content).toMatch(/onPickTag/);
-    });
-  });
+    });  });
 
   // ────────────────────────────────────────────────────────────────────
   // v0.29.0 trend-13 区房价指数
@@ -1658,16 +1619,6 @@ describe("build integrity", () => {
       }
     });
 
-    it("queries.ts 增加 getDistrictIndex 函数", () => {
-      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
-      expect(content).toMatch(/export function getDistrictIndex/);
-    });
-
-    it("queries.ts 导出 DistrictIndexResponse 接口", () => {
-      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
-      expect(content).toMatch(/export interface DistrictIndexResponse/);
-    });
-
     it("store.ts 增加 getDistrictIndicesByCity 函数", () => {
       const content = readFileSync(resolve(ROOT, "src/local/store.ts"), "utf8");
       expect(content).toMatch(/export function getDistrictIndicesByCity/);
@@ -1682,55 +1633,7 @@ describe("build integrity", () => {
       const content = readFileSync(resolve(ROOT, "src/local/importer.ts"), "utf8");
       expect(content).toMatch(/districtIndexCSV\?: string/);
       expect(content).toMatch(/parseDistrictIndex/);
-    });
-
-    it("dashboard.vue 渲染区房价指数卡片 + sparkline", () => {
-      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(content).toMatch(/districtIndex/);
-      expect(content).toMatch(/区房价指数|📈/);
-      expect(content).toMatch(/getDistrictIndex/);
-      expect(content).toMatch(/sparkPoints/);
-      expect(content).toMatch(/di-spark-bar/);
-      expect(content).toMatch(/momChange|yoyChange/);
-    });
-  });
-
-  // ────────────────────────────────────────────────────────────────────
-  // v0.30.0 trend-14 区涨幅榜
-  // ────────────────────────────────────────────────────────────────────
-  describe("v0.30.0 trend-14 区涨幅榜", () => {
-    it("queries.ts 增加 getDistrictChangeRank 函数", () => {
-      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
-      expect(content).toMatch(/export function getDistrictChangeRank/);
-    });
-
-    it("queries.ts 导出 DistrictChangeResponse 接口", () => {
-      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
-      expect(content).toMatch(/export interface DistrictChangeResponse/);
-    });
-
-    it("queries.ts DistrictChangeItem 含 recentChange4w 字段", () => {
-      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
-      const block = content.match(/export interface DistrictChangeItem[\s\S]+?^}/m);
-      expect(block).toBeTruthy();
-      expect(block![0]).toMatch(/recentChange4w/);
-      expect(block![0]).toMatch(/latestMom/);
-    });
-
-    it("dashboard.vue 渲染区涨幅榜卡片", () => {
-      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(content).toMatch(/districtChange/);
-      expect(content).toMatch(/区涨幅榜|🚀/);
-      expect(content).toMatch(/getDistrictChangeRank/);
-      expect(content).toMatch(/recentChange4w/);
-      expect(content).toMatch(/dc-row/);
-    });
-
-    it("dashboard.vue loadAll 调用 getDistrictChangeRank", () => {
-      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(content).toMatch(/getDistrictChangeRank\(\{\s*cityId:\s*app\.cityId/);
-    });
-  });
+    });  });
 
   // ────────────────────────────────────────────────────────────────────
   // v0.31.0 new-9 生活便利度 (life_convenience.csv)

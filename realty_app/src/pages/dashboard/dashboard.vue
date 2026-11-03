@@ -1733,181 +1733,7 @@
       </view>
 
 
-      <!-- v0.25.0 户型/面积/朝向/装修分布 -->
-      <view v-if="layoutDistribution && layoutDistribution.totalListings > 0" class="card">
-        <view class="row-between">
-          <view class="card-title">🏠 户型分布 · {{ layoutDistribution.cityName }}</view>
-          <view class="muted">共 {{ layoutDistribution.totalListings }} 套</view>
-        </view>
 
-        <view v-for="dim in layoutDims" :key="dim.key" style="margin-top: 12rpx">
-          <view class="ld-dim-title">{{ dim.label }}</view>
-          <view v-if="layoutDistribution.dimensions[dim.key].length === 0" class="muted" style="font-size: 22rpx; padding: 6rpx 0">
-            无数据
-          </view>
-          <view
-            v-for="b in layoutDistribution.dimensions[dim.key]"
-            :key="dim.key + '-' + b.bucket"
-            class="ld-row"
-          >
-            <text class="ld-bucket">{{ b.bucket }}</text>
-            <view class="ld-bar-wrap">
-              <view class="ld-bar" :style="{ width: Math.round(b.share * 100) + '%' }"></view>
-            </view>
-            <text class="ld-count">{{ b.count }} 套</text>
-            <text class="ld-pct">{{ formatShare(b.share) }}</text>
-          </view>
-        </view>
-
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：listings.csv 按 (city, dimension, bucket) 聚合。
-          户型 / 面积 / 朝向 / 装修 各维度占比，条形比例代表 share。
-        </view>
-        <view data-cross-city v-if="distributionCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          跨城分布源聚合（加权中位价）
-        </view>
-        <view
-          v-for="(d, idx) in distributionCitySummaries"
-          :key="'dcs-' + d.cityId"
-          class="ld-row"
-        >
-          <text class="ld-bucket">{{ idx + 1 }}. {{ d.cityName }}</text>
-          <text class="ld-count">{{ d.totalListings }} 套</text>
-          <text class="ld-pct">
-            {{
-              d.weightedMedianPrice != null
-                ? Math.round(d.weightedMedianPrice / 1000) + "k"
-                : "—"
-            }}
-          </text>
-        </view>
-      </view>
-
-      <!-- v0.28.0 new-6 房源 tags 标签云 -->
-      <view v-if="!isCardHidden('listing-tag-cloud') && (tagCloud && tagCloud.tags.length > 0)" class="card" data-card-key="listing-tag-cloud">
-        <view class="row-between">
-          <view class="card-title">🏷️ 房源标签云 · {{ tagCloud.cityName }}</view>
-          <button
-            class="card-hide-btn"
-            hover-class="tap-row--active"
-            data-dash-card-hide="listing-tag-cloud"
-            @click.stop="toggleCardHidden('listing-tag-cloud')"
-          >✕</button>
-          <view class="muted">{{ tagCloud.tags.length }} 个标签 / {{ tagCloud.totalTags }} 次命中</view>
-        </view>
-        <view class="tag-cloud">
-          <text
-            v-for="t in tagCloud.tags"
-            :key="t.tag"
-            :class="['tag-chip', 'tag-size-' + tagSizeClass(t.count, tagCloudMaxCount)]"
-            @click="onPickTag(t.tag)"
-          >
-            {{ t.tag }} · {{ t.count }}
-          </text>
-        </view>
-        <view v-if="tagCloudFilteredHint" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          {{ tagCloudFilteredHint }}
-        </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：listings.csv 派生 tags (scripts/compute_listing_tags.py)。
-          字号 = 命中数映射 (大=热门)；点击 tag 高亮 (此版本仅显示提示)。
-        </view>
-      </view>
-
-      <!-- v0.29.0 trend-13 区房价指数 -->
-      <view v-if="!isCardHidden('district-index') && (districtIndex && districtIndex.items.length > 0)" class="card" data-card-key="district-index">
-        <view class="row-between">
-          <view class="card-title">📈 区房价指数 · {{ districtIndex.cityName }}</view>
-          <button
-            class="card-hide-btn"
-            hover-class="tap-row--active"
-            data-dash-card-hide="district-index"
-            @click.stop="toggleCardHidden('district-index')"
-          >✕</button>
-          <view class="muted">基准 100 = 各区最早周中位价</view>
-        </view>
-        <view
-          v-for="it in districtIndex.items.slice(0, 6)"
-          :key="it.districtName"
-          class="di-row"
-          @click="toggleDistrictIndexExpand(it.districtName)"
-        >
-          <view class="di-mid">
-            <view class="di-name">{{ it.districtName }}</view>
-            <view class="muted">
-              {{ it.latestListingCount }} 套 · ¥{{ formatNum(it.latestMedianPrice) }}/㎡ · {{ it.totalWeeks }} 周
-            </view>
-          </view>
-          <view class="di-right">
-            <text :class="['di-index', diIndexClass(it.indexValue)]">{{ it.indexValue.toFixed(1) }}</text>
-            <view class="muted" style="font-size: 20rpx">
-              <text v-if="it.momChange != null" :class="diChangeClass(it.momChange)">
-                {{ it.momChange > 0 ? "+" : "" }}{{ it.momChange.toFixed(1) }}% WoW
-              </text>
-              <text v-else class="muted">— WoW</text>
-              <text v-if="it.yoyChange != null" :class="diChangeClass(it.yoyChange)" style="margin-left: 8rpx">
-                {{ it.yoyChange > 0 ? "+" : "" }}{{ it.yoyChange.toFixed(1) }}% YoY
-              </text>
-            </view>
-          </view>
-          <view class="di-spark-wrap">
-            <view
-              v-for="(pt, i) in sparkPoints(it.weeklySeries)"
-              :key="i"
-              class="di-spark-bar"
-              :style="{ height: pt + '%' }"
-            ></view>
-          </view>
-        </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：district_trend.csv (scripts/compute_district_trend.py) → 归一化为 index (scripts/compute_district_index.py)。
-          指数 = 各区 baseline 中位价 × 100；WoW / YoY = 周 / 同比变化。
-        </view>
-      </view>
-
-      <!-- v0.30.0 trend-14 区涨幅榜 (4 周累计) -->
-      <view v-if="!isCardHidden('district-4w-change') && (districtChange && districtChange.items.length > 0)" class="card" data-card-key="district-4w-change">
-        <view class="row-between">
-          <view class="card-title">🚀 区涨幅榜 (近 4 周) · {{ districtChange.cityName }}</view>
-          <button
-            class="card-hide-btn"
-            hover-class="tap-row--active"
-            data-dash-card-hide="district-4w-change"
-            @click.stop="toggleCardHidden('district-4w-change')"
-          >✕</button>
-          <view class="muted">Top {{ districtChange.items.length }}</view>
-        </view>
-        <view v-if="districtChange.items.length === 0" class="empty">暂无数据</view>
-        <view
-          v-for="it in districtChange.items"
-          :key="it.districtName"
-          class="dc-row"
-        >
-          <view class="dc-rank">
-            <text :class="['sp-medal-mini', spMedalClass(it.rank)]">{{ it.rank }}</text>
-          </view>
-          <view class="dc-mid">
-            <view class="dc-name">{{ it.districtName }}</view>
-            <view class="muted">最新 WoW
-              <text v-if="it.latestMom != null" :class="diChangeClass(it.latestMom)">
-                {{ it.latestMom > 0 ? "+" : "" }}{{ it.latestMom.toFixed(1) }}%
-              </text>
-              <text v-else class="muted">—</text>
-            </view>
-          </view>
-          <view class="dc-right">
-            <text v-if="it.recentChange4w != null" :class="['dc-4w', diChangeClass(it.recentChange4w)]">
-              {{ it.recentChange4w > 0 ? "+" : "" }}{{ it.recentChange4w.toFixed(1) }}%
-            </text>
-            <text v-else class="muted">—</text>
-            <view class="muted" style="font-size: 20rpx">4 周累计</view>
-          </view>
-        </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：district_index.csv (compute_district_index.py) → 4 周累计变化 (last / 4w_ago - 1)。
-          按涨幅降序；金色前 3 名；区可点击 (此版本仅展示)。
-        </view>
-      </view>
 
 
       <!-- v0.41.0 trend-21 房源新鲜度 (新挂牌多 + 滞销) -->
@@ -3202,14 +3028,14 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getWeather, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getMetroWalkRanking, getMetroBenefitRanking,
+import { getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getWeather, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLifeConvenienceRank, getMetroWalkRanking, getMetroBenefitRanking,
   getListingFreshnessRanking,
   getDistrictMap,
   getSchoolDimensions,
   getLprOverview,
   type SchoolDimResponse,
   type LprResponse,
-  type DistrictTrendItem, type WangqianOverviewItem, type WeatherResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type DistrictMapResponse } from "../../local/queries";
+  type DistrictTrendItem, type WangqianOverviewItem, type WeatherResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LifeConvenienceResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type DistrictMapResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -3296,11 +3122,9 @@ import {
   getDistributionShareLeaderboard,
   getDistributionTopByMedianPrice,
   getDistributionByCityDimension,
-  summarizeDistributionByCity,
   type CrossCityBucketEntry,
   type CrossCityShareEntry,
-  type DistributionRow,
-  type CityDistributionSummary
+  type DistributionRow
 } from "../../local/distributionRanking";
 import {
   getLifeConveniencePareto,
@@ -3604,11 +3428,6 @@ const districtWangqianRank = ref<DistrictWangqianRankResponse | null>(null);
 const wqRankCat = ref<"新房" | "二手" | "全部">("全部");
 // v0.24.0 new-5: 通勤时长榜
 const commuteRanking = ref<CommuteRankingResponse | null>(null);
-const layoutDistribution = ref<LayoutDistributionResponse | null>(null);
-const tagCloud = ref<TagCloudResponse | null>(null);
-const tagCloudFilteredHint = ref<string>("");
-const districtIndex = ref<DistrictIndexResponse | null>(null);
-const districtChange = ref<DistrictChangeResponse | null>(null);
 const lifeConvenience = ref<LifeConvenienceResponse | null>(null);
 
 const hospitalCityName = computed(() => cityNameForId(app.cityId));
@@ -4730,44 +4549,6 @@ async function loadRankingAndDistrict() {
         console.warn("getCommuteRanking failed:", e);
         commuteRanking.value = null;
       }
-      // v0.25.0 户型/面积/朝向/装修分布
-      try {
-        layoutDistribution.value = await getLayoutDistribution({
-          cityId: app.cityId
-        });
-      } catch (e) {
-        console.warn("getLayoutDistribution failed:", e);
-        layoutDistribution.value = null;
-      }
-      // v0.28.0 房源 tags 标签云
-      try {
-        tagCloud.value = await getListingTagCloud({
-          cityId: app.cityId,
-          limit: 30
-        });
-        tagCloudFilteredHint.value = "";
-      } catch (e) {
-        console.warn("getListingTagCloud failed:", e);
-        tagCloud.value = null;
-      }
-      // v0.29.0 区房价指数
-      try {
-        districtIndex.value = await getDistrictIndex({
-          cityId: app.cityId
-        });
-      } catch (e) {
-        console.warn("getDistrictIndex failed:", e);
-        districtIndex.value = null;
-      }
-      // v0.30.0 区涨幅榜
-      try {
-        districtChange.value = await getDistrictChangeRank({
-          cityId: app.cityId
-        });
-      } catch (e) {
-        console.warn("getDistrictChangeRank failed:", e);
-        districtChange.value = null;
-      }
       // v0.31.0 new-9 生活便利度榜
       try {
         lifeConvenience.value = await getLifeConvenienceRank({
@@ -4920,12 +4701,6 @@ async function loadDistrictWangqianRank() {
 
 function formatNum(n: number): string {
   return n.toLocaleString("zh-CN");
-}
-function spMedalClass(rank: number): string {
-  if (rank === 1) return "medal-gold";
-  if (rank === 2) return "medal-silver";
-  if (rank === 3) return "medal-bronze";
-  return "medal-flat-mini";
 }
 
 // v1.123.2: sp* 过滤/排序控件逻辑随学区评分卡迁入 data-tools.vue
@@ -5105,57 +4880,6 @@ const lprSpark5y = computed<{ path: string; last: { x: number; y: number } | nul
   return { path, last: points[points.length - 1] ?? null, yLabels };
 });
 
-
-
-// v0.25.0 户型分布 helpers
-const layoutDims: { key: keyof LayoutDistributionResponse["dimensions"]; label: string }[] = [
-  { key: "bedrooms", label: "户型" },
-  { key: "area_sqm", label: "面积 (㎡)" },
-  { key: "orientation", label: "朝向" },
-  { key: "decorate", label: "装修" }
-];
-
-function formatShare(s: number): string {
-  if (!Number.isFinite(s)) return "—";
-  const pct = s * 100;
-  return pct >= 10 ? `${Math.round(pct)}%` : `${pct.toFixed(1)}%`;
-}
-
-// v0.28.0 new-6 标签云 helpers
-const tagCloudMaxCount = computed(() => {
-  if (!tagCloud.value || tagCloud.value.tags.length === 0) return 1;
-  return Math.max(...tagCloud.value.tags.map((t) => t.count));
-});
-
-function tagSizeClass(count: number, max: number): 1 | 2 | 3 | 4 | 5 {
-  if (max <= 0) return 1;
-  const ratio = count / max;
-  if (ratio >= 0.8) return 5;
-  if (ratio >= 0.6) return 4;
-  if (ratio >= 0.4) return 3;
-  if (ratio >= 0.2) return 2;
-  return 1;
-}
-
-function onPickTag(tag: string): void {
-  tagCloudFilteredHint.value = `已点击标签「${tag}」(v0.28.0 仅展示, 后续版本可联动过滤 listing 列表)`;
-}
-
-// v0.29.0 区房价指数 helpers
-function diIndexClass(v: number): string {
-  if (v >= 110) return "price-up";   // 涨 10%+ 红
-  if (v >= 100) return "muted";       // +0-10% 灰
-  if (v >= 90) return "muted";        // -0-10% 灰
-  return "price-down";                 // -10%+ 绿
-}
-
-function diChangeClass(v: number | null): string {
-  if (v == null) return "muted";
-  if (v > 0.5) return "price-up";
-  if (v < -0.5) return "price-down";
-  return "muted";
-}
-
 /**
  * v0.31.0: 生活便利度分档颜色
  *   ≥80 高 (绿) / 60-79 中 (蓝) / <60 低 (灰)
@@ -5164,21 +4888,6 @@ function lifeScoreClass(s: number): string {
   if (s >= 80) return "lc-score-high";
   if (s >= 60) return "lc-score-mid";
   return "lc-score-low";
-}
-
-
-/** 把 weeklySeries 转成 sparkline 高度比例 (0-100) */
-function sparkPoints(series: Array<{ indexValue: number }>): number[] {
-  if (series.length === 0) return [];
-  const min = Math.min(...series.map((s) => s.indexValue));
-  const max = Math.max(...series.map((s) => s.indexValue));
-  const range = max - min;
-  if (range === 0) return series.map(() => 50);
-  return series.map((s) => Math.round(((s.indexValue - min) / range) * 100));
-}
-
-function toggleDistrictIndexExpand(_name: string): void {
-  // 此版本仅展示, 不展开额外面板
 }
 
 // v0.16.0 weather helpers
@@ -5443,10 +5152,6 @@ const orientationFloorCitySummaries = computed<CityOrientationFloorSummary[]>(()
 // v1.123.2: schoolPremiumCommunityDeriveTop/CitySummaries 随学区评分卡迁入 data-tools.vue
 const decorateAgeDistBuckets = computed<DistributionRow[]>(() =>
   getDistributionByCityDimension(app.cityId, "精装").slice(0, 6)
-);
-// v0.25.0 户型分布跨城聚合 + 桶辅助函数（核心卡使用）
-const distributionCitySummaries = computed<CityDistributionSummary[]>(() =>
-  crossCityRows(summarizeDistributionByCity())
 );
 function distRowLabel(r: DistributionRow): string {
   if ("decorate" in r && "ageBucket" in r) {
@@ -5755,7 +5460,6 @@ watch(
     if (cityId === _lastCityId && weekEnd === _lastWeekEnd) return;
     _lastCityId = cityId;
     _lastWeekEnd = weekEnd;
-    tagCloudFilteredHint.value = "";
     await loadAll();
   }
 );
@@ -6647,30 +6351,6 @@ onShow(async () => {
   overflow-wrap: anywhere;
 }
 
-.medal-gold {
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-}
-.medal-silver {
-  background: linear-gradient(135deg, #cbd5e1, #94a3b8);
-}
-.medal-bronze {
-  background: linear-gradient(135deg, #d97706, #b45309);
-}
-.medal-flat-mini {
-  background: var(--color-soft);
-  color: var(--color-muted);
-}
-.sp-medal-mini {
-  display: inline-block;
-  width: 36rpx;
-  height: 36rpx;
-  line-height: 36rpx;
-  border-radius: 50%;
-  font-weight: 600;
-  font-size: 22rpx;
-  text-align: center;
-  color: #fff;
-}
 .sp-up {
   color: #0ea5e9;
   font-weight: 600;
@@ -6903,170 +6583,11 @@ onShow(async () => {
   text-align: right;
 }
 
-/* v0.25.0 户型分布 */
-.ld-dim-title {
-  font-size: 24rpx;
-  font-weight: 600;
-  color: #cbd5e1;
-  margin-bottom: 6rpx;
-  padding-left: 4rpx;
-}
-.ld-row {
-  display: flex;
-  align-items: center;
-  gap: 10rpx;
-  padding: 4rpx 0;
-  font-size: 22rpx;
-}
-.ld-bucket {
-  flex: 0 0 90rpx;
-  color: #cbd5e1;
-  font-weight: 500;
-}
-.ld-bar-wrap {
-  flex: 1 1 auto;
-  height: 16rpx;
-  background: var(--color-soft-strong);
-  border-radius: 8rpx;
-  overflow: hidden;
-}
-.ld-bar {
-  height: 100%;
-  background: linear-gradient(90deg, #38bdf8, #0ea5e9);
-  border-radius: 8rpx;
-  min-width: 4rpx;
-}
-.ld-count {
-  flex: 0 0 80rpx;
-  text-align: right;
-  color: #cbd5e1;
-}
-.ld-pct {
-  flex: 0 0 80rpx;
-  text-align: right;
-  color: var(--color-muted);
-  font-variant-numeric: tabular-nums;
-}
 
 /* v1.123.2: .spc-* 过滤/排序控件样式随学区评分卡迁入 data-tools.vue */
 
-/* v0.28.0 new-6 标签云 */
-.tag-cloud {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8rpx;
-  padding: 6rpx 0 4rpx;
-}
-.tag-chip {
-  display: inline-block;
-  padding: 6rpx 14rpx;
-  border-radius: 999rpx;
-  background: var(--color-panel);
-  border: 1rpx solid #334155;
-  color: #cbd5e1;
-  font-weight: 500;
-}
-.tag-chip:active {
-  background: #0ea5e9;
-  color: #fff;
-  border-color: #38bdf8;
-}
-.tag-size-1 {
-  font-size: 22rpx;
-}
-.tag-size-2 {
-  font-size: 26rpx;
-  color: var(--color-text);
-}
-.tag-size-3 {
-  font-size: 30rpx;
-  color: #f1f5f9;
-  background: var(--color-soft);
-}
-.tag-size-4 {
-  font-size: 34rpx;
-  color: #fff;
-  background: #0c4a6e;
-  border-color: #0ea5e9;
-}
-.tag-size-5 {
-  font-size: 40rpx;
-  color: #fff;
-  background: linear-gradient(90deg, #0ea5e9, #38bdf8);
-  border-color: #38bdf8;
-  font-weight: 600;
-}
 
-/* v0.29.0 区房价指数 */
-.di-row {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  padding: 10rpx 0;
-  border-bottom: 1rpx solid var(--color-soft-strong);
-}
-.di-mid {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-.di-name {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #f1f5f9;
-}
-.di-right {
-  flex: 0 0 auto;
-  text-align: right;
-}
-.di-index {
-  font-size: 36rpx;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-.di-spark-wrap {
-  flex: 0 0 220rpx;
-  display: flex;
-  align-items: flex-end;
-  gap: 2rpx;
-  height: 40rpx;
-}
-.di-spark-bar {
-  flex: 1 1 auto;
-  background: #38bdf8;
-  border-radius: 2rpx;
-  min-height: 4rpx;
-  opacity: 0.7;
-}
 
-/* v0.30.0 区涨幅榜 */
-.dc-row {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  padding: 8rpx 0;
-  border-bottom: 1rpx solid var(--color-soft-strong);
-}
-.dc-rank {
-  flex: 0 0 60rpx;
-}
-.dc-mid {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-.dc-name {
-  font-size: 28rpx;
-  font-weight: 500;
-  color: var(--color-text);
-}
-.dc-right {
-  flex: 0 0 auto;
-  text-align: right;
-}
-.dc-4w {
-  font-size: 32rpx;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
 
 /* v0.31.0 生活便利度榜 */
 .lc-summary {

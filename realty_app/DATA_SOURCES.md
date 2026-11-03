@@ -301,7 +301,9 @@ admin_districts.csv          → adminDistrictRanking  → 行政区划（dashbo
 listing_school_premium.csv   → listingSchoolPremium  → 地图分区 school 聚合（dashboard 溢价卡 v1.123.15 已删）
 school_dimensions.csv        → schoolDimensionRanking → 重点学校维度（dashboard v1.121.17）
 gz_new_house_inventory.csv   → gzNewHouseInventory    → 广州库存 + 日环比（dashboard v1.121.18）
-layout_distribution.csv      → layout / distribution → 挂牌结构占比 + 3室/精装跨城（v1.121.18–20）
+layout_distribution.csv      → layout / distribution → 挂牌结构占比 + 3室/精装跨城（v1.121.18–20；v1.123.20 死 DOM 卡 + queries.getLayoutDistribution 已删，store 数据面保留）
+listing_tags.csv             → store 数据面          → 标签云（卡 v0.28~v1.123.19 已删；v1.123.20 派生查询已删，纯数据面）
+district_index.csv           → store 数据面          → 区房价指数 + 区涨幅榜（卡 v0.29/0.30~v1.123.19 已删；v1.123.20 派生查询已删，纯数据面）
 bedroom_area.csv             → distributionRanking   → 3室×面积跨城均价（v1.121.20）
 metro_planning_geo.csv       → metroPlanningGeoAnalysis → 弯曲 + 覆盖率 + 手工兜底（v1.121.18–20）
 lpr_history.csv              → lprHistoryAnalysis     → 利差 / 调息 / 同比 / 全期均值（v1.121.18–21）

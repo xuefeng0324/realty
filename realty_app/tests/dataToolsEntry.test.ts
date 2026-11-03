@@ -223,10 +223,10 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(settingsSrc).toContain("data-settings-home-ia");
     expect(settingsSrc).toContain("data-settings-go-data-tools");
     const vIfMatches = dashSrc.match(/v-if="!isCardHidden\('[a-z][a-z0-9-]+'\)/g) || [];
-    // v1.123.19：commute-rank / community-score-rank 死 DOM 删除，15 → 13
-    expect(vIfMatches.length).toBeGreaterThanOrEqual(13);
+    // v1.123.20：listing-tag-cloud / district-index / district-4w-change 死 DOM 删除，13 → 10
+    expect(vIfMatches.length).toBeGreaterThanOrEqual(10);
     const cardKeyAttrMatches = dashSrc.match(/data-card-key="[a-z][a-z0-9-]+"/g) || [];
-    expect(cardKeyAttrMatches.length).toBeGreaterThanOrEqual(13);
+    expect(cardKeyAttrMatches.length).toBeGreaterThanOrEqual(10);
   });
 
   it("进阶卡 hot 配置保留；入口在设置/频道（不在总览占位）", () => {
@@ -447,14 +447,41 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(settingsSrc).toContain("toggleFeaturedMode");
     const advKeyMatches = dashSrc.match(/key:\s+"[a-z][a-z0-9-]+",\s+label:\s+"[^"]+"/g) || [];
     expect(advKeyMatches.length).toBeGreaterThanOrEqual(10);
+    // v1.123.20：户型分布 + 房源标签云 + 区房价指数 + 区涨幅榜 4 张死 DOM 卡整删
+    // （v1.122 起被壳层 CSS 永久隐藏；layout-distribution 卡从未接入 isCardHidden 隐藏协议，
+    // 卡片管理里对应条目为无效 bug 条目，随卡一并删除）；
+    // queries.getLayoutDistribution/getListingTagCloud/getDistrictIndex/getDistrictChangeRank
+    // 无消费者包装与 8 个导出类型同步删；孤儿 e2e smoke_layout/smoke_tagcloud/
+    // smoke_district_index/smoke_district_change 一并删；buildIntegrity v0.30.0 describe 移除；
+    // store 数据面 getLayoutDistributionsByCity/getListingTagsByCity/getDistrictIndicesByCity
+    // 与 layout_distribution.csv/listing_tags.csv/district_index.csv 保留（adversarialRankingProbe 在测）
+    expect(dashSrc).not.toMatch(/layoutDistribution|layoutDims|formatShare|ld-row|ld-bucket|ld-bar|ld-pct|ld-dim-title/);
+    expect(dashSrc).not.toMatch(/tagCloud|tagSizeClass|onPickTag|tag-cloud|tag-chip|tag-size-/);
+    expect(dashSrc).not.toMatch(/districtIndex|diIndexClass|diChangeClass|sparkPoints|toggleDistrictIndexExpand|di-row|di-spark/);
+    expect(dashSrc).not.toMatch(/districtChange|spMedalClass|sp-medal-mini|dc-row|dc-4w|medal-gold|medal-silver|medal-bronze|medal-flat-mini/);
+    expect(dashSrc).not.toMatch(/distributionCitySummaries|summarizeDistributionByCity|CityDistributionSummary/);
+    expect(dashSrc).not.toMatch(/getLayoutDistribution|getListingTagCloud|getDistrictIndex|getDistrictChangeRank/);
+    expect(dashSrc).not.toMatch(/LayoutDistributionResponse|TagCloudResponse|DistrictIndexResponse|DistrictChangeResponse/);
+    expect(toolsSrc).not.toContain('"layout-distribution"');
+    expect(toolsSrc).not.toContain('"listing-tag-cloud"');
+    expect(toolsSrc).not.toContain('"district-index"');
+    expect(toolsSrc).not.toContain('"district-4w-change"');
+    expect(queriesSrc).not.toMatch(/getLayoutDistribution|LayoutDistributionResponse|LayoutBucket|LAYOUT_DIMENSION_ORDER/);
+    expect(queriesSrc).not.toMatch(/getListingTagCloud|TagCloudResponse|TagCloudItem/);
+    expect(queriesSrc).not.toMatch(/getDistrictIndex\(|DistrictIndexResponse|DistrictIndexItem/);
+    expect(queriesSrc).not.toMatch(/getDistrictChangeRank|DistrictChangeResponse|DistrictChangeItem/);
+    expect(existsSync(resolve(__dirname, "../tests/e2e/smoke_layout.mjs"))).toBe(false);
+    expect(existsSync(resolve(__dirname, "../tests/e2e/smoke_tagcloud.mjs"))).toBe(false);
+    expect(existsSync(resolve(__dirname, "../tests/e2e/smoke_district_index.mjs"))).toBe(false);
+    expect(existsSync(resolve(__dirname, "../tests/e2e/smoke_district_change.mjs"))).toBe(false);
   });
 
   it("dashboard.vue v1.121.147 Batch 8：每张核心卡右上角 ✕ 隐藏按钮", () => {
     // 1. CSS 类
     expect(dashSrc).toContain(".card-hide-btn");
-    // 2. 至少 13 张卡有 data-dash-card-hide 属性（v1.123.19 删 2 张死 DOM 卡后 15 → 13）
+    // 2. 至少 10 张卡有 data-dash-card-hide 属性（v1.123.20 删 3 张死 DOM 卡后 13 → 10）
     const hideMatches = dashSrc.match(/data-dash-card-hide="[a-z][a-z0-9-]+"/g) || [];
-    expect(hideMatches.length).toBeGreaterThanOrEqual(13);
+    expect(hideMatches.length).toBeGreaterThanOrEqual(10);
     // 3. 点击处理
     expect(dashSrc).toContain("toggleCardHidden");
   });
