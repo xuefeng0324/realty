@@ -1,12 +1,12 @@
 {
-  "versionName": "1.123.17",
-  "versionCode": "352",
-  "publishedAt": "2026-11-03T01:09:20Z",
+  "versionName": "1.123.18",
+  "versionCode": "353",
+  "publishedAt": "2026-11-03T01:30:52Z",
   "force": false,
-  "notes": "chore(realty): v1.123.17 \u6b7b\u5e93\u7626\u8eab\u5220\u9664 hospitalRanking \u6d3e\u751f\u5e93\n\n2026-07-25-v1.115.0-\u533b\u9662\u5750\u6807\u63a5\u5165\u4e0e\u6d3e\u751f: v1.115.0 \u2014 \u533b\u9662\u5750\u6807\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n",
+  "notes": "refactor(realty_app): \u5220\u9664\u5546\u4e1a\u70ed\u5ea6\u699c\u6b7bDOM\u4e0ecommunityCommercialRanking\u6b7b\u5e93 v1.123.18\n\n2026-07-25-v1.120.0-\u4fee\u590dOTA\u68c0\u67e5\u66f4\u65b0fetch: v1.120.0 \u00b7 \u4fee\u590d OTA \u68c0\u67e5\u66f4\u65b0\uff08fetch is not a function\uff09\n2026-07-25-v1.121.0-\u5730\u56fefetch-\u4fee\u590d\u4e0eAPK\u56fe\u6807: v1.121.0 \u2014 \u5730\u56fe fetch \u4fee\u590d + \u81ea\u52a8 APK \u53ef\u9009 job + \u5e94\u7528\u56fe\u6807\u91cd\u505a\n2026-07-25-v1.121.2-OTA\u68c0\u67e5\u66f4\u65b0\u4fee\u590d: v1.121.2 \u2014 OTA \u68c0\u67e5\u66f4\u65b0\u65e0\u53cd\u5e94\u4fee\u590d\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/352/app.wgt",
-    "sha256": "ce1837b0048e5121e7feb59000cf44d4694e56582f253bc7be3f1dd6ade5798c"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/353/app.wgt",
+    "sha256": "d4ae324798e7ec2adb68ecba4135dc6386dfa4524531ace1e9b0ef53c3e7b089"
   },
   "ios": {
     "available": false,
