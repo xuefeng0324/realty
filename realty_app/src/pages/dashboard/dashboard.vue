@@ -134,21 +134,6 @@
         </view>
       </view>
 
-      <!-- 今日要点：参考贝壳/链家「首页速览」收敛首屏信息密度 -->
-      <view v-if="todayHighlights.length" class="card today-highlights-card">
-        <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">今日要点 · {{ hospitalCityName }}</view>
-          <view class="muted" style="font-size: 22rpx">首屏速览</view>
-        </view>
-        <view class="today-grid">
-          <view v-for="(h, i) in todayHighlights" :key="'th' + i" class="today-cell">
-            <text class="today-label muted">{{ h.label }}</text>
-            <text class="today-value" :class="h.toneClass">{{ h.value }}</text>
-            <text v-if="h.sub" class="today-sub muted">{{ h.sub }}</text>
-          </view>
-        </view>
-      </view>
-
       <!-- 全国 70 城指数（顶部第一张卡，入口也是 stats70 页） -->
       <view
         id="entry-stats70"
@@ -2767,7 +2752,6 @@ import {
   type DistrictVolatility,
   type CityCategoryTrend
 } from "../../local/wangqianTrendRanking";
-import { listingMedianUnitPriceLabel } from "../../local/priceSemantics";
 import { assessStats70Freshness } from "../../local/stats70Freshness";
 import * as store from "../../local/store";
 import {
@@ -3045,8 +3029,6 @@ const wangqianOverview = ref<WangqianOverviewItem | null>(null);
 const districtWangqianRank = ref<DistrictWangqianRankResponse | null>(null);
 const wqRankCat = ref<"新房" | "二手" | "全部">("全部");
 const lifeConvenience = ref<LifeConvenienceResponse | null>(null);
-
-const hospitalCityName = computed(() => cityNameForId(app.cityId));
 
 function communityDisplayName(communityId: number): string {
   return store.getCommunityById(communityId)?.communityName ?? `小区#${communityId}`;
@@ -4647,50 +4629,6 @@ const currentCityIndex = computed<LatestIndexForCity | null>(() => {
   return getLatestIndexForCity(name);
 });
 
-/** 贝壳/链家式首屏速览：把分散 KPI 收成 2×2 */
-const todayHighlights = computed(() => {
-  const items: Array<{ label: string; value: string; sub?: string; toneClass?: string }> = [];
-  if (medianUnitPrice.value > 0) {
-    items.push({
-      label: listingMedianUnitPriceLabel(),
-      value: `${medianUnitPrice.value.toLocaleString()} 元/㎡`,
-      sub: "卖方挂牌 · 非成交价"
-    });
-  }
-  const idx = currentCityIndex.value;
-  if (idx?.secondMoM != null) {
-    items.push({
-      label: "二手价格指数环比",
-      value: formatIndex(idx.secondMoM),
-      sub: deltaLabel(idx.secondMoM),
-      toneClass: trendClass(idx.secondMoM)
-    });
-  }
-  const wq = wangqianOverview.value;
-  if (wq && wq.totalUnits > 0) {
-    items.push({
-      label: "近4周网签套数",
-      value: `${wq.totalUnits} 套`,
-      sub: `${wq.cityName} · 成交量非均价`
-    });
-  }
-  if (lprLatest.value) {
-    items.push({
-      label: "LPR 5年",
-      value: `${lprLatest.value.lpr5y.toFixed(2)}%`,
-      sub: lprLatest.value.month
-    });
-  }
-  if (gzInventory.value) {
-    items.push({
-      label: "广州可售",
-      value: formatInventoryUnits(gzInventory.value.availableUnits),
-      sub: gzInventory.value.date
-    });
-  }
-  return items.slice(0, 4);
-});
-
 function formatIndex(v: number | null): string {
   if (v == null) return "—";
   return v.toFixed(1);
@@ -5504,38 +5442,8 @@ onShow(async () => {
   margin-top: 8rpx;
 }
 
-.today-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: 16rpx;
-  gap: 10rpx;
-}
-.today-cell {
-  background: var(--color-soft);
-  border: 1rpx solid var(--color-border);
-  border-radius: 12rpx;
-  padding: 16rpx 18rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 4rpx;
-}
-.today-label {
-  font-size: 20rpx;
-}
-.today-value {
-  font-size: 30rpx;
-  font-weight: 700;
-  color: var(--color-heading);
-}
-.today-sub {
-  font-size: 20rpx;
-}
-
 @media (min-width: 900px) {
   .stats70-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-  .today-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }

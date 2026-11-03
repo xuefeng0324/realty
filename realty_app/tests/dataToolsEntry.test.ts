@@ -517,7 +517,7 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(dashSrc).not.toMatch(/poiMarketRanking|CommunityPoiMarketSummary|MarketCategoryStat|NearestMarketEntry/);
     expect(dashSrc).not.toMatch(/\.pc-row|\.pc-rank|\.pc-dist|\.pc-mid|\.pc-name|\.pc-meta/);
     expect(dashSrc).toMatch(/communityIdsInCity/); // lifeMarketNearTop 仍消费
-    expect(dashSrc).toMatch(/hospitalCityName/); // 今日要点卡仍消费
+    // （hospitalCityName 正向断言已于 v1.123.25 随今日要点卡一并删除而翻转）
     expect(existsSync(resolve(__dirname, "../src/local/poiMarketRanking.ts"))).toBe(true);
     // v1.123.24：hero 死 DOM 轮播整删（v0.55.0 接入、v1.122 起被壳层 CSS 永久隐藏；
     // 模板 38 行 swiper 轮播 + HeroSlide 类型 + heroIdx/heroSlides computed + onHeroChange；
@@ -530,10 +530,19 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(dashSrc).not.toMatch(/heroSlides|heroIdx|onHeroChange|HeroSlide/);
     expect(dashSrc).not.toMatch(/commuteRanking|getCommuteRanking|CommuteRankingResponse/);
     expect(dashSrc).not.toMatch(/\bmedianTotalPrice\b/);
-    expect(dashSrc).toMatch(/medianUnitPrice/); // 壳层指标 + 今日要点卡仍消费
-    expect(dashSrc).toMatch(/listingMedianUnitPriceLabel/); // 今日要点卡仍消费
+    expect(dashSrc).toMatch(/medianUnitPrice/); // 壳层指标仍消费
     expect(queriesSrc).toMatch(/getCommuteRanking/); // 库包装保留（buildIntegrity 在测）
     expect(existsSync(resolve(__dirname, "../src/local/commuteRanking.ts"))).toBe(true);
+    // v1.123.25：「今日要点」壳下隐藏死 DOM 卡整删（v1.122 起被壳层 CSS 永久隐藏；
+    // 模板 13 行 + todayHighlights computed + hospitalCityName（dashboard 内唯一消费者即本卡标题）
+    // + listingMedianUnitPriceLabel import（失去唯一消费者）+ .today-grid/.today-cell/.today-label/
+    // .today-value/.today-sub CSS 与 @media 内 .today-grid 一并删；
+    // medianUnitPrice 保留——壳层 homeMedianUnitPriceLabel 仍消费；formatIndex/deltaLabel/trendClass
+    // 保留——stats70 卡与壳层仍消费；priceSemantics.ts 库保留——localCsvPriceRepo/priceSemantics 在测）
+    expect(dashSrc).not.toMatch(/today-highlights-card|today-grid|today-cell|today-label|today-value|today-sub/);
+    expect(dashSrc).not.toMatch(/\btodayHighlights\b/);
+    expect(dashSrc).not.toMatch(/hospitalCityName/);
+    expect(dashSrc).not.toMatch(/listingMedianUnitPriceLabel/);
   });
 
   it("dashboard.vue v1.121.147 Batch 8：每张核心卡右上角 ✕ 隐藏按钮", () => {

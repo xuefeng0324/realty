@@ -50,11 +50,12 @@ describe("房价语义门禁（源码）", () => {
     expect(map).not.toContain('showToast("成交价热力');
   });
 
-  it("总览 Hero 中位单价走 priceSemantics 标签", () => {
+  it("壳层「数据口径透明」行兜底三轴语义", () => {
     const dash = read("src/pages/dashboard/dashboard.vue");
-    expect(dash).toContain("listingMedianUnitPriceLabel");
-    // v1.123.8：priceAxesHint 随工作台死 DOM 删除；三轴口径由上方
-    // priceAxesDisclaimer 直接单测与壳层「数据口径透明」行兜底
+    // v1.123.24：Hero 轮播死 DOM 已删除；
+    // v1.123.25：今日要点卡删除后 listingMedianUnitPriceLabel 失去唯一消费者，
+    // 标签断言由上方 priceSemantics 直接单测兜底；
+    // v1.123.8：priceAxesHint 随工作台死 DOM 删除；三轴口径由壳层此行兜底
     expect(dash).toContain("不把挂牌价写成成交价");
   });
 
