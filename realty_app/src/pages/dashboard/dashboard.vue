@@ -137,15 +137,15 @@
       <!-- 全国 70 城指数（顶部第一张卡，入口也是 stats70 页） -->
       <view
         id="entry-stats70"
-        class="card stats70-card tap-target"
+        class="card-flat stats70-card-flat tap-target"
         role="button"
         tabindex="0"
         hover-class="card-active"
         @click="goStats70"
       >
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">全国 70 城价格指数</view>
-          <view class="muted" style="font-size: 22rpx">{{ stats70MonthLabel }}</view>
+          <view class="card-title card-title--flush">全国 70 城价格指数</view>
+          <view class="muted muted-caption">{{ stats70MonthLabel }}</view>
         </view>
 
         <view v-if="!stats70Ready" class="empty" style="padding: 24rpx 0">
@@ -193,7 +193,7 @@
               </text>
             </view>
           </view>
-          <view v-if="stats70RecentMonths.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          <view v-if="stats70RecentMonths.length" class="muted muted-caption">
             可用月份（派生）· 最新 {{ stats70TrendLatestMonth || "—" }}
           </view>
           <view v-if="stats70RecentMonths.length" class="mp-year-row">
@@ -201,7 +201,7 @@
               <text class="mp-year-y">{{ m.replace(/\/1$/, "") }}</text>
             </view>
           </view>
-          <view v-if="stats70LatestCities.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+          <view v-if="stats70LatestCities.length" class="muted muted-caption">
             三城最新月二手同比
           </view>
           <view
@@ -219,16 +219,16 @@
       </view>
 
       <!-- v1.116.0 全国 70 城涨跌 Top + 当前城市排位 + 趋势方向 -->
-      <view v-if="!isCardHidden('stats70-drift') && stats70Ready" class="card" data-card-key="stats70-drift">
+      <view v-if="!isCardHidden('stats70-drift') && stats70Ready" class="card-flat" data-card-key="stats70-drift">
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">全国 70 城 · 涨跌 Top</view>
+          <view class="card-title card-title--flush">全国 70 城 · 涨跌 Top</view>
           <button
             class="card-hide-btn"
             hover-class="tap-row--active"
             data-dash-card-hide="stats70-drift"
             @click.stop="toggleCardHidden('stats70-drift')"
           >✕</button>
-          <view class="muted" style="font-size: 22rpx">{{ stats70MonthLabel }}</view>
+          <view class="muted muted-caption">{{ stats70MonthLabel }}</view>
         </view>
 
         <view class="trend-summary">
@@ -248,7 +248,7 @@
         </view>
 
         <view class="rank-row" v-if="stats70CurrentCityRank">
-          <text class="muted" style="font-size: 22rpx">当前城市排位</text>
+          <text class="muted muted-caption">当前城市排位</text>
           <text class="rank-val">
             {{ stats70CurrentCityRank.city }}
             · 全国 Top
@@ -270,13 +270,13 @@
         </view>
 
         <view class="trend-row" v-if="stats70CurrentCityTrend">
-          <text class="muted" style="font-size: 22rpx">近 3 月趋势</text>
+          <text class="muted muted-caption">近 3 月趋势</text>
           <text
             class="cell-value"
             :class="stats70CurrentCityTrend.direction === '上涨' ? 'trend-up' : stats70CurrentCityTrend.direction === '下跌' ? 'trend-down' : 'muted'"
           >
             {{ stats70CurrentCityTrend.direction }}
-            <text class="muted" style="font-size: 22rpx" v-if="stats70CurrentCityTrend.direction !== '数据不足'">
+            <text class="muted muted-caption" v-if="stats70CurrentCityTrend.direction !== '数据不足'">
               （{{ stats70CurrentCityTrend.avgChangePp > 0 ? '+' : '' }}{{ stats70CurrentCityTrend.avgChangePp }} pp）
             </text>
           </text>
@@ -284,7 +284,7 @@
 
         <view class="top-section">
           <view class="top-line">
-            <text class="muted" style="font-size: 22rpx">新建 同比 · 涨 Top 5</text>
+            <text class="muted muted-caption">新建 同比 · 涨 Top 5</text>
           </view>
           <view
             v-for="row in stats70TopUpYoy"
@@ -295,7 +295,7 @@
             <text class="top-val trend-up">{{ row.value.toFixed(1) }}</text>
           </view>
           <view class="top-line" style="margin-top: 8rpx">
-            <text class="muted" style="font-size: 22rpx">新建 同比 · 跌 Top 5</text>
+            <text class="muted muted-caption">新建 同比 · 跌 Top 5</text>
           </view>
           <view
             v-for="row in stats70TopDownYoy"
@@ -307,7 +307,7 @@
           </view>
         </view>
 
-        <view v-if="stats70City12m.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view v-if="stats70City12m.length" class="muted muted-caption">
           {{ stats70City12mName }} · 近 {{ stats70City12m.length }} 月指数（同比）
         </view>
         <view v-if="stats70City12m.length" class="s70-12m">
@@ -317,7 +317,7 @@
             <text class="s70-12m-val" :class="idxTone(p.secondYoY)">二 {{ formatIndex(p.secondYoY) }}</text>
           </view>
         </view>
-        <view v-if="stats70MonthSpread.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view v-if="stats70MonthSpread.length" class="muted muted-caption">
           全国离散度（当月 max−min）
         </view>
         <view v-if="stats70MonthSpread.length" class="s70-spread">
@@ -331,16 +331,16 @@
       </view>
 
       <!-- v1.117.0 LPR 与房贷利率信号卡 -->
-      <view v-if="!isCardHidden('lpr-mortgage-signal') && lprLatest" class="card" data-card-key="lpr-mortgage-signal">
+      <view v-if="!isCardHidden('lpr-mortgage-signal') && lprLatest" class="card-flat" data-card-key="lpr-mortgage-signal">
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">🏦 LPR 与房贷利率</view>
+          <view class="card-title card-title--flush">🏦 LPR 与房贷利率</view>
           <button
             class="card-hide-btn"
             hover-class="tap-row--active"
             data-dash-card-hide="lpr-mortgage-signal"
             @click.stop="toggleCardHidden('lpr-mortgage-signal')"
           >✕</button>
-          <view class="muted" style="font-size: 22rpx">{{ lprLatest.month }}</view>
+          <view class="muted muted-caption">{{ lprLatest.month }}</view>
         </view>
 
         <view class="trend-summary" style="margin-top: 12rpx">
@@ -391,22 +391,22 @@
         </view>
 
         <view class="rank-row" v-if="lprDownwardCumulative">
-          <text class="muted" style="font-size: 22rpx">累计降息（自 {{ lprDownwardCumulative.startMonth }} 起）</text>
+          <text class="muted muted-caption">累计降息（自 {{ lprDownwardCumulative.startMonth }} 起）</text>
           <text class="rank-val">
             5 年期 LPR
             <text class="trend-down">
               ↓ {{ lprDownwardCumulative.lpr5yCumulativeBp }} bp
             </text>
             ·
-            <text class="muted" style="font-size: 22rpx">首套房贷 ↓ {{ lprDownwardCumulative.mortgageFirstCumulativeBp }} bp</text>
+            <text class="muted muted-caption">首套房贷 ↓ {{ lprDownwardCumulative.mortgageFirstCumulativeBp }} bp</text>
           </text>
         </view>
 
         <view class="rank-row" v-if="lprLongestFlat">
-          <text class="muted" style="font-size: 22rpx">最长"按兵不动"</text>
+          <text class="muted muted-caption">最长"按兵不动"</text>
           <text class="rank-val">
             {{ lprLongestFlat.months }} 个月
-            <text class="muted" style="font-size: 22rpx">
+            <text class="muted muted-caption">
               （{{ lprLongestFlat.startMonth }} ~ {{ lprLongestFlat.endMonth }}）
             </text>
           </text>
@@ -490,7 +490,7 @@
           </view>
         </view>
 
-        <view v-if="lprYearSeries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view v-if="lprYearSeries.length" class="muted muted-caption">
           {{ lprYearLabel }} 年 LPR 序列（派生 getLprByYear）
         </view>
         <view
@@ -502,7 +502,7 @@
           <text class="top-val">5Y {{ row.lpr5y.toFixed(2) }}% · 首套 {{ row.mortgageFirst.toFixed(2) }}%</text>
         </view>
 
-        <view v-if="lprRange12m.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view v-if="lprRange12m.length" class="muted muted-caption">
           近 12 月 LPR（getLprRange）
         </view>
         <view
@@ -514,7 +514,7 @@
           <text class="top-val">5Y {{ row.lpr5y.toFixed(2) }}%</text>
         </view>
 
-        <view v-if="lprRecentCycles.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view v-if="lprRecentCycles.length" class="muted muted-caption">
           近期调息节点（5Y LPR）
         </view>
         <view
@@ -531,7 +531,7 @@
 
         <view class="top-section" v-if="lprYearSummaries.length > 0">
           <view class="top-line">
-            <text class="muted" style="font-size: 22rpx">5 年期 LPR · 年度均值</text>
+            <text class="muted muted-caption">5 年期 LPR · 年度均值</text>
           </view>
           <view
             v-for="row in lprYearSummaries"
@@ -561,7 +561,7 @@
 
       <!-- 政府每日网签（摘要；有日更则可进子页） -->
       <view
-        class="card wangqian-card"
+        class="card-flat wangqian-card-flat"
         :class="{ 'tap-target': !!currentWangqian }"
         :role="currentWangqian ? 'button' : undefined"
         :tabindex="currentWangqian ? 0 : undefined"
@@ -569,8 +569,8 @@
         @click="onWangqianCardClick"
       >
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">政府每日网签</view>
-          <view class="muted" style="font-size: 22rpx">
+          <view class="card-title card-title--flush">政府每日网签</view>
+          <view class="muted muted-caption">
             {{ wangqianDateLabel }}
             <text v-if="wangqianFreshLabel" class="wq-fresh" :class="wangqianFreshClass">{{ wangqianFreshLabel }}</text>
           </view>
@@ -612,13 +612,13 @@
       </view>
 
       <!-- v1.121.138：「数据工具」独立页入口（14 张派生卡已迁出 dashboard；从此页查看） -->
-      <view class="card data-tools-entry-card" data-data-tools-entry>
+      <view class="card-flat data-tools-entry-card-flat" data-data-tools-entry>
         <view class="row-between" @click="goDataTools">
           <view>
             <view class="dashboard-eyebrow">设置入口</view>
-            <view class="card-title" style="margin-bottom: 0">数据工具 · 全部派生数据</view>
+            <view class="card-title card-title--flush">数据工具 · 全部派生数据</view>
           </view>
-          <view class="muted" style="font-size: 22rpx">›</view>
+          <view class="muted muted-caption">›</view>
         </view>
         <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
           派生排行 · 学校维度 · 教育事业 · 行政区划 · 通勤 · 户型分布 等 14 张卡，单独页查看。
@@ -626,11 +626,11 @@
       </view>
 
       <!-- 官方宏观对照：全国 / 广东分组；≠城市挂牌·网签均价 -->
-      <view v-if="nbsMacro" id="entry-macro" class="card macro-card" data-nbs-macro>
+      <view v-if="nbsMacro" id="entry-macro" class="card-flat macro-card-flat" data-nbs-macro>
         <view class="macro-kicker">全国 · 官方累计</view>
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">房地产开发与销售</view>
-          <view class="muted" style="font-size: 22rpx">{{ nbsMacro.publishDate }}</view>
+          <view class="card-title card-title--flush">房地产开发与销售</view>
+          <view class="muted muted-caption">{{ nbsMacro.publishDate }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -683,7 +683,7 @@
           <MacroKpiCell label="自筹资金" :value="formatMacro100m(nbsMacro.selfRaisedFundsCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.selfRaisedFundsYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.selfRaisedFundsYoyPct)" />
         </view>
         <view v-if="nbsImpliedUnitPrice != null" class="rank-row macro-derived" style="margin-top: 12rpx">
-          <text class="muted" style="font-size: 22rpx">派生合同均价</text>
+          <text class="muted muted-caption">派生合同均价</text>
           <text class="rank-val">
             {{ nbsImpliedUnitPrice.toLocaleString() }} 元/㎡
             <template v-if="nbsImpliedResidentialUnitPrice != null">
@@ -737,11 +737,11 @@
 
       <view
         v-if="gzInventory"
-        class="card gz-inventory-card"
+        class="card-flat gz-inventory-card-flat"
       >
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">🏗️ 广州新房库存</view>
-          <view class="muted" style="font-size: 22rpx">{{ gzInventoryFresh.label }}</view>
+          <view class="card-title card-title--flush">🏗️ 广州新房库存</view>
+          <view class="muted muted-caption">{{ gzInventoryFresh.label }}</view>
         </view>
         <view class="gz-inventory-grid">
           <view class="gz-inventory-kpi">
@@ -817,7 +817,7 @@
       <view
         v-if="!isCardHidden('region-compare')"
         id="overview-region"
-        class="card overview-card"
+        class="card-flat overview-card-flat"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('region') }"
         data-card-key="region-compare"
         @click="onOverviewCardClick('region')"
@@ -868,22 +868,22 @@
       </view>
 
       <!-- v0.8.0 区级近 8 周价格趋势 -->
-      <view v-if="!isCardHidden('district-8w-trend') && (trendItems.length > 0)" class="card" data-card-key="district-8w-trend">
+      <view v-if="!isCardHidden('district-8w-trend') && (trendItems.length > 0)" class="card-flat" data-card-key="district-8w-trend">
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">区级近 8 周房价趋势</view>
+          <view class="card-title card-title--flush">区级近 8 周房价趋势</view>
           <button
             class="card-hide-btn"
             hover-class="tap-row--active"
             data-dash-card-hide="district-8w-trend"
             @click.stop="toggleCardHidden('district-8w-trend')"
           >✕</button>
-          <view class="muted" style="font-size: 22rpx">按近 4 周均价 vs 前 4 周均价</view>
+          <view class="muted muted-caption">按近 4 周均价 vs 前 4 周均价</view>
         </view>
         <view v-for="it in trendItems" :key="it.district_name" class="trend-row">
           <view class="trend-row-head">
             <text class="trend-name">{{ it.district_name }}</text>
             <view class="trend-meta">
-              <text class="muted" style="font-size: 22rpx">
+              <text class="muted muted-caption">
                 最近 4 周 {{ it.recent_4w_listing_count }} 套 · 均价 {{ formatTrendPrice(it.latest_avg_unit_price) }}
               </text>
             </view>
@@ -910,7 +910,7 @@
             </text>
           </view>
         </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+        <view class="muted muted-caption">
           数据源：本地 listings.csv 按 (城市/区/周) 聚合均价（中位数 = 排除极端值后更稳健）。
           样本量较小的区波动较大，仅供参考。
         </view>
@@ -921,12 +921,12 @@
       <!-- v0.23.0 trend-9: 全品类区级网签热度榜 (新房/二手/全部 tab 切换) -->
       <view
         v-if="!isCardHidden('district-wangqian-3cat') && (districtWangqianRank && districtWangqianRank.items.length > 0)" data-card-key="district-wangqian-3cat"
-        class="card overview-card"
+        class="card-flat overview-card-flat"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('wangqian') }"
         @click="onOverviewCardClick('wangqian')"
       >
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">
+          <view class="card-title card-title--flush">
             🔥 全品类区级网签热度榜 · {{ districtWangqianRank.cityName }}
           </view>
           <button
@@ -935,7 +935,7 @@
             data-dash-card-hide="district-wangqian-3cat"
             @click.stop="toggleCardHidden('district-wangqian-3cat')"
           >✕</button>
-          <view class="muted" style="font-size: 22rpx">
+          <view class="muted muted-caption">
             累计 {{ districtWangqianRank.totalUnits }} 套 · {{ districtWangqianRank.totalDistricts }} 区
           </view>
         </view>
@@ -974,10 +974,10 @@
             </text>
           </text>
         </view>
-        <view v-if="districtWangqianRank.items.length > 10" class="muted" style="margin-top: 4rpx; font-size: 22rpx">
+        <view v-if="districtWangqianRank.items.length > 10" class="muted muted-caption">
           共 {{ districtWangqianRank.totalDistricts }} 个区有网签数据，显示 Top 10
         </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+        <view class="muted muted-caption">
           数据源：{{ districtWangqianRank.weeksBack }} 周内 {{ districtWangqianRank.cityName }} 住建局网签，按区聚合。
           「全部」= 新房+二手合并；切 tab 实时刷新。
         </view>
@@ -985,9 +985,9 @@
       </view>
 
       <!-- 网签周环比 + 异常突增（wangqianTrendRanking 派生，随 cityId） -->
-      <view v-if="wangqianTrendWeeklyReady" class="card">
+      <view v-if="wangqianTrendWeeklyReady" class="card-flat">
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">
+          <view class="card-title card-title--flush">
             📈 网签周环比 · {{ wangqianTrendCityName }}
           </view>
         </view>
@@ -1070,7 +1070,7 @@
               </text>
             </view>
           </view>
-          <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+          <view class="muted muted-caption">
             周环比 = 最近完整周 vs 上一周网签套数；突增 = 最新周较前 4 周均值倍数；CV = 标准差÷均值。数据源：wangqian_district_weekly.csv。
           </view>
         </template>
@@ -1081,7 +1081,7 @@
 
 
       <!-- v0.41.0 trend-21 房源新鲜度 (新挂牌多 + 滞销) -->
-      <view v-if="!isCardHidden('listing-freshness') && (listingFreshness && listingFreshness.totalCount > 0)" class="card" data-card-key="listing-freshness">
+      <view v-if="!isCardHidden('listing-freshness') && (listingFreshness && listingFreshness.totalCount > 0)" class="card-flat" data-card-key="listing-freshness">
         <view class="row-between">
           <view class="card-title">📅 房源新鲜度 · {{ listingFreshness.cityName }}</view>
           <button
@@ -1103,7 +1103,7 @@
         >
           <view class="lf-left">
             <view class="lf-name">{{ it.communityName }}</view>
-            <view class="muted" style="font-size: 22rpx">{{ it.districtName }} · 总 {{ it.totalListings }} 套 · 中位 {{ it.medianAgeDays ?? '?' }} 天</view>
+            <view class="muted muted-caption">{{ it.districtName }} · 总 {{ it.totalListings }} 套 · 中位 {{ it.medianAgeDays ?? '?' }} 天</view>
           </view>
           <view class="lf-mid">
             <view class="lf-line">
@@ -1134,7 +1134,7 @@
         >
           <view class="lf-left">
             <view class="lf-name">{{ it.communityName }}</view>
-            <view class="muted" style="font-size: 22rpx">{{ it.districtName }} · 总 {{ it.totalListings }} 套</view>
+            <view class="muted muted-caption">{{ it.districtName }} · 总 {{ it.totalListings }} 套</view>
           </view>
           <view class="lf-mid">
             <view class="lf-line">
@@ -1152,7 +1152,7 @@
           </view>
         </view>
 
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+        <view class="muted muted-caption">
           数据源：listings.csv (crawl_date) → scripts/compute_listing_freshness.py。<br>
           公式：freshness = (近 4 周 × 1 + 近 2 周 × 2) ÷ 总数 × 100，min_listings=5。
         </view>
@@ -1173,7 +1173,7 @@
         >
           <view class="lf-left">
             <view class="lf-name">{{ it.communityName }}</view>
-            <view class="muted" style="font-size: 22rpx">
+            <view class="muted muted-caption">
               {{ it.cityName }} · {{ it.districtName }} · {{ it.totalListings }} 套
             </view>
           </view>
@@ -1193,7 +1193,7 @@
         >
           <view class="lf-left">
             <view class="lf-name">{{ it.communityName }}</view>
-            <view class="muted" style="font-size: 22rpx">
+            <view class="muted muted-caption">
               {{ it.cityName }} · {{ it.districtName }}
               · 中位 {{ it.medianAgeDays ?? "—" }} 天
             </view>
@@ -1204,7 +1204,7 @@
         </view>
       </view>
 
-      <view v-if="!isCardHidden('district-map') && (districtMap && districtMap.districts.length > 0)" class="card" data-card-key="district-map">
+      <view v-if="!isCardHidden('district-map') && (districtMap && districtMap.districts.length > 0)" class="card-flat" data-card-key="district-map">
         <view class="row-between">
           <view class="card-title">🗺️ 行政区域图 · {{ districtMap.cityName }}</view>
           <button
@@ -1310,7 +1310,7 @@
             </g>
           </svg>
         </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+        <view class="muted muted-caption">
           数据源：高德 /v3/config/district (行政区边界) + communities_geo.csv (社区经纬度)<br>
           v0.46.0 区名 = 直辖市区 + 行政区; 社区 marker = 圆点 + 名字 (≤30 社区时显示, 超过则简化为点)
         </view>
@@ -1320,7 +1320,7 @@
       <view
         v-if="!isCardHidden('school-dim-weighted') && (schoolDims && schoolDims.total > 0)" data-card-key="school-dim-weighted"
         id="overview-school"
-        class="card overview-card"
+        class="card-flat overview-card-flat"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('school') }"
         @click="onOverviewCardClick('school')"
       >
@@ -1338,7 +1338,7 @@
           {{ overviewSchoolSummary }}
         </view>
         <template v-else>
-        <view class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
+        <view class="muted muted-caption">
           综合 = 评级(40%) + 集团实力(20%) + 区域均衡(15%) + 趋势(10%) + 是否集团(5%)
         </view>
 
@@ -1381,7 +1381,7 @@
                 <text class="sd-name-sm">{{ r.schoolName.slice(0, 14) }}</text>
                 <text class="sd-val">{{ r.groupStrength.toFixed(1) }}</text>
               </view>
-              <view v-if="schoolDims.topByGroup.length === 0" class="muted" style="font-size: 22rpx">该城市暂无集团校</view>
+              <view v-if="schoolDims.topByGroup.length === 0" class="muted muted-caption">该城市暂无集团校</view>
             </view>
             <view class="sd-cell">
               <view class="sd-cell-h">⚖️ 区域均衡</view>
@@ -1404,10 +1404,10 @@
           </view>
         </view>
 
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+        <view class="muted muted-caption">
           数据源：school_indicators.csv (5 原始指标列) → 城市内百分位排名 → 综合分 0-100
         </view>
-        <view data-cross-city v-if="schoolCompositeCrossCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="schoolCompositeCrossCity.length" class="muted muted-caption">
           跨城综合分冠军校
         </view>
         <view
@@ -1426,7 +1426,7 @@
       <view
         v-if="!isCardHidden('macro-lpr-card') && (lpr && lpr.total > 0)" data-card-key="macro-lpr-card"
         id="overview-lpr"
-        class="card overview-card"
+        class="card-flat overview-card-flat"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('lpr') }"
         @click="onOverviewCardClick('lpr')"
       >
@@ -1508,13 +1508,13 @@
           </svg>
         </view>
 
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+        <view class="muted muted-caption">
           数据源：央行 PBOC 公开公告 (lpr_history.csv · 83 月 · {{ lpr.series[0].month }} → {{ lpr.latest?.month }})。
           首套房贷 = 5Y LPR + 加点 (-30bp), 二套 = 5Y LPR + 35bp (一线城市普遍加点)。
           房贷利率直接影响月供：100w 贷 30 年等额本息，每 25bp 约影响月供 ¥150。
         </view>
 
-        <view v-if="providentRate" class="pf-card" data-provident-fund-rate>
+        <view v-if="providentRate" class="pf-card-flat" data-provident-fund-rate>
           <view class="row-between">
             <view class="lpr-chart-title" style="margin: 0">🏦 住房公积金贷款</view>
             <view class="muted" style="font-size: 21rpx">{{ providentRate.effectiveDate }} 起</view>
@@ -1775,7 +1775,7 @@
       </view>
 
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
-      <view v-if="!isCardHidden('life-convenience') && (lifeConvenience && lifeConvenience.items.length > 0)" class="card" data-card-key="life-convenience">
+      <view v-if="!isCardHidden('life-convenience') && (lifeConvenience && lifeConvenience.items.length > 0)" class="card-flat" data-card-key="life-convenience">
         <view class="row-between">
           <view class="card-title">🧭 生活便利度 Top 小区 · {{ lifeConvenience.cityName }}</view>
           <view class="muted">Top {{ lifeConvenience.items.length }}</view>
@@ -1790,13 +1790,13 @@
         <view class="lc-summary muted">
           城市均分 {{ lifeConvenience.avgScore }} / 110 · 最高 {{ lifeConvenience.maxScore }} / 110
         </view>
-        <view v-if="lifeCitySummary" class="muted" style="margin: 4rpx 0 8rpx; font-size: 22rpx">
+        <view v-if="lifeCitySummary" class="muted muted-caption">
           派生均分 {{ lifeCitySummary.avgScore100.toFixed(0) }}
           · 地铁近 {{ lifeCitySummary.avgSubwayNear.toFixed(1) }}
           · 菜场近 {{ lifeCitySummary.avgMarketNear.toFixed(1) }}
           <text v-if="lifeCitySummary.top"> · Top {{ lifeCitySummary.top.communityName }}</text>
         </view>
-        <view data-cross-city v-if="lifeCitySummariesCross.length" class="muted" style="margin: 4rpx 0 4rpx; font-size: 22rpx">
+        <view data-cross-city v-if="lifeCitySummariesCross.length" class="muted muted-caption">
           跨城便利均分
         </view>
         <view
@@ -1854,7 +1854,7 @@
             <view class="muted" style="font-size: 20rpx">/ 100</view>
           </view>
         </view>
-        <view v-if="lifeConvenienceParetoSubway.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view v-if="lifeConvenienceParetoSubway.length" class="muted muted-caption">
           高分 + 地铁近（帕累托）
         </view>
         <view
@@ -1872,7 +1872,7 @@
             <text :class="['lc-score', lifeScoreClass(it.score100)]">{{ it.score100 }}</text>
           </view>
         </view>
-        <view v-if="lifeConvenienceImbalance.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view v-if="lifeConvenienceImbalance.length" class="muted muted-caption">
           单维偏强 · 综合偏低
         </view>
         <view
@@ -1892,7 +1892,7 @@
             <text :class="['lc-score', lifeScoreClass(it.score100)]">{{ it.score100 }}</text>
           </view>
         </view>
-        <view v-if="lifeMarketNearTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view v-if="lifeMarketNearTop.length" class="muted muted-caption">
           菜市场维度近数 Top（本市）
         </view>
         <view
@@ -1910,7 +1910,7 @@
             <text class="lc-score">{{ it.value }}</text>
           </view>
         </view>
-        <view v-if="lifeDistrictTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view v-if="lifeDistrictTop.length" class="muted muted-caption">
           分区便利均分 Top（派生）
         </view>
         <view
@@ -1926,7 +1926,7 @@
             <text class="lc-score">{{ d.avgScore100.toFixed(0) }}</text>
           </view>
         </view>
-        <view v-if="lifeScoreTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view v-if="lifeScoreTop.length" class="muted muted-caption">
           派生层 score100 Top
         </view>
         <view
@@ -1944,7 +1944,7 @@
             <text :class="['lc-score', lifeScoreClass(it.score100)]">{{ it.score100 }}</text>
           </view>
         </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+        <view class="muted muted-caption">
           数据源：poi_seed.csv + poi_market.csv (高德新拉) → life_convenience.csv。
           评分维度 M=商场 P=公园 S=地铁 X=学校 Y=医院 C=菜市场。
           满分 110 (≈ score100 / 100)，按综合分降序。
@@ -1954,7 +1954,7 @@
       <!-- v1.123.2：学区评分 Top 小区卡（含过滤/排序控件）已迁入数据工具页 pages/data-tools/data-tools（[data-dt-school-top]） -->
 
       <!-- v0.20.0 trend-8: 同区多小区对比 (点区/板块对比 区名后展示) -->
-      <view v-if="!isCardHidden('multi-community-compare') && (districtCompareResp && districtCompareResp.items.length > 0)" class="card" data-card-key="multi-community-compare">
+      <view v-if="!isCardHidden('multi-community-compare') && (districtCompareResp && districtCompareResp.items.length > 0)" class="card-flat" data-card-key="multi-community-compare">
         <view class="row-between">
           <view class="card-title">📊 {{ districtCompareResp.districtName }} · {{ districtCompareResp.cityName }} 小区对比</view>
           <view class="muted tap-target" @click="closeDistrictCompare">✕ 关闭</view>
@@ -1965,7 +1965,7 @@
             data-dash-card-hide="multi-community-compare"
             @click.stop="toggleCardHidden('multi-community-compare')"
           >✕</button>
-        <view class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
+        <view class="muted muted-caption">
           均价柱状图 ({{ districtCompareResp.weekEnd }} 周快照 · 共 {{ districtCompareResp.total }} 个小区)
         </view>
         <view
@@ -1995,7 +1995,7 @@
         >
           ⚠️ 部分小区挂牌数少于 3 套，单价仅供参考
         </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+        <view class="muted muted-caption">
           数据源：listings.csv (按社区+周聚合均价 + 挂牌数)。点击柱条 → 小区详情。
         </view>
       </view>
@@ -3873,16 +3873,8 @@ onShow(async () => {
   padding-bottom: 32rpx;
 }
 
-.card {
-  margin-bottom: 0;
-  border-radius: 0;
-  box-shadow: none;
-  border-left: none;
-  border-right: none;
-  border-top: none;
-  border-bottom: 1rpx solid var(--color-border);
-  background: var(--color-surface);
-}
+/* v1.123.33：扁平卡样式已迁移到 foundation.scss 的 .card-flat 变体，
+   这里不再用无 scoped 的 .card { border-radius: 0; box-shadow: none } 全局覆盖 */
 
 .dashboard-eyebrow {
   color: var(--color-primary);
