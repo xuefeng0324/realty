@@ -191,7 +191,7 @@ onLoad((query?: Record<string, string>) => {
 .school-hero { display: flex; justify-content: space-between; align-items: center; gap: 28rpx; padding: 34rpx; border: 1rpx solid var(--color-border); border-radius: var(--radius-lg); background: linear-gradient(135deg, rgba(34, 197, 94, 0.16), var(--color-surface) 62%); box-shadow: var(--shadow-card); }
 .hero-copy { min-width: 0; }
 .hero-eyebrow { color: var(--color-primary); font-size: 19rpx; font-weight: var(--font-weight-bold); letter-spacing: 2rpx; }
-.hero-title { margin-top: 10rpx; color: var(--color-heading); font-size: 40rpx; font-weight: 750; line-height: 1.3; }
+.hero-title { margin-top: 10rpx; color: var(--color-heading); font-size: 40rpx; font-weight: var(--font-weight-bold-plus); line-height: 1.3; }
 .hero-official { margin-top: var(--space-1); color: var(--color-text-secondary); font-size: 22rpx; }
 .tag-row { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-top: 18rpx; }
 .school-favorite-row { margin-top: 18rpx; }
@@ -202,7 +202,7 @@ onLoad((query?: Record<string, string>) => {
 .score-ring--high { border-color: rgba(34,197,94,.45); }
 .score-ring--mid { border-color: rgba(14,165,233,.42); }
 .score-ring--low { border-color: rgba(245,158,11,.42); }
-.score-value { color: var(--color-heading); font-size: 42rpx; font-weight: 750; line-height: 1; }
+.score-value { color: var(--color-heading); font-size: 42rpx; font-weight: var(--font-weight-bold-plus); line-height: 1; }
 .score-label { margin-top: 5rpx; color: var(--color-muted); font-size: 19rpx; }
 .metrics-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14rpx; margin: 18rpx 0; }
 .metric-card { padding: 20rpx; border: 1rpx solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); box-shadow: var(--shadow-card); }
@@ -225,7 +225,7 @@ onLoad((query?: Record<string, string>) => {
 .loading-card { padding: 60rpx; text-align: center; color: var(--color-muted); }
 .error-state { padding: 60rpx 30rpx; text-align: center; }
 .error-icon { width: 72rpx; height: 72rpx; margin: 0 auto; border-radius: 50%; background: rgba(239,68,68,.14); color: var(--color-danger); font-size: 42rpx; line-height: 72rpx; }
-.error-title { margin: 18rpx 0 var(--space-1); color: var(--color-heading); font-size: 29rpx; font-weight: 650; }
+.error-title { margin: 18rpx 0 var(--space-1); color: var(--color-heading); font-size: 29rpx; font-weight: var(--font-weight-semibold-plus); }
 .error-state .btn { margin-top: 20rpx; }
 
 @media (max-width: 720px) {

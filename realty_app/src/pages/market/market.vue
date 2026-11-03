@@ -125,7 +125,7 @@ function openEntry(path: string): void {
   max-width: 680rpx;
   color: var(--color-heading);
   font-size: var(--font-display, 52rpx);
-  font-weight: 650;
+  font-weight: var(--font-weight-semibold-plus);
   line-height: 1.2;
 }
 

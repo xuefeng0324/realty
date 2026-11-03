@@ -14,8 +14,14 @@ const PAGES_DIR = path.resolve(__dirname, "../src/pages");
 const FW_MAP = {
   "500": "var(--font-weight-medium)",
   "600": "var(--font-weight-semibold)",
+  "650": "var(--font-weight-semibold-plus)",
   "700": "var(--font-weight-bold)",
+  "750": "var(--font-weight-bold-plus)",
+  "800": "var(--font-weight-extrabold)",
+  "900": "var(--font-weight-black)",
 };
+
+const FW_PATTERN = /(font-weight)\s*:\s*(500|600|650|700|750|800|900)\b/gi;
 
 let totalReplacements = 0;
 const fileList = [];
@@ -39,9 +45,7 @@ for (const filePath of fileList) {
     /(<style[^>]*>)([\s\S]*?)(<\/style>)/g,
     (match, openTag, body, closeTag) => {
       let count = 0;
-      const replaced = body.replace(
-        /(font-weight)\s*:\s*(500|600|700)\b/gi,
-        (fullMatch, propName, value) => {
+      const replaced = body.replace(FW_PATTERN, (fullMatch, propName, value) => {
           count++;
           return `${propName}: ${FW_MAP[value]}`;
         }
@@ -56,10 +60,13 @@ for (const filePath of fileList) {
 
   // --- 2. template inline style ---
   src = src.replace(
-    /(style="[^"]*)font-weight\s*:\s*(500|600|700)(\s*;?[^"]*")/g,
+    /(style="[^"]*)font-weight\s*:\s*(\d{3})(\s*;?[^"]*")/g,
     (fullMatch, prefix, value, suffix) => {
-      totalReplacements++;
-      return `${prefix}font-weight: ${FW_MAP[value]}${suffix}`;
+      if (FW_MAP[value]) {
+        totalReplacements++;
+        return `${prefix}font-weight: ${FW_MAP[value]}${suffix}`;
+      }
+      return fullMatch;
     }
   );
 

@@ -1120,7 +1120,7 @@ onUnmounted(() => {
   display: block;
   color: #0f9880;
   font-size: 18rpx;
-  font-weight: 900;
+  font-weight: var(--font-weight-black);
   letter-spacing: 3rpx;
 }
 
@@ -1128,7 +1128,7 @@ onUnmounted(() => {
   margin-top: 4rpx;
   color: var(--color-heading, #102b27);
   font-size: 44rpx;
-  font-weight: 900;
+  font-weight: var(--font-weight-black);
   letter-spacing: -2rpx;
 }
 
@@ -1253,7 +1253,7 @@ onUnmounted(() => {
   color: #fff;
   background: linear-gradient(135deg, #059669, #0d9488);
   font-size: 22rpx;
-  font-weight: 800;
+  font-weight: var(--font-weight-extrabold);
 }
 
 .find-hub-caption {
@@ -1292,7 +1292,7 @@ onUnmounted(() => {
   border-radius: 22rpx;
   flex-shrink: 0;
   font-size: 23rpx;
-  font-weight: 900;
+  font-weight: var(--font-weight-black);
 }
 
 .find-entity-avatar--community {
@@ -1314,7 +1314,7 @@ onUnmounted(() => {
   overflow: hidden;
   color: var(--color-heading, #17322d);
   font-size: 27rpx;
-  font-weight: 750;
+  font-weight: var(--font-weight-bold-plus);
   text-overflow: ellipsis;
   white-space: nowrap;
 }

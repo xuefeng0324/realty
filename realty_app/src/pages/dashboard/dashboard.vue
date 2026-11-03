@@ -5136,13 +5136,13 @@ onShow(async () => {
   display: block;
   color: #7fffd4;
   font-size: 18rpx;
-  font-weight: 800;
+  font-weight: var(--font-weight-extrabold);
   letter-spacing: 3rpx;
 }
 .home-v122-title {
   margin-top: var(--space-1);
   font-size: 38rpx;
-  font-weight: 800;
+  font-weight: var(--font-weight-extrabold);
   letter-spacing: -1rpx;
 }
 .home-v122-city,
@@ -5254,7 +5254,7 @@ onShow(async () => {
 .home-v122-section-title {
   color: var(--color-heading, #102b27);
   font-size: 31rpx;
-  font-weight: 800;
+  font-weight: var(--font-weight-extrabold);
 }
 .home-v122-section-sub {
   display: block;
@@ -5303,7 +5303,7 @@ onShow(async () => {
   margin: 10rpx 0 7rpx;
   color: var(--color-heading, #102b27);
   font-size: 31rpx;
-  font-weight: 800;
+  font-weight: var(--font-weight-extrabold);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -5340,7 +5340,7 @@ onShow(async () => {
   height: 68rpx;
   border-radius: 22rpx;
   font-size: 25rpx;
-  font-weight: 900;
+  font-weight: var(--font-weight-black);
 }
 .home-v122-quick-icon--green { color: #047857; background: #dff8ef; }
 .home-v122-quick-icon--blue { color: #2563eb; background: #e7efff; }
@@ -5387,7 +5387,7 @@ onShow(async () => {
   color: rgba(255, 255, 255, 0.84);
   background: linear-gradient(135deg, #0f766e, var(--color-focus));
   font-size: 18rpx;
-  font-weight: 800;
+  font-weight: var(--font-weight-extrabold);
   letter-spacing: 2rpx;
 }
 .home-v122-listing-main {
@@ -5415,7 +5415,7 @@ onShow(async () => {
 .home-v122-listing-price {
   color: #e24a3b;
   font-size: 27rpx;
-  font-weight: 800;
+  font-weight: var(--font-weight-extrabold);
 }
 .home-v122-source {
   padding: 6rpx 10rpx;
@@ -5458,7 +5458,7 @@ onShow(async () => {
   color: #047857;
   background: #dff8ef;
   flex-shrink: 0;
-  font-weight: 900;
+  font-weight: var(--font-weight-black);
 }
 .home-v122-trust-title {
   margin-bottom: 5rpx;

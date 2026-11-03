@@ -973,7 +973,7 @@ function openGithubReleases() {
   overflow: hidden;
   color: var(--color-heading);
   font-size: 25rpx;
-  font-weight: 650;
+  font-weight: var(--font-weight-semibold-plus);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
