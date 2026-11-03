@@ -550,7 +550,7 @@ const rateTrendRows = computed<RateTrendRow[]>(() => {
   display: grid;
   grid-template-columns: minmax(72rpx, 100rpx) minmax(0, 1fr);
   align-items: center;
-  gap: 4rpx 8rpx;
+  gap: var(--space-gap-xs) 8rpx;
   font-size: 22rpx;
   min-width: 0;
 }
@@ -562,7 +562,7 @@ const rateTrendRows = computed<RateTrendRow[]>(() => {
   min-width: 0;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 2rpx;
+  gap: var(--space-gap-2xs);
 }
 .rate-trend-cell {
   min-width: 0;

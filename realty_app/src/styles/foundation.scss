@@ -17,10 +17,12 @@ page {
   --space-8: 56rpx;
 
   /* gap 专用小间距（不用于 margin/padding 简写，避免语义混淆） */
+  --space-gap-2xs: 2rpx;
   --space-gap-xs: 4rpx;
   --space-gap-sm: 6rpx;
   --space-gap-md: 10rpx;
 
+  --radius-xxxs: 2rpx;
   --radius-xxs: 4rpx;
   --radius-xs: 6rpx;
   --radius-sm2: 8rpx;

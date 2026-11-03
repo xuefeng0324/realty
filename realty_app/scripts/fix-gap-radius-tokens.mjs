@@ -5,9 +5,7 @@
  *   --space-gap-xs/sm/md  (4/6/10rpx)
  *   --radius-xxs/xs/sm2/md2 (4/6/8/12rpx)
  *
- * 安全原则：
- *   - 只替换完整值匹配，避免 calc() 或多值里的误匹配
- *   - border-radius 只处理单值或所有值都可映射的多值声明
+ * v2 改进：gap 和 border-radius 多值声明逐值映射（只替换可映射部分，保留 0/inherit 等）
  */
 
 import fs from "node:fs";
@@ -18,12 +16,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PAGES_DIR = path.resolve(__dirname, "../src/pages");
 
 const GAP_MAP = {
+  "2rpx": "var(--space-gap-2xs)",
   "4rpx": "var(--space-gap-xs)",
   "6rpx": "var(--space-gap-sm)",
   "10rpx": "var(--space-gap-md)",
 };
 
 const RADIUS_MAP = {
+  "2rpx": "var(--radius-xxxs)",
   "4rpx": "var(--radius-xxs)",
   "6rpx": "var(--radius-xs)",
   "8rpx": "var(--radius-sm2)",
@@ -43,6 +43,20 @@ function walk(dir) {
 
 walk(PAGES_DIR);
 
+function tryMapValues(valuesStr, map) {
+  const parts = valuesStr.trim().split(/\s+/);
+  let anyChanged = false;
+  const newParts = parts.map((v) => {
+    const trimmed = v.trim();
+    if (map[trimmed]) {
+      anyChanged = true;
+      return map[trimmed];
+    }
+    return v; // 0 / inherit / 未映射的零星值 保留原样
+  });
+  return anyChanged ? newParts.join(" ") : null;
+}
+
 for (const filePath of fileList) {
   let src = fs.readFileSync(filePath, "utf-8");
   const original = src;
@@ -53,30 +67,25 @@ for (const filePath of fileList) {
     (match, openTag, body, closeTag) => {
       let count = 0;
 
-      // gap 替换
       let replaced = body.replace(
         /(gap)\s*:\s*([^;}\n]+)/gi,
         (fullMatch, propName, values) => {
-          const trimmed = values.trim();
-          if (GAP_MAP[trimmed]) {
+          const mapped = tryMapValues(values, GAP_MAP);
+          if (mapped) {
             count++;
-            return `${propName}: ${GAP_MAP[trimmed]}`;
+            return `${propName}: ${mapped}`;
           }
           return fullMatch;
         }
       );
 
-      // border-radius 替换（多值安全处理）
       replaced = replaced.replace(
         /(border-radius)\s*:\s*([^;}\n]+)/gi,
         (fullMatch, propName, values) => {
-          const parts = values.trim().split(/\s+/);
-          // 所有部分都必须可映射才替换
-          const allMapped = parts.every((v) => RADIUS_MAP[v.trim()]);
-          if (allMapped && parts.length > 0) {
+          const mapped = tryMapValues(values, RADIUS_MAP);
+          if (mapped) {
             count++;
-            const newParts = parts.map((v) => RADIUS_MAP[v.trim()]);
-            return `${propName}: ${newParts.join(" ")}`;
+            return `${propName}: ${mapped}`;
           }
           return fullMatch;
         }
@@ -94,20 +103,11 @@ for (const filePath of fileList) {
   src = src.replace(
     /(style="[^"]*)(gap|border-radius)\s*:\s*([^;"]+)(\s*;?[^"]*")/g,
     (fullMatch, prefix, propName, values, suffix) => {
-      const trimmed = values.trim();
-      if (propName === "gap") {
-        if (GAP_MAP[trimmed]) {
-          totalReplacements++;
-          return `${prefix}gap: ${GAP_MAP[trimmed]}${suffix}`;
-        }
-      } else if (propName === "border-radius") {
-        const parts = trimmed.split(/\s+/);
-        const allMapped = parts.every((v) => RADIUS_MAP[v.trim()]);
-        if (allMapped) {
-          totalReplacements++;
-          const newParts = parts.map((v) => RADIUS_MAP[v.trim()]);
-          return `${prefix}border-radius: ${newParts.join(" ")}${suffix}`;
-        }
+      const map = propName === "gap" ? GAP_MAP : RADIUS_MAP;
+      const mapped = tryMapValues(values, map);
+      if (mapped) {
+        totalReplacements++;
+        return `${prefix}${propName}: ${mapped}${suffix}`;
       }
       return fullMatch;
     }

@@ -2398,7 +2398,7 @@ onUnmounted(() => {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  gap: 2rpx;
+  gap: var(--space-gap-2xs);
   min-width: 0;
 }
 .dt-card-name {

@@ -682,7 +682,7 @@ onLoad((opts?: Record<string, string>) => {
 .spark {
   display: flex;
   align-items: flex-end;
-  gap: 2rpx;
+  gap: var(--space-gap-2xs);
   height: 160rpx;
   width: 100%;
   overflow: hidden;
@@ -690,7 +690,7 @@ onLoad((opts?: Record<string, string>) => {
 .spark-bar {
   flex: 1 1 0;
   min-width: 2rpx;
-  border-radius: 2rpx 2rpx 0 0;
+  border-radius: var(--radius-xxxs) var(--radius-xxxs) 0 0;
 }
 .spark-bar.second {
   background: linear-gradient(180deg, var(--color-focus), #0ea5e9);

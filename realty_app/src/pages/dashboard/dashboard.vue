@@ -4413,7 +4413,7 @@ onShow(async () => {
 .trend-bar-fill {
   width: 80%;
   background: linear-gradient(180deg, var(--color-focus) 0%, #0ea5e9 100%);
-  border-radius: 2rpx 2rpx 0 0;
+  border-radius: var(--radius-xxxs) var(--radius-xxxs) 0 0;
   min-height: 4rpx;
 }
 .trend-axis {
@@ -4680,7 +4680,7 @@ onShow(async () => {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2rpx;
+  gap: var(--space-gap-2xs);
 }
 .lf-name {
   font-size: 26rpx;
@@ -4700,7 +4700,7 @@ onShow(async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rpx;
+  gap: var(--space-gap-2xs);
   min-width: 70rpx;
 }
 .lf-k {
