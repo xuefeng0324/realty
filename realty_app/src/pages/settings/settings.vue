@@ -843,13 +843,13 @@ function openGithubReleases() {
 .hero-eyebrow {
   color: var(--color-primary);
   font-size: 19rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   letter-spacing: 3rpx;
 }
 
 .hero-title {
   font-size: 36rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   margin-top: var(--space-1);
 }
 
@@ -875,7 +875,7 @@ function openGithubReleases() {
   background: rgba(16, 185, 129, 0.12);
   color: var(--color-primary);
   font-size: 20rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .library-tabs {
@@ -926,7 +926,7 @@ function openGithubReleases() {
   margin: var(--space-1) 0 4rpx;
   color: var(--color-heading);
   font-size: 26rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .library-list {
@@ -961,7 +961,7 @@ function openGithubReleases() {
   justify-content: center;
   color: var(--color-primary);
   font-size: 24rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .library-copy {

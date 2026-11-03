@@ -616,7 +616,7 @@ onMounted(async () => {
 }
 .gallery-empty-title {
   font-size: 28rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-heading);
 }
 .gallery-empty-desc {
@@ -641,7 +641,7 @@ onMounted(async () => {
 }
 .price-main {
   font-size: 48rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: #e11d48;
   line-height: 1.1;
 }
@@ -683,7 +683,7 @@ onMounted(async () => {
 .community-chip-name {
   flex: 1;
   font-size: 26rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-heading);
 }
 .community-chip-caret {
@@ -718,7 +718,7 @@ button.source-dock-primary {
   background: #00ae66 !important;
   color: #fff !important;
   font-size: 28rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   line-height: 1.2;
 }
 .source-dock-ghost,
@@ -748,7 +748,7 @@ button.source-dock-ghost {
   padding: 4rpx var(--space-2);
   border-radius: var(--radius-pill);
   font-size: 22rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 .source-trust--real { background: rgba(34, 197, 94, 0.18); color: var(--color-trend-down); }
 .source-trust--derived { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
@@ -788,7 +788,7 @@ button.source-dock-ghost {
 .qn-btn--primary {
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: #fff;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 .qn-btn--primary:hover {
   filter: brightness(1.08);
@@ -817,7 +817,7 @@ button.source-dock-ghost {
 .sibling-title {
   font-size: 26rpx;
   color: var(--color-heading);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -835,7 +835,7 @@ button.source-dock-ghost {
 }
 .sibling-total {
   font-size: 28rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-danger);
   font-variant-numeric: tabular-nums;
 }
@@ -908,7 +908,7 @@ button.source-dock-ghost {
 }
 .poi-cat-name {
   font-size: 28rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-heading);
   flex: 1;
 }
@@ -989,7 +989,7 @@ button.source-dock-ghost {
 }
 .metro-name {
   font-size: 28rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-heading);
 }
 .metro-detail {

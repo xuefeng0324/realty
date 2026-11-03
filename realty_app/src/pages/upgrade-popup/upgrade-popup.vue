@@ -223,7 +223,7 @@ function restartNow() {
 }
 .upgrade-title {
   font-size: 34rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-heading);
 }
 .upgrade-meta {

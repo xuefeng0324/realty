@@ -356,7 +356,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 }
 .title {
   font-size: 36rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-text, #333);
 }
 .muted {
@@ -383,7 +383,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 }
 .card-title {
   font-size: 30rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text, #333);
 }
 .footer {
@@ -436,9 +436,9 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 .ba-cell--empty { background: var(--color-soft, #f5f5f5); color: var(--color-muted, #aaa); }
 .ba-cell--light { background: #e3f2fd; }
 .ba-cell--mid { background: #90caf9; color: #fff; }
-.ba-cell--deep { background: #1976d2; color: #fff; font-weight: 600; }
+.ba-cell--deep { background: #1976d2; color: #fff; font-weight: var(--font-weight-semibold); }
 .ba-empty { color: var(--color-muted, #aaa); }
-.ba-count { font-size: 24rpx; font-weight: 600; }
+.ba-count { font-size: 24rpx; font-weight: var(--font-weight-semibold); }
 
 /* OF 朝向×楼层 矩阵 */
 .of-matrix,
@@ -484,7 +484,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 .da-cell--down { background: #ef5350; color: #fff; }
 .da-cell--flat { background: #fff9c4; }
 .of-cell-label,
-.da-cell-label { font-weight: 500; }
+.da-cell-label { font-weight: var(--font-weight-medium); }
 
 /* 散点 */
 .scatter-summary {
@@ -502,7 +502,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 .sc-kpi-val {
   display: block;
   font-size: 32rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary, #4f46e5);
 }
 .sc-kpi-label {

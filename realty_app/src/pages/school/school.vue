@@ -342,7 +342,7 @@ async function loadCities() {
 .hero-eyebrow {
   color: var(--color-primary);
   font-size: 19rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   letter-spacing: 3rpx;
   margin-bottom: var(--space-1);
 }
@@ -431,7 +431,7 @@ async function loadCities() {
 
 .search-empty-title {
   font-size: 30rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .school-row {
@@ -444,7 +444,7 @@ async function loadCities() {
 
 .school-name {
   font-size: 28rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .tag-source-curated {

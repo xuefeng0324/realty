@@ -117,7 +117,7 @@ function openEntry(path: string): void {
 .market-intro__eyebrow {
   color: var(--color-primary-strong);
   font-size: 21rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   letter-spacing: 2rpx;
 }
 

@@ -3879,7 +3879,7 @@ onShow(async () => {
 .dashboard-eyebrow {
   color: var(--color-primary);
   font-size: 19rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   letter-spacing: 2rpx;
   margin-bottom: 5rpx;
 }
@@ -3899,7 +3899,7 @@ onShow(async () => {
 
 .gz-inventory-value {
   font-size: 30rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .gz-progress-track {
@@ -3946,7 +3946,7 @@ onShow(async () => {
 }
 
 .pf-rate-value {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary);
 }
 
@@ -3972,7 +3972,7 @@ onShow(async () => {
 .combo-title {
   color: var(--color-heading);
   font-size: 25rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .combo-input-grid {
@@ -4050,12 +4050,12 @@ onShow(async () => {
 .combo-result-main {
   color: var(--color-heading);
   font-size: 28rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .combo-result-saving {
   color: var(--color-primary);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 /* 用 button 渲染点击区时要清掉默认浏览器样式 */
@@ -4274,7 +4274,7 @@ onShow(async () => {
 .rank-val {
   font-size: 26rpx;
   color: var(--color-heading);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 .top-section {
   margin-top: 18rpx;
@@ -4292,10 +4292,10 @@ onShow(async () => {
 }
 .top-rank {
   color: var(--color-text-secondary);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 .top-val {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   font-variant-numeric: tabular-nums;
 }
 .trend-up {
@@ -4312,7 +4312,7 @@ onShow(async () => {
 
 .cell-value {
   font-size: 36rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-heading);
 }
 
@@ -4374,7 +4374,7 @@ onShow(async () => {
 .trend-name {
   font-size: 26rpx;
   color: var(--color-heading);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   min-width: 140rpx;
 }
 .trend-meta {
@@ -4383,7 +4383,7 @@ onShow(async () => {
 }
 .trend-change {
   font-size: 24rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   min-width: 100rpx;
   text-align: right;
 }
@@ -4492,7 +4492,7 @@ onShow(async () => {
   flex: 1 1 140rpx;
   min-width: 120rpx;
   color: var(--color-heading);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 .wq-trend-cat {
   font-size: 20rpx;
@@ -4504,7 +4504,7 @@ onShow(async () => {
   flex-shrink: 0;
 }
 .wq-trend-pct {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   font-family: "Menlo", "Consolas", monospace;
   flex-shrink: 0;
 }
@@ -4515,7 +4515,7 @@ onShow(async () => {
   color: var(--color-trend-down);
 }
 .wq-trend-mult {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-on-warn-soft, var(--color-heading));
 }
 .wq-trend-units {
@@ -4549,7 +4549,7 @@ onShow(async () => {
 }
 .lc-name {
   font-size: 26rpx;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
@@ -4575,7 +4575,7 @@ onShow(async () => {
 .lc-dim-label {
   font-size: 18rpx;
   color: var(--color-muted);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 .lc-dim-val {
   font-size: 22rpx;
@@ -4590,7 +4590,7 @@ onShow(async () => {
 }
 .lc-score {
   font-size: 32rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   font-variant-numeric: tabular-nums;
 }
 
@@ -4624,7 +4624,7 @@ onShow(async () => {
   align-items: center;
   justify-content: center;
   font-size: 22rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   background: var(--color-soft-strong);
   color: var(--color-text-secondary);
   flex-shrink: 0;
@@ -4633,7 +4633,7 @@ onShow(async () => {
   width: 140rpx;
   font-size: 26rpx;
   color: var(--color-heading);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   flex-shrink: 0;
 }
 .wq-track {
@@ -4659,7 +4659,7 @@ onShow(async () => {
 /* v0.41.0 trend-21: 房源新鲜度 */
 .lf-section-title {
   font-size: 26rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-heading);
   margin: var(--space-3) 0 var(--space-1);
   padding-left: 6rpx;
@@ -4684,7 +4684,7 @@ onShow(async () => {
 }
 .lf-name {
   font-size: 26rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-heading);
   white-space: nowrap;
   overflow: hidden;
@@ -4709,7 +4709,7 @@ onShow(async () => {
 }
 .lf-v {
   font-size: 26rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-heading);
 }
 .lf-score {
@@ -4720,7 +4720,7 @@ onShow(async () => {
   align-items: center;
   justify-content: center;
   font-size: 26rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   flex-shrink: 0;
 }
 .lf-fresh-up {
@@ -4789,7 +4789,7 @@ onShow(async () => {
 .map-mode-tab--active {
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: #fff;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 .map-mode-icon {
   font-size: 22rpx;
@@ -4818,12 +4818,12 @@ onShow(async () => {
 .map-legend-min, .map-legend-max {
   font-size: 20rpx;
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-chip-text);
 }
 .map-district-val {
   font-size: 12px;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   fill: var(--color-soft);
   paint-order: stroke;
   stroke: rgba(255, 255, 255, 0.85);
@@ -4856,7 +4856,7 @@ onShow(async () => {
 }
 .lpr-kpi-val {
   font-size: 30rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-heading);
   font-variant-numeric: tabular-nums;
 }
@@ -4865,7 +4865,7 @@ onShow(async () => {
 }
 .lpr-kpi-unit {
   font-size: 20rpx;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   margin-left: 2rpx;
 }
 .lpr-drop-row {
@@ -4888,7 +4888,7 @@ onShow(async () => {
 }
 .lpr-drop-val {
   font-size: 22rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-chip-text);
   font-variant-numeric: tabular-nums;
 }
@@ -4901,7 +4901,7 @@ onShow(async () => {
 .lpr-chart-title {
   font-size: 24rpx;
   color: var(--color-chip-text);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   margin: var(--space-1) 0 4rpx;
 }
 .lpr-chart-wrap {
@@ -4931,7 +4931,7 @@ onShow(async () => {
 }
 .map-district-lbl {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   fill: #1e3a8a;
   pointer-events: none;
   text-shadow: 0 0 4px rgba(255, 255, 255, 0.9);
@@ -4948,7 +4948,7 @@ onShow(async () => {
 }
 .map-marker-lbl {
   font-size: 11px;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   fill: #991b1b;
   text-shadow: 0 0 3px rgba(255, 255, 255, 0.9);
   pointer-events: none;
@@ -4959,7 +4959,7 @@ onShow(async () => {
   margin-bottom: var(--space-3);
 }
 .sd-block-title {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   font-size: 26rpx;
   margin: var(--space-2) 0 var(--space-1);
   color: var(--color-heading);
@@ -4979,7 +4979,7 @@ onShow(async () => {
 }
 .sd-rank {
   font-size: 28rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: #6366f1;
   min-width: 28rpx;
   text-align: center;
@@ -4990,7 +4990,7 @@ onShow(async () => {
 }
 .sd-name {
   font-size: 26rpx;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   color: var(--color-heading);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -5020,7 +5020,7 @@ onShow(async () => {
 }
 .sd-score-num {
   font-size: 22rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-heading);
 }
 .sd-grid {
@@ -5035,7 +5035,7 @@ onShow(async () => {
 }
 .sd-cell-h {
   font-size: 22rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-secondary);
   margin-bottom: 6rpx;
 }
@@ -5047,7 +5047,7 @@ onShow(async () => {
   line-height: 1.7;
 }
 .sd-rank-sm {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: #6366f1;
   width: 18rpx;
   text-align: center;
@@ -5059,7 +5059,7 @@ onShow(async () => {
   white-space: nowrap;
 }
 .sd-val {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-heading);
   font-size: 22rpx;
 }
@@ -5219,7 +5219,7 @@ onShow(async () => {
   color: #fff;
   background: linear-gradient(135deg, #059669, #0d9488);
   font-size: 24rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 .home-v122-search-modes {
   position: relative;
@@ -5398,7 +5398,7 @@ onShow(async () => {
   overflow: hidden;
   color: var(--color-heading, #17322d);
   font-size: 27rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -5464,7 +5464,7 @@ onShow(async () => {
   margin-bottom: 5rpx;
   color: var(--color-heading, #17322d);
   font-size: 23rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 .home-v122-tap,
 .home-v122-quick-item:active,

@@ -660,7 +660,7 @@ onLoad((opts?: Record<string, string>) => {
 }
 .metric-value {
   font-size: 40rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 .metric-value.new {
   color: var(--color-trend-down);
@@ -738,7 +738,7 @@ onLoad((opts?: Record<string, string>) => {
 }
 .wq-monthly-latest .cell-value {
   font-size: 28rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .wq-table-head,
@@ -758,7 +758,7 @@ onLoad((opts?: Record<string, string>) => {
 }
 .wq-total {
   color: var(--color-heading);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   border-top: 1rpx solid var(--color-soft-strong);
 }
 .wq-col-name {
@@ -768,7 +768,7 @@ onLoad((opts?: Record<string, string>) => {
   width: 120rpx;
   text-align: right;
   color: var(--color-focus);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 .wq-col-num.all {
   color: var(--color-warning);

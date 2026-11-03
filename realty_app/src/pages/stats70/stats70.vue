@@ -462,7 +462,7 @@ function onPickCity(city: string) {
 
 .rank-no {
   width: 70rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-secondary);
 }
 
@@ -491,7 +491,7 @@ function onPickCity(city: string) {
 .rank-val {
   width: 110rpx;
   text-align: right;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .trend-up {

@@ -1228,7 +1228,7 @@ onUnmounted(() => {
 .info-name {
   color: var(--color-heading);
   font-size: 30rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 .info-close {
   color: var(--color-muted);
@@ -1257,7 +1257,7 @@ onUnmounted(() => {
 .info-stat-value {
   color: var(--color-heading);
   font-size: 30rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 /* v1.119.0 弯曲系数 Top 5 卡 */
 .curvature-card {
@@ -1270,7 +1270,7 @@ onUnmounted(() => {
 .curvature-title {
   font-size: 28rpx;
   color: var(--color-heading);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 .curvature-desc {
   font-size: 22rpx;
@@ -1296,7 +1296,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   font-size: 24rpx;
   flex-shrink: 0;
 }
@@ -1307,7 +1307,7 @@ onUnmounted(() => {
 .curvature-name {
   font-size: 26rpx;
   color: var(--color-heading);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1320,7 +1320,7 @@ onUnmounted(() => {
 .curvature-ratio {
   font-size: 30rpx;
   color: var(--color-on-warn-soft);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
 }
@@ -1358,7 +1358,7 @@ onUnmounted(() => {
 .control-eyebrow {
   color: #0ea5e9;
   font-size: 19rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   letter-spacing: 3rpx;
 }
 
@@ -1483,7 +1483,7 @@ onUnmounted(() => {
 }
 .find-sheet-title {
   font-size: 30rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-heading);
 }
 .find-sheet-sub {
@@ -1510,7 +1510,7 @@ onUnmounted(() => {
 .find-listing-title {
   font-size: 26rpx;
   color: var(--color-heading);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1521,7 +1521,7 @@ onUnmounted(() => {
 .find-listing-go {
   color: var(--color-primary);
   font-size: 24rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   flex-shrink: 0;
 }
 .find-empty {

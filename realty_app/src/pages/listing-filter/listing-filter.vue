@@ -1196,7 +1196,7 @@ onUnmounted(() => {
   color: var(--color-muted, #667c77);
   background: transparent;
   font-size: 24rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .find-hub-segment--active {
@@ -1458,7 +1458,7 @@ onUnmounted(() => {
   display: inline-block;
   width: 28rpx;
   text-align: center;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--muted, var(--color-muted));
 }
 .drift-city {
@@ -1621,7 +1621,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   font-size: 26rpx;
   flex-shrink: 0;
 }
@@ -1632,7 +1632,7 @@ onUnmounted(() => {
 .pareto-name {
   font-size: 28rpx;
   color: var(--color-heading);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1651,7 +1651,7 @@ onUnmounted(() => {
 .pareto-area {
   font-size: 28rpx;
   color: var(--color-trend-down);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   font-variant-numeric: tabular-nums;
 }
 .pareto-price {
@@ -1724,7 +1724,7 @@ onUnmounted(() => {
 }
 .listing-price-main {
   font-size: 34rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-danger, #e11d48);
   font-variant-numeric: tabular-nums;
 }
@@ -1770,7 +1770,7 @@ onUnmounted(() => {
 .minidim-label {
   font-size: 18rpx;
   color: var(--color-muted, var(--color-muted));
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 .minidim-track {
   width: 100%;
@@ -1796,7 +1796,7 @@ onUnmounted(() => {
 }
 .minidim-val {
   font-size: 20rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-heading);
   font-variant-numeric: tabular-nums;
 }

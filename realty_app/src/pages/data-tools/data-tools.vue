@@ -2403,7 +2403,7 @@ onUnmounted(() => {
 }
 .dt-card-name {
   font-size: 26rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text);
 }
 .dt-card-toggle {
@@ -2429,7 +2429,7 @@ onUnmounted(() => {
 }
 .page-header-title {
   font-size: 32rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-heading);
 }
 .page-header-sub {
@@ -2480,12 +2480,12 @@ onUnmounted(() => {
 .dt-nav-chip--tool {
   background: var(--color-primary);
   color: var(--color-primary-text);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 .dt-nav-chip--active {
   background: var(--color-primary);
   color: var(--color-primary-text);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 .dt-nav-chip--hover {
   opacity: 0.75;
@@ -2506,7 +2506,7 @@ onUnmounted(() => {
 }
 .edu-kpi-val {
   font-size: 28rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-heading);
 }
 .edu-kpi-label {
@@ -2545,7 +2545,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   font-size: 22rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   background: var(--color-soft-strong);
   color: var(--color-text-secondary);
   flex-shrink: 0;
@@ -2554,7 +2554,7 @@ onUnmounted(() => {
   width: 140rpx;
   font-size: 26rpx;
   color: var(--color-heading);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   flex-shrink: 0;
 }
 .wq-track {
@@ -2588,7 +2588,7 @@ onUnmounted(() => {
 }
 .community-rank {
   width: 80rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-trend-down);
 }
 .community-main {
@@ -2618,14 +2618,14 @@ onUnmounted(() => {
   height: 36rpx;
   line-height: 36rpx;
   border-radius: 50%;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   font-size: 22rpx;
   text-align: center;
   color: #fff;
 }
 .sp-up {
   color: #0ea5e9;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   font-family: "Menlo", "Consolas", monospace;
 }
 .community-sp-price {

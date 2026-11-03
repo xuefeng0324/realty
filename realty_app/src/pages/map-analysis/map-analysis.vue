@@ -386,12 +386,12 @@ watch(
 <style scoped>
 .page { padding: var(--space-3); padding-bottom: 80rpx; }
 .header { padding: var(--space-3) var(--space-4); background: var(--color-surface, #fff); border-radius: var(--radius-md); margin-bottom: var(--space-3); }
-.title { font-size: 36rpx; font-weight: 700; color: var(--color-text, #333); }
+.title { font-size: 36rpx; font-weight: var(--font-weight-bold); color: var(--color-text, #333); }
 .muted { color: var(--color-muted, #666); font-size: 24rpx; }
 .empty { text-align: center; padding: var(--space-6) 0; color: var(--color-muted, #999); }
 .row-between { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2); }
 .card { background: var(--color-surface, #fff); border-radius: var(--radius-md); padding: 20rpx; margin-bottom: var(--space-3); border: 1rpx solid var(--color-border-soft, #eee); }
-.card-title { font-size: 30rpx; font-weight: 600; color: var(--color-text, #333); }
+.card-title { font-size: 30rpx; font-weight: var(--font-weight-semibold); color: var(--color-text, #333); }
 .footer { display: flex; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-4); }
 .back-btn, .reload-btn { flex: 1; margin: 0; font-size: 26rpx; padding: 0 var(--space-4); border-radius: var(--radius-pill) !important; background: var(--color-soft, #f5f5f5) !important; color: var(--color-text, #333) !important; }
 
@@ -417,7 +417,7 @@ watch(
 .map-mode-label { display: block; font-size: 22rpx; }
 
 .map-legend { margin-top: var(--space-2); display: flex; align-items: center; gap: var(--space-1); font-size: 22rpx; }
-.map-legend-title { color: var(--color-text, #333); font-weight: 600; }
+.map-legend-title { color: var(--color-text, #333); font-weight: var(--font-weight-semibold); }
 .map-legend-bar { flex: 1; height: 16rpx; border-radius: var(--radius-sm2); }
 .map-legend-min, .map-legend-max { color: var(--color-muted, #666); }
 
@@ -432,12 +432,12 @@ watch(
 .map-districts { cursor: pointer; }
 .map-district-p { stroke: #fff; stroke-width: 1; fill: #f1f5f9; transition: fill 0.2s; }
 .map-district-p--mode { stroke: #fff; stroke-width: 1.5; }
-.map-district-lbl { font-size: 14px; fill: var(--color-text-secondary); pointer-events: none; font-weight: 600; }
-.map-district-val { font-size: 12px; fill: #1e293b; font-weight: 700; pointer-events: none; }
+.map-district-lbl { font-size: 14px; fill: var(--color-text-secondary); pointer-events: none; font-weight: var(--font-weight-semibold); }
+.map-district-val { font-size: 12px; fill: #1e293b; font-weight: var(--font-weight-bold); pointer-events: none; }
 
 .map-marker { fill: #4f46e5; stroke: #fff; stroke-width: 1.5; }
 .map-marker-hit { fill: transparent; pointer-events: all; }
-.map-marker-lbl { font-size: 12px; fill: #4f46e5; font-weight: 500; }
+.map-marker-lbl { font-size: 12px; fill: #4f46e5; font-weight: var(--font-weight-medium); }
 .map-marker-bare { fill: #4f46e5; cursor: pointer; }
 .map-marker-g:hover .map-marker { fill: var(--color-danger); }
 
@@ -450,7 +450,7 @@ watch(
   background: var(--color-soft, #f5f5f5);
   border-radius: var(--radius-sm2);
 }
-.map-district-name { font-size: 26rpx; font-weight: 600; color: var(--color-text, #333); }
+.map-district-name { font-size: 26rpx; font-weight: var(--font-weight-semibold); color: var(--color-text, #333); }
 .map-district-vals { display: flex; gap: var(--space-2); font-size: 20rpx; color: var(--color-muted, #666); }
 .map-stat { background: var(--color-surface, #fff); padding: 4rpx var(--space-1); border-radius: var(--radius-xs); }
 </style>

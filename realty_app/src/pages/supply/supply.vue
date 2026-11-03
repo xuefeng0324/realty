@@ -403,7 +403,7 @@ onMounted(() => {
 }
 .page-header-title {
   font-size: 36rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 .page-header-sub {
   margin-top: 6rpx;
@@ -427,7 +427,7 @@ onMounted(() => {
 }
 .kpi-value {
   font-size: 30rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 .kpi-value--compact {
   font-size: var(--font-body);
@@ -443,7 +443,7 @@ onMounted(() => {
   margin-top: var(--space-3);
   margin-bottom: var(--space-1);
   font-size: 24rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 .row-line {
   display: flex;
@@ -455,7 +455,7 @@ onMounted(() => {
 }
 .row-name {
   min-width: 140rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 .note {
   margin-top: var(--space-2);
@@ -485,7 +485,7 @@ onMounted(() => {
 }
 .sheet-title {
   font-size: 30rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   margin-bottom: var(--space-2);
 }
 .sheet-item {
@@ -497,9 +497,9 @@ onMounted(() => {
 }
 .sheet-item--active {
   color: var(--color-accent, var(--color-focus));
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 .sheet-check {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 </style>

@@ -745,7 +745,7 @@ onMounted(() => {
 .qn-btn--primary {
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: #fff;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 .qn-btn--primary:hover {
   filter: brightness(1.08);
@@ -772,7 +772,7 @@ onMounted(() => {
 .sibling-title {
   font-size: 26rpx;
   color: var(--color-heading);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -790,7 +790,7 @@ onMounted(() => {
 }
 .sibling-total {
   font-size: 28rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-danger);
   font-variant-numeric: tabular-nums;
 }
@@ -928,7 +928,7 @@ onMounted(() => {
 }
 .poi-cat-name {
   font-size: 28rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-heading);
   flex: 1;
 }
@@ -1009,7 +1009,7 @@ onMounted(() => {
 }
 .metro-name {
   font-size: 28rpx;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-heading);
 }
 .metro-detail {
@@ -1057,7 +1057,7 @@ onMounted(() => {
 .cm-label {
   font-size: 22rpx;
   color: var(--color-text-secondary);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 .cm-track {
   width: 100%;
@@ -1088,7 +1088,7 @@ onMounted(() => {
 }
 .cm-val {
   font-size: 28rpx;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: #e2e8f0;
   font-variant-numeric: tabular-nums;
 }
