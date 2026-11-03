@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -344,20 +344,20 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(homeEntrySrc).not.toMatch(/export (const|function|type|interface)\s+(HOME_CHANNELS|HOME_KINGKONG|homeKingkongCount|HomeChannel\b|HomeChannelKey|HomeChannelAction|HomeKingkongItem|HomeKingkongAction|HomeEntryTone)/);
     expect(homeEntrySrc).toContain("HOME_SEARCH_MODES");
     expect(homeEntrySrc).toContain("resolveHomeSearch");
-    // v1.123.13：医疗资源榜死 DOM 已删除（库 hospitalRanking/hospitalGeoAnalysis 与单测保留；
+    // v1.123.13：医疗资源榜死 DOM 已删除（库 hospitalRanking 与单测保留，hospitalGeoAnalysis 已于 v1.123.16 死库瘦身删除；
     // listing-detail/community「周边医院」卡不受影响；hospitalCityName 与周边商业/菜市场共用故保留）
     expect(dashSrc).not.toMatch(/hospital-rank|hospitalCitySummary|hospitalGeoSummary|hospitalDisplayName/);
     expect(dashSrc).not.toMatch(/hospitalRanking|hospitalGeoAnalysis/);
     expect(dashSrc).not.toMatch(/hosp-geo|hosp-top|hosp-dist|hosp-kpi|hosp-summary|hosp-lv/);
     expect(toolsSrc).not.toContain('"hospital-rank"');
     // v1.123.14：学区溢价榜死 DOM 已删除（孤儿 e2e smoke_school_premium 一并删除；
-    // 库 schoolPremiumRanking/queries.getSchoolPremiumRank 保留，data-tools 学区评分卡不受影响）
+    // 库 schoolPremiumRanking 保留，data-tools 学区评分卡不受影响；queries.getSchoolPremiumRank 已于 v1.123.16 死库瘦身删除）
     expect(dashSrc).not.toMatch(/school-premium-rank|schoolPremiumOverview|getSchoolPremiumRank|schoolPremiumDistrictTop/);
     expect(dashSrc).not.toMatch(/function (formatPremium|premiumClass|medalText|medalClass)\(/);
     expect(dashSrc).not.toMatch(/\.sp-row|\.sp-rank|\.sp-premium|\.sp-mid|\.sp-district|\.sp-pos|\.sp-neg/);
     expect(toolsSrc).not.toContain('"school-premium-rank"');
     // v1.123.15：listing 学区溢价榜死 DOM 已删除（孤儿 e2e smoke_listing_premium 一并删除；
-    // 库 listingSchoolPremiumRanking/queries.getTopListingsBySchoolPremium 与单测保留；
+    // 库 listingSchoolPremiumRanking/queries.getTopListingsBySchoolPremium 已于 v1.123.16 死库瘦身删除；
     // mapDistrictStats 仍消费 store.getListingSchoolPremiumByCity；spMedalClass 因区涨幅榜/商业热度榜仍消费而保留）
     expect(dashSrc).not.toMatch(/listing-school-premium|listingPremiumOverview|lpScoreClass/);
     expect(dashSrc).not.toMatch(/lspCitySummary|lspDistrictTop|lspCommunityTop|lspCommunityByVolume|\blspDist\b/);
@@ -367,6 +367,21 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(dashSrc).not.toMatch(/高学区评分房源/);
     expect(dashSrc).toMatch(/getListingSchoolPremiumByCity/);
     expect(toolsSrc).not.toContain('"listing-school-premium"');
+    // v1.123.16：死库瘦身——listingSchoolPremiumRanking / hospitalGeoAnalysis 整库删除（无 UI 消费者），
+    // queries.getTopListingsBySchoolPremium / queries.getSchoolPremiumRank 无消费者包装同步删除；
+    // store 数据面与 schoolPremiumRanking.ts（data-tools 学区评分卡在消费）保留
+    const queriesSrc = readFileSync(
+      resolve(__dirname, "../src/local/queries.ts"),
+      "utf8"
+    );
+    expect(queriesSrc).not.toMatch(/getTopListingsBySchoolPremium|ListingSchoolPremiumOverview|ListingSchoolPremiumItem/);
+    expect(queriesSrc).not.toMatch(/export async function getSchoolPremiumRank|SchoolPremiumOverview|SchoolPremiumItem/);
+    expect(
+      existsSync(resolve(__dirname, "../src/local/listingSchoolPremiumRanking.ts"))
+    ).toBe(false);
+    expect(
+      existsSync(resolve(__dirname, "../src/local/hospitalGeoAnalysis.ts"))
+    ).toBe(false);
     const settingsSrc = readFileSync(
       resolve(__dirname, "../src/pages/settings/settings.vue"),
       "utf8"

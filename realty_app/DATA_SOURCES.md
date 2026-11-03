@@ -198,7 +198,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 
 | `static/gz_new_house_inventory.csv` | `gzNewHouseInventory.ts` + `gzInventoryFreshness.ts` + 供需页「广州新房库存」 | `scripts/crawl_gz_new_house_inventory.py`（**日更 CI** 随 `crawl-daily-wangqian`） | 广州新房**可售/未售/签约**分区；住宅列兼容旧名；**商业 / 办公 / 车位**分项（同源 `shangYe*` / `banGong*` / `cheWei*`）；>3 天未更新时标明滞后；≠挂牌价、≠网签均价 |
 | `static/seed/hospitals.csv` | `hospitalRanking.ts` + listing-detail/community「周边医院」 | （名录整理） | 三城医院名录；v1.121.12~v1.123.12 仪表盘曾有医疗资源榜（v1.123.13 死 DOM 已删，库保留） |
-| `static/seed/hospitals_geo.csv` | `hospitalGeoAnalysis.ts` | （高德文本检索） | v1.121.15：置信度 / 地址分区 / 最近医院对；v1.123.13 起仪表盘卡已删，库保留 |
+| `static/seed/hospitals_geo.csv` | store `hospitalGeos` 数据面（暂无 UI 消费） | （高德文本检索） | v1.121.15：置信度 / 地址分区 / 最近医院对；v1.123.13 起仪表盘卡已删；v1.123.16 派生库 hospitalGeoAnalysis 死库瘦身已删 |
 | `static/seed/poi_commercial.csv` | `poiCommercialRanking.ts` + dashboard「🏪 周边商业」 | （高德周边） | v1.121.15：餐饮/银行/便利店与步行分 |
 | `static/seed/poi_market.csv` | `poiMarketRanking.ts` + dashboard「🥬 菜市场」 | （高德周边） | v1.121.15：最近/最远菜市场小区榜 |
 | `static/seed/metro_planning.csv` | `metroPlanningRanking.ts` + dashboard「🛤️ 规划地铁」 | （公开规划整理） | 线路本体概览；v1.121.14 仪表盘 KPI / 开通年 / 里程 Top |
@@ -216,7 +216,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/sz_affordable_projects.csv` | `szAffordableProjects.ts` + dashboard「🏗️ 深圳保障房项目表」 | `crawl_sz_affordable_projects.py`（**周更 CI · P2**，需 `pypdf`；runner 到 zjj.sz.gov.cn 长期不可达，21 天新鲜度门禁兜底） | 市住建局项目建设信息 PDF/XLSX：建设筹集 / 基本建成；筹集表可拆 **建设/筹集**；**非商品房成交、非房价**；旧年扫描型 PDF 可能解析失败则跳过 |
 | `static/seed/admin_districts.csv` | `adminDistrictRanking.ts` + dashboard「🗺️ 行政区划」 | （国标整理） | v1.121.16：主城/郊区/新区与区码列表；v1.121.19：×规划地铁文案交叉 |
 | `static/seed/community_commercial.csv` | `communityCommercialRanking.ts` + 分区商业/密度桶 | （派生） | v1.121.17 分区均分；v1.121.19 餐饮密度×距离桶（按 city 过滤） |
-| `static/seed/listing_school_premium.csv` | `listingSchoolPremiumRanking.ts` + dashboard 地图分区 school 聚合 | `compute_listing_school_premium` | v1.121.16：溢价分桶与分区 Top；v1.123.15：高学区房源卡（隐藏死 DOM）已删，消费面为 `mapDistrictStats` avgSchool 聚合 + 库单测 |
+| `static/seed/listing_school_premium.csv` | dashboard 地图分区 school 聚合 + map-analysis | `compute_listing_school_premium` | v1.121.16：溢价分桶与分区 Top；v1.123.15：高学区房源卡（隐藏死 DOM）已删；v1.123.16：派生库 listingSchoolPremiumRanking 死库瘦身已删，消费面为 `mapDistrictStats` / `store.getListingSchoolPremiumByCity` |
 | `static/school_source_audit.json` | 审计用（测试/脚本） | `scripts/audit_school_sources.py` | 学校来源分级审计结果，不直接驱动 UI 排名 |
 | `static/zh_bdc_registration.csv` | `zhBdcRegistration.ts` + dashboard「📋 珠海不动产登记季报」 | `list_zh_bdc_registration_posts.py`（对照缺口；**人工抄录** PNG 合计） | 珠海不动产登记中心季度「新增商品房登记 / 存量房转移登记」**合计行**；官方正文为 PNG；**≠日更网签、≠挂牌均价** |
 | `static/zh_bdc_registration_district.csv` | 同上模块分区明细 | `seed_zh_bdc_registration_district.py`（人工抄录五区） | **2025Q1–2026Q2**；与合计同行同期；住宅套数之和须对齐全市合计 |
@@ -292,7 +292,7 @@ repo_fixing.csv             → repoFixing.ts         → 回购定盘/银银间
 gz_new_house_inventory.csv   → gzNewHouseInventory.ts → 广州新房库存
 education_overview.csv       → educationOverview.ts  → 教育事业概览（dashboard v1.121.16）
 hospitals.csv                → hospitalRanking.ts    → listing-detail/community 周边医院卡；医疗资源榜（dashboard v1.121.12~v1.123.12，v1.123.13 死 DOM 已删）
-hospitals_geo.csv            → hospitalGeoAnalysis   → 医疗坐标覆盖派生（dashboard 卡 v1.121.15~v1.123.12，v1.123.13 已删，库保留）
+hospitals_geo.csv            → store.hospitalGeos     → 医疗坐标覆盖派生（dashboard 卡 v1.121.15~v1.123.12 已删；v1.123.16 派生库已删，纯数据面）
 poi_commercial.csv           → poiCommercialRanking  → 周边商业（dashboard v1.121.15）
 poi_market.csv               → poiMarketRanking      → 菜市场可达（dashboard v1.121.15）
 metro_planning.csv           → metroPlanningRanking  → 规划地铁概览（dashboard v1.121.14）
@@ -305,7 +305,7 @@ layout_distribution.csv      → layout / distribution → 挂牌结构占比 + 
 bedroom_area.csv             → distributionRanking   → 3室×面积跨城均价（v1.121.20）
 metro_planning_geo.csv       → metroPlanningGeoAnalysis → 弯曲 + 覆盖率 + 手工兜底（v1.121.18–20）
 lpr_history.csv              → lprHistoryAnalysis     → 利差 / 调息 / 同比 / 全期均值（v1.121.18–21）
-hospitals_geo.csv            → hospitalGeoAnalysis   → 坐标 + CBD 半径医疗（v1.121.15/19–21）
+hospitals_geo.csv            → （v1.123.16 派生库已删）→ 坐标 + CBD 半径医疗（v1.121.15/19–21，历史消费）
 wangqian_district_weekly.csv → wangqianTrendRanking  → 周环比 / 突增 / CV 波动（v1.121.13/21）
 commute.csv                  → commuteRanking        → 通勤榜 + 快慢分裂（v0.24 / v1.121.21）
 poi_commercial.csv           → poiCommercialRanking  → 周边商业 + 银行覆盖（v1.121.15/21）

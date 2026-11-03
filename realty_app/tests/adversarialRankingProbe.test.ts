@@ -6,7 +6,6 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { buildSeedSnapshot, resetSeedSnapshotCache } from "../src/local/seedSnapshot";
 import * as store from "../src/local/store";
 import { getLprLatest, getLprMonthlyAverage, summarizeLprCurrentVsYearAgo } from "../src/local/lprHistoryAnalysis";
-import { getHospitalGeoByCityWithinRadius, getHospitalGeoCoverageStats, detectHospitalGeoDuplicateAmapPoi } from "../src/local/hospitalGeoAnalysis";
 import { getDistributionCrossCityLeaderboard } from "../src/local/distributionRanking";
 import { getWangqianWeeklyVolatility } from "../src/local/wangqianTrendRanking";
 import { getCommuteByCityFastestSlowestCompare } from "../src/local/commuteRanking";
@@ -81,22 +80,6 @@ describe("adversarial ranking probe (v1.121.19–21 wiring)", () => {
     }
   });
 
-  it("CBD hospital radius for Shenzhen/Guangzhou returns finite counts", () => {
-    for (const cityId of [1, 2]) {
-      const commute = store.getCommutesByCity(cityId)[0];
-      expect(commute, `no commute city=${cityId}`).toBeTruthy();
-      const r = getHospitalGeoByCityWithinRadius(
-        cityId,
-        commute!.cbdLat,
-        commute!.cbdLng,
-        3
-      );
-      assertFinite(r.withinCount, `withinCount city=${cityId}`);
-      expect(r.withinCount).toBeGreaterThanOrEqual(0);
-      expect(r.hospitalIds.length).toBe(r.withinCount);
-    }
-  });
-
   it("wangqian volatility CV finite and sorted-safe", () => {
     const rows = getWangqianWeeklyVolatility();
     expect(rows.length).toBeGreaterThan(0);
@@ -166,17 +149,6 @@ describe("adversarial ranking probe (v1.121.19–21 wiring)", () => {
         expect(Number.isFinite(Number(k)), `key=${k}`).toBe(true);
       }
       assertFinite(t.avgShare, t.tag);
-    }
-  });
-
-  it("hospital geo coverage and duplicates coherent", () => {
-    const cov = getHospitalGeoCoverageStats();
-    expect(cov.withCoords).toBeLessThanOrEqual(cov.total);
-    assertFinite(cov.coverageRatio, "hosp coverage");
-    const dups = detectHospitalGeoDuplicateAmapPoi();
-    for (const d of dups) {
-      expect(d.count).toBeGreaterThanOrEqual(2);
-      expect(d.hospitalIds.length).toBe(d.count);
     }
   });
 

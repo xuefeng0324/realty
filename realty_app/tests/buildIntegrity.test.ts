@@ -1061,11 +1061,6 @@ describe("build integrity", () => {
       expect(content).toMatch(/function getListingSchoolPremia/);
     });
 
-    it("queries.ts 增加 getTopListingsBySchoolPremium 函数", () => {
-      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
-      expect(content).toMatch(/getTopListingsBySchoolPremium/);
-    });
-
     // v1.123.15：listing 学区溢价榜隐藏死 DOM 已删除；数据面保留（地图分区 school 聚合消费）
     it("dashboard.vue 地图分区聚合仍消费 listingSchoolPremium 数据（getListingSchoolPremiumByCity）", () => {
       const content = readFileSync(

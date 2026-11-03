@@ -889,89 +889,6 @@ export async function getWeather(params: { cityId: number }): Promise<WeatherRes
   };
 }
 
-// ---------- Listing 学区溢价 (v0.17.0+) ----------
-export interface ListingSchoolPremiumItem {
-  listingId: number;
-  cityId: number;
-  districtName: string;
-  communityId: number;
-  communityName: string | null;
-  schoolCount: number;
-  avgSchoolScore: number;
-  premiumRatioEst: number;
-  totalPrice10k: number | null;
-  unitPrice: number | null;
-  areaSqm: number | null;
-  title: string;
-}
-
-export interface ListingSchoolPremiumOverview {
-  cityId: number;
-  cityName: string;
-  total: number;
-  items: ListingSchoolPremiumItem[];
-}
-
-/**
- * 给定 cityId，返回学区溢价最高 + 学区评分高的 listings (Top N)。
- * 过滤: schoolCount >= 1, avgSchoolScore > 0, unitPrice > 0
- * 排序: 先按 avg_school_score 降序, 并列按 premium_ratio_est 降序
- */
-export async function getTopListingsBySchoolPremium(params: {
-  cityId: number;
-  minScore?: number;
-  limit?: number;
-}): Promise<ListingSchoolPremiumOverview> {
-  const cityName = store.getCities().find((c) => c.cityId === params.cityId)?.cityName ?? "";
-  const premia = store.getListingSchoolPremiumByCity(params.cityId);
-  const allListings = store.getListingsByCity(params.cityId);
-  const listingMap = new Map(allListings.map((l) => [l.listingId, l]));
-  const communities = store.getCommunitiesByCity(params.cityId);
-  const communityMap = new Map(communities.map((c) => [c.communityId, c]));
-
-  const minScore = params.minScore ?? 70;
-  const limit = params.limit ?? 10;
-
-  const filtered = premia.filter(
-    (p) =>
-      p.schoolCount >= 1 &&
-      p.avgSchoolScore >= minScore &&
-      listingMap.has(p.listingId)
-  );
-  filtered.sort((a, b) => {
-    if (b.avgSchoolScore !== a.avgSchoolScore) {
-      return b.avgSchoolScore - a.avgSchoolScore;
-    }
-    return b.premiumRatioEst - a.premiumRatioEst;
-  });
-
-  const items: ListingSchoolPremiumItem[] = filtered.slice(0, limit).map((p) => {
-    const l = listingMap.get(p.listingId)!;
-    const c = communityMap.get(p.communityId);
-    return {
-      listingId: p.listingId,
-      cityId: p.cityId,
-      districtName: p.districtName,
-      communityId: p.communityId,
-      communityName: c?.communityName ?? null,
-      schoolCount: p.schoolCount,
-      avgSchoolScore: p.avgSchoolScore,
-      premiumRatioEst: p.premiumRatioEst,
-      totalPrice10k: l.totalPrice10k,
-      unitPrice: l.unitPrice,
-      areaSqm: l.areaSqm,
-      title: l.title
-    };
-  });
-
-  return {
-    cityId: params.cityId,
-    cityName,
-    total: filtered.length,
-    items
-  };
-}
-
 // ---------- 医院 (v0.6.0+) ----------
 export interface HospitalItem {
   hospital_id: number;
@@ -1397,44 +1314,6 @@ export async function getDistrictWangqianRank(params: {
     totalAreaSqm,
     totalDistricts: items.length,
     items: items.slice(0, limit)
-  };
-}
-
-// ---------- 学区溢价榜 (v0.11.0+) ----------
-export interface SchoolPremiumItem {
-  districtName: string;
-  avgSchoolScore: number;
-  schoolCount: number;
-  listingCount: number;
-  medianUnitPrice: number;
-  /** (区均价 / 全市均价 - 1), e.g. 0.27 = +27% */
-  premiumRatio: number;
-  rank: number;
-}
-
-export interface SchoolPremiumOverview {
-  cityId: number;
-  cityName: string;
-  items: SchoolPremiumItem[];
-}
-
-/**
- * 给定 cityId，返回该城市各区按学区溢价降序的 Top 榜。
- * 过滤 listing_count >= 10（避免小样本误导）。
- */
-export async function getSchoolPremiumRank(params: {
-  cityId: number;
-  limit?: number;
-}): Promise<SchoolPremiumOverview | null> {
-  const { limit = 10 } = params;
-  const city = store.getCityById(params.cityId);
-  if (!city) return null;
-  const rows = store.getSchoolPremiumRank({ cityId: params.cityId, limit });
-  if (rows.length === 0) return null;
-  return {
-    cityId: params.cityId,
-    cityName: city.cityName,
-    items: rows
   };
 }
 
