@@ -382,6 +382,13 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(
       existsSync(resolve(__dirname, "../src/local/hospitalGeoAnalysis.ts"))
     ).toBe(false);
+    // v1.123.17：hospitalRanking 整库删除（8 派生函数 + 9 孤儿单测，无 UI 消费者；
+    // listing-detail/community「周边医院」卡走 http getCommunityHospitals，不经此库；
+    // store 数据面 snapshot.hospitals 不受影响）
+    expect(
+      existsSync(resolve(__dirname, "../src/local/hospitalRanking.ts"))
+    ).toBe(false);
+    expect(queriesSrc).not.toMatch(/hospitalRanking|levelRank|CityHospitalSummary|CityDistrictHospitalSummary|CrossCityHospitalEntry/);
     const settingsSrc = readFileSync(
       resolve(__dirname, "../src/pages/settings/settings.vue"),
       "utf8"

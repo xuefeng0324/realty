@@ -197,7 +197,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/nbs_industrial_profit.csv` | `nbsIndustrialProfit.ts` + 仪表盘「工业企业利润」 | `scripts/crawl_nbs_industrial_profit.py`（**月更 CI**） | 规上工业企业累计利润/营收/利润率 + 三大门类利润同比；通常滞后约 1 个月；**≠房价** |
 
 | `static/gz_new_house_inventory.csv` | `gzNewHouseInventory.ts` + `gzInventoryFreshness.ts` + 供需页「广州新房库存」 | `scripts/crawl_gz_new_house_inventory.py`（**日更 CI** 随 `crawl-daily-wangqian`） | 广州新房**可售/未售/签约**分区；住宅列兼容旧名；**商业 / 办公 / 车位**分项（同源 `shangYe*` / `banGong*` / `cheWei*`）；>3 天未更新时标明滞后；≠挂牌价、≠网签均价 |
-| `static/seed/hospitals.csv` | `hospitalRanking.ts` + listing-detail/community「周边医院」 | （名录整理） | 三城医院名录；v1.121.12~v1.123.12 仪表盘曾有医疗资源榜（v1.123.13 死 DOM 已删，库保留） |
+| `static/seed/hospitals.csv` | listing-detail/community「周边医院」（http `getCommunityHospitals`，不经本地派生库） | （名录整理） | 三城医院名录；v1.121.12~v1.123.12 仪表盘曾有医疗资源榜（v1.123.13 死 DOM 已删）；v1.123.17 派生库 `hospitalRanking.ts` 死库瘦身已删 |
 | `static/seed/hospitals_geo.csv` | store `hospitalGeos` 数据面（暂无 UI 消费） | （高德文本检索） | v1.121.15：置信度 / 地址分区 / 最近医院对；v1.123.13 起仪表盘卡已删；v1.123.16 派生库 hospitalGeoAnalysis 死库瘦身已删 |
 | `static/seed/poi_commercial.csv` | `poiCommercialRanking.ts` + dashboard「🏪 周边商业」 | （高德周边） | v1.121.15：餐饮/银行/便利店与步行分 |
 | `static/seed/poi_market.csv` | `poiMarketRanking.ts` + dashboard「🥬 菜市场」 | （高德周边） | v1.121.15：最近/最远菜市场小区榜 |
@@ -291,7 +291,7 @@ shibor.csv                   → shibor.ts             → 上海银行间同业
 repo_fixing.csv             → repoFixing.ts         → 回购定盘/银银间定盘（FR/FDR）
 gz_new_house_inventory.csv   → gzNewHouseInventory.ts → 广州新房库存
 education_overview.csv       → educationOverview.ts  → 教育事业概览（dashboard v1.121.16）
-hospitals.csv                → hospitalRanking.ts    → listing-detail/community 周边医院卡；医疗资源榜（dashboard v1.121.12~v1.123.12，v1.123.13 死 DOM 已删）
+hospitals.csv                → (http)             → listing-detail/community 周边医院卡（getCommunityHospitals）；v1.123.17 hospitalRanking.ts 派生库已删
 hospitals_geo.csv            → store.hospitalGeos     → 医疗坐标覆盖派生（dashboard 卡 v1.121.15~v1.123.12 已删；v1.123.16 派生库已删，纯数据面）
 poi_commercial.csv           → poiCommercialRanking  → 周边商业（dashboard v1.121.15）
 poi_market.csv               → poiMarketRanking      → 菜市场可达（dashboard v1.121.15）
