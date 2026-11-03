@@ -4299,10 +4299,10 @@ onShow(async () => {
   font-variant-numeric: tabular-nums;
 }
 .trend-up {
-  color: #f87171;
+  color: var(--color-trend-up);
 }
 .trend-down {
-  color: #4ade80;
+  color: var(--color-trend-down);
 }
 
 .cell-label {
@@ -4322,11 +4322,11 @@ onShow(async () => {
 }
 
 .stats70-up {
-  color: #ef4444 !important;
+  color: var(--color-trend-up) !important;
 }
 
 .stats70-down {
-  color: #22c55e !important;
+  color: var(--color-trend-down) !important;
 }
 
 .stats70-flat {
@@ -4339,7 +4339,7 @@ onShow(async () => {
 }
 
 .wangqian-up {
-  color: #ef4444 !important;
+  color: var(--color-trend-up) !important;
 }
 
 .wq-fresh {
@@ -4400,10 +4400,10 @@ onShow(async () => {
   text-align: right;
 }
 .trend-up {
-  color: #ef4444;
+  color: var(--color-trend-up);
 }
 .trend-down {
-  color: #22c55e;
+  color: var(--color-trend-down);
 }
 .trend-flat {
   color: var(--color-muted);
@@ -4521,10 +4521,10 @@ onShow(async () => {
   flex-shrink: 0;
 }
 .wq-trend-up {
-  color: #ef4444;
+  color: var(--color-trend-up);
 }
 .wq-trend-down {
-  color: #22c55e;
+  color: var(--color-trend-down);
 }
 .wq-trend-mult {
   font-weight: 700;
