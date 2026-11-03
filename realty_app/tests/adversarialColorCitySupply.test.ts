@@ -17,14 +17,18 @@ describe("adversarial color + cityName + sz supply", () => {
   it("P1: stats70-up / wangqian-up / wq-trend-up 须涨红（与 trend-up 同向），不能涨绿", () => {
     const css = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
     // extract last definition wins in cascade within file — assert China reds present for *-up
-    expect(css).toMatch(/\.stats70-up\s*\{[^}]*color:\s*#ef4444/);
-    expect(css).toMatch(/\.wangqian-up\s*\{[^}]*color:\s*#ef4444/);
-    expect(css).toMatch(/\.wq-trend-up\s*\{[^}]*color:\s*#ef4444/);
-    expect(css).not.toMatch(/\.stats70-up\s*\{\s*color:\s*#4ade80/);
-    expect(css).not.toMatch(/\.wangqian-up\s*\{\s*color:\s*#4ade80/);
+    // token 化后允许 var(--color-trend-up) / var(--color-danger) 或红 hex
+    expect(css).toMatch(/\.stats70-up\s*\{[^}]*color:\s*(var\(--color-(trend-up|danger)\)|#[ef][0-9a-f]{4}|#f[0-9a-f]{6})/i);
+    expect(css).toMatch(/\.wangqian-up\s*\{[^}]*color:\s*(var\(--color-(trend-up|danger)\)|#[ef][0-9a-f]{4}|#f[0-9a-f]{6})/i);
+    expect(css).toMatch(/\.wq-trend-up\s*\{[^}]*color:\s*(var\(--color-(trend-up|danger)\)|#[ef][0-9a-f]{4}|#f[0-9a-f]{6})/i);
+    // 绝对禁止绿涨
+    expect(css).not.toMatch(/\.stats70-up\s*\{\s*color:\s*(var\(--color-(trend-down|success|primary-contrast)\)|#[0-9a-f]*4ade80|#22c55e)/i);
+    expect(css).not.toMatch(/\.wangqian-up\s*\{\s*color:\s*(var\(--color-(trend-down|success|primary-contrast)\)|#[0-9a-f]*4ade80|#22c55e)/i);
     const wq = readFileSync(resolve(process.cwd(), "src/pages/wangqian/wangqian.vue"), "utf8");
-    expect(wq).toMatch(/\.trend-up\s*\{[^}]*#ef4444/);
-    expect(wq).not.toMatch(/\.trend-up\s*\{[^}]*#4ade80/);
+    // trend-up 应该是红（var(--color-trend-up) 或 var(--color-danger) 或红 hex）
+    expect(wq).toMatch(/\.trend-up\s*\{[^}]*(var\(--color-(trend-up|danger)\)|#ef4444|#f87171|#fca5a5)/i);
+    // trend-up 绝对不能是绿
+    expect(wq).not.toMatch(/\.trend-up\s*\{[^}]*(var\(--color-(trend-down|success|primary-contrast)\)|#4ade80|#22c55e|#86efac)/i);
   });
 
   it("P1: LPR 利率升用 rateDeltaClass（涨红），禁止 delta>0 → trend-down 反色", () => {

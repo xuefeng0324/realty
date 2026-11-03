@@ -412,15 +412,15 @@ function onPickCity(city: string) {
   padding: 8rpx 22rpx;
   border-radius: 999rpx;
   background: var(--color-soft);
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   font-size: 24rpx;
   border: 1rpx solid transparent;
 }
 
 .tab-on {
-  background: rgba(34, 197, 94, 0.18);
-  color: #4ade80;
-  border-color: #4ade80;
+  background: var(--color-success-soft);
+  color: var(--color-on-success-soft);
+  border-color: var(--color-on-success-soft);
 }
 
 .filter-row {
@@ -463,7 +463,7 @@ function onPickCity(city: string) {
 .rank-no {
   width: 70rpx;
   font-weight: 600;
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
 }
 
 .rank-name {
@@ -495,23 +495,23 @@ function onPickCity(city: string) {
 }
 
 .trend-up {
-  color: #4ade80;
+  color: var(--color-trend-up);
 }
 
 .trend-down {
-  color: #fca5a5;
+  color: var(--color-trend-down);
 }
 
 .rank-bar-fill.trend-up {
-  background: linear-gradient(90deg, #22c55e, #4ade80);
+  background: linear-gradient(90deg, #dc2626, #f87171);
 }
 
 .rank-bar-fill.trend-down {
-  background: linear-gradient(90deg, #ef4444, #fca5a5);
+  background: linear-gradient(90deg, #15803d, #4ade80);
 }
 
 .rank-bar-fill.trend-flat {
-  background: linear-gradient(90deg, #475569, #94a3b8);
+  background: linear-gradient(90deg, #475569, var(--color-muted));
 }
 
 .trend-row {
@@ -536,14 +536,14 @@ function onPickCity(city: string) {
 }
 
 .trend-bar-fill.trend-up {
-  background: linear-gradient(90deg, #22c55e, #4ade80);
+  background: linear-gradient(90deg, #dc2626, #f87171);
 }
 
 .trend-bar-fill.trend-down {
-  background: linear-gradient(90deg, #ef4444, #fca5a5);
+  background: linear-gradient(90deg, #15803d, #4ade80);
 }
 
 .trend-bar-fill.trend-flat {
-  background: linear-gradient(90deg, #475569, #94a3b8);
+  background: linear-gradient(90deg, #475569, var(--color-muted));
 }
 </style>

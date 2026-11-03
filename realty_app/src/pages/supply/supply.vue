@@ -464,10 +464,10 @@ onMounted(() => {
   line-height: 1.45;
 }
 .trend-up {
-  color: #ef4444;
+  color: var(--color-trend-up);
 }
 .trend-down {
-  color: #22c55e;
+  color: var(--color-trend-down);
 }
 .sheet-mask {
   position: fixed;

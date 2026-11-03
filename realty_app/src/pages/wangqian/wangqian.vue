@@ -637,16 +637,16 @@ onLoad((opts?: Record<string, string>) => {
   font-size: 20rpx;
 }
 .fresh-ok {
-  background: rgba(34, 197, 94, 0.18);
-  color: #4ade80;
+  background: var(--color-success-soft);
+  color: var(--color-on-success-soft);
 }
 .fresh-warn {
-  background: rgba(234, 179, 8, 0.18);
-  color: #facc15;
+  background: var(--color-warn-soft);
+  color: var(--color-on-warn-soft);
 }
 .fresh-stale {
-  background: rgba(239, 68, 68, 0.18);
-  color: #fca5a5;
+  background: var(--color-danger-soft);
+  color: var(--color-on-danger-soft);
 }
 
 .metric-grid {
@@ -840,9 +840,9 @@ onLoad((opts?: Record<string, string>) => {
   border-top: 1rpx solid var(--color-soft);
 }
 .trend-up {
-  color: #ef4444;
+  color: var(--color-trend-up);
 }
 .trend-down {
-  color: #22c55e;
+  color: var(--color-trend-down);
 }
 </style>
