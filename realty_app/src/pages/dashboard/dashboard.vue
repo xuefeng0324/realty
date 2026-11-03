@@ -1990,8 +1990,8 @@
         </view>
         <view
           v-if="districtCompareResp.items[0] && districtCompareResp.items[0].listingCount < 3"
-          class="muted"
-          style="margin-top: 8rpx; font-size: 22rpx"
+          class="muted muted-caption"
+          style="margin-top: 8rpx"
         >
           ⚠️ 部分小区挂牌数少于 3 套，单价仅供参考
         </view>

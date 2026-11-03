@@ -13,7 +13,7 @@
           <view class="card-title" style="margin-bottom: 0">当前城市</view>
           <button class="btn" size="mini" @click="pickCity">{{ cityName || "选择城市" }} ▾</button>
         </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+        <view class="muted muted-caption" style="margin-top: 8rpx">
           数据按城展示；无卡表示该城暂未收录对应官方源。
         </view>
       </view>
@@ -22,7 +22,7 @@
       <view v-if="gzInventory" id="entry-supply" class="card" data-supply-inventory data-gz-inventory>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 广州新房库存</view>
-          <view class="muted" style="font-size: 22rpx">{{ gzInventoryFresh.label }}</view>
+          <view class="muted muted-caption">{{ gzInventoryFresh.label }}</view>
         </view>
         <view class="kpi-grid">
           <view class="kpi">
@@ -60,7 +60,7 @@
             <text class="kpi-value">{{ formatInventoryUnits(gzInventory.availableParkingUnits) }}</text>
           </view>
         </view>
-        <view v-if="gzInventoryHasNonRes" class="summary muted" style="font-size: 22rpx">
+        <view v-if="gzInventoryHasNonRes" class="summary muted muted-caption">
           未售 商业 {{ formatInventoryUnits(gzInventory.unsoldCommercialUnits) }}
           · 办公 {{ formatInventoryUnits(gzInventory.unsoldOfficeUnits) }}
           · 车位 {{ formatInventoryUnits(gzInventory.unsoldParkingUnits) }}
@@ -123,7 +123,7 @@
       >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏗️ 深圳商品住房计划入市</view>
-          <view class="muted" style="font-size: 22rpx">{{ formatSzSupplyPeriod(szPlannedSupply) }}</view>
+          <view class="muted muted-caption">{{ formatSzSupplyPeriod(szPlannedSupply) }}</view>
         </view>
         <view class="kpi-grid">
           <view class="kpi">
@@ -149,7 +149,7 @@
       <view v-if="gzHousingPlan" class="card" data-gz-housing-plan>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">📋 广州住房建设计划</view>
-          <view class="muted" style="font-size: 22rpx">{{ gzHousingPlan.year }} 年</view>
+          <view class="muted muted-caption">{{ gzHousingPlan.year }} 年</view>
         </view>
         <view class="kpi-grid">
           <view class="kpi">
@@ -172,7 +172,7 @@
       <view v-if="zhAffordable" class="card" data-zh-affordable>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏠 珠海保障性安居工程</view>
-          <view class="muted" style="font-size: 22rpx">
+          <view class="muted muted-caption">
             {{ zhAffordable.year }}-{{ String(zhAffordable.month).padStart(2, "0") }}
           </view>
         </view>
@@ -197,7 +197,7 @@
       <view v-if="gzLandSummary" id="entry-land" class="card" data-supply-land data-gz-land-deals>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🗺️ 广州居住用地成交</view>
-          <view class="muted" style="font-size: 22rpx">近 {{ gzLandSummary.count }} 宗 · {{ gzLandSummary.latestDate }}</view>
+          <view class="muted muted-caption">近 {{ gzLandSummary.count }} 宗 · {{ gzLandSummary.latestDate }}</view>
         </view>
         <view class="kpi-grid">
           <view class="kpi">
@@ -241,7 +241,7 @@
       >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🗺️ 深圳居住用地（已成交）</view>
-          <view class="muted" style="font-size: 22rpx">近 {{ szLandSummary.count }} 宗 · {{ szLandSummary.latestDate }}</view>
+          <view class="muted muted-caption">近 {{ szLandSummary.count }} 宗 · {{ szLandSummary.latestDate }}</view>
         </view>
         <view class="kpi-grid">
           <view class="kpi">

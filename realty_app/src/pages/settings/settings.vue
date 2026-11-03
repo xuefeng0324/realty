@@ -118,16 +118,16 @@
       <view class="card">
         <view class="card-title">数据源</view>
         <view class="muted">
-          模式：<text style="color: #4ade80">{{ dataModeLabel }}</text>
+          模式：<text style="color: var(--color-primary-contrast)">{{ dataModeLabel }}</text>
           <text v-if="loadedAt"> · 加载于 {{ loadedAt }}</text>
         </view>
         <view class="muted" style="margin-top: 6rpx">
           数据量：城市 {{ counts.cities }} / 小区 {{ counts.communities }} / 房源 {{ counts.listings }}
         </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+        <view class="muted muted-caption" style="margin-top: 8rpx">
           挂牌可信度：{{ listingTrustLine }}
         </view>
-        <view class="muted" style="margin-top: 4rpx; font-size: 22rpx">
+        <view class="muted muted-caption" style="margin-top: 4rpx">
           70城指数：{{ stats70FreshnessLine }}
         </view>
         <text class="muted" style="margin-top: 4rpx; font-size: 20rpx; word-break: break-all; white-space: normal; display: block">
@@ -146,7 +146,7 @@
           <text v-if="lastRefresh.at">上次刷新：{{ lastRefresh.at }}</text>
           <text v-else>尚未刷新过，仍用 app 包内数据</text>
         </view>
-        <view v-if="lastRefresh.sha" class="muted" style="margin-top: 6rpx; font-size: 22rpx;">
+        <view v-if="lastRefresh.sha" class="muted muted-caption" style="margin-top: 6rpx">
           sha: {{ lastRefresh.sha }}
         </view>
         <view class="row-gap" style="margin-top: 16rpx">
@@ -157,7 +157,7 @@
             回到内置快照
           </button>
         </view>
-        <text class="muted" style="margin-top: 12rpx; font-size: 22rpx;">
+        <text class="muted muted-caption" style="margin-top: 12rpx">
           一次更新房源与全部衍生指标，避免新房源混用旧榜单。数据来自 GitHub Actions → CDN。
         </text>
       </view>
@@ -176,7 +176,7 @@
           <button class="btn btn-ghost" size="mini" @click="openGov('szWangqianTrend')">成交走势</button>
           <button class="btn btn-ghost" size="mini" @click="openGov('szZjjPortal')">住建局官网</button>
         </view>
-        <text class="muted" style="margin-top: 12rpx; font-size: 22rpx; display: block">
+        <text class="muted muted-caption" style="margin-top: 12rpx; display: block">
           {{ govLinkNotes.szPortal.note }}
         </text>
       </view>
@@ -188,7 +188,7 @@
           <text v-if="lastWangqianRefresh.at">上次刷新：{{ lastWangqianRefresh.at }}</text>
           <text v-else>尚未刷新过，仍用 app 包内网签数据</text>
         </view>
-        <view v-if="lastWangqianRefresh.sha" class="muted" style="margin-top: 6rpx; font-size: 22rpx;">
+        <view v-if="lastWangqianRefresh.sha" class="muted muted-caption" style="margin-top: 6rpx">
           sha: {{ lastWangqianRefresh.sha }}
         </view>
         <view class="row-gap" style="margin-top: 16rpx">
@@ -199,7 +199,7 @@
             回到包内网签
           </button>
         </view>
-        <text class="muted" style="margin-top: 12rpx; font-size: 22rpx;">
+        <text class="muted muted-caption" style="margin-top: 12rpx">
           数据源：GitHub Actions 工作日抓 zjj.sz.gov.cn → jsDelivr CDN → 本 app
         </text>
       </view>
@@ -210,7 +210,7 @@
       <!-- 首页与分析（对照大厂：次要能力进设置，不堆首屏） -->
       <view class="card" data-settings-home-ia>
         <view class="card-title">首页与分析</view>
-        <view class="muted" style="font-size: 22rpx">
+        <view class="muted muted-caption">
           卡片管理、深度分析、精简模式已从总览首屏迁出。频道「工具 / 供需」仍可直达。
         </view>
         <view class="row-gap" style="margin-top: 16rpx">
@@ -234,7 +234,7 @@
             {{ featuredMode ? "当前：精简模式 · 点此切完整" : "当前：完整模式 · 点此切精简" }}
           </button>
         </view>
-        <text class="muted" style="margin-top: 12rpx; font-size: 22rpx; display: block">
+        <text class="muted muted-caption" style="margin-top: 12rpx; display: block">
           精简模式影响总览信息流卡数量；切换后回总览立即生效。
         </text>
       </view>
@@ -276,7 +276,7 @@
               v-model="csvBaseUrl"
               placeholder="例如 https://your-cdn.com/realty-data/"
             />
-            <text class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+            <text class="muted muted-caption" style="margin-top: 8rpx">
               5 个基础文件必需；其余榜单与地图 CSV 会同步加载。该模式会在下次启动时自动恢复。
             </text>
           </view>
@@ -304,12 +304,12 @@
         <view class="muted">
           当前版本：v{{ localVersion.versionName }}（{{ localVersion.versionCode }}）
         </view>
-        <view v-if="updateStatus" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+        <view v-if="updateStatus" class="muted muted-caption" style="margin-top: 8rpx">
           {{ updateStatus }}
         </view>
         <view v-if="updateProgress" style="margin-top: 12rpx">
           <ProgressBar :percent="updateProgressPercent" size="lg" />
-          <view class="muted" style="margin-top: 6rpx; font-size: 22rpx">
+          <view class="muted muted-caption" style="margin-top: 6rpx">
             下载进度：{{ updateProgress }}
           </view>
         </view>
@@ -349,10 +349,10 @@
             跳过该版本
           </button>
         </view>
-        <view v-if="updateManifest?.notes" class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+        <view v-if="updateManifest?.notes" class="muted muted-caption" style="margin-top: 12rpx">
           更新内容：{{ updateManifest.notes }}
         </view>
-        <text class="muted" style="margin-top: 12rpx; font-size: 22rpx; display: block">
+        <text class="muted muted-caption" style="margin-top: 12rpx; display: block">
           数据源：GitHub Actions build-app-wgt → jsDelivr CDN；
           整包 APK 见 <text class="link" @click="openGithubReleases">Releases</text>。
         </text>

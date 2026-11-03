@@ -243,12 +243,12 @@
       >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">📡 市场流动性</view>
-          <view class="muted" style="font-size: 22rpx">
+          <view class="muted muted-caption">
             {{ freshnessSummary.communityCount }} 个小区样本
           </view>
         </view>
         <view style="margin-top: 10rpx">
-          <view class="muted" style="font-size: 22rpx">
+          <view class="muted muted-caption">
             当前城市 {{ freshnessSummary.cityName }} · 总挂牌 {{ freshnessSummary.totalListings }} ·
             鲜活度均值 {{ freshnessSummary.avgFreshness.toFixed(1) }}
             <text v-if="freshnessSummary.avgMedianAgeDays != null">
@@ -280,7 +280,7 @@
           style="margin-top: 14rpx"
         >
           <view v-if="freshestTop.length" style="margin-bottom: 6rpx">
-            <view class="muted" style="font-size: 22rpx">最最新鲜 Top 3</view>
+            <view class="muted muted-caption">最最新鲜 Top 3</view>
             <view
               v-for="(row, i) in freshestTop"
               :key="'fr' + row.communityId"
@@ -296,7 +296,7 @@
             </view>
           </view>
           <view v-if="stalestTop.length">
-            <view class="muted" style="font-size: 22rpx">最积压 Top 3</view>
+            <view class="muted muted-caption">最积压 Top 3</view>
             <view
               v-for="(row, i) in stalestTop"
               :key="'st' + row.communityId"
@@ -325,7 +325,7 @@
       >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏷️ 本市标签特征</view>
-          <view class="muted" style="font-size: 22rpx">
+          <view class="muted muted-caption">
             {{ tagCityLocal.cityName }} · {{ tagCityLocal.topTags.length }} 个
           </view>
         </view>
@@ -346,7 +346,7 @@
       <view class="card" v-if="paretoTop.length">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">⭐ 性价比之选</view>
-          <view class="muted" style="font-size: 22rpx">
+          <view class="muted muted-caption">
             改善段 ≤ {{ paretoPriceCapWan }} 万/m² · 面积 Top {{ paretoTop.length }}
           </view>
         </view>
@@ -387,7 +387,7 @@
           <text>仅看小区：{{ filterCommunityLabel }}</text>
           <text class="community-filter-clear" @click.stop="clearCommunityFilter">清除</text>
         </view>
-        <view v-if="total" class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
+        <view v-if="total" class="muted muted-caption" style="margin-bottom: 8rpx">
           {{ currentCityLabel }}筛选命中 {{ total }} 套（样本库本市共 {{ cityListingTotal }} 套）
         </view>
         <EmptyState
@@ -461,7 +461,7 @@
             加载更多（还剩 {{ total - items.length }} 套）
           </button>
         </view>
-        <view v-else-if="total > 0" class="muted" style="text-align: center; margin-top: 12rpx; font-size: 22rpx">
+        <view v-else-if="total > 0" class="muted muted-caption" style="text-align: center; margin-top: 12rpx">
           已全部显示 {{ total }} 套
         </view>
       </view>

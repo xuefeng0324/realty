@@ -139,7 +139,7 @@
             （均变 {{ cityTrendDir.avgChangePp > 0 ? "+" : "" }}{{ cityTrendDir.avgChangePp }} pp）
           </text>
         </view>
-        <view v-if="city12m.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
+        <view v-if="city12m.length" class="muted muted-caption" style="margin: 8rpx 0 4rpx">
           近 {{ city12m.length }} 月{{ kind === "new" ? "新建" : "二手" }}同比
         </view>
         <view v-for="p in city12m" :key="'c12-' + p.date" class="trend-row">
@@ -153,7 +153,7 @@
           </view>
           <view style="width: 140rpx" :class="valueClass(city12mValue(p))">{{ formatIndex(city12mValue(p)) }}</view>
         </view>
-        <view v-if="monthSpread.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
+        <view v-if="monthSpread.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
           最新月全国离散度（最大−最小）
         </view>
         <view v-for="s in monthSpread" :key="'msp-' + s.fixedBase + s.indexType" class="rank-row">
@@ -190,15 +190,15 @@
         <view style="margin-bottom: 8rpx">关于数据来源</view>
         <view>
           数据来自国家统计局《70 个大中城市商品住宅销售价格变动情况》。
-          对应手机端 CSV 在 <text style="color:#4ade80">/static/stats_70.csv</text>，可被
-          <text style="color:#4ade80">scripts/crawl_stats_70.py</text> 重新生成。
+          对应手机端 CSV 在 <text style="color: var(--color-primary-contrast)">/static/stats_70.csv</text>，可被
+          <text style="color: var(--color-primary-contrast)">scripts/crawl_stats_70.py</text> 重新生成。
           指数类型：同比 / 环比（基期=100，&gt;100 上涨，&lt;100 下跌）。
         </view>
         <view style="margin-top: 12rpx">
-          <text style="color:#cbd5e1">同比</text>：与「上年同月」相比，例如 2026 年 5 月的同比 = 2026 年 5 月房价 ÷ 2025 年 5 月房价 × 100。
+          <text style="color: var(--color-text-secondary)">同比</text>：与「上年同月」相比，例如 2026 年 5 月的同比 = 2026 年 5 月房价 ÷ 2025 年 5 月房价 × 100。
         </view>
         <view style="margin-top: 6rpx">
-          <text style="color:#cbd5e1">环比</text>：与「上一月」相比，例如 2026 年 5 月的环比 = 2026 年 5 月房价 ÷ 2026 年 4 月房价 × 100。
+          <text style="color: var(--color-text-secondary)">环比</text>：与「上一月」相比，例如 2026 年 5 月的环比 = 2026 年 5 月房价 ÷ 2026 年 4 月房价 × 100。
         </view>
         <view style="margin-top: 12rpx">
           深广每日网签已移至「总览 → 政府每日网签」独立页面。

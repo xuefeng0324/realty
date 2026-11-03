@@ -8,7 +8,7 @@
         <view class="macro-kicker">全国 · 交通运输</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">货运与港口</view>
-          <view class="muted" style="font-size: 22rpx">{{ motTransport.label }}</view>
+          <view class="muted muted-caption">{{ motTransport.label }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -85,7 +85,7 @@
         <view class="macro-kicker">全国 · 服务业生产指数</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">服务业景气</view>
-          <view class="muted" style="font-size: 22rpx">{{ nbsServiceIndex.month }}</view>
+          <view class="muted muted-caption">{{ nbsServiceIndex.month }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -150,7 +150,7 @@
         <view class="macro-kicker">全国 · 城镇调查失业率</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">就业景气</view>
-          <view class="muted" style="font-size: 22rpx">{{ nbsUnemployment.month }}</view>
+          <view class="muted muted-caption">{{ nbsUnemployment.month }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -211,7 +211,7 @@
         <view class="macro-kicker">全国 · GDP 初步核算</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">国内生产总值</view>
-          <view class="muted" style="font-size: 22rpx">{{ nbsGdp.label }}</view>
+          <view class="muted muted-caption">{{ nbsGdp.label }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -300,7 +300,7 @@
         <view class="macro-kicker">全国 · 固定资产投资</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">固投基本情况</view>
-          <view class="muted" style="font-size: 22rpx">{{ nbsFaInvestment.publishDate }}</view>
+          <view class="muted muted-caption">{{ nbsFaInvestment.publishDate }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -367,7 +367,7 @@
         <view class="macro-kicker">全国 · 居民收支</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">收入和消费支出</view>
-          <view class="muted" style="font-size: 22rpx">{{ nbsIncome.periodLabel }}</view>
+          <view class="muted muted-caption">{{ nbsIncome.periodLabel }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -433,7 +433,7 @@
         <view class="macro-kicker">全国 · 就业工资</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">城镇单位年平均工资</view>
-          <view class="muted" style="font-size: 22rpx">{{ nbsAvgWage.year }}年</view>
+          <view class="muted muted-caption">{{ nbsAvgWage.year }}年</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -502,7 +502,7 @@
         <view class="macro-kicker">全国 · 居民消费价格</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">CPI（含居住/房租）</view>
-          <view class="muted" style="font-size: 22rpx">{{ nbsCpi.month }}</view>
+          <view class="muted muted-caption">{{ nbsCpi.month }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -561,7 +561,7 @@
         <view class="macro-kicker">全国 · 采购经理指数</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">PMI（含建筑业）</view>
-          <view class="muted" style="font-size: 22rpx">{{ nbsPmi.month }}</view>
+          <view class="muted muted-caption">{{ nbsPmi.month }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -623,7 +623,7 @@
         <view class="macro-kicker">全国 · 工业生产</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">工业增加值</view>
-          <view class="muted" style="font-size: 22rpx">{{ nbsIndustrial.month }}</view>
+          <view class="muted muted-caption">{{ nbsIndustrial.month }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -698,7 +698,7 @@
         <view class="macro-kicker">全国 · 能源生产</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">能源生产情况</view>
-          <view class="muted" style="font-size: 22rpx">{{ nbsEnergy.month }}</view>
+          <view class="muted muted-caption">{{ nbsEnergy.month }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -762,7 +762,7 @@
         <view class="macro-kicker">全国 · 工业企业效益</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">工业企业利润</view>
-          <view class="muted" style="font-size: 22rpx">
+          <view class="muted muted-caption">
             1–{{ Number(nbsIndustrialProfit.month.slice(5)) }}月
           </view>
         </view>
@@ -818,7 +818,7 @@
         <view class="macro-kicker">全国 · 工业生产者价格</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">PPI（含建材分项）</view>
-          <view class="muted" style="font-size: 22rpx">{{ nbsPpi.month }}</view>
+          <view class="muted muted-caption">{{ nbsPpi.month }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -853,7 +853,7 @@
             :valueTrendClass="macroTrendBand(nbsPpi.ferrousSmeltingYoyPct ?? 0)"
             sub="出厂 · 钢材相关" />
         </view>
-        <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+        <view class="muted muted-caption" style="margin-top: 12rpx">
           月度 PPI · 出厂/购进/建材与黑色金属分项 · 非挂牌/网签/70城 · ≠房价
         </view>
         <button
@@ -889,7 +889,7 @@
         <view class="macro-kicker">全国 · 社消商品类</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">建筑装潢 / 家具</view>
-          <view class="muted" style="font-size: 22rpx">{{ nbsRetail.month }}</view>
+          <view class="muted muted-caption">{{ nbsRetail.month }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -913,7 +913,7 @@
             :sub="formatMacroPct(nbsRetail.retailMonthYoyPct)"
             :subTrendClass="macroTrendBand(nbsRetail.retailMonthYoyPct)" />
         </view>
-        <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+        <view class="muted muted-caption" style="margin-top: 12rpx">
           限额以上商品零售 · 装潢/家具 ≠ 房价 · 国家统计局
         </view>
         <button

@@ -8,7 +8,7 @@
         <view class="macro-kicker">全国 · 外管局</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">月末外汇储备</view>
-          <view class="muted" style="font-size: 22rpx">{{ safeForex.date }}</view>
+          <view class="muted muted-caption">{{ safeForex.date }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -30,7 +30,7 @@
             value="国家外管局"
           />
         </view>
-        <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+        <view class="muted muted-caption" style="margin-top: 12rpx">
           亿美元 · 月末数 · 不含黄金/SDR/IMF 储备头寸；≠房价/挂牌/网签/70城。
         </view>
       </view>
@@ -40,7 +40,7 @@
         <view class="macro-kicker">全国 · 外管局</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">官方储备资产分项</view>
-          <view class="muted" style="font-size: 22rpx">{{ safeOra.date }}</view>
+          <view class="muted muted-caption">{{ safeOra.date }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -84,7 +84,7 @@
             :sub="`占合计 ${safeOraPct(safeOra.otherUsdYi, safeOra.totalUsdYi)}%`"
           />
         </view>
-        <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+        <view class="muted muted-caption" style="margin-top: 12rpx">
           亿美元 · 月末数 · 含外储 + 黄金 + SDR + IMF 储备头寸 + 其他；≠房价/挂牌/网签/70城。
         </view>
       </view>
@@ -94,7 +94,7 @@
         <view class="macro-kicker">全国 · 外汇交易中心</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">USD/CNY 中间价</view>
-          <view class="muted" style="font-size: 22rpx">{{ safeUsdMid.date }}</view>
+          <view class="muted muted-caption">{{ safeUsdMid.date }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -123,7 +123,7 @@
             subClass="muted"
           />
         </view>
-        <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+        <view class="muted muted-caption" style="margin-top: 12rpx">
           日度 · 人民币 / 美元 中间价 + 100 外币兑人民币；≠房价/挂牌/网签/70城。
         </view>
       </view>
@@ -133,7 +133,7 @@
         <view class="macro-kicker">全国 · 外汇交易中心</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">外汇市场成交概况</view>
-          <view class="muted" style="font-size: 22rpx">{{ safeFxMarket.date }}</view>
+          <view class="muted muted-caption">{{ safeFxMarket.date }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -157,7 +157,7 @@
             subClass="muted"
           />
         </view>
-        <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+        <view class="muted muted-caption" style="margin-top: 12rpx">
           万亿元（CFETS 月报口径）；≠房价/挂牌/网签/70城。
         </view>
       </view>
@@ -167,7 +167,7 @@
         <view class="macro-kicker">全国 · 外汇局</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">银行结售汇</view>
-          <view class="muted" style="font-size: 22rpx">{{ safeSettle.date }}</view>
+          <view class="muted muted-caption">{{ safeSettle.date }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -196,7 +196,7 @@
             subClass="muted"
           />
         </view>
-        <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+        <view class="muted muted-caption" style="margin-top: 12rpx">
           亿美元 · 月度 · 银行代客结售汇 + 涉外收付款；≠房价/挂牌/网签/70城。
         </view>
       </view>
@@ -206,7 +206,7 @@
         <view class="macro-kicker">全国 · 外汇局</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">国际收支平衡表</view>
-          <view class="muted" style="font-size: 22rpx">{{ safeBop.date }}</view>
+          <view class="muted muted-caption">{{ safeBop.date }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -250,7 +250,7 @@
             subClass="muted"
           />
         </view>
-        <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+        <view class="muted muted-caption" style="margin-top: 12rpx">
           亿美元 · 季度 · BOP 表；≠房价/挂牌/网签/70城。
         </view>
       </view>
@@ -260,7 +260,7 @@
         <view class="macro-kicker">全国 · 外汇局</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">国际投资头寸</view>
-          <view class="muted" style="font-size: 22rpx">{{ safeIip.date }}</view>
+          <view class="muted muted-caption">{{ safeIip.date }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -304,7 +304,7 @@
             subClass="muted"
           />
         </view>
-        <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+        <view class="muted muted-caption" style="margin-top: 12rpx">
           亿美元 · 期末数 · IIP；≠房价/挂牌/网签/70城。
         </view>
       </view>
@@ -314,7 +314,7 @@
         <view class="macro-kicker">全国 · 外汇局</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">货物服务贸易</view>
-          <view class="muted" style="font-size: 22rpx">{{ safeBopTrade.date }}</view>
+          <view class="muted muted-caption">{{ safeBopTrade.date }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -358,7 +358,7 @@
             :subTrendClass="bandFromDelta(safeBopTrade.totalSurplusUsdYi)"
           />
         </view>
-        <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+        <view class="muted muted-caption" style="margin-top: 12rpx">
           亿美元 · 月度 · 居民/非居民口径；≠海关人民币口径货物贸易。
         </view>
       </view>
@@ -368,7 +368,7 @@
         <view class="macro-kicker">全国 · 人民银行</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">金融统计 · 社融 M2</view>
-          <view class="muted" style="font-size: 22rpx">{{ pbcFinStats.period }}</view>
+          <view class="muted muted-caption">{{ pbcFinStats.period }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -414,7 +414,7 @@
             subClass="muted"
           />
         </view>
-        <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+        <view class="muted muted-caption" style="margin-top: 12rpx">
           万亿元 · 月度 · 社融存量同比反映宏观杠杆；M2/M1 反映货币活化度；≠房价/挂牌/网签/70城。
         </view>
       </view>
@@ -424,7 +424,7 @@
         <view class="macro-kicker">广东 · 人民银行</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">地区社融 · {{ pbcRegionSf.region }}</view>
-          <view class="muted" style="font-size: 22rpx">{{ pbcRegionSf.period }}</view>
+          <view class="muted muted-caption">{{ pbcRegionSf.period }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -458,7 +458,7 @@
             subClass="muted"
           />
         </view>
-        <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+        <view class="muted muted-caption" style="margin-top: 12rpx">
           亿元 · 月度 · 省级社融增量对照；广东长期居首；≠房价/挂牌/网签/70城。
         </view>
       </view>

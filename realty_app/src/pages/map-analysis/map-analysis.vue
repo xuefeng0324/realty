@@ -5,7 +5,7 @@
       <view class="muted">
         {{ districtMap?.cityName ?? "—" }} · 5 种模式聚合 + 行政区 polygon + 社区 marker
       </view>
-      <view class="muted" style="margin-top: 4rpx; font-size: 22rpx">
+      <view class="muted muted-caption" style="margin-top: 4rpx">
         v1.121.153 Batch 14 · marker / count / price / school / metro 模式
       </view>
     </view>

@@ -56,7 +56,7 @@
         <view v-if="listingTagPills.length > 0" class="listing-tag-pills" data-listing-tags>
           <text v-for="tag in listingTagPills" :key="tag" class="listing-tag-pill">{{ tag }}</text>
         </view>
-        <view v-else class="muted" style="font-size: 22rpx; margin-bottom: 8rpx" data-listing-tags-empty>
+        <view v-else class="muted muted-caption" style="margin-bottom: 8rpx" data-listing-tags-empty>
           暂无挂牌标签
         </view>
         <view class="meta-line muted" v-if="data.listing.listing_type || data.listing.crawl_date">
@@ -149,7 +149,7 @@
       <!-- v0.54.0 detail-1: 同小区其他挂牌 -->
       <view v-if="sameCommunityListings.length > 0" id="same-community-listings" class="card">
         <view class="card-title">🔁 同小区其他挂牌 · {{ sameCommunityName }}</view>
-        <view class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
+        <view class="muted muted-caption" style="margin-bottom: 8rpx">
           横向对比: 同小区共 {{ sameCommunityAll.length }} 套样本, 显示其他 {{ sameCommunityListings.length }} 套
           (已按单价降序；无价房源仍列出)
         </view>
@@ -172,7 +172,7 @@
             <view class="sibling-unit muted">{{ formatUnitPrice(l.unitPrice) }}</view>
           </view>
         </view>
-        <view class="muted" style="font-size: 22rpx; margin-top: 8rpx">
+        <view class="muted muted-caption" style="margin-top: 8rpx">
           💡 横向对比能更清楚看到不同户型 / 楼层 / 朝向的差价 — 通常同小区同户型差价在 ±5-10% 内属正常议价空间。
         </view>
       </view>
@@ -266,7 +266,7 @@
       <view v-if="showMetroCard" class="card">
         <view class="card-title">
           🚧 未来周边地铁（{{ metroPlanning.length }} 条规划/在建）
-          <text v-if="nearestSubwayM != null" class="muted" style="font-size: 22rpx">现有最近 {{ formatDistance(nearestSubwayM) }}</text>
+          <text v-if="nearestSubwayM != null" class="muted muted-caption">现有最近 {{ formatDistance(nearestSubwayM) }}</text>
         </view>
         <view
           v-for="m in metroPlanning"
@@ -277,7 +277,7 @@
             <view class="metro-head">
               <text class="metro-name">{{ m.line_name }}</text>
               <text v-if="m.status" class="metro-status" :class="'st-' + m.status">{{ m.status }}</text>
-              <text v-if="m.open_year_expected" class="muted" style="font-size: 22rpx">预计 {{ m.open_year_expected }} 开通</text>
+              <text v-if="m.open_year_expected" class="muted muted-caption">预计 {{ m.open_year_expected }} 开通</text>
             </view>
             <view class="muted metro-detail">
               <text v-if="m.start_station && m.end_station">{{ m.start_station }} ↔ {{ m.end_station }}</text>

@@ -93,7 +93,7 @@
       <view v-if="mode === 'metro'" class="curvature-card">
         <view class="row-between">
           <view class="curvature-title">🌀 弯曲系数 Top 5</view>
-          <view class="muted" style="font-size: 22rpx">actual / straight · 越高越曲折</view>
+          <view class="muted muted-caption">actual / straight · 越高越曲折</view>
         </view>
         <view class="curvature-desc muted">
           同等直线距离下，实际线路长度比值。比值高 → 站点更多 / 拐弯更多 → 覆盖广
@@ -165,7 +165,7 @@
 
     <view v-if="mode === 'price' && priceBuckets.length > 0" class="card legend-card">
       <view class="card-title" style="margin-bottom: 4rpx">🎨 挂牌价格分位图例</view>
-      <view class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
+      <view class="muted muted-caption" style="margin-bottom: 8rpx">
         颜色 = 5 档挂牌单价分位 (绿便宜 → 红贵)；半径 = 价格×挂牌数 (大=贵+多)；非成交价
       </view>
       <view class="legend-row" v-for="b in priceBuckets" :key="b.label" data-price-bucket>

@@ -8,7 +8,7 @@
         <view class="macro-kicker">全国 · 海关货物贸易</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">货物进出口</view>
-          <view class="muted" style="font-size: 22rpx">{{ nbsTrade.month }}</view>
+          <view class="muted muted-caption">{{ nbsTrade.month }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -38,7 +38,7 @@
             subClass="muted"
           />
         </view>
-        <view class="muted" style="margin-top: 12rpx; font-size: 22rpx">
+        <view class="muted muted-caption" style="margin-top: 12rpx">
           国家统计局国民经济通稿转载海关总署口径（人民币）。海关货物贸易 ≠ 挂牌价、≠ 成交价、≠ 网签、≠ 70 城；与外管局货服贸易（美元、居民/非居民）口径不同。
         </view>
         <button

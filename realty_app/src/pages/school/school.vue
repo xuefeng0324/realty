@@ -29,10 +29,10 @@
             <text>{{ educationOverview.kindergartenCount.toLocaleString() }}</text>
           </view>
         </view>
-        <view v-if="educationOverview.city === '珠海'" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+        <view v-if="educationOverview.city === '珠海'" class="muted muted-caption" style="margin-top: 8rpx">
           基础教育学校数官方表；在校生未公布不伪造。期间为学年，非自然年。
         </view>
-        <view v-else-if="!educationHasSplit" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
+        <view v-else-if="!educationHasSplit" class="muted muted-caption" style="margin-top: 8rpx">
           官方口径为「普通中小学」合计，不伪造小学/初中分项。
         </view>
       </view>
@@ -45,7 +45,7 @@
       >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">🏫 重点学校维度细分</view>
-          <view class="muted" style="font-size: 22rpx" data-school-dim-count>
+          <view class="muted muted-caption" data-school-dim-count>
             {{ dimCityCurrent.schoolCount }} 所重点校 · {{ currentCityLabel || educationCityLabel }}
           </view>
         </view>
@@ -53,7 +53,7 @@
           v-if="dimPolymathList.length > 0"
           style="margin-top: 14rpx"
         >
-          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
+          <view class="muted muted-caption" style="margin-bottom: 6rpx">
             🛡️ 全维度学校
             <text class="muted" style="font-size: 20rpx">
               （综合≥80 / 集团实力≥70 / 区均衡度≥70）
@@ -79,7 +79,7 @@
           v-if="dimTopLevel.length > 0 || dimTopGroup.length > 0 || dimTopBalance.length > 0"
           style="margin-top: 14rpx"
         >
-          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
+          <view class="muted muted-caption" style="margin-bottom: 6rpx">
             三维度 Top 1（本市）
           </view>
           <view class="stats70-grid">
@@ -118,7 +118,7 @@
           style="margin-top: 14rpx"
           data-school-city-top
         >
-          <view class="muted" style="font-size: 22rpx; margin-bottom: 6rpx">
+          <view class="muted muted-caption" style="margin-bottom: 6rpx">
             本市综合得分最强
           </view>
           <view class="drift-row">

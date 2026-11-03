@@ -49,7 +49,7 @@
             </view>
           </view>
         </view>
-        <view class="muted" style="font-size: 22rpx; margin-top: 12rpx">
+        <view class="muted muted-caption" style="margin-top: 12rpx">
           数据源：life_convenience.csv / school_premium_community.csv / commute.csv / metro_walk.csv / metro_benefit.csv。
           通勤分 = (transit_minutes - 30) × (50/30) 反向；步行分 = 10min=100 / 30min=0。
         </view>
@@ -67,7 +67,7 @@
               : "—"
           }}
         </view>
-        <view class="muted" style="font-size: 22rpx">
+        <view class="muted muted-caption">
           共 {{ listingFreshness.totalListings }} 套
           · 近 4 周 {{ listingFreshness.recent4wCount }}
           · 近 2 周新上 {{ listingFreshness.new2wCount }}
@@ -189,7 +189,7 @@
       <view v-if="showMetroCard" class="card">
         <view class="card-title">
           🚧 未来周边地铁（{{ metroPlanning.length }} 条规划/在建）
-          <text v-if="nearestSubwayM != null" class="muted" style="font-size: 22rpx">现有最近 {{ formatDistance(nearestSubwayM) }}</text>
+          <text v-if="nearestSubwayM != null" class="muted muted-caption">现有最近 {{ formatDistance(nearestSubwayM) }}</text>
         </view>
         <view
           v-for="m in metroPlanning"
@@ -200,7 +200,7 @@
             <view class="metro-head">
               <text class="metro-name">{{ m.line_name }}</text>
               <text v-if="m.status" class="metro-status" :class="'st-' + m.status">{{ m.status }}</text>
-              <text v-if="m.open_year_expected" class="muted" style="font-size: 22rpx">预计 {{ m.open_year_expected }} 开通</text>
+              <text v-if="m.open_year_expected" class="muted muted-caption">预计 {{ m.open_year_expected }} 开通</text>
             </view>
             <view class="muted metro-detail">
               <text v-if="m.start_station && m.end_station">{{ m.start_station }} ↔ {{ m.end_station }}</text>
@@ -283,7 +283,7 @@
       <!-- v0.56.0 detail-2: 同区其他小区 -->
       <view v-if="sameDistrictCommunities.length > 0" class="card">
         <view class="card-title">🏘️ 同区其他小区 · {{ currentDistrict }}</view>
-        <view class="muted" style="font-size: 22rpx; margin-bottom: 8rpx">
+        <view class="muted muted-caption" style="margin-bottom: 8rpx">
           横向对比: 共 {{ sameDistrictAll.length }} 个小区, 显示其他 {{ sameDistrictCommunities.length }} 个
           (已按平均单价降序)
         </view>
@@ -305,7 +305,7 @@
             <view class="sibling-unit muted">套</view>
           </view>
         </view>
-        <view class="muted" style="font-size: 22rpx; margin-top: 8rpx">
+        <view class="muted muted-caption" style="margin-top: 8rpx">
           💡 同区横向对比帮助理解板块均价: 楼龄 / 户型 / 物业差异通常解释 20-30% 单价差。
         </view>
       </view>

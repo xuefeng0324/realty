@@ -8,7 +8,7 @@
         <view class="macro-kicker">广东 · 房地产</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">市场运行简况</view>
-          <view class="muted" style="font-size: 22rpx">{{ gdRealEstateBrief.periodLabel }}</view>
+          <view class="muted muted-caption">{{ gdRealEstateBrief.periodLabel }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -32,7 +32,7 @@
             :sub="gdRealEstateBrief.prInvestmentYi.toLocaleString()" />
         </view>
         <view v-if="gdBriefUnitPrice != null" class="rank-row macro-derived" style="margin-top: 12rpx">
-          <text class="muted" style="font-size: 22rpx">派生合同均价</text>
+          <text class="muted muted-caption">派生合同均价</text>
           <text class="rank-val">{{ gdBriefUnitPrice.toLocaleString() }} 元/㎡</text>
         </view>
         <view class="macro-note">
@@ -75,7 +75,7 @@
         <view class="macro-kicker">广东 · 宏观经济</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">经济运行</view>
-          <view class="muted" style="font-size: 22rpx">{{ gdEconomy.periodLabel }}</view>
+          <view class="muted muted-caption">{{ gdEconomy.periodLabel }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -153,7 +153,7 @@
         <view class="macro-kicker">广东 · 投资结构</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">固定资产投资</view>
-          <view class="muted" style="font-size: 22rpx">{{ gdFaInvestment.periodLabel }}</view>
+          <view class="muted muted-caption">{{ gdFaInvestment.periodLabel }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -205,7 +205,7 @@
         <view class="macro-kicker">广东 · 施工产值</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">建筑业生产运行</view>
-          <view class="muted" style="font-size: 22rpx">{{ gdConstruction.periodLabel }}</view>
+          <view class="muted muted-caption">{{ gdConstruction.periodLabel }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -263,7 +263,7 @@
         <view class="macro-kicker">广东 · 工业</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">规上工业生产</view>
-          <view class="muted" style="font-size: 22rpx">{{ gdIndustrial.periodLabel }}</view>
+          <view class="muted muted-caption">{{ gdIndustrial.periodLabel }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -313,7 +313,7 @@
         <view class="macro-kicker">广东 · 消费</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">消费品市场</view>
-          <view class="muted" style="font-size: 22rpx">{{ gdRetail.periodLabel }}</view>
+          <view class="muted muted-caption">{{ gdRetail.periodLabel }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell
@@ -375,7 +375,7 @@
         <view class="macro-kicker">广东 · 服务业</view>
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">规上服务业</view>
-          <view class="muted" style="font-size: 22rpx">{{ gdServices.periodLabel }}</view>
+          <view class="muted muted-caption">{{ gdServices.periodLabel }}</view>
         </view>
         <view class="stats70-grid" style="margin-top: 16rpx">
           <MacroKpiCell

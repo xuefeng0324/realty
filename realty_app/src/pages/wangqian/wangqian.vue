@@ -100,7 +100,7 @@
       <view v-if="secondTrend.length" class="card">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">二手近 {{ secondTrend.length }} 交易日</view>
-          <view class="muted" style="font-size: 22rpx">住宅 · 套数</view>
+          <view class="muted muted-caption">住宅 · 套数</view>
         </view>
         <view class="spark-meta muted">
           最高 {{ secondMax }} · 最新 {{ secondTrend[secondTrend.length - 1].units }} · 均 {{ avgUnits(secondTrend) }}
@@ -123,7 +123,7 @@
       <view v-if="newTrend.length" class="card">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">新房近 {{ newTrend.length }} 交易日</view>
-          <view class="muted" style="font-size: 22rpx">住宅 · 套数</view>
+          <view class="muted muted-caption">住宅 · 套数</view>
         </view>
         <view class="spark-meta muted">
           最高 {{ newMax }} · 最新 {{ newTrend[newTrend.length - 1].units }} · 均 {{ avgUnits(newTrend) }}
@@ -168,32 +168,32 @@
       <!-- 周趋势派生（wangqianTrendRanking） -->
       <view v-if="wqTrendReady" class="card">
         <view class="card-title">区级周趋势（派生）· {{ cityName }}</view>
-        <view v-if="wqCategoryTrend" class="muted" style="margin-bottom: 8rpx; font-size: 22rpx">
+        <view v-if="wqCategoryTrend" class="muted muted-caption" style="margin-bottom: 8rpx">
           全市 {{ wqCategoryTrend.category }}：近周 {{ wqCategoryTrend.latestUnits }} 套
           · vs 前均 {{ wqCategoryTrend.recentAvg.toFixed(0) }}
           <text :class="wqCategoryTrend.changePct >= 0 ? 'trend-up' : 'trend-down'">
             {{ wqCategoryTrend.changePct >= 0 ? "+" : "" }}{{ formatWowPct(wqCategoryTrend.changePct) }}%
           </text>
         </view>
-        <view v-if="wqWowUp.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">周环比上升 Top</view>
+        <view v-if="wqWowUp.length" class="muted muted-caption" style="margin: 8rpx 0 4rpx">周环比上升 Top</view>
         <view v-for="(it, idx) in wqWowUp" :key="'wu-' + it.district" class="wq-table-row">
           <text class="wq-col-name">{{ idx + 1 }}. {{ it.district }}</text>
           <text class="wq-col-num">{{ it.prevUnits }}→{{ it.latestUnits }}</text>
           <text class="wq-col-num trend-up">+{{ formatWowPct(it.changePct) }}%</text>
         </view>
-        <view v-if="wqWowDown.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">周环比下降 Top</view>
+        <view v-if="wqWowDown.length" class="muted muted-caption" style="margin: 8rpx 0 4rpx">周环比下降 Top</view>
         <view v-for="(it, idx) in wqWowDown" :key="'wd-' + it.district" class="wq-table-row">
           <text class="wq-col-name">{{ idx + 1 }}. {{ it.district }}</text>
           <text class="wq-col-num">{{ it.prevUnits }}→{{ it.latestUnits }}</text>
           <text class="wq-col-num trend-down">{{ formatWowPct(it.changePct) }}%</text>
         </view>
-        <view v-if="wqSpikes.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">近周突增</view>
+        <view v-if="wqSpikes.length" class="muted muted-caption" style="margin: 8rpx 0 4rpx">近周突增</view>
         <view v-for="(it, idx) in wqSpikes" :key="'ws-' + it.district" class="wq-table-row">
           <text class="wq-col-name">{{ idx + 1 }}. {{ it.district }}</text>
           <text class="wq-col-num">{{ it.latestUnits }} 套</text>
           <text class="wq-col-num">×{{ it.multiplier.toFixed(1) }}</text>
         </view>
-        <view v-if="wqVolatility.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">波动最高（CV）</view>
+        <view v-if="wqVolatility.length" class="muted muted-caption" style="margin: 8rpx 0 4rpx">波动最高（CV）</view>
         <view v-for="(it, idx) in wqVolatility" :key="'wv-' + it.district" class="wq-table-row">
           <text class="wq-col-name">{{ idx + 1 }}. {{ it.district }}</text>
           <text class="wq-col-num">均 {{ it.mean.toFixed(0) }}</text>
@@ -238,7 +238,7 @@
       >
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">月度成交趋势（{{ monthlyMonthsLabel }}）</view>
-          <view class="muted" style="font-size: 22rpx">住宅 · 套数</view>
+          <view class="muted muted-caption">住宅 · 套数</view>
         </view>
         <view class="muted" style="margin-bottom: 12rpx">
           由日数据聚合：同一自然月求和。最新月可能不完整（仍在爬虫累计中），环比基于"最新完整月 vs 前一完整月"。
@@ -299,12 +299,12 @@
 
       <!-- 数据来源 -->
       <view class="card muted">
-        <view style="margin-bottom: 8rpx; color: #cbd5e1">关于口径</view>
+        <view style="margin-bottom: 8rpx; color: var(--color-text-secondary)">关于口径</view>
         <view>「住宅」= 走势页《房地产成交趋势》getFjzsInfoData，商品住房口径，可回溯 90 交易日。</view>
         <view style="margin-top: 6rpx">「全部」= 分区/月度公示 getEsf/YsfCjxx*DataNew，含非住宅二手。</view>
         <view style="margin-top: 6rpx">
           深圳二手两套口径同日常有差异（住宅 &lt; 全部），差额为非住宅（商办等）。数据文件
-          <text style="color:#4ade80">/static/daily_wangqian.csv</text>。
+          <text style="color: var(--color-primary-contrast)">/static/daily_wangqian.csv</text>。
         </view>
       </view>
     </view>
