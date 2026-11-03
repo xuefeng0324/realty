@@ -538,7 +538,7 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     // + listingMedianUnitPriceLabel import（失去唯一消费者）+ .today-grid/.today-cell/.today-label/
     // .today-value/.today-sub CSS 与 @media 内 .today-grid 一并删；
     // medianUnitPrice 保留——壳层 homeMedianUnitPriceLabel 仍消费；formatIndex/deltaLabel/trendClass
-    // 保留——stats70 卡与壳层仍消费；priceSemantics.ts 库保留——localCsvPriceRepo/priceSemantics 在测）
+    // 保留——stats70 卡与壳层仍消费；priceSemantics.ts 库 v1.123.30 已退役，见下方门禁）
     expect(dashSrc).not.toMatch(/today-highlights-card|today-grid|today-cell|today-label|today-value|today-sub/);
     expect(dashSrc).not.toMatch(/\btodayHighlights\b/);
     expect(dashSrc).not.toMatch(/hospitalCityName/);
@@ -577,6 +577,13 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(dashSrc).toMatch(/data-gz-inventory-detail/); // 库存卡保留
     expect(dashSrc).toMatch(/data-data-tools-entry/); // 数据工具入口保留
     expect(dashSrc).toMatch(/goWangqian|onWangqianCardClick/); // 网签卡链保留
+    // v1.123.30：src/local/priceSemantics.ts 死库退役——8 个导出（priceAxisLabel 三轴标签 /
+    // 4 个短标签 / auditListingPriceCopy / priceAxesDisclaimer）在 src/ 零 import，
+    // 仅被 localCsvPriceRepo/priceSemantics 单测消费；库文件删除，三轴文案门禁保留在
+    // tests/priceSemantics.test.ts（地图模式名 / 壳层「数据口径透明」行 / 验收文档对照）。
+    expect(existsSync(resolve(__dirname, "../src/local/priceSemantics.ts"))).toBe(false);
+    expect(queriesSrc).not.toMatch(/priceSemantics/);
+    expect(dashSrc).not.toMatch(/priceSemantics|priceAxesDisclaimer|auditListingPriceCopy/);
   });
 
   it("dashboard.vue v1.121.147 Batch 8：每张核心卡右上角 ✕ 隐藏按钮", () => {

@@ -22,7 +22,7 @@
 ### Phase A — 语义与可信度（本迭代必做）
 
 1. 统一文案：地图/Hero/要点区分「挂牌」「网签套数」「价格指数」  
-2. 提供 `priceSemantics` 工具与单测，防止再写「成交价」误用  
+2. ~~提供 `priceSemantics` 工具与单测~~ v1.123.30：该库 8 个导出在 src/ 零消费（仅单测引用）已退役，三轴文案改为源码门禁 `tests/priceSemantics.test.ts`  
 3. 文档固化三轴与开源对照  
 
 ### Phase B — 管线新鲜度（本迭代必做一部分）
@@ -71,7 +71,7 @@
 1. UI 凡展示「元/㎡」来自 listings 聚合的，文案含 **挂牌**（或「卖方挂牌」），不含「成交价」  
 2. 网签卡只谈 **套数/面积/活跃度**，不出现「成交均价」  
 3. 70 城卡只谈 **指数/涨跌**，不出现「均价 X 万」  
-4. `priceSemantics` 单测覆盖三轴标签与禁用词  
+4. 三轴文案由源码门禁覆盖（map 模式名 + 壳层「数据口径透明」行；v1.123.30 起不再维护标签常量库）  
 5. `wangqian_district_weekly` 的最大 `week_end` ≥ daily 最近周日（重建后）  
 6. type-check / vitest 通过  
 
@@ -83,8 +83,8 @@
 
 ### 自动化
 
-- [x] `tests/priceSemantics.test.ts`
-- [x] 源码门禁：`map-view` 模式标签为「挂牌均价」；Hero 使用 `listingMedianUnitPriceLabel`
+- [x] `tests/priceSemantics.test.ts`（v1.123.30 起仅源码文案门禁）
+- [x] 源码门禁：`map-view` 模式标签为「挂牌均价」；总览壳层「数据口径透明」行含「不把挂牌价写成成交价」（Hero / 今日要点已于 v1.123.24/25 删除）
 - [x] `npm run type-check` / `npm test`（含 buildIntegrity 改名断言）
 - [x] 网签周聚合重建：`wangqian_district_weekly` week_end 覆盖至最近周日
 - [x] 日更 CI 末尾调用 `build_wangqian_heatmap.py`
@@ -98,7 +98,7 @@
 ### 手工
 
 1. 打开地图 → 模式按钮为「挂牌均价」而非「成交价」  
-2. 总览 Hero / 今日要点：单价相关文案含「挂牌」  
+2. 总览壳层「数据口径透明」行写明不把挂牌价写成成交价（Hero / 今日要点已于 v1.123.24/25 删除）  
 3. 网签页仍只显示套数面积  
 
 ---
@@ -109,4 +109,4 @@
 
 ---
 
-最后更新：2026-08-18（70 城宽限窗口、原子替换与 weekly 告警分级）
+最后更新：2026-11-03（priceSemantics 标签常量库退役，三轴文案改源码门禁）

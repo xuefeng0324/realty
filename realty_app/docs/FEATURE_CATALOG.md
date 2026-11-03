@@ -130,21 +130,17 @@ v1.123.28 dashboard scoped 样式段死类清理——用模板全文（截至 `
 
 ---
 
-### F-DASH-03 · Hero 轮播 + 今日要点
+### F-DASH-03 · Hero 轮播 + 今日要点 · v1.123.24/25 已删除
 
 | 项 | 内容 |
 |----|------|
-| 入口 | 总览首屏下方 |
+| 入口 | ~~总览首屏下方~~ v1.122 起被壳层 CSS 永久隐藏，实现已于 v1.123.24（Hero 轮播）/ v1.123.25（今日要点 2×2 卡）整删 |
 | 风险 | U, L |
+| 状态 | ⛔ 已删除（三轴口径现由壳层「数据口径透明」行兜底） |
 | 对照 | [HOUSING_PRICE_ACCEPTANCE.md](./HOUSING_PRICE_ACCEPTANCE.md) |
 
-**期望**
-1. （L）单价文案为「挂牌中位单价」，不出现模式名「成交价」  
-2. （F）要点含挂牌价 / 指数环比 / 网签套数等可区分三轴  
-3. （U）浅色可读
-
-**自动化**：unit `priceSemantics.test.ts`；core theme_visual 间接  
-**手工**：看 Hero 文案含「挂牌」；网签 sub 含「非均价」类提示。
+**现状**：Hero 轮播（6 张城市快照）与「今日要点」2×2 卡均已在 v1.123.24/25 删除；单价文案与三轴口径不再依赖已退役的 `priceSemantics.ts` 标签常量，改由壳层「价格、指数与网签分开呈现，不把挂牌价写成成交价」一行兜底。
+**自动化**：unit `priceSemantics.test.ts`（仅源码文案门禁，见 F-X-01）；core `smoke_theme_visual.mjs` 间接。
 
 ---
 
@@ -599,10 +595,10 @@ v1.123.29 死样式与死 computed 清理——v0.12.0 地图挂牌均价 5 档�
 |----|------|
 | 入口 | 全局文案 |
 | 风险 | L |
-| 对照 | HOUSING_PRICE；`priceSemantics.ts` |
+| 对照 | [HOUSING_PRICE_ACCEPTANCE.md](./HOUSING_PRICE_ACCEPTANCE.md) |
 
 **期望**：map 模式标签「挂牌均价」；禁把挂牌写成成交价模式名。  
-**自动化**：unit `priceSemantics` + `buildIntegrity` 地图节  
+**自动化**：unit `priceSemantics.test.ts`（v1.123.30 起仅保留 3 条源码文案门禁，标签常量库已退役）+ `buildIntegrity` 地图节  
 **手工**：地图按钮文字目视。
 
 ---

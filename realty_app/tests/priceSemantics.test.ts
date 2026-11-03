@@ -1,44 +1,17 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import {
-  auditListingPriceCopy,
-  listingMedianUnitPriceLabel,
-  listingUnitPriceHeatLabel,
-  priceAxisLabel,
-  priceAxesDisclaimer,
-  stats70IndexLabel,
-  wangqianVolumeLabel
-} from "../src/local/priceSemantics";
+
+/**
+ * 房价三轴语义门禁（源码文案）。
+ *
+ * v1.123.30：`src/local/priceSemantics.ts` 库已退役——8 个导出（三轴标签、
+ * 4 个短标签、auditListingPriceCopy、priceAxesDisclaimer）在 src/ 零消费，
+ * 仅被单测引用，属「库比消费者多」的死库。此处保留真正有价值的 3 条源码门禁：
+ * 地图模式名、壳层「数据口径透明」行、验收文档与开源对照。
+ */
 
 const read = (path: string) => readFileSync(resolve(process.cwd(), path), "utf8");
-
-describe("priceSemantics 三轴标签", () => {
-  it("三轴中文标签稳定", () => {
-    expect(priceAxisLabel("listing_ask")).toBe("挂牌价");
-    expect(priceAxisLabel("wangqian_volume")).toBe("网签成交量");
-    expect(priceAxisLabel("stats70_index")).toBe("70城价格指数");
-    expect(listingUnitPriceHeatLabel()).toBe("挂牌均价");
-    expect(listingMedianUnitPriceLabel()).toBe("挂牌中位单价");
-    expect(wangqianVolumeLabel()).toBe("网签套数");
-    expect(stats70IndexLabel()).toBe("二手价格指数");
-  });
-
-  it("挂牌文案禁用「成交价」类用语", () => {
-    expect(auditListingPriceCopy("挂牌均价热力")).toEqual([]);
-    expect(auditListingPriceCopy("成交价热力")).toContain("成交价");
-    expect(auditListingPriceCopy("本市成交均价")).toContain("成交均价");
-  });
-
-  it("免责声明同时点名三轴且不宣称有官方成交均价", () => {
-    const text = priceAxesDisclaimer();
-    expect(text).toContain("挂牌价");
-    expect(text).toContain("网签成交量");
-    expect(text).toContain("70城价格指数");
-    expect(text).toContain("非元/㎡");
-    expect(text).toContain("非政府成交均价");
-  });
-});
 
 describe("房价语义门禁（源码）", () => {
   it("地图模式标签使用挂牌均价，不再用成交价作模式名", () => {
@@ -52,10 +25,7 @@ describe("房价语义门禁（源码）", () => {
 
   it("壳层「数据口径透明」行兜底三轴语义", () => {
     const dash = read("src/pages/dashboard/dashboard.vue");
-    // v1.123.24：Hero 轮播死 DOM 已删除；
-    // v1.123.25：今日要点卡删除后 listingMedianUnitPriceLabel 失去唯一消费者，
-    // 标签断言由上方 priceSemantics 直接单测兜底；
-    // v1.123.8：priceAxesHint 随工作台死 DOM 删除；三轴口径由壳层此行兜底
+    // v1.123.24 Hero 轮播、v1.123.25 今日要点卡均已删除，三轴口径由壳层此行兜底
     expect(dash).toContain("不把挂牌价写成成交价");
   });
 

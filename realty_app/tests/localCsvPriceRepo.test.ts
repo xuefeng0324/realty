@@ -1,15 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseCSV, rowsToObjects } from "../src/local/csv";
 import {
-  priceAxisLabel,
-  listingUnitPriceHeatLabel,
-  listingMedianUnitPriceLabel,
-  wangqianVolumeLabel,
-  stats70IndexLabel,
-  auditListingPriceCopy,
-  priceAxesDisclaimer
-} from "../src/local/priceSemantics";
-import {
   loadRepoFixingFromCSV,
   __setRepoFixingForTest,
   getRepoFixing,
@@ -19,12 +10,13 @@ import {
 } from "../src/local/repoFixing";
 
 /**
- * 3 个 src/local/ 文件合并测试（csv / priceSemantics / repoFixing）：
+ * 2 个 src/local/ 文件合并测试（csv / repoFixing）：
  *  - csv.ts (76 行)：parseCSV 边界 + rowsToObjects
- *  - priceSemantics.ts (59 行)：三轴标签 + 禁用词审计
  *  - repoFixing.ts (82 行)：mapRow 过滤 + 排序 + delta 计算
  *
- * 合计 26 个用例覆盖。
+ * 合计 25 个用例覆盖。
+ * （priceSemantics.ts 已于 v1.123.30 退役，其三轴标签/禁用词单测一并删除，
+ *  只保留 tests/priceSemantics.test.ts 里的 3 条源码文案门禁。）
  */
 describe("local/csv", () => {
   describe("parseCSV", () => {
@@ -125,70 +117,6 @@ describe("local/csv", () => {
       ] as any);
       expect(result[0]).toEqual({ a: "1", b: "2", c: "" });
     });
-  });
-});
-
-describe("local/priceSemantics", () => {
-  describe("priceAxisLabel", () => {
-    it("listing_ask → 挂牌价", () => {
-      expect(priceAxisLabel("listing_ask")).toBe("挂牌价");
-    });
-
-    it("wangqian_volume → 网签成交量", () => {
-      expect(priceAxisLabel("wangqian_volume")).toBe("网签成交量");
-    });
-
-    it("stats70_index → 70城价格指数", () => {
-      expect(priceAxisLabel("stats70_index")).toBe("70城价格指数");
-    });
-  });
-
-  it("4 个短标签常量", () => {
-    expect(listingUnitPriceHeatLabel()).toBe("挂牌均价");
-    expect(listingMedianUnitPriceLabel()).toBe("挂牌中位单价");
-    expect(wangqianVolumeLabel()).toBe("网签套数");
-    expect(stats70IndexLabel()).toBe("二手价格指数");
-  });
-
-  describe("auditListingPriceCopy", () => {
-    it("干净文案 → 空数组", () => {
-      expect(auditListingPriceCopy("今日挂牌均价 65000 元/㎡")).toEqual([]);
-      expect(auditListingPriceCopy("网签成交量 100 套")).toEqual([]);
-    });
-
-    it("含 '成交价' → 命中", () => {
-      expect(auditListingPriceCopy("成交价 50000")).toContain("成交价");
-    });
-
-    it("含 '成交均价' → 命中", () => {
-      expect(auditListingPriceCopy("本小区成交均价 60000")).toContain("成交均价");
-    });
-
-    it("含 '网签均价' → 命中（网签套数 ≠ 网签均价）", () => {
-      expect(auditListingPriceCopy("网签均价 58000")).toContain("网签均价");
-    });
-
-    it("含 '真实成交价' → 命中", () => {
-      expect(auditListingPriceCopy("真实成交价 70000")).toContain("真实成交价");
-    });
-
-    it("含多个禁用词 → 全部命中", () => {
-      const hits = auditListingPriceCopy("成交价 100 真实成交价 200 网签均价 300");
-      expect(hits).toHaveLength(3);
-    });
-
-    it("禁词必须完整匹配子串", () => {
-      // '成交价' 不应在 '网签成交价' 中单独命中吗？答：会命中（substring match）
-      // 但 '成交' 不在禁用词列表 → 不命中
-      expect(auditListingPriceCopy("今日成交 100 套")).toEqual([]);
-    });
-  });
-
-  it("priceAxesDisclaimer 含三轴说明", () => {
-    const d = priceAxesDisclaimer();
-    expect(d).toContain("挂牌价");
-    expect(d).toContain("网签成交量");
-    expect(d).toContain("70城价格指数");
   });
 });
 
