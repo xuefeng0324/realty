@@ -210,7 +210,7 @@
           </view>
           <view class="kpi">
             <text class="kpi-label">样本均价</text>
-            <text class="kpi-value" style="font-size: 28rpx">
+            <text class="kpi-value kpi-value--compact">
               {{
                 gzLandSummary.avgSurfaceUnitPriceYuan != null
                   ? Math.round(gzLandSummary.avgSurfaceUnitPriceYuan).toLocaleString() + " 元/㎡地"
@@ -254,7 +254,7 @@
           </view>
           <view class="kpi">
             <text class="kpi-label">样本起始均价</text>
-            <text class="kpi-value" style="font-size: 28rpx">
+            <text class="kpi-value kpi-value--compact">
               {{
                 szLandSummary.avgStartSurfaceUnitPriceYuan != null
                   ? Math.round(szLandSummary.avgStartSurfaceUnitPriceYuan).toLocaleString() + " 元/㎡地"
@@ -428,6 +428,9 @@ onMounted(() => {
 .kpi-value {
   font-size: 30rpx;
   font-weight: 700;
+}
+.kpi-value--compact {
+  font-size: var(--font-body);
 }
 .kpi-sub {
   font-size: 20rpx;

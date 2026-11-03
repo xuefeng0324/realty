@@ -270,7 +270,7 @@
             :style="{ width: ((1 - freshnessSummary.recent4wRate) * 100).toFixed(1) + '%' }"
           />
         </view>
-        <view style="margin-top: 6rpx; font-size: 20rpx">
+        <view class="muted-micro" style="margin-top: 6rpx">
           <text class="legend-new">≤2 周 {{ formatPct(freshnessSummary.new2wRate) }}</text>
           <text class="legend-r4">  · ≤4 周 {{ formatPct(freshnessSummary.recent4wRate) }}</text>
           <text class="legend-stale">  · 陈旧 {{ formatPct(freshnessSummary.staleRate) }}</text>

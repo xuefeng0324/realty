@@ -125,7 +125,7 @@
             <view class="bin-value">{{ b.count }}</view>
           </view>
           <view v-if="quality.radar" class="radar">
-            <view class="card-title" style="font-size: 28rpx; margin-top: 16rpx">维度雷达</view>
+            <view class="card-title card-title--reduced" style="margin-top: 16rpx">维度雷达</view>
             <view
               v-for="d in quality.radar.dimensions"
               :key="d"

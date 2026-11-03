@@ -69,8 +69,8 @@
         </view>
         <view
           v-if="nonResidential != null && nonResidential > 0"
-          class="muted"
-          style="margin-top: 12rpx; font-size: 22rpx"
+          class="muted muted-caption"
+          style="margin-top: 12rpx"
         >
           其中非住宅二手约 {{ nonResidential }} 套（全部 − 住宅）。「住宅」来自走势页，「全部」来自分区公示。
         </view>

@@ -94,6 +94,11 @@ textarea {
   margin-bottom: 0;
 }
 
+/* 缩小字号的 card-title（子区块 / 内嵌面板的二级标题） */
+.card-title--reduced {
+  font-size: var(--font-body);
+}
+
 /* 微缩说明文本（比 .muted-caption 更紧凑，对应 --font-micro） */
 .muted-micro {
   color: var(--color-muted);
