@@ -507,7 +507,7 @@ function onPickCity(city: string) {
 }
 
 .rank-bar-fill.trend-down {
-  background: linear-gradient(90deg, #15803d, var(--color-trend-down));
+  background: linear-gradient(90deg, var(--color-primary-strong), var(--color-trend-down));
 }
 
 .rank-bar-fill.trend-flat {
@@ -540,7 +540,7 @@ function onPickCity(city: string) {
 }
 
 .trend-bar-fill.trend-down {
-  background: linear-gradient(90deg, #15803d, var(--color-trend-down));
+  background: linear-gradient(90deg, var(--color-primary-strong), var(--color-trend-down));
 }
 
 .trend-bar-fill.trend-flat {

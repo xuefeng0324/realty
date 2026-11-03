@@ -2546,7 +2546,7 @@ onUnmounted(() => {
   justify-content: center;
   font-size: 22rpx;
   font-weight: 600;
-  background: #334155;
+  background: var(--color-soft-strong);
   color: var(--color-text-secondary);
   flex-shrink: 0;
 }
@@ -2661,7 +2661,7 @@ onUnmounted(() => {
   padding: 4rpx 12rpx;
   border-radius: 999rpx;
   background: var(--color-panel);
-  border: 1rpx solid #334155;
+  border: 1rpx solid var(--color-soft-strong);
   color: var(--color-text-secondary);
   font-size: 22rpx;
 }

@@ -4625,7 +4625,7 @@ onShow(async () => {
   justify-content: center;
   font-size: 22rpx;
   font-weight: 600;
-  background: #334155;
+  background: var(--color-soft-strong);
   color: var(--color-text-secondary);
   flex-shrink: 0;
 }
@@ -4861,7 +4861,7 @@ onShow(async () => {
   font-variant-numeric: tabular-nums;
 }
 .lpr-kpi-val--down {
-  color: #15803d;
+  color: var(--color-primary-strong);
 }
 .lpr-kpi-unit {
   font-size: 20rpx;
