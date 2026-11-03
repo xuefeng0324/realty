@@ -176,8 +176,8 @@
           <view class="hosp-main">
             <text class="hosp-name">{{ h.official_name }}</text>
             <view class="hosp-tags">
-              <text v-if="h.hospital_level" class="tag-hosp-level hosp-level" :class="'lvl-' + (h.hospital_level || '其他')">{{ h.hospital_level }}</text>
-              <text v-if="h.hospital_type" class="tag-hosp-type hosp-type">{{ h.hospital_type }}</text>
+              <text v-if="h.hospital_level" class="tag-hosp-level" :class="'lvl-' + (h.hospital_level || '其他')">{{ h.hospital_level }}</text>
+              <text v-if="h.hospital_type" class="tag-hosp-type">{{ h.hospital_type }}</text>
               <text v-if="h.district_name" class="muted">{{ h.district_name }}</text>
             </view>
           </view>
@@ -199,7 +199,7 @@
           <view class="metro-main">
             <view class="metro-head">
               <text class="metro-name">{{ m.line_name }}</text>
-              <text v-if="m.status" class="tag-metro-status metro-status" :class="'st-' + m.status">{{ m.status }}</text>
+              <text v-if="m.status" class="tag-metro-status" :class="'st-' + m.status">{{ m.status }}</text>
               <text v-if="m.open_year_expected" class="muted muted-caption">预计 {{ m.open_year_expected }} 开通</text>
             </view>
             <view class="muted metro-detail">
