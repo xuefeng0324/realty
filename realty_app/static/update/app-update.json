@@ -1,12 +1,12 @@
 {
-  "versionName": "1.123.41",
-  "versionCode": "376",
-  "publishedAt": "2026-11-03T09:14:02Z",
+  "versionName": "1.123.42",
+  "versionCode": "377",
+  "publishedAt": "2026-11-03T09:19:51Z",
   "force": false,
-  "notes": "fix(realty_app): dashboard.vue \u6da8\u8dcc\u8272\u5168 token \u5316\uff08trend-up/down / stats70-up/down / wangqian-up / wq-trend-up/down\uff09v1.123.41\n\n2026-07-25-v1.121.7-\u623f\u6e90\u6253\u5f00\u8d1d\u58f3App: v1.121.7 \u2014 \u623f\u6e90\u8df3\u8d1d\u58f3 + \u79bb\u7ebf APK \u8865 zip4j\uff08\u4fee OTA 100% \u95ea\u9000\uff09\n2026-07-25-v1.121.8-\u79bb\u7ebfOTA\u81ea\u68c0\u52a0\u56fa: v1.121.8 \u2014 \u79bb\u7ebf\u5305 OTA \u81ea\u68c0\u52a0\u56fa\uff08zip4j + install-apk + \u5ba1\u8ba1\u811a\u672c\uff09\n2026-07-25-v1.121.9-OTA\u9a8c\u8bc1130: v1.121.9 \u2014 OTA \u9a8c\u8bc1\u5305 130\n",
+  "notes": "fix(realty_app): scoped-style \u901a\u7528\u8272 token \u5316\uff08#cbd5e1/#475569/#94a3b8/#111\uff09v1.123.42\n\n2026-07-25-v1.113.0-\u884c\u653f\u533a\u5212\u63a5\u5165\u4e0e\u6d3e\u751f: v1.113.0 \u2014 \u884c\u653f\u533a\u5212\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.114.0-\u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f: v1.114.0 \u2014 \u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f\n2026-07-25-v1.115.0-\u533b\u9662\u5750\u6807\u63a5\u5165\u4e0e\u6d3e\u751f: v1.115.0 \u2014 \u533b\u9662\u5750\u6807\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/376/app.wgt",
-    "sha256": "4a1b41646c92927b04185ec649cb63fb5eb84eabffffb244c9d16f6f0dc34735"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/377/app.wgt",
+    "sha256": "b21dfb74c98888d2d41424bc7f4b364066f2ce56afb20749b3e3937746a12c3c"
   },
   "ios": {
     "available": false,
