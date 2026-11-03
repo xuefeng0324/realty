@@ -230,12 +230,12 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
   });
 
   it("进阶卡 hot 配置保留；入口在设置/频道（不在总览占位）", () => {
+    // v1.123.21：dashboard 内 ADVANCED_CARDS（含 hot 标记）为从未接入模板的死代码，已删除；
+    // 进阶分析实际承接页是 trend-analysis（入口在设置/频道）
     const dashSrc4 = readFileSync(
       resolve(__dirname, "../src/pages/dashboard/dashboard.vue"),
       "utf8"
     );
-    const hotMatches = dashSrc4.match(/hot:\s+true/g) || [];
-    expect(hotMatches.length).toBeGreaterThanOrEqual(4);
     expect(dashSrc4).not.toContain("data-dash-advanced-section");
     const settingsSrc = readFileSync(
       resolve(__dirname, "../src/pages/settings/settings.vue"),
@@ -315,7 +315,6 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(dashSrc).toContain("featuredMode");
     expect(dashSrc).toContain("FEATURED_MODE_KEY");
     expect(dashSrc).toContain("loadUiState");
-    expect(dashSrc).toContain("ADVANCED_CARDS");
     expect(dashSrc).toContain("goDataTools");
     expect(dashSrc).toContain("goTrendAnalysis");
     expect(dashSrc).not.toContain("data-dash-mode-toggle");
@@ -445,8 +444,33 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     );
     expect(settingsSrc).toContain("data-settings-featured-toggle");
     expect(settingsSrc).toContain("toggleFeaturedMode");
-    const advKeyMatches = dashSrc.match(/key:\s+"[a-z][a-z0-9-]+",\s+label:\s+"[^"]+"/g) || [];
-    expect(advKeyMatches.length).toBeGreaterThanOrEqual(10);
+    // v1.123.21：进阶分析区块死代码删除——ADVANCED_CARDS/advancedCardCount/toggleFeaturedMode(仪表盘本地)/
+    // expandAdvancedCards/advancedExpanded/ADVANCED_EXPANDED_KEY 从未接入模板（真实精简/完整开关在
+    // settings.vue），dashboard.vue 不再保留；featuredMode/loadUiState/FEATURED_MODE_KEY 保留（壳层精简模式仍生效）
+    expect(dashSrc).not.toMatch(/ADVANCED_CARDS|advancedCardCount|expandAdvancedCards|advancedExpanded|ADVANCED_EXPANDED_KEY/);
+    expect(dashSrc).not.toMatch(/function toggleFeaturedMode/);
+    // v1.123.21：首页卡片管理列表修复——macro-lpr 条目 key 与卡面 data-card-key="macro-lpr-card"
+    // 失配导致开关失效（bug），已修正；同时删除 7 个无对应卡面的死条目（district-wangqian-rank /
+    // poi-commercial / school-top-filter-sort / bedroom-area-heatmap / orientation-floor-matrix /
+    // decorate-age-matrix / community-scatter），DASHBOARD_CARDS 18→11 与卡面 data-card-key 一一对应
+    expect(toolsSrc).not.toContain('"district-wangqian-rank"');
+    expect(toolsSrc).not.toContain('"poi-commercial"');
+    expect(toolsSrc).not.toContain('"school-top-filter-sort"');
+    expect(toolsSrc).not.toContain('"bedroom-area-heatmap"');
+    expect(toolsSrc).not.toContain('"orientation-floor-matrix"');
+    expect(toolsSrc).not.toContain('"decorate-age-matrix"');
+    expect(toolsSrc).not.toContain('"community-scatter"');
+    expect(toolsSrc).not.toContain('"macro-lpr"');
+    expect(toolsSrc).toContain('"macro-lpr-card"');
+    const dashCardKeys = Array.from(dashSrc.matchAll(/data-card-key="([^"]+)"/g))
+      .map((m) => m[1])
+      .sort();
+    const cardsBlockMatch = toolsSrc.match(/const DASHBOARD_CARDS[^{]*\[([\s\S]*?)\];/);
+    const managedKeys = Array.from(cardsBlockMatch![1].matchAll(/key: "([^"]+)"/g))
+      .map((m) => m[1])
+      .sort();
+    expect(managedKeys).toEqual(dashCardKeys);
+    expect(managedKeys.length).toBe(11);
     // v1.123.20：户型分布 + 房源标签云 + 区房价指数 + 区涨幅榜 4 张死 DOM 卡整删
     // （v1.122 起被壳层 CSS 永久隐藏；layout-distribution 卡从未接入 isCardHidden 隐藏协议，
     // 卡片管理里对应条目为无效 bug 条目，随卡一并删除）；

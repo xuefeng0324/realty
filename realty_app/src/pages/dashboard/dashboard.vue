@@ -3365,49 +3365,14 @@ function toggleCardHidden(key: string) {
   saveHiddenCards();
 }
 
-// v1.121.147 Batch 8: 精简/完整模式 + 进阶分析区块
+// v1.121.147 Batch 8: 精简/完整模式（开关在 settings.vue；v1.123.21 删除未接入模板的进阶区死代码）
 const FEATURED_MODE_KEY = "realty_dashboard_featured_mode";
-const ADVANCED_EXPANDED_KEY = "realty_dashboard_advanced_expanded";
 const featuredMode = ref<boolean>(true);  // 默认精简模式
-const advancedExpanded = ref<boolean>(false);  // 默认折叠
-const ADVANCED_CARDS: { key: string; label: string; hint: string; hot?: boolean }[] = [
-  { key: "bedroom-area-heatmap", label: "户型×面积 热图", hint: "bedroomAreaDistribution 联合分布" },
-  { key: "orientation-floor-matrix", label: "朝向×楼层 溢价", hint: "orientationFloorMatrix 朝向×楼层溢价" },
-  { key: "decorate-age-matrix", label: "装修×楼龄 溢价", hint: "decorateAgeMatrix 装修×楼龄溢价" },
-  { key: "community-scatter", label: "总价×单价 散点", hint: "communityScatter 双轴散点可视化" },
-  { key: "district-map", label: "行政区+社区 地图", hint: "districtMap 地图聚合 marker/count/price/school/metro 模式", hot: true },
-  { key: "school-dim-weighted", label: "学区指标加权", hint: "schoolDimensions 加权细分明细", hot: true },
-  { key: "macro-lpr-card", label: "LPR+房贷利率", hint: "LPR 1y/5y + 房贷利率快照", hot: true },
-  { key: "stats70-drift", label: "70 城涨跌 Top", hint: "stats70 城市 12 月同比趋势" },
-  { key: "lpr-mortgage-signal", label: "LPR 与房贷利率信号", hint: "lprOverview 信号卡" },
-  { key: "district-wangqian-3cat", label: "区级网签 (新房/二手/全部)", hint: "districtWangqianRank 三品类 tab", hot: true }
-];
-const advancedCardCount = computed(() => ADVANCED_CARDS.length);
-function toggleFeaturedMode() {
-  featuredMode.value = !featuredMode.value;
-  try {
-    uni.setStorageSync(FEATURED_MODE_KEY, JSON.stringify(featuredMode.value));
-  } catch (e) {
-    console.warn("saveFeaturedMode failed:", e);
-  }
-}
-function expandAdvancedCards() {
-  advancedExpanded.value = true;
-  try {
-    uni.setStorageSync(ADVANCED_EXPANDED_KEY, JSON.stringify(true));
-  } catch (e) {
-    console.warn("saveAdvancedExpanded failed:", e);
-  }
-}
 function loadUiState() {
   try {
     const raw = uni.getStorageSync(FEATURED_MODE_KEY);
     if (typeof raw === "string" && raw.length > 0) {
       featuredMode.value = JSON.parse(raw) as boolean;
-    }
-    const raw2 = uni.getStorageSync(ADVANCED_EXPANDED_KEY);
-    if (typeof raw2 === "string" && raw2.length > 0) {
-      advancedExpanded.value = JSON.parse(raw2) as boolean;
     }
   } catch (e) {
     console.warn("loadUiState failed:", e);

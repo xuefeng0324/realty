@@ -1829,21 +1829,14 @@ interface DashboardCardEntry { key: string; label: string; }
 const DASHBOARD_CARDS: DashboardCardEntry[] = [
   { key: "region-compare", label: "区/板块对比" },
   { key: "district-8w-trend", label: "区级近 8 周价格趋势" },
-  { key: "district-wangqian-rank", label: "全品类区级网签热度榜" },
   { key: "district-wangqian-3cat", label: "区级网签 (新房/二手/全部 tab)" },
   { key: "listing-freshness", label: "房源新鲜度" },
-  { key: "bedroom-area-heatmap", label: "户型 × 面积 联合热图" },
-  { key: "orientation-floor-matrix", label: "朝向 × 楼层 溢价矩阵" },
-  { key: "decorate-age-matrix", label: "装修 × 楼龄 溢价矩阵" },
-  { key: "community-scatter", label: "社区 总价 × 单价 双轴散点" },
   { key: "district-map", label: "行政区 + 社区 marker 地图" },
   { key: "school-dim-weighted", label: "学区指标加权细分" },
-  { key: "macro-lpr", label: "宏观·LPR+房贷利率" },
+  { key: "macro-lpr-card", label: "宏观·LPR+房贷利率" },
   { key: "stats70-drift", label: "70 城涨跌 Top" },
   { key: "lpr-mortgage-signal", label: "LPR 与房贷利率信号" },
-  { key: "poi-commercial", label: "周边商业 POI" },
   { key: "life-convenience", label: "生活便利度榜 v2 (6 维)" },
-  { key: "school-top-filter-sort", label: "学区 Top 过滤 + 排序" },
   { key: "multi-community-compare", label: "同区多小区对比" }
 ];
 const hiddenCards = ref<Set<string>>(new Set());
