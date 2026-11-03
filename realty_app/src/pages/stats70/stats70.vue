@@ -125,12 +125,12 @@
       <!-- 派生：全国排位 / 趋势方向 / 近12月 -->
       <view v-if="hasData" class="card">
         <view class="card-title">派生洞察 · {{ focusCity }}</view>
-        <view v-if="cityRank" class="muted" style="margin-bottom: 8rpx; font-size: 24rpx">
+        <view v-if="cityRank" class="muted" style="margin-bottom: 8rpx">
           全国排位 #{{ cityRank.rank }}/{{ cityRank.totalCities }}
           （前 {{ cityRank.topPct }}%）· {{ base }}{{ kind === "new" ? "新建" : "二手" }}
           {{ formatIndex(cityRank.value) }}
         </view>
-        <view v-if="cityTrendDir" class="muted" style="margin-bottom: 8rpx; font-size: 24rpx">
+        <view v-if="cityTrendDir" class="muted" style="margin-bottom: 8rpx">
           近月方向：
           <text :class="cityTrendDir.direction === '上涨' ? 'trend-up' : cityTrendDir.direction === '下跌' ? 'trend-down' : ''">
             {{ cityTrendDir.direction }}

@@ -58,7 +58,7 @@
       <!-- 挂牌新鲜度（listing_freshness 派生） -->
       <view v-if="listingFreshness" class="card">
         <view class="card-title">挂牌新鲜度</view>
-        <view class="muted" style="margin-bottom: 8rpx; font-size: 24rpx">
+        <view class="muted" style="margin-bottom: 8rpx">
           新鲜度分 {{ listingFreshness.freshnessScore.toFixed(0) }}
           · 中位龄
           {{
