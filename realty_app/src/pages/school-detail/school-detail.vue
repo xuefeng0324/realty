@@ -188,7 +188,7 @@ onLoad((query?: Record<string, string>) => {
 .detail-container { padding-bottom: 40rpx; }
 .quicknav { display: flex; gap: 12rpx; margin-bottom: 18rpx; }
 .quick-btn { padding: 10rpx 16rpx; border: 1rpx solid var(--color-border); border-radius: var(--radius-pill); background: var(--color-surface); color: var(--color-text-secondary); font-size: 21rpx; }
-.school-hero { display: flex; justify-content: space-between; align-items: center; gap: 28rpx; padding: 34rpx; border: 1rpx solid var(--color-border); border-radius: 24rpx; background: linear-gradient(135deg, rgba(34, 197, 94, 0.16), var(--color-surface) 62%); box-shadow: var(--shadow-card); }
+.school-hero { display: flex; justify-content: space-between; align-items: center; gap: 28rpx; padding: 34rpx; border: 1rpx solid var(--color-border); border-radius: var(--radius-lg); background: linear-gradient(135deg, rgba(34, 197, 94, 0.16), var(--color-surface) 62%); box-shadow: var(--shadow-card); }
 .hero-copy { min-width: 0; }
 .hero-eyebrow { color: var(--color-primary); font-size: 19rpx; font-weight: 700; letter-spacing: 2rpx; }
 .hero-title { margin-top: 10rpx; color: var(--color-heading); font-size: 40rpx; font-weight: 750; line-height: 1.3; }
@@ -205,7 +205,7 @@ onLoad((query?: Record<string, string>) => {
 .score-value { color: var(--color-heading); font-size: 42rpx; font-weight: 750; line-height: 1; }
 .score-label { margin-top: 5rpx; color: var(--color-muted); font-size: 19rpx; }
 .metrics-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14rpx; margin: 18rpx 0; }
-.metric-card { padding: 20rpx; border: 1rpx solid var(--color-border); border-radius: 16rpx; background: var(--color-surface); box-shadow: var(--shadow-card); }
+.metric-card { padding: 20rpx; border: 1rpx solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); box-shadow: var(--shadow-card); }
 .metric-label { color: var(--color-muted); font-size: 20rpx; }
 .metric-value { margin-top: 7rpx; color: var(--color-heading); font-size: 32rpx; font-weight: 700; }
 .metric-value--text { overflow: hidden; font-size: 22rpx; text-overflow: ellipsis; white-space: nowrap; }

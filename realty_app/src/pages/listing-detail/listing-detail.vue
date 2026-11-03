@@ -702,7 +702,7 @@ onMounted(async () => {
   margin: 8rpx 0 24rpx;
   background: color-mix(in srgb, var(--color-card, var(--color-surface)) 92%, transparent);
   backdrop-filter: blur(8px);
-  border-radius: 16rpx;
+  border-radius: var(--radius-md);
   border: 1rpx solid var(--color-border, rgba(148, 163, 184, 0.25));
 }
 .source-dock-primary,
@@ -757,7 +757,7 @@ button.source-dock-ghost {
 .derived-warning {
   margin-top: 12rpx;
   padding: 12rpx 16rpx;
-  border-radius: 10rpx;
+  border-radius: var(--radius-sm);
   background: rgba(245, 158, 11, 0.12);
   color: #fde68a;
   font-size: 22rpx;
@@ -774,7 +774,7 @@ button.source-dock-ghost {
   flex: 1;
   min-width: 140rpx;
   padding: 14rpx 18rpx;
-  border-radius: 10rpx;
+  border-radius: var(--radius-sm);
   background: var(--color-soft);
   font-size: 24rpx;
   color: var(--color-chip-text);

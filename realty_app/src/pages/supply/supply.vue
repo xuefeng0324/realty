@@ -480,7 +480,7 @@ onMounted(() => {
 .sheet {
   width: 100%;
   background: var(--color-card, #0f172a);
-  border-radius: 24rpx 24rpx 0 0;
+  border-radius: var(--radius-lg) 24rpx 0 0;
   padding: 24rpx 28rpx 48rpx;
 }
 .sheet-title {

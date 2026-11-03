@@ -951,7 +951,7 @@ function openGithubReleases() {
   flex: 0 0 82rpx;
   width: 82rpx;
   height: 68rpx;
-  border-radius: 10rpx;
+  border-radius: var(--radius-sm);
   background: var(--color-soft);
 }
 

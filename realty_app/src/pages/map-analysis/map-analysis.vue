@@ -385,12 +385,12 @@ watch(
 
 <style scoped>
 .page { padding: 16rpx; padding-bottom: 80rpx; }
-.header { padding: 16rpx 24rpx; background: var(--color-surface, #fff); border-radius: 16rpx; margin-bottom: 16rpx; }
+.header { padding: 16rpx 24rpx; background: var(--color-surface, #fff); border-radius: var(--radius-md); margin-bottom: 16rpx; }
 .title { font-size: 36rpx; font-weight: 700; color: var(--color-text, #333); }
 .muted { color: var(--color-muted, #666); font-size: 24rpx; }
 .empty { text-align: center; padding: 40rpx 0; color: var(--color-muted, #999); }
 .row-between { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12rpx; }
-.card { background: var(--color-surface, #fff); border-radius: 16rpx; padding: 20rpx; margin-bottom: 16rpx; border: 1rpx solid var(--color-border-soft, #eee); }
+.card { background: var(--color-surface, #fff); border-radius: var(--radius-md); padding: 20rpx; margin-bottom: 16rpx; border: 1rpx solid var(--color-border-soft, #eee); }
 .card-title { font-size: 30rpx; font-weight: 600; color: var(--color-text, #333); }
 .footer { display: flex; justify-content: space-between; gap: 12rpx; margin-top: 24rpx; }
 .back-btn, .reload-btn { flex: 1; margin: 0; font-size: 26rpx; padding: 0 24rpx; border-radius: var(--radius-pill) !important; background: var(--color-soft, #f5f5f5) !important; color: var(--color-text, #333) !important; }

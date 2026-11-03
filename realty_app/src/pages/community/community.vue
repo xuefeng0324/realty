@@ -731,7 +731,7 @@ onMounted(() => {
   flex: 1;
   min-width: 140rpx;
   padding: 14rpx 18rpx;
-  border-radius: 10rpx;
+  border-radius: var(--radius-sm);
   background: var(--color-soft);
   font-size: 24rpx;
   color: var(--color-chip-text);

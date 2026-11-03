@@ -1211,7 +1211,7 @@ onUnmounted(() => {
   justify-content: center;
   width: 34rpx;
   height: 34rpx;
-  border-radius: 10rpx;
+  border-radius: var(--radius-sm);
   color: #fff;
   background: linear-gradient(135deg, #10b981, #0ea5e9);
   font-size: 18rpx;
@@ -1249,7 +1249,7 @@ onUnmounted(() => {
   height: 70rpx;
   line-height: 70rpx;
   padding: 0 20rpx;
-  border-radius: 16rpx;
+  border-radius: var(--radius-md);
   color: #fff;
   background: linear-gradient(135deg, #059669, #0d9488);
   font-size: 22rpx;

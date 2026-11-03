@@ -211,7 +211,7 @@ function restartNow() {
   max-width: 640rpx;
   background: var(--color-surface);
   border: 1rpx solid var(--color-border);
-  border-radius: 24rpx;
+  border-radius: var(--radius-lg);
   padding: 36rpx 32rpx 28rpx;
   box-shadow: var(--shadow-card);
 }

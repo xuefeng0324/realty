@@ -3997,7 +3997,7 @@ onShow(async () => {
   line-height: 66rpx;
   padding: 0 14rpx;
   border: 1rpx solid var(--color-border);
-  border-radius: 10rpx;
+  border-radius: var(--radius-sm);
   background: var(--color-surface);
   color: var(--color-text);
   font-size: 26rpx;
@@ -4269,7 +4269,7 @@ onShow(async () => {
   padding: 12rpx 16rpx;
   background: var(--color-panel);
   border: 1rpx solid var(--color-soft);
-  border-radius: 10rpx;
+  border-radius: var(--radius-sm);
 }
 .rank-val {
   font-size: 26rpx;
@@ -4438,7 +4438,7 @@ onShow(async () => {
 .wq-cat-tab {
   font-size: 22rpx;
   padding: 4rpx 12rpx;
-  border-radius: 16rpx;
+  border-radius: var(--radius-md);
   border: 1rpx solid var(--color-muted);
 }
 .wq-cat-tab-on {
@@ -4840,7 +4840,7 @@ onShow(async () => {
 .lpr-kpi-cell {
   flex: 1;
   background: linear-gradient(135deg, #fef3c7, #fde68a);
-  border-radius: 10rpx;
+  border-radius: var(--radius-sm);
   padding: 14rpx 10rpx;
   text-align: center;
   border: 1rpx solid #fcd34d;
@@ -5103,7 +5103,7 @@ onShow(async () => {
   position: relative;
   overflow: hidden;
   padding: 36rpx 32rpx 30rpx;
-  border-radius: 32rpx;
+  border-radius: var(--radius-xl);
   color: #f8fffc;
   background:
     radial-gradient(circle at 95% 5%, rgba(56, 189, 248, 0.28), transparent 38%),
@@ -5188,7 +5188,7 @@ onShow(async () => {
   margin-top: 32rpx;
   padding: 0 12rpx 0 24rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.18);
-  border-radius: 24rpx;
+  border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 14rpx 36rpx rgba(0, 31, 27, 0.2);
 }

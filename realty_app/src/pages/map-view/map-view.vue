@@ -1334,7 +1334,7 @@ onUnmounted(() => {
 }
 .poi-toggle {
   padding: 4rpx 14rpx;
-  border-radius: 16rpx;
+  border-radius: var(--radius-md);
   font-size: 22rpx;
   border: 1rpx solid transparent;
   cursor: pointer;
@@ -1462,7 +1462,7 @@ onUnmounted(() => {
   max-height: 46vh;
   background: var(--color-surface);
   border-top: 1rpx solid var(--color-border);
-  border-radius: 24rpx 24rpx 0 0;
+  border-radius: var(--radius-lg) 24rpx 0 0;
   box-shadow: 0 -8rpx 28rpx rgba(15, 23, 42, 0.12);
   padding: 16rpx 20rpx calc(16rpx + var(--safe-area-bottom, 0px));
   display: flex;

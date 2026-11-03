@@ -351,7 +351,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 .header {
   padding: 16rpx 24rpx;
   background: var(--color-surface, #fff);
-  border-radius: 16rpx;
+  border-radius: var(--radius-md);
   margin-bottom: 16rpx;
 }
 .title {
@@ -376,7 +376,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 }
 .card {
   background: var(--color-surface, #fff);
-  border-radius: 16rpx;
+  border-radius: var(--radius-md);
   padding: 20rpx;
   margin-bottom: 16rpx;
   border: 1rpx solid var(--color-border-soft, #eee);
