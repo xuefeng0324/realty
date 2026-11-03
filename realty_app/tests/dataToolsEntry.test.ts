@@ -345,7 +345,7 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(homeEntrySrc).toContain("HOME_SEARCH_MODES");
     expect(homeEntrySrc).toContain("resolveHomeSearch");
     // v1.123.13：医疗资源榜死 DOM 已删除（库 hospitalRanking 与单测保留，hospitalGeoAnalysis 已于 v1.123.16 死库瘦身删除；
-    // listing-detail/community「周边医院」卡不受影响；hospitalCityName 与周边商业/菜市场共用故保留）
+    // listing-detail/community「周边医院」卡不受影响；hospitalCityName 与今日要点/菜市场共用故保留）
     expect(dashSrc).not.toMatch(/hospital-rank|hospitalCitySummary|hospitalGeoSummary|hospitalDisplayName/);
     expect(dashSrc).not.toMatch(/hospitalRanking|hospitalGeoAnalysis/);
     expect(dashSrc).not.toMatch(/hosp-geo|hosp-top|hosp-dist|hosp-kpi|hosp-summary|hosp-lv/);
@@ -498,6 +498,17 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(existsSync(resolve(__dirname, "../tests/e2e/smoke_tagcloud.mjs"))).toBe(false);
     expect(existsSync(resolve(__dirname, "../tests/e2e/smoke_district_index.mjs"))).toBe(false);
     expect(existsSync(resolve(__dirname, "../tests/e2e/smoke_district_change.mjs"))).toBe(false);
+    // v1.123.22：周边商业 POI 死 DOM 卡整删（v1.122 起被壳层 CSS 永久隐藏；模板 195 行 +
+    // 15 个 commercial* computed 与 categoryLabel + poiCommercialRanking 导入块 +
+    // .pc-summary/.pc-kpi/.pc-kpi-val/.pc-kpi-label/.pc-score 独有 CSS 一并删；
+    // 库 poiCommercialRanking 保留——adversarialRankingProbe/cityOfMismatchHunt/
+    // poiCommercialRanking.test 在测；store 数据面 poi_commercial.csv 保留；
+    // 菜市场可达卡与 hospitalCityName/pc-row/pc-dist 不受影响）
+    expect(dashSrc).not.toMatch(/周边商业|commercialReady|commercialCityPois|commercialCatCount|commercialAvgDist/);
+    expect(dashSrc).not.toMatch(/commercialWalkTop|commercialBankNear|commercialRestaurantNear|commercialConvenienceNear|commercialSevenElevenNear/);
+    expect(dashSrc).not.toMatch(/commercialBankCoverage|poiCommercialCitySummaries|commercialNearestAcross|commercialCategoryTopSample|commercialCategoryStats|categoryLabel/);
+    expect(dashSrc).not.toMatch(/poiCommercialRanking|pc-summary|pc-kpi|pc-score/);
+    expect(dashSrc).toMatch(/菜市场可达/); // 菜市场卡不受影响
   });
 
   it("dashboard.vue v1.121.147 Batch 8：每张核心卡右上角 ✕ 隐藏按钮", () => {

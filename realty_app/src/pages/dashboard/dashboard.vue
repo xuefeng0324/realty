@@ -2430,201 +2430,6 @@
         </template>
       </view>
 
-      <!-- v1.121.15 周边商业 POI（poiCommercialRanking，此前未接仪表盘） -->
-      <view v-if="commercialReady" class="card">
-        <view class="row-between">
-          <view class="card-title">🏪 周边商业 · {{ hospitalCityName }}</view>
-          <view class="muted">{{ commercialCommunityCount }} 小区</view>
-        </view>
-        <view class="pc-summary">
-          <view class="pc-kpi">
-            <text class="pc-kpi-val">{{ commercialCatCount.restaurant }}</text>
-            <text class="pc-kpi-label muted">餐饮</text>
-          </view>
-          <view class="pc-kpi">
-            <text class="pc-kpi-val">{{ commercialCatCount.bank }}</text>
-            <text class="pc-kpi-label muted">银行</text>
-          </view>
-          <view class="pc-kpi">
-            <text class="pc-kpi-val">{{ commercialCatCount.convenience }}</text>
-            <text class="pc-kpi-label muted">便利店</text>
-          </view>
-          <view class="pc-kpi">
-            <text class="pc-kpi-val">{{ Math.round(commercialAvgDist) }}</text>
-            <text class="pc-kpi-label muted">均距 m</text>
-          </view>
-        </view>
-        <view data-cross-city v-if="poiCommercialCitySummaries.length" class="muted" style="margin: 4rpx 0 4rpx; font-size: 22rpx">
-          跨城 POI 密度对照
-        </view>
-        <view
-          v-for="c in poiCommercialCitySummaries"
-          :key="'pcs-' + c.cityId"
-          class="pc-row"
-        >
-          <text class="pc-rank muted">{{ cityNameForId(c.cityId) }}</text>
-          <view class="pc-mid">
-            <text class="pc-name">{{ c.totalPois }} POI · {{ c.communityCount }} 小区</text>
-            <text class="pc-meta muted">
-              餐{{ c.categoryDistribution.restaurant }} / 银{{ c.categoryDistribution.bank }} / 便{{ c.categoryDistribution.convenience }}
-              · 均 {{ Math.round(c.avgTopDistanceM) }} m
-            </text>
-          </view>
-        </view>
-        <view v-if="commercialNearestAcrossSample.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
-          样例小区最近生活 POI · {{ commercialNearestAcrossName }}
-        </view>
-        <view
-          v-for="(p, idx) in commercialNearestAcrossSample"
-          :key="'cna-' + p.communityId + p.poiCategory + idx"
-          class="pc-row"
-        >
-          <text class="pc-rank muted">{{ idx + 1 }}</text>
-          <view class="pc-mid">
-            <text class="pc-name">{{ categoryLabel(p.poiCategory) }} · {{ p.poiName }}</text>
-            <text class="pc-meta muted">{{ p.poiType || "—" }}</text>
-          </view>
-          <text class="pc-dist">{{ Math.round(p.distanceM) }} m</text>
-        </view>
-        <view v-if="commercialCategoryTopSample.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
-          样例小区三类最近各 1 · {{ commercialNearestAcrossName }}
-        </view>
-        <view
-          v-for="p in commercialCategoryTopSample"
-          :key="'cct-' + p.poiCategory"
-          class="pc-row"
-        >
-          <text class="pc-rank muted">{{ categoryLabel(p.poiCategory) }}</text>
-          <view class="pc-mid">
-            <text class="pc-name">{{ p.poiName }}</text>
-            <text class="pc-meta muted">{{ p.address || "—" }}</text>
-          </view>
-          <text class="pc-dist">{{ Math.round(p.distanceM) }} m</text>
-        </view>
-        <view v-if="commercialBankCoverage" class="muted" style="margin: 4rpx 0 8rpx; font-size: 22rpx">
-          银行覆盖小区
-          {{ commercialBankCoverage.bankCoveredCommunities }}/{{ commercialBankCoverage.totalCommunities }}
-          （{{ (commercialBankCoverage.coverageRatio * 100).toFixed(0) }}%）
-        </view>
-        <view v-if="commercialCategoryStats.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
-          全国品类均距（派生）
-        </view>
-        <view
-          v-for="c in commercialCategoryStats"
-          :key="'pcc-' + c.category"
-          class="pc-row"
-        >
-          <text class="pc-rank muted">{{ categoryLabel(c.category) }}</text>
-          <view class="pc-mid">
-            <text class="pc-name">{{ c.poiCount }} POI · {{ c.communityCount }} 小区</text>
-            <text class="pc-meta muted">
-              均 {{ Math.round(c.avgTopDistanceM) }} m · 最近 {{ Math.round(c.minTopDistanceM) }} m
-            </text>
-          </view>
-        </view>
-        <view class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">步行便利 Top（≤500m 加权）</view>
-        <view
-          v-for="(w, idx) in commercialWalkTop"
-          :key="'walk-' + w.communityId"
-          class="pc-row tap-row"
-          hover-class="tap-row--active"
-          @click="goCommunity(w.communityId)"
-        >
-          <text class="pc-rank muted">{{ idx + 1 }}</text>
-          <view class="pc-mid">
-            <text class="pc-name">{{ communityDisplayName(w.communityId) }}</text>
-            <text class="pc-meta muted">≤100m {{ w.nearCount100 }} · ≤200m {{ w.nearCount200 }} · ≤500m {{ w.nearCount500 }}</text>
-          </view>
-          <text class="pc-score">{{ w.walkScore }}</text>
-        </view>
-        <view v-if="commercialRestaurantNear.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          最近餐饮 Top
-        </view>
-        <view
-          v-for="(b, idx) in commercialRestaurantNear"
-          :key="'rest-' + b.communityId"
-          class="pc-row tap-row"
-          hover-class="tap-row--active"
-          @click="goCommunity(b.communityId)"
-        >
-          <text class="pc-rank muted">{{ idx + 1 }}</text>
-          <view class="pc-mid">
-            <text class="pc-name">{{ communityDisplayName(b.communityId) }}</text>
-            <text class="pc-meta muted">{{ b.poiName }}</text>
-          </view>
-          <text class="pc-dist">{{ Math.round(b.distanceM) }} m</text>
-        </view>
-        <view class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">最近银行 Top</view>
-        <view
-          v-for="(b, idx) in commercialBankNear"
-          :key="'bank-' + b.communityId"
-          class="pc-row tap-row"
-          hover-class="tap-row--active"
-          @click="goCommunity(b.communityId)"
-        >
-          <text class="pc-rank muted">{{ idx + 1 }}</text>
-          <view class="pc-mid">
-            <text class="pc-name">{{ communityDisplayName(b.communityId) }}</text>
-            <text class="pc-meta muted">{{ b.poiName }}</text>
-          </view>
-          <text class="pc-dist">{{ Math.round(b.distanceM) }} m</text>
-        </view>
-        <view data-cross-city v-if="commercialBankNearestCross.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          跨城最近银行小区（派生）
-        </view>
-        <view
-          v-for="(b, idx) in commercialBankNearestCross"
-          :key="'bnx-' + b.communityId"
-          class="pc-row tap-row"
-          hover-class="tap-row--active"
-          @click="goCommunity(b.communityId)"
-        >
-          <text class="pc-rank muted">{{ idx + 1 }}</text>
-          <view class="pc-mid">
-            <text class="pc-name">{{ cityNameForId(b.cityId) }} · {{ communityDisplayName(b.communityId) }}</text>
-            <text class="pc-meta muted">{{ b.poiName }}</text>
-          </view>
-          <text class="pc-dist">{{ Math.round(b.distanceM) }} m</text>
-        </view>
-        <view v-if="commercialConvenienceNear.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          最近便利店 Top
-        </view>
-        <view
-          v-for="(b, idx) in commercialConvenienceNear"
-          :key="'conv-' + b.communityId"
-          class="pc-row tap-row"
-          hover-class="tap-row--active"
-          @click="goCommunity(b.communityId)"
-        >
-          <text class="pc-rank muted">{{ idx + 1 }}</text>
-          <view class="pc-mid">
-            <text class="pc-name">{{ communityDisplayName(b.communityId) }}</text>
-            <text class="pc-meta muted">{{ b.poiName }}</text>
-          </view>
-          <text class="pc-dist">{{ Math.round(b.distanceM) }} m</text>
-        </view>
-        <view v-if="commercialSevenElevenNear.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          最近 7-ELEVEn Top
-        </view>
-        <view
-          v-for="(b, idx) in commercialSevenElevenNear"
-          :key="'711-' + b.communityId"
-          class="pc-row tap-row"
-          hover-class="tap-row--active"
-          @click="goCommunity(b.communityId)"
-        >
-          <text class="pc-rank muted">{{ idx + 1 }}</text>
-          <view class="pc-mid">
-            <text class="pc-name">{{ communityDisplayName(b.communityId) }}</text>
-            <text class="pc-meta muted">{{ b.poiName }}</text>
-          </view>
-          <text class="pc-dist">{{ Math.round(b.distanceM) }} m</text>
-        </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：poi_commercial.csv（餐饮 / 银行 / 便利店，每小区每类 Top3）。
-        </view>
-      </view>
-
       <!-- v1.121.15 菜市场/超市可达（poiMarketRanking） -->
       <view v-if="marketNearTop.length" class="card">
         <view class="row-between">
@@ -3089,26 +2894,6 @@ import { listingMedianUnitPriceLabel } from "../../local/priceSemantics";
 import { assessStats70Freshness } from "../../local/stats70Freshness";
 import * as store from "../../local/store";
 import {
-  getPoiCommercialByCommunityWalkScore,
-  getPoiCommercialCrossCommunityByCategoryDistance,
-  getPoiCommercialByCityBankCoverage,
-  getPoiCommercialByCityConvenienceLeaderboard,
-  getPoiCommercialByCityRestaurantNearestByCommunity,
-  getPoiCommercialByPoiTypeLeaderboard,
-  summarizePoiCommercialByCategory,
-  summarizePoiCommercialByCity,
-  getPoiCommercialByCommunityNearestAcross,
-  getPoiCommercialByCommunityTopByCategory,
-  getPoiCommercialByCityBankNearestByCommunity,
-  type WalkScore,
-  type CommunityBankNearest,
-  type CityBankCoverage,
-  type PoiTypeLeaderboardEntry,
-  type CategoryPoiCommercialSummary,
-  type CityPoiCommercialSummary,
-  type CommunityCategoryTop
-} from "../../local/poiCommercialRanking";
-import {
   summarizePoiMarketByCommunity,
   getPoiMarketByCategoryRanking,
   getPoiMarketNearestByCommunity,
@@ -3207,7 +2992,7 @@ import {
   type CrossCityOrientationFloorEntry,
   type CityOrientationFloorSummary
 } from "../../local/orientationFloorRanking";
-import type { LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalMetroLine, LocalCommunityScatter, LocalLprRow, LocalLifeConvenience, LocalPoiCommercial, LocalMetroLineGeo } from "../../local/types";
+import type { LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalMetroLine, LocalCommunityScatter, LocalLprRow, LocalLifeConvenience, LocalMetroLineGeo } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -3405,84 +3190,6 @@ function communityIdsInCity(cityId: number): Set<number> {
   return new Set(
     store.getCommunitiesByCity(cityId).map((c) => c.communityId)
   );
-}
-
-// v1.121.15 周边商业
-const commercialCityPois = computed(() =>
-  store.getPoiCommercials().filter((x) => store.getCommunityById(x.communityId)?.cityId === app.cityId)
-);
-const commercialReady = computed(() => commercialCityPois.value.length > 0);
-const commercialCommunityCount = computed(() => communityIdsInCity(app.cityId).size);
-const commercialCatCount = computed(() => {
-  const c = { restaurant: 0, bank: 0, convenience: 0 };
-  for (const x of commercialCityPois.value) {
-    if (x.poiCategory in c) c[x.poiCategory as keyof typeof c]++;
-  }
-  return c;
-});
-const commercialAvgDist = computed(() => {
-  const arr = commercialCityPois.value;
-  if (arr.length === 0) return 0;
-  return arr.reduce((s, x) => s + x.distanceM, 0) / arr.length;
-});
-const commercialWalkTop = computed<WalkScore[]>(() => {
-  const ids = communityIdsInCity(app.cityId);
-  return [...ids]
-    .map((id) => getPoiCommercialByCommunityWalkScore(id))
-    .sort((a, b) => b.walkScore - a.walkScore)
-    .slice(0, 5);
-});
-const commercialBankNear = computed<CommunityBankNearest[]>(() =>
-  getPoiCommercialCrossCommunityByCategoryDistance("bank", 80)
-    .filter((x) => store.getCommunityById(x.communityId)?.cityId === app.cityId)
-    .slice(0, 5)
-);
-const commercialBankNearestCross = computed<CommunityBankNearest[]>(() =>
-  crossCityRows(getPoiCommercialByCityBankNearestByCommunity(8))
-);
-const commercialRestaurantNear = computed<CommunityBankNearest[]>(() =>
-  getPoiCommercialByCityRestaurantNearestByCommunity(80)
-    .filter((x) => store.getCommunityById(x.communityId)?.cityId === app.cityId)
-    .slice(0, 5)
-);
-const commercialConvenienceNear = computed<CommunityBankNearest[]>(() =>
-  getPoiCommercialByCityConvenienceLeaderboard(80)
-    .filter((x) => store.getCommunityById(x.communityId)?.cityId === app.cityId)
-    .slice(0, 5)
-);
-const commercialSevenElevenNear = computed<PoiTypeLeaderboardEntry[]>(() =>
-  getPoiCommercialByPoiTypeLeaderboard("7-ELEVEn", 40)
-    .filter((x) => x.cityId === app.cityId)
-    .slice(0, 5)
-);
-const commercialBankCoverage = computed<CityBankCoverage | null>(() =>
-  getPoiCommercialByCityBankCoverage().find((x) => x.cityId === app.cityId) ?? null
-);
-const poiCommercialCitySummaries = computed<CityPoiCommercialSummary[]>(() =>
-  summarizePoiCommercialByCity()
-);
-const commercialNearestAcrossSample = computed<LocalPoiCommercial[]>(() => {
-  const id = commercialWalkTop.value[0]?.communityId;
-  if (id == null) return [];
-  return getPoiCommercialByCommunityNearestAcross(id, 5);
-});
-const commercialNearestAcrossName = computed(() => {
-  const id = commercialWalkTop.value[0]?.communityId;
-  return id != null ? communityDisplayName(id) : "";
-});
-const commercialCategoryTopSample = computed<CommunityCategoryTop[]>(() => {
-  const id = commercialWalkTop.value[0]?.communityId;
-  if (id == null) return [];
-  return getPoiCommercialByCommunityTopByCategory(id);
-});
-const commercialCategoryStats = computed<CategoryPoiCommercialSummary[]>(() =>
-  summarizePoiCommercialByCategory()
-);
-function categoryLabel(cat: string): string {
-  if (cat === "restaurant") return "餐饮";
-  if (cat === "bank") return "银行";
-  if (cat === "convenience") return "便利";
-  return cat;
 }
 
 // v1.121.15 菜市场可达
@@ -6620,7 +6327,7 @@ onShow(async () => {
   font-variant-numeric: tabular-nums;
 }
 
-/* v1.121.15 周边商业 / 菜市场 */
+/* v1.121.15 菜市场 */
 .pc-row {
   display: flex;
   align-items: center;
@@ -6636,37 +6343,11 @@ onShow(async () => {
   font-size: 22rpx;
   text-align: center;
 }
-.pc-dist,
-.pc-score {
+.pc-dist {
   font-size: 24rpx;
   font-weight: 600;
   color: var(--color-heading);
   font-variant-numeric: tabular-nums;
-}
-.pc-summary {
-  display: flex;
-  gap: 10rpx;
-  margin: 8rpx 0 4rpx;
-}
-.pc-kpi {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 12rpx 6rpx;
-  border-radius: 12rpx;
-  background: var(--color-soft);
-  border: 1rpx solid var(--color-border);
-}
-.pc-kpi-val {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: var(--color-heading);
-  font-variant-numeric: tabular-nums;
-}
-.pc-kpi-label {
-  font-size: 20rpx;
-  margin-top: 2rpx;
 }
 .pc-mid {
   flex: 1;
