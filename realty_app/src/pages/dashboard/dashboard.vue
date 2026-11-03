@@ -2430,89 +2430,6 @@
         </template>
       </view>
 
-      <!-- v1.121.15 菜市场/超市可达（poiMarketRanking） -->
-      <view v-if="marketNearTop.length" class="card">
-        <view class="row-between">
-          <view class="card-title">🥬 菜市场可达 · {{ hospitalCityName }}</view>
-          <view class="muted">最近 Top {{ marketNearTop.length }}</view>
-        </view>
-        <view
-          v-for="(m, idx) in marketNearTop"
-          :key="'mkt-' + m.communityId"
-          class="pc-row tap-row"
-          hover-class="tap-row--active"
-          @click="goCommunity(m.communityId)"
-        >
-          <text class="pc-rank muted">{{ idx + 1 }}</text>
-          <view class="pc-mid">
-            <text class="pc-name">{{ communityDisplayName(m.communityId) }}</text>
-            <text class="pc-meta muted">{{ m.nearestName || "—" }}</text>
-          </view>
-          <text class="pc-dist">{{ Math.round(m.nearestDistanceM ?? 0) }} m</text>
-        </view>
-        <view class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">最远（覆盖偏弱）</view>
-        <view
-          v-for="(m, idx) in marketFarTop"
-          :key="'mktf-' + m.communityId"
-          class="pc-row tap-row"
-          hover-class="tap-row--active"
-          @click="goCommunity(m.communityId)"
-        >
-          <text class="pc-rank muted">{{ idx + 1 }}</text>
-          <view class="pc-mid">
-            <text class="pc-name">{{ communityDisplayName(m.communityId) }}</text>
-            <text class="pc-meta muted">{{ m.nearestName || "—" }}</text>
-          </view>
-          <text class="pc-dist">{{ Math.round(m.nearestDistanceM ?? 0) }} m</text>
-        </view>
-        <view v-if="marketDeriveNear.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          派生层最近榜（本市）
-        </view>
-        <view
-          v-for="(m, idx) in marketDeriveNear"
-          :key="'mkdn-' + m.communityId"
-          class="pc-row tap-row"
-          hover-class="tap-row--active"
-          @click="goCommunity(m.communityId)"
-        >
-          <text class="pc-rank muted">{{ idx + 1 }}</text>
-          <view class="pc-mid">
-            <text class="pc-name">{{ communityDisplayName(m.communityId) }}</text>
-            <text class="pc-meta muted">{{ m.nearestName || "—" }}</text>
-          </view>
-          <text class="pc-dist">{{ Math.round(m.nearestDistanceM ?? 0) }} m</text>
-        </view>
-        <view v-if="marketNearestDetail" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
-          最近小区详情 · {{ communityDisplayName(marketNearestDetail.communityId) }}
-        </view>
-        <view v-if="marketNearestDetail" class="pc-row">
-          <view class="pc-mid">
-            <text class="pc-name">{{ marketNearestDetail.poiName }}</text>
-            <text class="pc-meta muted">
-              {{ marketNearestDetail.poiTypeCategory }} · {{ marketNearestDetail.address || "—" }}
-            </text>
-          </view>
-          <text class="pc-dist">{{ Math.round(marketNearestDetail.distanceM) }} m</text>
-        </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：poi_market.csv（每小区最近 3 个菜市场/超市）。
-        </view>
-        <view v-if="marketCategoryStats.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          全国品类结构
-        </view>
-        <view
-          v-for="c in marketCategoryStats"
-          :key="'mkc-' + c.category"
-          class="pc-row"
-        >
-          <view class="pc-mid">
-            <text class="pc-name">{{ c.category }}</text>
-            <text class="pc-meta muted">均距 {{ Math.round(c.avgDistanceM) }} m</text>
-          </view>
-          <text class="pc-dist">{{ c.count }}</text>
-        </view>
-      </view>
-
       <!-- v0.32.0 new-10 生活便利度榜 v2 (6 维: mall/park/subway/school/hospital/market) -->
       <view v-if="!isCardHidden('life-convenience') && (lifeConvenience && lifeConvenience.items.length > 0)" class="card" data-card-key="life-convenience">
         <view class="row-between">
@@ -2894,15 +2811,6 @@ import { listingMedianUnitPriceLabel } from "../../local/priceSemantics";
 import { assessStats70Freshness } from "../../local/stats70Freshness";
 import * as store from "../../local/store";
 import {
-  summarizePoiMarketByCommunity,
-  getPoiMarketByCategoryRanking,
-  getPoiMarketNearestByCommunity,
-  getPoiMarketDistanceLeaderboard,
-  type CommunityPoiMarketSummary,
-  type MarketCategoryStat,
-  type NearestMarketEntry
-} from "../../local/poiMarketRanking";
-import {
   getDistributionCrossCityLeaderboard,
   getDistributionShareLeaderboard,
   getDistributionTopByMedianPrice,
@@ -3191,37 +3099,6 @@ function communityIdsInCity(cityId: number): Set<number> {
     store.getCommunitiesByCity(cityId).map((c) => c.communityId)
   );
 }
-
-// v1.121.15 菜市场可达
-const marketSummariesInCity = computed<CommunityPoiMarketSummary[]>(() =>
-  summarizePoiMarketByCommunity().filter(
-    (s) => store.getCommunityById(s.communityId)?.cityId === app.cityId && s.nearestDistanceM != null
-  )
-);
-const marketNearTop = computed(() =>
-  [...marketSummariesInCity.value]
-    .sort((a, b) => (a.nearestDistanceM ?? 0) - (b.nearestDistanceM ?? 0))
-    .slice(0, 5)
-);
-const marketFarTop = computed(() =>
-  [...marketSummariesInCity.value]
-    .sort((a, b) => (b.nearestDistanceM ?? 0) - (a.nearestDistanceM ?? 0))
-    .slice(0, 3)
-);
-const marketDeriveNear = computed<CommunityPoiMarketSummary[]>(() => {
-  const ids = communityIdsInCity(app.cityId);
-  return getPoiMarketDistanceLeaderboard(40).nearest
-    .filter((s) => ids.has(s.communityId))
-    .slice(0, 5);
-});
-const marketNearestDetail = computed<NearestMarketEntry | null>(() => {
-  const top = marketNearTop.value[0];
-  if (!top) return null;
-  return getPoiMarketNearestByCommunity(top.communityId);
-});
-const marketCategoryStats = computed<MarketCategoryStat[]>(() =>
-  getPoiMarketByCategoryRanking().slice(0, 5)
-);
 
 // v1.121.16 派生卡（教育事业概览）已迁出至 data-tools.vue；computed 删除
 
@@ -6326,46 +6203,6 @@ onShow(async () => {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
-
-/* v1.121.15 菜市场 */
-.pc-row {
-  display: flex;
-  align-items: center;
-  gap: 10rpx;
-  padding: 8rpx 0;
-  border-bottom: 1rpx solid var(--color-border);
-}
-.pc-row:last-child {
-  border-bottom: none;
-}
-.pc-rank {
-  width: 36rpx;
-  font-size: 22rpx;
-  text-align: center;
-}
-.pc-dist {
-  font-size: 24rpx;
-  font-weight: 600;
-  color: var(--color-heading);
-  font-variant-numeric: tabular-nums;
-}
-.pc-mid {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-.pc-name {
-  font-size: 26rpx;
-  color: var(--color-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.pc-meta {
-  font-size: 20rpx;
-}
-
 
 .lc-score-high {
   color: #22c55e;

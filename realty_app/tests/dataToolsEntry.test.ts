@@ -345,7 +345,7 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(homeEntrySrc).toContain("HOME_SEARCH_MODES");
     expect(homeEntrySrc).toContain("resolveHomeSearch");
     // v1.123.13：医疗资源榜死 DOM 已删除（库 hospitalRanking 与单测保留，hospitalGeoAnalysis 已于 v1.123.16 死库瘦身删除；
-    // listing-detail/community「周边医院」卡不受影响；hospitalCityName 与今日要点/菜市场共用故保留）
+    // listing-detail/community「周边医院」卡不受影响；hospitalCityName 今日要点卡仍消费故保留，菜市场卡已于 v1.123.23 删除）
     expect(dashSrc).not.toMatch(/hospital-rank|hospitalCitySummary|hospitalGeoSummary|hospitalDisplayName/);
     expect(dashSrc).not.toMatch(/hospitalRanking|hospitalGeoAnalysis/);
     expect(dashSrc).not.toMatch(/hosp-geo|hosp-top|hosp-dist|hosp-kpi|hosp-summary|hosp-lv/);
@@ -503,12 +503,23 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     // .pc-summary/.pc-kpi/.pc-kpi-val/.pc-kpi-label/.pc-score 独有 CSS 一并删；
     // 库 poiCommercialRanking 保留——adversarialRankingProbe/cityOfMismatchHunt/
     // poiCommercialRanking.test 在测；store 数据面 poi_commercial.csv 保留；
-    // 菜市场可达卡与 hospitalCityName/pc-row/pc-dist 不受影响）
+    // hospitalCityName 不受影响；菜市场可达卡/pc-row/pc-dist 已于 v1.123.23 删除）
     expect(dashSrc).not.toMatch(/周边商业|commercialReady|commercialCityPois|commercialCatCount|commercialAvgDist/);
     expect(dashSrc).not.toMatch(/commercialWalkTop|commercialBankNear|commercialRestaurantNear|commercialConvenienceNear|commercialSevenElevenNear/);
     expect(dashSrc).not.toMatch(/commercialBankCoverage|poiCommercialCitySummaries|commercialNearestAcross|commercialCategoryTopSample|commercialCategoryStats|categoryLabel/);
     expect(dashSrc).not.toMatch(/poiCommercialRanking|pc-summary|pc-kpi|pc-score/);
-    expect(dashSrc).toMatch(/菜市场可达/); // 菜市场卡不受影响
+    // v1.123.23：菜市场可达死 DOM 卡整删（v1.122 起被壳层 CSS 永久隐藏；模板 82 行 +
+    // 6 个 market* computed + poiMarketRanking 导入块 + .pc-row/.pc-rank/.pc-dist/
+    // .pc-mid/.pc-name/.pc-meta 全家 CSS 一并删；库 poiMarketRanking 保留——
+    // poiMarketRanking.test 在测；store 数据面 poi_market.csv 保留（life_convenience 在消费）；
+    // communityIdsInCity 因 lifeMarketNearTop 仍消费而保留；hospitalCityName 因今日要点卡保留）
+    expect(dashSrc).not.toMatch(/菜市场可达|marketNearTop|marketFarTop|marketDeriveNear|marketNearestDetail|marketCategoryStats|marketSummariesInCity/);
+    expect(dashSrc).not.toMatch(/summarizePoiMarketByCommunity|getPoiMarketByCategoryRanking|getPoiMarketNearestByCommunity|getPoiMarketDistanceLeaderboard/);
+    expect(dashSrc).not.toMatch(/poiMarketRanking|CommunityPoiMarketSummary|MarketCategoryStat|NearestMarketEntry/);
+    expect(dashSrc).not.toMatch(/\.pc-row|\.pc-rank|\.pc-dist|\.pc-mid|\.pc-name|\.pc-meta/);
+    expect(dashSrc).toMatch(/communityIdsInCity/); // lifeMarketNearTop 仍消费
+    expect(dashSrc).toMatch(/hospitalCityName/); // 今日要点卡仍消费
+    expect(existsSync(resolve(__dirname, "../src/local/poiMarketRanking.ts"))).toBe(true);
   });
 
   it("dashboard.vue v1.121.147 Batch 8：每张核心卡右上角 ✕ 隐藏按钮", () => {
