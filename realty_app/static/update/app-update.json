@@ -1,12 +1,12 @@
 {
-  "versionName": "1.123.24",
-  "versionCode": "359",
-  "publishedAt": "2026-11-03T03:52:21Z",
+  "versionName": "1.123.25",
+  "versionCode": "360",
+  "publishedAt": "2026-11-03T04:11:46Z",
   "force": false,
-  "notes": "refactor(realty_app): \u5220\u9664 hero \u5927\u76d8\u8f6e\u64ad\u6b7b DOM v1.123.24\n\n2026-07-25-v1.114.0-\u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f: v1.114.0 \u2014 \u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f\n2026-07-25-v1.115.0-\u533b\u9662\u5750\u6807\u63a5\u5165\u4e0e\u6d3e\u751f: v1.115.0 \u2014 \u533b\u9662\u5750\u6807\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n",
+  "notes": "refactor(realty_app): \u5220\u9664\u300c\u4eca\u65e5\u8981\u70b9\u300d\u58f3\u4e0b\u9690\u85cf\u6b7b DOM \u5361 v1.123.25\n\n2026-07-25-v1.121.0-\u5730\u56fefetch-\u4fee\u590d\u4e0eAPK\u56fe\u6807: v1.121.0 \u2014 \u5730\u56fe fetch \u4fee\u590d + \u81ea\u52a8 APK \u53ef\u9009 job + \u5e94\u7528\u56fe\u6807\u91cd\u505a\n2026-07-25-v1.121.2-OTA\u68c0\u67e5\u66f4\u65b0\u4fee\u590d: v1.121.2 \u2014 OTA \u68c0\u67e5\u66f4\u65b0\u65e0\u53cd\u5e94\u4fee\u590d\n2026-07-25-v1.121.4-OTA\u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316: v1.121.4 \u2014 OTA \u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/359/app.wgt",
-    "sha256": "2881b7f6625e68e72e2b594beab89e63f98d4846a5aef7681ad2d88d954f28d7"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/360/app.wgt",
+    "sha256": "2e6c658c09a3e014be43a1d9a40f45e3060dbb950bf8bc5d50afd080140f4768"
   },
   "ios": {
     "available": false,
