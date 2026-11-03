@@ -162,6 +162,14 @@ textarea {
 .tag-hosp-level.lvl-二级 { background: #65a30d; }
 .tag-hosp-level.lvl-其他 { background: #6b7280; }
 
+/* 医院类型标签（民营/公立/连锁等，通用蓝系 tag） */
+.tag-hosp-type {
+  color: #93c5fd;
+  background: #1e3a8a;
+  padding: 2rpx 6rpx;
+  border-radius: 4rpx;
+}
+
 /* 地铁状态标签 */
 .tag-metro-status {
   padding: 2rpx 8rpx;

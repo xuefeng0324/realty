@@ -254,7 +254,7 @@
             <text class="hosp-name">{{ h.official_name }}</text>
             <view class="hosp-tags">
               <text v-if="h.hospital_level" class="tag-hosp-level hosp-level" :class="'lvl-' + (h.hospital_level || '其他')">{{ h.hospital_level }}</text>
-              <text v-if="h.hospital_type" class="hosp-type">{{ h.hospital_type }}</text>
+              <text v-if="h.hospital_type" class="tag-hosp-type hosp-type">{{ h.hospital_type }}</text>
               <text v-if="h.district_name" class="muted">{{ h.district_name }}</text>
             </view>
           </view>
@@ -961,12 +961,6 @@ button.source-dock-ghost {
   gap: 8rpx;
   flex-wrap: wrap;
   font-size: 22rpx;
-}
-.hosp-type {
-  color: #93c5fd;
-  background: #1e3a8a;
-  padding: 2rpx 6rpx;
-  border-radius: 4rpx;
 }
 
 /* 未来地铁 (v0.7.0) */
