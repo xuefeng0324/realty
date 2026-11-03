@@ -215,7 +215,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/gz_affordable_targets.csv` | `gzAffordableTargets.ts` + 同上卡「筹集/竣工目标进度」 | `crawl_gz_affordable_targets.py`（**周更 CI**，需 `xlrd`） | 「任务量完成」表头年度目标 + 实际；缺省回退「筹集建设计划」合计，并用同年清单已筹建套数算进度；**非商品房成交、非房价** |
 | `static/sz_affordable_projects.csv` | `szAffordableProjects.ts` + dashboard「🏗️ 深圳保障房项目表」 | `crawl_sz_affordable_projects.py`（**周更 CI · P2**，需 `pypdf`；runner 到 zjj.sz.gov.cn 长期不可达，21 天新鲜度门禁兜底） | 市住建局项目建设信息 PDF/XLSX：建设筹集 / 基本建成；筹集表可拆 **建设/筹集**；**非商品房成交、非房价**；旧年扫描型 PDF 可能解析失败则跳过 |
 | `static/seed/admin_districts.csv` | `adminDistrictRanking.ts` + dashboard「🗺️ 行政区划」 | （国标整理） | v1.121.16：主城/郊区/新区与区码列表；v1.121.19：×规划地铁文案交叉 |
-| `static/seed/community_commercial.csv` | `communityCommercialRanking.ts` + 分区商业/密度桶 | （派生） | v1.121.17 分区均分；v1.121.19 餐饮密度×距离桶（按 city 过滤） |
+| `static/seed/community_commercial.csv` | store 数据面（暂无 UI 消费） | （派生） | v0.19.0 商业热度榜（dashboard v0.19.0~v1.123.17，v1.122 起壳层隐藏）；v1.121.17 分区均分；v1.121.19 餐饮密度×距离桶；v1.123.18 卡 + `communityCommercialRanking.ts` 死库 + `queries.getCommercialRanking` 已删 |
 | `static/seed/listing_school_premium.csv` | dashboard 地图分区 school 聚合 + map-analysis | `compute_listing_school_premium` | v1.121.16：溢价分桶与分区 Top；v1.123.15：高学区房源卡（隐藏死 DOM）已删；v1.123.16：派生库 listingSchoolPremiumRanking 死库瘦身已删，消费面为 `mapDistrictStats` / `store.getListingSchoolPremiumByCity` |
 | `static/school_source_audit.json` | 审计用（测试/脚本） | `scripts/audit_school_sources.py` | 学校来源分级审计结果，不直接驱动 UI 排名 |
 | `static/zh_bdc_registration.csv` | `zhBdcRegistration.ts` + dashboard「📋 珠海不动产登记季报」 | `list_zh_bdc_registration_posts.py`（对照缺口；**人工抄录** PNG 合计） | 珠海不动产登记中心季度「新增商品房登记 / 存量房转移登记」**合计行**；官方正文为 PNG；**≠日更网签、≠挂牌均价** |
@@ -312,7 +312,7 @@ poi_commercial.csv           → poiCommercialRanking  → 周边商业 + 银行
 metro_planning.csv           → metroPlanningRanking  → 规划地铁 + 快线（v1.121.14/21）
 listing_tags_summary.csv     → listingTagsComparison → 标签热度 + 跨城渗透（v1.121.14/21）
 admin_districts.csv          → adminDistrictRanking  → 区划 + ×地铁交叉（v1.121.16/19）
-community_commercial.csv     → communityCommercial   → 分区均分 + 密度桶（v1.121.17/19）
+community_commercial.csv     → store 数据面          → 商业热度（卡 v0.19.0~v1.123.17 已删；v1.123.18 派生库已删，纯数据面）
 static/seed/*.csv            → seedSnapshot / snapshotLoader → 完整业务快照
 ```
 

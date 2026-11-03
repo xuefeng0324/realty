@@ -12,7 +12,6 @@ import { getCommuteByCityFastestSlowestCompare } from "../src/local/commuteRanki
 import { getPoiCommercialByCityBankCoverage, summarizePoiCommercialByCity } from "../src/local/poiCommercialRanking";
 import { getMetroPlanningByCityFastLines, getMetroPlanningByCityStatusVsStations } from "../src/local/metroPlanningRanking";
 import { getTagPenetrationCompare } from "../src/local/listingTagsComparison";
-import { getCommunityCommercialDensityVsDistance } from "../src/local/communityCommercialRanking";
 import { getAdminDistrictByCityCrossReference } from "../src/local/adminDistrictRanking";
 import { getMetroPlanningGeoManualFallbackRate, getMetroPlanningGeoCoverageStats } from "../src/local/metroPlanningGeoAnalysis";
 
@@ -101,14 +100,6 @@ describe("adversarial ranking probe (v1.121.19–21 wiring)", () => {
     }
   });
 
-  it("density×distance buckets sum communities without NaN", () => {
-    const buckets = getCommunityCommercialDensityVsDistance("restaurant");
-    expect(buckets.length).toBeGreaterThan(0);
-    for (const b of buckets) {
-      assertFinite(b.count, `bucket ${b.bucket}`);
-      expect(b.count).toBe(b.communities.length);
-    }
-  });
 
   it("admin×metro cross-ref lengths consistent", () => {
     for (const cityId of [1, 2, 3]) {

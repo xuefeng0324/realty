@@ -389,6 +389,21 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
       existsSync(resolve(__dirname, "../src/local/hospitalRanking.ts"))
     ).toBe(false);
     expect(queriesSrc).not.toMatch(/hospitalRanking|levelRank|CityHospitalSummary|CityDistrictHospitalSummary|CrossCityHospitalEntry/);
+    // v1.123.18：商业热度榜死 DOM + communityCommercialRanking 死库整删（v1.122 起被壳层
+    // CSS 永久隐藏；卡 135 行 + 5 computed + commercialScoreClass + ref/loadAll + ADVANCED_CARDS
+    // 条目 + .dens-* CSS；库 5 函数只被死 computed 消费；queries.getCommercialRanking 无消费者
+    // 包装同步删；孤儿 e2e smoke_commercial.mjs 与 6 用例孤儿单测一并删；buildIntegrity 两条
+    // v0.19.0 死断言移除；adversarialRankingProbe 摘 density 探针；poiCommercialRanking 保留）
+    expect(dashSrc).not.toMatch(/commercial-heat|商业热度|commercialResp|commercialDistrictTop|commercialScoreClass/);
+    expect(dashSrc).not.toMatch(/commercialDensityCity|commercialNearestRestaurant|commercialScoreTop|commercialCitySummary/);
+    expect(dashSrc).not.toMatch(/communityCommercialRanking|dens-grid/);
+    expect(
+      existsSync(resolve(__dirname, "../src/local/communityCommercialRanking.ts"))
+    ).toBe(false);
+    expect(
+      existsSync(resolve(__dirname, "../tests/e2e/smoke_commercial.mjs"))
+    ).toBe(false);
+    expect(queriesSrc).not.toMatch(/getCommercialRanking|CommercialRankingItem|CommercialRankingResponse/);
     const settingsSrc = readFileSync(
       resolve(__dirname, "../src/pages/settings/settings.vue"),
       "utf8"

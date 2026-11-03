@@ -3497,142 +3497,6 @@
         </view>
       </view>
 
-      <!-- v0.19.0 商业热度榜 (小区维度) -->
-      <view v-if="!isCardHidden('commercial-heat') && (commercialResp && commercialResp.items.length > 0)" class="card" data-card-key="commercial-heat">
-        <view class="row-between">
-          <view class="card-title">🛒 商业热度 Top {{ commercialResp.items.length }} · {{ commercialResp.cityName }}</view>
-          <view class="muted">共 {{ commercialResp.total }} 个小区上榜</view>
-        </view>
-          <button
-            class="card-hide-btn"
-            hover-class="tap-row--active"
-            data-dash-card-hide="commercial-heat"
-            @click.stop="toggleCardHidden('commercial-heat')"
-          >✕</button>
-        <view v-if="commercialDistrictTop.length" class="muted" style="margin: 0 0 4rpx; font-size: 22rpx">
-          分区均分 Top
-        </view>
-        <view
-          v-for="d in commercialDistrictTop"
-          :key="'cd-' + d.districtName"
-          class="cd-row"
-        >
-          <text class="cd-rank muted">{{ d.rankOverall }}</text>
-          <text class="cd-name">{{ d.districtName }}</text>
-          <text class="cd-meta muted">{{ d.communityCount }} 小区</text>
-          <text class="cd-score">{{ d.avgCommercialScore.toFixed(0) }}</text>
-        </view>
-        <view
-          v-for="item in commercialResp.items"
-          :key="item.communityId"
-          class="community-row tap-target"
-          role="button"
-          tabindex="0"
-          hover-class="row-active"
-          @click="goCommunity(item.communityId)"
-        >
-          <view class="community-rank">
-            <text class="sp-medal-mini" :class="spMedalClass(item.rank)">
-              {{ item.rank }}
-            </text>
-          </view>
-          <view class="community-main">
-            <view class="community-name">{{ item.communityName }}</view>
-            <view class="muted">
-              {{ item.districtName }} ·
-              🍴{{ item.restaurantCount }} 🏦{{ item.bankCount }} 🏪{{ item.convenienceCount }}
-            </view>
-          </view>
-          <view class="community-sp-price">
-            <text :class="['sp-up', commercialScoreClass(item.commercialScore)]">
-              {{ item.commercialScore.toFixed(0) }}
-            </text>
-            <view class="muted" style="font-size: 20rpx">商业分</view>
-          </view>
-        </view>
-        <view v-if="commercialDensityCity.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          餐饮密度×距离分桶（≥2.5 家 / ≤200m）
-        </view>
-        <view v-if="commercialDensityCity.length" class="dens-grid">
-          <view v-for="b in commercialDensityCity" :key="b.bucket" class="dens-cell">
-            <text class="dens-n">{{ b.count }}</text>
-            <text class="dens-l muted">{{ b.bucket }}</text>
-            <text v-if="b.communities[0]" class="dens-ex muted">
-              例：{{ b.communities[0].communityName }}
-            </text>
-          </view>
-        </view>
-        <view v-if="commercialNearestRestaurant.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          最近饭店小区 Top（派生）
-        </view>
-        <view
-          v-for="(it, idx) in commercialNearestRestaurant"
-          :key="'cnr-' + it.communityId"
-          class="community-row tap-target"
-          hover-class="row-active"
-          @click="goCommunity(it.communityId)"
-        >
-          <view class="community-rank">
-            <text class="sp-medal-mini">{{ idx + 1 }}</text>
-          </view>
-          <view class="community-main">
-            <view class="community-name">{{ it.communityName }}</view>
-            <view class="muted">{{ it.districtName }} · 最近饭店 {{ Math.round(it.nearestRestaurantM ?? 0) }} m</view>
-          </view>
-          <view class="community-sp-price">
-            <text :class="['sp-up', commercialScoreClass(it.commercialScore)]">
-              {{ it.commercialScore.toFixed(0) }}
-            </text>
-          </view>
-        </view>
-        <view v-if="commercialScoreTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          派生层商业分 Top
-        </view>
-        <view
-          v-for="(it, idx) in commercialScoreTop"
-          :key="'cst-' + it.communityId"
-          class="community-row tap-target"
-          hover-class="row-active"
-          @click="goCommunity(it.communityId)"
-        >
-          <view class="community-rank">
-            <text class="sp-medal-mini">{{ idx + 1 }}</text>
-          </view>
-          <view class="community-main">
-            <view class="community-name">{{ it.communityName }}</view>
-            <view class="muted">
-              {{ it.districtName }} · 餐{{ it.restaurantCount }} / 银{{ it.bankCount }} / 便{{ it.convenienceCount }}
-            </view>
-          </view>
-          <view class="community-sp-price">
-            <text :class="['sp-up', commercialScoreClass(it.commercialScore)]">
-              {{ it.commercialScore.toFixed(0) }}
-            </text>
-          </view>
-        </view>
-        <view data-cross-city v-if="commercialCitySummary.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          跨城商业均分对照
-        </view>
-        <view
-          v-for="c in commercialCitySummary"
-          :key="'ccs-' + c.cityId"
-          class="community-row"
-        >
-          <view class="community-main">
-            <view class="community-name">{{ cityNameForId(c.cityId) }}</view>
-            <view class="muted">{{ c.communityCount }} 小区 · 均近餐 {{ Math.round(c.avgNearestRestaurantM ?? 0) }} m</view>
-          </view>
-          <view class="community-sp-price">
-            <text :class="['sp-up', commercialScoreClass(c.avgCommercialScore)]">
-              {{ c.avgCommercialScore.toFixed(0) }}
-            </text>
-          </view>
-        </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          分区均分 / 密度分桶：communityCommercialRanking。「高密度远」可能是门口空、远处扎堆。
-        </view>
-      </view>
-
       <!-- v0.20.0 trend-8: 同区多小区对比 (点区/板块对比 区名后展示) -->
       <view v-if="!isCardHidden('multi-community-compare') && (districtCompareResp && districtCompareResp.items.length > 0)" class="card" data-card-key="multi-community-compare">
         <view class="row-between">
@@ -3716,14 +3580,14 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getWeather, getCommercialRanking, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, getMetroWalkRanking, getMetroBenefitRanking,
+import { getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getWeather, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, getMetroWalkRanking, getMetroBenefitRanking,
   getListingFreshnessRanking,
   getDistrictMap,
   getSchoolDimensions,
   getLprOverview,
   type SchoolDimResponse,
   type LprResponse,
-  type DistrictTrendItem, type WangqianOverviewItem, type WeatherResponse, type CommercialRankingResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type DistrictMapResponse } from "../../local/queries";
+  type DistrictTrendItem, type WangqianOverviewItem, type WeatherResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type DistrictMapResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -3898,16 +3762,6 @@ import {
   type CityTopComposite
 } from "../../local/schoolDimensionRanking";
 import {
-  getCommunityCommercialByCityDistrict,
-  getCommunityCommercialDensityVsDistance,
-  getCommunityCommercialByNearest,
-  getCommunityCommercialByScoreTopN,
-  summarizeCommunityCommercialByCity,
-  type DistrictCommercialSummary,
-  type DensityDistanceBucket,
-  type CityCommercialSummary
-} from "../../local/communityCommercialRanking";
-import {
   getListingKeywordsByCity,
   getListingKeywordsCrossCity,
   type ListingKeywordRow
@@ -3923,7 +3777,7 @@ import {
   type CrossCityOrientationFloorEntry,
   type CityOrientationFloorSummary
 } from "../../local/orientationFloorRanking";
-import type { LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalMetroLine, LocalCommunityScatter, LocalCommunityCommercial, LocalCommute, LocalLprRow, LocalLifeConvenience, LocalPoiCommercial, LocalMetroLineGeo } from "../../local/types";
+import type { LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalMetroLine, LocalCommunityScatter, LocalCommute, LocalLprRow, LocalLifeConvenience, LocalPoiCommercial, LocalMetroLineGeo } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -4094,7 +3948,6 @@ const ADVANCED_CARDS: { key: string; label: string; hint: string; hot?: boolean 
   { key: "district-map", label: "行政区+社区 地图", hint: "districtMap 地图聚合 marker/count/price/school/metro 模式", hot: true },
   { key: "school-dim-weighted", label: "学区指标加权", hint: "schoolDimensions 加权细分明细", hot: true },
   { key: "macro-lpr-card", label: "LPR+房贷利率", hint: "LPR 1y/5y + 房贷利率快照", hot: true },
-  { key: "commercial-heat", label: "商业热度榜", hint: "commercialRanking 小区维度", hot: true },
   { key: "stats70-drift", label: "70 城涨跌 Top", hint: "stats70 城市 12 月同比趋势" },
   { key: "lpr-mortgage-signal", label: "LPR 与房贷利率信号", hint: "lprOverview 信号卡" },
   { key: "district-wangqian-3cat", label: "区级网签 (新房/二手/全部)", hint: "districtWangqianRank 三品类 tab", hot: true }
@@ -4542,7 +4395,6 @@ function mbBandClass(score: number) {
 }
 // v1.123.2: 学区评分 Top 小区卡状态（schoolPremiumCommunityItems/sp*）随卡迁入 data-tools.vue
 const weatherResp = ref<WeatherResponse | null>(null);
-const commercialResp = ref<CommercialRankingResponse | null>(null);
 // v0.20.0 trend-8: 同区多小区对比
 const selectedDistrict = ref<string | null>(null);
 const districtCompareResp = ref<DistrictCommunityCompareResponse | null>(null);
@@ -5453,15 +5305,6 @@ async function loadRankingAndDistrict() {
       console.warn("getWeather failed:", e);
     }
 
-    // v0.19.0 商业热度榜
-    try {
-      commercialResp.value = await getCommercialRanking({
-        cityId: app.cityId,
-        limit: 10
-      });
-    } catch (e) {
-      console.warn("getCommercialRanking failed:", e);
-    }
   } catch (e) {
     errorMsg.value = `加载失败：${toErrorMessage(e)}`;
   }
@@ -5753,13 +5596,6 @@ const lprSpark5y = computed<{ path: string; last: { x: number; y: number } | nul
   return { path, last: points[points.length - 1] ?? null, yLabels };
 });
 
-// v0.19.0 商业热度评分色码 (>=80 高分 price-up / 50-80 中 muted / <50 低 price-down)
-// 注：复用现有价格色码 — price-up 红 = 高商业热度, price-down 绿 = 低
-function commercialScoreClass(score: number): string {
-  if (score >= 80) return "price-up";
-  if (score >= 50) return "muted";
-  return "price-down";
-}
 
 // v0.24.0 new-5: 通勤时长颜色编码
 // 比城市均值快 → 绿（更优）；接近 → 灰；比均值慢 > 30% → 红
@@ -6128,19 +5964,6 @@ const orientationFloorCitySummaries = computed<CityOrientationFloorSummary[]>(()
   summarizeOrientationFloorByCity()
 );
 
-// v1.121.17 分区商业均分
-const commercialDistrictTop = computed<DistrictCommercialSummary[]>(() =>
-  getCommunityCommercialByCityDistrict(app.cityId).slice(0, 5)
-);
-const commercialNearestRestaurant = computed<LocalCommunityCommercial[]>(() =>
-  getCommunityCommercialByNearest("restaurant", app.cityId, 5)
-);
-const commercialScoreTop = computed<LocalCommunityCommercial[]>(() =>
-  getCommunityCommercialByScoreTopN(app.cityId, 5)
-);
-const commercialCitySummary = computed<CityCommercialSummary[]>(() =>
-  summarizeCommunityCommercialByCity()
-);
 // v1.123.2: schoolPremiumCommunityDeriveTop/CitySummaries 随学区评分卡迁入 data-tools.vue
 const decorateAgeDistBuckets = computed<DistributionRow[]>(() =>
   getDistributionByCityDimension(app.cityId, "精装").slice(0, 6)
@@ -6162,19 +5985,6 @@ function distRowLabel(r: DistributionRow): string {
 function distRowPrice(r: DistributionRow): number | null {
   return (r as { medianUnitPrice?: number | null }).medianUnitPrice ?? null;
 }
-const commercialDensityCity = computed<DensityDistanceBucket[]>(() => {
-  const cityId = app.cityId;
-  return getCommunityCommercialDensityVsDistance("restaurant").map((b) => {
-    const communities = b.communities.filter(
-      (c) => store.getCommunityById(c.communityId)?.cityId === cityId
-    );
-    return {
-      bucket: b.bucket,
-      count: communities.length,
-      communities: communities.slice(0, 1)
-    };
-  });
-});
 
 function goSchool(schoolId: number) {
   uni.navigateTo({
@@ -7921,41 +7731,6 @@ onShow(async () => {
   font-size: 20rpx;
 }
 
-/* v1.121.19 商业密度×距离分桶 */
-.dens-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8rpx;
-}
-.dens-cell {
-  flex: 1;
-  min-width: 140rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10rpx 6rpx;
-  border-radius: 12rpx;
-  background: var(--color-soft);
-  border: 1rpx solid var(--color-border);
-}
-.dens-n {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: var(--color-heading);
-  font-variant-numeric: tabular-nums;
-}
-.dens-l {
-  font-size: 20rpx;
-  margin-top: 2rpx;
-}
-.dens-ex {
-  font-size: 18rpx;
-  margin-top: 4rpx;
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 
 .lc-score-high {
   color: #22c55e;

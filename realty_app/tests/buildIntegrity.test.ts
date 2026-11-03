@@ -1163,18 +1163,7 @@ describe("build integrity", () => {
       expect(content).toMatch(/function getCommunityCommercials/);
     });
 
-    it("queries.ts 增加 getCommercialRanking 函数", () => {
-      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
-      expect(content).toMatch(/getCommercialRanking/);
-    });
 
-    it("dashboard.vue 渲染「🛒 商业热度」卡", () => {
-      const content = readFileSync(
-        resolve(ROOT, "src/pages/dashboard/dashboard.vue"),
-        "utf8"
-      );
-      expect(content).toMatch(/商业热度 Top/);
-    });
   });
 
   // --------------------------------------------------------------
