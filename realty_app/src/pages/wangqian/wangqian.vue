@@ -42,7 +42,7 @@
             <text class="metric-sub muted">{{ zhBdcStock.residentialAreaWanSqm.toFixed(2) }} 万㎡</text>
           </view>
         </view>
-        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+        <view class="muted muted-caption" style="margin-top: 10rpx">
           {{ zhBdcNew.sourceOrg }} · 登记量 ≠ 日更网签、≠ 挂牌均价。
         </view>
       </view>

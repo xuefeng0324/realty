@@ -67,7 +67,7 @@
             <text class="drift-rank">{{ i + 1 }}</text>
             <text class="drift-city">
               {{ row.schoolName }}
-              <text class="muted" style="font-size: 18rpx">
+              <text class="muted muted-micro">
                 ({{ row.districtName }}·{{ row.schoolType }})
               </text>
             </text>

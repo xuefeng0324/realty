@@ -220,14 +220,14 @@
         <text v-if="districtChangeDistribution.strictTotal > 0">
           ≥13 周 · 涨 {{ districtChangeDistribution.strictUp }} ·
           跌 {{ districtChangeDistribution.strictDown }}
-          <text class="muted" style="font-size: 18rpx">
+          <text class="muted muted-micro">
             ({{ districtChangeDistribution.strictTotal }} 区)
           </text>
         </text>
         <text v-else>
           涨 {{ districtChangeDistribution.up }} ·
           跌 {{ districtChangeDistribution.down }}
-          <text class="muted" style="font-size: 18rpx">
+          <text class="muted muted-micro">
             (全 {{ districtChangeDistribution.total }} 区样本不足时回退)
           </text>
         </text>

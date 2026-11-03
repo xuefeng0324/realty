@@ -803,7 +803,7 @@
         <button class="gz-inventory-toggle" size="mini" :aria-expanded="gzInventoryExpanded" @click="gzInventoryExpanded = !gzInventoryExpanded">
           {{ gzInventoryExpanded ? "收起分区" : "查看 11 区" }}
         </button>
-        <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
+        <view class="muted muted-caption" style="margin-top: 10rpx">
           数据源：广州市住建局商品房销售统计。可售与未售为不同官方口径，不以单日签约直接推算去化周期。
         </view>
       </view>
@@ -1517,7 +1517,7 @@
         <view v-if="providentRate" class="pf-card-flat" data-provident-fund-rate>
           <view class="row-between">
             <view class="lpr-chart-title" style="margin: 0">🏦 住房公积金贷款</view>
-            <view class="muted" style="font-size: 21rpx">{{ providentRate.effectiveDate }} 起</view>
+            <view class="muted muted-caption">{{ providentRate.effectiveDate }} 起</view>
           </view>
           <view class="pf-rate-grid">
             <view class="pf-rate-cell"><text>首套 ≤5年</text><text class="pf-rate-value">{{ providentRate.first5yOrLess }}%</text></view>
@@ -1564,7 +1564,7 @@
                 </text>
               </view>
             </view>
-            <view class="muted" style="margin-top: 8rpx; font-size: 21rpx">
+            <view class="muted muted-caption" style="margin-top: 8rpx">
               省年报：{{ gdProvidentAnnual.sourceOrg }} · {{ gdProvidentAnnual.publishDate || gdProvidentAnnual.year }}；全省口径，非城市挂牌/网签均价。官方 HTML 无稳定分市表，分市细节仍以各市年报/动态为准。
             </view>
           </template>
@@ -1590,7 +1590,7 @@
               </text>
             </view>
           </view>
-          <view v-if="szProvidentAnnual" class="muted" style="margin-top: 8rpx; font-size: 21rpx">
+          <view v-if="szProvidentAnnual" class="muted muted-caption" style="margin-top: 8rpx">
             深圳年报：{{ szProvidentAnnual.sourceOrg }} · {{ szProvidentAnnual.publishDate || szProvidentAnnual.year }}；
             <template v-if="szProvidentLoanBalancePct != null">
               个贷余额/缴存余额 {{ szProvidentLoanBalancePct }}%；
@@ -1602,8 +1602,8 @@
           </view>
           <view
             v-if="szProvidentYearDelta"
-            class="muted"
-            style="margin-top: 8rpx; font-size: 21rpx"
+            class="muted muted-caption"
+            style="margin-top: 8rpx"
             data-sz-provident-yoy
           >
             对照上年年报（{{ szProvidentYearDelta.prior.year }}）：缴存
@@ -1643,7 +1643,7 @@
               </text>
             </view>
           </view>
-          <view v-if="gzProvidentAnnual" class="muted" style="margin-top: 8rpx; font-size: 21rpx">
+          <view v-if="gzProvidentAnnual" class="muted muted-caption" style="margin-top: 8rpx">
             广州年报：{{ gzProvidentAnnual.sourceOrg }} · {{ gzProvidentAnnual.publishDate || gzProvidentAnnual.year }}；
             <template v-if="gzProvidentLoanBalancePct != null">
               个贷余额/缴存余额 {{ gzProvidentLoanBalancePct }}%；
@@ -1680,7 +1680,7 @@
               </text>
             </view>
           </view>
-          <view v-if="zhProvidentDynamics" class="muted" style="margin-top: 8rpx; font-size: 21rpx">
+          <view v-if="zhProvidentDynamics" class="muted muted-caption" style="margin-top: 8rpx">
             珠海动态：{{ zhProvidentDynamics.sourceOrg }} · 截至 {{ zhProvidentDynamics.asOfDate }}；
             贷款余额 {{ zhProvidentDynamics.loanBalanceYi.toLocaleString() }} 亿元。
             <template v-if="zhProvidentFullYear">
@@ -1691,8 +1691,8 @@
           </view>
           <view
             v-if="zhProvidentSamePeriodDelta"
-            class="muted"
-            style="margin-top: 8rpx; font-size: 21rpx"
+            class="muted muted-caption"
+            style="margin-top: 8rpx"
             data-zh-provident-same-period
           >
             同月末对照（{{ formatZhProvidentPeriod(zhProvidentSamePeriodDelta.prior) }}）：缴存
