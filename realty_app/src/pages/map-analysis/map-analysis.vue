@@ -432,7 +432,7 @@ watch(
 .map-districts { cursor: pointer; }
 .map-district-p { stroke: #fff; stroke-width: 1; fill: #f1f5f9; transition: fill 0.2s; }
 .map-district-p--mode { stroke: #fff; stroke-width: 1.5; }
-.map-district-lbl { font-size: 14px; fill: #475569; pointer-events: none; font-weight: 600; }
+.map-district-lbl { font-size: 14px; fill: var(--color-text-secondary); pointer-events: none; font-weight: 600; }
 .map-district-val { font-size: 12px; fill: #1e293b; font-weight: 700; pointer-events: none; }
 
 .map-marker { fill: #4f46e5; stroke: #fff; stroke-width: 1.5; }

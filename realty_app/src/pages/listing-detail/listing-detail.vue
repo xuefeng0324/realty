@@ -753,7 +753,7 @@ button.source-dock-ghost {
 .source-trust--real { background: rgba(34, 197, 94, 0.18); color: #4ade80; }
 .source-trust--derived { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
 .source-trust--estimated,
-.source-trust--unknown { background: rgba(148, 163, 184, 0.18); color: #cbd5e1; }
+.source-trust--unknown { background: rgba(148, 163, 184, 0.18); color: var(--color-text-secondary); }
 .derived-warning {
   margin-top: 12rpx;
   padding: 12rpx 16rpx;
@@ -868,7 +868,7 @@ button.source-dock-ghost {
 
 .dim-name {
   width: 200rpx;
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   font-size: 24rpx;
 }
 
@@ -1037,7 +1037,7 @@ button.source-dock-ghost {
   border-radius: 12rpx;
   font-family: monospace;
   font-size: 22rpx;
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   white-space: pre-wrap;
   word-break: break-all;
   max-height: 480rpx;

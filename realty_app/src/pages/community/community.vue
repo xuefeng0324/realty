@@ -849,7 +849,7 @@ onMounted(() => {
 .bin-label,
 .dim-name {
   width: 200rpx;
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   font-size: 24rpx;
 }
 
@@ -1083,7 +1083,7 @@ onMounted(() => {
 }
 .cm-label {
   font-size: 22rpx;
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   font-weight: 600;
 }
 .cm-track {

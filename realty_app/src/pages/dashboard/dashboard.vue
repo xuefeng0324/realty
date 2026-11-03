@@ -4152,7 +4152,7 @@ onShow(async () => {
 
 .bar-name {
   width: 140rpx;
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   font-size: 24rpx;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -4291,7 +4291,7 @@ onShow(async () => {
   font-size: 26rpx;
 }
 .top-rank {
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   font-weight: 500;
 }
 .top-val {
@@ -4460,7 +4460,7 @@ onShow(async () => {
 }
 .wq-cat-tab-off {
   background: transparent;
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
 }
 
 /* 网签周环比 + 突增区 */
@@ -4638,7 +4638,7 @@ onShow(async () => {
   font-size: 22rpx;
   font-weight: 600;
   background: #334155;
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   flex-shrink: 0;
 }
 .wq-rank-gold {
@@ -4807,7 +4807,7 @@ onShow(async () => {
   border-radius: 8rpx;
   background: var(--color-soft);
   font-size: 22rpx;
-  color: #475569;
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -4831,7 +4831,7 @@ onShow(async () => {
   gap: 8rpx;
   margin: 4rpx 0 8rpx;
   font-size: 20rpx;
-  color: #475569;
+  color: var(--color-text-secondary);
 }
 .map-legend-title {
   white-space: nowrap;
@@ -4944,11 +4944,11 @@ onShow(async () => {
 }
 .lpr-chart-ylbl {
   font-size: 9px;
-  fill: #94a3b8;
+  fill: var(--color-muted);
 }
 .lpr-chart-xlbl {
   font-size: 9px;
-  fill: #94a3b8;
+  fill: var(--color-muted);
 }
 /* v0.52.0 map-12: 模式叠加时禁用默认 fill, 使用 :fill 属性 */
 .map-district-p--mode {
@@ -5064,7 +5064,7 @@ onShow(async () => {
 .sd-cell-h {
   font-size: 22rpx;
   font-weight: 600;
-  color: #475569;
+  color: var(--color-text-secondary);
   margin-bottom: 6rpx;
 }
 .sd-row {

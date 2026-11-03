@@ -2430,7 +2430,7 @@ onUnmounted(() => {
 .page-header-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #111;
+  color: var(--color-heading);
 }
 .page-header-sub {
   font-size: 22rpx;
@@ -2507,7 +2507,7 @@ onUnmounted(() => {
 .edu-kpi-val {
   font-size: 28rpx;
   font-weight: 600;
-  color: #111;
+  color: var(--color-heading);
 }
 .edu-kpi-label {
   font-size: 18rpx;
@@ -2547,7 +2547,7 @@ onUnmounted(() => {
   font-size: 22rpx;
   font-weight: 600;
   background: #334155;
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   flex-shrink: 0;
 }
 .wq-rank-gold {
@@ -2678,7 +2678,7 @@ onUnmounted(() => {
   border-radius: 999rpx;
   background: var(--color-panel);
   border: 1rpx solid #334155;
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   font-size: 22rpx;
 }
 .spc-chip-on {

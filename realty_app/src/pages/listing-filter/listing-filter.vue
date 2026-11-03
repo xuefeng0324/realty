@@ -1343,7 +1343,7 @@ onUnmounted(() => {
 .find-entity-tag {
   padding: 6rpx 10rpx;
   border-radius: 8rpx;
-  color: #475569;
+  color: var(--color-text-secondary);
   background: var(--color-soft, #eef3f2);
   font-size: 18rpx;
 }

@@ -449,6 +449,6 @@ async function loadCities() {
 
 .tag-source-curated {
   background: rgba(148, 163, 184, 0.18);
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
 }
 </style>
