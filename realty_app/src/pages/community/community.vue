@@ -73,7 +73,7 @@
           · 近 2 周新上 {{ listingFreshness.new2wCount }}
           · 陈旧 {{ listingFreshness.staleCount }}
         </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 20rpx">
+        <view class="muted muted-micro" style="margin-top: 8rpx">
           数据源：listing_freshness.csv（按小区聚合挂牌龄）。
         </view>
       </view>

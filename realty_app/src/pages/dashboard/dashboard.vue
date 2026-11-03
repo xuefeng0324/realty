@@ -620,7 +620,7 @@
           </view>
           <view class="muted muted-caption">›</view>
         </view>
-        <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+        <view class="muted muted-micro" style="margin-top: 8rpx">
           派生排行 · 学校维度 · 教育事业 · 行政区划 · 通勤 · 户型分布 等 14 张卡，单独页查看。
         </view>
       </view>
@@ -905,7 +905,7 @@
             </view>
           </view>
           <view class="trend-axis">
-            <text class="muted" style="font-size: 20rpx">
+            <text class="muted muted-micro">
               {{ it.points[0]?.week_end }} → {{ it.points[it.points.length - 1]?.week_end }}
             </text>
           </view>
@@ -969,7 +969,7 @@
           </view>
           <text class="wq-units">
             {{ it.totalUnits }} 套
-            <text class="muted" style="font-size: 20rpx">
+            <text class="muted muted-micro">
               ({{ formatWqArea(it.totalAreaSqm) }} · {{ Math.round(it.avgDailyUnits * 10) / 10 }}套/天)
             </text>
           </text>
@@ -1767,7 +1767,7 @@
               </view>
             </view>
           </view>
-          <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+          <view class="muted muted-micro" style="margin-top: 8rpx">
             仅比较利率，不考虑当地贷款额度、组合贷、公积金缴存资格和银行实际加点。
           </view>
         </view>
@@ -1851,7 +1851,7 @@
           </view>
           <view class="lc-right">
             <text :class="['lc-score', lifeScoreClass(it.score100)]">{{ it.score100 }}</text>
-            <view class="muted" style="font-size: 20rpx">/ 100</view>
+            <view class="muted muted-micro">/ 100</view>
           </view>
         </view>
         <view v-if="lifeConvenienceParetoSubway.length" class="muted muted-caption">

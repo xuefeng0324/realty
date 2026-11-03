@@ -55,7 +55,7 @@
         >
           <view class="muted muted-caption" style="margin-bottom: 6rpx">
             🛡️ 全维度学校
-            <text class="muted" style="font-size: 20rpx">
+            <text class="muted muted-micro">
               （综合≥80 / 集团实力≥70 / 区均衡度≥70）
             </text>
           </view>
@@ -131,7 +131,7 @@
             </text>
           </view>
         </view>
-        <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+        <view class="muted muted-micro" style="margin-top: 8rpx">
           派生：snapshot.schoolDimensions（仅重点学校子集，已按当前城市过滤）。
           "六边形战士" 同时满足综合≥80 / 集团实力≥70 / 区均衡度≥70。
         </view>

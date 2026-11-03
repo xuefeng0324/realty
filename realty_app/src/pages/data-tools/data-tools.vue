@@ -57,7 +57,7 @@
           >
             <view class="dt-card-info">
               <view class="dt-card-name">{{ c.label }}</view>
-              <view class="muted" style="font-size: 20rpx">{{ c.key }}</view>
+              <view class="muted muted-micro">{{ c.key }}</view>
             </view>
             <button
               class="dt-card-toggle"
@@ -136,7 +136,7 @@
         </text>
       </view>
     </view>
-    <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+    <view class="muted muted-micro" style="margin-top: 8rpx">
       派生：最近 12 月指数均值 / 前 12 月指数均值 -1，数据源 stats_70.csv，仅二手指数
     </view>
   </view>
@@ -200,7 +200,7 @@
         <text class="drift-value drift-up">{{ row.walkMinutes.toFixed(1) }}min</text>
       </view>
     </view>
-    <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+    <view class="muted muted-micro" style="margin-top: 8rpx">
       派生：snapshot.metroWalks（{{
         metroWalkSummary.reduce((s, r) => s + r.totalCommunities, 0)
       }} 个小区）。优先选 5 分钟覆盖比例最高城市。
@@ -274,7 +274,7 @@
         <text v-else class="drift-value muted">—</text>
       </view>
     </view>
-    <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+    <view class="muted muted-micro" style="margin-top: 8rpx">
       派生：snapshot.districtTrends（{{ districtDriftTotalWeeks }} 周样本 /
       {{ districtDriftTotalDistricts }} 区），当前严格 12 周对比仅
       {{ districtChangeDistribution.strictTotal }} 区。卡片严格口径排序，宽松口径作为兜底。
@@ -359,7 +359,7 @@
         <view class="mw-dist muted">{{ it.districtName }} · → {{ it.stationName }}</view>
       </view>
       <view class="mw-right">
-        <view class="muted" style="font-size: 20rpx">{{ it.walkDistanceM }}m</view>
+        <view class="muted muted-micro">{{ it.walkDistanceM }}m</view>
         <view class="mw-src muted" v-if="it.source">{{ it.source === 'AMAP_API' ? '高德' : '估算' }}</view>
       </view>
     </view>
@@ -415,7 +415,7 @@
         <view :class="['mb-status', 'mb-st-' + (it.lineStatus === '即将开通' ? 'open' : it.lineStatus === '在建' ? 'build' : 'plan')]">
           {{ it.lineStatus || '规划' }}
         </view>
-        <view class="muted" style="font-size: 20rpx">{{ it.distanceM }}m · {{ it.openYear ?? '?' }}</view>
+        <view class="muted muted-micro">{{ it.distanceM }}m · {{ it.openYear ?? '?' }}</view>
       </view>
     </view>
     <view class="muted muted-caption" style="margin-top: 8rpx">
@@ -1155,7 +1155,7 @@
         v-if="schoolTrendRising.length"
         style="margin-bottom: 6rpx"
       >
-        <view class="muted" style="font-size: 20rpx">上升 Top</view>
+        <view class="muted muted-micro">上升 Top</view>
         <view
           v-for="(row, i) in schoolTrendRising.slice(0, 3)"
           :key="'sup' + row.schoolId"
@@ -1169,7 +1169,7 @@
         </view>
       </view>
       <view v-if="schoolTrendDeclining.length">
-        <view class="muted" style="font-size: 20rpx">下滑 Top</view>
+        <view class="muted muted-micro">下滑 Top</view>
         <view
           v-for="(row, i) in schoolTrendDeclining.slice(0, 3)"
           :key="'sdn' + row.schoolId"
@@ -1183,7 +1183,7 @@
         </view>
       </view>
     </view>
-    <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+    <view class="muted muted-micro" style="margin-top: 8rpx">
       派生：snapshot.schoolIndicators（{{ schoolIndicatorSummary.total }} 所学校）。
       Top 列仅按各维度分数排序，综合分用于横向参考；具体名称见下方「重点学校维度」。
     </view>
@@ -1261,7 +1261,7 @@
         <view class="muted" style="margin-top: 8rpx">
           {{ adminSummary.districtCount }} 个行政区 · 城市码 {{ adminSummary.cityCode }}
         </view>
-        <view class="muted" style="margin-top: 6rpx; font-size: 20rpx">
+        <view class="muted muted-micro" style="margin-top: 6rpx">
           数据源：admin_districts.csv
         </view>
       </view>
@@ -1335,7 +1335,7 @@
           </view>
           <text class="wq-units">
             {{ it.totalUnits }} 套
-            <text class="muted" style="font-size: 20rpx">({{ formatWqArea(it.totalAreaSqm) }})</text>
+            <text class="muted muted-micro">({{ formatWqArea(it.totalAreaSqm) }})</text>
           </text>
         </view>
         <view class="muted muted-caption" style="margin-top: 8rpx">
@@ -1354,7 +1354,7 @@
           <text class="wq-name">{{ it.district }}</text>
           <text class="wq-units">
             累计 {{ it.totalUnits }} 套
-            <text class="muted" style="font-size: 20rpx">
+            <text class="muted muted-micro">
               · 日均 {{ it.avgDailyUnits.toFixed(1) }}
               <text v-if="it.latestUnits != null"> · 近周 {{ it.latestUnits }}</text>
             </text>
@@ -1434,7 +1434,7 @@
           <view class="community-sp-price">
             <text v-if="item.medianUnitPrice > 0" class="sp-up">¥{{ formatNum(item.medianUnitPrice) }}</text>
             <text v-else class="muted">—</text>
-            <view class="muted" style="font-size: 20rpx">中位/㎡</view>
+            <view class="muted muted-micro">中位/㎡</view>
           </view>
         </view>
         <view class="muted muted-caption" style="margin-top: 8rpx">
@@ -1515,7 +1515,7 @@
           已迁 16 张：70 城 12 月趋势 + 地铁步行可达性 + 分区近 12 周 + 教育事业 + 通勤步行 + 规划受益 + 挂牌结构 + 区情画像 + 特征溢价 + 挂牌标签 + 标签组合 + 学校指标 + 重点学校 + 规划地铁 + 网签热度榜 + 学区评分 Top 小区。
           首页瘦身完成度 16/16 = 100%。
         </view>
-        <view class="muted" style="margin-top: 6rpx; font-size: 20rpx">
+        <view class="muted muted-micro" style="margin-top: 6rpx">
           Batch 1-6 全部完成（v1.123.2）。
         </view>
       </view>

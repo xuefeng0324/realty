@@ -22,6 +22,7 @@ page {
   --radius-xl: 32rpx;
   --radius-pill: 999rpx;
 
+  --font-micro: 20rpx;
   --font-caption: 22rpx;
   --font-body-sm: 24rpx;
   --font-body: 28rpx;
@@ -91,6 +92,12 @@ textarea {
 /* 紧贴上边距的 card-title（dashboard 很多卡标题不想留 space-3 空隙） */
 .card-title--flush {
   margin-bottom: 0;
+}
+
+/* 微缩说明文本（比 .muted-caption 更紧凑，对应 --font-micro） */
+.muted-micro {
+  color: var(--color-muted);
+  font-size: var(--font-micro);
 }
 
 /* 小号说明文本（比 .muted 更紧凑，对应 --font-caption） */

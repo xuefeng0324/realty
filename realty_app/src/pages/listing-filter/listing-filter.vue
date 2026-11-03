@@ -313,7 +313,7 @@
             </view>
           </view>
         </view>
-        <view class="muted" style="font-size: 20rpx; margin-top: 8rpx">
+        <view class="muted muted-micro" style="margin-top: 8rpx">
           派生：snapshot.listingFreshness。鲜活度 = 近期新增数 / 总挂牌，年龄为小区内挂牌中位天数。
         </view>
       </view>

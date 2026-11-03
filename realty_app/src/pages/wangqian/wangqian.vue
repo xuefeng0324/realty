@@ -91,7 +91,7 @@
             <text class="metric-sub muted">{{ fmtArea(monthly.secondArea) }}</text>
           </view>
         </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 20rpx">
+        <view class="muted muted-micro" style="margin-top: 8rpx">
           住建局按月发布的分区累计成交，含下方全部行政区。
         </view>
       </view>
@@ -160,7 +160,7 @@
           <text class="wq-col-num">{{ district.districtNewSum }}</text>
           <text class="wq-col-num" v-if="hasDistrictSecond">{{ district.districtSecondSum }}</text>
         </view>
-        <view class="muted" style="margin-top: 12rpx; font-size: 20rpx">
+        <view class="muted muted-micro" style="margin-top: 12rpx">
           新房分区=住宅口径（合计=走势新房）；二手分区=全部口径（含非住宅）。分区接口仅当天。
         </view>
       </view>
@@ -199,7 +199,7 @@
           <text class="wq-col-num">均 {{ it.mean.toFixed(0) }}</text>
           <text class="wq-col-num">CV {{ it.cv.toFixed(2) }}</text>
         </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 20rpx">
+        <view class="muted muted-micro" style="margin-top: 8rpx">
           数据源：wangqian_district_weekly.csv → wangqianTrendRanking。口径默认二手。
         </view>
       </view>
