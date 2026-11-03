@@ -1066,12 +1066,13 @@ describe("build integrity", () => {
       expect(content).toMatch(/getTopListingsBySchoolPremium/);
     });
 
-    it("dashboard.vue 渲染『🏫 高学区评分房源』卡", () => {
+    // v1.123.15：listing 学区溢价榜隐藏死 DOM 已删除；数据面保留（地图分区 school 聚合消费）
+    it("dashboard.vue 地图分区聚合仍消费 listingSchoolPremium 数据（getListingSchoolPremiumByCity）", () => {
       const content = readFileSync(
         resolve(ROOT, "src/pages/dashboard/dashboard.vue"),
         "utf8"
       );
-      expect(content).toMatch(/高学区评分房源/);
+      expect(content).toMatch(/getListingSchoolPremiumByCity/);
     });
   });
 

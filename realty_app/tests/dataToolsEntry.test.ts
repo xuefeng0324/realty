@@ -356,6 +356,17 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(dashSrc).not.toMatch(/function (formatPremium|premiumClass|medalText|medalClass)\(/);
     expect(dashSrc).not.toMatch(/\.sp-row|\.sp-rank|\.sp-premium|\.sp-mid|\.sp-district|\.sp-pos|\.sp-neg/);
     expect(toolsSrc).not.toContain('"school-premium-rank"');
+    // v1.123.15：listing 学区溢价榜死 DOM 已删除（孤儿 e2e smoke_listing_premium 一并删除；
+    // 库 listingSchoolPremiumRanking/queries.getTopListingsBySchoolPremium 与单测保留；
+    // mapDistrictStats 仍消费 store.getListingSchoolPremiumByCity；spMedalClass 因区涨幅榜/商业热度榜仍消费而保留）
+    expect(dashSrc).not.toMatch(/listing-school-premium|listingPremiumOverview|lpScoreClass/);
+    expect(dashSrc).not.toMatch(/lspCitySummary|lspDistrictTop|lspCommunityTop|lspCommunityByVolume|\blspDist\b/);
+    expect(dashSrc).not.toMatch(/lsp-(kpi|summary|dist|bucket|rank|dname|meta|pct)/);
+    expect(dashSrc).not.toMatch(/listingSchoolPremiumRanking|getTopListingsBySchoolPremium|ListingSchoolPremiumOverview/);
+    expect(dashSrc).not.toMatch(/CitySchoolPremiumSummary|PremiumBucket|DistrictPremiumSummary|CommunityPremiumAggregate/);
+    expect(dashSrc).not.toMatch(/高学区评分房源/);
+    expect(dashSrc).toMatch(/getListingSchoolPremiumByCity/);
+    expect(toolsSrc).not.toContain('"listing-school-premium"');
     const settingsSrc = readFileSync(
       resolve(__dirname, "../src/pages/settings/settings.vue"),
       "utf8"

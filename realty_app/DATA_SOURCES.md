@@ -216,7 +216,7 @@ python scripts/crawl_daily_wangqian.py fetch --city 深圳 --merge
 | `static/sz_affordable_projects.csv` | `szAffordableProjects.ts` + dashboard「🏗️ 深圳保障房项目表」 | `crawl_sz_affordable_projects.py`（**周更 CI · P2**，需 `pypdf`；runner 到 zjj.sz.gov.cn 长期不可达，21 天新鲜度门禁兜底） | 市住建局项目建设信息 PDF/XLSX：建设筹集 / 基本建成；筹集表可拆 **建设/筹集**；**非商品房成交、非房价**；旧年扫描型 PDF 可能解析失败则跳过 |
 | `static/seed/admin_districts.csv` | `adminDistrictRanking.ts` + dashboard「🗺️ 行政区划」 | （国标整理） | v1.121.16：主城/郊区/新区与区码列表；v1.121.19：×规划地铁文案交叉 |
 | `static/seed/community_commercial.csv` | `communityCommercialRanking.ts` + 分区商业/密度桶 | （派生） | v1.121.17 分区均分；v1.121.19 餐饮密度×距离桶（按 city 过滤） |
-| `static/seed/listing_school_premium.csv` | `listingSchoolPremiumRanking.ts` + 高学区房源卡 | `compute_listing_school_premium` | v1.121.16：溢价分桶与分区 Top |
+| `static/seed/listing_school_premium.csv` | `listingSchoolPremiumRanking.ts` + dashboard 地图分区 school 聚合 | `compute_listing_school_premium` | v1.121.16：溢价分桶与分区 Top；v1.123.15：高学区房源卡（隐藏死 DOM）已删，消费面为 `mapDistrictStats` avgSchool 聚合 + 库单测 |
 | `static/school_source_audit.json` | 审计用（测试/脚本） | `scripts/audit_school_sources.py` | 学校来源分级审计结果，不直接驱动 UI 排名 |
 | `static/zh_bdc_registration.csv` | `zhBdcRegistration.ts` + dashboard「📋 珠海不动产登记季报」 | `list_zh_bdc_registration_posts.py`（对照缺口；**人工抄录** PNG 合计） | 珠海不动产登记中心季度「新增商品房登记 / 存量房转移登记」**合计行**；官方正文为 PNG；**≠日更网签、≠挂牌均价** |
 | `static/zh_bdc_registration_district.csv` | 同上模块分区明细 | `seed_zh_bdc_registration_district.py`（人工抄录五区） | **2025Q1–2026Q2**；与合计同行同期；住宅套数之和须对齐全市合计 |
@@ -298,7 +298,7 @@ poi_market.csv               → poiMarketRanking      → 菜市场可达（das
 metro_planning.csv           → metroPlanningRanking  → 规划地铁概览（dashboard v1.121.14）
 listing_tags_summary.csv     → listingTagsComparison → 挂牌标签热度（dashboard v1.121.14）
 admin_districts.csv          → adminDistrictRanking  → 行政区划（dashboard v1.121.16）
-listing_school_premium.csv   → listingSchoolPremium  → 学区挂牌溢价分布（dashboard v1.121.16）
+listing_school_premium.csv   → listingSchoolPremium  → 地图分区 school 聚合（dashboard 溢价卡 v1.123.15 已删）
 school_dimensions.csv        → schoolDimensionRanking → 重点学校维度（dashboard v1.121.17）
 gz_new_house_inventory.csv   → gzNewHouseInventory    → 广州库存 + 日环比（dashboard v1.121.18）
 layout_distribution.csv      → layout / distribution → 挂牌结构占比 + 3室/精装跨城（v1.121.18–20）

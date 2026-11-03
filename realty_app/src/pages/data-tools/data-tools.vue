@@ -1851,7 +1851,6 @@ const DASHBOARD_CARDS: DashboardCardEntry[] = [
   { key: "poi-commercial", label: "周边商业 POI" },
   { key: "life-convenience", label: "生活便利度榜 v2 (6 维)" },
   { key: "school-top-filter-sort", label: "学区 Top 过滤 + 排序" },
-  { key: "listing-school-premium", label: "listing 学区溢价榜" },
   { key: "commercial-heat", label: "商业热度榜 (小区维度)" },
   { key: "multi-community-compare", label: "同区多小区对比" }
 ];
