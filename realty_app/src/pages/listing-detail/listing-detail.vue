@@ -611,7 +611,7 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   gap: var(--space-1);
-  padding: 32rpx 24rpx;
+  padding: var(--space-5) var(--space-4);
   background: linear-gradient(180deg, var(--color-soft-strong, #e2e8f0), var(--color-soft, #f1f5f9));
 }
 .gallery-empty-title {
@@ -660,7 +660,7 @@ onMounted(async () => {
   margin-top: var(--space-2);
 }
 .listing-tag-pill {
-  padding: 4rpx 12rpx;
+  padding: 4rpx var(--space-2);
   border-radius: 8rpx;
   font-size: 22rpx;
   background: var(--color-soft);
@@ -672,7 +672,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 14rpx 16rpx;
+  padding: 14rpx var(--space-3);
   border-radius: 12rpx;
   background: var(--color-soft);
 }
@@ -698,8 +698,8 @@ onMounted(async () => {
   z-index: 20;
   display: flex;
   gap: var(--space-2);
-  padding: 12rpx 8rpx;
-  margin: 8rpx 0 24rpx;
+  padding: var(--space-2) var(--space-1);
+  margin: var(--space-1) 0 var(--space-4);
   background: color-mix(in srgb, var(--color-card, var(--color-surface)) 92%, transparent);
   backdrop-filter: blur(8px);
   border-radius: var(--radius-md);
@@ -713,7 +713,7 @@ button.source-dock-primary {
   justify-content: center;
   box-sizing: border-box;
   min-height: 80rpx;
-  padding: 0 24rpx;
+  padding: 0 var(--space-4);
   border-radius: 12rpx;
   background: #00ae66 !important;
   color: #fff !important;
@@ -729,7 +729,7 @@ button.source-dock-ghost {
   justify-content: center;
   box-sizing: border-box;
   min-height: 80rpx;
-  padding: 0 16rpx;
+  padding: 0 var(--space-3);
   border-radius: 12rpx;
   background: var(--color-soft) !important;
   color: var(--color-text) !important;
@@ -745,7 +745,7 @@ button.source-dock-ghost {
   margin-top: var(--space-2);
 }
 .source-trust {
-  padding: 4rpx 12rpx;
+  padding: 4rpx var(--space-2);
   border-radius: var(--radius-pill);
   font-size: 22rpx;
   font-weight: 600;
@@ -756,7 +756,7 @@ button.source-dock-ghost {
 .source-trust--unknown { background: rgba(148, 163, 184, 0.18); color: var(--color-text-secondary); }
 .derived-warning {
   margin-top: var(--space-2);
-  padding: 12rpx 16rpx;
+  padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
   background: rgba(245, 158, 11, 0.12);
   color: #fde68a;
@@ -767,7 +767,7 @@ button.source-dock-ghost {
 .quicknav {
   display: flex;
   gap: var(--space-2);
-  margin: 8rpx 0 16rpx;
+  margin: var(--space-1) 0 var(--space-3);
   flex-wrap: wrap;
 }
 .qn-btn {
@@ -799,7 +799,7 @@ button.source-dock-ghost {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 14rpx 12rpx;
+  padding: 14rpx var(--space-2);
   border-bottom: 1rpx solid #f1f5f9;
   cursor: pointer;
   transition: background 0.15s;
@@ -915,7 +915,7 @@ button.source-dock-ghost {
 .poi-row {
   display: flex;
   justify-content: space-between;
-  padding: 8rpx 0 8rpx 40rpx;
+  padding: var(--space-1) 0 var(--space-1) var(--space-6);
   border-bottom: 1rpx solid var(--color-soft-strong);
   font-size: 24rpx;
   color: var(--color-text);
@@ -1005,7 +1005,7 @@ button.source-dock-ghost {
 
 .explain-box {
   margin-top: var(--space-3);
-  padding: 16rpx;
+  padding: var(--space-3);
   background: var(--color-surface);
   border: 1rpx solid var(--color-soft-strong);
   border-radius: 12rpx;

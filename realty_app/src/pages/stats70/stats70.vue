@@ -139,7 +139,7 @@
             （均变 {{ cityTrendDir.avgChangePp > 0 ? "+" : "" }}{{ cityTrendDir.avgChangePp }} pp）
           </text>
         </view>
-        <view v-if="city12m.length" class="muted muted-caption" style="margin: 8rpx 0 4rpx">
+        <view v-if="city12m.length" class="muted muted-caption" style="margin: var(--space-1) 0 4rpx">
           近 {{ city12m.length }} 月{{ kind === "new" ? "新建" : "二手" }}同比
         </view>
         <view v-for="p in city12m" :key="'c12-' + p.date" class="trend-row">
@@ -153,7 +153,7 @@
           </view>
           <view style="width: 140rpx" :class="valueClass(city12mValue(p))">{{ formatIndex(city12mValue(p)) }}</view>
         </view>
-        <view v-if="monthSpread.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view v-if="monthSpread.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           最新月全国离散度（最大−最小）
         </view>
         <view v-for="s in monthSpread" :key="'msp-' + s.fixedBase + s.indexType" class="rank-row">
@@ -388,7 +388,7 @@ function onPickCity(city: string) {
   justify-content: center;
   box-sizing: border-box;
   min-height: 56rpx;
-  padding: 8rpx 22rpx;
+  padding: var(--space-1) 22rpx;
   line-height: 1.2;
   vertical-align: middle;
 }
@@ -409,7 +409,7 @@ function onPickCity(city: string) {
 }
 
 .tab {
-  padding: 8rpx 22rpx;
+  padding: var(--space-1) 22rpx;
   border-radius: var(--radius-pill);
   background: var(--color-soft);
   color: var(--color-text-secondary);
@@ -438,13 +438,13 @@ function onPickCity(city: string) {
   line-height: 64rpx;
   background: var(--color-surface-raised);
   border-radius: 8rpx;
-  padding: 0 16rpx;
+  padding: 0 var(--space-3);
   color: var(--color-heading);
   font-size: 26rpx;
 }
 
 .filter-empty {
-  padding: 16rpx 0 4rpx;
+  padding: var(--space-3) 0 4rpx;
   font-size: 24rpx;
 }
 
@@ -452,7 +452,7 @@ function onPickCity(city: string) {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 12rpx 0;
+  padding: var(--space-2) 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
 }
 
@@ -518,7 +518,7 @@ function onPickCity(city: string) {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 8rpx 0;
+  padding: var(--space-1) 0;
   font-size: 24rpx;
 }
 

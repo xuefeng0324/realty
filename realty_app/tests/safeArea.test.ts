@@ -21,7 +21,7 @@ describe("cross-platform safe area", () => {
     "src/pages/listing-filter/listing-filter.vue",
     "src/pages/wangqian/wangqian.vue"
   ])("keeps bottom sheets above the home indicator: %s", (path) => {
-    expect(read(path)).toContain("padding: 16rpx 0 calc(16rpx + var(--safe-area-bottom, 0px))");
+    expect(read(path)).toContain("padding: var(--space-3) 0 calc(16rpx + var(--safe-area-bottom, 0px))");
   });
 
   it("keeps the map detail card above the tab bar and home indicator", () => {

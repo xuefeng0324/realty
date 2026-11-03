@@ -379,7 +379,7 @@ async function loadCities() {
   line-height: 40rpx;
   background: var(--color-surface-raised);
   border-radius: 8rpx;
-  padding: 12rpx 16rpx;
+  padding: var(--space-2) var(--space-3);
   color: var(--color-heading);
   font-size: 26rpx;
 }
@@ -412,7 +412,7 @@ async function loadCities() {
   display: flex;
   flex-direction: column;
   gap: 4rpx;
-  padding: 12rpx;
+  padding: var(--space-2);
   border-radius: 12rpx;
   background: var(--color-surface-raised);
 }
@@ -422,7 +422,7 @@ async function loadCities() {
   flex-direction: column;
   align-items: center;
   gap: var(--space-1);
-  padding: 48rpx 16rpx;
+  padding: 48rpx var(--space-3);
 }
 
 .search-empty-icon {

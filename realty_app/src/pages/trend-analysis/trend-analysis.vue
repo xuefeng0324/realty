@@ -345,11 +345,11 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 
 <style scoped>
 .page {
-  padding: 16rpx;
+  padding: var(--space-3);
   padding-bottom: 80rpx;
 }
 .header {
-  padding: 16rpx 24rpx;
+  padding: var(--space-3) var(--space-4);
   background: var(--color-surface, #fff);
   border-radius: var(--radius-md);
   margin-bottom: var(--space-3);
@@ -365,7 +365,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 }
 .empty {
   text-align: center;
-  padding: 40rpx 0;
+  padding: var(--space-6) 0;
   color: var(--color-muted, #999);
 }
 .row-between {
@@ -397,7 +397,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   flex: 1;
   margin: 0;
   font-size: 26rpx;
-  padding: 0 24rpx;
+  padding: 0 var(--space-4);
   border-radius: var(--radius-pill) !important;
   background: var(--color-soft, #f5f5f5) !important;
   color: var(--color-text, #333) !important;
@@ -495,7 +495,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 .sc-kpi {
   flex: 1;
   text-align: center;
-  padding: 8rpx;
+  padding: var(--space-1);
   background: var(--color-soft, #f5f5f5);
   border-radius: 8rpx;
 }

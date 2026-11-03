@@ -175,25 +175,25 @@
             {{ wqCategoryTrend.changePct >= 0 ? "+" : "" }}{{ formatWowPct(wqCategoryTrend.changePct) }}%
           </text>
         </view>
-        <view v-if="wqWowUp.length" class="muted muted-caption" style="margin: 8rpx 0 4rpx">周环比上升 Top</view>
+        <view v-if="wqWowUp.length" class="muted muted-caption" style="margin: var(--space-1) 0 4rpx">周环比上升 Top</view>
         <view v-for="(it, idx) in wqWowUp" :key="'wu-' + it.district" class="wq-table-row">
           <text class="wq-col-name">{{ idx + 1 }}. {{ it.district }}</text>
           <text class="wq-col-num">{{ it.prevUnits }}→{{ it.latestUnits }}</text>
           <text class="wq-col-num trend-up">+{{ formatWowPct(it.changePct) }}%</text>
         </view>
-        <view v-if="wqWowDown.length" class="muted muted-caption" style="margin: 8rpx 0 4rpx">周环比下降 Top</view>
+        <view v-if="wqWowDown.length" class="muted muted-caption" style="margin: var(--space-1) 0 4rpx">周环比下降 Top</view>
         <view v-for="(it, idx) in wqWowDown" :key="'wd-' + it.district" class="wq-table-row">
           <text class="wq-col-name">{{ idx + 1 }}. {{ it.district }}</text>
           <text class="wq-col-num">{{ it.prevUnits }}→{{ it.latestUnits }}</text>
           <text class="wq-col-num trend-down">{{ formatWowPct(it.changePct) }}%</text>
         </view>
-        <view v-if="wqSpikes.length" class="muted muted-caption" style="margin: 8rpx 0 4rpx">近周突增</view>
+        <view v-if="wqSpikes.length" class="muted muted-caption" style="margin: var(--space-1) 0 4rpx">近周突增</view>
         <view v-for="(it, idx) in wqSpikes" :key="'ws-' + it.district" class="wq-table-row">
           <text class="wq-col-name">{{ idx + 1 }}. {{ it.district }}</text>
           <text class="wq-col-num">{{ it.latestUnits }} 套</text>
           <text class="wq-col-num">×{{ it.multiplier.toFixed(1) }}</text>
         </view>
-        <view v-if="wqVolatility.length" class="muted muted-caption" style="margin: 8rpx 0 4rpx">波动最高（CV）</view>
+        <view v-if="wqVolatility.length" class="muted muted-caption" style="margin: var(--space-1) 0 4rpx">波动最高（CV）</view>
         <view v-for="(it, idx) in wqVolatility" :key="'wv-' + it.district" class="wq-table-row">
           <text class="wq-col-name">{{ idx + 1 }}. {{ it.district }}</text>
           <text class="wq-col-num">均 {{ it.mean.toFixed(0) }}</text>
@@ -632,7 +632,7 @@ onLoad((opts?: Record<string, string>) => {
 <style lang="scss" scoped>
 .fresh-badge {
   margin-left: var(--space-2);
-  padding: 2rpx 12rpx;
+  padding: 2rpx var(--space-2);
   border-radius: var(--radius-pill);
   font-size: 20rpx;
 }
@@ -649,7 +649,7 @@ onLoad((opts?: Record<string, string>) => {
   background: var(--color-surface);
   border: 1rpx solid var(--color-soft-strong);
   border-radius: 12rpx;
-  padding: 16rpx 20rpx;
+  padding: var(--space-3) 20rpx;
   display: flex;
   flex-direction: column;
   gap: 6rpx;
@@ -745,7 +745,7 @@ onLoad((opts?: Record<string, string>) => {
 .wq-table-row {
   display: flex;
   align-items: center;
-  padding: 12rpx 0;
+  padding: var(--space-2) 0;
   font-size: 26rpx;
 }
 .wq-table-head {
@@ -794,17 +794,17 @@ onLoad((opts?: Record<string, string>) => {
   background: var(--color-surface);
   border-top-left-radius: 24rpx;
   border-top-right-radius: 24rpx;
-  padding: 16rpx 0 calc(16rpx + var(--safe-area-bottom, 0px));
+  padding: var(--space-3) 0 calc(16rpx + var(--safe-area-bottom, 0px));
 }
 .sheet-title {
   text-align: center;
   font-size: 28rpx;
   color: var(--color-muted);
-  padding: 16rpx;
+  padding: var(--space-3);
   border-bottom: 1rpx solid var(--color-soft);
 }
 .sheet-item {
-  padding: 24rpx 32rpx;
+  padding: var(--space-4) var(--space-5);
   border-bottom: 1rpx solid var(--color-soft);
   color: var(--color-heading);
   font-size: 30rpx;

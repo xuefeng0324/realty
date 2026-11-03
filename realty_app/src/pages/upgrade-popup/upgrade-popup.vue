@@ -203,7 +203,7 @@ function restartNow() {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 48rpx 40rpx;
+  padding: 48rpx var(--space-6);
   box-sizing: border-box;
 }
 .upgrade-card {
@@ -212,7 +212,7 @@ function restartNow() {
   background: var(--color-surface);
   border: 1rpx solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: 36rpx 32rpx 28rpx;
+  padding: 36rpx var(--space-5) 28rpx;
   box-shadow: var(--shadow-card);
 }
 .upgrade-eyebrow {
@@ -233,7 +233,7 @@ function restartNow() {
 .upgrade-notes {
   margin-top: 20rpx;
   max-height: 280rpx;
-  padding: 16rpx;
+  padding: var(--space-3);
   border-radius: 12rpx;
   background: var(--color-soft);
 }
@@ -253,7 +253,7 @@ function restartNow() {
 }
 .upgrade-error {
   margin-top: var(--space-3);
-  padding: 12rpx 16rpx;
+  padding: var(--space-2) var(--space-3);
   border-radius: 12rpx;
   background: var(--color-danger-soft);
   color: var(--color-on-danger-soft);

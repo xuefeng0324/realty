@@ -913,7 +913,7 @@ function openGithubReleases() {
 }
 
 .library-empty {
-  padding: 38rpx 20rpx 24rpx;
+  padding: 38rpx 20rpx var(--space-4);
   text-align: center;
 }
 
@@ -923,7 +923,7 @@ function openGithubReleases() {
 }
 
 .library-empty-title {
-  margin: 8rpx 0 4rpx;
+  margin: var(--space-1) 0 4rpx;
   color: var(--color-heading);
   font-size: 26rpx;
   font-weight: 700;
@@ -939,7 +939,7 @@ function openGithubReleases() {
   min-height: 92rpx;
   align-items: center;
   gap: 14rpx;
-  padding: 12rpx 0;
+  padding: var(--space-2) 0;
   border-top: 1rpx solid var(--color-border);
 }
 
@@ -1029,7 +1029,7 @@ function openGithubReleases() {
   background: var(--color-soft);
   border: 1rpx solid var(--color-border);
   border-radius: 8rpx;
-  padding: 12rpx 16rpx;
+  padding: var(--space-2) var(--space-3);
   color: var(--color-heading);
   font-size: 26rpx;
 }
@@ -1041,7 +1041,7 @@ function openGithubReleases() {
   background: var(--color-soft);
   border: 1rpx solid var(--color-border);
   border-radius: 8rpx;
-  padding: 12rpx 16rpx;
+  padding: var(--space-2) var(--space-3);
   color: var(--color-heading);
   font-size: 26rpx;
 }

@@ -75,7 +75,7 @@ function onWebError() {
 
 .gov-toolbar {
   flex-shrink: 0;
-  padding: 16rpx 24rpx;
+  padding: var(--space-3) var(--space-4);
   border-bottom: 1rpx solid var(--color-soft-strong);
   display: flex;
   align-items: center;
@@ -105,7 +105,7 @@ web-view {
 }
 
 .fallback {
-  padding: 48rpx 32rpx;
+  padding: 48rpx var(--space-5);
   text-align: center;
 }
 

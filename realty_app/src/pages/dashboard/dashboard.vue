@@ -148,10 +148,10 @@
           <view class="muted muted-caption">{{ stats70MonthLabel }}</view>
         </view>
 
-        <view v-if="!stats70Ready" class="empty" style="padding: 24rpx 0">
+        <view v-if="!stats70Ready" class="empty" style="padding: var(--space-4) 0">
           70 城数据未加载。点击"刷新"或下拉重新加载。
         </view>
-        <view v-else-if="!currentCityIndex" class="empty" style="padding: 24rpx 0">
+        <view v-else-if="!currentCityIndex" class="empty" style="padding: var(--space-4) 0">
           请先在上方选择城市
         </view>
         <view v-else>
@@ -576,10 +576,10 @@
           </view>
         </view>
 
-        <view v-if="!wangqianReady" class="empty" style="padding: 24rpx 0">
+        <view v-if="!wangqianReady" class="empty" style="padding: var(--space-4) 0">
           网签数据未加载。
         </view>
-        <view v-else-if="!currentWangqian" class="empty" style="padding: 24rpx 0">
+        <view v-else-if="!currentWangqian" class="empty" style="padding: var(--space-4) 0">
           当前城市暂无网签日更（仅深圳/广州）
         </view>
         <view v-else>
@@ -991,7 +991,7 @@
             📈 网签周环比 · {{ wangqianTrendCityName }}
           </view>
         </view>
-        <view v-if="!wangqianTrendHasCityData" class="empty" style="padding: 24rpx 0">
+        <view v-if="!wangqianTrendHasCityData" class="empty" style="padding: var(--space-4) 0">
           <text class="muted">当前城市暂无区级周网签数据（深圳、广州有住建局周度口径）</text>
         </view>
         <template v-else>
@@ -3842,7 +3842,7 @@ onShow(async () => {
  * 验收：docs/DASHBOARD_FEED_ACCEPTANCE.md
  */
 .card-hide-btn {
-  margin: 0 0 0 8rpx;
+  margin: 0 0 0 var(--space-1);
   font-size: 22rpx;
   line-height: 1;
   padding: 0;
@@ -3894,7 +3894,7 @@ onShow(async () => {
 .gz-inventory-kpi {
   background: var(--color-surface-raised);
   border-radius: 12rpx;
-  padding: 16rpx;
+  padding: var(--space-3);
 }
 
 .gz-inventory-value {
@@ -4034,7 +4034,7 @@ onShow(async () => {
   display: grid;
   gap: var(--space-1);
   margin-top: 14rpx;
-  padding: 14rpx 16rpx;
+  padding: 14rpx var(--space-3);
   border-radius: 12rpx;
   background: var(--color-surface);
   color: var(--color-text-secondary);
@@ -4097,7 +4097,7 @@ onShow(async () => {
   border-top-right-radius: 24rpx;
   display: flex;
   flex-direction: column;
-  padding: 16rpx 0 calc(16rpx + var(--safe-area-bottom, 0px));
+  padding: var(--space-3) 0 calc(16rpx + var(--safe-area-bottom, 0px));
   box-sizing: border-box;
 }
 
@@ -4105,18 +4105,18 @@ onShow(async () => {
   text-align: center;
   font-size: 28rpx;
   color: var(--color-muted);
-  padding: 16rpx;
+  padding: var(--space-3);
   border-bottom: 1rpx solid var(--color-soft);
 }
 
 .sheet-list {
   flex: 1;
   max-height: 56vh;
-  padding: 0 16rpx;
+  padding: 0 var(--space-3);
 }
 
 .sheet-item {
-  padding: 24rpx 16rpx;
+  padding: var(--space-4) var(--space-3);
   border-bottom: 1rpx solid var(--color-soft);
   color: var(--color-heading);
   font-size: 30rpx;
@@ -4147,7 +4147,7 @@ onShow(async () => {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: 12rpx 0;
+  padding: var(--space-2) 0;
 }
 
 .bar-name {
@@ -4238,7 +4238,7 @@ onShow(async () => {
   background: var(--color-surface);
   border: 1rpx solid var(--color-soft-strong);
   border-radius: 12rpx;
-  padding: 16rpx 20rpx;
+  padding: var(--space-3) 20rpx;
   display: flex;
   flex-direction: column;
   gap: 6rpx;
@@ -4266,7 +4266,7 @@ onShow(async () => {
   align-items: center;
   justify-content: space-between;
   margin-top: var(--space-3);
-  padding: 12rpx 16rpx;
+  padding: var(--space-2) var(--space-3);
   background: var(--color-panel);
   border: 1rpx solid var(--color-soft);
   border-radius: var(--radius-sm);
@@ -4286,7 +4286,7 @@ onShow(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8rpx 12rpx;
+  padding: var(--space-1) var(--space-2);
   border-bottom: 1rpx solid var(--color-soft-strong);
   font-size: 26rpx;
 }
@@ -4359,7 +4359,7 @@ onShow(async () => {
 
 /* v0.8.0 区级近 8 周趋势 */
 .trend-row {
-  padding: 12rpx 0;
+  padding: var(--space-2) 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
 }
 .trend-row:last-child {
@@ -4433,11 +4433,11 @@ onShow(async () => {
 .wq-cat-tabs {
   display: flex;
   gap: var(--space-1);
-  margin: 8rpx 0;
+  margin: var(--space-1) 0;
 }
 .wq-cat-tab {
   font-size: 22rpx;
-  padding: 4rpx 12rpx;
+  padding: 4rpx var(--space-2);
   border-radius: var(--radius-md);
   border: 1rpx solid var(--color-muted);
 }
@@ -4453,7 +4453,7 @@ onShow(async () => {
 
 /* 网签周环比 + 突增区 */
 .wq-trend-section-title {
-  margin: 8rpx 0 4rpx;
+  margin: var(--space-1) 0 4rpx;
   font-size: 22rpx;
 }
 .wq-trend-block {
@@ -4478,7 +4478,7 @@ onShow(async () => {
 .wq-trend-row--spike {
   background: var(--color-soft);
   border-radius: 8rpx;
-  padding: 8rpx 10rpx;
+  padding: var(--space-1) 10rpx;
   margin-bottom: 6rpx;
   border-bottom: none;
 }
@@ -4537,7 +4537,7 @@ onShow(async () => {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 8rpx 0;
+  padding: var(--space-1) 0;
   border-bottom: 1rpx solid var(--color-border);
 }
 .lc-row:last-child {
@@ -4610,7 +4610,7 @@ onShow(async () => {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 8rpx 0;
+  padding: var(--space-1) 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
 }
 .wq-row:last-child {
@@ -4661,7 +4661,7 @@ onShow(async () => {
   font-size: 26rpx;
   font-weight: 600;
   color: var(--color-heading);
-  margin: 16rpx 0 8rpx;
+  margin: var(--space-3) 0 var(--space-1);
   padding-left: 6rpx;
   border-left: 6rpx solid #0ea5e9;
 }
@@ -4741,7 +4741,7 @@ onShow(async () => {
   margin-top: var(--space-2);
   background: var(--color-soft);
   border-radius: 8rpx;
-  padding: 8rpx;
+  padding: var(--space-1);
   overflow: hidden;
 }
 .map-svg {
@@ -4765,7 +4765,7 @@ onShow(async () => {
 .map-mode-tabs {
   display: flex;
   gap: var(--space-1);
-  margin: 8rpx 0;
+  margin: var(--space-1) 0;
   flex-wrap: wrap;
 }
 .map-mode-tab {
@@ -4775,7 +4775,7 @@ onShow(async () => {
   align-items: center;
   justify-content: center;
   gap: 4rpx;
-  padding: 8rpx 12rpx;
+  padding: var(--space-1) var(--space-2);
   border-radius: 8rpx;
   background: var(--color-soft);
   font-size: 22rpx;
@@ -4801,7 +4801,7 @@ onShow(async () => {
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  margin: 4rpx 0 8rpx;
+  margin: 4rpx 0 var(--space-1);
   font-size: 20rpx;
   color: var(--color-text-secondary);
 }
@@ -4835,7 +4835,7 @@ onShow(async () => {
 .lpr-kpi {
   display: flex;
   gap: var(--space-1);
-  margin: 12rpx 0;
+  margin: var(--space-2) 0;
 }
 .lpr-kpi-cell {
   flex: 1;
@@ -4871,13 +4871,13 @@ onShow(async () => {
 .lpr-drop-row {
   display: flex;
   gap: var(--space-2);
-  margin: 8rpx 0 12rpx;
+  margin: var(--space-1) 0 var(--space-2);
 }
 .lpr-drop-cell {
   flex: 1;
   background: var(--color-panel);
   border-radius: 8rpx;
-  padding: 10rpx 12rpx;
+  padding: 10rpx var(--space-2);
   display: flex;
   flex-direction: column;
   gap: 4rpx;
@@ -4902,7 +4902,7 @@ onShow(async () => {
   font-size: 24rpx;
   color: var(--color-chip-text);
   font-weight: 600;
-  margin: 8rpx 0 4rpx;
+  margin: var(--space-1) 0 4rpx;
 }
 .lpr-chart-wrap {
   background: var(--color-panel);
@@ -4961,7 +4961,7 @@ onShow(async () => {
 .sd-block-title {
   font-weight: 600;
   font-size: 26rpx;
-  margin: 12rpx 0 8rpx;
+  margin: var(--space-2) 0 var(--space-1);
   color: var(--color-heading);
 }
 .sd-ovr {
@@ -4973,7 +4973,7 @@ onShow(async () => {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 10rpx 12rpx;
+  padding: 10rpx var(--space-2);
   background: var(--color-panel);
   border-radius: 8rpx;
 }
@@ -5031,7 +5031,7 @@ onShow(async () => {
 .sd-cell {
   background: var(--color-panel);
   border-radius: 8rpx;
-  padding: 12rpx;
+  padding: var(--space-2);
 }
 .sd-cell-h {
   font-size: 22rpx;
@@ -5102,7 +5102,7 @@ onShow(async () => {
 .home-v122-hero {
   position: relative;
   overflow: hidden;
-  padding: 36rpx 32rpx 30rpx;
+  padding: 36rpx var(--space-5) 30rpx;
   border-radius: var(--radius-xl);
   color: #f8fffc;
   background:
@@ -5186,7 +5186,7 @@ onShow(async () => {
   gap: var(--space-2);
   height: 88rpx;
   margin-top: var(--space-5);
-  padding: 0 12rpx 0 24rpx;
+  padding: 0 var(--space-2) 0 var(--space-4);
   border: 1rpx solid rgba(255, 255, 255, 0.18);
   border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.96);
@@ -5281,7 +5281,7 @@ onShow(async () => {
 .home-v122-metric {
   display: flex;
   min-width: 0;
-  padding: 0 18rpx 24rpx;
+  padding: 0 18rpx var(--space-4);
   border-right: 1rpx solid var(--color-border, #e7efed);
   flex-direction: column;
 }
@@ -5440,7 +5440,7 @@ onShow(async () => {
 }
 .home-v122-trust {
   gap: 18rpx;
-  padding: 24rpx 26rpx;
+  padding: var(--space-4) 26rpx;
   color: var(--color-muted, #6b807c);
   font-size: 20rpx;
 }

@@ -185,7 +185,7 @@ onLoad((query?: Record<string, string>) => {
 </script>
 
 <style lang="scss" scoped>
-.detail-container { padding-bottom: 40rpx; }
+.detail-container { padding-bottom: var(--space-6); }
 .quicknav { display: flex; gap: var(--space-2); margin-bottom: 18rpx; }
 .quick-btn { padding: 10rpx 16rpx; border: 1rpx solid var(--color-border); border-radius: var(--radius-pill); background: var(--color-surface); color: var(--color-text-secondary); font-size: 21rpx; }
 .school-hero { display: flex; justify-content: space-between; align-items: center; gap: 28rpx; padding: 34rpx; border: 1rpx solid var(--color-border); border-radius: var(--radius-lg); background: linear-gradient(135deg, rgba(34, 197, 94, 0.16), var(--color-surface) 62%); box-shadow: var(--shadow-card); }

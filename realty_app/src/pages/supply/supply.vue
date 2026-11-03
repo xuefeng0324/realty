@@ -399,7 +399,7 @@ onMounted(() => {
 
 <style scoped>
 .page-header {
-  padding: 8rpx 4rpx 16rpx;
+  padding: var(--space-1) 4rpx var(--space-3);
 }
 .page-header-title {
   font-size: 36rpx;
@@ -481,7 +481,7 @@ onMounted(() => {
   width: 100%;
   background: var(--color-card, #0f172a);
   border-radius: var(--radius-lg) 24rpx 0 0;
-  padding: 24rpx 28rpx 48rpx;
+  padding: var(--space-4) 28rpx 48rpx;
 }
 .sheet-title {
   font-size: 30rpx;
@@ -491,7 +491,7 @@ onMounted(() => {
 .sheet-item {
   display: flex;
   justify-content: space-between;
-  padding: 22rpx 8rpx;
+  padding: 22rpx var(--space-1);
   border-bottom: 1rpx solid var(--color-soft-strong, rgba(148, 163, 184, 0.25));
   font-size: 28rpx;
 }

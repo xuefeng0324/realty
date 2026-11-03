@@ -1155,7 +1155,7 @@ onUnmounted(() => {
 
 <style scoped>
 .page {
-  padding: 16rpx;
+  padding: var(--space-3);
 }
 .map-wrap {
   width: 100%;
@@ -1176,7 +1176,7 @@ onUnmounted(() => {
   background: var(--color-accent) !important;
   color: var(--color-accent-text) !important;
   font-size: 24rpx;
-  padding: 4rpx 16rpx;
+  padding: 4rpx var(--space-3);
   border-radius: 4rpx;
 }
 .legend {
@@ -1221,7 +1221,7 @@ onUnmounted(() => {
   background: var(--color-surface);
   border: 1rpx solid var(--color-border);
   border-radius: 12rpx;
-  padding: 16rpx;
+  padding: var(--space-3);
   z-index: 100;
   box-shadow: var(--shadow-card);
 }
@@ -1233,7 +1233,7 @@ onUnmounted(() => {
 .info-close {
   color: var(--color-muted);
   font-size: 32rpx;
-  padding: 0 8rpx;
+  padding: 0 var(--space-1);
 }
 .info-line {
   display: block;
@@ -1244,7 +1244,7 @@ onUnmounted(() => {
 .info-row {
   display: flex;
   gap: var(--space-4);
-  margin: 12rpx 0;
+  margin: var(--space-2) 0;
 }
 .info-stat {
   display: flex;
@@ -1262,7 +1262,7 @@ onUnmounted(() => {
 /* v1.119.0 弯曲系数 Top 5 卡 */
 .curvature-card {
   margin-top: var(--space-3);
-  padding: 16rpx 20rpx;
+  padding: var(--space-3) 20rpx;
   background: var(--color-panel);
   border: 1rpx solid var(--color-soft);
   border-radius: 14rpx;
@@ -1281,7 +1281,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 14rpx;
-  padding: 12rpx 0;
+  padding: var(--space-2) 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
 }
 .curvature-row:last-child {
@@ -1417,7 +1417,7 @@ onUnmounted(() => {
 .map-mode-list {
   display: inline-flex;
   gap: var(--space-1);
-  padding: 8rpx 0;
+  padding: var(--space-1) 0;
 }
 
 .map-mode-btn {
@@ -1464,7 +1464,7 @@ onUnmounted(() => {
   border-top: 1rpx solid var(--color-border);
   border-radius: var(--radius-lg) 24rpx 0 0;
   box-shadow: 0 -8rpx 28rpx rgba(15, 23, 42, 0.12);
-  padding: 16rpx 20rpx calc(16rpx + var(--safe-area-bottom, 0px));
+  padding: var(--space-3) 20rpx calc(16rpx + var(--safe-area-bottom, 0px));
   display: flex;
   flex-direction: column;
 }
@@ -1525,7 +1525,7 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 .find-empty {
-  padding: 32rpx 8rpx;
+  padding: var(--space-5) var(--space-1);
   text-align: center;
   font-size: 24rpx;
 }
@@ -1561,7 +1561,7 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   gap: var(--space-2);
-  padding: 24rpx;
+  padding: var(--space-4);
   text-align: center;
 }
 

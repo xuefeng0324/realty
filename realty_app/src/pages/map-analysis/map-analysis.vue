@@ -405,7 +405,7 @@ watch(
   flex: 1;
   min-width: 100rpx;
   text-align: center;
-  padding: 12rpx 8rpx;
+  padding: var(--space-2) var(--space-1);
   background: var(--color-soft, #f5f5f5);
   border-radius: 12rpx;
 }
@@ -445,7 +445,7 @@ watch(
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8rpx 12rpx;
+  padding: var(--space-1) var(--space-2);
   margin: 4rpx 0;
   background: var(--color-soft, #f5f5f5);
   border-radius: 8rpx;

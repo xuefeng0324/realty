@@ -1092,7 +1092,7 @@ onUnmounted(() => {
 }
 
 .find-hub-head {
-  padding: 32rpx 30rpx 26rpx;
+  padding: var(--space-5) 30rpx 26rpx;
   border: 1rpx solid var(--color-border, rgba(15, 118, 110, 0.12));
   border-radius: 30rpx;
   background:
@@ -1180,7 +1180,7 @@ onUnmounted(() => {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10rpx;
   margin-top: 28rpx;
-  padding: 8rpx;
+  padding: var(--space-1);
   border-radius: 20rpx;
   background: var(--color-soft, #eef4f2);
 }
@@ -1191,7 +1191,7 @@ onUnmounted(() => {
   justify-content: center;
   gap: 10rpx;
   min-height: 68rpx;
-  padding: 0 12rpx;
+  padding: 0 var(--space-2);
   border-radius: 15rpx;
   color: var(--color-muted, #667c77);
   background: transparent;
@@ -1498,7 +1498,7 @@ onUnmounted(() => {
 .picker-value {
   background: var(--color-soft);
   border-radius: 8rpx;
-  padding: 12rpx 16rpx;
+  padding: var(--space-2) var(--space-3);
   color: var(--color-heading);
   font-size: 26rpx;
 }
@@ -1546,7 +1546,7 @@ onUnmounted(() => {
   border-top-right-radius: 24rpx;
   display: flex;
   flex-direction: column;
-  padding: 16rpx 0 calc(16rpx + var(--safe-area-bottom, 0px));
+  padding: var(--space-3) 0 calc(16rpx + var(--safe-area-bottom, 0px));
   box-sizing: border-box;
 }
 
@@ -1554,18 +1554,18 @@ onUnmounted(() => {
   text-align: center;
   font-size: 28rpx;
   color: var(--color-muted);
-  padding: 16rpx;
+  padding: var(--space-3);
   border-bottom: 1rpx solid var(--color-soft);
 }
 
 .sheet-list {
   flex: 1;
   max-height: 56vh;
-  padding: 0 16rpx;
+  padding: 0 var(--space-3);
 }
 
 .sheet-item {
-  padding: 24rpx 16rpx;
+  padding: var(--space-4) var(--space-3);
   border-bottom: 1rpx solid var(--color-soft);
   color: var(--color-heading);
   font-size: 30rpx;
@@ -1595,14 +1595,14 @@ onUnmounted(() => {
 /* v1.118.0 性价比之选卡 */
 .pareto-desc {
   font-size: 22rpx;
-  margin: 12rpx 0 16rpx;
+  margin: var(--space-2) 0 var(--space-3);
   line-height: 1.5;
 }
 .pareto-row {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: 16rpx 0;
+  padding: var(--space-3) 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
   cursor: pointer;
 }

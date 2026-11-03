@@ -724,7 +724,7 @@ onMounted(() => {
 .quicknav {
   display: flex;
   gap: var(--space-2);
-  margin: 8rpx 0 16rpx;
+  margin: var(--space-1) 0 var(--space-3);
   flex-wrap: wrap;
 }
 .qn-btn {
@@ -754,7 +754,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 14rpx 12rpx;
+  padding: 14rpx var(--space-2);
   border-bottom: 1rpx solid #f1f5f9;
   cursor: pointer;
   transition: background 0.15s;
@@ -808,7 +808,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 8rpx 0;
+  padding: var(--space-1) 0;
 }
 
 .chart-label {
@@ -935,7 +935,7 @@ onMounted(() => {
 .poi-row {
   display: flex;
   justify-content: space-between;
-  padding: 8rpx 0 8rpx 40rpx;
+  padding: var(--space-1) 0 var(--space-1) var(--space-6);
   border-bottom: 1rpx solid var(--color-soft-strong);
   font-size: 24rpx;
   color: var(--color-text);
@@ -1041,7 +1041,7 @@ onMounted(() => {
 .cm-cell {
   background: var(--color-bg);
   border: 1rpx solid var(--color-soft-strong);
-  border-radius: 10rpx;
+  border-radius: var(--radius-sm);
   padding: 12rpx 10rpx;
   display: flex;
   flex-direction: column;

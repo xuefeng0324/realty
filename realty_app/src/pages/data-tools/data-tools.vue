@@ -121,7 +121,7 @@
           +{{ fmtPct(row.drift) }}
         </text>
       </view>
-      <view class="muted muted-caption" style="margin: 12rpx 0 6rpx">
+      <view class="muted muted-caption" style="margin: var(--space-2) 0 6rpx">
         收缩 Top 3（二手）
       </view>
       <view
@@ -367,7 +367,7 @@
       数据源：poi_seed.csv (subway) → 高德 /v3/direction/walking。
       步行时长按距离升序；绿/橙/红三档 (≤5 / ≤10 / &gt;10min)，AMAP_API 是高德实测，其余为启发式估算（直线×1.45 / 80m·min⁻¹）。
     </view>
-    <view v-if="metroWalkCityTopAll.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+    <view v-if="metroWalkCityTopAll.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
       派生层本市步行最少 Top
     </view>
     <view
@@ -445,7 +445,7 @@
       <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
       <text class="ltk-count muted">{{ r.count }}</text>
     </view>
-    <view v-if="layoutOrientShare.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">朝向</view>
+    <view v-if="layoutOrientShare.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">朝向</view>
     <view
       v-for="(r, idx) in layoutOrientShare"
       :key="'ori-' + layoutBucket(r)"
@@ -459,7 +459,7 @@
       <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
       <text class="ltk-count muted">{{ r.count }}</text>
     </view>
-    <view data-cross-city v-if="layoutThreeBedCrossCity.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+    <view data-cross-city v-if="layoutThreeBedCrossCity.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
       跨城「3室」占比
     </view>
     <view
@@ -477,7 +477,7 @@
       <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
       <text class="ltk-count muted">{{ r.count }}</text>
     </view>
-    <view data-cross-city v-if="layoutDecorateCrossCity.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+    <view data-cross-city v-if="layoutDecorateCrossCity.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
       跨城「精装」占比
     </view>
     <view
@@ -495,7 +495,7 @@
       <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
       <text class="ltk-count muted">{{ r.count }}</text>
     </view>
-    <view data-cross-city v-if="bedroomAreaCrossCityPrice.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+    <view data-cross-city v-if="bedroomAreaCrossCityPrice.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
       跨城「3室 · 80-110㎡」中位单价
     </view>
     <view
@@ -523,7 +523,7 @@
       </text>
       <text class="ltk-count muted">{{ r.count }}</text>
     </view>
-    <view data-cross-city v-if="layoutTwoBedShareCross.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+    <view data-cross-city v-if="layoutTwoBedShareCross.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
       跨城「2室」占比（layout）
     </view>
     <view
@@ -547,7 +547,7 @@
       <text class="ltk-share">{{ (r.share * 100).toFixed(1) }}%</text>
       <text class="ltk-count muted">{{ r.count }}</text>
     </view>
-    <view v-if="layoutMedianPriceTop.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+    <view v-if="layoutMedianPriceTop.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
       本市结构桶中位单价 Top
     </view>
     <view
@@ -673,7 +673,7 @@
           数据源：listings.csv (中位单价) + cities.csv → scripts/compute_feature_premium.py。<br/>
           公式：premium% = (bucket 桶中位单价 ÷ 城市中位单价 − 1) × 100。
         </view>
-        <view data-cross-city v-if="featurePremiumCrossBedrooms.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view data-cross-city v-if="featurePremiumCrossBedrooms.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           跨城「户型」最高溢价桶
         </view>
         <view
@@ -686,7 +686,7 @@
             {{ r.premiumPct >= 0 ? '+' : '' }}{{ r.premiumPct.toFixed(1) }}%
           </view>
         </view>
-        <view v-if="featurePremiumAbsTop.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view v-if="featurePremiumAbsTop.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           全国 |溢价| 最大桶
         </view>
         <view
@@ -701,7 +701,7 @@
             {{ r.premiumPct >= 0 ? '+' : '' }}{{ r.premiumPct.toFixed(1) }}%
           </view>
         </view>
-        <view v-if="featurePremiumCityTops.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view v-if="featurePremiumCityTops.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           本市各维最高溢价桶
         </view>
         <view
@@ -714,7 +714,7 @@
             {{ r.premiumPct >= 0 ? '+' : '' }}{{ r.premiumPct.toFixed(1) }}%
           </view>
         </view>
-        <view v-if="featurePremiumCitySummary" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view v-if="featurePremiumCitySummary" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           本市极值桶摘要（派生 summarizeFeaturePremiumByCity）
         </view>
         <view v-if="featurePremiumCitySummary?.topBucket" class="fp-row">
@@ -735,7 +735,7 @@
             {{ featurePremiumCitySummary.bottomBucket.premiumPct.toFixed(1) }}%
           </view>
         </view>
-        <view v-if="featurePremiumDecorateBuckets.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view v-if="featurePremiumDecorateBuckets.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           本市装修维全部桶
         </view>
         <view
@@ -772,7 +772,7 @@
           <text class="ltk-share">{{ (t.share * 100).toFixed(1) }}%</text>
           <text class="ltk-count muted">{{ t.count }}</text>
         </view>
-        <view v-if="listingTagSignature.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view v-if="listingTagSignature.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           本市特色（相对他城 ≥1.5×）
         </view>
         <view
@@ -784,7 +784,7 @@
           <text class="ltk-sig-share">{{ (s.share * 100).toFixed(1) }}%</text>
           <text class="ltk-sig-vs muted">他城均 {{ (s.otherAvg * 100).toFixed(1) }}%</text>
         </view>
-        <view data-cross-city v-if="listingTagPenetrationTop.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view data-cross-city v-if="listingTagPenetrationTop.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           跨城共有标签渗透（本市）
         </view>
         <view
@@ -811,7 +811,7 @@
         <view class="muted muted-caption" style="margin-top: var(--space-1)">
           数据源：listing_tags_summary.csv。与「标签组合」不同：本卡看单标签渗透与城市特色。
         </view>
-        <view v-if="listingKeywordsCity.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view v-if="listingKeywordsCity.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           标题关键词（listing_keyword）
         </view>
         <view
@@ -835,7 +835,7 @@
           <text class="ltk-share">{{ (k.share * 100).toFixed(1) }}%</text>
           <text class="ltk-count muted">{{ k.count }}</text>
         </view>
-        <view data-cross-city v-if="listingKeywordTongtouCross.length" class="muted muted-caption" style="margin: 8rpx 0 4rpx">
+        <view data-cross-city v-if="listingKeywordTongtouCross.length" class="muted muted-caption" style="margin: var(--space-1) 0 4rpx">
           跨城「南北通透」渗透
         </view>
         <view
@@ -883,7 +883,7 @@
       <text class="ltk-share">{{ (t.share * 100).toFixed(1) }}%</text>
       <text class="ltk-count muted">{{ t.count }}</text>
     </view>
-    <view v-if="listingTagSignature.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+    <view v-if="listingTagSignature.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
       本市特色（相对他城 ≥1.5×）
     </view>
     <view
@@ -895,7 +895,7 @@
       <text class="ltk-sig-share">{{ (s.share * 100).toFixed(1) }}%</text>
       <text class="ltk-sig-vs muted">他城均 {{ (s.otherAvg * 100).toFixed(1) }}%</text>
     </view>
-    <view data-cross-city v-if="listingTagPenetrationTop.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+    <view data-cross-city v-if="listingTagPenetrationTop.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
       跨城共有标签渗透（本市）
     </view>
     <view
@@ -922,7 +922,7 @@
     <view class="muted muted-caption" style="margin-top: var(--space-1)">
       数据源：listing_tags_summary.csv。与「标签组合」不同：本卡看单标签渗透与城市特色。
     </view>
-    <view v-if="listingKeywordsCity.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+    <view v-if="listingKeywordsCity.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
       标题关键词（listing_keyword）
     </view>
     <view
@@ -946,7 +946,7 @@
       <text class="ltk-share">{{ (k.share * 100).toFixed(1) }}%</text>
       <text class="ltk-count muted">{{ k.count }}</text>
     </view>
-    <view data-cross-city v-if="listingKeywordTongtouCross.length" class="muted muted-caption" style="margin: 8rpx 0 4rpx">
+    <view data-cross-city v-if="listingKeywordTongtouCross.length" class="muted muted-caption" style="margin: var(--space-1) 0 4rpx">
       跨城「南北通透」渗透
     </view>
     <view
@@ -1004,7 +1004,7 @@
           数据源：listing_tags.csv (7518 行) → scripts/compute_tag_combination.py。<br/>
           公式：对每个 listing 取 4-7 个 tag, C(2) 算 2-组合, count ≥ 5 才入榜。
         </view>
-        <view data-cross-city v-if="tagComboCrossCity.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view data-cross-city v-if="tagComboCrossCity.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           跨城共有标签对
         </view>
         <view
@@ -1024,7 +1024,7 @@
             </view>
           </view>
         </view>
-        <view v-if="tagComboPremiumLocal.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view v-if="tagComboPremiumLocal.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           本市均价最高标签对
         </view>
         <view
@@ -1047,7 +1047,7 @@
             </view>
           </view>
         </view>
-        <view v-if="tagComboPopularLocal.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view v-if="tagComboPopularLocal.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           派生层最常见标签对
         </view>
         <view
@@ -1067,7 +1067,7 @@
             </view>
           </view>
         </view>
-        <view data-cross-city v-if="tagComboMetroPartners" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view data-cross-city v-if="tagComboMetroPartners" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           「地铁可达」常搭配（跨城）
         </view>
         <view
@@ -1085,7 +1085,7 @@
             <view class="tc-meta muted">{{ p.cities }} 城 · 合计 {{ p.totalCount }} 套</view>
           </view>
         </view>
-        <view data-cross-city v-if="tagComboCitySummaries.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view data-cross-city v-if="tagComboCitySummaries.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           跨城标签组合密度
         </view>
         <view
@@ -1229,7 +1229,7 @@
         <text class="cell-sub muted">{{ dimTopBalanceCity[0]?.score?.toFixed(1) ?? "—" }} · {{ dimTopBalanceCity[0]?.districtName ?? "" }}</text>
       </view>
     </view>
-    <view v-if="dimPolymathCity.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+    <view v-if="dimPolymathCity.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
       全维度学校（综合≥80 / 集团≥70 / 均衡≥70）
     </view>
     <view
@@ -1289,7 +1289,7 @@
             <text class="mp-kpi-label muted">即将开通</text>
           </view>
         </view>
-        <view v-if="metroPlanYears.length" class="muted muted-caption" style="margin: 8rpx 0 4rpx">
+        <view v-if="metroPlanYears.length" class="muted muted-caption" style="margin: var(--space-1) 0 4rpx">
           预计开通年份
         </view>
         <view v-if="metroPlanYears.length" class="mp-year-row">
@@ -1298,7 +1298,7 @@
             <text class="mp-year-n muted">{{ y.lineCount }} 条 · {{ y.totalLengthKm.toFixed(0) }}km</text>
           </view>
         </view>
-        <view v-if="metroPlanTop.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view v-if="metroPlanTop.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           里程 Top {{ metroPlanTop.length }}
         </view>
         <view
@@ -1342,7 +1342,7 @@
           数据源：深圳市/广州市住建局公示的每日网签，按周聚合；只看二手住宅。
           网签活跃度反映板块热度，与挂牌价互补（挂牌 = 卖家意愿，网签 = 真实成交）。
         </view>
-        <view v-if="wangqianWeeklyDistrictTop.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view v-if="wangqianWeeklyDistrictTop.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           派生区周累计 Top（二手）
         </view>
         <view
@@ -1441,7 +1441,7 @@
           数据源：schools.csv (district_name) + school_indicators.csv (latest_level_score_raw)。
           支持按区过滤、最低评分筛选、4 种排序 (评分/均价/挂牌/校数)。
         </view>
-        <view v-if="schoolPremiumCommunityDeriveTop.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view v-if="schoolPremiumCommunityDeriveTop.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           派生层学区评分 Top
         </view>
         <view
@@ -1461,7 +1461,7 @@
             </view>
           </view>
         </view>
-        <view v-if="schoolPremiumCommunityByFocusDistrict.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view v-if="schoolPremiumCommunityByFocusDistrict.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           「{{ schoolPremiumFocusDistrictName }}」区内小区学区分
         </view>
         <view
@@ -1479,7 +1479,7 @@
             <view class="muted">评分 {{ it.avgSchoolScore.toFixed(1) }} · {{ it.schoolCount }} 所 · {{ it.listingCount }} 套</view>
           </view>
         </view>
-        <view data-cross-city v-if="schoolPremiumCommunityCitySummaries.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
+        <view data-cross-city v-if="schoolPremiumCommunityCitySummaries.length" class="muted muted-caption" style="margin: var(--space-2) 0 4rpx">
           跨城学区小区均分
         </view>
         <view
@@ -2378,7 +2378,7 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .page-header {
-  padding: 24rpx 24rpx 16rpx;
+  padding: var(--space-4) var(--space-4) var(--space-3);
 }
 .dt-card-list {
   margin-top: var(--space-3);
@@ -2441,8 +2441,8 @@ onUnmounted(() => {
   position: sticky;
   top: var(--window-top, 0px);
   z-index: 40;
-  margin: 0 -24rpx 16rpx;
-  padding: 12rpx 24rpx;
+  margin: 0 -24rpx var(--space-3);
+  padding: var(--space-2) var(--space-4);
   background: var(--color-bg);
   border-bottom: 1rpx solid var(--color-border-soft, #eee);
 }
@@ -2499,7 +2499,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8rpx 12rpx;
+  padding: var(--space-1) var(--space-2);
   background: var(--color-panel, #f5f5f5);
   border-radius: 8rpx;
   min-width: 100rpx;
@@ -2531,7 +2531,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 8rpx 0;
+  padding: var(--space-1) 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
 }
 .wq-row:last-child {
@@ -2635,7 +2635,7 @@ onUnmounted(() => {
   justify-content: center;
 }
 .spc-controls {
-  padding: 8rpx 0 12rpx;
+  padding: var(--space-1) 0 var(--space-2);
   border-bottom: 1rpx dashed var(--color-soft-strong);
   margin-bottom: 6rpx;
 }
@@ -2658,7 +2658,7 @@ onUnmounted(() => {
   gap: 6rpx;
 }
 .spc-chip {
-  padding: 4rpx 12rpx;
+  padding: 4rpx var(--space-2);
   border-radius: var(--radius-pill);
   background: var(--color-panel);
   border: 1rpx solid var(--color-soft-strong);
