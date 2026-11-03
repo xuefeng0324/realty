@@ -1850,7 +1850,6 @@ const DASHBOARD_CARDS: DashboardCardEntry[] = [
   { key: "lpr-mortgage-signal", label: "LPR 与房贷利率信号" },
   { key: "poi-commercial", label: "周边商业 POI" },
   { key: "life-convenience", label: "生活便利度榜 v2 (6 维)" },
-  { key: "school-premium-rank", label: "学区溢价榜" },
   { key: "school-top-filter-sort", label: "学区 Top 过滤 + 排序" },
   { key: "listing-school-premium", label: "listing 学区溢价榜" },
   { key: "commercial-heat", label: "商业热度榜 (小区维度)" },

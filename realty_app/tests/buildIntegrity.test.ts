@@ -3258,7 +3258,9 @@ describe("build integrity", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
       expect(dash).toMatch(/const heroSlides = computed<HeroSlide\[\]>/);
       expect(dash).toMatch(/总挂牌/);
-      expect(dash).toMatch(/全市中位单价/);
+      // v1.123.14：均价 slide 文案走 listingMedianUnitPriceLabel（挂牌口径）；
+      // 原断言 /全市中位单价/ 实际锚在已删除的学区溢价榜死 DOM 上，改锚真实 hero 源
+      expect(dash).toMatch(/listingMedianUnitPriceLabel\(\)/);
       expect(dash).toMatch(/全市中位总价/);
       expect(dash).toMatch(/5Y\+ LPR · 首套房贷/);
       expect(dash).toMatch(/通勤 → /);

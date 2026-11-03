@@ -350,6 +350,12 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(dashSrc).not.toMatch(/hospitalRanking|hospitalGeoAnalysis/);
     expect(dashSrc).not.toMatch(/hosp-geo|hosp-top|hosp-dist|hosp-kpi|hosp-summary|hosp-lv/);
     expect(toolsSrc).not.toContain('"hospital-rank"');
+    // v1.123.14：学区溢价榜死 DOM 已删除（孤儿 e2e smoke_school_premium 一并删除；
+    // 库 schoolPremiumRanking/queries.getSchoolPremiumRank 保留，data-tools 学区评分卡不受影响）
+    expect(dashSrc).not.toMatch(/school-premium-rank|schoolPremiumOverview|getSchoolPremiumRank|schoolPremiumDistrictTop/);
+    expect(dashSrc).not.toMatch(/function (formatPremium|premiumClass|medalText|medalClass)\(/);
+    expect(dashSrc).not.toMatch(/\.sp-row|\.sp-rank|\.sp-premium|\.sp-mid|\.sp-district|\.sp-pos|\.sp-neg/);
+    expect(toolsSrc).not.toContain('"school-premium-rank"');
     const settingsSrc = readFileSync(
       resolve(__dirname, "../src/pages/settings/settings.vue"),
       "utf8"
