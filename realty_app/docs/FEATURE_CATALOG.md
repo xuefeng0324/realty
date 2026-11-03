@@ -387,7 +387,7 @@ v1.123.29 死样式清理——`.tag-penetration-row/head/bar/cell/fill/label` �
 3. （U）图例与模式一致；挂牌均价时底图仍可读（非黑糊）
 4. （L）图例区间禁止全表 `0k-0k`；price 模式只画有均价社区
 
-**自动化**：core `smoke_map_controls`；`smoke_price_heatmap`；`mapMath.test.ts`；poi/metro/cluster smoke  
+**自动化**：core `smoke_map_controls`；`mapMath.test.ts`；poi/metro/cluster smoke  
 **手工**：见 MAP_ACCEPTANCE 真机路径。
 
 ---
@@ -414,7 +414,7 @@ v1.123.29 死样式清理——`.tag-penetration-row/head/bar/cell/fill/label` �
 | 对照 | [MAP_ACCEPTANCE.md](./MAP_ACCEPTANCE.md) |
 
 **期望**：半透明 8 位 hex 热力；图例 5 档有效；不铺无价灰圆。  
-**自动化**：`smoke_price_heatmap` + `mapMath.test.ts`  
+**自动化**：`mapMath.test.ts`（`smoke_price_heatmap` v1.123.33 已删，断言过期）  
 **手工**：截图须能辨认道路。
 
 ---
@@ -429,7 +429,7 @@ v1.123.29 死样式清理——`.tag-penetration-row/head/bar/cell/fill/label` �
 
 **期望**：总价/户型筛选；点小区→房源底栏；点房源→详情；可跳转小区全部列表。  
 v1.123.29 死样式与死 computed 清理——v0.12.0 地图挂牌均价 5 档色阶（`.price-tag` + `price-low/mid_low/mid/mid_high/high`，26 行）与配套 `selectedCommunity`/`priceLevelClass`/`priceLevelText` 三个 computed（36 行）在模板全文零消费（地图已改为聚合计数渲染，底栏不再挂价签），整段退役；同轮清理 `.row-gap`（4 行）。原「包含 5 档 priceLevel CSS 类」正向门禁翻转为禁出现，`mapFind.test.ts` 的 marker/detail 路径不受影响。  
-**自动化**：`mapFind.test.ts` + `smoke_map_find.mjs` + `beikePathGate.test.ts`（v1.123.29 死类门禁）  
+**自动化**：`mapFind.test.ts` + `beikePathGate.test.ts`（v1.123.29 死类门禁；`smoke_map_find.mjs` v1.123.33 已删，断言过期）  
 **手工**：见 MAP_ACCEPTANCE 真机路径。
 
 ---

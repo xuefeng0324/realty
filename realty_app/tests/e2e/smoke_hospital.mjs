@@ -1,8 +1,9 @@
 import { chromium } from "playwright";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const BASE = process.env.SMOKE_BASE ?? "http://localhost:5174";
+const SEED = resolve(process.cwd(), "static", "seed");
 const OUT_DIR = resolve(process.cwd(), "tests/e2e/artifacts");
 mkdirSync(OUT_DIR, { recursive: true });
 
@@ -51,10 +52,10 @@ const run = async () => {
   const hasLevelClass = await page.locator(".hosp-level").count();
   must(hasLevelClass >= 1, `community 有 ${hasLevelClass} 个 lvl-* 标签`);
 
-  // 6) hospitals.csv 在线
-  const r = await page.request.get(BASE + "/static/seed/hospitals.csv");
-  must(r.status() === 200, "hospitals.csv served");
-  const hcsv = await r.text();
+  // 6) hospitals.csv 文件存在且内容正确（v1.123.33：dev server 下 static/seed 不映射 HTTP）
+  const hospPath = resolve(SEED, "hospitals.csv");
+  must(existsSync(hospPath), "hospitals.csv exists under static/seed");
+  const hcsv = readFileSync(hospPath, "utf8");
   must(hcsv.includes("深圳市人民医院"), "hospitals.csv 含深圳市人民医院");
   must(hcsv.includes("hospital_id"), "hospitals.csv 表头正确");
 

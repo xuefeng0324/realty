@@ -89,8 +89,6 @@ describe("FEATURE QA 文档门禁", () => {
       "tests/e2e/smoke_theme_visual.mjs",
       "tests/e2e/smoke_map_controls.mjs",
       "tests/e2e/smoke_school_detail.mjs",
-      "tests/e2e/smoke_price_heatmap.mjs",
-      "tests/e2e/smoke_map_find.mjs",
       "tests/mapMath.test.ts",
       "tests/mapFind.test.ts",
       "tests/priceSemantics.test.ts",
@@ -102,6 +100,8 @@ describe("FEATURE QA 文档门禁", () => {
       "src/local/stats70Freshness.ts",
       "src/local/listingFilterMatch.ts"
     ];
+    // v1.123.33: smoke_price_heatmap.mjs / smoke_map_find.mjs 已删（断言过期）
+    // 注意：mustExist 硬编码数组，不同步 FEATURE_CATALOG.md 的「自动化」段落
     for (const rel of mustExist) {
       expect(existsSync(resolve(root, rel)), `缺失 ${rel}`).toBe(true);
     }

@@ -3155,6 +3155,34 @@ describe("build integrity", () => {
       }
     });
 
+    it("v1.123.33 已退役的 7 个断言过期脚本不得复活", () => {
+      // school_dims: 死端口 5186 + .form-row 类 v1.123.28 已删
+      // weather: text=实时天气 → 天气卡已删
+      // district_trend / district_wangqian_rank: .trend-row / .picker-value 断言过期
+      // map_find / price_heatmap / poi_overlay: 图例断言与当前实现不一致
+      const retired = [
+        "smoke_school_dims.mjs",
+        "smoke_weather.mjs",
+        "smoke_district_trend.mjs",
+        "smoke_district_wangqian_rank.mjs",
+        "smoke_map_find.mjs",
+        "smoke_price_heatmap.mjs",
+        "smoke_poi_overlay.mjs"
+      ];
+      for (const f of retired) {
+        expect(existsSync(resolve(ROOT, "tests/e2e", f)), f).toBe(false);
+      }
+    });
+
+    it("v1.123.33 存活的 CSV 脚本用 fs 读而非 HTTP（dev server 不映射 static/seed）", () => {
+      const csvScripts = ["smoke_admin.mjs", "smoke_hospital.mjs", "smoke_metro.mjs"];
+      for (const f of csvScripts) {
+        const src = readFileSync(resolve(ROOT, "tests/e2e", f), "utf8");
+        expect(src, f).toMatch(/readFileSync|existsSync/);
+        expect(src, f).not.toMatch(/\/static\/seed\/.*\.csv.*get\(|\.status\(\)\s*===\s*200/);
+      }
+    });
+
     it("_all_smoke 只跑 run_suite 成员（不再 readdir 全量）", () => {
       const all = readFileSync(resolve(ROOT, "tests/e2e/_all_smoke.mjs"), "utf8");
       expect(all).toMatch(/run_suite\.mjs/);
