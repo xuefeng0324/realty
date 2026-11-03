@@ -1420,7 +1420,7 @@ onUnmounted(() => {
 }
 
 .freshness-bar-new {
-  background: #16a34a; /* ≤2 周 鲜 */
+  background: var(--color-primary-strong); /* ≤2 周 鲜 */
   height: 100%;
 }
 
@@ -1435,7 +1435,7 @@ onUnmounted(() => {
 }
 
 .legend-new {
-  color: #16a34a;
+  color: var(--color-primary-strong);
 }
 
 .legend-r4 {
@@ -1459,7 +1459,7 @@ onUnmounted(() => {
   width: 28rpx;
   text-align: center;
   font-weight: 600;
-  color: var(--muted, #94a3b8);
+  color: var(--muted, var(--color-muted));
 }
 .drift-city {
   flex: 1;
@@ -1471,10 +1471,10 @@ onUnmounted(() => {
   font-variant-numeric: tabular-nums;
 }
 .drift-up {
-  color: #16a34a;
+  color: var(--color-primary-strong);
 }
 .drift-down {
-  color: #dc2626;
+  color: var(--color-danger);
 }
 
 .form-item {
@@ -1575,12 +1575,12 @@ onUnmounted(() => {
 }
 
 .sheet-item--active {
-  color: #4ade80;
+  color: var(--color-trend-down);
   background: var(--color-soft);
 }
 
 .sheet-check {
-  color: #4ade80;
+  color: var(--color-trend-down);
   font-weight: bold;
 }
 
@@ -1650,7 +1650,7 @@ onUnmounted(() => {
 }
 .pareto-area {
   font-size: 28rpx;
-  color: #4ade80;
+  color: var(--color-trend-down);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -1686,7 +1686,7 @@ onUnmounted(() => {
 }
 .listing-thumb-ph {
   font-size: 28rpx;
-  color: var(--color-muted, #94a3b8);
+  color: var(--color-muted, var(--color-muted));
 }
 
 .listing-main {
@@ -1769,7 +1769,7 @@ onUnmounted(() => {
 }
 .minidim-label {
   font-size: 18rpx;
-  color: var(--color-muted, #94a3b8);
+  color: var(--color-muted, var(--color-muted));
   font-weight: 500;
 }
 .minidim-track {
@@ -1789,10 +1789,10 @@ onUnmounted(() => {
   background: linear-gradient(90deg, #22c55e, #10b981);
 }
 .minidim-fill-orange {
-  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+  background: linear-gradient(90deg, #fbbf24, var(--color-warning));
 }
 .minidim-fill-red {
-  background: linear-gradient(90deg, #f87171, #ef4444);
+  background: linear-gradient(90deg, var(--color-trend-up), #ef4444);
 }
 .minidim-val {
   font-size: 20rpx;

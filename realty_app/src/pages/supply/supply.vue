@@ -423,7 +423,7 @@ onMounted(() => {
 }
 .kpi-label {
   font-size: 20rpx;
-  color: var(--color-muted, #94a3b8);
+  color: var(--color-muted, var(--color-muted));
 }
 .kpi-value {
   font-size: 30rpx;
@@ -460,7 +460,7 @@ onMounted(() => {
 .note {
   margin-top: 12rpx;
   font-size: 21rpx;
-  color: var(--color-muted, #94a3b8);
+  color: var(--color-muted, var(--color-muted));
   line-height: 1.45;
 }
 .trend-up {

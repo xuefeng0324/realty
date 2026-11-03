@@ -791,7 +791,7 @@ onMounted(() => {
 .sibling-total {
   font-size: 28rpx;
   font-weight: 700;
-  color: #dc2626;
+  color: var(--color-danger);
   font-variant-numeric: tabular-nums;
 }
 .sibling-unit {
@@ -868,7 +868,7 @@ onMounted(() => {
 }
 
 .bin-high {
-  background: #4ade80;
+  background: var(--color-trend-down);
 }
 
 .bin-mid {

@@ -4126,12 +4126,12 @@ onShow(async () => {
 }
 
 .sheet-item--active {
-  color: #4ade80;
+  color: var(--color-trend-down);
   background: var(--color-soft);
 }
 
 .sheet-check {
-  color: #4ade80;
+  color: var(--color-trend-down);
   font-weight: bold;
 }
 
@@ -4169,7 +4169,7 @@ onShow(async () => {
 
 .bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #22c55e, #4ade80);
+  background: linear-gradient(90deg, #22c55e, var(--color-trend-down));
   border-radius: 8rpx;
 }
 
@@ -4199,7 +4199,7 @@ onShow(async () => {
   margin-top: 16rpx;
   text-align: right;
   font-size: 22rpx;
-  color: #4ade80;
+  color: var(--color-trend-down);
 }
 
 .macro-kicker {
@@ -4354,7 +4354,7 @@ onShow(async () => {
 }
 
 .wangqian-all {
-  color: #f59e0b !important;
+  color: var(--color-warning) !important;
 }
 
 /* v0.8.0 区级近 8 周趋势 */
@@ -4725,7 +4725,7 @@ onShow(async () => {
 }
 .lf-fresh-up {
   background: var(--color-success-soft);
-  color: #16a34a;
+  color: var(--color-primary-strong);
 }
 .lf-fresh-mid {
   background: var(--color-warn-soft);
@@ -4733,7 +4733,7 @@ onShow(async () => {
 }
 .lf-fresh-down {
   background: var(--color-danger-soft);
-  color: #dc2626;
+  color: var(--color-danger);
 }
 
 .map-wrap {
@@ -4847,7 +4847,7 @@ onShow(async () => {
 }
 .lpr-kpi-cell--5y {
   background: linear-gradient(135deg, #fee2e2, #fecaca);
-  border-color: #f87171;
+  border-color: var(--color-trend-up);
 }
 .lpr-kpi-label {
   font-size: 20rpx;
@@ -4893,10 +4893,10 @@ onShow(async () => {
   font-variant-numeric: tabular-nums;
 }
 .lpr-drop-val--down {
-  color: #16a34a;
+  color: var(--color-primary-strong);
 }
 .lpr-drop-val--up {
-  color: #dc2626;
+  color: var(--color-danger);
 }
 .lpr-chart-title {
   font-size: 24rpx;
@@ -4937,13 +4937,13 @@ onShow(async () => {
   text-shadow: 0 0 4px rgba(255, 255, 255, 0.9);
 }
 .map-marker {
-  fill: #dc2626;
+  fill: var(--color-danger);
   stroke: white;
   stroke-width: 1.5;
   fill-opacity: 0.85;
 }
 .map-marker-bare {
-  fill: #dc2626;
+  fill: var(--color-danger);
   fill-opacity: 0.7;
 }
 .map-marker-lbl {
@@ -5064,10 +5064,10 @@ onShow(async () => {
   font-size: 22rpx;
 }
 .sd-pos {
-  color: #16a34a;
+  color: var(--color-primary-strong);
 }
 .sd-neg {
-  color: #dc2626;
+  color: var(--color-danger);
 }
 
 .map-marker-g {

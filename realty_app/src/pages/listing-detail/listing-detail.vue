@@ -750,7 +750,7 @@ button.source-dock-ghost {
   font-size: 22rpx;
   font-weight: 600;
 }
-.source-trust--real { background: rgba(34, 197, 94, 0.18); color: #4ade80; }
+.source-trust--real { background: rgba(34, 197, 94, 0.18); color: var(--color-trend-down); }
 .source-trust--derived { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
 .source-trust--estimated,
 .source-trust--unknown { background: rgba(148, 163, 184, 0.18); color: var(--color-text-secondary); }
@@ -836,7 +836,7 @@ button.source-dock-ghost {
 .sibling-total {
   font-size: 28rpx;
   font-weight: 700;
-  color: #dc2626;
+  color: var(--color-danger);
   font-variant-numeric: tabular-nums;
 }
 .sibling-unit {

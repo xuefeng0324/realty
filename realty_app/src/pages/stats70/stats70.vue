@@ -503,11 +503,11 @@ function onPickCity(city: string) {
 }
 
 .rank-bar-fill.trend-up {
-  background: linear-gradient(90deg, #dc2626, #f87171);
+  background: linear-gradient(90deg, var(--color-danger), var(--color-trend-up));
 }
 
 .rank-bar-fill.trend-down {
-  background: linear-gradient(90deg, #15803d, #4ade80);
+  background: linear-gradient(90deg, #15803d, var(--color-trend-down));
 }
 
 .rank-bar-fill.trend-flat {
@@ -536,11 +536,11 @@ function onPickCity(city: string) {
 }
 
 .trend-bar-fill.trend-up {
-  background: linear-gradient(90deg, #dc2626, #f87171);
+  background: linear-gradient(90deg, var(--color-danger), var(--color-trend-up));
 }
 
 .trend-bar-fill.trend-down {
-  background: linear-gradient(90deg, #15803d, #4ade80);
+  background: linear-gradient(90deg, #15803d, var(--color-trend-down));
 }
 
 .trend-bar-fill.trend-flat {

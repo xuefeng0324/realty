@@ -2589,7 +2589,7 @@ onUnmounted(() => {
 .community-rank {
   width: 80rpx;
   font-weight: 600;
-  color: #4ade80;
+  color: var(--color-trend-down);
 }
 .community-main {
   flex: 1;
@@ -2600,10 +2600,10 @@ onUnmounted(() => {
   margin-bottom: 4rpx;
 }
 .medal-gold {
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  background: linear-gradient(135deg, #fbbf24, var(--color-warning));
 }
 .medal-silver {
-  background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+  background: linear-gradient(135deg, #cbd5e1, var(--color-muted));
 }
 .medal-bronze {
   background: linear-gradient(135deg, #d97706, #b45309);
@@ -2671,9 +2671,9 @@ onUnmounted(() => {
   border-color: var(--color-focus);
 }
 .trend-up {
-  color: #f87171;
+  color: var(--color-trend-up);
 }
 .trend-down {
-  color: #4ade80;
+  color: var(--color-trend-down);
 }
 </style>

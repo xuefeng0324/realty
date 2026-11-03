@@ -663,13 +663,13 @@ onLoad((opts?: Record<string, string>) => {
   font-weight: 700;
 }
 .metric-value.new {
-  color: #4ade80;
+  color: var(--color-trend-down);
 }
 .metric-value.res {
   color: var(--color-focus);
 }
 .metric-value.all {
-  color: #f59e0b;
+  color: var(--color-warning);
 }
 .metric-sub {
   font-size: 20rpx;
@@ -696,7 +696,7 @@ onLoad((opts?: Record<string, string>) => {
   background: linear-gradient(180deg, var(--color-focus), #0ea5e9);
 }
 .spark-bar.new-bar {
-  background: linear-gradient(180deg, #4ade80, #22c55e);
+  background: linear-gradient(180deg, var(--color-trend-down), #22c55e);
 }
 .spark-axis {
   display: flex;
@@ -771,11 +771,11 @@ onLoad((opts?: Record<string, string>) => {
   font-weight: 600;
 }
 .wq-col-num.all {
-  color: #f59e0b;
+  color: var(--color-warning);
 }
 
 .link-card {
-  color: #4ade80;
+  color: var(--color-trend-down);
   text-align: center;
   font-size: 26rpx;
 }
@@ -813,11 +813,11 @@ onLoad((opts?: Record<string, string>) => {
   align-items: center;
 }
 .sheet-item--active {
-  color: #4ade80;
+  color: var(--color-trend-down);
   background: var(--color-soft);
 }
 .sheet-check {
-  color: #4ade80;
+  color: var(--color-trend-down);
   font-weight: bold;
 }
 .sheet-cancel {
