@@ -604,15 +604,15 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
       "advanced-row", "advanced-info", "advanced-name", "advanced-hot-tag", "advanced-toggle",
       "advanced-actions", "advanced-expand-btn", "overview-toolbar", "overview-mode-toggle",
       "form-row", "form-label", "picker-value", "picker-caret", "community-row",
-      "community-rank", "community-main", "wangqian-down", "sp-up", "community-sp-price",
-      "wq-area", "tc-bar", "scatter-row", "scatter-pt"
+      "community-rank", "community-main", "community-name", "wangqian-down", "sp-up",
+      "community-sp-price", "wq-area", "tc-bar", "scatter-row", "scatter-pt"
     ];
     for (const cls of deadCss) {
       expect(dashSrc, `死类残留: ${cls}`).not.toMatch(new RegExp(`\\.${cls}\\b`));
     }
     expect(dashSrc).not.toMatch(/id="overview-wangqian"/);
     // 模板仍在消费的类不许被误删
-    for (const cls of [".card-hide-btn", ".tap-row", ".community-name", ".wq-fresh", ".overview-card-summary"]) {
+    for (const cls of [".card-hide-btn", ".tap-row", ".wq-fresh", ".overview-card-summary"]) {
       expect(dashSrc).toContain(cls);
     }
     // lone LF 归一：全文件均为 CRLF（末尾行由 split 产生空串，故 lone LF 计数应为 0）

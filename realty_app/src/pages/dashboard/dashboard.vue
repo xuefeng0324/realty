@@ -4197,12 +4197,6 @@ onShow(async () => {
   color: var(--color-muted);
 }
 
-.community-name {
-  font-size: 30rpx;
-  color: var(--color-heading);
-  margin-bottom: 4rpx;
-}
-
 /* ---------------- 70 城指数卡片 ---------------- */
 .stats70-card {
   background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-panel) 100%);
