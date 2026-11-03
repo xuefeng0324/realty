@@ -413,7 +413,7 @@ onMounted(() => {
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12rpx;
+  gap: var(--space-2);
   margin-top: var(--space-3);
 }
 .kpi {
@@ -448,7 +448,7 @@ onMounted(() => {
 .row-line {
   display: flex;
   flex-wrap: wrap;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 10rpx 0;
   border-bottom: 1rpx dashed var(--color-soft-strong, rgba(148, 163, 184, 0.35));
   font-size: 22rpx;

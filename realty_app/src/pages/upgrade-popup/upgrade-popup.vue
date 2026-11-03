@@ -263,7 +263,7 @@ function restartNow() {
 .upgrade-actions {
   display: flex;
   flex-direction: column;
-  gap: 12rpx;
+  gap: var(--space-2);
   margin-top: 28rpx;
 }
 .upgrade-btn {

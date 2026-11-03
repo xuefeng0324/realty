@@ -544,7 +544,7 @@ const rateTrendRows = computed<RateTrendRow[]>(() => {
 .rate-trend-grid {
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  gap: var(--space-1);
 }
 .rate-trend-row {
   display: grid;

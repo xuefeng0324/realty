@@ -395,7 +395,7 @@ function onPickCity(city: string) {
 
 .ranking-tabs {
   display: flex;
-  gap: 12rpx;
+  gap: var(--space-2);
   align-items: center;
   margin-bottom: var(--space-2);
 }
@@ -426,7 +426,7 @@ function onPickCity(city: string) {
 .filter-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   margin-bottom: var(--space-1);
 }
 
@@ -451,7 +451,7 @@ function onPickCity(city: string) {
 .rank-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 12rpx 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
 }
@@ -517,7 +517,7 @@ function onPickCity(city: string) {
 .trend-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 8rpx 0;
   font-size: 24rpx;
 }

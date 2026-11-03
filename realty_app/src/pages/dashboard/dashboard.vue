@@ -3887,7 +3887,7 @@ onShow(async () => {
 .gz-inventory-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8rpx;
+  gap: var(--space-1);
   margin-top: var(--space-3);
 }
 
@@ -3919,7 +3919,7 @@ onShow(async () => {
 .gz-inventory-row {
   display: grid;
   grid-template-columns: 1.2fr repeat(3, 1fr);
-  gap: 8rpx;
+  gap: var(--space-1);
   padding: 10rpx 0;
   font-size: 22rpx;
   border-bottom: 1rpx solid var(--color-border);
@@ -3934,7 +3934,7 @@ onShow(async () => {
 .pf-rate-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8rpx;
+  gap: var(--space-1);
   margin-top: var(--space-2);
 }
 
@@ -3978,7 +3978,7 @@ onShow(async () => {
 .combo-input-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12rpx;
+  gap: var(--space-2);
   margin-top: var(--space-2);
 }
 
@@ -4005,7 +4005,7 @@ onShow(async () => {
 
 .combo-years {
   display: flex;
-  gap: 8rpx;
+  gap: var(--space-1);
   margin-top: var(--space-2);
   flex-wrap: wrap;
   align-items: center;
@@ -4032,7 +4032,7 @@ onShow(async () => {
 
 .combo-result {
   display: grid;
-  gap: 8rpx;
+  gap: var(--space-1);
   margin-top: 14rpx;
   padding: 14rpx 16rpx;
   border-radius: 12rpx;
@@ -4044,7 +4044,7 @@ onShow(async () => {
 .combo-result > view {
   display: flex;
   justify-content: space-between;
-  gap: 12rpx;
+  gap: var(--space-2);
 }
 
 .combo-result-main {
@@ -4146,7 +4146,7 @@ onShow(async () => {
 .bar-row {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  gap: var(--space-3);
   padding: 12rpx 0;
 }
 
@@ -4248,7 +4248,7 @@ onShow(async () => {
 .trend-summary {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12rpx;
+  gap: var(--space-2);
   margin-top: var(--space-3);
 }
 .trend-cell {
@@ -4369,7 +4369,7 @@ onShow(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12rpx;
+  gap: var(--space-2);
 }
 .trend-name {
   font-size: 26rpx;
@@ -4432,7 +4432,7 @@ onShow(async () => {
 /* v0.23.0 trend-9 全品类网签榜 tabs */
 .wq-cat-tabs {
   display: flex;
-  gap: 8rpx;
+  gap: var(--space-1);
   margin: 8rpx 0;
 }
 .wq-cat-tab {
@@ -4467,7 +4467,7 @@ onShow(async () => {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8rpx;
+  gap: var(--space-1);
   padding: 6rpx 0;
   border-bottom: 1rpx solid var(--color-border);
   font-size: 24rpx;
@@ -4536,7 +4536,7 @@ onShow(async () => {
 .lc-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 8rpx 0;
   border-bottom: 1rpx solid var(--color-border);
 }
@@ -4609,7 +4609,7 @@ onShow(async () => {
 .wq-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 8rpx 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
 }
@@ -4764,7 +4764,7 @@ onShow(async () => {
 /* v0.52.0 map-12: 地图模式 tab + legend */
 .map-mode-tabs {
   display: flex;
-  gap: 8rpx;
+  gap: var(--space-1);
   margin: 8rpx 0;
   flex-wrap: wrap;
 }
@@ -4800,7 +4800,7 @@ onShow(async () => {
 .map-legend {
   display: flex;
   align-items: center;
-  gap: 8rpx;
+  gap: var(--space-1);
   margin: 4rpx 0 8rpx;
   font-size: 20rpx;
   color: var(--color-text-secondary);
@@ -4834,7 +4834,7 @@ onShow(async () => {
 /* v0.53.0 macro-1 LPR 卡片样式 */
 .lpr-kpi {
   display: flex;
-  gap: 8rpx;
+  gap: var(--space-1);
   margin: 12rpx 0;
 }
 .lpr-kpi-cell {
@@ -4870,7 +4870,7 @@ onShow(async () => {
 }
 .lpr-drop-row {
   display: flex;
-  gap: 12rpx;
+  gap: var(--space-2);
   margin: 8rpx 0 12rpx;
 }
 .lpr-drop-cell {
@@ -4967,12 +4967,12 @@ onShow(async () => {
 .sd-ovr {
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  gap: var(--space-1);
 }
 .sd-ovr-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 10rpx 12rpx;
   background: var(--color-panel);
   border-radius: 8rpx;
@@ -5026,7 +5026,7 @@ onShow(async () => {
 .sd-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12rpx;
+  gap: var(--space-2);
 }
 .sd-cell {
   background: var(--color-panel);
@@ -5042,7 +5042,7 @@ onShow(async () => {
 .sd-row {
   display: flex;
   align-items: center;
-  gap: 8rpx;
+  gap: var(--space-1);
   font-size: 22rpx;
   line-height: 1.7;
 }
@@ -5095,7 +5095,7 @@ onShow(async () => {
 .home-v122-shell {
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
+  gap: var(--space-4);
   /* 原生/H5 TabBar 固定在底部；留出完整点击区，避免最后一张推荐卡压在其下。 */
   padding-bottom: calc(128rpx + var(--safe-area-bottom, 0px));
 }
@@ -5156,7 +5156,7 @@ onShow(async () => {
 .home-v122-city {
   display: flex;
   align-items: center;
-  gap: 8rpx;
+  gap: var(--space-1);
   min-height: 64rpx;
   padding: 0 20rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.18);
@@ -5183,7 +5183,7 @@ onShow(async () => {
   z-index: 1;
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   height: 88rpx;
   margin-top: var(--space-5);
   padding: 0 12rpx 0 24rpx;
@@ -5317,7 +5317,7 @@ onShow(async () => {
 .home-v122-quick {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8rpx;
+  gap: var(--space-1);
 }
 .home-v122-quick-item {
   display: flex;
@@ -5329,7 +5329,7 @@ onShow(async () => {
   background: transparent;
   flex-direction: column;
   justify-content: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   font-size: 22rpx;
 }
 .home-v122-quick-icon {

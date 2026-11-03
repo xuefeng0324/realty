@@ -2384,7 +2384,7 @@ onUnmounted(() => {
   margin-top: var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  gap: var(--space-1);
 }
 .dt-card-row {
   display: flex;
@@ -2492,7 +2492,7 @@ onUnmounted(() => {
 }
 .edu-summary {
   display: flex;
-  gap: 16rpx;
+  gap: var(--space-3);
   margin-top: var(--space-2);
 }
 .edu-kpi {
@@ -2515,7 +2515,7 @@ onUnmounted(() => {
 .edu-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 8rpx;
+  gap: var(--space-1);
   margin-top: var(--space-2);
 }
 .edu-chip {
@@ -2530,7 +2530,7 @@ onUnmounted(() => {
 .wq-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 8rpx 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
 }
@@ -2579,7 +2579,7 @@ onUnmounted(() => {
 .community-row {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  gap: var(--space-3);
   padding: 20rpx 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
 }
@@ -2642,7 +2642,7 @@ onUnmounted(() => {
 .spc-row {
   display: flex;
   align-items: flex-start;
-  gap: 8rpx;
+  gap: var(--space-1);
   padding: 4rpx 0;
   font-size: 22rpx;
 }

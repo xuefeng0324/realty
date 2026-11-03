@@ -827,7 +827,7 @@ function openGithubReleases() {
 .settings-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16rpx;
+  gap: var(--space-3);
 }
 
 @media (max-width: 760px) {
@@ -881,7 +881,7 @@ function openGithubReleases() {
 .library-tabs {
   display: flex;
   align-items: center;
-  gap: 8rpx;
+  gap: var(--space-1);
   margin-top: 18rpx;
 }
 
@@ -996,7 +996,7 @@ function openGithubReleases() {
 .theme-options {
   display: flex;
   flex-wrap: wrap;
-  gap: 8rpx;
+  gap: var(--space-1);
 }
 
 .theme-option {
@@ -1017,7 +1017,7 @@ function openGithubReleases() {
 .form-item {
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  gap: var(--space-1);
 }
 
 .form-label {

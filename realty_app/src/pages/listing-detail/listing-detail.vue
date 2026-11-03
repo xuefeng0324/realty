@@ -610,7 +610,7 @@ onMounted(async () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8rpx;
+  gap: var(--space-1);
   padding: 32rpx 24rpx;
   background: linear-gradient(180deg, var(--color-soft-strong, #e2e8f0), var(--color-soft, #f1f5f9));
 }
@@ -636,7 +636,7 @@ onMounted(async () => {
 .price-row {
   display: flex;
   align-items: baseline;
-  gap: 16rpx;
+  gap: var(--space-3);
   margin-top: var(--space-2);
 }
 .price-main {
@@ -656,7 +656,7 @@ onMounted(async () => {
 .listing-tag-pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 8rpx;
+  gap: var(--space-1);
   margin-top: var(--space-2);
 }
 .listing-tag-pill {
@@ -671,7 +671,7 @@ onMounted(async () => {
   margin-top: var(--space-3);
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 14rpx 16rpx;
   border-radius: 12rpx;
   background: var(--color-soft);
@@ -697,7 +697,7 @@ onMounted(async () => {
   bottom: calc(12rpx + var(--safe-area-bottom, 0px));
   z-index: 20;
   display: flex;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 12rpx 8rpx;
   margin: 8rpx 0 24rpx;
   background: color-mix(in srgb, var(--color-card, var(--color-surface)) 92%, transparent);
@@ -741,7 +741,7 @@ button.source-dock-ghost {
 .source-trust-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   margin-top: var(--space-2);
 }
 .source-trust {
@@ -766,7 +766,7 @@ button.source-dock-ghost {
 /* v0.54.0 detail-1: 顶部快捷导航 */
 .quicknav {
   display: flex;
-  gap: 12rpx;
+  gap: var(--space-2);
   margin: 8rpx 0 16rpx;
   flex-wrap: wrap;
 }
@@ -798,7 +798,7 @@ button.source-dock-ghost {
 .sibling-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 14rpx 12rpx;
   border-bottom: 1rpx solid #f1f5f9;
   cursor: pointer;
@@ -847,7 +847,7 @@ button.source-dock-ghost {
 .info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 16rpx;
+  gap: var(--space-3);
   margin-top: var(--space-3);
 }
 
@@ -862,7 +862,7 @@ button.source-dock-ghost {
 .dim-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 10rpx 0;
 }
 
@@ -900,7 +900,7 @@ button.source-dock-ghost {
 .poi-cat {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   margin-bottom: var(--space-1);
 }
 .poi-cat-icon {
@@ -934,7 +934,7 @@ button.source-dock-ghost {
 .hosp-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 10rpx 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
 }
@@ -958,7 +958,7 @@ button.source-dock-ghost {
 .hosp-tags {
   display: flex;
   align-items: center;
-  gap: 8rpx;
+  gap: var(--space-1);
   flex-wrap: wrap;
   font-size: 22rpx;
 }
@@ -967,7 +967,7 @@ button.source-dock-ghost {
 .metro-row {
   display: flex;
   align-items: flex-start;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 10rpx 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
 }
@@ -984,7 +984,7 @@ button.source-dock-ghost {
 .metro-head {
   display: flex;
   align-items: center;
-  gap: 8rpx;
+  gap: var(--space-1);
   flex-wrap: wrap;
 }
 .metro-name {
@@ -999,7 +999,7 @@ button.source-dock-ghost {
 .tag-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 6rpx 0;
 }
 

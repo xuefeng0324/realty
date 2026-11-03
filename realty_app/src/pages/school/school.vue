@@ -350,20 +350,20 @@ async function loadCities() {
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16rpx;
+  gap: var(--space-3);
 }
 
 .form-item {
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  gap: var(--space-1);
 }
 
 .search-input {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 8rpx;
+  gap: var(--space-1);
   margin-bottom: var(--space-3);
 }
 
@@ -404,7 +404,7 @@ async function loadCities() {
 .edu-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12rpx;
+  gap: var(--space-2);
   margin-top: var(--space-3);
 }
 
@@ -421,7 +421,7 @@ async function loadCities() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8rpx;
+  gap: var(--space-1);
   padding: 48rpx 16rpx;
 }
 

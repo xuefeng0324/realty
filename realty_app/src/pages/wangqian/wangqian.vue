@@ -640,7 +640,7 @@ onLoad((opts?: Record<string, string>) => {
 .metric-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 12rpx;
+  gap: var(--space-2);
   margin-top: var(--space-2);
 }
 .metric-cell {
@@ -709,7 +709,7 @@ onLoad((opts?: Record<string, string>) => {
 .wq-monthly-row {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  gap: var(--space-3);
   padding: 10rpx 0;
   border-bottom: 1rpx dashed var(--color-soft-strong);
 }

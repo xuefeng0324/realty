@@ -389,7 +389,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 .footer {
   display: flex;
   justify-content: space-between;
-  gap: 12rpx;
+  gap: var(--space-2);
   margin-top: var(--space-4);
 }
 .back-btn,
@@ -489,7 +489,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 /* 散点 */
 .scatter-summary {
   display: flex;
-  gap: 16rpx;
+  gap: var(--space-3);
   margin-bottom: var(--space-2);
 }
 .sc-kpi {

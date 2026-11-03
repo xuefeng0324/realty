@@ -1189,7 +1189,7 @@ onUnmounted(() => {
 .legend-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 4rpx 0;
 }
 .legend-swatch {
@@ -1243,7 +1243,7 @@ onUnmounted(() => {
 }
 .info-row {
   display: flex;
-  gap: 24rpx;
+  gap: var(--space-4);
   margin: 12rpx 0;
 }
 .info-stat {
@@ -1329,7 +1329,7 @@ onUnmounted(() => {
 .poi-toggles {
   display: flex;
   flex-wrap: wrap;
-  gap: 8rpx;
+  gap: var(--space-1);
   margin-top: var(--space-1);
 }
 .poi-toggle {
@@ -1416,7 +1416,7 @@ onUnmounted(() => {
 
 .map-mode-list {
   display: inline-flex;
-  gap: 8rpx;
+  gap: var(--space-1);
   padding: 8rpx 0;
 }
 
@@ -1472,7 +1472,7 @@ onUnmounted(() => {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12rpx;
+  gap: var(--space-2);
   margin-bottom: var(--space-1);
 }
 .find-sheet-title-wrap {
@@ -1496,7 +1496,7 @@ onUnmounted(() => {
 .find-listing-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 14rpx 4rpx;
   border-bottom: 1rpx solid var(--color-border);
 }
@@ -1531,7 +1531,7 @@ onUnmounted(() => {
 }
 .find-sheet-actions {
   display: flex;
-  gap: 12rpx;
+  gap: var(--space-2);
   margin-top: var(--space-2);
 }
 .find-sheet-btn {
@@ -1560,7 +1560,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 24rpx;
   text-align: center;
 }

@@ -80,7 +80,7 @@ function onWebError() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16rpx;
+  gap: var(--space-3);
 }
 
 .toolbar-hint {

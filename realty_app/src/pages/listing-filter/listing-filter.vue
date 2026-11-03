@@ -1157,7 +1157,7 @@ onUnmounted(() => {
 .find-hub-city {
   display: flex;
   align-items: center;
-  gap: 8rpx;
+  gap: var(--space-1);
   min-height: 62rpx;
   padding: 0 18rpx;
   border: 1rpx solid rgba(15, 152, 128, 0.16);
@@ -1220,7 +1220,7 @@ onUnmounted(() => {
 .find-hub-search {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   height: 82rpx;
   margin-top: 20rpx;
   padding: 0 10rpx 0 22rpx;
@@ -1336,7 +1336,7 @@ onUnmounted(() => {
 
 .find-entity-tags {
   flex-wrap: wrap;
-  gap: 8rpx;
+  gap: var(--space-1);
   margin-top: 10rpx;
 }
 
@@ -1379,13 +1379,13 @@ onUnmounted(() => {
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16rpx;
+  gap: var(--space-3);
 }
 
 .search-input {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   margin-bottom: var(--space-3);
 }
 
@@ -1480,7 +1480,7 @@ onUnmounted(() => {
 .form-item {
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  gap: var(--space-1);
 }
 
 /* v1.122.7: .form-item.search-input 需水平 flex 让 input+button 同高居中。
@@ -1507,7 +1507,7 @@ onUnmounted(() => {
   margin-top: var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  gap: var(--space-1);
 }
 
 .range-meta {
@@ -1601,7 +1601,7 @@ onUnmounted(() => {
 .pareto-row {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  gap: var(--space-3);
   padding: 16rpx 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
   cursor: pointer;
@@ -1662,7 +1662,7 @@ onUnmounted(() => {
 .listing-row {
   display: flex;
   align-items: flex-start;
-  gap: 16rpx;
+  gap: var(--space-3);
   padding: 20rpx 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
   min-height: 88rpx; /* a11y: 至少 44pt 触摸目标 */
@@ -1713,13 +1713,13 @@ onUnmounted(() => {
 .tag-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 8rpx;
+  gap: var(--space-1);
 }
 
 .listing-price-row {
   display: flex;
   align-items: baseline;
-  gap: 12rpx;
+  gap: var(--space-2);
   margin-bottom: 4rpx;
 }
 .listing-price-main {
@@ -1755,7 +1755,7 @@ onUnmounted(() => {
 /* v0.37.0 trend-17: 5 维度迷你评分条 */
 .minidim-row {
   display: flex;
-  gap: 12rpx;
+  gap: var(--space-2);
   margin-top: 10rpx;
   align-items: center;
 }

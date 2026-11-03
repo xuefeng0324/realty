@@ -723,7 +723,7 @@ onMounted(() => {
 /* v0.56.0 detail-2: 顶部快捷导航 + 同区其他小区 */
 .quicknav {
   display: flex;
-  gap: 12rpx;
+  gap: var(--space-2);
   margin: 8rpx 0 16rpx;
   flex-wrap: wrap;
 }
@@ -753,7 +753,7 @@ onMounted(() => {
 .sibling-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 14rpx 12rpx;
   border-bottom: 1rpx solid #f1f5f9;
   cursor: pointer;
@@ -807,7 +807,7 @@ onMounted(() => {
 .chart-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 8rpx 0;
 }
 
@@ -842,7 +842,7 @@ onMounted(() => {
 .dim-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 10rpx 0;
 }
 
@@ -896,14 +896,14 @@ onMounted(() => {
 .tag-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 6rpx 0;
 }
 
 .listing-row {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  gap: var(--space-3);
   padding: 20rpx 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
   min-height: 88rpx; /* a11y: 至少 44pt 触摸目标 */
@@ -920,7 +920,7 @@ onMounted(() => {
 .poi-cat {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   margin-bottom: var(--space-1);
 }
 .poi-cat-icon {
@@ -954,7 +954,7 @@ onMounted(() => {
 .hosp-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 10rpx 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
 }
@@ -978,7 +978,7 @@ onMounted(() => {
 .hosp-tags {
   display: flex;
   align-items: center;
-  gap: 8rpx;
+  gap: var(--space-1);
   flex-wrap: wrap;
   font-size: 22rpx;
 }
@@ -987,7 +987,7 @@ onMounted(() => {
 .metro-row {
   display: flex;
   align-items: flex-start;
-  gap: 12rpx;
+  gap: var(--space-2);
   padding: 10rpx 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
 }
@@ -1004,7 +1004,7 @@ onMounted(() => {
 .metro-head {
   display: flex;
   align-items: center;
-  gap: 8rpx;
+  gap: var(--space-1);
   flex-wrap: wrap;
 }
 .metro-name {

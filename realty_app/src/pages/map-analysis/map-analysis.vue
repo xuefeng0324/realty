@@ -392,12 +392,12 @@ watch(
 .row-between { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2); }
 .card { background: var(--color-surface, #fff); border-radius: var(--radius-md); padding: 20rpx; margin-bottom: var(--space-3); border: 1rpx solid var(--color-border-soft, #eee); }
 .card-title { font-size: 30rpx; font-weight: 600; color: var(--color-text, #333); }
-.footer { display: flex; justify-content: space-between; gap: 12rpx; margin-top: var(--space-4); }
+.footer { display: flex; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-4); }
 .back-btn, .reload-btn { flex: 1; margin: 0; font-size: 26rpx; padding: 0 24rpx; border-radius: var(--radius-pill) !important; background: var(--color-soft, #f5f5f5) !important; color: var(--color-text, #333) !important; }
 
 .map-mode-tabs {
   display: flex;
-  gap: 12rpx;
+  gap: var(--space-2);
   margin-top: var(--space-2);
   flex-wrap: wrap;
 }
@@ -416,7 +416,7 @@ watch(
 .map-mode-icon { display: block; font-size: 32rpx; }
 .map-mode-label { display: block; font-size: 22rpx; }
 
-.map-legend { margin-top: var(--space-2); display: flex; align-items: center; gap: 8rpx; font-size: 22rpx; }
+.map-legend { margin-top: var(--space-2); display: flex; align-items: center; gap: var(--space-1); font-size: 22rpx; }
 .map-legend-title { color: var(--color-text, #333); font-weight: 600; }
 .map-legend-bar { flex: 1; height: 16rpx; border-radius: 8rpx; }
 .map-legend-min, .map-legend-max { color: var(--color-muted, #666); }
@@ -451,6 +451,6 @@ watch(
   border-radius: 8rpx;
 }
 .map-district-name { font-size: 26rpx; font-weight: 600; color: var(--color-text, #333); }
-.map-district-vals { display: flex; gap: 12rpx; font-size: 20rpx; color: var(--color-muted, #666); }
+.map-district-vals { display: flex; gap: var(--space-2); font-size: 20rpx; color: var(--color-muted, #666); }
 .map-stat { background: var(--color-surface, #fff); padding: 4rpx 8rpx; border-radius: 6rpx; }
 </style>
