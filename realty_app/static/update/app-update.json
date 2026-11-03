@@ -1,12 +1,12 @@
 {
-  "versionName": "1.123.40",
-  "versionCode": "375",
-  "publishedAt": "2026-11-03T09:08:16Z",
+  "versionName": "1.123.41",
+  "versionCode": "376",
+  "publishedAt": "2026-11-03T09:14:02Z",
   "force": false,
-  "notes": "fix(realty_app): stats70 \u6da8\u8dcc\u989c\u8272\u8bed\u4e49\u53cd\u8f6c bug \u4fee\u590d + 3 \u9875 trend-up/down token \u5316 v1.123.40\n\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n2026-07-25-v1.117.0-LPR\u5386\u53f2\u843d\u5730dashboard: v1.117.0 \u00b7 LPR \u5386\u53f2\u6d3e\u751f\u843d\u5730 dashboard\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n",
+  "notes": "fix(realty_app): dashboard.vue \u6da8\u8dcc\u8272\u5168 token \u5316\uff08trend-up/down / stats70-up/down / wangqian-up / wq-trend-up/down\uff09v1.123.41\n\n2026-07-25-v1.121.7-\u623f\u6e90\u6253\u5f00\u8d1d\u58f3App: v1.121.7 \u2014 \u623f\u6e90\u8df3\u8d1d\u58f3 + \u79bb\u7ebf APK \u8865 zip4j\uff08\u4fee OTA 100% \u95ea\u9000\uff09\n2026-07-25-v1.121.8-\u79bb\u7ebfOTA\u81ea\u68c0\u52a0\u56fa: v1.121.8 \u2014 \u79bb\u7ebf\u5305 OTA \u81ea\u68c0\u52a0\u56fa\uff08zip4j + install-apk + \u5ba1\u8ba1\u811a\u672c\uff09\n2026-07-25-v1.121.9-OTA\u9a8c\u8bc1130: v1.121.9 \u2014 OTA \u9a8c\u8bc1\u5305 130\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/375/app.wgt",
-    "sha256": "7ad1561c55d29e69e6efcfea3b544f1275dca78f89b035ac4b88e7ae239fbf8b"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/376/app.wgt",
+    "sha256": "4a1b41646c92927b04185ec649cb63fb5eb84eabffffb244c9d16f6f0dc34735"
   },
   "ios": {
     "available": false,
