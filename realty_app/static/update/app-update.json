@@ -1,12 +1,12 @@
 {
-  "versionName": "1.123.29",
-  "versionCode": "364",
-  "publishedAt": "2026-11-03T05:58:39Z",
+  "versionName": "1.123.30",
+  "versionCode": "365",
+  "publishedAt": "2026-11-03T06:21:08Z",
   "force": false,
-  "notes": "refactor(realty_app): map-view / listing-filter \u6b7b\u6837\u5f0f\u4e0e\u6b7b computed \u6e05\u7406 v1.123.29\n\n2026-07-25-v1.120.0-\u4fee\u590dOTA\u68c0\u67e5\u66f4\u65b0fetch: v1.120.0 \u00b7 \u4fee\u590d OTA \u68c0\u67e5\u66f4\u65b0\uff08fetch is not a function\uff09\n2026-07-25-v1.121.0-\u5730\u56fefetch-\u4fee\u590d\u4e0eAPK\u56fe\u6807: v1.121.0 \u2014 \u5730\u56fe fetch \u4fee\u590d + \u81ea\u52a8 APK \u53ef\u9009 job + \u5e94\u7528\u56fe\u6807\u91cd\u505a\n2026-07-25-v1.121.2-OTA\u68c0\u67e5\u66f4\u65b0\u4fee\u590d: v1.121.2 \u2014 OTA \u68c0\u67e5\u66f4\u65b0\u65e0\u53cd\u5e94\u4fee\u590d\n",
+  "notes": "refactor(realty_app): priceSemantics \u6b7b\u5e93\u9000\u5f79 v1.123.30\n\n2026-07-25-v1.111.0-LPR\u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f: v1.111.0 \u2014 LPR \u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f\n2026-07-25-v1.112.0-\u5468\u8fb9\u5546\u4e1aPOI\u63a5\u5165\u4e0e\u6d3e\u751f: v1.112.0 \u2014 \u5468\u8fb9\u5546\u4e1a POI \u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.113.0-\u884c\u653f\u533a\u5212\u63a5\u5165\u4e0e\u6d3e\u751f: v1.113.0 \u2014 \u884c\u653f\u533a\u5212\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/364/app.wgt",
-    "sha256": "6f71f856e03becb2938813d75aae526cd5c65894ed06dd924ef1abc166492357"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/365/app.wgt",
+    "sha256": "f29a11c45214f96700039a1650b6ce93c5d716b94496b13596d3ed87239b4e03"
   },
   "ios": {
     "available": false,
