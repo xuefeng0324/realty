@@ -29,11 +29,12 @@ describe("beike-path UI 门禁（列表/详情/珠海网签）", () => {
     expect(src).toContain("goListingFilterSameCommunity");
   });
 
-  it("珠海网签不默认跳深圳；季报有稳定锚点", () => {
+  it("珠海网签不默认跳深圳；季报由网签子页承接", () => {
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
-    expect(dash).toContain("entry-zh-bdc-registration");
     expect(dash).toContain("onWangqianCardClick");
-    expect(dash).toContain('jumpHomeAnchor("entry-zh-bdc-registration")');
+    // v1.123.27：季报卡迁出总览，本页锚点跳转链已退役
+    expect(dash).not.toContain("entry-zh-bdc-registration");
+    expect(dash).not.toContain("jumpHomeAnchor");
     // 禁止「非深广则强制深圳」
     expect(dash).not.toMatch(/name === "深圳" \|\| name === "广州" \? name : "深圳"/);
 

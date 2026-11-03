@@ -3,7 +3,10 @@
  * 对照：美团定位+搜索；房价三轴不误标成交价。
  * v1.121.143：频道/金刚「供需·工具」等改为 navigate 独立页，不再本页滚动。
  * v1.123.11：HOME_CHANNELS / HOME_KINGKONG 库定义删除（v1.123.10 起已无 UI 消费者）；
- * 保留搜索模式 / 关键词路由 / 锚点解析 / pending query（v122 壳层与 listing-filter/school 消费）。
+ * v1.123.27：遗留锚点系统退役（scroll variant / HomeScrollAvailability / resolveHomeScrollAnchor /
+ * homeSupplyEntryOwner / homeLandEntryOwner 全删）——主入口已全部走独立页 navigate，
+ * resolveHomeSearch 无 scroll 产出，挂载 id 的卡已随第三批死 DOM 清理移除；
+ * 保留搜索模式 / 关键词路由 / pending query（v122 壳层与 listing-filter/school 消费）。
  */
 
 export type HomeSearchMode = "school" | "listing" | "page";
@@ -37,7 +40,6 @@ export type HomeSearchResolve =
   | { kind: "school"; q: string }
   | { kind: "listing"; path: string; q: string }
   | { kind: "navigate"; path: string }
-  | { kind: "scroll"; anchor: string }
   | { kind: "none"; reason: string };
 
 let pendingSchoolQuery = "";
@@ -95,82 +97,4 @@ export function resolveHomeSearch(mode: HomeSearchMode, raw: string): HomeSearch
     }
   }
   return { kind: "none", reason: "未识别关键词，可试：宏观、网签、库存、70城、工具" };
-}
-
-/** 首页滚动锚点在当前城市下的可达性（库存/土地按城挂 id；遗留兼容） */
-export type HomeScrollAvailability = {
-  hasGzInventory: boolean;
-  hasSzPlannedSupply: boolean;
-  hasGzHousingPlan: boolean;
-  hasZhAffordable: boolean;
-  /** 珠海不动产登记季报（日更网签备选量能） */
-  hasZhBdcRegistration: boolean;
-  /** 当前城有深广式日更网签 */
-  hasDailyWangqian: boolean;
-  hasGzLand: boolean;
-  hasSzLand: boolean;
-};
-
-export type HomeScrollResolve =
-  | { kind: "ok"; id: string }
-  | { kind: "missing"; reason: string };
-
-/**
- * 将配置锚点解析为实际 DOM id。
- * entry-supply / entry-land 在深圳原先只绑广州卡，导致金刚区「库存」「土地」空点。
- * @deprecated 主入口已改为供需独立页；仅遗留锚点调用。
- */
-export function resolveHomeScrollAnchor(
-  anchor: string,
-  avail: HomeScrollAvailability
-): HomeScrollResolve {
-  if (anchor === "entry-supply") {
-    if (
-      avail.hasGzInventory ||
-      avail.hasSzPlannedSupply ||
-      avail.hasGzHousingPlan ||
-      avail.hasZhAffordable
-    ) {
-      return { kind: "ok", id: "entry-supply" };
-    }
-    return { kind: "missing", reason: "当前城市暂无库存/供应数据卡" };
-  }
-  if (anchor === "entry-land") {
-    if (avail.hasGzLand || avail.hasSzLand) {
-      return { kind: "ok", id: "entry-land" };
-    }
-    return { kind: "missing", reason: "当前城市暂无土地成交卡" };
-  }
-  // 珠海无日更网签时，「网签」频道滚到不动产登记季报（对照：竞品量能入口不空跳）
-  if (anchor === "overview-wangqian" || anchor === "entry-zh-bdc-registration") {
-    if (avail.hasDailyWangqian) {
-      return { kind: "ok", id: "overview-wangqian" };
-    }
-    if (avail.hasZhBdcRegistration) {
-      return { kind: "ok", id: "entry-zh-bdc-registration" };
-    }
-    if (anchor === "entry-zh-bdc-registration") {
-      return { kind: "missing", reason: "当前城市暂无网签日更或登记季报" };
-    }
-    return { kind: "ok", id: "overview-wangqian" };
-  }
-  return { kind: "ok", id: anchor };
-}
-
-/** 哪张卡挂 entry-supply（互斥，避免重复 id） */
-export function homeSupplyEntryOwner(
-  avail: HomeScrollAvailability
-): "gz" | "sz" | "gz-plan" | "zh" | null {
-  if (avail.hasGzInventory) return "gz";
-  if (avail.hasSzPlannedSupply) return "sz";
-  if (avail.hasGzHousingPlan) return "gz-plan";
-  if (avail.hasZhAffordable) return "zh";
-  return null;
-}
-
-/** 哪张卡挂 entry-land */
-export function homeLandEntryOwner(avail: HomeScrollAvailability): "gz" | "sz" | null {
-  if (avail.hasGzLand) return "gz";
-  if (avail.hasSzLand) return "sz";
-  return null;
 }

@@ -43,7 +43,7 @@
           </view>
         </view>
         <view class="muted" style="margin-top: 10rpx; font-size: 21rpx">
-          {{ zhBdcNew.sourceOrg }} · 登记量 ≠ 日更网签、≠ 挂牌均价。可在总览同名卡片查看分区明细。
+          {{ zhBdcNew.sourceOrg }} · 登记量 ≠ 日更网签、≠ 挂牌均价。
         </view>
       </view>
 

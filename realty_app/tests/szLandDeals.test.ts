@@ -36,19 +36,13 @@ describe("sz residential land deals", () => {
     expect(unit).toBeCloseTo((d.startPriceWan * 10000) / d.areaSqm, 5);
   });
 
-  it("爬虫 pageNum 从 0；用途居住；仪表盘有卡", () => {
+  it("爬虫 pageNum 从 0；用途居住（v1.123.27 起总览卡已删，库由库级单测守护）", () => {
     const script = readFileSync(resolve(process.cwd(), "scripts/crawl_sz_land_deals.py"), "utf8");
     expect(script).toContain("szggzy.com/cms/api/v1/trade/content/tk-notice/land-list");
     expect(script).toContain('landUseLike": "居住"');
     expect(script).toContain("pageNum 从 0");
     expect(script).toContain("start_price_wan");
     expect(script).toContain("NamedTemporaryFile");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
-    expect(dash).toContain("data-sz-land-deals");
-    expect(dash).toContain("样本起始均价");
-    expect(dash).toContain("avgStartSurfaceUnitPriceYuan");
-    expect(dash).toContain("summarizeSzLandDealsByMonth");
-    expect(dash).toContain("起始价");
   });
 
   it("分月汇总", () => {

@@ -32,20 +32,13 @@ describe("gz residential land deals", () => {
     expect(unit).toBeCloseTo((d.priceWan * 10000) / d.areaSqm, 5);
   });
 
-  it("爬虫默认扩页；用途字段门禁；仪表盘有卡与分月汇总", () => {
+  it("爬虫默认扩页；用途字段门禁（v1.123.27 起总览卡已删，库由库级单测守护）", () => {
     const script = readFileSync(resolve(process.cwd(), "scripts/crawl_gz_land_deals.py"), "utf8");
     expect(script).toContain("ghzyj.gz.gov.cn");
     expect(script).toContain("RESIDENTIAL_RE");
     expect(script).toContain("NamedTemporaryFile");
     expect(script).toContain("default=12");
     expect(script).toContain("必须用途字段命中");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
-    expect(dash).toContain("data-gz-land-deals");
-    expect(dash).toContain("样本均价");
-    expect(dash).toContain("avgSurfaceUnitPriceYuan");
-    expect(dash).toContain("getLatestGzLandDeals");
-    expect(dash).toContain("summarizeGzLandDealsByMonth");
-    expect(dash).toContain("gzLandByMonth");
   });
 
   it("分月汇总按成交月聚合", () => {

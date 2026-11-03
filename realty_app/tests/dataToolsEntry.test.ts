@@ -558,6 +558,25 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(dashSrc).not.toMatch(/\bgetWeather\b|\bWeatherResponse\b/);
     expect(dashSrc).toMatch(/coverage/); // region-compare 卡仍消费
     expect(queriesSrc).toMatch(/getRuntimeMeta|getCoverage|getWeather/); // 包装保留（测试在测）
+    // v1.123.27：第三批死 DOM 清理 + 遗留锚点系统退役——9 张城市数据卡（珠海不动产登记季报/
+    // 珠海价格备案/深圳计划入市/广州住房发展计划/广州保障房/广州土地/深圳土地/深圳保障房/
+    // 珠海安居进度）模板 583 行 + 10 个库 import 块 + computed 区块 115 行整删；
+    // 卡均处于「挂载 id 全隐藏 + 无 scroll 路由」的死路径（resolveHomeSearch 无 scroll 产出），
+    // jumpHomeAnchor/resolveHomeScrollAnchor/homeScrollAvailability/supplyEntryOwner/landEntryOwner
+    // 锚点链与 homeEntry.ts 的 scroll variant/HomeScrollAvailability/HomeScrollResolve 同步退役；
+    // formatLandPrice/formatLandArea 失去唯一消费者一并删。
+    // 保留件：gzInventory 库存卡（formatInvDelta/invDeltaClass 仍消费）、网签卡 currentWangqian 链、
+    // 数据工具入口卡；库文件与库级单测全部保留（supply.vue/wangqian.vue 在消费）。
+    expect(dashSrc).not.toMatch(/data-zh-bdc-registration|data-zh-price-filing|data-sz-planned-supply/);
+    expect(dashSrc).not.toMatch(/data-gz-housing-plan|data-gz-affordable-projects|data-gz-land-deals/);
+    expect(dashSrc).not.toMatch(/data-sz-land-deals|data-sz-affordable-projects|data-zh-affordable-progress/);
+    expect(dashSrc).not.toMatch(/\bjumpHomeAnchor\b|\bresolveHomeScrollAnchor\b|\bhomeScrollAvailability\b/);
+    expect(dashSrc).not.toMatch(/\bhomeSupplyEntryOwner\b|\bhomeLandEntryOwner\b|\bentry-zh-bdc-registration\b/);
+    expect(homeEntrySrc).not.toMatch(/export (function|type|const|interface)\s+(resolveHomeScrollAnchor|HomeScrollAvailability|HomeScrollResolve|homeSupplyEntryOwner|homeLandEntryOwner)/);
+    expect(homeEntrySrc).not.toMatch(/\{ kind: "scroll"; anchor: string \}/);
+    expect(dashSrc).toMatch(/data-gz-inventory-detail/); // 库存卡保留
+    expect(dashSrc).toMatch(/data-data-tools-entry/); // 数据工具入口保留
+    expect(dashSrc).toMatch(/goWangqian|onWangqianCardClick/); // 网签卡链保留
   });
 
   it("dashboard.vue v1.121.147 Batch 8：每张核心卡右上角 ✕ 隐藏按钮", () => {

@@ -1,7 +1,7 @@
 {
  "version": 2,
  "docHeight": 1092,
- "elementCount": 2544,
+ "elementCount": 2543,
  "signatures": [
   "BODY|realty-theme-light city-scoped|rgb(242, 244, 247)|rgb(30, 41, 59)|16px|400|0px",
   "BR||rgba(0, 0, 0, 0)|rgb(100, 116, 139)|11.44px|400|0px",
@@ -415,7 +415,7 @@
   "IMG||rgba(0, 0, 0, 0)|rgb(30, 41, 59)|0px|400|0px": 5,
   "INPUT|uni-input-input|rgba(0, 0, 0, 0)|rgb(18, 52, 47)|14.04px|400|0px": 1,
   "INPUT|uni-input-input|rgba(0, 0, 0, 0)|rgb(30, 41, 59)|13.52px|400|0px": 2,
-  "LINK||rgba(0, 0, 0, 0)|rgb(30, 41, 59)|16.64px|400|0px": 23,
+  "LINK||rgba(0, 0, 0, 0)|rgb(30, 41, 59)|16.64px|400|0px": 22,
   "META||rgba(0, 0, 0, 0)|rgb(30, 41, 59)|16.64px|400|0px": 4,
   "SCRIPT||rgba(0, 0, 0, 0)|rgb(30, 41, 59)|16.64px|400|0px": 2,
   "SPAN||rgba(0, 0, 0, 0)|rgb(100, 116, 139)|10.4px|400|0px": 92,

@@ -31,17 +31,12 @@ describe("zh price filing", () => {
     expect(inferZhFilingDistrict("未知地址")).toBe("其他");
   });
 
-  it("爬虫与仪表盘接线", () => {
+  it("爬虫门禁（v1.123.27 起总览卡已删，库由库级单测守护）", () => {
     const script = readFileSync(resolve(process.cwd(), "scripts/crawl_zh_price_filing.py"), "utf8");
     expect(script).toContain("spfjgbags");
     expect(script).toContain("avg_price_building");
     expect(script).toContain("infer_district");
     expect(script).toContain("销售价格备案");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
-    expect(dash).toContain("data-zh-price-filing");
-    expect(dash).toContain("getZhPriceFilingSummary");
-    expect(dash).toContain("备案价 ≠ 挂牌价");
-    expect(dash).toContain("districtStats");
   });
 
   it("CSV 解析与中位价 / 加权", () => {

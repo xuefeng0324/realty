@@ -34,16 +34,12 @@ describe("sz affordable projects", () => {
     }
   });
 
-  it("爬虫与仪表盘门禁", () => {
+  it("爬虫门禁（v1.123.27 起总览卡已删，库由库级单测守护）", () => {
     const script = readFileSync(resolve(process.cwd(), "scripts/crawl_sz_affordable_projects.py"), "utf8");
     expect(script).toContain("zjj.sz.gov.cn");
     expect(script).toContain("pypdf");
     expect(script).toContain("_ensure_pil_stub");
     expect(script).toContain("build_units");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
-    expect(dash).toContain("data-sz-affordable-projects");
-    expect(dash).toContain("getLatestSzAffordableRaised");
-    expect(dash).toContain("raiseUnits");
   });
 
   it("CSV 解析", () => {

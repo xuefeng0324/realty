@@ -38,16 +38,12 @@ describe("gz affordable targets", () => {
     expect(getLatestGzAffordableTargetCompleted(2025)).toBeNull();
   });
 
-  it("爬虫与仪表盘门禁", () => {
+  it("爬虫门禁（v1.123.27 起总览卡已删，库由库级单测守护）", () => {
     const script = readFileSync(resolve(process.cwd(), "scripts/crawl_gz_affordable_targets.py"), "utf8");
     expect(script).toContain("任务量完成");
     expect(script).toContain("筹集建设计划");
     expect(script).toContain("bzxzfxm");
     expect(script).toContain("xlrd");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
-    expect(dash).toContain("getLatestGzAffordableTargetRaised");
-    expect(dash).toContain("resolveTargetWithProjectsActual");
-    expect(dash).toContain("gzAffordableTargetRaised");
   });
 
   it("CSV 解析", () => {

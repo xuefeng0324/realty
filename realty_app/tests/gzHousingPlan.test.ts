@@ -62,9 +62,7 @@ describe("gz housing development plan", () => {
     expect(script).toContain("住房发展年度计划");
     expect(script).toContain("NamedTemporaryFile");
     expect(script).toContain("docx_text");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
-    expect(dash).toContain("data-gz-housing-plan");
-    expect(dash).toContain("getLatestGzHousingPlan");
+    // v1.123.27：总览卡已删，库由本库级单测守护
   });
 
   it("CSV 解析", () => {

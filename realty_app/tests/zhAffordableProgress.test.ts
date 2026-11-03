@@ -30,15 +30,12 @@ describe("zh affordable progress", () => {
     }
   });
 
-  it("爬虫依赖 xlrd；仪表盘有卡", () => {
+  it("爬虫依赖 xlrd（v1.123.27 起总览卡已删，库由库级单测守护）", () => {
     const script = readFileSync(resolve(process.cwd(), "scripts/crawl_zh_affordable_progress.py"), "utf8");
     expect(script).toContain("zjj.zhuhai.gov.cn");
     expect(script).toContain("保障性安居工程建设进展情况快报表");
     expect(script).toContain("1-11总计");
     expect(script).toContain("xlrd");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
-    expect(dash).toContain("data-zh-affordable-progress");
-    expect(dash).toContain("getLatestZhAffordableProgress");
   });
 
   it("分业态字段：保租房/配售型/公租房", () => {
@@ -49,9 +46,7 @@ describe("zh affordable progress", () => {
     const script = readFileSync(resolve(process.cwd(), "scripts/crawl_zh_affordable_progress.py"), "utf8");
     expect(script).toContain("protected_rental_started_units");
     expect(script).toContain("配售型保障性住房");
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
-    expect(dash).toContain("protectedRentalStartedUnits");
-    expect(dash).toContain("saleTypeStartedUnits");
+    // v1.123.27：总览卡已删，分业态字段由上方库级断言守护
   });
 
   it("CSV 解析", () => {

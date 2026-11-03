@@ -90,12 +90,10 @@ describe("zh bdc registration (curated quarterly)", () => {
     }
   });
 
-  it("CSV 可重解析；仪表盘有卡；列表脚本存在", () => {
+  it("CSV 可重解析；列表脚本存在（v1.123.27 起总览卡已删，季报由网签子页承接）", () => {
     const text = readFileSync(resolve(process.cwd(), "static/zh_bdc_registration.csv"), "utf8");
     const rows = loadZhBdcRegistrationFromCSV(text);
     expect(rows.length).toBe(getZhBdcRegistrationRows().length);
-    const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
-    expect(dash).toContain("data-zh-bdc-registration");
     const script = readFileSync(resolve(process.cwd(), "scripts/list_zh_bdc_registration_posts.py"), "utf8");
     expect(script).toContain("bdc.zhuhai.gov.cn");
     expect(script).toContain("zh_bdc_registration.csv");

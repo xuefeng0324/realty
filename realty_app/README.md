@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.123.27 | 2026-11-03 | 第三批死 DOM 清理：9 张隐藏城市数据卡与遗留首页锚点系统退役，dashboard 净删 848 行 |
 | v1.123.26 | 2026-11-03 | 删除 runtime/数据覆盖/天气快照三张壳下隐藏死 DOM 卡（净删 245 行），移除 buildIntegrity 天气卡断言 |
 | v1.123.25 | 2026-11-03 | 删除「今日要点」壳下隐藏死 DOM 卡（模板/todayHighlights/hospitalCityName/today-* CSS），修复 priceSemantics 陈旧断言 |
 | v1.123.24 | 2026-11-03 | 删除 hero 大盘轮播死 DOM：v0.55.0 接入、v1.122 起被壳层 CSS 永久隐藏的顶部 swiper 轮播（6 张城市级快照：总挂牌/中位单价/中位总价/LPR/通勤/学区 + 圆点指示器）实现全删——模板 38 行 + `HeroSlide` 类型 + `heroIdx`/`heroSlides` computed + `onHeroChange`；连带 `commuteRanking` ref 与 loadAll `getCommuteRanking` 调用、`medianTotalPrice` computed 失去唯一消费者一并删；buildIntegrity「v0.55.0 hero-1」3 条 hero 断言移除（金刚区 F-ENTRY-01 断言保留），v0.24.0「通勤时长榜卡」陈旧断言（卡 v1.123.19 已删、靠残留注释假阳性保绿至今）移除；`queries.getCommuteRanking`/`CommuteRankingResponse` 与 `commuteRanking.ts` 库、`commute.csv` 数据面保留（buildIntegrity/commuteRanking.test/adversarialRankingProbe 在测）；`medianUnitPrice`/`listingMedianUnitPriceLabel` 保留（壳层指标与今日要点卡仍消费）；dashboard.vue 7140→6992 行（净删 148）；禁出现门禁并入 `dataToolsEntry.test.ts`；layout 基线随 DOM 删除重生成 448→425 签名、45→44 锚点组（versionCode 359） |

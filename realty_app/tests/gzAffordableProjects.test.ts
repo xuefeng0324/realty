@@ -48,12 +48,9 @@ describe("gz affordable projects", () => {
     expect(script).toContain("bzxzfxm");
     expect(script).toContain("建设套数");
     expect(script).toContain("xlrd");
+    // v1.123.27：总览保障房卡已删（data-gz-affordable-projects/gzAffordable* 链退役），
+    // 库由本库级单测守护；以下仅保留 nbs 卡在测断言
     const dash = readFileSync(resolve(process.cwd(), "src/pages/dashboard/dashboard.vue"), "utf8");
-    expect(dash).toContain("data-gz-affordable-projects");
-    expect(dash).toContain("getLatestGzAffordableRaised");
-    expect(dash).toContain("gz-progress-track");
-    expect(dash).toContain("preferCategory");
-    expect(dash).toContain("data-gz-affordable-shanty-note");
     expect(dash).toContain("getNbsImpliedUnitPriceTrend");
     expect(dash).toContain("getNbsImpliedInventoryMonths");
     expect(dash).toContain("getNbsImpliedInventoryMonthsTrend");
