@@ -3138,10 +3138,10 @@ function trendBarPct(it: DistrictTrendItem, p: { avg_unit_price: number }): numb
 
 // ----- v0.10.0 网签热度榜 -----
 function rankClass(rank: number): string {
-  if (rank === 1) return "wq-rank-gold";
-  if (rank === 2) return "wq-rank-silver";
-  if (rank === 3) return "wq-rank-bronze";
-  return "wq-rank-normal";
+  if (rank === 1) return "rank-gold";
+  if (rank === 2) return "rank-silver";
+  if (rank === 3) return "rank-bronze";
+  return "rank-flat";
 }
 
 // v1.123.2: wangqianPct 随网签热度榜卡迁入 data-tools.vue
@@ -4640,22 +4640,6 @@ onShow(async () => {
   background: #334155;
   color: var(--color-text-secondary);
   flex-shrink: 0;
-}
-.wq-rank-gold {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  color: var(--color-text);
-}
-.wq-rank-silver {
-  background: linear-gradient(135deg, #e5e7eb 0%, #94a3b8 100%);
-  color: var(--color-text);
-}
-.wq-rank-bronze {
-  background: linear-gradient(135deg, #d97706 0%, #92400e 100%);
-  color: #fffbeb;
-}
-.wq-rank-normal {
-  background: var(--color-soft);
-  color: var(--color-muted);
 }
 .wq-name {
   width: 140rpx;
