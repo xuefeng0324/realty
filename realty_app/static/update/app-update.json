@@ -1,12 +1,12 @@
 {
-  "versionName": "1.123.35",
-  "versionCode": "370",
-  "publishedAt": "2026-11-03T08:29:25Z",
+  "versionName": "1.123.36",
+  "versionCode": "371",
+  "publishedAt": "2026-11-03T08:36:55Z",
   "force": false,
-  "notes": "chore(realty_app): v1.123.33 \u9057\u7559\u4ee3\u7801\u8865 commit \u2014 E2E non-suite \u811a\u672c\u6536\u53e3\n\n2026-07-25-v1.121.4-OTA\u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316: v1.121.4 \u2014 OTA \u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316\n2026-07-25-v1.121.5-\u542f\u52a8\u9875\u4e0eOTA\u6839\u6cbb: v1.121.5 / v1.121.6 \u2014 \u542f\u52a8\u9875 + OTA \u6839\u6cbb\u4e0e\u9a8c\u8bc1\n2026-07-25-v1.121.7-\u623f\u6e90\u6253\u5f00\u8d1d\u58f3App: v1.121.7 \u2014 \u623f\u6e90\u8df3\u8d1d\u58f3 + \u79bb\u7ebf APK \u8865 zip4j\uff08\u4fee OTA 100% \u95ea\u9000\uff09\n",
+  "notes": "fix(realty_app): muted-micro \u8bed\u4e49\u7c7b\u8865\u9f50 + 20rpx \u5185\u8054\u5168\u91cf\u66ff\u6362 v1.123.36\n\n2026-07-25-v1.114.0-\u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f: v1.114.0 \u2014 \u89c4\u5212\u5730\u94c1\u7ad9\u70b9\u5750\u6807\u6d3e\u751f\n2026-07-25-v1.115.0-\u533b\u9662\u5750\u6807\u63a5\u5165\u4e0e\u6d3e\u751f: v1.115.0 \u2014 \u533b\u9662\u5750\u6807\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.116.0-\u5168\u56fd70\u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0edashboard\u6da8\u8dccTop\u5361: v1.116.0 \u00b7 \u5168\u56fd 70 \u57ce\u65f6\u5e8f\u6d3e\u751f\u4e0e dashboard \u6da8\u8dcc Top \u5361\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/370/app.wgt",
-    "sha256": "bea946716452d670d6d655722f181a2277a1a337c81a93ee95291b68d97c1549"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/371/app.wgt",
+    "sha256": "bebdb1e7636f270333b3d6dbc5328e6564c3f0412d6d5842a9657015045678d7"
   },
   "ios": {
     "available": false,
