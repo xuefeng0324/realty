@@ -344,7 +344,7 @@ async function loadCities() {
   font-size: 19rpx;
   font-weight: 700;
   letter-spacing: 3rpx;
-  margin-bottom: 8rpx;
+  margin-bottom: var(--space-1);
 }
 
 .form-grid {
@@ -364,7 +364,7 @@ async function loadCities() {
   flex-direction: row;
   align-items: center;
   gap: 8rpx;
-  margin-bottom: 16rpx;
+  margin-bottom: var(--space-3);
 }
 
 .form-label {
@@ -405,7 +405,7 @@ async function loadCities() {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12rpx;
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
 }
 
 .edu-cell {

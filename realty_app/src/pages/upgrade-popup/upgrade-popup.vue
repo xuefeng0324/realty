@@ -219,7 +219,7 @@ function restartNow() {
   font-size: 20rpx;
   letter-spacing: 0.16em;
   color: var(--color-primary-contrast);
-  margin-bottom: 8rpx;
+  margin-bottom: var(--space-1);
 }
 .upgrade-title {
   font-size: 34rpx;
@@ -227,7 +227,7 @@ function restartNow() {
   color: var(--color-heading);
 }
 .upgrade-meta {
-  margin-top: 8rpx;
+  margin-top: var(--space-1);
   font-size: 22rpx;
 }
 .upgrade-notes {
@@ -244,7 +244,7 @@ function restartNow() {
   white-space: pre-wrap;
 }
 .upgrade-progress {
-  margin-top: 24rpx;
+  margin-top: var(--space-4);
 }
 .upgrade-progress-hint {
   display: block;
@@ -252,7 +252,7 @@ function restartNow() {
   font-size: 22rpx;
 }
 .upgrade-error {
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
   padding: 12rpx 16rpx;
   border-radius: 12rpx;
   background: var(--color-danger-soft);
@@ -271,7 +271,7 @@ function restartNow() {
 }
 .upgrade-force {
   display: block;
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
   font-size: 20rpx;
   text-align: center;
 }

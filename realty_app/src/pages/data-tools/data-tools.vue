@@ -2381,7 +2381,7 @@ onUnmounted(() => {
   padding: 24rpx 24rpx 16rpx;
 }
 .dt-card-list {
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
   display: flex;
   flex-direction: column;
   gap: 8rpx;
@@ -2419,7 +2419,7 @@ onUnmounted(() => {
   background: var(--color-muted, #888) !important;
 }
 .dt-card-actions {
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
   display: flex;
   justify-content: flex-end;
 }
@@ -2493,7 +2493,7 @@ onUnmounted(() => {
 .edu-summary {
   display: flex;
   gap: 16rpx;
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
 }
 .edu-kpi {
   display: flex;
@@ -2516,7 +2516,7 @@ onUnmounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 8rpx;
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
 }
 .edu-chip {
   font-size: 22rpx;

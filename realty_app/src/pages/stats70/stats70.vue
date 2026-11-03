@@ -397,7 +397,7 @@ function onPickCity(city: string) {
   display: flex;
   gap: 12rpx;
   align-items: center;
-  margin-bottom: 12rpx;
+  margin-bottom: var(--space-2);
 }
 
 .ranking-tabs-spacer {
@@ -427,7 +427,7 @@ function onPickCity(city: string) {
   display: flex;
   align-items: center;
   gap: 12rpx;
-  margin-bottom: 8rpx;
+  margin-bottom: var(--space-1);
 }
 
 .filter-input {

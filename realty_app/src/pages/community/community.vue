@@ -915,13 +915,13 @@ onMounted(() => {
 
 /* POI 周边 (v0.4.2) */
 .poi-section {
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
 }
 .poi-cat {
   display: flex;
   align-items: center;
   gap: 12rpx;
-  margin-bottom: 8rpx;
+  margin-bottom: var(--space-1);
 }
 .poi-cat-icon {
   font-size: 28rpx;

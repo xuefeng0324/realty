@@ -192,7 +192,7 @@ onLoad((query?: Record<string, string>) => {
 .hero-copy { min-width: 0; }
 .hero-eyebrow { color: var(--color-primary); font-size: 19rpx; font-weight: 700; letter-spacing: 2rpx; }
 .hero-title { margin-top: 10rpx; color: var(--color-heading); font-size: 40rpx; font-weight: 750; line-height: 1.3; }
-.hero-official { margin-top: 8rpx; color: var(--color-text-secondary); font-size: 22rpx; }
+.hero-official { margin-top: var(--space-1); color: var(--color-text-secondary); font-size: 22rpx; }
 .tag-row { display: flex; flex-wrap: wrap; gap: 8rpx; margin-top: 18rpx; }
 .school-favorite-row { margin-top: 18rpx; }
 .profile-tag { padding: 6rpx 13rpx; border-radius: var(--radius-pill); background: var(--color-surface-raised); color: var(--color-text-secondary); font-size: 20rpx; }
@@ -214,7 +214,7 @@ onLoad((query?: Record<string, string>) => {
 .factor-list { margin-top: 18rpx; }
 .factor-row + .factor-row { margin-top: 18rpx; }
 .factor-head { display: flex; justify-content: space-between; gap: 16rpx; color: var(--color-text); font-size: 22rpx; }
-.factor-icon { margin-right: 8rpx; color: var(--color-primary); }
+.factor-icon { margin-right: var(--space-1); color: var(--color-primary); }
 .factor-value { color: var(--color-muted); font-variant-numeric: tabular-nums; }
 .factor-track { height: 12rpx; margin-top: 9rpx; overflow: hidden; border-radius: var(--radius-pill); background: var(--color-surface-raised); }
 .factor-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #0ea5e9, var(--color-primary)); }

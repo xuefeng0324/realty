@@ -594,7 +594,7 @@ onMounted(async () => {
 }
 
 .listing-gallery {
-  margin-bottom: 12rpx;
+  margin-bottom: var(--space-2);
   padding: 0;
   overflow: hidden;
 }
@@ -626,7 +626,7 @@ onMounted(async () => {
   max-width: 560rpx;
 }
 .listing-hero {
-  margin-bottom: 16rpx;
+  margin-bottom: var(--space-3);
 }
 .listing-title {
   flex: 1;
@@ -637,7 +637,7 @@ onMounted(async () => {
   display: flex;
   align-items: baseline;
   gap: 16rpx;
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
 }
 .price-main {
   font-size: 48rpx;
@@ -657,7 +657,7 @@ onMounted(async () => {
   display: flex;
   flex-wrap: wrap;
   gap: 8rpx;
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
 }
 .listing-tag-pill {
   padding: 4rpx 12rpx;
@@ -668,7 +668,7 @@ onMounted(async () => {
   border: 1rpx solid var(--color-border);
 }
 .community-chip {
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
   display: flex;
   align-items: center;
   gap: 12rpx;
@@ -742,7 +742,7 @@ button.source-dock-ghost {
   display: flex;
   align-items: center;
   gap: 12rpx;
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
 }
 .source-trust {
   padding: 4rpx 12rpx;
@@ -755,7 +755,7 @@ button.source-dock-ghost {
 .source-trust--estimated,
 .source-trust--unknown { background: rgba(148, 163, 184, 0.18); color: var(--color-text-secondary); }
 .derived-warning {
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
   padding: 12rpx 16rpx;
   border-radius: var(--radius-sm);
   background: rgba(245, 158, 11, 0.12);
@@ -848,7 +848,7 @@ button.source-dock-ghost {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 16rpx;
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
 }
 
 .info-cell {
@@ -895,13 +895,13 @@ button.source-dock-ghost {
 
 /* POI 周边 (v0.4.2) */
 .poi-section {
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
 }
 .poi-cat {
   display: flex;
   align-items: center;
   gap: 12rpx;
-  margin-bottom: 8rpx;
+  margin-bottom: var(--space-1);
 }
 .poi-cat-icon {
   font-size: 28rpx;
@@ -1004,7 +1004,7 @@ button.source-dock-ghost {
 }
 
 .explain-box {
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
   padding: 16rpx;
   background: var(--color-surface);
   border: 1rpx solid var(--color-soft-strong);

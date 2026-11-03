@@ -1162,7 +1162,7 @@ onUnmounted(() => {
   height: 80vh;
   border-radius: 12rpx;
   overflow: hidden;
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
   /* 底图未出前的浅色占位：禁止透出页面深色底变成「黑乎乎」 */
   background: #e8eef5;
   border: 1rpx solid var(--color-border);
@@ -1180,11 +1180,11 @@ onUnmounted(() => {
   border-radius: 4rpx;
 }
 .legend {
-  margin-top: 8rpx;
+  margin-top: var(--space-1);
   font-size: 22rpx;
 }
 .legend-card {
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
 }
 .legend-row {
   display: flex;
@@ -1209,7 +1209,7 @@ onUnmounted(() => {
   font-variant-numeric: tabular-nums;
 }
 .legend-summary {
-  margin-top: 8rpx;
+  margin-top: var(--space-1);
   padding-top: 8rpx;
   border-top: 1rpx dashed var(--color-border);
 }
@@ -1261,7 +1261,7 @@ onUnmounted(() => {
 }
 /* v1.119.0 弯曲系数 Top 5 卡 */
 .curvature-card {
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
   padding: 16rpx 20rpx;
   background: var(--color-panel);
   border: 1rpx solid var(--color-soft);
@@ -1330,7 +1330,7 @@ onUnmounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 8rpx;
-  margin-top: 8rpx;
+  margin-top: var(--space-1);
 }
 .poi-toggle {
   padding: 4rpx 14rpx;
@@ -1473,7 +1473,7 @@ onUnmounted(() => {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12rpx;
-  margin-bottom: 8rpx;
+  margin-bottom: var(--space-1);
 }
 .find-sheet-title-wrap {
   display: flex;
@@ -1532,7 +1532,7 @@ onUnmounted(() => {
 .find-sheet-actions {
   display: flex;
   gap: 12rpx;
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
 }
 .find-sheet-btn {
   flex: 1;
@@ -1542,7 +1542,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 10rpx;
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
   font-size: 22rpx;
 }
 
@@ -1571,7 +1571,7 @@ onUnmounted(() => {
 }
 
 .map-retry-btn {
-  margin-left: 12rpx;
+  margin-left: var(--space-2);
 }
 
 .map-wrap {

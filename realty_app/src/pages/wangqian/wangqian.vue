@@ -631,7 +631,7 @@ onLoad((opts?: Record<string, string>) => {
 
 <style lang="scss" scoped>
 .fresh-badge {
-  margin-left: 12rpx;
+  margin-left: var(--space-2);
   padding: 2rpx 12rpx;
   border-radius: var(--radius-pill);
   font-size: 20rpx;
@@ -641,7 +641,7 @@ onLoad((opts?: Record<string, string>) => {
   display: flex;
   flex-wrap: wrap;
   gap: 12rpx;
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
 }
 .metric-cell {
   flex: 1 1 calc(33% - 12rpx);

@@ -1134,7 +1134,7 @@ onUnmounted(() => {
 
 .find-hub-subtitle {
   display: block;
-  margin-top: 8rpx;
+  margin-top: var(--space-1);
   color: var(--color-muted, #6b807c);
   font-size: 21rpx;
 }
@@ -1386,7 +1386,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12rpx;
-  margin-bottom: 16rpx;
+  margin-bottom: var(--space-3);
 }
 
 .search-input .input {
@@ -1504,7 +1504,7 @@ onUnmounted(() => {
 }
 
 .slider-row {
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
   display: flex;
   flex-direction: column;
   gap: 8rpx;
@@ -1526,7 +1526,7 @@ onUnmounted(() => {
 .picker-caret {
   color: var(--color-muted);
   font-size: 22rpx;
-  margin-left: 8rpx;
+  margin-left: var(--space-1);
 }
 
 .sheet-mask {
@@ -1707,7 +1707,7 @@ onUnmounted(() => {
 
 .listing-sub {
   font-size: 22rpx;
-  margin-bottom: 8rpx;
+  margin-bottom: var(--space-1);
 }
 
 .tag-row {

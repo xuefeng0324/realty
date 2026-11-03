@@ -837,7 +837,7 @@ function openGithubReleases() {
 }
 
 .settings-hero {
-  margin-bottom: 16rpx;
+  margin-bottom: var(--space-3);
 }
 
 .hero-eyebrow {
@@ -850,7 +850,7 @@ function openGithubReleases() {
 .hero-title {
   font-size: 36rpx;
   font-weight: 700;
-  margin-top: 8rpx;
+  margin-top: var(--space-1);
 }
 
 .hero-subtitle {

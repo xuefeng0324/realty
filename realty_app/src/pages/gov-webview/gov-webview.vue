@@ -125,7 +125,7 @@ web-view {
 
 .fallback-hint {
   display: block;
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
   font-size: 24rpx;
 }
 </style>

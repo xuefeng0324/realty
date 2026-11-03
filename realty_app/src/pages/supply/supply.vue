@@ -414,7 +414,7 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12rpx;
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
 }
 .kpi {
   display: flex;
@@ -436,12 +436,12 @@ onMounted(() => {
   font-size: 20rpx;
 }
 .summary {
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
   font-size: 24rpx;
 }
 .section-title {
-  margin-top: 16rpx;
-  margin-bottom: 8rpx;
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-1);
   font-size: 24rpx;
   font-weight: 600;
 }
@@ -458,7 +458,7 @@ onMounted(() => {
   font-weight: 600;
 }
 .note {
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
   font-size: 21rpx;
   color: var(--color-muted, var(--color-muted));
   line-height: 1.45;
@@ -486,7 +486,7 @@ onMounted(() => {
 .sheet-title {
   font-size: 30rpx;
   font-weight: 700;
-  margin-bottom: 12rpx;
+  margin-bottom: var(--space-2);
 }
 .sheet-item {
   display: flex;

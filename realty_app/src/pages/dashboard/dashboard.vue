@@ -3888,7 +3888,7 @@ onShow(async () => {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8rpx;
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
 }
 
 .gz-inventory-kpi {
@@ -3903,7 +3903,7 @@ onShow(async () => {
 }
 
 .gz-progress-track {
-  margin-top: 8rpx;
+  margin-top: var(--space-1);
   height: 8rpx;
   border-radius: var(--radius-pill);
   background: rgba(148, 163, 184, 0.28);
@@ -3935,7 +3935,7 @@ onShow(async () => {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8rpx;
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
 }
 
 .pf-rate-cell {
@@ -3951,20 +3951,20 @@ onShow(async () => {
 }
 
 .pf-saving {
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
   font-size: 22rpx;
   color: var(--color-muted);
 }
 
 
 .overview-card-summary {
-  margin-top: 8rpx;
+  margin-top: var(--space-1);
   font-size: 24rpx;
   line-height: 1.5;
 }
 
 .combo-loan {
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
   padding-top: 16rpx;
   border-top: 1rpx dashed var(--color-border);
 }
@@ -3979,7 +3979,7 @@ onShow(async () => {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12rpx;
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
 }
 
 .combo-field {
@@ -4006,7 +4006,7 @@ onShow(async () => {
 .combo-years {
   display: flex;
   gap: 8rpx;
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
   flex-wrap: wrap;
   align-items: center;
 }
@@ -4181,7 +4181,7 @@ onShow(async () => {
 }
 
 .district-note {
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
   padding-top: 12rpx;
   border-top: 1rpx solid var(--color-soft-strong);
   font-size: 22rpx;
@@ -4196,7 +4196,7 @@ onShow(async () => {
 }
 
 .stats70-foot {
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
   text-align: right;
   font-size: 22rpx;
   color: var(--color-trend-down);
@@ -4215,7 +4215,7 @@ onShow(async () => {
   color: var(--color-muted, #888);
 }
 .macro-series {
-  margin-top: 8rpx;
+  margin-top: var(--space-1);
   font-size: 21rpx;
   line-height: 1.5;
   color: var(--color-muted, #888);
@@ -4224,7 +4224,7 @@ onShow(async () => {
   font-size: 26rpx;
 }
 .macro-card .gz-inventory-toggle {
-  margin-top: 8rpx;
+  margin-top: var(--space-1);
 }
 
 @media (min-width: 900px) {
@@ -4249,7 +4249,7 @@ onShow(async () => {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12rpx;
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
 }
 .trend-cell {
   background: var(--color-surface);
@@ -4265,7 +4265,7 @@ onShow(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 16rpx;
+  margin-top: var(--space-3);
   padding: 12rpx 16rpx;
   background: var(--color-panel);
   border: 1rpx solid var(--color-soft);
@@ -4401,7 +4401,7 @@ onShow(async () => {
   align-items: flex-end;
   height: 60rpx;
   gap: 4rpx;
-  margin-top: 8rpx;
+  margin-top: var(--space-1);
 }
 .trend-bar-col {
   flex: 1;
@@ -4457,7 +4457,7 @@ onShow(async () => {
   font-size: 22rpx;
 }
 .wq-trend-block {
-  margin-bottom: 12rpx;
+  margin-bottom: var(--space-2);
 }
 .wq-trend-sub {
   font-size: 22rpx;
@@ -4531,7 +4531,7 @@ onShow(async () => {
 /* v0.31.0 生活便利度榜 */
 .lc-summary {
   font-size: 22rpx;
-  margin-bottom: 8rpx;
+  margin-bottom: var(--space-1);
 }
 .lc-row {
   display: flex;
@@ -4738,7 +4738,7 @@ onShow(async () => {
 
 .map-wrap {
   width: 100%;
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
   background: var(--color-soft);
   border-radius: 8rpx;
   padding: 8rpx;
@@ -4956,7 +4956,7 @@ onShow(async () => {
 
 /* v0.47.0 school-4: 学区指标 */
 .sd-block {
-  margin-bottom: 16rpx;
+  margin-bottom: var(--space-3);
 }
 .sd-block-title {
   font-weight: 600;
@@ -5140,7 +5140,7 @@ onShow(async () => {
   letter-spacing: 3rpx;
 }
 .home-v122-title {
-  margin-top: 8rpx;
+  margin-top: var(--space-1);
   font-size: 38rpx;
   font-weight: 800;
   letter-spacing: -1rpx;
@@ -5185,7 +5185,7 @@ onShow(async () => {
   align-items: center;
   gap: 12rpx;
   height: 88rpx;
-  margin-top: 32rpx;
+  margin-top: var(--space-5);
   padding: 0 12rpx 0 24rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.18);
   border-radius: var(--radius-lg);
@@ -5405,7 +5405,7 @@ onShow(async () => {
 .home-v122-listing-meta {
   display: block;
   overflow: hidden;
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
   color: var(--color-muted, #6b807c);
   font-size: 21rpx;
   text-overflow: ellipsis;

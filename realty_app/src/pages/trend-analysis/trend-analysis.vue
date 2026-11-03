@@ -352,7 +352,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   padding: 16rpx 24rpx;
   background: var(--color-surface, #fff);
   border-radius: var(--radius-md);
-  margin-bottom: 16rpx;
+  margin-bottom: var(--space-3);
 }
 .title {
   font-size: 36rpx;
@@ -372,13 +372,13 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12rpx;
+  margin-bottom: var(--space-2);
 }
 .card {
   background: var(--color-surface, #fff);
   border-radius: var(--radius-md);
   padding: 20rpx;
-  margin-bottom: 16rpx;
+  margin-bottom: var(--space-3);
   border: 1rpx solid var(--color-border-soft, #eee);
 }
 .card-title {
@@ -390,7 +390,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   display: flex;
   justify-content: space-between;
   gap: 12rpx;
-  margin-top: 24rpx;
+  margin-top: var(--space-4);
 }
 .back-btn,
 .reload-btn {
@@ -490,7 +490,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 .scatter-summary {
   display: flex;
   gap: 16rpx;
-  margin-bottom: 12rpx;
+  margin-bottom: var(--space-2);
 }
 .sc-kpi {
   flex: 1;
