@@ -1425,46 +1425,6 @@
 
       <view v-if="errorMsg" class="error">{{ errorMsg }}</view>
 
-      <!-- v0.55.0 hero-1: 顶部大盘轮播 + 快捷入口图标网格 -->
-      <view class="hero-section" v-if="heroSlides.length > 0">
-        <view class="hero-carousel">
-          <swiper
-            class="hero-scroll"
-            :current="heroIdx"
-            circular
-            autoplay
-            :interval="5000"
-            :duration="350"
-            @change="onHeroChange"
-          >
-            <swiper-item
-              v-for="(s, i) in heroSlides"
-              :key="'hero_' + i"
-            >
-              <view :class="['hero-slide', 'hero-slide--' + s.tone]">
-                <view class="hero-slide-row">
-                  <view class="hero-slide-icon">{{ s.icon }}</view>
-                  <view class="hero-slide-mid">
-                    <view class="hero-slide-label">{{ s.label }}</view>
-                    <view class="hero-slide-val">{{ s.value }}<text v-if="s.unit" class="hero-slide-unit">{{ s.unit }}</text></view>
-                    <view class="hero-slide-sub muted">{{ s.sub }}</view>
-                  </view>
-                </view>
-              </view>
-            </swiper-item>
-          </swiper>
-          <view class="hero-dots">
-            <view
-              v-for="(_, i) in heroSlides"
-              :key="'dot_' + i"
-              :class="['hero-dot', { 'hero-dot--active': heroIdx === i }]"
-              @click="heroIdx = i"
-            ></view>
-          </view>
-        </view>
-        <!-- 金刚区已上移至首页入口，此处仅保留大盘轮播 -->
-      </view>
-
       <!-- 概览工具条已迁设置：精简/完整模式在「设置 → 首页与分析」 -->
 
       <!-- v1.121.138：原中间段折叠块内的 7 张派生卡已真删；区/板块对比核心卡移出折叠块、直接渲染 -->
@@ -2750,14 +2710,14 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getWeather, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLifeConvenienceRank, getMetroWalkRanking, getMetroBenefitRanking,
+import { getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getWeather, getCommunityCompareByDistrict, getDistrictWangqianRank, getLifeConvenienceRank, getMetroWalkRanking, getMetroBenefitRanking,
   getListingFreshnessRanking,
   getDistrictMap,
   getSchoolDimensions,
   getLprOverview,
   type SchoolDimResponse,
   type LprResponse,
-  type DistrictTrendItem, type WangqianOverviewItem, type WeatherResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LifeConvenienceResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type DistrictMapResponse } from "../../local/queries";
+  type DistrictTrendItem, type WangqianOverviewItem, type WeatherResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type LifeConvenienceResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type DistrictMapResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -3084,8 +3044,6 @@ const wangqianOverview = ref<WangqianOverviewItem | null>(null);
 // v0.23.0 trend-9: 全品类区级网签热度榜 (tab 切换)
 const districtWangqianRank = ref<DistrictWangqianRankResponse | null>(null);
 const wqRankCat = ref<"新房" | "二手" | "全部">("全部");
-// v0.24.0 new-5: 通勤时长榜
-const commuteRanking = ref<CommuteRankingResponse | null>(null);
 const lifeConvenience = ref<LifeConvenienceResponse | null>(null);
 
 const hospitalCityName = computed(() => cityNameForId(app.cityId));
@@ -3771,15 +3729,6 @@ const medianUnitPrice = computed<number>(() => {
   const mid = Math.floor(arr.length / 2);
   return arr.length % 2 === 0 ? Math.round((arr[mid - 1] + arr[mid]) / 2) : arr[mid];
 });
-const medianTotalPrice = computed<number>(() => {
-  const arr = store.getListingsByCity(app.cityId)
-    .map((l) => l.totalPrice10k)
-    .filter((v): v is number => typeof v === "number" && v > 0)
-    .sort((a, b) => a - b);
-  if (arr.length === 0) return 0;
-  const mid = Math.floor(arr.length / 2);
-  return arr.length % 2 === 0 ? Math.round((arr[mid - 1] + arr[mid]) / 2) : arr[mid];
-});
 
 const homeMedianUnitPriceLabel = computed(() =>
   medianUnitPrice.value > 0
@@ -3816,93 +3765,6 @@ const homeRecommendedListings = computed(() =>
 
 function homeListingCommunity(communityId: number): string {
   return store.getCommunityById(communityId)?.communityName ?? "小区待补";
-}
-
-// v0.55.0 hero-1: 顶部大盘轮播
-type HeroSlide = {
-  icon: string;
-  label: string;
-  value: string;
-  unit?: string;
-  sub: string;
-  tone: "blue" | "green" | "red" | "amber" | "violet" | "rose";
-};
-const heroIdx = ref(0);
-const heroSlides = computed<HeroSlide[]>(() => {
-  const cityName = store.getCityById(app.cityId)?.cityName ?? app.cityId.toString();
-  const slides: HeroSlide[] = [];
-  // 1. 总挂牌
-  const totalListings = listingCount.value;
-  slides.push({
-    icon: "🏘️",
-    label: `${cityName} · 总挂牌`,
-    value: totalListings.toLocaleString(),
-    unit: "套",
-    sub: `${communityCount.value} 个小区在监控`,
-    tone: "blue"
-  });
-  // 2. 平均单价
-  if (medianUnitPrice.value > 0) {
-    slides.push({
-      icon: "💰",
-      label: listingMedianUnitPriceLabel(),
-      value: medianUnitPrice.value.toLocaleString(),
-      unit: "元/㎡",
-      sub: `周 ${app.weekEnd || ""} · 卖方挂牌`,
-      tone: "red"
-    });
-  }
-  // 3. 平均总价
-  if (medianTotalPrice.value > 0) {
-    slides.push({
-      icon: "💵",
-      label: "全市中位总价",
-      value: medianTotalPrice.value.toString(),
-      unit: "万",
-      sub: `覆盖 ${listingCount.value} 套`,
-      tone: "amber"
-    });
-  }
-  // 4. LPR
-  if (lpr.value?.latest) {
-    slides.push({
-      icon: "🏦",
-      label: "5Y+ LPR · 首套房贷",
-      value: lpr.value.latest.mortgageFirst.toFixed(2),
-      unit: "%",
-      sub: `5Y LPR ${lpr.value.latest.lpr5y.toFixed(2)}% · 累计 -${lpr.value.cumDrop5y}pp`,
-      tone: "violet"
-    });
-  }
-  // 5. 平均通勤
-  if (commuteRanking.value && commuteRanking.value.cityAvgMinutes != null) {
-    const fastestMin = commuteRanking.value.fastest[0]?.transitMinutes ?? null;
-    slides.push({
-      icon: "🚇",
-      label: `通勤 → ${commuteRanking.value.cbdName}`,
-      value: commuteRanking.value.cityAvgMinutes.toFixed(0),
-      unit: "min",
-      sub: `最快 ${fastestMin != null ? fastestMin.toFixed(0) + "min" : "—"} · ${commuteRanking.value.totalCommunities} 小区`,
-      tone: "green"
-    });
-  }
-  // 6. 学区评分
-  if (schoolDims.value && schoolDims.value.total > 0) {
-    slides.push({
-      icon: "🏫",
-      label: `${cityName} · 学区指标`,
-      value: schoolDims.value.total.toString(),
-      unit: "校",
-      sub: "5 维评分加权排名",
-      tone: "rose"
-    });
-  }
-  return slides;
-});
-
-function onHeroChange(e: any) {
-  const idx = Number(e?.detail?.current ?? 0);
-  heroIdx.value = Math.max(0, Math.min(idx, heroSlides.value.length - 1));
 }
 
 const cityScoped = ref(true);
@@ -4088,16 +3950,6 @@ async function loadRankingAndDistrict() {
       wangqianOverview.value = heat;
       // v0.23.0 trend-9: 全品类区级网签热度榜
       await loadDistrictWangqianRank();
-      // v0.24.0 new-5: 通勤时长榜
-      try {
-        commuteRanking.value = await getCommuteRanking({
-          cityId: app.cityId,
-          limit: 10
-        });
-      } catch (e) {
-        console.warn("getCommuteRanking failed:", e);
-        commuteRanking.value = null;
-      }
       // v0.31.0 new-9 生活便利度榜
       try {
         lifeConvenience.value = await getLifeConvenienceRank({

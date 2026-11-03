@@ -405,7 +405,7 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     ).toBe(false);
     expect(queriesSrc).not.toMatch(/getCommercialRanking|CommercialRankingItem|CommercialRankingResponse/);
     // v1.123.19：通勤时长榜 + 小区综合评分榜死 DOM 整删（v1.122 起被壳层 CSS 永久隐藏；
-    // commuteRanking ref/getCommuteRanking 保留——heroSlides「平均通勤」轮播仍消费；
+    // commuteRanking ref/getCommuteRanking 当时因 heroSlides 轮播保留（v1.123.24 已随 hero 一并删）；
     // communityScoreRanking 死库 5 函数 + queries.getCommunityScoreRank 无消费者包装同步删；
     // 孤儿 e2e smoke_commute / smoke_community_score / smoke_community_score_weight 与
     // 7 用例孤儿单测 communityScoreRanking.test.ts 一并删；buildIntegrity v0.34.0 describe 移除；
@@ -418,7 +418,6 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(dashSrc).not.toMatch(/getCommunityScoreRank|CommunityScoreResponse|communityScoreRanking/);
     expect(dashSrc).not.toMatch(/getCommuteByCityFastestSlowestCompare|getCommuteSpeedLeaderboard|getCommuteFastestTopN|summarizeCommuteByCity/);
     expect(dashSrc).not.toMatch(/commute-badge|cs-medal|cs-total|cs-slider|cs-preset|cs-row/);
-    expect(dashSrc).toMatch(/getCommuteRanking/); // heroSlides「平均通勤」仍消费
     expect(toolsSrc).not.toContain('"commute-rank"');
     expect(toolsSrc).not.toContain('"community-score-rank"');
     expect(toolsSrc).not.toContain('"community-score-weights"');
@@ -520,6 +519,21 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(dashSrc).toMatch(/communityIdsInCity/); // lifeMarketNearTop 仍消费
     expect(dashSrc).toMatch(/hospitalCityName/); // 今日要点卡仍消费
     expect(existsSync(resolve(__dirname, "../src/local/poiMarketRanking.ts"))).toBe(true);
+    // v1.123.24：hero 死 DOM 轮播整删（v0.55.0 接入、v1.122 起被壳层 CSS 永久隐藏；
+    // 模板 38 行 swiper 轮播 + HeroSlide 类型 + heroIdx/heroSlides computed + onHeroChange；
+    // 连带 commuteRanking ref 与 loadAll getCommuteRanking 调用、medianTotalPrice computed
+    // 失去唯一消费者一并删；buildIntegrity「v0.55.0 hero-1」3 条 hero 断言移除（金刚区断言保留）；
+    // queries.getCommuteRanking/CommuteRankingResponse 保留——buildIntegrity 在测；
+    // commuteRanking.ts 库保留——commuteRanking.test/adversarialRankingProbe 在测；
+    // medianUnitPrice/listingMedianUnitPriceLabel 保留——壳层指标与今日要点卡仍消费）
+    expect(dashSrc).not.toMatch(/hero-section|hero-carousel|hero-scroll|hero-slide|hero-dots|hero-dot/);
+    expect(dashSrc).not.toMatch(/heroSlides|heroIdx|onHeroChange|HeroSlide/);
+    expect(dashSrc).not.toMatch(/commuteRanking|getCommuteRanking|CommuteRankingResponse/);
+    expect(dashSrc).not.toMatch(/\bmedianTotalPrice\b/);
+    expect(dashSrc).toMatch(/medianUnitPrice/); // 壳层指标 + 今日要点卡仍消费
+    expect(dashSrc).toMatch(/listingMedianUnitPriceLabel/); // 今日要点卡仍消费
+    expect(queriesSrc).toMatch(/getCommuteRanking/); // 库包装保留（buildIntegrity 在测）
+    expect(existsSync(resolve(__dirname, "../src/local/commuteRanking.ts"))).toBe(true);
   });
 
   it("dashboard.vue v1.121.147 Batch 8：每张核心卡右上角 ✕ 隐藏按钮", () => {

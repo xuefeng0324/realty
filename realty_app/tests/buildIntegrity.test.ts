@@ -1358,13 +1358,8 @@ describe("build integrity", () => {
       expect(content).toMatch(/const commutes: LocalCommute\[\]/);
     });
 
-    it("dashboard.vue 渲染「🚇 通勤时长榜」卡", () => {
-      const content = readFileSync(
-        resolve(ROOT, "src/pages/dashboard/dashboard.vue"),
-        "utf8"
-      );
-      expect(content).toMatch(/通勤时长榜/);
-    });
+    // v1.123.24：dashboard「通勤时长榜」卡断言移除——卡 v1.123.19 已删，断言靠残留
+    // 注释假阳性保绿至今；本轮 hero 轮播删除连带 ref/loadAll 注释清理后暴露，随死代码移除
 
     it("commute.csv 存在且 >= 10 行", () => {
       const csv = readFileSync(resolve(ROOT, "static/seed/commute.csv"), "utf8");
@@ -3066,44 +3061,13 @@ describe("build integrity", () => {
     });
   });
 
-  // v0.55.0 hero-1: 顶部大盘轮播 + 快捷入口
-  describe("v0.55.0 hero-1 首页 hero 轮播 + quick 网格", () => {
-    it("dashboard.vue: hero-carousel + swiper + dots 渲染", () => {
-      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/class="hero-carousel"/);
-      expect(dash).toMatch(/<swiper[\s\S]{0,200}class="hero-scroll"/);
-      expect(dash).toMatch(/v-for="\(s, i\) in heroSlides"/);
-      expect(dash).toMatch(/class="hero-dots"/);
-      expect(dash).toMatch(/hero-dot--active/);
-    });
-
-    it("dashboard.vue: 6 卡片数据源 (总挂牌/均价/总价/LPR/通勤/学区)", () => {
-      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/const heroSlides = computed<HeroSlide\[\]>/);
-      expect(dash).toMatch(/总挂牌/);
-      // v1.123.14：均价 slide 文案走 listingMedianUnitPriceLabel（挂牌口径）；
-      // 原断言 /全市中位单价/ 实际锚在已删除的学区溢价榜死 DOM 上，改锚真实 hero 源
-      expect(dash).toMatch(/listingMedianUnitPriceLabel\(\)/);
-      expect(dash).toMatch(/全市中位总价/);
-      expect(dash).toMatch(/5Y\+ LPR · 首套房贷/);
-      expect(dash).toMatch(/通勤 → /);
-      expect(dash).toMatch(/学区指标/);
-    });
-
+  // v0.55.0 hero-1: 快捷入口（hero 轮播死 DOM 已于 v1.123.24 整删，仅余金刚区门禁）
+  describe("v0.55.0 hero-1 首页金刚区 + 搜索入口", () => {
     it("dashboard.vue: 首页金刚区 + 搜索入口 (F-ENTRY-01)", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
       expect(dash).toMatch(/data-home-entry/);
       expect(dash).toMatch(/data-home-kingkong/);
       expect(dash).toMatch(/id="entry-macro"/);
-    });
-
-    it("dashboard.vue: hero 用 swiper 自动滚动 + listingCount/medianUnitPrice 聚合", () => {
-      const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/:interval="5000"/);
-      expect(dash).toMatch(/function onHeroChange/);
-      expect(dash).toMatch(/const listingCount = computed/);
-      expect(dash).toMatch(/const medianUnitPrice = computed/);
-      expect(dash).toMatch(/const medianTotalPrice = computed/);
     });
   });
 
