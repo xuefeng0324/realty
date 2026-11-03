@@ -3108,4 +3108,31 @@ describe("build integrity", () => {
       expect(f).toMatch(/uni\.redirectTo\(\{ url: `\/pages\/community/);
     });
   });
+
+  // ---------- v1.123.31 E2E suite 脚本契约 ----------
+  describe("E2E suite 脚本契约 v1.123.31", () => {
+    const suiteSrc = readFileSync(resolve(ROOT, "tests/e2e/run_suite.mjs"), "utf8");
+    const members = [...new Set([...suiteSrc.matchAll(/"([^"]+\.mjs)"/g)].map((m) => m[1]))].filter(
+      (f) => f.startsWith("smoke")
+    );
+
+    it("core / extended / v093_097 三个组共 26 个脚本", () => {
+      expect(members.length).toBe(26);
+    });
+
+    it("suite 内脚本不得用 waitUntil: networkidle（挂起请求会使其超时）", () => {
+      // v1.123.31：extended 首跑 3 例 networkidle 超时、复跑全过——网络空闲不等于应用渲染完成
+      for (const f of members) {
+        const src = readFileSync(resolve(ROOT, "tests/e2e", f), "utf8");
+        expect(src, f).not.toMatch(/waitUntil:\s*"networkidle"/);
+      }
+    });
+
+    it("suite 内脚本默认端口统一为 5174（对齐 serve）", () => {
+      for (const f of members) {
+        const src = readFileSync(resolve(ROOT, "tests/e2e", f), "utf8");
+        expect(src, f).not.toMatch(/http:\/\/127\.0\.0\.1:5175/);
+      }
+    });
+  });
 });

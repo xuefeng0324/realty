@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.123.31 | 2026-11-03 | E2E flake 根治：11 个 suite 脚本移除 `waitUntil: "networkidle"`（改 domcontentloaded + 显式元素/条件等待），10 个脚本默认端口 5175→5174；连带修复 v093_097 组 3 个 stale 脚本（v093/v094 改址 data-tools、v096 删除），新增 suite 契约门禁 |
 | v1.123.30 | 2026-11-03 | priceSemantics 死库退役：8 个导出（三轴标签 / 4 个短标签 / auditListingPriceCopy / priceAxesDisclaimer）在 src/ 零消费，整库删除；三轴文案门禁保留为 tests/priceSemantics.test.ts 的 3 条源码断言，单测 1345→1330 |
 | v1.123.29 | 2026-11-03 | map-view / listing-filter 死样式与死 computed 清理：126 行 scoped CSS + 36 行 priceLevel 链路退役 |
 | v1.123.28 | 2026-11-03 | dashboard scoped 样式段死类清理：37 个零引用类 279 行删除 + overview-wangqian 静态 id 剥除 + lone LF 归一 |

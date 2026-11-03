@@ -18,10 +18,16 @@ async function fail(msg) { issues.push(msg); console.error("FAIL:", msg); }
 async function pass(msg) { console.log("OK:", msg); }
 
 try {
-  await page.goto(`${BASE}/`, { waitUntil: "networkidle" });
+  await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(2200);
-  await page.goto(`${BASE}/#/pages/dashboard/dashboard`, { waitUntil: "networkidle" });
-  await page.waitForTimeout(2500);
+  // v1.123.31：v0.93 卡已迁出至 data-tools（dashboard 仅留注释），脚本同步改址；
+  // 并用显式等待替代对 networkidle/固定 sleep 的依赖
+  await page.goto(`${BASE}/#/pages/data-tools/data-tools`, { waitUntil: "domcontentloaded" });
+  await page
+    .locator(".card-title", { hasText: "分区近 12 周均价变动" })
+    .first()
+    .waitFor({ state: "visible", timeout: 15000 })
+    .catch(() => {});
 
   const card = page
     .locator(".card")

@@ -42,7 +42,7 @@ async function gotoDataTools(page, cityName) {
   await page.locator("[data-home-city]").first().waitFor({ state: "visible", timeout: 20000 });
   await pickCity(page, cityName);
   await page.evaluate((h) => { location.hash = h; }, DT_HASH);
-  await page.reload({ waitUntil: "networkidle" });
+  await page.reload({ waitUntil: "domcontentloaded" });
   await page.locator(NAV).waitFor({ state: "visible", timeout: 20000 });
 }
 
@@ -166,7 +166,8 @@ async function run() {
   });
 
   try {
-    await page.goto(DASH_URL, { waitUntil: "networkidle", timeout: 20000 });
+    // v1.123.31 flake 加固：networkidle 易受挂起请求影响；gotoDataTools 内有显式等待
+    await page.goto(DASH_URL, { waitUntil: "domcontentloaded", timeout: 20000 });
     await gotoDataTools(page, "深圳");
 
     // 1) 导航结构：18 chip + 4 组名

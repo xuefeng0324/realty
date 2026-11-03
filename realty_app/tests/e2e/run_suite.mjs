@@ -40,7 +40,6 @@ const suites = {
     "smoke_v093_district_drift_strict.mjs",
     "smoke_v094_school_indicator_dimensions.mjs",
     "smoke_v095_listing_freshness_card.mjs",
-    "smoke_v096_listing_tags_comparison.mjs",
     "smoke_v097_school_dimensions.mjs"
   ]
 };

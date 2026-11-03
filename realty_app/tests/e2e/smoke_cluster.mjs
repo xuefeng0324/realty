@@ -34,10 +34,11 @@ async function run() {
   });
 
   // 深圳
-  await page.goto(BASE, { waitUntil: "networkidle" });
+  // v1.123.31 flake 加固：networkidle → domcontentloaded + 显式等待地图控件渲染
+  await page.goto(BASE, { waitUntil: "domcontentloaded" });
   await page.evaluate(() => localStorage.setItem("realty_app.cityId", "2"));
-  await page.reload({ waitUntil: "networkidle" });
-  await page.waitForTimeout(3500);
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.locator('.map-mode-btn[data-map-mode="price"]').first().waitFor({ state: "visible", timeout: 15000 });
 
   // 切到 listings 模式: count → price → listings
   await page.locator('.map-mode-btn[data-map-mode="price"]').first().click({ force: true });

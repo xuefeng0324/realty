@@ -16,7 +16,7 @@ async function fail(msg) { issues.push(msg); console.error("FAIL:", msg); }
 async function pass(msg) { console.log("OK:", msg); }
 
 try {
-  await page.goto(`${BASE}/#/pages/school/school`, { waitUntil: "networkidle" });
+  await page.goto(`${BASE}/#/pages/school/school`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(2500);
 
   // 滚动

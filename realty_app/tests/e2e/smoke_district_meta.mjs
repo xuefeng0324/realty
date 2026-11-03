@@ -10,7 +10,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const SCREENSHOT_DIR = resolve(__dirname, "../../../screenshots");
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
 
-const BASE = process.env.REALTY_E2E_BASE_URL || "http://127.0.0.1:5175";
+const BASE = process.env.REALTY_E2E_BASE_URL || "http://127.0.0.1:5174";
 
 async function pickCity(page, label) {
   // 滚回顶部

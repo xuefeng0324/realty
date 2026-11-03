@@ -42,7 +42,8 @@ async function main() {
   page.on("pageerror", (e) => console.log("[pageerror]", e.message));
 
   console.log(`navigate ${PAGE_URL}`);
-  await page.goto(PAGE_URL, { waitUntil: "networkidle" });
+  // v1.123.31 flake 加固：networkidle → domcontentloaded；首行渲染由下方显式等待兜底
+  await page.goto(PAGE_URL, { waitUntil: "domcontentloaded" });
   // 榜单依赖 stats_70.csv 异步加载，等首行渲染出来
   await rankingRows(page).first().waitFor({ state: "visible", timeout: 15000 }).catch(() => null);
 

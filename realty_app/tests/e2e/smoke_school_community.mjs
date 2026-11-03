@@ -40,7 +40,7 @@ async function gotoDataTools(page, cityName) {
   await pickCity(page, cityName);
   await page.evaluate((h) => { location.hash = h; }, DT_HASH);
   // uni-app H5 会缓存已挂载页面（onMounted 不重跑）；reload 强制按持久化城市全新加载
-  await page.reload({ waitUntil: "networkidle" });
+  await page.reload({ waitUntil: "domcontentloaded" });
   await page.locator(CARD).waitFor({ state: "visible", timeout: 20000 });
   // 等第一行小区 meta 出现目标城市的区名，确保数据切到目标城市
   await page
@@ -52,7 +52,7 @@ async function gotoDataTools(page, cityName) {
 
 async function backToDashboard(page) {
   await page.evaluate((h) => { location.hash = h; }, DASH_HASH);
-  await page.reload({ waitUntil: "networkidle" });
+  await page.reload({ waitUntil: "domcontentloaded" });
   await page.locator("[data-home-city]").first().waitFor({ state: "visible", timeout: 20000 });
 }
 
@@ -102,7 +102,8 @@ async function run() {
   const page = await ctx.newPage();
 
   try {
-    await page.goto(DASH_URL, { waitUntil: "networkidle", timeout: 20000 });
+    // v1.123.31 flake 加固：networkidle 易受挂起请求影响；后续 [data-home-city] 显式等待已覆盖渲染
+    await page.goto(DASH_URL, { waitUntil: "domcontentloaded", timeout: 20000 });
 
     // === 广州 ===
     await gotoDataTools(page, "广州");

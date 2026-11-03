@@ -8,7 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const SCREENSHOT_DIR = resolve(__dirname, "../../screenshots");
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
 
-const ORIGIN = (process.env.REALTY_E2E_BASE_URL || "http://127.0.0.1:5175").replace(/\/$/, "");
+const ORIGIN = (process.env.REALTY_E2E_BASE_URL || "http://127.0.0.1:5174").replace(/\/$/, "");
 const BASE = `${ORIGIN}/#/pages/dashboard/dashboard`;
 
 async function pickCity(page, cityName) {
@@ -36,8 +36,12 @@ async function run() {
   try {
     // 直接进 community 详情页 (id=1 京基100)
     const baseUrl = `${ORIGIN}/#/pages/community/community?id=7`;
-    await page.goto(baseUrl, { waitUntil: "networkidle", timeout: 15000 });
-    await page.waitForTimeout(3500);
+    // v1.123.31 flake 加固：networkidle → domcontentloaded + 条件等待（5 个 cm-cell 渲染完成）
+    await page.goto(baseUrl, { waitUntil: "domcontentloaded", timeout: 15000 });
+    await page.locator("text=5 维小区指标").first().waitFor({ state: "visible", timeout: 15000 });
+    await page.waitForFunction(() => document.querySelectorAll(".cm-cell").length === 5, null, {
+      timeout: 15000
+    });
 
     // 1) 5 维小区指标卡存在
     const cardCount = await page.locator("text=5 维小区指标").count();
@@ -101,7 +105,7 @@ async function run() {
 
     // 7) 不同小区 (id=15 保利天悦) 也应该有指标
     await page.goto(`${ORIGIN}/#/pages/community/community?id=15`, {
-      waitUntil: "networkidle",
+      waitUntil: "domcontentloaded",
       timeout: 15000
     });
     await page.waitForTimeout(2500);
