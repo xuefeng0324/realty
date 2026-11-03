@@ -541,42 +541,6 @@ function formatCoord(lat: number | null | undefined, lng: number | null | undefi
   return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
 }
 
-const selectedCommunity = computed<(CommunityMarker & { priceLevel?: string }) | null>(() => {
-  if (selectedCommunityId.value == null) return null;
-  const c = communityMarkers.value.find((x) => x.communityId === selectedCommunityId.value);
-  if (!c) return null;
-  // 计算价格档（基于当前城市的 max/min）
-  const priced = communityMarkers.value
-    .filter((x) => x.cityId === c.cityId && x.avgUnitPrice != null && x.avgUnitPrice > 0)
-    .map((x) => x.avgUnitPrice!) as number[];
-  if (priced.length === 0 || c.avgUnitPrice == null) return c;
-  const min = Math.min(...priced);
-  const max = Math.max(...priced);
-  if (max <= min) return c;
-  const t = (c.avgUnitPrice - min) / (max - min);
-  if (t < 0.2) return { ...c, priceLevel: "low" };
-  if (t < 0.4) return { ...c, priceLevel: "mid_low" };
-  if (t < 0.6) return { ...c, priceLevel: "mid" };
-  if (t < 0.8) return { ...c, priceLevel: "mid_high" };
-  return { ...c, priceLevel: "high" };
-});
-
-const priceLevelClass = computed(() => {
-  if (!selectedCommunity.value?.priceLevel) return "";
-  return `price-${selectedCommunity.value.priceLevel}`;
-});
-
-const priceLevelText = computed(() => {
-  const map: Record<string, string> = {
-    low: "便宜",
-    mid_low: "中低",
-    mid: "中等",
-    mid_high: "中高",
-    high: "昂贵"
-  };
-  return map[selectedCommunity.value?.priceLevel ?? ""] ?? "";
-});
-
 // POI overlay markers: 每个 POI 一个 marker，按 category 着色
 // v0.22.0 map-3: POI marker 聚合
 // - 复用 cluster.ts (类内 cluster，避免不同类混合)
@@ -1208,10 +1172,6 @@ onUnmounted(() => {
   height: 100%;
   background: #e8eef5;
 }
-.row-gap {
-  display: flex;
-  gap: 12rpx;
-}
 .btn {
   background: var(--color-accent) !important;
   color: var(--color-accent-text) !important;
@@ -1298,32 +1258,6 @@ onUnmounted(() => {
   color: var(--color-heading);
   font-size: 30rpx;
   font-weight: 600;
-}
-.price-tag {
-  padding: 4rpx 12rpx;
-  border-radius: 6rpx;
-  font-size: 24rpx !important;
-  font-weight: 500 !important;
-}
-.price-low {
-  background: rgba(34, 197, 94, 0.25);
-  color: #4ade80 !important;
-}
-.price-mid_low {
-  background: rgba(132, 204, 22, 0.25);
-  color: #a3e635 !important;
-}
-.price-mid {
-  background: rgba(234, 179, 8, 0.25);
-  color: #fbbf24 !important;
-}
-.price-mid_high {
-  background: rgba(249, 115, 22, 0.25);
-  color: #fb923c !important;
-}
-.price-high {
-  background: rgba(220, 38, 38, 0.3);
-  color: #fca5a5 !important;
 }
 /* v1.119.0 弯曲系数 Top 5 卡 */
 .curvature-card {

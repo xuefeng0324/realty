@@ -1446,46 +1446,6 @@ onUnmounted(() => {
   color: #9ca3af;
 }
 
-/* v0.96.0：标签横评 */
-.tag-penetration-row {
-  padding: 6rpx 0;
-}
-.tag-penetration-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4rpx;
-}
-.tag-name {
-  font-size: 22rpx;
-  font-weight: 500;
-}
-.tag-penetration-bar {
-  display: flex;
-  flex-direction: column;
-  gap: 4rpx;
-}
-.tag-penetration-cell {
-  position: relative;
-  display: flex;
-  align-items: center;
-  height: 18rpx;
-  border-radius: 6rpx;
-  background: rgba(148, 163, 184, 0.12);
-  overflow: hidden;
-}
-.tag-penetration-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #38bdf8, #6366f1);
-  border-radius: 6rpx;
-}
-.tag-penetration-label {
-  position: absolute;
-  left: 6rpx;
-  font-size: 18rpx;
-  white-space: nowrap;
-}
-
 /* 复用项目里通用的 drift-row（如果全局已有则会被覆盖） */
 .drift-row {
   display: flex;
@@ -1548,62 +1508,6 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 8rpx;
-}
-
-.range-track {
-  position: relative;
-  height: 64rpx;
-  padding: 26rpx 0;
-  box-sizing: border-box;
-  touch-action: none;
-}
-
-.range-track-line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  height: 6rpx;
-  background: var(--color-soft-strong);
-  border-radius: 4rpx;
-  transform: translateY(-50%);
-}
-
-.range-track-fill {
-  position: absolute;
-  top: 50%;
-  height: 6rpx;
-  background: #22c55e;
-  border-radius: 4rpx;
-  transform: translateY(-50%);
-}
-
-.range-thumb {
-  position: absolute;
-  top: 50%;
-  width: 48rpx;
-  height: 48rpx;
-  background: #22c55e;
-  border: 4rpx solid #f3f4f6;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.5);
-  z-index: 2;
-}
-
-.thumb-bubble {
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--color-panel);
-  color: var(--color-heading);
-  border-radius: 6rpx;
-  padding: 2rpx 8rpx;
-  font-size: 20rpx;
-  white-space: nowrap;
-  margin-bottom: 6rpx;
-  border: 1rpx solid var(--color-soft-strong);
 }
 
 .range-meta {

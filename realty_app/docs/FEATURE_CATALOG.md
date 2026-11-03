@@ -299,7 +299,8 @@ v1.123.28 dashboard scoped 样式段死类清理——用模板全文（截至 `
 | 风险 | L, U |
 
 **期望**：洞察基于当前城市筛选；可点进详情。  
-**自动化**：listing_* smoke（部分）  
+v1.123.29 死样式清理——`.tag-penetration-row/head/bar/cell/fill/label` 与 `.tag-name`（标签横评条，v0.96.0 遗留，40 行）、`.range-track`/`-line`/`-fill` + `.range-thumb`/`.thumb-bubble`（双滑块轨道，56 行）在模板全文零引用（滑块已改用内置 slider 组件渲染），合计 96 行整删；动态拼接的 `find-mode-community/school`（`:class="'find-mode-' + activeFindMode"`）与 `.range-meta`/`.picker-value` 保留。  
+**自动化**：listing_* smoke（部分）+ `beikePathGate.test.ts`（v1.123.29 死类/动态类门禁）  
 **手工**：切换城市后洞察文案城市名变化。
 
 ---
@@ -431,7 +432,8 @@ v1.123.28 dashboard scoped 样式段死类清理——用模板全文（截至 `
 | 对照 | [MAP_ACCEPTANCE.md](./MAP_ACCEPTANCE.md) §4 |
 
 **期望**：总价/户型筛选；点小区→房源底栏；点房源→详情；可跳转小区全部列表。  
-**自动化**：`mapFind.test.ts` + `smoke_map_find.mjs`  
+v1.123.29 死样式与死 computed 清理——v0.12.0 地图挂牌均价 5 档色阶（`.price-tag` + `price-low/mid_low/mid/mid_high/high`，26 行）与配套 `selectedCommunity`/`priceLevelClass`/`priceLevelText` 三个 computed（36 行）在模板全文零消费（地图已改为聚合计数渲染，底栏不再挂价签），整段退役；同轮清理 `.row-gap`（4 行）。原「包含 5 档 priceLevel CSS 类」正向门禁翻转为禁出现，`mapFind.test.ts` 的 marker/detail 路径不受影响。  
+**自动化**：`mapFind.test.ts` + `smoke_map_find.mjs` + `beikePathGate.test.ts`（v1.123.29 死类门禁）  
 **手工**：见 MAP_ACCEPTANCE 真机路径。
 
 ---

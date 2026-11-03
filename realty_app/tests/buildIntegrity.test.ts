@@ -732,14 +732,18 @@ describe("build integrity", () => {
       expect(content).toMatch(/"listings"/);
     });
 
-    it("map-view.vue 包含 5 档 priceLevel CSS 类 (low/mid_low/mid/mid_high/high)", () => {
+    it("map-view.vue v1.123.29：priceLevel 价签体系已退役（5 档 CSS + 3 个死 computed）", () => {
       const content = readFileSync(
         resolve(ROOT, "src/pages/map-view/map-view.vue"),
         "utf-8"
       );
-      for (const cls of ["price-low", "price-mid_low", "price-mid", "price-mid_high", "price-high"]) {
-        expect(content).toMatch(new RegExp(cls));
+      // v0.12.0 的地图挂牌均价 5 档色阶：priceLevelClass/priceLevelText/selectedCommunity
+      // 在模板全文零消费（地图已改为聚合计数渲染），本轮随死 CSS 一并退役；
+      // 该用例原为「包含 5 档 CSS 类」的正向门禁，改为禁出现，防止死代码回流。
+      for (const cls of ["price-low", "price-mid_low", "price-mid_high", "price-high", "price-tag"]) {
+        expect(content).not.toMatch(new RegExp(`\\.${cls}\\b`));
       }
+      expect(content).not.toMatch(/priceLevelClass|priceLevelText/);
     });
 
     it("communities_geo.csv 有 ≥ 50 行 (成交价热力数据基础)", () => {

@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.123.29 | 2026-11-03 | map-view / listing-filter 死样式与死 computed 清理：126 行 scoped CSS + 36 行 priceLevel 链路退役 |
 | v1.123.28 | 2026-11-03 | dashboard scoped 样式段死类清理：37 个零引用类 279 行删除 + overview-wangqian 静态 id 剥除 + lone LF 归一 |
 | v1.123.27 | 2026-11-03 | 第三批死 DOM 清理：9 张隐藏城市数据卡与遗留首页锚点系统退役，dashboard 净删 848 行 |
 | v1.123.26 | 2026-11-03 | 删除 runtime/数据覆盖/天气快照三张壳下隐藏死 DOM 卡（净删 245 行），移除 buildIntegrity 天气卡断言 |
