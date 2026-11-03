@@ -1,12 +1,12 @@
 {
   "versionName": "1.123.53",
   "versionCode": "388",
-  "publishedAt": "2026-11-03T10:17:44Z",
+  "publishedAt": "2026-11-03T10:22:52Z",
   "force": false,
-  "notes": "fix(realty_app): border-radius \u786c\u7f16\u7801 sm/md/lg/xl \u2192 token\uff0823 \u5904 / 14 \u9875\uff09v1.123.53\n\n2026-07-25-v1.121.5-\u542f\u52a8\u9875\u4e0eOTA\u6839\u6cbb: v1.121.5 / v1.121.6 \u2014 \u542f\u52a8\u9875 + OTA \u6839\u6cbb\u4e0e\u9a8c\u8bc1\n2026-07-25-v1.121.7-\u623f\u6e90\u6253\u5f00\u8d1d\u58f3App: v1.121.7 \u2014 \u623f\u6e90\u8df3\u8d1d\u58f3 + \u79bb\u7ebf APK \u8865 zip4j\uff08\u4fee OTA 100% \u95ea\u9000\uff09\n2026-07-25-v1.121.8-\u79bb\u7ebfOTA\u81ea\u68c0\u52a0\u56fa: v1.121.8 \u2014 \u79bb\u7ebf\u5305 OTA \u81ea\u68c0\u52a0\u56fa\uff08zip4j + install-apk + \u5ba1\u8ba1\u811a\u672c\uff09\n",
+  "notes": "fix(realty_app): \u5355\u8fb9 margin \u786c\u7f16\u7801 \u2192 var(--space-*) token\uff0888 \u5904 / 20 \u9875\uff09v1.123.54\n\n2026-07-25-v1.121.5-\u542f\u52a8\u9875\u4e0eOTA\u6839\u6cbb: v1.121.5 / v1.121.6 \u2014 \u542f\u52a8\u9875 + OTA \u6839\u6cbb\u4e0e\u9a8c\u8bc1\n2026-07-25-v1.121.7-\u623f\u6e90\u6253\u5f00\u8d1d\u58f3App: v1.121.7 \u2014 \u623f\u6e90\u8df3\u8d1d\u58f3 + \u79bb\u7ebf APK \u8865 zip4j\uff08\u4fee OTA 100% \u95ea\u9000\uff09\n2026-07-25-v1.121.8-\u79bb\u7ebfOTA\u81ea\u68c0\u52a0\u56fa: v1.121.8 \u2014 \u79bb\u7ebf\u5305 OTA \u81ea\u68c0\u52a0\u56fa\uff08zip4j + install-apk + \u5ba1\u8ba1\u811a\u672c\uff09\n",
   "wgt": {
     "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/388/app.wgt",
-    "sha256": "0ee01233bf5f73e8464641bff32755af11eb5e69723b5572574cc976cdeaa96d"
+    "sha256": "ad41addccf2ce2569add3d6b8c2f336a8ffc23712c2511220128b0d37545a82f"
   },
   "ios": {
     "available": false,
