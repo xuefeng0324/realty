@@ -981,15 +981,9 @@ describe("build integrity", () => {
       expect(content).toMatch(/export interface LocalWeather/);
     });
 
-    it("dashboard.vue 加天气卡 + weatherEmoji helper", () => {
-      const content = readFileSync(
-        resolve(ROOT, "src/pages/dashboard/dashboard.vue"),
-        "utf-8"
-      );
-      expect(content).toMatch(/weatherResp/);
-      expect(content).toMatch(/weatherEmoji/);
-      expect(content).toMatch(/forecast-grid/);
-    });
+    // v1.123.26：dashboard 天气快照卡（壳下隐藏死 DOM）已随 runtime/数据覆盖卡一并删除，
+    // 原「dashboard.vue 加天气卡 + weatherEmoji helper」断言移除；
+    // queries.getWeather/store.getWeatherByCity/weather.csv 数据面断言保留
 
     it("weather.csv: live 行有 weather + temperature", () => {
       if (!existsSync(weatherPath)) return;

@@ -1390,24 +1390,6 @@
         </view>
       </view>
 
-      <view v-if="runtime" class="card muted">
-        <text>DB: {{ runtime.database_file || runtime.database_url }}</text>
-        <text> · 规则: {{ runtime.rule_version_listing }}</text>
-        <text> · 数据量: 城市 {{ runtime.data_counts.cities }} / 小区 {{ runtime.data_counts.communities }} / 房源 {{ runtime.data_counts.listings }}</text>
-      </view>
-
-      <view v-if="coverage" class="card">
-        <view class="card-title">数据覆盖</view>
-        <view class="muted">
-          来源：{{ coverage.source_used || "全部" }} ·
-          覆盖率 {{ coverage.covered_districts }} / {{ coverage.total_districts }}
-          （{{ (coverage.coverage_ratio * 100).toFixed(1) }}%）
-        </view>
-        <view v-if="coverage.empty_districts.length" class="muted" style="margin-top: 8rpx">
-          空区（{{ coverage.empty_districts.length }}）：{{ coverage.empty_districts.slice(0, 6).join("、") }}{{ coverage.empty_districts.length > 6 ? "..." : "" }}
-        </view>
-      </view>
-
       <view v-if="errorMsg" class="error">{{ errorMsg }}</view>
 
       <!-- 概览工具条已迁设置：精简/完整模式在「设置 → 首页与分析」 -->
@@ -2554,64 +2536,6 @@
 
       <!-- v1.123.2：学区评分 Top 小区卡（含过滤/排序控件）已迁入数据工具页 pages/data-tools/data-tools（[data-dt-school-top]） -->
 
-      <!-- 天气快照 + 4 天预报 -->
-      <view v-if="weatherResp && (weatherResp.live || weatherResp.forecast.length > 0)" class="card">
-        <view class="row-between">
-          <view class="card-title">🌤️ {{ weatherResp.cityName }} 天气快照</view>
-          <view class="muted">
-            {{ weatherResp.live?.report_time || "—" }} {{ weatherFreshLabel }}
-          </view>
-        </view>
-        <view v-if="weatherResp.live" class="weather-live">
-          <view class="weather-main">
-            <text class="weather-icon">{{ weatherEmoji(weatherResp.live.weather) }}</text>
-            <view class="weather-info">
-              <text class="weather-temp">{{ weatherResp.live.temperature }}°C</text>
-              <text class="weather-cond">{{ weatherResp.live.weather }}</text>
-            </view>
-          </view>
-          <view class="weather-stats">
-            <view class="weather-stat">
-              <text class="weather-stat-label">💧 湿度</text>
-              <text class="weather-stat-value">{{ weatherResp.live.humidity }}%</text>
-            </view>
-            <view class="weather-stat">
-              <text class="weather-stat-label">💨 风力</text>
-              <text class="weather-stat-value">{{ weatherResp.live.windpower }}级 {{ weatherResp.live.winddirection }}</text>
-            </view>
-            <view class="weather-stat">
-              <text class="weather-stat-label">🌬 扩散条件</text>
-              <text :class="['weather-stat-value', 'aqi-chip', aqiChipClass]">
-                {{ weatherResp.aqi_estimate?.label ?? "—" }}
-              </text>
-            </view>
-          </view>
-        </view>
-        <view v-if="weatherResp.forecast.length > 0" class="weather-forecast">
-          <view class="forecast-title">未来 4 天预报</view>
-          <view class="forecast-grid">
-            <view
-              v-for="(d, idx) in weatherResp.forecast"
-              :key="d.date"
-              class="forecast-day"
-            >
-              <text class="forecast-week">{{ idx === 0 ? "今天" : d.week }}</text>
-              <text class="forecast-date">{{ d.date.slice(5) }}</text>
-              <text class="forecast-icon">{{ weatherEmoji(d.dayweather) }}</text>
-              <view class="forecast-temp">
-                <text class="forecast-high">{{ d.daytemp }}°</text>
-                <text class="forecast-low">/ {{ d.nighttemp }}°</text>
-              </view>
-              <text class="forecast-cond">{{ d.dayweather }}</text>
-            </view>
-          </view>
-        </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：高德地图 /v3/weather/weatherInfo (实况 + 4 天预报)。
-          “扩散条件”按湿度、风力和温度粗略估算，不是空气质量指数。
-        </view>
-      </view>
-
       <!-- v0.20.0 trend-8: 同区多小区对比 (点区/板块对比 区名后展示) -->
       <view v-if="!isCardHidden('multi-community-compare') && (districtCompareResp && districtCompareResp.items.length > 0)" class="card" data-card-key="multi-community-compare">
         <view class="row-between">
@@ -2694,15 +2618,15 @@ import MacroKpiCell from "../../components/MacroKpiCell.vue";
 import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
-import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getWeather, getCommunityCompareByDistrict, getDistrictWangqianRank, getLifeConvenienceRank, getMetroWalkRanking, getMetroBenefitRanking,
+import { getCities, getCoverage, getPeriods, getSources } from "../../local/queries";
+import { getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getCommunityCompareByDistrict, getDistrictWangqianRank, getLifeConvenienceRank, getMetroWalkRanking, getMetroBenefitRanking,
   getListingFreshnessRanking,
   getDistrictMap,
   getSchoolDimensions,
   getLprOverview,
   type SchoolDimResponse,
   type LprResponse,
-  type DistrictTrendItem, type WangqianOverviewItem, type WeatherResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type LifeConvenienceResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type DistrictMapResponse } from "../../local/queries";
+  type DistrictTrendItem, type WangqianOverviewItem, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type LifeConvenienceResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type DistrictMapResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -2851,7 +2775,6 @@ import type {
   CityItem,
   CoverageResponse,
   DistrictCompareItem,
-  RuntimeMetaResponse,
   SourceStatItem
 } from "../../api/contracts";
 import { formatMacro100m, formatMacroArea, formatMacroPct, formatMacroYuan, formatUnitPrice, macroTrendBand, macroTrendClass, showToast, daysAgoFromToday } from "../../utils/format";
@@ -3019,7 +2942,6 @@ function loadUiState() {
 const cities = ref<CityItem[]>([]);
 const periods = ref<string[]>([]);
 const sourceOptions = ref<SourceStatItem[]>([]);
-const runtime = ref<RuntimeMetaResponse | null>(null);
 const coverage = ref<CoverageResponse | null>(null);
 
 const districtItems = ref<DistrictCompareItem[]>([]);
@@ -3233,7 +3155,6 @@ function mbBandClass(score: number) {
   return "mb-tag-red";
 }
 // v1.123.2: 学区评分 Top 小区卡状态（schoolPremiumCommunityItems/sp*）随卡迁入 data-tools.vue
-const weatherResp = ref<WeatherResponse | null>(null);
 // v0.20.0 trend-8: 同区多小区对比
 const selectedDistrict = ref<string | null>(null);
 const districtCompareResp = ref<DistrictCommunityCompareResponse | null>(null);
@@ -3821,7 +3742,7 @@ async function loadAll() {
   loading.value = true;
   errorMsg.value = "";
   try {
-    await Promise.all([loadSources(), loadPeriods(), loadCoverage(), loadRuntime()]);
+    await Promise.all([loadSources(), loadPeriods(), loadCoverage()]);
     if (!app.weekEnd && periods.value.length > 0) {
       app.setWeekEnd(periods.value[periods.value.length - 1]);
     } else if (!app.weekEnd) {
@@ -3886,14 +3807,6 @@ async function loadCoverage() {
     coverage.value = await getCoverage({ cityId: app.cityId, source: app.source || undefined });
   } catch {
     coverage.value = null;
-  }
-}
-
-async function loadRuntime() {
-  try {
-    runtime.value = await getRuntimeMeta();
-  } catch {
-    runtime.value = null;
   }
 }
 
@@ -3969,13 +3882,6 @@ async function loadRankingAndDistrict() {
       // v0.53.0 macro-1 LPR + 房贷利率
       await reloadLpr();
       // v1.123.2: 学区评分 Top 小区卡数据获取迁入 data-tools.vue
-    }
-
-    // v0.16.0 实时天气 + 4 天预报
-    try {
-      weatherResp.value = await getWeather({ cityId: app.cityId });
-    } catch (e) {
-      console.warn("getWeather failed:", e);
     }
 
   } catch (e) {
@@ -4273,38 +4179,6 @@ function lifeScoreClass(s: number): string {
   return "lc-score-low";
 }
 
-// v0.16.0 weather helpers
-function weatherEmoji(cond: string): string {
-  if (!cond) return "❓";
-  if (cond.includes("晴")) return "☀️";
-  if (cond.includes("多云")) return "⛅";
-  if (cond.includes("阴")) return "☁️";
-  if (cond.includes("雨")) {
-    if (cond.includes("雷")) return "⛈️";
-    if (cond.includes("大")) return "🌧️";
-    return "🌦️";
-  }
-  if (cond.includes("雪")) return "❄️";
-  if (cond.includes("雾")) return "🌫️";
-  if (cond.includes("霾")) return "😷";
-  return "🌡️";
-}
-
-const aqiChipClass = computed(() => {
-  const lvl = weatherResp.value?.aqi_estimate?.level;
-  if (lvl == null) return "aqi-unknown";
-  if (lvl === 0) return "aqi-good";
-  if (lvl === 1) return "aqi-ok";
-  if (lvl === 2) return "aqi-light";
-  return "aqi-mid";
-});
-
-const weatherFreshLabel = computed(() => {
-  const days = daysAgoFromToday(weatherResp.value?.live?.report_time);
-  if (days == null) return "";
-  if (days <= 0) return "· 今日";
-  return `· ${days} 天前${days > 2 ? "（已过期）" : ""}`;
-});
 
 function formatWqArea(sqm: number): string {
   if (sqm >= 10000) return `${(sqm / 10000).toFixed(1)} 万㎡`;
@@ -5670,125 +5544,6 @@ onShow(async () => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-/* v0.16.0 weather */
-.weather-live {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 8rpx;
-  flex-wrap: wrap;
-  gap: 12rpx;
-}
-.weather-main {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-}
-.weather-icon {
-  font-size: 60rpx;
-  line-height: 1;
-}
-.weather-info {
-  display: flex;
-  flex-direction: column;
-}
-.weather-temp {
-  font-size: 48rpx;
-  font-weight: 700;
-  color: #f97316;
-  line-height: 1.1;
-}
-.weather-cond {
-  font-size: 24rpx;
-  color: var(--color-muted);
-}
-.weather-stats {
-  display: flex;
-  gap: 16rpx;
-  flex-wrap: wrap;
-}
-.weather-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  background: rgba(248, 250, 252, 0.7);
-  border-radius: 8rpx;
-  padding: 6rpx 12rpx;
-}
-.weather-stat-label {
-  font-size: 20rpx;
-  color: var(--color-muted);
-}
-.weather-stat-value {
-  font-size: 24rpx;
-  font-weight: 600;
-  color: var(--color-heading);
-}
-.aqi-chip {
-  border-radius: 6rpx;
-  padding: 2rpx 8rpx;
-  font-size: 22rpx !important;
-}
-.aqi-good { background: rgba(34, 197, 94, 0.18); color: #15803d !important; }
-.aqi-ok { background: rgba(132, 204, 22, 0.18); color: #65a30d !important; }
-.aqi-light { background: rgba(234, 179, 8, 0.18); color: #b45309 !important; }
-.aqi-mid { background: rgba(220, 38, 38, 0.18); color: #b91c1c !important; }
-.aqi-unknown { background: rgba(148, 163, 184, 0.15); color: #475569 !important; }
-.weather-forecast {
-  margin-top: 12rpx;
-}
-.forecast-title {
-  font-size: 22rpx;
-  color: var(--color-muted);
-  margin-bottom: 8rpx;
-}
-.forecast-grid {
-  display: flex;
-  gap: 8rpx;
-  overflow-x: auto;
-}
-.forecast-day {
-  flex: 1;
-  min-width: 110rpx;
-  background: rgba(248, 250, 252, 0.7);
-  border-radius: 8rpx;
-  padding: 8rpx 4rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2rpx;
-}
-.forecast-week {
-  font-size: 22rpx;
-  font-weight: 600;
-  color: var(--color-heading);
-}
-.forecast-date {
-  font-size: 18rpx;
-  color: var(--color-muted);
-}
-.forecast-icon {
-  font-size: 36rpx;
-  line-height: 1;
-}
-.forecast-temp {
-  display: flex;
-  gap: 4rpx;
-}
-.forecast-high {
-  font-size: 24rpx;
-  font-weight: 700;
-  color: #dc2626;
-}
-.forecast-low {
-  font-size: 22rpx;
-  color: #0ea5e9;
-}
-.forecast-cond {
-  font-size: 18rpx;
-  color: #475569;
 }
 
 /* v0.23.0 trend-9 全品类网签榜 tabs */

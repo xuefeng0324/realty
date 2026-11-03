@@ -543,6 +543,21 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(dashSrc).not.toMatch(/\btodayHighlights\b/);
     expect(dashSrc).not.toMatch(/hospitalCityName/);
     expect(dashSrc).not.toMatch(/listingMedianUnitPriceLabel/);
+    // v1.123.26：runtime 卡 + 数据覆盖卡 + 天气快照卡三张壳下隐藏死 DOM 整删
+    // （v1.122 起被壳层 CSS 永久隐藏；runtime 卡 5 行 + loadRuntime 函数与 Promise.all 调用 +
+    // RuntimeMetaResponse import；数据覆盖卡 11 行——coverage ref/loadCoverage/getCoverage 保留，
+    // region-compare 卡「仅显示有挂牌房源的区」提示仍消费；天气卡 57 行 + weatherResp ref +
+    // loadAll getWeather 段 + weatherEmoji/aqiChipClass/weatherFreshLabel + .weather-*/.forecast-*/
+    // .aqi-* CSS 119 行；buildIntegrity「dashboard.vue 加天气卡」断言移除；
+    // queries.getRuntimeMeta/getCoverage/getWeather 与 store.getWeatherByCity 保留——
+    // apiWrappers/buildIntegrity 在测；daysAgoFromToday 保留——wangqianDaysAgo 仍消费）
+    expect(dashSrc).not.toMatch(/\bruntime\b|RuntimeMetaResponse|getRuntimeMeta|loadRuntime/);
+    expect(dashSrc).not.toMatch(/数据覆盖/);
+    expect(dashSrc).not.toMatch(/weatherResp|weatherEmoji|weatherFreshLabel|aqiChipClass|天气快照/);
+    expect(dashSrc).not.toMatch(/weather-live|weather-forecast|forecast-grid|forecast-day|aqi-chip/);
+    expect(dashSrc).not.toMatch(/\bgetWeather\b|\bWeatherResponse\b/);
+    expect(dashSrc).toMatch(/coverage/); // region-compare 卡仍消费
+    expect(queriesSrc).toMatch(/getRuntimeMeta|getCoverage|getWeather/); // 包装保留（测试在测）
   });
 
   it("dashboard.vue v1.121.147 Batch 8：每张核心卡右上角 ✕ 隐藏按钮", () => {
