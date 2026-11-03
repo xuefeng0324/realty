@@ -1,12 +1,12 @@
 {
-  "versionName": "1.123.59",
-  "versionCode": "394",
-  "publishedAt": "2026-11-03T10:52:34Z",
+  "versionName": "1.123.60",
+  "versionCode": "395",
+  "publishedAt": "2026-11-03T11:01:04Z",
   "force": false,
-  "notes": "fix(realty_app): \u5355\u884c\u89c4\u5219\u96c6\u7b80\u5199 margin/padding \u8865\u9f50 token \u5316\uff0810 \u5904 / 3 \u9875\uff09v1.123.59\n\n2026-07-25-v1.111.0-LPR\u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f: v1.111.0 \u2014 LPR \u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f\n2026-07-25-v1.112.0-\u5468\u8fb9\u5546\u4e1aPOI\u63a5\u5165\u4e0e\u6d3e\u751f: v1.112.0 \u2014 \u5468\u8fb9\u5546\u4e1a POI \u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.113.0-\u884c\u653f\u533a\u5212\u63a5\u5165\u4e0e\u6d3e\u751f: v1.113.0 \u2014 \u884c\u653f\u533a\u5212\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n",
+  "notes": "fix(realty_app): [BUG] community.vue </style>\u63d0\u524d\u5173\u95ed + gap/radius \u6269\u5c55 token \u5316 113 \u5904 v1.123.60\n\n2026-07-25-v1.108.0-\u533b\u9662\u8d44\u6e90\u6d3e\u751f: v1.108.0 \u533b\u9662\u8d44\u6e90\u6d3e\u751f\uff08\u4ec5\u6570\u636e\u5c42\uff09\n2026-07-25-v1.109.0-\u793e\u533a\u603b\u4ef7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f: v1.109.0 \u2014 \u793e\u533a\u603b\u4ef7\u00d7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f\n2026-07-25-v1.110.0-\u89c4\u5212\u5730\u94c1\u6d3e\u751f: v1.110.0 \u2014 \u89c4\u5212\u5730\u94c1\u6d3e\u751f\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/394/app.wgt",
-    "sha256": "e1b915773ebfbb972923210671fa4fb876a79979e00893624ebbf4e018fe04df"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/395/app.wgt",
+    "sha256": "b385e50f9ba8140b765118df1b29991203bf27ab7cf0ace3663547ceb7ecec67"
   },
   "ios": {
     "available": false,
