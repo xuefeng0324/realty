@@ -29,10 +29,10 @@
             <text>{{ educationOverview.kindergartenCount.toLocaleString() }}</text>
           </view>
         </view>
-        <view v-if="educationOverview.city === '珠海'" class="muted muted-caption" style="margin-top: 8rpx">
+        <view v-if="educationOverview.city === '珠海'" class="muted muted-caption" style="margin-top: var(--space-1)">
           基础教育学校数官方表；在校生未公布不伪造。期间为学年，非自然年。
         </view>
-        <view v-else-if="!educationHasSplit" class="muted muted-caption" style="margin-top: 8rpx">
+        <view v-else-if="!educationHasSplit" class="muted muted-caption" style="margin-top: var(--space-1)">
           官方口径为「普通中小学」合计，不伪造小学/初中分项。
         </view>
       </view>
@@ -131,7 +131,7 @@
             </text>
           </view>
         </view>
-        <view class="muted muted-micro" style="margin-top: 8rpx">
+        <view class="muted muted-micro" style="margin-top: var(--space-1)">
           派生：snapshot.schoolDimensions（仅重点学校子集，已按当前城市过滤）。
           "六边形战士" 同时满足综合≥80 / 集团实力≥70 / 区均衡度≥70。
         </view>

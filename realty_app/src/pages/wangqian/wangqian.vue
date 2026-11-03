@@ -7,7 +7,7 @@
           <view class="card-title" style="margin-bottom: 0">政府每日网签</view>
           <button class="btn" size="mini" @click="pickCity">{{ cityName || "选择城市" }} ▾</button>
         </view>
-        <view v-if="snapshot" class="row-between" style="margin-top: 12rpx; align-items: center">
+        <view v-if="snapshot" class="row-between" style="margin-top: var(--space-2); align-items: center">
           <view class="muted">
             最近交易日 {{ snapshot.date }}
             <text class="fresh-badge" :class="freshClass">{{ freshLabel }}</text>
@@ -70,7 +70,7 @@
         <view
           v-if="nonResidential != null && nonResidential > 0"
           class="muted muted-caption"
-          style="margin-top: 12rpx"
+          style="margin-top: var(--space-2)"
         >
           其中非住宅二手约 {{ nonResidential }} 套（全部 − 住宅）。「住宅」来自走势页，「全部」来自分区公示。
         </view>
@@ -91,7 +91,7 @@
             <text class="metric-sub muted">{{ fmtArea(monthly.secondArea) }}</text>
           </view>
         </view>
-        <view class="muted muted-micro" style="margin-top: 8rpx">
+        <view class="muted muted-micro" style="margin-top: var(--space-1)">
           住建局按月发布的分区累计成交，含下方全部行政区。
         </view>
       </view>
@@ -160,7 +160,7 @@
           <text class="wq-col-num">{{ district.districtNewSum }}</text>
           <text class="wq-col-num" v-if="hasDistrictSecond">{{ district.districtSecondSum }}</text>
         </view>
-        <view class="muted muted-micro" style="margin-top: 12rpx">
+        <view class="muted muted-micro" style="margin-top: var(--space-2)">
           新房分区=住宅口径（合计=走势新房）；二手分区=全部口径（含非住宅）。分区接口仅当天。
         </view>
       </view>
@@ -168,7 +168,7 @@
       <!-- 周趋势派生（wangqianTrendRanking） -->
       <view v-if="wqTrendReady" class="card">
         <view class="card-title">区级周趋势（派生）· {{ cityName }}</view>
-        <view v-if="wqCategoryTrend" class="muted muted-caption" style="margin-bottom: 8rpx">
+        <view v-if="wqCategoryTrend" class="muted muted-caption" style="margin-bottom: var(--space-1)">
           全市 {{ wqCategoryTrend.category }}：近周 {{ wqCategoryTrend.latestUnits }} 套
           · vs 前均 {{ wqCategoryTrend.recentAvg.toFixed(0) }}
           <text :class="wqCategoryTrend.changePct >= 0 ? 'trend-up' : 'trend-down'">
@@ -199,7 +199,7 @@
           <text class="wq-col-num">均 {{ it.mean.toFixed(0) }}</text>
           <text class="wq-col-num">CV {{ it.cv.toFixed(2) }}</text>
         </view>
-        <view class="muted muted-micro" style="margin-top: 8rpx">
+        <view class="muted muted-micro" style="margin-top: var(--space-1)">
           数据源：wangqian_district_weekly.csv → wangqianTrendRanking。口径默认二手。
         </view>
       </view>
@@ -240,7 +240,7 @@
           <view class="card-title" style="margin-bottom: 0">月度成交趋势（{{ monthlyMonthsLabel }}）</view>
           <view class="muted muted-caption">住宅 · 套数</view>
         </view>
-        <view class="muted" style="margin-bottom: 12rpx">
+        <view class="muted" style="margin-bottom: var(--space-2)">
           由日数据聚合：同一自然月求和。最新月可能不完整（仍在爬虫累计中），环比基于"最新完整月 vs 前一完整月"。
         </view>
         <view v-if="newMonthlySummary" class="wq-monthly-row">
@@ -299,7 +299,7 @@
 
       <!-- 数据来源 -->
       <view class="card muted">
-        <view style="margin-bottom: 8rpx; color: var(--color-text-secondary)">关于口径</view>
+        <view style="margin-bottom: var(--space-1); color: var(--color-text-secondary)">关于口径</view>
         <view>「住宅」= 走势页《房地产成交趋势》getFjzsInfoData，商品住房口径，可回溯 90 交易日。</view>
         <view style="margin-top: 6rpx">「全部」= 分区/月度公示 getEsf/YsfCjxx*DataNew，含非住宅二手。</view>
         <view style="margin-top: 6rpx">

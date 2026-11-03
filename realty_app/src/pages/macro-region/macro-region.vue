@@ -10,7 +10,7 @@
           <view class="card-title" style="margin-bottom: 0">市场运行简况</view>
           <view class="muted muted-caption">{{ gdRealEstateBrief.periodLabel }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="'开发投资'"
             :value="formatMacro100m(gdRealEstateBrief.investmentYi)"
@@ -31,7 +31,7 @@
             :value="formatMacroArea(gdRealEstateBrief.prSalesAreaWanSqm)"
             :sub="gdRealEstateBrief.prInvestmentYi.toLocaleString()" />
         </view>
-        <view v-if="gdBriefUnitPrice != null" class="rank-row macro-derived" style="margin-top: 12rpx">
+        <view v-if="gdBriefUnitPrice != null" class="rank-row macro-derived" style="margin-top: var(--space-2)">
           <text class="muted muted-caption">派生合同均价</text>
           <text class="rank-val">{{ gdBriefUnitPrice.toLocaleString() }} 元/㎡</text>
         </view>
@@ -77,7 +77,7 @@
           <view class="card-title" style="margin-bottom: 0">经济运行</view>
           <view class="muted muted-caption">{{ gdEconomy.periodLabel }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="'地区生产总值'"
             :value="formatMacro100m(gdEconomy.gdpYi)"
@@ -155,7 +155,7 @@
           <view class="card-title" style="margin-bottom: 0">固定资产投资</view>
           <view class="muted muted-caption">{{ gdFaInvestment.periodLabel }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="'全省固投同比'"
             :value="formatMacroPct(gdFaInvestment.faYoyPct)"
@@ -207,7 +207,7 @@
           <view class="card-title" style="margin-bottom: 0">建筑业生产运行</view>
           <view class="muted muted-caption">{{ gdConstruction.periodLabel }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="'建筑业总产值'"
             :value="formatMacro100m(gdConstruction.totalOutputYi)"
@@ -265,7 +265,7 @@
           <view class="card-title" style="margin-bottom: 0">规上工业生产</view>
           <view class="muted muted-caption">{{ gdIndustrial.periodLabel }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="'增加值同比'"
             :value="formatMacroPct(gdIndustrial.industryYoyPct)"
@@ -315,7 +315,7 @@
           <view class="card-title" style="margin-bottom: 0">消费品市场</view>
           <view class="muted muted-caption">{{ gdRetail.periodLabel }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="'社消零同比'"
             :value="formatMacroPct(gdRetail.retailYoyPct)"
@@ -337,7 +337,7 @@
             :sub="formatMacroPct(gdRetail.communicationsYoyPct)"
             :valueTrendClass="macroTrendBand(gdRetail.onlineRetailYoyPct)" />
         </view>
-        <view v-if="gdRetailHasHousing" class="stats70-grid" style="margin-top: 8rpx" data-gd-retail-housing>
+        <view v-if="gdRetailHasHousing" class="stats70-grid" style="margin-top: var(--space-1)" data-gd-retail-housing>
           <MacroKpiCell
             label="'家具类零售'"
             :value="formatMacroPct(gdRetail.furnitureYoyPct)"
@@ -377,7 +377,7 @@
           <view class="card-title" style="margin-bottom: 0">规上服务业</view>
           <view class="muted muted-caption">{{ gdServices.periodLabel }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="'营收同比'"
             :value="formatMacroPct(gdServices.revenueYoyPct)"
@@ -397,7 +397,7 @@
             :value="formatMacroPct(gdServices.cultureYoyPct)"
             :valueTrendClass="macroTrendBand(gdServices.cultureYoyPct)" />
         </view>
-        <view v-if="gdServicesHasHousing" class="stats70-grid" style="margin-top: 8rpx" data-gd-services-housing>
+        <view v-if="gdServicesHasHousing" class="stats70-grid" style="margin-top: var(--space-1)" data-gd-services-housing>
           <MacroKpiCell
             label="'租赁商务'"
             :value="formatMacroPct(gdServices.leasingYoyPct)"

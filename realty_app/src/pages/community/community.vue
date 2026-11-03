@@ -49,7 +49,7 @@
             </view>
           </view>
         </view>
-        <view class="muted muted-caption" style="margin-top: 12rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-2)">
           数据源：life_convenience.csv / school_premium_community.csv / commute.csv / metro_walk.csv / metro_benefit.csv。
           通勤分 = (transit_minutes - 30) × (50/30) 反向；步行分 = 10min=100 / 30min=0。
         </view>
@@ -58,7 +58,7 @@
       <!-- 挂牌新鲜度（listing_freshness 派生） -->
       <view v-if="listingFreshness" class="card">
         <view class="card-title">挂牌新鲜度</view>
-        <view class="muted" style="margin-bottom: 8rpx">
+        <view class="muted" style="margin-bottom: var(--space-1)">
           新鲜度分 {{ listingFreshness.freshnessScore.toFixed(0) }}
           · 中位龄
           {{
@@ -73,7 +73,7 @@
           · 近 2 周新上 {{ listingFreshness.new2wCount }}
           · 陈旧 {{ listingFreshness.staleCount }}
         </view>
-        <view class="muted muted-micro" style="margin-top: 8rpx">
+        <view class="muted muted-micro" style="margin-top: var(--space-1)">
           数据源：listing_freshness.csv（按小区聚合挂牌龄）。
         </view>
       </view>
@@ -125,7 +125,7 @@
             <view class="bin-value">{{ b.count }}</view>
           </view>
           <view v-if="quality.radar" class="radar">
-            <view class="card-title card-title--reduced" style="margin-top: 16rpx">维度雷达</view>
+            <view class="card-title card-title--reduced" style="margin-top: var(--space-3)">维度雷达</view>
             <view
               v-for="d in quality.radar.dimensions"
               :key="d"
@@ -275,7 +275,7 @@
             {{ it.quality_score.toFixed(1) }}
           </view>
         </view>
-        <view v-if="listings.length > 0" class="row-gap" style="margin-top: 16rpx">
+        <view v-if="listings.length > 0" class="row-gap" style="margin-top: var(--space-3)">
           <button class="btn btn-ghost" size="mini" @click="openFilter">高级筛选</button>
         </view>
       </view>
@@ -283,7 +283,7 @@
       <!-- v0.56.0 detail-2: 同区其他小区 -->
       <view v-if="sameDistrictCommunities.length > 0" class="card">
         <view class="card-title">🏘️ 同区其他小区 · {{ currentDistrict }}</view>
-        <view class="muted muted-caption" style="margin-bottom: 8rpx">
+        <view class="muted muted-caption" style="margin-bottom: var(--space-1)">
           横向对比: 共 {{ sameDistrictAll.length }} 个小区, 显示其他 {{ sameDistrictCommunities.length }} 个
           (已按平均单价降序)
         </view>
@@ -305,7 +305,7 @@
             <view class="sibling-unit muted">套</view>
           </view>
         </view>
-        <view class="muted muted-caption" style="margin-top: 8rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-1)">
           💡 同区横向对比帮助理解板块均价: 楼龄 / 户型 / 物业差异通常解释 20-30% 单价差。
         </view>
       </view>

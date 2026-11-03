@@ -46,7 +46,7 @@
           </view>
         </view>
       </view>
-      <view class="muted muted-caption" style="margin-top: 8rpx">
+      <view class="muted muted-caption" style="margin-top: var(--space-1)">
         数据源：listings.csv (按户型+面积区间聚合)。颜色越深 = 数量越多。空白 = 样本不足 (0 套)。
       </view>
     </view>
@@ -83,7 +83,7 @@
           </view>
         </view>
       </view>
-      <view class="muted muted-caption" style="margin-top: 8rpx">
+      <view class="muted muted-caption" style="margin-top: var(--space-1)">
         数据源：listings.csv (按朝向+楼层聚合平均溢价)。绿 = 高于均价，红 = 低于均价。
       </view>
     </view>
@@ -120,7 +120,7 @@
           </view>
         </view>
       </view>
-      <view class="muted muted-caption" style="margin-top: 8rpx">
+      <view class="muted muted-caption" style="margin-top: var(--space-1)">
         数据源：listings.csv (按装修+楼龄段聚合平均溢价)。深绿 = 强溢价，深红 = 强折价。
       </view>
     </view>
@@ -160,7 +160,7 @@
           ></view>
         </view>
       </view>
-      <view class="muted muted-caption" style="margin-top: 8rpx">
+      <view class="muted muted-caption" style="margin-top: var(--space-1)">
         数据源：listings.csv (按社区聚合均价 + 套均价)。横轴 = 单价，纵轴 = 总价，cohort = value(蓝)/mid(灰)/premium(橙)。
       </view>
     </view>

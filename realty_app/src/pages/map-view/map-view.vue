@@ -165,7 +165,7 @@
 
     <view v-if="mode === 'price' && priceBuckets.length > 0" class="card legend-card">
       <view class="card-title" style="margin-bottom: 4rpx">🎨 挂牌价格分位图例</view>
-      <view class="muted muted-caption" style="margin-bottom: 8rpx">
+      <view class="muted muted-caption" style="margin-bottom: var(--space-1)">
         颜色 = 5 档挂牌单价分位 (绿便宜 → 红贵)；半径 = 价格×挂牌数 (大=贵+多)；非成交价
       </view>
       <view class="legend-row" v-for="b in priceBuckets" :key="b.label" data-price-bucket>

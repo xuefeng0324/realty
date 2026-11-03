@@ -13,7 +13,7 @@
           <view class="card-title" style="margin-bottom: 0">当前城市</view>
           <button class="btn" size="mini" @click="pickCity">{{ cityName || "选择城市" }} ▾</button>
         </view>
-        <view class="muted muted-caption" style="margin-top: 8rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-1)">
           数据按城展示；无卡表示该城暂未收录对应官方源。
         </view>
       </view>
@@ -44,7 +44,7 @@
         <view
           v-if="gzInventoryHasNonRes"
           class="kpi-grid"
-          style="margin-top: 12rpx"
+          style="margin-top: var(--space-2)"
           data-gz-inventory-nonres
         >
           <view class="kpi">
@@ -87,7 +87,7 @@
           <button
             class="btn"
             size="mini"
-            style="margin-top: 12rpx"
+            style="margin-top: var(--space-2)"
             data-gz-inventory-nonres-toggle
             :aria-expanded="gzNonResDistrictsOpen"
             @click="gzNonResDistrictsOpen = !gzNonResDistrictsOpen"

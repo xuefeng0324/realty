@@ -259,7 +259,7 @@
           </text>
           <view
             class="gz-progress-track"
-            style="margin-top: 8rpx"
+            style="margin-top: var(--space-1)"
             aria-hidden="true"
           >
             <view
@@ -294,7 +294,7 @@
             <text class="top-rank">{{ row.city }}</text>
             <text class="top-val trend-up">{{ row.value.toFixed(1) }}</text>
           </view>
-          <view class="top-line" style="margin-top: 8rpx">
+          <view class="top-line" style="margin-top: var(--space-1)">
             <text class="muted muted-caption">新建 同比 · 跌 Top 5</text>
           </view>
           <view
@@ -343,7 +343,7 @@
           <view class="muted muted-caption">{{ lprLatest.month }}</view>
         </view>
 
-        <view class="trend-summary" style="margin-top: 12rpx">
+        <view class="trend-summary" style="margin-top: var(--space-2)">
           <view class="trend-cell">
             <text class="cell-label">1 年期 LPR</text>
             <text class="cell-value">{{ lprLatest.lpr1y.toFixed(2) }}%</text>
@@ -412,7 +412,7 @@
           </text>
         </view>
 
-        <view v-if="lprSpreadCurrent" class="trend-summary" style="margin-top: 8rpx">
+        <view v-if="lprSpreadCurrent" class="trend-summary" style="margin-top: var(--space-1)">
           <view class="trend-cell">
             <text class="cell-label">首套加点</text>
             <text class="cell-value">{{ formatBp(lprSpreadCurrent.firstSpreadBp) }}</text>
@@ -430,7 +430,7 @@
           </view>
         </view>
 
-        <view v-if="lprYoY && lprYoY.lpr5yDeltaBp != null" class="trend-summary" style="margin-top: 8rpx">
+        <view v-if="lprYoY && lprYoY.lpr5yDeltaBp != null" class="trend-summary" style="margin-top: var(--space-1)">
           <view class="trend-cell">
             <text class="cell-label">5Y 同比</text>
             <text class="cell-value" :class="rateDeltaClass(lprYoY.lpr5yDeltaBp)">
@@ -457,7 +457,7 @@
           </view>
         </view>
 
-        <view v-if="lprVsAllTimeAvg && lprLatest" class="trend-summary" style="margin-top: 8rpx">
+        <view v-if="lprVsAllTimeAvg && lprLatest" class="trend-summary" style="margin-top: var(--space-1)">
           <view class="trend-cell">
             <text class="cell-label">5Y vs 全期均</text>
             <text
@@ -620,7 +620,7 @@
           </view>
           <view class="muted muted-caption">›</view>
         </view>
-        <view class="muted muted-micro" style="margin-top: 8rpx">
+        <view class="muted muted-micro" style="margin-top: var(--space-1)">
           派生排行 · 学校维度 · 教育事业 · 行政区划 · 通勤 · 户型分布 等 14 张卡，单独页查看。
         </view>
       </view>
@@ -632,7 +632,7 @@
           <view class="card-title card-title--flush">房地产开发与销售</view>
           <view class="muted muted-caption">{{ nbsMacro.publishDate }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="开发投资"
             :value="formatMacro100m(nbsMacro.investmentCny100m)"
@@ -658,31 +658,31 @@
             :subTrendClass="macroTrendClass(nbsMacro.inventoryAreaYoyPct) === 'stats70-up' ? 'up' : macroTrendClass(nbsMacro.inventoryAreaYoyPct) === 'stats70-down' ? 'down' : 'flat'"
           />
         </view>
-        <view v-if="!isOverviewCompact" class="stats70-grid" style="margin-top: 12rpx" data-nbs-pipeline>
+        <view v-if="!isOverviewCompact" class="stats70-grid" style="margin-top: var(--space-2)" data-nbs-pipeline>
           <MacroKpiCell label="房屋施工" :value="formatMacroArea(nbsMacro.constructionArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.constructionAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.constructionAreaYoyPct)" />
           <MacroKpiCell label="新开工" :value="formatMacroArea(nbsMacro.newStartsArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.newStartsAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.newStartsAreaYoyPct)" />
           <MacroKpiCell label="竣工" :value="formatMacroArea(nbsMacro.completedArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.completedAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.completedAreaYoyPct)" />
           <MacroKpiCell label="到位资金" :value="formatMacro100m(nbsMacro.fundsCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.fundsYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.fundsYoyPct)" />
         </view>
-        <view v-if="!isOverviewCompact" class="stats70-grid" style="margin-top: 12rpx" data-nbs-res-pipeline>
+        <view v-if="!isOverviewCompact" class="stats70-grid" style="margin-top: var(--space-2)" data-nbs-res-pipeline>
           <MacroKpiCell label="住宅施工" :value="formatMacroArea(nbsMacro.residentialConstructionArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialConstructionAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialConstructionAreaYoyPct)" />
           <MacroKpiCell label="住宅新开工" :value="formatMacroArea(nbsMacro.residentialNewStartsArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialNewStartsAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialNewStartsAreaYoyPct)" />
           <MacroKpiCell label="住宅竣工" :value="formatMacroArea(nbsMacro.residentialCompletedArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialCompletedAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialCompletedAreaYoyPct)" />
           <MacroKpiCell label="住宅施工占比" :value="(nbsResidentialConstructionSharePct != null ? nbsResidentialConstructionSharePct + '%' : '—')" sub-muted="占全部房屋施工" />
         </view>
-        <view v-if="!isOverviewCompact" class="stats70-grid" style="margin-top: 12rpx" data-nbs-residential>
+        <view v-if="!isOverviewCompact" class="stats70-grid" style="margin-top: var(--space-2)" data-nbs-residential>
           <MacroKpiCell label="住宅销售面积" :value="formatMacroArea(nbsMacro.residentialSalesArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialSalesAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialSalesAreaYoyPct)" />
           <MacroKpiCell label="住宅销售额" :value="formatMacro100m(nbsMacro.residentialSalesAmountCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialSalesAmountYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialSalesAmountYoyPct)" />
           <MacroKpiCell label="住宅待售" :value="formatMacroArea(nbsMacro.residentialInventoryArea10kSqm)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialInventoryAreaYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialInventoryAreaYoyPct)" />
           <MacroKpiCell label="住宅投资" :value="formatMacro100m(nbsMacro.residentialInvestmentCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.residentialInvestmentYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.residentialInvestmentYoyPct)" />
         </view>
-        <view v-if="!isOverviewCompact" class="stats70-grid" style="margin-top: 12rpx" data-nbs-funds>
+        <view v-if="!isOverviewCompact" class="stats70-grid" style="margin-top: var(--space-2)" data-nbs-funds>
           <MacroKpiCell label="国内贷款" :value="formatMacro100m(nbsMacro.domesticLoanFundsCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.domesticLoanFundsYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.domesticLoanFundsYoyPct)" />
           <MacroKpiCell label="定金及预收款" :value="formatMacro100m(nbsMacro.depositFundsCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.depositFundsYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.depositFundsYoyPct)" />
           <MacroKpiCell label="个人按揭贷款" :value="formatMacro100m(nbsMacro.mortgageFundsCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.mortgageFundsYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.mortgageFundsYoyPct)" />
           <MacroKpiCell label="自筹资金" :value="formatMacro100m(nbsMacro.selfRaisedFundsCny100m)" :sub="`同比 ${formatMacroPct(nbsMacro.selfRaisedFundsYoyPct)}`" :subTrendClass="macroTrendBand(nbsMacro.selfRaisedFundsYoyPct)" />
         </view>
-        <view v-if="nbsImpliedUnitPrice != null" class="rank-row macro-derived" style="margin-top: 12rpx">
+        <view v-if="nbsImpliedUnitPrice != null" class="rank-row macro-derived" style="margin-top: var(--space-2)">
           <text class="muted muted-caption">派生合同均价</text>
           <text class="rank-val">
             {{ nbsImpliedUnitPrice.toLocaleString() }} 元/㎡
@@ -777,7 +777,7 @@
         <view
           v-if="gzInventoryTopSharePct != null"
           class="gz-progress-track"
-          style="margin-top: 8rpx"
+          style="margin-top: var(--space-1)"
           aria-hidden="true"
         >
           <view class="gz-progress-fill" :style="{ width: Math.min(100, gzInventoryTopSharePct) + '%' }" />
@@ -1529,7 +1529,7 @@
             v-if="gdProvidentAnnual"
             class="gz-inventory-toggle"
             size="mini"
-            style="margin-top: 12rpx"
+            style="margin-top: var(--space-2)"
             data-gd-provident-toggle
             :aria-expanded="gdProvidentExpanded"
             @click="gdProvidentExpanded = !gdProvidentExpanded"
@@ -1537,7 +1537,7 @@
             {{ gdProvidentExpanded ? "收起广东全省年报" : "展开广东全省年报" }}
           </button>
           <template v-if="gdProvidentAnnual && gdProvidentExpanded">
-            <view class="gz-inventory-grid" style="margin-top: 12rpx" data-gd-provident-annual>
+            <view class="gz-inventory-grid" style="margin-top: var(--space-2)" data-gd-provident-annual>
               <view class="gz-inventory-kpi">
                 <text class="cell-label">广东 {{ gdProvidentAnnual.year }} 缴存额</text>
                 <text class="gz-inventory-value">{{ gdProvidentAnnual.depositAmountYi.toLocaleString() }} 亿</text>
@@ -1564,11 +1564,11 @@
                 </text>
               </view>
             </view>
-            <view class="muted muted-caption" style="margin-top: 8rpx">
+            <view class="muted muted-caption" style="margin-top: var(--space-1)">
               省年报：{{ gdProvidentAnnual.sourceOrg }} · {{ gdProvidentAnnual.publishDate || gdProvidentAnnual.year }}；全省口径，非城市挂牌/网签均价。官方 HTML 无稳定分市表，分市细节仍以各市年报/动态为准。
             </view>
           </template>
-          <view v-if="szProvidentAnnual" class="gz-inventory-grid" style="margin-top: 12rpx" data-sz-provident-annual>
+          <view v-if="szProvidentAnnual" class="gz-inventory-grid" style="margin-top: var(--space-2)" data-sz-provident-annual>
             <view class="gz-inventory-kpi">
               <text class="cell-label">{{ szProvidentAnnual.year }} 发放贷款</text>
               <text class="gz-inventory-value">{{ szProvidentAnnual.loanIssuedWan }} 万笔</text>
@@ -1590,7 +1590,7 @@
               </text>
             </view>
           </view>
-          <view v-if="szProvidentAnnual" class="muted muted-caption" style="margin-top: 8rpx">
+          <view v-if="szProvidentAnnual" class="muted muted-caption" style="margin-top: var(--space-1)">
             深圳年报：{{ szProvidentAnnual.sourceOrg }} · {{ szProvidentAnnual.publishDate || szProvidentAnnual.year }}；
             <template v-if="szProvidentLoanBalancePct != null">
               个贷余额/缴存余额 {{ szProvidentLoanBalancePct }}%；
@@ -1603,7 +1603,7 @@
           <view
             v-if="szProvidentYearDelta"
             class="muted muted-caption"
-            style="margin-top: 8rpx"
+            style="margin-top: var(--space-1)"
             data-sz-provident-yoy
           >
             对照上年年报（{{ szProvidentYearDelta.prior.year }}）：缴存
@@ -1621,7 +1621,7 @@
             </text>
             。
           </view>
-          <view v-if="gzProvidentAnnual" class="gz-inventory-grid" style="margin-top: 12rpx" data-gz-provident-annual>
+          <view v-if="gzProvidentAnnual" class="gz-inventory-grid" style="margin-top: var(--space-2)" data-gz-provident-annual>
             <view class="gz-inventory-kpi">
               <text class="cell-label">{{ gzProvidentAnnual.year }} 发放贷款</text>
               <text class="gz-inventory-value">{{ gzProvidentAnnual.loanIssuedWan }} 万笔</text>
@@ -1643,7 +1643,7 @@
               </text>
             </view>
           </view>
-          <view v-if="gzProvidentAnnual" class="muted muted-caption" style="margin-top: 8rpx">
+          <view v-if="gzProvidentAnnual" class="muted muted-caption" style="margin-top: var(--space-1)">
             广州年报：{{ gzProvidentAnnual.sourceOrg }} · {{ gzProvidentAnnual.publishDate || gzProvidentAnnual.year }}；
             <template v-if="gzProvidentLoanBalancePct != null">
               个贷余额/缴存余额 {{ gzProvidentLoanBalancePct }}%；
@@ -1653,7 +1653,7 @@
             </template>
             非成交均价、非挂牌价。
           </view>
-          <view v-if="zhProvidentDynamics" class="gz-inventory-grid" style="margin-top: 12rpx" data-zh-provident-dynamics>
+          <view v-if="zhProvidentDynamics" class="gz-inventory-grid" style="margin-top: var(--space-2)" data-zh-provident-dynamics>
             <view class="gz-inventory-kpi">
               <text class="cell-label">{{ zhProvidentPeriodLabel }} 缴存额</text>
               <text class="gz-inventory-value">{{ zhProvidentDynamics.depositAmountYi.toLocaleString() }} 亿</text>
@@ -1680,7 +1680,7 @@
               </text>
             </view>
           </view>
-          <view v-if="zhProvidentDynamics" class="muted muted-caption" style="margin-top: 8rpx">
+          <view v-if="zhProvidentDynamics" class="muted muted-caption" style="margin-top: var(--space-1)">
             珠海动态：{{ zhProvidentDynamics.sourceOrg }} · 截至 {{ zhProvidentDynamics.asOfDate }}；
             贷款余额 {{ zhProvidentDynamics.loanBalanceYi.toLocaleString() }} 亿元。
             <template v-if="zhProvidentFullYear">
@@ -1692,7 +1692,7 @@
           <view
             v-if="zhProvidentSamePeriodDelta"
             class="muted muted-caption"
-            style="margin-top: 8rpx"
+            style="margin-top: var(--space-1)"
             data-zh-provident-same-period
           >
             同月末对照（{{ formatZhProvidentPeriod(zhProvidentSamePeriodDelta.prior) }}）：缴存
@@ -1767,7 +1767,7 @@
               </view>
             </view>
           </view>
-          <view class="muted muted-micro" style="margin-top: 8rpx">
+          <view class="muted muted-micro" style="margin-top: var(--space-1)">
             仅比较利率，不考虑当地贷款额度、组合贷、公积金缴存资格和银行实际加点。
           </view>
         </view>
@@ -1991,7 +1991,7 @@
         <view
           v-if="districtCompareResp.items[0] && districtCompareResp.items[0].listingCount < 3"
           class="muted muted-caption"
-          style="margin-top: 8rpx"
+          style="margin-top: var(--space-1)"
         >
           ⚠️ 部分小区挂牌数少于 3 套，单价仅供参考
         </view>

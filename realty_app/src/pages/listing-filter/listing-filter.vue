@@ -228,7 +228,7 @@
           </view>
         </view>
 
-        <view class="row-gap" style="margin-top: 16rpx">
+        <view class="row-gap" style="margin-top: var(--space-3)">
           <button class="btn" size="mini" @click="() => applyFilter(true)">应用筛选</button>
           <button class="btn btn-ghost" size="mini" @click="resetFilter">重置</button>
         </view>
@@ -313,7 +313,7 @@
             </view>
           </view>
         </view>
-        <view class="muted muted-micro" style="margin-top: 8rpx">
+        <view class="muted muted-micro" style="margin-top: var(--space-1)">
           派生：snapshot.listingFreshness。鲜活度 = 近期新增数 / 总挂牌，年龄为小区内挂牌中位天数。
         </view>
       </view>
@@ -387,7 +387,7 @@
           <text>仅看小区：{{ filterCommunityLabel }}</text>
           <text class="community-filter-clear" @click.stop="clearCommunityFilter">清除</text>
         </view>
-        <view v-if="total" class="muted muted-caption" style="margin-bottom: 8rpx">
+        <view v-if="total" class="muted muted-caption" style="margin-bottom: var(--space-1)">
           {{ currentCityLabel }}筛选命中 {{ total }} 套（样本库本市共 {{ cityListingTotal }} 套）
         </view>
         <EmptyState
@@ -456,12 +456,12 @@
             {{ it.quality_score.toFixed(1) }}
           </view>
         </view>
-        <view v-if="hasMore" class="row-gap" style="margin-top: 16rpx; justify-content: center">
+        <view v-if="hasMore" class="row-gap" style="margin-top: var(--space-3); justify-content: center">
           <button class="btn" size="mini" :loading="loadingMore" @click="loadMore">
             加载更多（还剩 {{ total - items.length }} 套）
           </button>
         </view>
-        <view v-else-if="total > 0" class="muted muted-caption" style="text-align: center; margin-top: 12rpx">
+        <view v-else-if="total > 0" class="muted muted-caption" style="text-align: center; margin-top: var(--space-2)">
           已全部显示 {{ total }} 套
         </view>
       </view>

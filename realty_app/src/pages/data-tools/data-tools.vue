@@ -46,7 +46,7 @@
           <view class="card-title">⚙️ 首页卡片管理</view>
           <view class="muted">{{ hiddenCards.size }} 张已隐藏 · 共 {{ DASHBOARD_CARDS.length }} 张</view>
         </view>
-        <view class="muted muted-caption" style="margin-top: 8rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-1)">
           在此关闭/打开首页上的核心分析卡。隐藏状态保存在本地存储，下次进入首页生效。
         </view>
         <view class="dt-card-list">
@@ -106,7 +106,7 @@
       </view>
     </view>
 
-    <view v-if="driftTop.length" style="margin-top: 12rpx">
+    <view v-if="driftTop.length" style="margin-top: var(--space-2)">
       <view class="muted muted-caption" style="margin-bottom: 6rpx">
         扩张 Top 3（二手）
       </view>
@@ -136,7 +136,7 @@
         </text>
       </view>
     </view>
-    <view class="muted muted-micro" style="margin-top: 8rpx">
+    <view class="muted muted-micro" style="margin-top: var(--space-1)">
       派生：最近 12 月指数均值 / 前 12 月指数均值 -1，数据源 stats_70.csv，仅二手指数
     </view>
   </view>
@@ -200,7 +200,7 @@
         <text class="drift-value drift-up">{{ row.walkMinutes.toFixed(1) }}min</text>
       </view>
     </view>
-    <view class="muted muted-micro" style="margin-top: 8rpx">
+    <view class="muted muted-micro" style="margin-top: var(--space-1)">
       派生：snapshot.metroWalks（{{
         metroWalkSummary.reduce((s, r) => s + r.totalCommunities, 0)
       }} 个小区）。优先选 5 分钟覆盖比例最高城市。
@@ -274,7 +274,7 @@
         <text v-else class="drift-value muted">—</text>
       </view>
     </view>
-    <view class="muted muted-micro" style="margin-top: 8rpx">
+    <view class="muted muted-micro" style="margin-top: var(--space-1)">
       派生：snapshot.districtTrends（{{ districtDriftTotalWeeks }} 周样本 /
       {{ districtDriftTotalDistricts }} 区），当前严格 12 周对比仅
       {{ districtChangeDistribution.strictTotal }} 区。卡片严格口径排序，宽松口径作为兜底。
@@ -326,7 +326,7 @@
       <text v-if="eduOverview.privateCount > 0" class="edu-chip">民办 {{ eduOverview.privateCount }}</text>
       <text v-if="eduOverview.specialCount > 0" class="edu-chip">特殊教育 {{ eduOverview.specialCount }}</text>
     </view>
-    <view class="muted muted-caption" style="margin-top: 8rpx">
+    <view class="muted muted-caption" style="margin-top: var(--space-1)">
       {{ eduOverview.sourceOrg }} · {{ eduOverview.publishDate }} 发布。
       <text v-if="eduOverview.city === '珠海'">基础教育学校数官方表；在校生/民办未公布不伪造。</text>
       <text v-else-if="!eduHasPrimaryJuniorSplit">官方口径为「普通中小学」合计，不伪造小学/初中分项。</text>
@@ -363,7 +363,7 @@
         <view class="mw-src muted" v-if="it.source">{{ it.source === 'AMAP_API' ? '高德' : '估算' }}</view>
       </view>
     </view>
-    <view class="muted muted-caption" style="margin-top: 8rpx">
+    <view class="muted muted-caption" style="margin-top: var(--space-1)">
       数据源：poi_seed.csv (subway) → 高德 /v3/direction/walking。
       步行时长按距离升序；绿/橙/红三档 (≤5 / ≤10 / &gt;10min)，AMAP_API 是高德实测，其余为启发式估算（直线×1.45 / 80m·min⁻¹）。
     </view>
@@ -418,7 +418,7 @@
         <view class="muted muted-micro">{{ it.distanceM }}m · {{ it.openYear ?? '?' }}</view>
       </view>
     </view>
-    <view class="muted muted-caption" style="margin-top: 8rpx">
+    <view class="muted muted-caption" style="margin-top: var(--space-1)">
       数据源：metro_planning_geo.csv + metro_planning.csv → scripts/compute_metro_benefit.py。
       受益分 = 距离分 × status 权重 (即将开通×1.5 / 在建×1.2 / 规划×1.0)。按受益分降序。
     </view>
@@ -566,7 +566,7 @@
       </text>
       <text class="ltk-count muted">×{{ r.count }}</text>
     </view>
-    <view data-cross-city class="muted muted-caption" style="margin-top: 8rpx">
+    <view data-cross-city class="muted muted-caption" style="margin-top: var(--space-1)">
       数据源：layout_distribution.csv + bedroom_area.csv。与户型×面积矩阵卡互补（本卡看单维占比与跨城结构）。
     </view>
   </view>
@@ -628,7 +628,7 @@
             </view>
           </view>
         </view>
-        <view class="muted muted-caption" style="margin-top: 8rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-1)">
           数据源：admin_districts.csv + district_index.csv + school_premium_district.csv + listings.csv → scripts/compute_district_metadata.py。
         </view>
       </view>
@@ -669,7 +669,7 @@
             </view>
           </view>
         </view>
-        <view class="muted muted-caption" style="margin-top: 8rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-1)">
           数据源：listings.csv (中位单价) + cities.csv → scripts/compute_feature_premium.py。<br/>
           公式：premium% = (bucket 桶中位单价 ÷ 城市中位单价 − 1) × 100。
         </view>
@@ -808,7 +808,7 @@
           <text class="ltk-share">{{ ((t.cityShare ?? 0) * 100).toFixed(1) }}%</text>
           <text class="ltk-count muted">均 {{ (t.avgShare * 100).toFixed(1) }}%</text>
         </view>
-        <view class="muted muted-caption" style="margin-top: 8rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-1)">
           数据源：listing_tags_summary.csv。与「标签组合」不同：本卡看单标签渗透与城市特色。
         </view>
         <view v-if="listingKeywordsCity.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
@@ -919,7 +919,7 @@
       <text class="ltk-share">{{ ((t.cityShare ?? 0) * 100).toFixed(1) }}%</text>
       <text class="ltk-count muted">均 {{ (t.avgShare * 100).toFixed(1) }}%</text>
     </view>
-    <view class="muted muted-caption" style="margin-top: 8rpx">
+    <view class="muted muted-caption" style="margin-top: var(--space-1)">
       数据源：listing_tags_summary.csv。与「标签组合」不同：本卡看单标签渗透与城市特色。
     </view>
     <view v-if="listingKeywordsCity.length" class="muted muted-caption" style="margin: 12rpx 0 4rpx">
@@ -1000,7 +1000,7 @@
             />
           </view>
         </view>
-        <view class="muted muted-caption" style="margin-top: 8rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-1)">
           数据源：listing_tags.csv (7518 行) → scripts/compute_tag_combination.py。<br/>
           公式：对每个 listing 取 4-7 个 tag, C(2) 算 2-组合, count ≥ 5 才入榜。
         </view>
@@ -1183,7 +1183,7 @@
         </view>
       </view>
     </view>
-    <view class="muted muted-micro" style="margin-top: 8rpx">
+    <view class="muted muted-micro" style="margin-top: var(--space-1)">
       派生：snapshot.schoolIndicators（{{ schoolIndicatorSummary.total }} 所学校）。
       Top 列仅按各维度分数排序，综合分用于横向参考；具体名称见下方「重点学校维度」。
     </view>
@@ -1212,7 +1212,7 @@
         <text class="edu-kpi-label muted">全维度</text>
       </view>
     </view>
-    <view class="stats70-grid" style="margin-top: 8rpx">
+    <view class="stats70-grid" style="margin-top: var(--space-1)">
       <view class="stats70-cell">
         <text class="cell-label">综合排名分</text>
         <text class="cell-value dim-name">{{ dimTopLevelCity[0]?.schoolName ?? "—" }}</text>
@@ -1246,7 +1246,7 @@
       </view>
       <text class="dim-score">{{ row.score.toFixed(1) }}</text>
     </view>
-    <view class="muted muted-caption" style="margin-top: 8rpx">
+    <view class="muted muted-caption" style="margin-top: var(--space-1)">
       数据源：school_dimensions.csv（重点校子集，含校名）。与上方「学校指标」平行但更适合点名阅读。
     </view>
   </view>
@@ -1258,7 +1258,7 @@
           <view class="card-title" style="margin-bottom: 0">行政区划</view>
           <view class="muted muted-caption">{{ adminSummary.cityCode }}</view>
         </view>
-        <view class="muted" style="margin-top: 8rpx">
+        <view class="muted" style="margin-top: var(--space-1)">
           {{ adminSummary.districtCount }} 个行政区 · 城市码 {{ adminSummary.cityCode }}
         </view>
         <view class="muted muted-micro" style="margin-top: 6rpx">
@@ -1338,7 +1338,7 @@
             <text class="muted muted-micro">({{ formatWqArea(it.totalAreaSqm) }})</text>
           </text>
         </view>
-        <view class="muted muted-caption" style="margin-top: 8rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-1)">
           数据源：深圳市/广州市住建局公示的每日网签，按周聚合；只看二手住宅。
           网签活跃度反映板块热度，与挂牌价互补（挂牌 = 卖家意愿，网签 = 真实成交）。
         </view>
@@ -1437,7 +1437,7 @@
             <view class="muted muted-micro">中位/㎡</view>
           </view>
         </view>
-        <view class="muted muted-caption" style="margin-top: 8rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-1)">
           数据源：schools.csv (district_name) + school_indicators.csv (latest_level_score_raw)。
           支持按区过滤、最低评分筛选、4 种排序 (评分/均价/挂牌/校数)。
         </view>
@@ -1498,7 +1498,7 @@
             <text class="sp-up">{{ c.avgSchoolScore.toFixed(1) }}</text>
           </view>
         </view>
-        <view v-if="schoolPremiumTier" class="muted muted-caption" style="margin-top: 8rpx">
+        <view v-if="schoolPremiumTier" class="muted muted-caption" style="margin-top: var(--space-1)">
           学区挂牌三层一致性：
           小区合计 {{ schoolPremiumTier.communityListings }} ·
           分区合计 {{ schoolPremiumTier.districtListings }}
@@ -1511,7 +1511,7 @@
       <!-- 提示：剩余 0 张派生卡（全部已迁 Batch 6） -->
       <view class="card" data-dt-notice>
         <view class="card-title" style="margin-bottom: 0">剩余派生数据（待迁移）</view>
-        <view class="muted muted-caption" style="margin-top: 8rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-1)">
           已迁 16 张：70 城 12 月趋势 + 地铁步行可达性 + 分区近 12 周 + 教育事业 + 通勤步行 + 规划受益 + 挂牌结构 + 区情画像 + 特征溢价 + 挂牌标签 + 标签组合 + 学校指标 + 重点学校 + 规划地铁 + 网签热度榜 + 学区评分 Top 小区。
           首页瘦身完成度 16/16 = 100%。
         </view>

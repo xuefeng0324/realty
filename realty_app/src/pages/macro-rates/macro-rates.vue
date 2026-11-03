@@ -10,7 +10,7 @@
           <view class="card-title" style="margin-bottom: 0">近 6 期 利率变化趋势</view>
           <view class="muted muted-caption">{{ trendWindowLabel }}</view>
         </view>
-        <view class="rate-trend-grid" style="margin-top: 16rpx">
+        <view class="rate-trend-grid" style="margin-top: var(--space-3)">
           <view class="rate-trend-row" v-for="row in rateTrendRows" :key="row.label">
             <text class="rate-trend-label">{{ row.label }}</text>
             <view class="rate-trend-cells">
@@ -27,7 +27,7 @@
             >{{ row.bandText }}</text>
           </view>
         </view>
-        <view class="muted muted-caption" style="margin-top: 12rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-2)">
           6 张主卡的关键利率最近 6 期序列 · 升 / 持平 / 降 · 红涨绿跌（人民币利率反向）；≠房价/挂牌/网签/70城。
         </view>
       </view>
@@ -39,7 +39,7 @@
           <view class="card-title" style="margin-bottom: 0">贷款市场报价利率 LPR</view>
           <view class="muted muted-caption">{{ lprLatest.month }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="1 年期 LPR"
             :value="lprLatest.lpr1y.toFixed(2) + '%'"
@@ -75,11 +75,11 @@
             subClass="muted"
           />
         </view>
-        <view v-if="lprStreak != null" class="rank-row macro-derived" style="margin-top: 12rpx">
+        <view v-if="lprStreak != null" class="rank-row macro-derived" style="margin-top: var(--space-2)">
           <text class="muted muted-caption">最长未调息</text>
           <text class="rank-val">{{ lprStreak }} 个月（lpr5y）</text>
         </view>
-        <view class="muted muted-caption" style="margin-top: 12rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-2)">
           每月 20 日发布（遇节假日顺延）；≠房价/挂牌/网签/70城。
         </view>
       </view>
@@ -91,7 +91,7 @@
           <view class="card-title" style="margin-bottom: 0">中期借贷便利 MLF</view>
           <view class="muted muted-caption">{{ mlfLatest.date }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="1 年期利率"
             :value="mlfLatest.mlf1yPct.toFixed(2) + '%'"
@@ -114,7 +114,7 @@
             subClass="muted"
           />
         </view>
-        <view class="muted muted-caption" style="margin-top: 12rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-2)">
           月度（2014-09 起）；2024 起改多重价位中标，利率样本止于"开展情况"期。
         </view>
       </view>
@@ -126,7 +126,7 @@
           <view class="card-title" style="margin-bottom: 0">公开市场 7 天逆回购</view>
           <view class="muted muted-caption">{{ omoRrLatest.date }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="7 天利率"
             :value="omoRrLatest.ratePct.toFixed(2) + '%'"
@@ -149,7 +149,7 @@
             subClass="muted"
           />
         </view>
-        <view class="muted muted-caption" style="margin-top: 12rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-2)">
           日度 · 7 天期为主，亦含 14/28 天；≠房价/挂牌/网签/70城。
         </view>
       </view>
@@ -161,7 +161,7 @@
           <view class="card-title" style="margin-bottom: 0">同业拆放 Shibor</view>
           <view class="muted muted-caption">{{ shiborLatest.date }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="隔夜 ON"
             :value="shiborLatest.on.toFixed(2) + '%'"
@@ -206,7 +206,7 @@
             :subTrendClass="shiborDelta != null ? bandFromDelta(shiborDelta.y1DeltaPp) : 'flat'"
           />
         </view>
-        <view class="muted muted-caption" style="margin-top: 12rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-2)">
           日度 · 8 个关键期限；≠房价/挂牌/网签/70城。
         </view>
       </view>
@@ -218,7 +218,7 @@
           <view class="card-title" style="margin-bottom: 0">中债国债收益率</view>
           <view class="muted muted-caption">{{ bondLatest.date }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="3 个月"
             :value="bondLatest.y3m.toFixed(2) + '%'"
@@ -268,7 +268,7 @@
             :subTrendClass="bondDelta != null ? bandFromDelta(bondDelta.spreadDeltaPp) : 'flat'"
           />
         </view>
-        <view class="muted muted-caption" style="margin-top: 12rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-2)">
           日度 · 9 个关键期限 + 利差；≠房价/挂牌/网签/70城。
         </view>
       </view>
@@ -280,7 +280,7 @@
           <view class="card-title" style="margin-bottom: 0">回购定盘利率 FR / FDR</view>
           <view class="muted muted-caption">{{ repoFixingLatest.date }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="FR001 1 天"
             :value="repoFixingLatest.fr001.toFixed(2) + '%'"
@@ -314,7 +314,7 @@
             subClass="muted"
           />
         </view>
-        <view class="muted muted-caption" style="margin-top: 12rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-2)">
           日度 · FR（普通质押式回购）+ FDR（存款类机构质押式回购）；≠房价/挂牌/网签/70城。
         </view>
       </view>

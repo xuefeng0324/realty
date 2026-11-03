@@ -11,7 +11,7 @@
           暂无 70 城指数数据。请确认 app 已联网启动一次。
         </view>
 
-        <view class="row-gap" style="margin-top: 12rpx" v-if="latestMonth">
+        <view class="row-gap" style="margin-top: var(--space-2)" v-if="latestMonth">
           <text
             class="tag chip-btn"
             :class="kind === 'new' ? 'tag-success' : ''"
@@ -125,12 +125,12 @@
       <!-- 派生：全国排位 / 趋势方向 / 近12月 -->
       <view v-if="hasData" class="card">
         <view class="card-title">派生洞察 · {{ focusCity }}</view>
-        <view v-if="cityRank" class="muted" style="margin-bottom: 8rpx">
+        <view v-if="cityRank" class="muted" style="margin-bottom: var(--space-1)">
           全国排位 #{{ cityRank.rank }}/{{ cityRank.totalCities }}
           （前 {{ cityRank.topPct }}%）· {{ base }}{{ kind === "new" ? "新建" : "二手" }}
           {{ formatIndex(cityRank.value) }}
         </view>
-        <view v-if="cityTrendDir" class="muted" style="margin-bottom: 8rpx">
+        <view v-if="cityTrendDir" class="muted" style="margin-bottom: var(--space-1)">
           近月方向：
           <text :class="cityTrendDir.direction === '上涨' ? 'trend-up' : cityTrendDir.direction === '下跌' ? 'trend-down' : ''">
             {{ cityTrendDir.direction }}
@@ -187,20 +187,20 @@
       </view>
 
       <view class="card muted">
-        <view style="margin-bottom: 8rpx">关于数据来源</view>
+        <view style="margin-bottom: var(--space-1)">关于数据来源</view>
         <view>
           数据来自国家统计局《70 个大中城市商品住宅销售价格变动情况》。
           对应手机端 CSV 在 <text style="color: var(--color-primary-contrast)">/static/stats_70.csv</text>，可被
           <text style="color: var(--color-primary-contrast)">scripts/crawl_stats_70.py</text> 重新生成。
           指数类型：同比 / 环比（基期=100，&gt;100 上涨，&lt;100 下跌）。
         </view>
-        <view style="margin-top: 12rpx">
+        <view style="margin-top: var(--space-2)">
           <text style="color: var(--color-text-secondary)">同比</text>：与「上年同月」相比，例如 2026 年 5 月的同比 = 2026 年 5 月房价 ÷ 2025 年 5 月房价 × 100。
         </view>
         <view style="margin-top: 6rpx">
           <text style="color: var(--color-text-secondary)">环比</text>：与「上一月」相比，例如 2026 年 5 月的环比 = 2026 年 5 月房价 ÷ 2026 年 4 月房价 × 100。
         </view>
-        <view style="margin-top: 12rpx">
+        <view style="margin-top: var(--space-2)">
           深广每日网签已移至「总览 → 政府每日网签」独立页面。
         </view>
       </view>

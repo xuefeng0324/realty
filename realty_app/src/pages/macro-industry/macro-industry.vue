@@ -10,7 +10,7 @@
           <view class="card-title" style="margin-bottom: 0">货运与港口</view>
           <view class="muted muted-caption">{{ motTransport.label }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="营业性货运量"
             :value="motTransport.freightYiT.toLocaleString() + ' 亿吨'"
@@ -31,7 +31,7 @@
             :value='motTransport.investYiYuan != null ? formatMacro100m(motTransport.investYiYuan) : "—"'
             :sub="motTransport.publishDate" />
         </view>
-        <view class="stats70-grid" style="margin-top: 8rpx" data-mot-transport-split>
+        <view class="stats70-grid" style="margin-top: var(--space-1)" data-mot-transport-split>
           <MacroKpiCell
             label="公路货运"
             :value='motTransport.roadFreightYiT != null ? motTransport.roadFreightYiT.toLocaleString() + " 亿吨" : "—"'
@@ -87,7 +87,7 @@
           <view class="card-title" style="margin-bottom: 0">服务业景气</view>
           <view class="muted muted-caption">{{ nbsServiceIndex.month }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="生产指数同比"
             :value="formatMacroPct(nbsServiceIndex.indexYoyPct)"
@@ -107,7 +107,7 @@
             :valueTrendClass="macroTrendBand(nbsServiceIndex.financeYoyPct ?? 0)"
             :sub="nbsServiceIndex.publishDate" />
         </view>
-        <view v-if="nbsServiceIndex.transportYoyPct != null" class="stats70-grid" style="margin-top: 8rpx" data-nbs-service-index-leasing>
+        <view v-if="nbsServiceIndex.transportYoyPct != null" class="stats70-grid" style="margin-top: var(--space-1)" data-nbs-service-index-leasing>
           <MacroKpiCell
             label="交运仓储同比"
             :value="formatMacroPct(nbsServiceIndex.transportYoyPct)"
@@ -152,7 +152,7 @@
           <view class="card-title" style="margin-bottom: 0">就业景气</view>
           <view class="muted muted-caption">{{ nbsUnemployment.month }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="城镇调查失业率"
             :value="nbsUnemployment.urbanRatePct.toFixed(1) + '%'"
@@ -168,7 +168,7 @@
             :value='nbsUnemployment.weeklyHours != null ? nbsUnemployment.weeklyHours.toFixed(1) + " h" : "—"'
             :sub="nbsUnemployment.publishDate" />
         </view>
-        <view v-if="nbsUnemployment.migrantRatePct != null" class="stats70-grid" style="margin-top: 8rpx" data-nbs-unemployment-migrant>
+        <view v-if="nbsUnemployment.migrantRatePct != null" class="stats70-grid" style="margin-top: var(--space-1)" data-nbs-unemployment-migrant>
           <MacroKpiCell
             label="外来户籍"
             :value="nbsUnemployment.migrantRatePct.toFixed(1) + '%'"
@@ -213,7 +213,7 @@
           <view class="card-title" style="margin-bottom: 0">国内生产总值</view>
           <view class="muted muted-caption">{{ nbsGdp.label }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="GDP"
             :value="formatMacro100m(nbsGdp.gdpYiYuan)"
@@ -235,7 +235,7 @@
             :valueTrendClass="macroTrendBand(nbsGdp.quarterGdpYoyPct ?? 0)"
             :sub='nbsGdp.quarterGdpYiYuan != null ? formatMacro100m(nbsGdp.quarterGdpYiYuan) : nbsGdp.publishDate' />
         </view>
-        <view class="stats70-grid" style="margin-top: 8rpx" data-nbs-gdp-housing>
+        <view class="stats70-grid" style="margin-top: var(--space-1)" data-nbs-gdp-housing>
           <MacroKpiCell
             label="建筑业增加值"
             :value="formatMacro100m(nbsGdp.constructionYiYuan)"
@@ -302,7 +302,7 @@
           <view class="card-title" style="margin-bottom: 0">固投基本情况</view>
           <view class="muted muted-caption">{{ nbsFaInvestment.publishDate }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="固投累计"
             :value="formatMacro100m(nbsFaInvestment.faCny100m)"
@@ -369,7 +369,7 @@
           <view class="card-title" style="margin-bottom: 0">收入和消费支出</view>
           <view class="muted muted-caption">{{ nbsIncome.periodLabel }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="人均可支配收入"
             :value="formatMacroYuan(nbsIncome.disposableYuan)"
@@ -435,7 +435,7 @@
           <view class="card-title" style="margin-bottom: 0">城镇单位年平均工资</view>
           <view class="muted muted-caption">{{ nbsAvgWage.year }}年</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="非私营单位"
             :value="formatMacroYuan(nbsAvgWage.nonprivYuan)"
@@ -456,7 +456,7 @@
             :value="nbsAvgWage.publishDate"
             sub="国家统计局" />
         </view>
-        <view v-if="nbsAvgWageHasHousing" class="stats70-grid" style="margin-top: 8rpx" data-nbs-avg-wage-housing>
+        <view v-if="nbsAvgWageHasHousing" class="stats70-grid" style="margin-top: var(--space-1)" data-nbs-avg-wage-housing>
           <MacroKpiCell
             label="房地产业(非私营)"
             :value='nbsAvgWage.reNonprivYuan != null ? formatMacroYuan(nbsAvgWage.reNonprivYuan) : "—"'
@@ -504,7 +504,7 @@
           <view class="card-title" style="margin-bottom: 0">CPI（含居住/房租）</view>
           <view class="muted muted-caption">{{ nbsCpi.month }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="CPI 同比"
             :value="formatMacroPct(nbsCpi.cpiYoyPct)"
@@ -563,7 +563,7 @@
           <view class="card-title" style="margin-bottom: 0">PMI（含建筑业）</view>
           <view class="muted muted-caption">{{ nbsPmi.month }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="制造业 PMI"
             :value="nbsPmi.mfgPmi.toFixed(1)"
@@ -625,7 +625,7 @@
           <view class="card-title" style="margin-bottom: 0">工业增加值</view>
           <view class="muted muted-caption">{{ nbsIndustrial.month }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="当月同比"
             :value="formatMacroPct(nbsIndustrial.yoyPct)"
@@ -648,7 +648,7 @@
             :valueTrendClass="macroTrendBand(nbsIndustrial.manufacturingYoyPct ?? 0)"
             :sub='nbsIndustrial.miningYoyPct != null ? formatMacroPct(nbsIndustrial.miningYoyPct) : "—"' />
         </view>
-        <view v-if="nbsIndustrialHasMaterials" class="stats70-grid" style="margin-top: 8rpx" data-nbs-industrial-materials>
+        <view v-if="nbsIndustrialHasMaterials" class="stats70-grid" style="margin-top: var(--space-1)" data-nbs-industrial-materials>
           <MacroKpiCell
             label="'水泥产量同比'"
             :value='nbsIndustrial.cementYoyPct != null ? formatMacroPct(nbsIndustrial.cementYoyPct) : "—"'
@@ -700,7 +700,7 @@
           <view class="card-title" style="margin-bottom: 0">能源生产情况</view>
           <view class="muted muted-caption">{{ nbsEnergy.month }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="发电量同比"
             :value="formatMacroPct(nbsEnergy.powerYoyPct)"
@@ -766,7 +766,7 @@
             1–{{ Number(nbsIndustrialProfit.month.slice(5)) }}月
           </view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="利润总额"
             :value="formatMacroPct(nbsIndustrialProfit.profitYoyPct)"
@@ -820,7 +820,7 @@
           <view class="card-title" style="margin-bottom: 0">PPI（含建材分项）</view>
           <view class="muted muted-caption">{{ nbsPpi.month }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="PPI 同比"
             :value="formatMacroPct(nbsPpi.ppiYoyPct)"
@@ -841,7 +841,7 @@
             :value="nbsPpi.publishDate"
             sub="国家统计局" />
         </view>
-        <view v-if="nbsPpiHasMaterials" class="stats70-grid" style="margin-top: 8rpx" data-nbs-ppi-materials>
+        <view v-if="nbsPpiHasMaterials" class="stats70-grid" style="margin-top: var(--space-1)" data-nbs-ppi-materials>
           <MacroKpiCell
             label="建材购进"
             :value='nbsPpi.buildingMaterialsYoyPct != null ? formatMacroPct(nbsPpi.buildingMaterialsYoyPct) : "—"'
@@ -853,7 +853,7 @@
             :valueTrendClass="macroTrendBand(nbsPpi.ferrousSmeltingYoyPct ?? 0)"
             sub="出厂 · 钢材相关" />
         </view>
-        <view class="muted muted-caption" style="margin-top: 12rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-2)">
           月度 PPI · 出厂/购进/建材与黑色金属分项 · 非挂牌/网签/70城 · ≠房价
         </view>
         <button
@@ -891,7 +891,7 @@
           <view class="card-title" style="margin-bottom: 0">建筑装潢 / 家具</view>
           <view class="muted muted-caption">{{ nbsRetail.month }}</view>
         </view>
-        <view class="stats70-grid" style="margin-top: 16rpx">
+        <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="装潢材料当月"
             :value="formatMacro100m(nbsRetail.buildingMonthCny100m)"
@@ -913,7 +913,7 @@
             :sub="formatMacroPct(nbsRetail.retailMonthYoyPct)"
             :subTrendClass="macroTrendBand(nbsRetail.retailMonthYoyPct)" />
         </view>
-        <view class="muted muted-caption" style="margin-top: 12rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-2)">
           限额以上商品零售 · 装潢/家具 ≠ 房价 · 国家统计局
         </view>
         <button

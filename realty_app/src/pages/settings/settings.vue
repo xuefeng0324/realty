@@ -99,7 +99,7 @@
           浅色 / 深色 / 跟随系统。对齐 uni-app 官方 DarkMode：原生导航栏与 TabBar 随主题切换；页面内容走 CSS 变量。
           详见 docs/THEME_ACCEPTANCE.md。
         </view>
-        <view class="theme-options" style="margin-top: 16rpx">
+        <view class="theme-options" style="margin-top: var(--space-3)">
           <button
             v-for="option in themeOptions"
             :key="option.value"
@@ -124,7 +124,7 @@
         <view class="muted" style="margin-top: 6rpx">
           数据量：城市 {{ counts.cities }} / 小区 {{ counts.communities }} / 房源 {{ counts.listings }}
         </view>
-        <view class="muted muted-caption" style="margin-top: 8rpx">
+        <view class="muted muted-caption" style="margin-top: var(--space-1)">
           挂牌可信度：{{ listingTrustLine }}
         </view>
         <view class="muted muted-caption" style="margin-top: 4rpx">
@@ -134,7 +134,7 @@
           REAL 为公开页解析的真实挂牌；DERIVED 为分析样本，不代表逐套成交。见 HOUSING_PRICE Phase C/D。
         </text>
 
-        <view class="row-gap" style="margin-top: 16rpx">
+        <view class="row-gap" style="margin-top: var(--space-3)">
           <button class="btn" size="mini" @click="resetToSeed">重置为内置快照</button>
         </view>
       </view>
@@ -149,7 +149,7 @@
         <view v-if="lastRefresh.sha" class="muted muted-caption" style="margin-top: 6rpx">
           sha: {{ lastRefresh.sha }}
         </view>
-        <view class="row-gap" style="margin-top: 16rpx">
+        <view class="row-gap" style="margin-top: var(--space-3)">
           <button class="btn" size="mini" :disabled="refreshing" @click="refreshFromCdn">
             {{ refreshing ? "刷新中…" : "刷新数据" }}
           </button>
@@ -157,7 +157,7 @@
             回到内置快照
           </button>
         </view>
-        <text class="muted muted-caption" style="margin-top: 12rpx">
+        <text class="muted muted-caption" style="margin-top: var(--space-2)">
           一次更新房源与全部衍生指标，避免新房源混用旧榜单。数据来自 GitHub Actions → CDN。
         </text>
       </view>
@@ -168,15 +168,15 @@
         <view class="muted">
           「成交走势」无需登录。查预售/楼盘表：先点「住建局登录」，成功后再点「深圳预售公示」。也可用 i深圳 App → i深房。
         </view>
-        <view class="row-gap" style="margin-top: 16rpx">
+        <view class="row-gap" style="margin-top: var(--space-3)">
           <button class="btn" size="mini" @click="openGov('szPortal')">住建局登录</button>
           <button class="btn btn-ghost" size="mini" @click="openGov('szPresale')">深圳预售公示</button>
         </view>
-        <view class="row-gap" style="margin-top: 12rpx">
+        <view class="row-gap" style="margin-top: var(--space-2)">
           <button class="btn btn-ghost" size="mini" @click="openGov('szWangqianTrend')">成交走势</button>
           <button class="btn btn-ghost" size="mini" @click="openGov('szZjjPortal')">住建局官网</button>
         </view>
-        <text class="muted muted-caption" style="margin-top: 12rpx; display: block">
+        <text class="muted muted-caption" style="margin-top: var(--space-2); display: block">
           {{ govLinkNotes.szPortal.note }}
         </text>
       </view>
@@ -191,7 +191,7 @@
         <view v-if="lastWangqianRefresh.sha" class="muted muted-caption" style="margin-top: 6rpx">
           sha: {{ lastWangqianRefresh.sha }}
         </view>
-        <view class="row-gap" style="margin-top: 16rpx">
+        <view class="row-gap" style="margin-top: var(--space-3)">
           <button class="btn" size="mini" :disabled="wangqianRefreshing" @click="refreshWangqianFromCdn">
             {{ wangqianRefreshing ? "刷新中…" : "刷新网签" }}
           </button>
@@ -199,7 +199,7 @@
             回到包内网签
           </button>
         </view>
-        <text class="muted muted-caption" style="margin-top: 12rpx">
+        <text class="muted muted-caption" style="margin-top: var(--space-2)">
           数据源：GitHub Actions 工作日抓 zjj.sz.gov.cn → jsDelivr CDN → 本 app
         </text>
       </view>
@@ -213,7 +213,7 @@
         <view class="muted muted-caption">
           卡片管理、深度分析、精简模式已从总览首屏迁出。频道「工具 / 供需」仍可直达。
         </view>
-        <view class="row-gap" style="margin-top: 16rpx">
+        <view class="row-gap" style="margin-top: var(--space-3)">
           <button class="btn" size="mini" data-settings-go-data-tools @click="goDataTools">
             首页卡片管理
           </button>
@@ -224,7 +224,7 @@
             行政区地图
           </button>
         </view>
-        <view class="row-gap" style="margin-top: 12rpx">
+        <view class="row-gap" style="margin-top: var(--space-2)">
           <button
             class="btn btn-ghost"
             size="mini"
@@ -234,7 +234,7 @@
             {{ featuredMode ? "当前：精简模式 · 点此切完整" : "当前：完整模式 · 点此切精简" }}
           </button>
         </view>
-        <text class="muted muted-caption" style="margin-top: 12rpx; display: block">
+        <text class="muted muted-caption" style="margin-top: var(--space-2); display: block">
           精简模式影响总览信息流卡数量；切换后回总览立即生效。
         </text>
       </view>
@@ -252,7 +252,7 @@
           <text class="muted">{{ advancedOpen ? "▾" : "▸" }}</text>
         </view>
 
-        <view v-if="advancedOpen" style="margin-top: 16rpx">
+        <view v-if="advancedOpen" style="margin-top: var(--space-3)">
           <view class="form-item">
             <text class="form-label">数据源类型</text>
             <view
@@ -268,7 +268,7 @@
             </view>
           </view>
 
-          <view v-if="dataMode === 'csv-url'" class="form-item" style="margin-top: 16rpx">
+          <view v-if="dataMode === 'csv-url'" class="form-item" style="margin-top: var(--space-3)">
             <text class="form-label">完整 CSV 快照根地址</text>
             <input
               class="input"
@@ -276,12 +276,12 @@
               v-model="csvBaseUrl"
               placeholder="例如 https://your-cdn.com/realty-data/"
             />
-            <text class="muted muted-caption" style="margin-top: 8rpx">
+            <text class="muted muted-caption" style="margin-top: var(--space-1)">
               5 个基础文件必需；其余榜单与地图 CSV 会同步加载。该模式会在下次启动时自动恢复。
             </text>
           </view>
 
-          <view class="row-gap" style="margin-top: 16rpx">
+          <view class="row-gap" style="margin-top: var(--space-3)">
             <button class="btn btn-ghost" size="mini" @click="save">保存</button>
             <button class="btn btn-ghost" size="mini" @click="downloadNewCsv">下载新 CSV</button>
           </view>
@@ -304,16 +304,16 @@
         <view class="muted">
           当前版本：v{{ localVersion.versionName }}（{{ localVersion.versionCode }}）
         </view>
-        <view v-if="updateStatus" class="muted muted-caption" style="margin-top: 8rpx">
+        <view v-if="updateStatus" class="muted muted-caption" style="margin-top: var(--space-1)">
           {{ updateStatus }}
         </view>
-        <view v-if="updateProgress" style="margin-top: 12rpx">
+        <view v-if="updateProgress" style="margin-top: var(--space-2)">
           <ProgressBar :percent="updateProgressPercent" size="lg" />
           <view class="muted muted-caption" style="margin-top: 6rpx">
             下载进度：{{ updateProgress }}
           </view>
         </view>
-        <view class="row-gap" style="margin-top: 16rpx">
+        <view class="row-gap" style="margin-top: var(--space-3)">
           <button
             class="btn"
             size="mini"
@@ -349,10 +349,10 @@
             跳过该版本
           </button>
         </view>
-        <view v-if="updateManifest?.notes" class="muted muted-caption" style="margin-top: 12rpx">
+        <view v-if="updateManifest?.notes" class="muted muted-caption" style="margin-top: var(--space-2)">
           更新内容：{{ updateManifest.notes }}
         </view>
-        <text class="muted muted-caption" style="margin-top: 12rpx; display: block">
+        <text class="muted muted-caption" style="margin-top: var(--space-2); display: block">
           数据源：GitHub Actions build-app-wgt → jsDelivr CDN；
           整包 APK 见 <text class="link" @click="openGithubReleases">Releases</text>。
         </text>

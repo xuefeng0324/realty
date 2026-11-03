@@ -23,7 +23,7 @@
     <view v-if="loadError" class="fallback error-panel">
       <text class="fallback-title">页面无法加载</text>
       <text class="fallback-hint muted">{{ loadError }}</text>
-      <button class="btn" style="margin-top: 24rpx" @click="openInBrowser">用系统浏览器打开</button>
+      <button class="btn" style="margin-top: var(--space-4)" @click="openInBrowser">用系统浏览器打开</button>
     </view>
     <!-- #endif -->
   </view>
