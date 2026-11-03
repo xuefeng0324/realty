@@ -938,7 +938,7 @@ function openGithubReleases() {
   display: flex;
   min-height: 92rpx;
   align-items: center;
-  gap: 14rpx;
+  gap: var(--space-gap-md2);
   padding: var(--space-2) 0;
   border-top: 1rpx solid var(--color-border);
 }

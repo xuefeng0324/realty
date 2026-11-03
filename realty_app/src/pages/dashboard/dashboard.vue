@@ -4668,7 +4668,7 @@ onShow(async () => {
 .lf-row {
   display: flex;
   align-items: center;
-  gap: 14rpx;
+  gap: var(--space-gap-md2);
   padding: 10rpx 0;
   border-bottom: 1rpx solid #f1f5f9;
 }
@@ -4692,7 +4692,7 @@ onShow(async () => {
 }
 .lf-mid {
   display: flex;
-  gap: 18rpx;
+  gap: var(--space-gap-lg);
   font-size: 22rpx;
   flex-shrink: 0;
 }
@@ -5439,7 +5439,7 @@ onShow(async () => {
   font-size: 23rpx;
 }
 .home-v122-trust {
-  gap: 18rpx;
+  gap: var(--space-gap-lg);
   padding: var(--space-4) 26rpx;
   color: var(--color-muted, #6b807c);
   font-size: 20rpx;

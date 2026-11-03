@@ -20,6 +20,8 @@ const GAP_MAP = {
   "4rpx": "var(--space-gap-xs)",
   "6rpx": "var(--space-gap-sm)",
   "10rpx": "var(--space-gap-md)",
+  "14rpx": "var(--space-gap-md2)",
+  "18rpx": "var(--space-gap-lg)",
 };
 
 const RADIUS_MAP = {

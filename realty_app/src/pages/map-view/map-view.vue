@@ -1280,7 +1280,7 @@ onUnmounted(() => {
 .curvature-row {
   display: flex;
   align-items: center;
-  gap: 14rpx;
+  gap: var(--space-gap-md2);
   padding: var(--space-2) 0;
   border-bottom: 1rpx solid var(--color-soft-strong);
 }
@@ -1373,7 +1373,7 @@ onUnmounted(() => {
 .control-section {
   display: flex;
   align-items: center;
-  gap: 18rpx;
+  gap: var(--space-gap-lg);
   margin-top: 20rpx;
 }
 

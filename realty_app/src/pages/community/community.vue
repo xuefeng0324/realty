@@ -1034,7 +1034,7 @@ onMounted(() => {
 .cm-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 14rpx;
+  gap: var(--space-gap-md2);
   margin-top: 8rpx;
 }
 .cm-cell {

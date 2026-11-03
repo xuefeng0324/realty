@@ -204,7 +204,7 @@ onLoad((query?: Record<string, string>) => {
 .score-ring--low { border-color: rgba(245,158,11,.42); }
 .score-value { color: var(--color-heading); font-size: 42rpx; font-weight: var(--font-weight-bold-plus); line-height: 1; }
 .score-label { margin-top: 5rpx; color: var(--color-muted); font-size: 19rpx; }
-.metrics-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14rpx; margin: 18rpx 0; }
+.metrics-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-gap-md2); margin: 18rpx 0; }
 .metric-card { padding: 20rpx; border: 1rpx solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); box-shadow: var(--shadow-card); }
 .metric-label { color: var(--color-muted); font-size: 20rpx; }
 .metric-value { margin-top: 7rpx; color: var(--color-heading); font-size: 32rpx; font-weight: var(--font-weight-bold); }
