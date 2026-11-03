@@ -3905,14 +3905,14 @@ onShow(async () => {
 .gz-progress-track {
   margin-top: 8rpx;
   height: 8rpx;
-  border-radius: 999rpx;
+  border-radius: var(--radius-pill);
   background: rgba(148, 163, 184, 0.28);
   overflow: hidden;
 }
 
 .gz-progress-fill {
   height: 100%;
-  border-radius: 999rpx;
+  border-radius: var(--radius-pill);
   background: var(--color-accent, #0ea5e9);
 }
 
@@ -4345,7 +4345,7 @@ onShow(async () => {
 .wq-fresh {
   margin-left: 10rpx;
   padding: 2rpx 10rpx;
-  border-radius: 999rpx;
+  border-radius: var(--radius-pill);
   font-size: 20rpx;
 }
 
@@ -5160,7 +5160,7 @@ onShow(async () => {
   min-height: 64rpx;
   padding: 0 20rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.18);
-  border-radius: 999rpx;
+  border-radius: var(--radius-pill);
   color: #fff;
   background: rgba(255, 255, 255, 0.1);
   font-size: 24rpx;
@@ -5231,7 +5231,7 @@ onShow(async () => {
 .home-v122-mode {
   min-height: 48rpx;
   padding: 0 18rpx;
-  border-radius: 999rpx;
+  border-radius: var(--radius-pill);
   color: rgba(255, 255, 255, 0.68);
   font-size: 22rpx;
   line-height: 48rpx;

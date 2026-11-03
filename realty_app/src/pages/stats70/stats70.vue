@@ -410,7 +410,7 @@ function onPickCity(city: string) {
 
 .tab {
   padding: 8rpx 22rpx;
-  border-radius: 999rpx;
+  border-radius: var(--radius-pill);
   background: var(--color-soft);
   color: var(--color-text-secondary);
   font-size: 24rpx;

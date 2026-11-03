@@ -633,7 +633,7 @@ onLoad((opts?: Record<string, string>) => {
 .fresh-badge {
   margin-left: 12rpx;
   padding: 2rpx 12rpx;
-  border-radius: 999rpx;
+  border-radius: var(--radius-pill);
   font-size: 20rpx;
 }
 

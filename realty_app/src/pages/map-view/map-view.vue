@@ -1364,7 +1364,7 @@ onUnmounted(() => {
 
 .map-summary {
   padding: 7rpx 14rpx;
-  border-radius: 999rpx;
+  border-radius: var(--radius-pill);
   background: var(--color-surface-raised);
   color: var(--color-text-secondary, var(--color-muted));
   font-size: 20rpx;

@@ -393,7 +393,7 @@ watch(
 .card { background: var(--color-surface, #fff); border-radius: 16rpx; padding: 20rpx; margin-bottom: 16rpx; border: 1rpx solid var(--color-border-soft, #eee); }
 .card-title { font-size: 30rpx; font-weight: 600; color: var(--color-text, #333); }
 .footer { display: flex; justify-content: space-between; gap: 12rpx; margin-top: 24rpx; }
-.back-btn, .reload-btn { flex: 1; margin: 0; font-size: 26rpx; padding: 0 24rpx; border-radius: 999px !important; background: var(--color-soft, #f5f5f5) !important; color: var(--color-text, #333) !important; }
+.back-btn, .reload-btn { flex: 1; margin: 0; font-size: 26rpx; padding: 0 24rpx; border-radius: var(--radius-pill) !important; background: var(--color-soft, #f5f5f5) !important; color: var(--color-text, #333) !important; }
 
 .map-mode-tabs {
   display: flex;

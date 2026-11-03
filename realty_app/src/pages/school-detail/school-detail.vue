@@ -187,7 +187,7 @@ onLoad((query?: Record<string, string>) => {
 <style lang="scss" scoped>
 .detail-container { padding-bottom: 40rpx; }
 .quicknav { display: flex; gap: 12rpx; margin-bottom: 18rpx; }
-.quick-btn { padding: 10rpx 16rpx; border: 1rpx solid var(--color-border); border-radius: 999rpx; background: var(--color-surface); color: var(--color-text-secondary); font-size: 21rpx; }
+.quick-btn { padding: 10rpx 16rpx; border: 1rpx solid var(--color-border); border-radius: var(--radius-pill); background: var(--color-surface); color: var(--color-text-secondary); font-size: 21rpx; }
 .school-hero { display: flex; justify-content: space-between; align-items: center; gap: 28rpx; padding: 34rpx; border: 1rpx solid var(--color-border); border-radius: 24rpx; background: linear-gradient(135deg, rgba(34, 197, 94, 0.16), var(--color-surface) 62%); box-shadow: var(--shadow-card); }
 .hero-copy { min-width: 0; }
 .hero-eyebrow { color: var(--color-primary); font-size: 19rpx; font-weight: 700; letter-spacing: 2rpx; }
@@ -195,7 +195,7 @@ onLoad((query?: Record<string, string>) => {
 .hero-official { margin-top: 8rpx; color: var(--color-text-secondary); font-size: 22rpx; }
 .tag-row { display: flex; flex-wrap: wrap; gap: 8rpx; margin-top: 18rpx; }
 .school-favorite-row { margin-top: 18rpx; }
-.profile-tag { padding: 6rpx 13rpx; border-radius: 999rpx; background: var(--color-surface-raised); color: var(--color-text-secondary); font-size: 20rpx; }
+.profile-tag { padding: 6rpx 13rpx; border-radius: var(--radius-pill); background: var(--color-surface-raised); color: var(--color-text-secondary); font-size: 20rpx; }
 .profile-tag--success { background: rgba(34,197,94,.14); color: var(--color-primary); }
 .profile-tag--warn { background: rgba(245,158,11,.14); color: #d97706; }
 .score-ring { display: flex; flex: 0 0 132rpx; width: 132rpx; height: 132rpx; flex-direction: column; align-items: center; justify-content: center; border: 10rpx solid rgba(14,165,233,.22); border-radius: 50%; background: var(--color-surface-raised); }
@@ -216,7 +216,7 @@ onLoad((query?: Record<string, string>) => {
 .factor-head { display: flex; justify-content: space-between; gap: 16rpx; color: var(--color-text); font-size: 22rpx; }
 .factor-icon { margin-right: 8rpx; color: var(--color-primary); }
 .factor-value { color: var(--color-muted); font-variant-numeric: tabular-nums; }
-.factor-track { height: 12rpx; margin-top: 9rpx; overflow: hidden; border-radius: 999rpx; background: var(--color-surface-raised); }
+.factor-track { height: 12rpx; margin-top: 9rpx; overflow: hidden; border-radius: var(--radius-pill); background: var(--color-surface-raised); }
 .factor-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #0ea5e9, var(--color-primary)); }
 .source-row { display: flex; justify-content: space-between; gap: 24rpx; padding: 13rpx 0; border-bottom: 1rpx solid var(--color-border); color: var(--color-text-secondary); font-size: 21rpx; }
 .source-row text:first-child { flex: 0 0 auto; color: var(--color-muted); }

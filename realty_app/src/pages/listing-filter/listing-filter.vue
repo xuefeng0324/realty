@@ -1161,7 +1161,7 @@ onUnmounted(() => {
   min-height: 62rpx;
   padding: 0 18rpx;
   border: 1rpx solid rgba(15, 152, 128, 0.16);
-  border-radius: 999rpx;
+  border-radius: var(--radius-pill);
   color: #0f766e;
   background: rgba(16, 185, 129, 0.08);
   font-size: 23rpx;

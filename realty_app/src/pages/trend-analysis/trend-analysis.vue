@@ -398,7 +398,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   margin: 0;
   font-size: 26rpx;
   padding: 0 24rpx;
-  border-radius: 999px !important;
+  border-radius: var(--radius-pill) !important;
   background: var(--color-soft, #f5f5f5) !important;
   color: var(--color-text, #333) !important;
 }

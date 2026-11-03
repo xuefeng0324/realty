@@ -2409,7 +2409,7 @@ onUnmounted(() => {
 .dt-card-toggle {
   flex: 0 0 auto;
   margin: 0;
-  border-radius: 999px !important;
+  border-radius: var(--radius-pill) !important;
   background: var(--color-primary, #4f46e5) !important;
   color: #fff !important;
   font-size: 22rpx;
@@ -2659,7 +2659,7 @@ onUnmounted(() => {
 }
 .spc-chip {
   padding: 4rpx 12rpx;
-  border-radius: 999rpx;
+  border-radius: var(--radius-pill);
   background: var(--color-panel);
   border: 1rpx solid var(--color-soft-strong);
   color: var(--color-text-secondary);

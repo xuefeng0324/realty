@@ -746,7 +746,7 @@ button.source-dock-ghost {
 }
 .source-trust {
   padding: 4rpx 12rpx;
-  border-radius: 999rpx;
+  border-radius: var(--radius-pill);
   font-size: 22rpx;
   font-weight: 600;
 }

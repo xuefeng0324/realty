@@ -871,7 +871,7 @@ function openGithubReleases() {
 .local-only-badge {
   flex: 0 0 auto;
   padding: 7rpx 13rpx;
-  border-radius: 999rpx;
+  border-radius: var(--radius-pill);
   background: rgba(16, 185, 129, 0.12);
   color: var(--color-primary);
   font-size: 20rpx;
