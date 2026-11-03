@@ -149,6 +149,30 @@ textarea {
   color: var(--color-on-success-soft);
 }
 
+/* 医院等级标签（跨页面复用：listing-detail / community / 后续其他） */
+.tag-hosp-level {
+  padding: 2rpx 8rpx;
+  border-radius: 6rpx;
+  font-weight: 600;
+  color: #fff;
+}
+.tag-hosp-level.lvl-三甲 { background: #dc2626; }
+.tag-hosp-level.lvl-三级 { background: #ea580c; }
+.tag-hosp-level.lvl-二甲 { background: #ca8a04; }
+.tag-hosp-level.lvl-二级 { background: #65a30d; }
+.tag-hosp-level.lvl-其他 { background: #6b7280; }
+
+/* 地铁状态标签 */
+.tag-metro-status {
+  padding: 2rpx 8rpx;
+  border-radius: 6rpx;
+  font-size: var(--font-caption);
+  font-weight: 600;
+}
+.tag-metro-status.st-在建 { background: #d97706; color: #fff; }
+.tag-metro-status.st-即将开通 { background: #16a34a; color: #fff; }
+.tag-metro-status.st-规划 { background: #6b7280; color: #fff; }
+
 .tag-warn {
   background: var(--color-warn-soft);
   color: var(--color-on-warn-soft);

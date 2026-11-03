@@ -176,7 +176,7 @@
           <view class="hosp-main">
             <text class="hosp-name">{{ h.official_name }}</text>
             <view class="hosp-tags">
-              <text v-if="h.hospital_level" class="hosp-level" :class="'lvl-' + (h.hospital_level || '其他')">{{ h.hospital_level }}</text>
+              <text v-if="h.hospital_level" class="tag-hosp-level hosp-level" :class="'lvl-' + (h.hospital_level || '其他')">{{ h.hospital_level }}</text>
               <text v-if="h.hospital_type" class="hosp-type">{{ h.hospital_type }}</text>
               <text v-if="h.district_name" class="muted">{{ h.district_name }}</text>
             </view>
@@ -199,7 +199,7 @@
           <view class="metro-main">
             <view class="metro-head">
               <text class="metro-name">{{ m.line_name }}</text>
-              <text v-if="m.status" class="metro-status" :class="'st-' + m.status">{{ m.status }}</text>
+              <text v-if="m.status" class="tag-metro-status metro-status" :class="'st-' + m.status">{{ m.status }}</text>
               <text v-if="m.open_year_expected" class="muted muted-caption">预计 {{ m.open_year_expected }} 开通</text>
             </view>
             <view class="muted metro-detail">
@@ -982,17 +982,6 @@ onMounted(() => {
   flex-wrap: wrap;
   font-size: 22rpx;
 }
-.hosp-level {
-  padding: 2rpx 8rpx;
-  border-radius: 6rpx;
-  font-weight: 600;
-  color: #fff;
-}
-.hosp-level.lvl-三甲 { background: #dc2626; }
-.hosp-level.lvl-三级 { background: #ea580c; }
-.hosp-level.lvl-二甲 { background: #ca8a04; }
-.hosp-level.lvl-二级 { background: #65a30d; }
-.hosp-level.lvl-其他 { background: #6b7280; }
 .hosp-type {
   color: #93c5fd;
   background: #1e3a8a;
@@ -1029,15 +1018,6 @@ onMounted(() => {
   font-weight: 600;
   color: var(--color-heading);
 }
-.metro-status {
-  padding: 2rpx 8rpx;
-  border-radius: 6rpx;
-  font-size: 22rpx;
-  font-weight: 600;
-}
-.metro-status.st-在建 { background: #d97706; color: #fff; }
-.metro-status.st-即将开通 { background: #16a34a; color: #fff; }
-.metro-status.st-规划 { background: #6b7280; color: #fff; }
 .metro-detail {
   font-size: 22rpx;
 }
