@@ -630,7 +630,7 @@ onMounted(async () => {
 }
 .listing-title {
   flex: 1;
-  padding-right: 12rpx;
+  padding-right: var(--space-2);
   line-height: 1.35;
 }
 .price-row {

@@ -3869,8 +3869,8 @@ onShow(async () => {
 
 .container {
   /* 侧向留白保留；纵向靠 hairline 分块，不再靠大块 gutter */
-  padding-top: 16rpx;
-  padding-bottom: 32rpx;
+  padding-top: var(--space-3);
+  padding-bottom: var(--space-5);
 }
 
 /* v1.123.33：扁平卡样式已迁移到 foundation.scss 的 .card-flat 变体，
@@ -3927,7 +3927,7 @@ onShow(async () => {
 
 .pf-card {
   margin-top: 20rpx;
-  padding-top: 16rpx;
+  padding-top: var(--space-3);
   border-top: 1rpx dashed var(--color-border);
 }
 
@@ -3965,7 +3965,7 @@ onShow(async () => {
 
 .combo-loan {
   margin-top: var(--space-3);
-  padding-top: 16rpx;
+  padding-top: var(--space-3);
   border-top: 1rpx dashed var(--color-border);
 }
 
@@ -4182,7 +4182,7 @@ onShow(async () => {
 
 .district-note {
   margin-top: var(--space-3);
-  padding-top: 12rpx;
+  padding-top: var(--space-2);
   border-top: 1rpx solid var(--color-soft-strong);
   font-size: 22rpx;
   line-height: 1.5;
@@ -5203,7 +5203,7 @@ onShow(async () => {
   box-sizing: border-box;
   height: 64rpx;
   line-height: 64rpx;
-  padding-left: 16rpx;
+  padding-left: var(--space-3);
   color: #12342f;
   font-size: 27rpx;
 }

@@ -2458,7 +2458,7 @@ onUnmounted(() => {
 .dt-nav-group {
   flex: 0 0 auto;
   margin-left: 4rpx;
-  padding-left: 12rpx;
+  padding-left: var(--space-2);
   border-left: 1rpx solid var(--color-border);
   font-size: 20rpx;
   color: var(--color-muted);

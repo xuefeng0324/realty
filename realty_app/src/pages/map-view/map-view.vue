@@ -1210,7 +1210,7 @@ onUnmounted(() => {
 }
 .legend-summary {
   margin-top: var(--space-1);
-  padding-top: 8rpx;
+  padding-top: var(--space-1);
   border-top: 1rpx dashed var(--color-border);
 }
 .info-card {
