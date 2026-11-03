@@ -1,12 +1,12 @@
 {
-  "versionName": "1.123.48",
-  "versionCode": "383",
-  "publishedAt": "2026-11-03T09:52:49Z",
+  "versionName": "1.123.49",
+  "versionCode": "384",
+  "publishedAt": "2026-11-03T09:58:22Z",
   "force": false,
-  "notes": "fix(realty_app): #38bdf8 \u786c\u7f16\u7801 \u2192 var(--color-focus) token\uff08\u4fee\u6d45\u8272\u5bf9\u6bd4\u5ea6 bug\uff09v1.123.48\n\n2026-07-25-v1.121.4-OTA\u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316: v1.121.4 \u2014 OTA \u70ed\u66f4\u65b0\u9a8c\u8bc1\u4e0e\u4f18\u5316\n2026-07-25-v1.121.5-\u542f\u52a8\u9875\u4e0eOTA\u6839\u6cbb: v1.121.5 / v1.121.6 \u2014 \u542f\u52a8\u9875 + OTA \u6839\u6cbb\u4e0e\u9a8c\u8bc1\n2026-07-25-v1.121.7-\u623f\u6e90\u6253\u5f00\u8d1d\u58f3App: v1.121.7 \u2014 \u623f\u6e90\u8df3\u8d1d\u58f3 + \u79bb\u7ebf APK \u8865 zip4j\uff08\u4fee OTA 100% \u95ea\u9000\uff09\n",
+  "notes": "fix(realty_app): scoped-style 6 \u7c7b\u9ad8\u9891 hex \u2192 token \u6279\u91cf\u66ff\u6362\uff0851 \u5904 / 10 \u9875\uff09v1.123.49\n\n2026-07-25-v1.118.0-\u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730listing-filter: v1.118.0 \u00b7 \u6027\u4ef7\u6bd4\u4e4b\u9009\u843d\u5730 listing-filter\n2026-07-25-v1.119.0-\u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730map-view: v1.119.0 \u00b7 \u5730\u94c1\u89c4\u5212\u5f2f\u66f2\u7cfb\u6570\u843d\u5730 map-view\n2026-07-25-v1.120.0-\u4fee\u590dOTA\u68c0\u67e5\u66f4\u65b0fetch: v1.120.0 \u00b7 \u4fee\u590d OTA \u68c0\u67e5\u66f4\u65b0\uff08fetch is not a function\uff09\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/383/app.wgt",
-    "sha256": "eb8c00564dd4e49ae7afa43cc6e3ee05efef20b83b918d8efac186d8efed2b19"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/384/app.wgt",
+    "sha256": "bde4f8c1a666f78ade9e23af5aa8721a0b9d4a46e7913ef4f1250c11df982447"
   },
   "ios": {
     "available": false,
