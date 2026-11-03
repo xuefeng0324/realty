@@ -1,12 +1,12 @@
 {
-  "versionName": "1.123.38",
-  "versionCode": "373",
-  "publishedAt": "2026-11-03T08:49:30Z",
+  "versionName": "1.123.39",
+  "versionCode": "374",
+  "publishedAt": "2026-11-03T08:57:51Z",
   "force": false,
-  "notes": "fix(realty_app): \u96f6\u6563 fontSize token \u5316\u6536\u5c3e\uff0821rpx\u2192muted-caption / 18rpx\u2192muted-micro\uff09v1.123.38\n\n2026-07-25-v1.110.0-\u89c4\u5212\u5730\u94c1\u6d3e\u751f: v1.110.0 \u2014 \u89c4\u5212\u5730\u94c1\u6d3e\u751f\n2026-07-25-v1.111.0-LPR\u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f: v1.111.0 \u2014 LPR \u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f\n2026-07-25-v1.112.0-\u5468\u8fb9\u5546\u4e1aPOI\u63a5\u5165\u4e0e\u6d3e\u751f: v1.112.0 \u2014 \u5468\u8fb9\u5546\u4e1a POI \u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n",
+  "notes": "fix(realty_app): template \u5185\u8054 fontSize \u5f7b\u5e95\u6e05\u96f6\uff085 \u5904\u975e muted \u573a\u666f + foundation \u53d8\u4f53\uff09v1.123.39\n\n2026-07-25-v1.111.0-LPR\u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f: v1.111.0 \u2014 LPR \u5386\u53f2\u65f6\u95f4\u5e8f\u5217\u6d3e\u751f\n2026-07-25-v1.112.0-\u5468\u8fb9\u5546\u4e1aPOI\u63a5\u5165\u4e0e\u6d3e\u751f: v1.112.0 \u2014 \u5468\u8fb9\u5546\u4e1a POI \u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n2026-07-25-v1.113.0-\u884c\u653f\u533a\u5212\u63a5\u5165\u4e0e\u6d3e\u751f: v1.113.0 \u2014 \u884c\u653f\u533a\u5212\u5168\u94fe\u8def\u63a5\u5165\u4e0e\u6d3e\u751f\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/373/app.wgt",
-    "sha256": "632bf36a8f7948acd03d881414c255da42e9bf4fda13246901eff374e00a389d"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/374/app.wgt",
+    "sha256": "33b8361d3dda4480de348530313d8842bfed15e434465cccf148c8639481c382"
   },
   "ios": {
     "available": false,
