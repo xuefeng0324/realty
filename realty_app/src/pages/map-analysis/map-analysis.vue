@@ -407,7 +407,7 @@ watch(
   text-align: center;
   padding: var(--space-2) var(--space-1);
   background: var(--color-soft, #f5f5f5);
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
 }
 .map-mode-tab--active {
   background: var(--color-primary, #4f46e5);
@@ -418,7 +418,7 @@ watch(
 
 .map-legend { margin-top: var(--space-2); display: flex; align-items: center; gap: var(--space-1); font-size: 22rpx; }
 .map-legend-title { color: var(--color-text, #333); font-weight: 600; }
-.map-legend-bar { flex: 1; height: 16rpx; border-radius: 8rpx; }
+.map-legend-bar { flex: 1; height: 16rpx; border-radius: var(--radius-sm2); }
 .map-legend-min, .map-legend-max { color: var(--color-muted, #666); }
 
 .map-card-full { padding: var(--space-2); }
@@ -426,7 +426,7 @@ watch(
   width: 100%;
   height: 600rpx;
   background: var(--color-soft, #f5f5f5);
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
 }
 
 .map-districts { cursor: pointer; }
@@ -448,9 +448,9 @@ watch(
   padding: var(--space-1) var(--space-2);
   margin: 4rpx 0;
   background: var(--color-soft, #f5f5f5);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
 }
 .map-district-name { font-size: 26rpx; font-weight: 600; color: var(--color-text, #333); }
 .map-district-vals { display: flex; gap: var(--space-2); font-size: 20rpx; color: var(--color-muted, #666); }
-.map-stat { background: var(--color-surface, #fff); padding: 4rpx var(--space-1); border-radius: 6rpx; }
+.map-stat { background: var(--color-surface, #fff); padding: 4rpx var(--space-1); border-radius: var(--radius-xs); }
 </style>

@@ -590,7 +590,7 @@ onMounted(async () => {
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  gap: 10rpx;
+  gap: var(--space-gap-md);
 }
 
 .listing-gallery {
@@ -661,7 +661,7 @@ onMounted(async () => {
 }
 .listing-tag-pill {
   padding: 4rpx var(--space-2);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   font-size: 22rpx;
   background: var(--color-soft);
   color: var(--color-chip-text);
@@ -673,7 +673,7 @@ onMounted(async () => {
   align-items: center;
   gap: var(--space-2);
   padding: 14rpx var(--space-3);
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
   background: var(--color-soft);
 }
 .community-chip-label {
@@ -714,7 +714,7 @@ button.source-dock-primary {
   box-sizing: border-box;
   min-height: 80rpx;
   padding: 0 var(--space-4);
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
   background: #00ae66 !important;
   color: #fff !important;
   font-size: 28rpx;
@@ -730,7 +730,7 @@ button.source-dock-ghost {
   box-sizing: border-box;
   min-height: 80rpx;
   padding: 0 var(--space-3);
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
   background: var(--color-soft) !important;
   color: var(--color-text) !important;
   border: 1rpx solid var(--color-border) !important;
@@ -854,7 +854,7 @@ button.source-dock-ghost {
 .info-cell {
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
   font-size: 26rpx;
   color: var(--color-heading);
 }
@@ -876,14 +876,14 @@ button.source-dock-ghost {
   flex: 1;
   height: 16rpx;
   background: var(--color-soft-strong);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   overflow: hidden;
 }
 
 .dim-fill {
   height: 100%;
   background: linear-gradient(90deg, #8b5cf6, #c084fc);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
 }
 
 .dim-value {
@@ -945,7 +945,7 @@ button.source-dock-ghost {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
   min-width: 0;
 }
 .hosp-name {
@@ -978,7 +978,7 @@ button.source-dock-ghost {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
   min-width: 0;
 }
 .metro-head {
@@ -1008,7 +1008,7 @@ button.source-dock-ghost {
   padding: var(--space-3);
   background: var(--color-surface);
   border: 1rpx solid var(--color-soft-strong);
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
   font-family: monospace;
   font-size: 22rpx;
   color: var(--color-text-secondary);

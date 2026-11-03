@@ -234,7 +234,7 @@ function restartNow() {
   margin-top: 20rpx;
   max-height: 280rpx;
   padding: var(--space-3);
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
   background: var(--color-soft);
 }
 .upgrade-notes-text {
@@ -254,7 +254,7 @@ function restartNow() {
 .upgrade-error {
   margin-top: var(--space-3);
   padding: var(--space-2) var(--space-3);
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
   background: var(--color-danger-soft);
   color: var(--color-on-danger-soft);
   font-size: 22rpx;

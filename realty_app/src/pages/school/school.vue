@@ -378,7 +378,7 @@ async function loadCities() {
   min-height: 64rpx;
   line-height: 40rpx;
   background: var(--color-surface-raised);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   padding: var(--space-2) var(--space-3);
   color: var(--color-heading);
   font-size: 26rpx;
@@ -398,7 +398,7 @@ async function loadCities() {
   min-height: 64rpx;
   line-height: 64rpx;
   padding: 0 20rpx;
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
 }
 
 .edu-grid {
@@ -411,9 +411,9 @@ async function loadCities() {
 .edu-cell {
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
   padding: var(--space-2);
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
   background: var(--color-surface-raised);
 }
 

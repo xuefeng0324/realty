@@ -821,14 +821,14 @@ onMounted(() => {
   flex: 1;
   height: 16rpx;
   background: var(--color-soft);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   overflow: hidden;
 }
 
 .chart-fill {
   height: 100%;
   background: linear-gradient(90deg, #3b82f6, #60a5fa);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
 }
 
 .chart-value {
@@ -858,13 +858,13 @@ onMounted(() => {
   flex: 1;
   height: 16rpx;
   background: var(--color-soft);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   overflow: hidden;
 }
 
 .bin-fill {
   height: 100%;
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
 }
 
 .bin-high {
@@ -882,7 +882,7 @@ onMounted(() => {
 .dim-fill {
   height: 100%;
   background: linear-gradient(90deg, #8b5cf6, #c084fc);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
 }
 
 .bin-value,
@@ -965,7 +965,7 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
   min-width: 0;
 }
 .hosp-name {
@@ -998,7 +998,7 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
   min-width: 0;
 }
 .metro-head {
@@ -1030,7 +1030,6 @@ onMounted(() => {
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
 }
-</style>
 /* v0.37.0 trend-17: 5 维小区指标 */
 .cm-grid {
   display: grid;
@@ -1042,15 +1041,15 @@ onMounted(() => {
   background: var(--color-bg);
   border: 1rpx solid var(--color-soft-strong);
   border-radius: var(--radius-sm);
-  padding: 12rpx 10rpx;
+  padding: var(--space-2) 10rpx;
   display: flex;
   flex-direction: column;
-  gap: 6rpx;
+  gap: var(--space-gap-sm);
 }
 .cm-cell-head {
   display: flex;
   align-items: center;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
 }
 .cm-icon {
   font-size: 24rpx;
@@ -1064,12 +1063,12 @@ onMounted(() => {
   width: 100%;
   height: 8rpx;
   background: var(--color-soft-strong);
-  border-radius: 4rpx;
+  border-radius: var(--radius-xxs);
   overflow: hidden;
 }
 .cm-fill {
   height: 100%;
-  border-radius: 4rpx;
+  border-radius: var(--radius-xxs);
   font-variant-numeric: tabular-nums;
   transition: width 0.3s ease;
 }
@@ -1085,7 +1084,7 @@ onMounted(() => {
 .cm-foot {
   display: flex;
   align-items: baseline;
-  gap: 6rpx;
+  gap: var(--space-gap-sm);
 }
 .cm-val {
   font-size: 28rpx;
@@ -1096,3 +1095,4 @@ onMounted(() => {
 .cm-meta {
   font-size: 18rpx;
 }
+</style>

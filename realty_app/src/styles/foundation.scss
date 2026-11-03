@@ -16,7 +16,16 @@ page {
   --space-6: 40rpx;
   --space-8: 56rpx;
 
+  /* gap 专用小间距（不用于 margin/padding 简写，避免语义混淆） */
+  --space-gap-xs: 4rpx;
+  --space-gap-sm: 6rpx;
+  --space-gap-md: 10rpx;
+
+  --radius-xxs: 4rpx;
+  --radius-xs: 6rpx;
+  --radius-sm2: 8rpx;
   --radius-sm: 10rpx;
+  --radius-md2: 12rpx;
   --radius-md: 16rpx;
   --radius-lg: 24rpx;
   --radius-xl: 32rpx;

@@ -407,11 +407,11 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 .ba-heatmap {
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
 }
 .ba-row {
   display: flex;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
   align-items: center;
 }
 .ba-corner,
@@ -429,7 +429,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   font-size: 22rpx;
   color: var(--color-text, #333);
 }
@@ -445,12 +445,12 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 .da-matrix {
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
 }
 .of-row,
 .da-row {
   display: flex;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
   align-items: center;
 }
 .of-corner,
@@ -472,7 +472,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   font-size: 22rpx;
 }
 .of-cell--empty,
@@ -497,7 +497,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   text-align: center;
   padding: var(--space-1);
   background: var(--color-soft, #f5f5f5);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
 }
 .sc-kpi-val {
   display: block;
@@ -514,7 +514,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   width: 100%;
   height: 200rpx;
   background: var(--color-soft, #f5f5f5);
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
   overflow: hidden;
 }
 .scatter-svg {

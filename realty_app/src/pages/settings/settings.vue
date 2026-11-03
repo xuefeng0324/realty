@@ -1002,7 +1002,7 @@ function openGithubReleases() {
 .theme-option {
   display: inline-flex;
   align-items: center;
-  gap: 6rpx;
+  gap: var(--space-gap-sm);
   background: var(--color-surface-raised);
   color: var(--color-text);
   border: 1rpx solid var(--color-border);
@@ -1028,7 +1028,7 @@ function openGithubReleases() {
 .picker-value {
   background: var(--color-soft);
   border: 1rpx solid var(--color-border);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   padding: var(--space-2) var(--space-3);
   color: var(--color-heading);
   font-size: 26rpx;
@@ -1040,7 +1040,7 @@ function openGithubReleases() {
   line-height: 40rpx;
   background: var(--color-soft);
   border: 1rpx solid var(--color-border);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   padding: var(--space-2) var(--space-3);
   color: var(--color-heading);
   font-size: 26rpx;

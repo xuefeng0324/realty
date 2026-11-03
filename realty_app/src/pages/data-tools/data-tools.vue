@@ -2392,7 +2392,7 @@ onUnmounted(() => {
   justify-content: space-between;
   padding: 10rpx 14rpx;
   background: var(--color-panel, #fafafa);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
 }
 .dt-card-info {
   flex: 1 1 auto;
@@ -2453,7 +2453,7 @@ onUnmounted(() => {
 .dt-nav-row {
   display: inline-flex;
   align-items: center;
-  gap: 10rpx;
+  gap: var(--space-gap-md);
 }
 .dt-nav-group {
   flex: 0 0 auto;
@@ -2501,7 +2501,7 @@ onUnmounted(() => {
   align-items: center;
   padding: var(--space-1) var(--space-2);
   background: var(--color-panel, #f5f5f5);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   min-width: 100rpx;
 }
 .edu-kpi-val {
@@ -2522,7 +2522,7 @@ onUnmounted(() => {
   font-size: 22rpx;
   padding: 4rpx 10rpx;
   background: var(--color-panel, #f5f5f5);
-  border-radius: 6rpx;
+  border-radius: var(--radius-xs);
   color: #444;
 }
 
@@ -2561,13 +2561,13 @@ onUnmounted(() => {
   flex: 1;
   height: 14rpx;
   background: var(--color-soft);
-  border-radius: 4rpx;
+  border-radius: var(--radius-xxs);
   overflow: hidden;
 }
 .wq-fill {
   height: 100%;
   background: linear-gradient(90deg, var(--color-focus) 0%, #0ea5e9 100%);
-  border-radius: 4rpx;
+  border-radius: var(--radius-xxs);
 }
 .wq-units {
   width: 180rpx;
@@ -2655,7 +2655,7 @@ onUnmounted(() => {
   flex: 1 1 auto;
   display: flex;
   flex-wrap: wrap;
-  gap: 6rpx;
+  gap: var(--space-gap-sm);
 }
 .spc-chip {
   padding: 4rpx var(--space-2);

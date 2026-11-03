@@ -568,7 +568,7 @@ const rateTrendRows = computed<RateTrendRow[]>(() => {
   min-width: 0;
   text-align: center;
   padding: 4rpx 1rpx;
-  border-radius: 6rpx;
+  border-radius: var(--radius-xs);
   background: rgba(127, 127, 127, 0.08);
   font-variant-numeric: tabular-nums;
   font-size: 20rpx;

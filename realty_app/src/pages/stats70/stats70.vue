@@ -437,7 +437,7 @@ function onPickCity(city: string) {
   height: 64rpx;
   line-height: 64rpx;
   background: var(--color-surface-raised);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   padding: 0 var(--space-3);
   color: var(--color-heading);
   font-size: 26rpx;
@@ -526,13 +526,13 @@ function onPickCity(city: string) {
   flex: 1;
   height: 12rpx;
   background: var(--color-soft-strong);
-  border-radius: 6rpx;
+  border-radius: var(--radius-xs);
   overflow: hidden;
 }
 
 .trend-bar-fill {
   height: 100%;
-  border-radius: 6rpx;
+  border-radius: var(--radius-xs);
 }
 
 .trend-bar-fill.trend-up {

@@ -1160,7 +1160,7 @@ onUnmounted(() => {
 .map-wrap {
   width: 100%;
   height: 80vh;
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
   overflow: hidden;
   margin-top: var(--space-3);
   /* 底图未出前的浅色占位：禁止透出页面深色底变成「黑乎乎」 */
@@ -1177,7 +1177,7 @@ onUnmounted(() => {
   color: var(--color-accent-text) !important;
   font-size: 24rpx;
   padding: 4rpx var(--space-3);
-  border-radius: 4rpx;
+  border-radius: var(--radius-xxs);
 }
 .legend {
   margin-top: var(--space-1);
@@ -1195,7 +1195,7 @@ onUnmounted(() => {
 .legend-swatch {
   width: 28rpx;
   height: 28rpx;
-  border-radius: 4rpx;
+  border-radius: var(--radius-xxs);
   border: 1rpx solid var(--color-border);
 }
 .legend-text {
@@ -1220,7 +1220,7 @@ onUnmounted(() => {
   bottom: calc(24rpx + var(--window-bottom, 0px) + var(--safe-area-bottom, 0px));
   background: var(--color-surface);
   border: 1rpx solid var(--color-border);
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
   padding: var(--space-3);
   z-index: 100;
   box-shadow: var(--shadow-card);
@@ -1478,7 +1478,7 @@ onUnmounted(() => {
 .find-sheet-title-wrap {
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
   min-width: 0;
 }
 .find-sheet-title {
@@ -1505,7 +1505,7 @@ onUnmounted(() => {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
 }
 .find-listing-title {
   font-size: 26rpx;
@@ -1541,7 +1541,7 @@ onUnmounted(() => {
 .mode-summary-row {
   display: flex;
   align-items: center;
-  gap: 10rpx;
+  gap: var(--space-gap-md);
   margin-top: var(--space-2);
   font-size: 22rpx;
 }

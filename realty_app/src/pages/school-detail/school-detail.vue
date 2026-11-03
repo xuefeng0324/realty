@@ -221,7 +221,7 @@ onLoad((query?: Record<string, string>) => {
 .source-row { display: flex; justify-content: space-between; gap: var(--space-4); padding: 13rpx 0; border-bottom: 1rpx solid var(--color-border); color: var(--color-text-secondary); font-size: 21rpx; }
 .source-row text:first-child { flex: 0 0 auto; color: var(--color-muted); }
 .source-row text:last-child { text-align: right; }
-.source-warning { margin-top: 18rpx; padding: var(--space-3); border-radius: 12rpx; background: rgba(245,158,11,.1); color: var(--color-text-secondary); font-size: 20rpx; line-height: 1.65; }
+.source-warning { margin-top: 18rpx; padding: var(--space-3); border-radius: var(--radius-md2); background: rgba(245,158,11,.1); color: var(--color-text-secondary); font-size: 20rpx; line-height: 1.65; }
 .loading-card { padding: 60rpx; text-align: center; color: var(--color-muted); }
 .error-state { padding: 60rpx 30rpx; text-align: center; }
 .error-icon { width: 72rpx; height: 72rpx; margin: 0 auto; border-radius: 50%; background: rgba(239,68,68,.14); color: var(--color-danger); font-size: 42rpx; line-height: 72rpx; }

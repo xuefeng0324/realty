@@ -419,7 +419,7 @@ onMounted(() => {
 .kpi {
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
 }
 .kpi-label {
   font-size: 20rpx;

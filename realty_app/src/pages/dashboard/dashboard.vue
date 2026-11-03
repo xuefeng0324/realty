@@ -3893,7 +3893,7 @@ onShow(async () => {
 
 .gz-inventory-kpi {
   background: var(--color-surface-raised);
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
   padding: var(--space-3);
 }
 
@@ -3941,7 +3941,7 @@ onShow(async () => {
 .pf-rate-cell {
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
   font-size: 22rpx;
 }
 
@@ -4035,7 +4035,7 @@ onShow(async () => {
   gap: var(--space-1);
   margin-top: 14rpx;
   padding: 14rpx var(--space-3);
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
   background: var(--color-surface);
   color: var(--color-text-secondary);
   font-size: 21rpx;
@@ -4163,14 +4163,14 @@ onShow(async () => {
   flex: 1;
   height: 16rpx;
   background: var(--color-soft-strong);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   overflow: hidden;
 }
 
 .bar-fill {
   height: 100%;
   background: linear-gradient(90deg, var(--color-primary), var(--color-trend-down));
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
 }
 
 .bar-value {
@@ -4237,11 +4237,11 @@ onShow(async () => {
   flex: 1 1 calc(50% - 8rpx);
   background: var(--color-surface);
   border: 1rpx solid var(--color-soft-strong);
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
   padding: var(--space-3) 20rpx;
   display: flex;
   flex-direction: column;
-  gap: 6rpx;
+  gap: var(--space-gap-sm);
 }
 
 /* v1.116.0 全国 70 城涨跌 Top 卡片样式 */
@@ -4254,11 +4254,11 @@ onShow(async () => {
 .trend-cell {
   background: var(--color-surface);
   border: 1rpx solid var(--color-soft-strong);
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
   padding: 14rpx 18rpx;
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
 }
 .rank-row,
 .trend-row {
@@ -4400,7 +4400,7 @@ onShow(async () => {
   display: flex;
   align-items: flex-end;
   height: 60rpx;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
   margin-top: var(--space-1);
 }
 .trend-bar-col {
@@ -4477,7 +4477,7 @@ onShow(async () => {
 }
 .wq-trend-row--spike {
   background: var(--color-soft);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   padding: var(--space-1) 10rpx;
   margin-bottom: 6rpx;
   border-bottom: none;
@@ -4497,7 +4497,7 @@ onShow(async () => {
 .wq-trend-cat {
   font-size: 20rpx;
   padding: 2rpx 10rpx;
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
   border: 1rpx solid var(--color-border);
   background: var(--color-soft);
   color: var(--color-muted);
@@ -4560,7 +4560,7 @@ onShow(async () => {
 }
 .lc-scores {
   display: flex;
-  gap: 6rpx;
+  gap: var(--space-gap-sm);
   flex-wrap: nowrap;
 }
 .lc-dim {
@@ -4568,7 +4568,7 @@ onShow(async () => {
   flex-direction: column;
   align-items: center;
   background: var(--color-soft);
-  border-radius: 6rpx;
+  border-radius: var(--radius-xs);
   padding: 2rpx 6rpx;
   min-width: 32rpx;
 }
@@ -4640,13 +4640,13 @@ onShow(async () => {
   flex: 1;
   height: 14rpx;
   background: var(--color-soft);
-  border-radius: 4rpx;
+  border-radius: var(--radius-xxs);
   overflow: hidden;
 }
 .wq-fill {
   height: 100%;
   background: linear-gradient(90deg, var(--color-focus) 0%, #0ea5e9 100%);
-  border-radius: 4rpx;
+  border-radius: var(--radius-xxs);
 }
 .wq-units {
   width: 180rpx;
@@ -4740,7 +4740,7 @@ onShow(async () => {
   width: 100%;
   margin-top: var(--space-2);
   background: var(--color-soft);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   padding: var(--space-1);
   overflow: hidden;
 }
@@ -4750,7 +4750,7 @@ onShow(async () => {
   max-height: 60vh;
   display: block;
   background: var(--color-soft);
-  border-radius: 4rpx;
+  border-radius: var(--radius-xxs);
 }
 .map-district-p {
   fill: rgba(186, 230, 253, 0.55);
@@ -4774,9 +4774,9 @@ onShow(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
   padding: var(--space-1) var(--space-2);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   background: var(--color-soft);
   font-size: 22rpx;
   color: var(--color-text-secondary);
@@ -4812,7 +4812,7 @@ onShow(async () => {
 .map-legend-bar {
   flex: 1;
   height: 14rpx;
-  border-radius: 4rpx;
+  border-radius: var(--radius-xxs);
   min-width: 80rpx;
 }
 .map-legend-min, .map-legend-max {
@@ -4876,11 +4876,11 @@ onShow(async () => {
 .lpr-drop-cell {
   flex: 1;
   background: var(--color-panel);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   padding: 10rpx var(--space-2);
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: var(--space-gap-xs);
 }
 .lpr-drop-label {
   font-size: 20rpx;
@@ -4906,7 +4906,7 @@ onShow(async () => {
 }
 .lpr-chart-wrap {
   background: var(--color-panel);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   padding: 4rpx;
 }
 .lpr-chart {
@@ -4975,7 +4975,7 @@ onShow(async () => {
   gap: var(--space-2);
   padding: 10rpx var(--space-2);
   background: var(--color-panel);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
 }
 .sd-rank {
   font-size: 28rpx;
@@ -5010,13 +5010,13 @@ onShow(async () => {
   width: 100rpx;
   height: 8rpx;
   background: var(--color-soft-strong);
-  border-radius: 4rpx;
+  border-radius: var(--radius-xxs);
   overflow: hidden;
   margin-bottom: 4rpx;
 }
 .sd-score-fill {
   height: 100%;
-  border-radius: 4rpx;
+  border-radius: var(--radius-xxs);
 }
 .sd-score-num {
   font-size: 22rpx;
@@ -5030,7 +5030,7 @@ onShow(async () => {
 }
 .sd-cell {
   background: var(--color-panel);
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   padding: var(--space-2);
 }
 .sd-cell-h {
@@ -5225,7 +5225,7 @@ onShow(async () => {
   position: relative;
   z-index: 1;
   display: flex;
-  gap: 10rpx;
+  gap: var(--space-gap-md);
   margin-top: 18rpx;
 }
 .home-v122-mode {
@@ -5269,7 +5269,7 @@ onShow(async () => {
 .home-v122-live {
   display: flex;
   align-items: center;
-  gap: 10rpx;
+  gap: var(--space-gap-md);
   color: #0f9880;
   font-size: 21rpx;
 }
@@ -5419,7 +5419,7 @@ onShow(async () => {
 }
 .home-v122-source {
   padding: 6rpx 10rpx;
-  border-radius: 8rpx;
+  border-radius: var(--radius-sm2);
   color: #64748b;
   background: var(--color-soft, #f1f5f4);
   font-size: 18rpx;

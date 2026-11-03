@@ -648,11 +648,11 @@ onLoad((opts?: Record<string, string>) => {
   min-width: 180rpx;
   background: var(--color-surface);
   border: 1rpx solid var(--color-soft-strong);
-  border-radius: 12rpx;
+  border-radius: var(--radius-md2);
   padding: var(--space-3) 20rpx;
   display: flex;
   flex-direction: column;
-  gap: 6rpx;
+  gap: var(--space-gap-sm);
 }
 .metric-label {
   color: var(--color-muted);
