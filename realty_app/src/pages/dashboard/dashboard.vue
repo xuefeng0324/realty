@@ -4169,7 +4169,7 @@ onShow(async () => {
 
 .bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #22c55e, var(--color-trend-down));
+  background: linear-gradient(90deg, var(--color-primary), var(--color-trend-down));
   border-radius: 8rpx;
 }
 
@@ -4439,7 +4439,7 @@ onShow(async () => {
   font-size: 22rpx;
   padding: 4rpx 12rpx;
   border-radius: 16rpx;
-  border: 1rpx solid #475569;
+  border: 1rpx solid var(--color-muted);
 }
 .wq-cat-tab-on {
   background: #0ea5e9;
@@ -4595,7 +4595,7 @@ onShow(async () => {
 }
 
 .lc-score-high {
-  color: #22c55e;
+  color: var(--color-primary);
 }
 .lc-score-mid {
   color: var(--color-focus);
@@ -5074,14 +5074,14 @@ onShow(async () => {
   cursor: pointer;
 }
 .map-marker-g:hover .map-marker {
-  fill: #ef4444;
+  fill: var(--color-danger);
   r: 7;
 }
 .map-marker-bare.tap-row {
   cursor: pointer;
 }
 .map-marker-bare.tap-row:hover {
-  fill: #ef4444;
+  fill: var(--color-danger);
 }
 
 /* F-ENTRY-02：1.122.0 首页——翡翠绿品牌层、核心指标、五入口与推荐房源。 */

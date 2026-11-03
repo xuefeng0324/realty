@@ -872,7 +872,7 @@ onMounted(() => {
 }
 
 .bin-mid {
-  background: #facc15;
+  background: var(--color-on-warn-soft);
 }
 
 .bin-low {

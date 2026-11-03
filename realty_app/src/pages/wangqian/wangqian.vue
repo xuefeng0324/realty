@@ -696,7 +696,7 @@ onLoad((opts?: Record<string, string>) => {
   background: linear-gradient(180deg, var(--color-focus), #0ea5e9);
 }
 .spark-bar.new-bar {
-  background: linear-gradient(180deg, var(--color-trend-down), #22c55e);
+  background: linear-gradient(180deg, var(--color-trend-down), var(--color-primary));
 }
 .spark-axis {
   display: flex;

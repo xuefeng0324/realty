@@ -439,7 +439,7 @@ watch(
 .map-marker-hit { fill: transparent; pointer-events: all; }
 .map-marker-lbl { font-size: 12px; fill: #4f46e5; font-weight: 500; }
 .map-marker-bare { fill: #4f46e5; cursor: pointer; }
-.map-marker-g:hover .map-marker { fill: #ef4444; }
+.map-marker-g:hover .map-marker { fill: var(--color-danger); }
 
 .map-district-row {
   display: flex;

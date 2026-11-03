@@ -1616,7 +1616,7 @@ onUnmounted(() => {
   width: 44rpx;
   height: 44rpx;
   border-radius: 22rpx;
-  background: #facc15;
+  background: var(--color-on-warn-soft);
   color: var(--color-heading);
   display: flex;
   align-items: center;
@@ -1786,13 +1786,13 @@ onUnmounted(() => {
   transition: width 0.3s ease;
 }
 .minidim-fill-green {
-  background: linear-gradient(90deg, #22c55e, #10b981);
+  background: linear-gradient(90deg, var(--color-primary), #10b981);
 }
 .minidim-fill-orange {
   background: linear-gradient(90deg, #fbbf24, var(--color-warning));
 }
 .minidim-fill-red {
-  background: linear-gradient(90deg, var(--color-trend-up), #ef4444);
+  background: linear-gradient(90deg, var(--color-trend-up), var(--color-danger));
 }
 .minidim-val {
   font-size: 20rpx;

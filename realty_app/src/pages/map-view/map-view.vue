@@ -1319,7 +1319,7 @@ onUnmounted(() => {
 }
 .curvature-ratio {
   font-size: 30rpx;
-  color: #facc15;
+  color: var(--color-on-warn-soft);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
