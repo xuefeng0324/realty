@@ -2885,12 +2885,13 @@ describe("build integrity", () => {
       expect(m![0]).toMatch(/\/pages\/community\/community/);
     });
 
-    it("dashboard.vue: drill-down hover CSS (scatter-pt + map-marker-g)", () => {
+    it("dashboard.vue: drill-down hover CSS (map-marker-g；scatter-pt 于 v1.123.28 随死 CSS 清理退役)", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(dash).toMatch(/\.scatter-pt\s*\{[\s\S]*cursor: pointer/);
+      // v1.123.28：小区 drill-down 散点图 UI 已不在 dashboard 模板内（scatter-row/scatter-pt
+      // 在模板全文零引用，属 v0.50.0 遗留样式），故只保留仍在消费的 map-marker-g 断言
       expect(dash).toMatch(/\.map-marker-g\s*\{[\s\S]*cursor: pointer/);
-      expect(dash).toMatch(/\.scatter-pt:hover/);
       expect(dash).toMatch(/\.map-marker-g:hover/);
+      expect(dash).not.toMatch(/\.scatter-pt/);
     });
   });
 

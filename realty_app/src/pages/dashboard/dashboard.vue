@@ -921,7 +921,6 @@
       <!-- v0.23.0 trend-9: 全品类区级网签热度榜 (新房/二手/全部 tab 切换) -->
       <view
         v-if="!isCardHidden('district-wangqian-3cat') && (districtWangqianRank && districtWangqianRank.items.length > 0)" data-card-key="district-wangqian-3cat"
-        id="overview-wangqian"
         class="card overview-card"
         :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('wangqian') }"
         @click="onOverviewCardClick('wangqian')"
@@ -3842,160 +3841,6 @@ onShow(async () => {
 /* 总览信息流：同色连续表面 + hairline（对照 MD3 Lists / 贝壳首页 Feed）
  * 验收：docs/DASHBOARD_FEED_ACCEPTANCE.md
  */
-.home-personalize-row {
-  margin-top: 12rpx;
-  display: flex;
-  justify-content: flex-end;
-}
-.home-personalize-btn {
-  margin: 0;
-  font-size: 22rpx;
-  padding: 0 18rpx;
-  border-radius: 999px !important;
-  background: var(--color-soft, #f5f5f5) !important;
-  color: var(--color-text, #333) !important;
-}
-.home-guide-card {
-  /* 默认跟深色主题；浅色用下方选择器覆盖——禁止硬编码浅色渐变当默认（启动白闪） */
-  background: linear-gradient(
-    135deg,
-    rgba(34, 197, 94, 0.14) 0%,
-    rgba(59, 130, 246, 0.12) 100%
-  );
-  border: 1rpx solid rgba(148, 163, 184, 0.28);
-  border-radius: 16rpx;
-  padding: 20rpx;
-  margin-bottom: 16rpx;
-}
-.page[data-realty-theme="light"] .home-guide-card,
-[data-realty-theme="light"] .home-guide-card {
-  background: linear-gradient(135deg, #f0f4ff 0%, #fef3c7 100%);
-  border-color: #c7d2fe;
-}
-.home-guide-title {
-  font-size: 30rpx;
-  font-weight: 700;
-  color: var(--color-primary, #4f46e5);
-}
-.home-guide-close {
-  margin: 0;
-  font-size: 22rpx;
-  padding: 0 12rpx;
-  border-radius: 999px !important;
-  background: rgba(0, 0, 0, 0.05) !important;
-  color: var(--color-muted, #999) !important;
-}
-.home-guide-list {
-  margin-top: 16rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 12rpx;
-}
-.home-guide-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 12rpx;
-}
-.home-guide-step {
-  flex: 0 0 36rpx;
-  width: 36rpx;
-  height: 36rpx;
-  background: var(--color-primary, #4f46e5);
-  color: #fff;
-  border-radius: 50%;
-  font-size: 22rpx;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.home-guide-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2rpx;
-  min-width: 0;
-}
-.home-guide-name {
-  font-size: 26rpx;
-  font-weight: 600;
-  color: var(--color-text, #333);
-}
-.overview-mode-toggle {
-  margin: 0 8rpx;
-  font-size: 22rpx;
-  padding: 0 18rpx;
-  border-radius: 999px !important;
-  background: var(--color-primary, #4f46e5) !important;
-  color: #fff !important;
-}
-.advanced-section {
-  background: var(--color-panel-soft, #fafafa);
-}
-.advanced-list {
-  margin-top: 16rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 8rpx;
-}
-.advanced-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10rpx 14rpx;
-  background: var(--color-surface, #fff);
-  border-radius: 8rpx;
-  border: 1rpx solid var(--color-border-soft, #eee);
-}
-.advanced-row--hidden {
-  opacity: 0.6;
-}
-.advanced-info {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 2rpx;
-  min-width: 0;
-}
-.advanced-name {
-  font-size: 26rpx;
-  font-weight: 600;
-  color: var(--color-text, #333);
-}
-.advanced-hot-tag {
-  display: inline-block;
-  font-size: 20rpx;
-  font-weight: 700;
-  padding: 0 8rpx;
-  margin-right: 6rpx;
-  border-radius: 8rpx;
-  background: linear-gradient(135deg, #f97316, #ef4444);
-  color: #fff;
-  vertical-align: middle;
-}
-.advanced-toggle {
-  flex: 0 0 auto;
-  margin: 0;
-  font-size: 22rpx;
-  padding: 0 22rpx;
-  border-radius: 999px !important;
-  background: var(--color-soft, #f5f5f5) !important;
-  color: var(--color-text, #333) !important;
-}
-.advanced-actions {
-  margin-top: 16rpx;
-  display: flex;
-  justify-content: center;
-}
-.advanced-expand-btn {
-  margin: 0;
-  font-size: 24rpx;
-  padding: 0 28rpx;
-  border-radius: 999px !important;
-  background: var(--color-soft, #f5f5f5) !important;
-  color: var(--color-primary, #4f46e5) !important;
-  font-weight: 600;
-}
 .card-hide-btn {
   margin: 0 0 0 8rpx;
   font-size: 22rpx;
@@ -4119,25 +3964,6 @@ onShow(async () => {
   color: var(--color-muted);
 }
 
-.overview-toolbar {
-  display: flex;
-  flex-direction: column;
-  gap: 12rpx;
-  margin-bottom: 0;
-  padding: 16rpx 20rpx;
-  border-radius: 0;
-  background: var(--color-surface);
-  border: none;
-  border-bottom: 1rpx solid var(--color-border);
-}
-
-.overview-mode-toggle {
-  margin: 0;
-  border: 1rpx solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text-secondary);
-  font-size: 22rpx;
-}
 
 .overview-card-summary {
   margin-top: 8rpx;
@@ -4240,14 +4066,6 @@ onShow(async () => {
   font-weight: 700;
 }
 
-.form-row {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-  min-width: 280rpx;
-  flex: 1 1 280rpx;
-}
-
 /* 用 button 渲染点击区时要清掉默认浏览器样式 */
 .tap-row {
   background: transparent;
@@ -4267,29 +4085,6 @@ onShow(async () => {
 
 .tap-row--active {
   opacity: 0.7;
-}
-
-.form-label {
-  color: var(--color-muted);
-  font-size: 26rpx;
-  min-width: 140rpx;
-}
-
-.picker-value {
-  background: var(--color-soft);
-  border-radius: 8rpx;
-  padding: 12rpx 20rpx;
-  color: var(--color-heading);
-  min-width: 200rpx;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.picker-caret {
-  color: var(--color-muted);
-  font-size: 22rpx;
-  margin-left: 8rpx;
 }
 
 /* 内置 sheet popup */
@@ -4400,28 +4195,6 @@ onShow(async () => {
   font-size: 22rpx;
   line-height: 1.5;
   color: var(--color-muted);
-}
-
-.community-row {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid var(--color-soft-strong);
-}
-
-.community-row:last-child {
-  border-bottom: none;
-}
-
-.community-rank {
-  width: 80rpx;
-  font-weight: 600;
-  color: #4ade80;
-}
-
-.community-main {
-  flex: 1;
 }
 
 .community-name {
@@ -4583,10 +4356,6 @@ onShow(async () => {
   color: #ef4444 !important;
 }
 
-.wangqian-down {
-  color: #22c55e !important;
-}
-
 .wq-fresh {
   margin-left: 10rpx;
   padding: 2rpx 10rpx;
@@ -4686,18 +4455,6 @@ onShow(async () => {
   overflow-wrap: anywhere;
 }
 
-.sp-up {
-  color: #0ea5e9;
-  font-weight: 600;
-  font-family: "Menlo", "Consolas", monospace;
-}
-.community-sp-price {
-  text-align: right;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
 /* v0.23.0 trend-9 全品类网签榜 tabs */
 .wq-cat-tabs {
   display: flex;
@@ -4791,14 +4548,6 @@ onShow(async () => {
   font-size: 20rpx;
   flex: 0 0 auto;
 }
-
-.wq-area {
-  flex: 0 0 100rpx;
-  font-size: 22rpx;
-  color: var(--color-muted);
-  text-align: right;
-}
-
 
 /* v1.123.2: .spc-* 过滤/排序控件样式随学区评分卡迁入 data-tools.vue */
 
@@ -4947,10 +4696,6 @@ onShow(async () => {
   color: var(--color-heading);
   text-align: right;
   flex-shrink: 0;
-}
-.tc-bar {
-  background: linear-gradient(90deg, #a78bfa 0%, #7c3aed 100%);
-  border-radius: 6rpx;
 }
 
 /* v0.41.0 trend-21: 房源新鲜度 */
@@ -5367,20 +5112,6 @@ onShow(async () => {
   color: #dc2626;
 }
 
-/* v0.50.0 drill-1: 小区 drill-down */
-.scatter-row.tap-row {
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.scatter-pt {
-  cursor: pointer;
-  transition: fill-opacity 0.15s, r 0.1s;
-}
-.scatter-pt:hover {
-  fill-opacity: 0.95;
-  stroke: #fde047;
-  stroke-width: 2.5;
-}
 .map-marker-g {
   cursor: pointer;
 }

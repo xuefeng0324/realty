@@ -48,9 +48,9 @@ describe("wgt build smoke (v1.121.153)", () => {
     expect(dupCount).toBe(0);
   });
 
-  it("dashboard.vue has .tc-bar CSS class (build blocker)", () => {
+  it("dashboard.vue 不再含死类 .tc-bar（v1.123.28 死 CSS 清理，build blocker 随模板零引用退役）", () => {
     const dashSrc = readFileSync(join(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-    expect(dashSrc).toMatch(/\.tc-bar\s*\{/);
+    expect(dashSrc).not.toMatch(/\.tc-bar\s*\{/);
   });
 
   it("data-tools.vue template is balanced (use vue compiler-sfc parse)", () => {

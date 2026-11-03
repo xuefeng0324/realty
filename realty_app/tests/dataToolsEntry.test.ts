@@ -588,4 +588,35 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     // 3. 点击处理
     expect(dashSrc).toContain("toggleCardHidden");
   });
+
+  // v1.123.28：scoped 样式段死类清理——36 个类在模板全文零引用（均为 v1.121.x 迁走卡的遗留
+  // 样式：home-personalize / home-guide 新手引导 / advanced-* 高级设置 / overview-toolbar +
+  // overview-mode-toggle / form-row + form-label + picker-value + picker-caret / community-row +
+  // community-rank + community-main / wangqian-down / sp-up + community-sp-price / wq-area /
+  // tc-bar / scatter-row + scatter-pt），共 273 行；同时剥除 overview-wangqian 静态 id
+  // （锚点系统 v1.123.27 已退役后的残留）并归一 14 行 lone LF。
+  // 保留类：card-hide-btn / tap-row / community-name / wq-fresh / overview-card-summary 等仍在模板消费。
+  it("dashboard.vue v1.123.28：scoped 样式无死类，模板消费类保留", () => {
+    const deadCss = [
+      "home-personalize-row", "home-personalize-btn", "home-guide-card", "home-guide-title",
+      "home-guide-close", "home-guide-list", "home-guide-row", "home-guide-step",
+      "home-guide-content", "home-guide-name", "advanced-section", "advanced-list",
+      "advanced-row", "advanced-info", "advanced-name", "advanced-hot-tag", "advanced-toggle",
+      "advanced-actions", "advanced-expand-btn", "overview-toolbar", "overview-mode-toggle",
+      "form-row", "form-label", "picker-value", "picker-caret", "community-row",
+      "community-rank", "community-main", "wangqian-down", "sp-up", "community-sp-price",
+      "wq-area", "tc-bar", "scatter-row", "scatter-pt"
+    ];
+    for (const cls of deadCss) {
+      expect(dashSrc, `死类残留: ${cls}`).not.toMatch(new RegExp(`\\.${cls}\\b`));
+    }
+    expect(dashSrc).not.toMatch(/id="overview-wangqian"/);
+    // 模板仍在消费的类不许被误删
+    for (const cls of [".card-hide-btn", ".tap-row", ".community-name", ".wq-fresh", ".overview-card-summary"]) {
+      expect(dashSrc).toContain(cls);
+    }
+    // lone LF 归一：全文件均为 CRLF（末尾行由 split 产生空串，故 lone LF 计数应为 0）
+    const loneLf = (dashSrc.match(/(?<!\r)\n/g) || []).length;
+    expect(loneLf).toBe(0);
+  });
 });
