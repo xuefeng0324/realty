@@ -1732,125 +1732,6 @@
         </template>
       </view>
 
-      <!-- v0.24.0 new-5: 通勤时长榜 (community → 城市 CBD 公交通勤) -->
-      <view
-        v-if="!isCardHidden('commute-rank') && (commuteRanking && commuteRanking.fastest.length > 0)" data-card-key="commute-rank"
-        id="overview-transit"
-        class="card overview-card"
-        :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('transit') }"
-        @click="onOverviewCardClick('transit')"
-      >
-        <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">
-            🚇 通勤时长榜 · {{ commuteRanking.cityName }} → {{ commuteRanking.cbdName }}
-          </view>
-          <button
-            class="card-hide-btn"
-            hover-class="tap-row--active"
-            data-dash-card-hide="commute-rank"
-            @click.stop="toggleCardHidden('commute-rank')"
-          >✕</button>
-          <view class="muted" style="font-size: 22rpx">
-            城市均 {{ commuteRanking.cityAvgMinutes ?? "—" }} 分钟
-            · {{ commuteRanking.totalCommunities }} 小区
-          </view>
-        </view>
-        <view v-if="isOverviewGroupCollapsed('transit')" data-overview-summary class="overview-card-summary muted">
-          {{ overviewTransitSummary }}
-        </view>
-        <template v-else>
-        <view
-          v-for="(it, idx) in commuteRanking.fastest"
-          :key="it.communityId"
-          class="wq-row tap-target"
-          role="button"
-          tabindex="0"
-          hover-class="row-active"
-          @click="goCommunity(it.communityId)"
-        >
-          <text class="wq-rank" :class="rankClass(idx + 1)">{{ idx + 1 }}</text>
-          <text class="wq-name">{{ it.communityName }}</text>
-          <text class="wq-area">
-            <text class="muted" style="font-size: 20rpx">{{ it.districtName }}</text>
-          </text>
-          <text class="wq-units">
-            <text :class="['commute-badge', commuteMinutesClass(it.transitMinutes, commuteRanking.cityAvgMinutes)]">
-              {{ Math.round(it.transitMinutes) }} 分钟
-            </text>
-            <text class="muted" style="font-size: 20rpx; margin-left: 4rpx">
-              ({{ (it.transitDistanceM / 1000).toFixed(1) }}km)
-            </text>
-          </text>
-        </view>
-        <view v-if="commuteSplit" class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          市内快慢分裂：最快 {{ Math.round(commuteSplit.fastestMinutes) }} 分 · 最慢
-          {{ Math.round(commuteSplit.slowestMinutes) }} 分 · 约 {{ commuteSplit.ratio.toFixed(1) }}×
-        </view>
-        <view v-if="commuteSpeedTop.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
-          等效通勤速度 Top（距离 ÷ 时长）
-        </view>
-        <view
-          v-for="(it, idx) in commuteSpeedTop"
-          :key="'csp-' + it.communityId"
-          class="wq-row tap-target"
-          role="button"
-          tabindex="0"
-          hover-class="row-active"
-          @click="goCommunity(it.communityId)"
-        >
-          <text class="wq-rank" :class="rankClass(idx + 1)">{{ idx + 1 }}</text>
-          <text class="wq-name">{{ it.communityName }}</text>
-          <text class="wq-units">
-            {{ it.speedKmh.toFixed(1) }} km/h
-            <text class="muted" style="font-size: 20rpx; margin-left: 4rpx">
-              · {{ Math.round(it.transitMinutes) }} 分
-            </text>
-          </text>
-        </view>
-        <view v-if="commuteFastestTop.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
-          通勤时长最短 Top（派生）
-        </view>
-        <view
-          v-for="(it, idx) in commuteFastestTop"
-          :key="'cft-' + it.communityId"
-          class="wq-row tap-target"
-          role="button"
-          tabindex="0"
-          hover-class="row-active"
-          @click="goCommunity(it.communityId)"
-        >
-          <text class="wq-rank" :class="rankClass(idx + 1)">{{ idx + 1 }}</text>
-          <text class="wq-name">{{ communityDisplayName(it.communityId) }}</text>
-          <text class="wq-units">
-            {{ it.transitMinutes != null ? Math.round(it.transitMinutes) + " 分" : "—" }}
-            <text v-if="it.transitDistanceM != null" class="muted" style="font-size: 20rpx; margin-left: 4rpx">
-              · {{ (it.transitDistanceM / 1000).toFixed(1) }}km
-            </text>
-          </text>
-        </view>
-        <view data-cross-city v-if="commuteCitySummaries.length" class="muted" style="margin: 8rpx 0 4rpx; font-size: 22rpx">
-          跨城通勤均分对照
-        </view>
-        <view
-          v-for="c in commuteCitySummaries"
-          :key="'ccs-' + c.cityId"
-          class="wq-row"
-        >
-          <text class="wq-name">{{ c.cityName }}</text>
-          <text class="wq-units">
-            均 {{ c.avgMinutes != null ? Math.round(c.avgMinutes) + " 分" : "—" }}
-            <text v-if="c.avgSpeedKmh != null" class="muted" style="font-size: 20rpx; margin-left: 4rpx">
-              · {{ c.avgSpeedKmh.toFixed(1) }} km/h · {{ c.communityCount }} 小区
-            </text>
-          </text>
-        </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：高德 /v3/direction/transit/integrated (公交通勤方案 1, 早 08:30)。
-          深圳 → 福田CBD (30 小区, 38 次 API)；广州 → 珠江新城 (8 小区, 10 次 API)。
-          行可点 → 小区详情。
-        </view>
-        </template>
-      </view>
 
       <!-- v0.25.0 户型/面积/朝向/装修分布 -->
       <view v-if="layoutDistribution && layoutDistribution.totalListings > 0" class="card">
@@ -2028,265 +1909,6 @@
         </view>
       </view>
 
-      <!-- v0.33.0 trend-15 小区综合评分榜 (生活+学区+通勤 加权) -->
-      <view
-        v-if="!isCardHidden('community-score-rank') && (communityScore && communityScore.items.length > 0)" data-card-key="community-score-rank"
-        id="overview-community"
-        class="card overview-card"
-        :class="{ 'overview-card--collapsed': isOverviewGroupCollapsed('community') }"
-        @click="onOverviewCardClick('community')"
-      >
-        <view class="row-between">
-          <view class="card-title">🏅 小区综合评分 Top 小区 · {{ communityScore.cityName }}</view>
-          <button
-            class="card-hide-btn"
-            hover-class="tap-row--active"
-            data-dash-card-hide="community-score-rank"
-            @click.stop="toggleCardHidden('community-score-rank')"
-          >✕</button>
-          <view class="muted">Top {{ communityScore.items.length }}</view>
-        </view>
-        <view v-if="isOverviewGroupCollapsed('community')" data-overview-summary class="overview-card-summary muted">
-          {{ overviewCommunitySummary }}
-        </view>
-        <template v-else>
-        <view v-if="communityScore.items.length === 0" class="empty">暂无数据</view>
-        <view class="cs-summary muted">
-          城市均分 {{ communityScore.avgScore }} · 最高 {{ communityScore.maxScore }}
-        </view>
-        <!-- v0.34.0 trend-16 权重自定义 -->
-        <view class="cs-weights">
-          <view class="cs-presets">
-            <text
-              v-for="p in csPresets"
-              :key="p.key"
-              :class="['cs-preset-chip', csPresetActive(p) ? 'cs-preset-on' : '']"
-              @click="applyCsPreset(p)"
-            >{{ p.label }}</text>
-          </view>
-          <view class="cs-sliders">
-            <view class="cs-slider-row">
-              <text class="cs-slider-label">生活</text>
-              <slider
-                :value="csWeights.life"
-                min="0"
-                max="100"
-                step="5"
-                activeColor="#38bdf8"
-                backgroundColor="#334155"
-                block-size="20"
-                @change="onCsWeightChange('life', $event)"
-                class="cs-slider"
-              />
-              <text class="cs-slider-val">{{ csWeights.life }}%</text>
-            </view>
-            <view class="cs-slider-row">
-              <text class="cs-slider-label">学区</text>
-              <slider
-                :value="csWeights.school"
-                min="0"
-                max="100"
-                step="5"
-                activeColor="#22c55e"
-                backgroundColor="#334155"
-                block-size="20"
-                @change="onCsWeightChange('school', $event)"
-                class="cs-slider"
-              />
-              <text class="cs-slider-val">{{ csWeights.school }}%</text>
-            </view>
-            <view class="cs-slider-row">
-              <text class="cs-slider-label">通勤</text>
-              <slider
-                :value="csWeights.commute"
-                min="0"
-                max="100"
-                step="5"
-                activeColor="#fbbf24"
-                backgroundColor="#334155"
-                block-size="20"
-                @change="onCsWeightChange('commute', $event)"
-                class="cs-slider"
-              />
-              <text class="cs-slider-val">{{ csWeights.commute }}%</text>
-            </view>
-            <view class="muted" style="font-size: 20rpx; margin-top: 4rpx">
-              当前权重：生活 {{ csWeights.life }}% · 学区 {{ csWeights.school }}% · 通勤 {{ csWeights.commute }}%
-              <text v-if="csWeightSum !== 100" style="color: #fbbf24">
-                (自动归一化，原值总和 {{ csWeightSum }})
-              </text>
-            </view>
-          </view>
-        </view>
-        <view
-          v-for="it in communityScore.items"
-          :key="it.communityId"
-          class="cs-row tap-row"
-          hover-class="tap-row--active"
-          @click="goCommunity(it.communityId)"
-        >
-          <view class="cs-rank">
-            <text :class="['cs-medal', csMedalClass(it.rankCity)]">{{ csMedalText(it.rankCity) }}</text>
-          </view>
-          <view class="cs-mid">
-            <view class="cs-name">{{ it.communityName }}</view>
-            <view class="cs-dist muted">{{ it.districtName }}</view>
-          </view>
-          <view class="cs-scores">
-            <view class="cs-dim">
-              <text class="cs-dim-label">生活</text>
-              <text class="cs-dim-val">{{ it.lifeScore.toFixed(0) }}</text>
-            </view>
-            <view class="cs-dim">
-              <text class="cs-dim-label">学区</text>
-              <text class="cs-dim-val">{{ it.schoolScore.toFixed(0) }}</text>
-            </view>
-            <view class="cs-dim">
-              <text class="cs-dim-label">通勤</text>
-              <text class="cs-dim-val">
-                <text v-if="it.commuteMinutes != null">{{ it.commuteScore.toFixed(0) }}</text>
-                <text v-else>—</text>
-              </text>
-            </view>
-          </view>
-          <view class="cs-right">
-            <text :class="['cs-total', csTotalClass(it.totalScore)]">{{ it.totalScore.toFixed(0) }}</text>
-            <view class="muted" style="font-size: 20rpx">/ 100</view>
-          </view>
-        </view>
-        <view class="muted" style="margin-top: 8rpx; font-size: 22rpx">
-          数据源：life_convenience.csv (50%) + school_premium_community.csv (30%) + commute.csv (20%) → community_score.csv。
-          综合分 0-100，按总分降序；金色前 3 名。
-        </view>
-        <view v-if="communityScorePareto.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          高分 + 通勤快（总分≥80）
-        </view>
-        <view
-          v-for="(it, idx) in communityScorePareto"
-          :key="'csp-' + it.communityId"
-          class="cs-row tap-row"
-          hover-class="tap-row--active"
-          @click="goCommunity(it.communityId)"
-        >
-          <view class="cs-rank">
-            <text class="cs-medal">{{ idx + 1 }}</text>
-          </view>
-          <view class="cs-mid">
-            <view class="cs-name">{{ it.communityName }}</view>
-            <view class="cs-dist muted">{{ it.districtName }} · 总分 {{ it.totalScore.toFixed(0) }}</view>
-          </view>
-          <view class="cs-right">
-            <text class="cs-total">
-              {{ it.commuteMinutes != null ? Math.round(it.commuteMinutes) + " 分" : "—" }}
-            </text>
-          </view>
-        </view>
-        <view v-if="communityScoreCommuteFast.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          综合分库 · 通勤最短（不限总分）
-        </view>
-        <view
-          v-for="(it, idx) in communityScoreCommuteFast"
-          :key="'cscf-' + it.communityId"
-          class="cs-row tap-row"
-          hover-class="tap-row--active"
-          @click="goCommunity(it.communityId)"
-        >
-          <view class="cs-rank">
-            <text class="cs-medal">{{ idx + 1 }}</text>
-          </view>
-          <view class="cs-mid">
-            <view class="cs-name">{{ it.communityName }}</view>
-            <view class="cs-dist muted">{{ it.districtName }} · 总分 {{ it.totalScore.toFixed(0) }}</view>
-          </view>
-          <view class="cs-right">
-            <text class="cs-total">
-              {{ it.commuteMinutes != null ? Math.round(it.commuteMinutes) + " 分" : "—" }}
-            </text>
-          </view>
-        </view>
-        <view v-if="communityScoreLifeTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          生活维 Top（派生）
-        </view>
-        <view
-          v-for="(it, idx) in communityScoreLifeTop"
-          :key="'csl-' + it.communityId"
-          class="cs-row tap-row"
-          hover-class="tap-row--active"
-          @click="goCommunity(it.communityId)"
-        >
-          <view class="cs-rank">
-            <text class="cs-medal">{{ idx + 1 }}</text>
-          </view>
-          <view class="cs-mid">
-            <view class="cs-name">{{ it.communityName }}</view>
-            <view class="cs-dist muted">{{ it.districtName }} · 总分 {{ it.totalScore.toFixed(0) }}</view>
-          </view>
-          <view class="cs-right">
-            <text class="cs-total">{{ it.lifeScore.toFixed(0) }}</text>
-          </view>
-        </view>
-        <view v-if="communityScoreSchoolTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          学区维 Top（派生）
-        </view>
-        <view
-          v-for="(it, idx) in communityScoreSchoolTop"
-          :key="'css-' + it.communityId"
-          class="cs-row tap-row"
-          hover-class="tap-row--active"
-          @click="goCommunity(it.communityId)"
-        >
-          <view class="cs-rank">
-            <text class="cs-medal">{{ idx + 1 }}</text>
-          </view>
-          <view class="cs-mid">
-            <view class="cs-name">{{ it.communityName }}</view>
-            <view class="cs-dist muted">{{ it.districtName }} · 总分 {{ it.totalScore.toFixed(0) }}</view>
-          </view>
-          <view class="cs-right">
-            <text class="cs-total">{{ it.schoolScore.toFixed(0) }}</text>
-          </view>
-        </view>
-        <view v-if="communityScoreTotalTop.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          派生总分 Top（固定权重 seed）
-        </view>
-        <view
-          v-for="(it, idx) in communityScoreTotalTop"
-          :key="'cstt-' + it.communityId"
-          class="cs-row tap-row"
-          hover-class="tap-row--active"
-          @click="goCommunity(it.communityId)"
-        >
-          <view class="cs-rank">
-            <text class="cs-medal">{{ idx + 1 }}</text>
-          </view>
-          <view class="cs-mid">
-            <view class="cs-name">{{ it.communityName }}</view>
-            <view class="cs-dist muted">{{ it.districtName }}</view>
-          </view>
-          <view class="cs-right">
-            <text class="cs-total">{{ it.totalScore.toFixed(0) }}</text>
-          </view>
-        </view>
-        <view data-cross-city v-if="communityScoreCitySummaries.length" class="muted" style="margin: 12rpx 0 4rpx; font-size: 22rpx">
-          跨城综合均分对照
-        </view>
-        <view
-          v-for="c in communityScoreCitySummaries"
-          :key="'cscs-' + c.cityId"
-          class="cs-row"
-        >
-          <view class="cs-mid">
-            <view class="cs-name">{{ cityNameForId(c.cityId) }}</view>
-            <view class="cs-dist muted">
-              {{ c.communityCount }} 小区 · 生活 {{ c.avgLifeScore.toFixed(0) }} · 学区 {{ c.avgSchoolScore.toFixed(0) }}
-            </view>
-          </view>
-          <view class="cs-right">
-            <text class="cs-total">{{ c.avgTotalScore.toFixed(0) }}</text>
-          </view>
-        </view>
-        </template>
-      </view>
 
       <!-- v0.41.0 trend-21 房源新鲜度 (新挂牌多 + 滞销) -->
       <view v-if="!isCardHidden('listing-freshness') && (listingFreshness && listingFreshness.totalCount > 0)" class="card" data-card-key="listing-freshness">
@@ -3580,14 +3202,14 @@ import { onPullDownRefresh, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "../../store/app";
 import { toErrorMessage } from "../../utils/errorMessage";
 import { getCities, getCoverage, getPeriods, getRuntimeMeta, getSources } from "../../local/queries";
-import { getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getWeather, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getCommunityScoreRank, getMetroWalkRanking, getMetroBenefitRanking,
+import { getDistrictCompare, getCityDistrictOverview, getWangqianHeatmap, getWeather, getCommunityCompareByDistrict, getDistrictWangqianRank, getCommuteRanking, getLayoutDistribution, getListingTagCloud, getDistrictIndex, getDistrictChangeRank, getLifeConvenienceRank, getMetroWalkRanking, getMetroBenefitRanking,
   getListingFreshnessRanking,
   getDistrictMap,
   getSchoolDimensions,
   getLprOverview,
   type SchoolDimResponse,
   type LprResponse,
-  type DistrictTrendItem, type WangqianOverviewItem, type WeatherResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type CommunityScoreResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type DistrictMapResponse } from "../../local/queries";
+  type DistrictTrendItem, type WangqianOverviewItem, type WeatherResponse, type DistrictCommunityCompareResponse, type DistrictWangqianRankResponse, type CommuteRankingResponse, type LayoutDistributionResponse, type TagCloudResponse, type DistrictIndexResponse, type DistrictChangeResponse, type LifeConvenienceResponse, type MetroWalkResponse, type MetroBenefitResponse, type DistrictMetaResponse, type FeaturePremiumResponse, type TagCombinationResponse, type ListingFreshnessResponse, type DistrictMapResponse } from "../../local/queries";
 import {
   getLatestIndexForCity,
   getLatestMonth,
@@ -3710,28 +3332,12 @@ import {
   type AreaCohortSummary
 } from "../../local/communityScatterRanking";
 import {
-  getCommuteByCityFastestSlowestCompare,
-  getCommuteSpeedLeaderboard,
-  getCommuteFastestTopN,
-  summarizeCommuteByCity,
-  type FastestSlowestCompare,
-  type CityCommuteSummary
-} from "../../local/commuteRanking";
-import {
   getFreshestCommunityTopN,
   getStalestCommunityTopN,
   summarizeListingFreshnessByCity,
   type FreshnessRankingEntry,
   type CityFreshnessSummary
 } from "../../local/listingFreshnessRanking";
-import {
-  getCommunityScorePareto,
-  getCommunityScoreByCommuteFastest,
-  getCommunityScoreByDimensionTopN,
-  getCommunityScoreByTotalTopN,
-  summarizeCommunityScoreByCity,
-  type CommunityScoreCitySummary
-} from "../../local/communityScoreRanking";
 import {
   summarizeListingTagsByCity,
   getCityTagSignature,
@@ -3777,7 +3383,7 @@ import {
   type CrossCityOrientationFloorEntry,
   type CityOrientationFloorSummary
 } from "../../local/orientationFloorRanking";
-import type { LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalCommunityScore, LocalMetroLine, LocalCommunityScatter, LocalCommute, LocalLprRow, LocalLifeConvenience, LocalPoiCommercial, LocalMetroLineGeo } from "../../local/types";
+import type { LocalAdminDistrict, LocalLayoutDistribution, LocalFeaturePremium, LocalOrientationFloor, LocalTagCombination, LocalMetroLine, LocalCommunityScatter, LocalLprRow, LocalLifeConvenience, LocalPoiCommercial, LocalMetroLineGeo } from "../../local/types";
 import { refreshFromRemote } from "../../local/dataRefresher";
 import { refreshWangqianFromRemote } from "../../local/wangqianDataRefresher";
 import type {
@@ -3998,28 +3604,12 @@ const districtWangqianRank = ref<DistrictWangqianRankResponse | null>(null);
 const wqRankCat = ref<"新房" | "二手" | "全部">("全部");
 // v0.24.0 new-5: 通勤时长榜
 const commuteRanking = ref<CommuteRankingResponse | null>(null);
-const commuteSplit = computed<FastestSlowestCompare | null>(() =>
-  getCommuteByCityFastestSlowestCompare().find((x) => x.cityId === app.cityId) ?? null
-);
-const commuteSpeedTop = computed(() =>
-  getCommuteSpeedLeaderboard(app.cityId, 5).map((x) => ({
-    ...x,
-    communityName: store.getCommunityById(x.communityId)?.communityName ?? `#${x.communityId}`
-  }))
-);
-const commuteFastestTop = computed<LocalCommute[]>(() =>
-  getCommuteFastestTopN(app.cityId, 5)
-);
-const commuteCitySummaries = computed<CityCommuteSummary[]>(() =>
-  summarizeCommuteByCity()
-);
 const layoutDistribution = ref<LayoutDistributionResponse | null>(null);
 const tagCloud = ref<TagCloudResponse | null>(null);
 const tagCloudFilteredHint = ref<string>("");
 const districtIndex = ref<DistrictIndexResponse | null>(null);
 const districtChange = ref<DistrictChangeResponse | null>(null);
 const lifeConvenience = ref<LifeConvenienceResponse | null>(null);
-const communityScore = ref<CommunityScoreResponse | null>(null);
 
 const hospitalCityName = computed(() => cityNameForId(app.cityId));
 
@@ -4163,24 +3753,6 @@ const freshnessCrossCityTop = computed<FreshnessRankingEntry[]>(() =>
 const freshnessStaleCrossCity = computed<FreshnessRankingEntry[]>(() =>
   crossCityRows(getStalestCommunityTopN(undefined, 5))
 );
-const communityScorePareto = computed<LocalCommunityScore[]>(() =>
-  getCommunityScorePareto(app.cityId, 80, 5)
-);
-const communityScoreCommuteFast = computed<LocalCommunityScore[]>(() =>
-  getCommunityScoreByCommuteFastest(app.cityId, 5)
-);
-const communityScoreLifeTop = computed<LocalCommunityScore[]>(() =>
-  getCommunityScoreByDimensionTopN("life", app.cityId, 5)
-);
-const communityScoreSchoolTop = computed<LocalCommunityScore[]>(() =>
-  getCommunityScoreByDimensionTopN("school", app.cityId, 5)
-);
-const communityScoreTotalTop = computed<LocalCommunityScore[]>(() =>
-  getCommunityScoreByTotalTopN(app.cityId, 5)
-);
-const communityScoreCitySummaries = computed<CommunityScoreCitySummary[]>(() =>
-  summarizeCommunityScoreByCity()
-);
 const lifeConvenienceParetoSubway = computed<ParetoEntry[]>(() => {
   const ids = new Set(
     store.getCommunitiesByCity(app.cityId).map((c) => c.communityId)
@@ -4221,47 +3793,6 @@ const districtMap = ref<DistrictMapResponse | null>(null);
 const schoolDims = ref<SchoolDimResponse | null>(null);
 // v0.53.0 macro-1: LPR + 房贷利率
 const lpr = ref<LprResponse | null>(null);
-// v0.34.0 trend-16: 综合评分权重自定义
-const csWeights = ref<{ life: number; school: number; commute: number }>({ life: 50, school: 30, commute: 20 });
-const csPresets: { key: string; label: string; weights: { life: number; school: number; commute: number } }[] = [
-  { key: "balanced", label: "⚖️ 均衡", weights: { life: 50, school: 30, commute: 20 } },
-  { key: "school", label: "🎓 学区", weights: { life: 20, school: 60, commute: 20 } },
-  { key: "commute", label: "🚇 通勤", weights: { life: 20, school: 20, commute: 60 } },
-  { key: "life", label: "🧭 生活", weights: { life: 70, school: 20, commute: 10 } }
-];
-const csWeightSum = computed(() => csWeights.value.life + csWeights.value.school + csWeights.value.commute);
-
-function applyCsPreset(p: { key: string; weights: { life: number; school: number; commute: number } }) {
-  csWeights.value = { ...p.weights };
-  reloadCommunityScore();
-}
-
-function csPresetActive(p: { key: string; weights: { life: number; school: number; commute: number } }): boolean {
-  return (
-    csWeights.value.life === p.weights.life &&
-    csWeights.value.school === p.weights.school &&
-    csWeights.value.commute === p.weights.commute
-  );
-}
-
-function onCsWeightChange(dim: "life" | "school" | "commute", e: any) {
-  // uni-app slider @change: e.detail.value
-  const v = typeof e === "number" ? e : e?.detail?.value ?? csWeights.value[dim];
-  csWeights.value = { ...csWeights.value, [dim]: Number(v) };
-  reloadCommunityScore();
-}
-
-async function reloadCommunityScore() {
-  try {
-    communityScore.value = await getCommunityScoreRank({
-      cityId: app.cityId,
-      topN: 8,
-      weights: csWeights.value
-    });
-  } catch (e) {
-    console.warn("getCommunityScoreRank failed:", e);
-  }
-}
 
 // v0.35.0 map-9: 地铁步行通勤
 async function reloadMetroWalk() {
@@ -4820,7 +4351,7 @@ function submitHomeSearch() {
 // 概览页「精简模式」：默认尽量收敛信息流长度（v1.123.6 起不再受旧专业 Tab 状态影响）
 const isOverviewCompact = computed(() => featuredMode.value);
 
-type OverviewGroupKey = "region" | "wangqian" | "transit" | "community" | "school" | "lpr";
+type OverviewGroupKey = "region" | "wangqian" | "school" | "lpr";
 
 /** 概览分组不再折叠：始终展开（用户明确禁止折叠套路） */
 function isOverviewGroupCollapsed(_key: OverviewGroupKey): boolean {
@@ -4843,17 +4374,6 @@ const overviewWangqianSummary = computed(() => {
   return `最热：${top.district} · ${top.totalUnits} 套`;
 });
 
-const overviewTransitSummary = computed(() => {
-  const top = commuteRanking.value?.fastest[0];
-  if (!top) return "暂无通勤数据";
-  return `最快：${top.communityName} · ${Math.round(top.transitMinutes)} 分钟`;
-});
-
-const overviewCommunitySummary = computed(() => {
-  const top = communityScore.value?.items[0];
-  if (!top) return "暂无小区评分";
-  return `榜首：${top.communityName} · ${top.totalScore.toFixed(0)} 分`;
-});
 
 const overviewSchoolSummary = computed(() => {
   const top = schoolDims.value?.topOverall[0];
@@ -5258,17 +4778,6 @@ async function loadRankingAndDistrict() {
         console.warn("getLifeConvenienceRank failed:", e);
         lifeConvenience.value = null;
       }
-      // v0.33.0 trend-15 小区综合评分榜
-      try {
-        communityScore.value = await getCommunityScoreRank({
-          cityId: app.cityId,
-          topN: 8,
-          weights: csWeights.value
-        });
-      } catch (e) {
-        console.warn("getCommunityScoreRank failed:", e);
-        communityScore.value = null;
-      }
       // v0.35.0 map-9 地铁步行通勤榜
       try {
         metroWalk.value = await getMetroWalkRanking({
@@ -5597,15 +5106,6 @@ const lprSpark5y = computed<{ path: string; last: { x: number; y: number } | nul
 });
 
 
-// v0.24.0 new-5: 通勤时长颜色编码
-// 比城市均值快 → 绿（更优）；接近 → 灰；比均值慢 > 30% → 红
-function commuteMinutesClass(minutes: number, cityAvg: number | null): string {
-  if (cityAvg == null || cityAvg <= 0) return "muted";
-  const ratio = minutes / cityAvg;
-  if (ratio < 0.85) return "price-down";   // 绿
-  if (ratio > 1.3) return "price-up";      // 红
-  return "muted";                            // 灰
-}
 
 // v0.25.0 户型分布 helpers
 const layoutDims: { key: keyof LayoutDistributionResponse["dimensions"]; label: string }[] = [
@@ -5666,30 +5166,6 @@ function lifeScoreClass(s: number): string {
   return "lc-score-low";
 }
 
-/**
- * v0.33.0: 综合评分分档颜色
- *   ≥80 高 (绿) / 65-79 中 (蓝) / <65 低 (灰)
- */
-function csTotalClass(s: number): string {
-  if (s >= 80) return "cs-total-high";
-  if (s >= 65) return "cs-total-mid";
-  return "cs-total-low";
-}
-
-/** v0.33.0: 综合评分金牌前 3 名 */
-function csMedalClass(rank: number): string {
-  if (rank === 1) return "cs-medal-gold";
-  if (rank === 2) return "cs-medal-silver";
-  if (rank === 3) return "cs-medal-bronze";
-  return "cs-medal-none";
-}
-
-function csMedalText(rank: number): string {
-  if (rank === 1) return "🥇";
-  if (rank === 2) return "🥈";
-  if (rank === 3) return "🥉";
-  return String(rank);
-}
 
 /** 把 weeklySeries 转成 sparkline 高度比例 (0-100) */
 function sparkPoints(series: Array<{ indexValue: number }>): number[] {
@@ -7420,14 +6896,6 @@ onShow(async () => {
   flex: 0 0 auto;
 }
 
-/* v0.24.0 new-5: 通勤时长 badge */
-.commute-badge {
-  display: inline-block;
-  font-size: 22rpx;
-  font-weight: 600;
-  padding: 2rpx 10rpx;
-  border-radius: 8rpx;
-}
 .wq-area {
   flex: 0 0 100rpx;
   font-size: 22rpx;
@@ -7742,150 +7210,6 @@ onShow(async () => {
   color: var(--color-muted);
 }
 
-/* v0.33.0 小区综合评分榜 */
-.cs-summary {
-  font-size: 22rpx;
-  margin-bottom: 8rpx;
-}
-.cs-weights {
-  background: var(--color-panel);
-  border-radius: 8rpx;
-  padding: 10rpx 12rpx;
-  margin-bottom: 12rpx;
-}
-.cs-presets {
-  display: flex;
-  gap: 8rpx;
-  margin-bottom: 12rpx;
-  flex-wrap: wrap;
-}
-.cs-preset-chip {
-  font-size: 22rpx;
-  padding: 6rpx 14rpx;
-  border-radius: 999rpx;
-  background: var(--color-soft);
-  color: #cbd5e1;
-  border: 1rpx solid #334155;
-}
-.cs-preset-on {
-  background: #38bdf8;
-  color: var(--color-heading);
-  border-color: #38bdf8;
-  font-weight: 600;
-}
-.cs-slider-row {
-  display: flex;
-  align-items: center;
-  gap: 10rpx;
-  margin-bottom: 4rpx;
-}
-.cs-slider-label {
-  font-size: 22rpx;
-  color: var(--color-muted);
-  min-width: 60rpx;
-}
-.cs-slider {
-  flex: 1;
-}
-.cs-slider-val {
-  font-size: 22rpx;
-  color: var(--color-text);
-  min-width: 60rpx;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-.cs-row {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  padding: 8rpx 0;
-  border-bottom: 1rpx solid var(--color-soft-strong);
-}
-.cs-row:last-child {
-  border-bottom: none;
-}
-.cs-rank {
-  width: 56rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.cs-medal {
-  font-size: 36rpx;
-  font-weight: 700;
-}
-.cs-medal-gold {
-  color: #fbbf24;
-}
-.cs-medal-silver {
-  color: #d1d5db;
-}
-.cs-medal-bronze {
-  color: #fb923c;
-}
-.cs-medal-none {
-  color: var(--color-muted);
-  font-size: 28rpx;
-}
-.cs-mid {
-  flex: 1;
-  min-width: 0;
-}
-.cs-name {
-  font-size: 26rpx;
-  font-weight: 500;
-  color: var(--color-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.cs-dist {
-  font-size: 20rpx;
-}
-.cs-scores {
-  display: flex;
-  gap: 6rpx;
-  flex-wrap: nowrap;
-}
-.cs-dim {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: var(--color-soft);
-  border-radius: 6rpx;
-  padding: 2rpx 6rpx;
-  min-width: 50rpx;
-}
-.cs-dim-label {
-  font-size: 18rpx;
-  color: var(--color-muted);
-  font-weight: 600;
-}
-.cs-dim-val {
-  font-size: 22rpx;
-  color: #cbd5e1;
-  font-variant-numeric: tabular-nums;
-}
-.cs-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  min-width: 60rpx;
-}
-.cs-total {
-  font-size: 36rpx;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-.cs-total-high {
-  color: #22c55e;
-}
-.cs-total-mid {
-  color: #38bdf8;
-}
-.cs-total-low {
-  color: var(--color-muted);
-}
 
 /* v0.10.0 网签热度榜 */
 .wq-row {

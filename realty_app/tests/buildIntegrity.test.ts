@@ -1850,72 +1850,8 @@ describe("build integrity", () => {
       expect(content).toMatch(/parseCommunityScore/);
     });
 
-    it("queries.ts 增加 getCommunityScoreRank 函数", () => {
-      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
-      expect(content).toMatch(/export function getCommunityScoreRank/);
-      expect(content).toMatch(/export interface CommunityScoreResponse/);
-    });
-
-    it("dashboard.vue 渲染小区综合评分卡片 + 3 维细分", () => {
-      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(content).toMatch(/communityScore/);
-      expect(content).toMatch(/小区综合评分|🏅/);
-      expect(content).toMatch(/getCommunityScoreRank/);
-      expect(content).toMatch(/csTotalClass|csMedalClass/);
-      expect(content).toMatch(/cs-row|cs-scores/);
-    });
-
-    it("dashboard.vue loadAll 调用 getCommunityScoreRank", () => {
-      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(content).toMatch(/getCommunityScoreRank\(\{\s*cityId:\s*app\.cityId/);
-    });
   });
 
-  // ────────────────────────────────────────────────────────────────────
-  // v0.34.0 trend-16 综合评分权重自定义
-  // ────────────────────────────────────────────────────────────────────
-  describe("v0.34.0 trend-16 综合评分权重自定义", () => {
-    it("queries.ts getCommunityScoreRank 接受 weights 参数", () => {
-      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
-      expect(content).toMatch(/getCommunityScoreRank[\s\S]+?weights\?:\s*\{\s*life:\s*number/);
-    });
-
-    it("queries.ts weights 重新计算 totalScore (覆盖原 CSV 预存值)", () => {
-      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
-      // 公式: totalScore = life*wf.life + school*wf.school + commute*wf.commute
-      expect(content).toMatch(/l\.lifeScore\s*\*\s*wf\.life/);
-      expect(content).toMatch(/l\.schoolScore\s*\*\s*wf\.school/);
-      expect(content).toMatch(/l\.commuteScore\s*\*\s*wf\.commute/);
-    });
-
-    it("queries.ts weights 总和归一化 (避免全 0 时除零)", () => {
-      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
-      expect(content).toMatch(/w\.life\s*\/\s*wSum/);
-    });
-
-    it("queries.ts 按新 totalScore 重排 rank_city", () => {
-      const content = readFileSync(resolve(ROOT, "src/local/queries.ts"), "utf8");
-      expect(content).toMatch(/newRank\[l\.communityId\]/);
-    });
-
-    it("dashboard.vue 综合评分卡包含 4 个预设 chip + 3 个 slider", () => {
-      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(content).toMatch(/csPresets/);
-      expect(content).toMatch(/applyCsPreset/);
-      expect(content).toMatch(/onCsWeightChange/);
-      expect(content).toMatch(/cs-weights/);
-      // 4 个预设: 均衡/学区/通勤/生活
-      expect(content).toMatch(/均衡/);
-      expect(content).toMatch(/学区/);
-      expect(content).toMatch(/通勤/);
-      expect(content).toMatch(/生活/);
-    });
-
-    it("dashboard.vue reloadCommunityScore 用 csWeights 重算", () => {
-      const content = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
-      expect(content).toMatch(/getCommunityScoreRank\(\{[\s\S]+?weights:\s*csWeights\.value/);
-    });
-  });
 
   // ────────────────────────────────────────────────────────────────────
   // v0.35.0 map-9 地铁步行通勤 (metro_walk.csv)
@@ -3068,21 +3004,20 @@ describe("build integrity", () => {
 
   // v0.51.0 drill-2: 批量给 ranking 行加 drill-down
   describe("v0.51.0 drill-2 批量 ranking 行可点击", () => {
-    it("v1.121.138: dashboard.vue 含 3 张保留 ranking 卡（lifeConvenience/communityScore/freshness）的 tap-row + goCommunity（metroWalk/metroBenefit 已迁出至 data-tools）", () => {
+    it("v1.121.138: dashboard.vue 含 2 张保留 ranking 卡（lifeConvenience/freshness）的 tap-row + goCommunity（metroWalk/metroBenefit 已迁出；communityScore 已于 v1.123.19 死 DOM 删除）", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
       // v1.121.138：metroWalk + metroBenefit 已迁出至 data-tools 独立页
       expect(dash).not.toMatch(/class="mw-row tap-row"/);
       expect(dash).not.toMatch(/class="mb-row tap-row"/);
-      // 仪表盘仍保留 lifeConvenience / communityScore / freshness 3 张卡
+      // 仪表盘仍保留 lifeConvenience / freshness 2 张卡
       expect(dash).toMatch(/class="lc-row tap-row"[\s\S]{0,200}@click="goCommunity\(it\.communityId\)"/);
-      expect(dash).toMatch(/class="cs-row tap-row"[\s\S]{0,200}@click="goCommunity\(it\.communityId\)"/);
       expect(dash).toMatch(/class="lf-row tap-row"[\s\S]{0,200}@click="goCommunity\(it\.communityId\)"/);
     });
 
-    it("v1.121.138: dashboard.vue 保留 3 张 ranking 行的 drill-down", () => {
+    it("v1.121.138: dashboard.vue 保留 2+ 张 ranking 行的 drill-down", () => {
       const dash = readFileSync(resolve(ROOT, "src/pages/dashboard/dashboard.vue"), "utf8");
       const drillMatches = (dash.match(/@click="goCommunity\(/g) || []).length;
-      // v1.121.138：原 5 张 tap-row 卡 → 现 3 张（删 metroWalk/metroBenefit）
+      // v1.123.19：原 5 张 tap-row 卡 → 现 2 张（metroWalk/metroBenefit 迁出、communityScore 死 DOM 删除）
       expect(drillMatches).toBeGreaterThanOrEqual(3);
     });
 

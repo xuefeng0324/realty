@@ -223,9 +223,10 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(settingsSrc).toContain("data-settings-home-ia");
     expect(settingsSrc).toContain("data-settings-go-data-tools");
     const vIfMatches = dashSrc.match(/v-if="!isCardHidden\('[a-z][a-z0-9-]+'\)/g) || [];
-    expect(vIfMatches.length).toBeGreaterThanOrEqual(15);
+    // v1.123.19：commute-rank / community-score-rank 死 DOM 删除，15 → 13
+    expect(vIfMatches.length).toBeGreaterThanOrEqual(13);
     const cardKeyAttrMatches = dashSrc.match(/data-card-key="[a-z][a-z0-9-]+"/g) || [];
-    expect(cardKeyAttrMatches.length).toBeGreaterThanOrEqual(15);
+    expect(cardKeyAttrMatches.length).toBeGreaterThanOrEqual(13);
   });
 
   it("进阶卡 hot 配置保留；入口在设置/频道（不在总览占位）", () => {
@@ -404,6 +405,40 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
       existsSync(resolve(__dirname, "../tests/e2e/smoke_commercial.mjs"))
     ).toBe(false);
     expect(queriesSrc).not.toMatch(/getCommercialRanking|CommercialRankingItem|CommercialRankingResponse/);
+    // v1.123.19：通勤时长榜 + 小区综合评分榜死 DOM 整删（v1.122 起被壳层 CSS 永久隐藏；
+    // commuteRanking ref/getCommuteRanking 保留——heroSlides「平均通勤」轮播仍消费；
+    // communityScoreRanking 死库 5 函数 + queries.getCommunityScoreRank 无消费者包装同步删；
+    // 孤儿 e2e smoke_commute / smoke_community_score / smoke_community_score_weight 与
+    // 7 用例孤儿单测 communityScoreRanking.test.ts 一并删；buildIntegrity v0.34.0 describe 移除；
+    // commute.csv/community_score.csv 数据面与 commuteRanking 库（adversarialRankingProbe 在测）保留）
+    expect(dashSrc).not.toMatch(/commute-rank|community-score-rank|overview-transit|overview-community/);
+    expect(dashSrc).not.toMatch(/commuteSplit|commuteSpeedTop|commuteFastestTop|commuteCitySummaries|commuteMinutesClass/);
+    expect(dashSrc).not.toMatch(/overviewTransitSummary|overviewCommunitySummary|\bcommunityScore\b/);
+    expect(dashSrc).not.toMatch(/csWeights|csPresets|csPresetActive|applyCsPreset|onCsWeightChange|csWeightSum|reloadCommunityScore/);
+    expect(dashSrc).not.toMatch(/csTotalClass|csMedalClass|csMedalText/);
+    expect(dashSrc).not.toMatch(/getCommunityScoreRank|CommunityScoreResponse|communityScoreRanking/);
+    expect(dashSrc).not.toMatch(/getCommuteByCityFastestSlowestCompare|getCommuteSpeedLeaderboard|getCommuteFastestTopN|summarizeCommuteByCity/);
+    expect(dashSrc).not.toMatch(/commute-badge|cs-medal|cs-total|cs-slider|cs-preset|cs-row/);
+    expect(dashSrc).toMatch(/getCommuteRanking/); // heroSlides「平均通勤」仍消费
+    expect(toolsSrc).not.toContain('"commute-rank"');
+    expect(toolsSrc).not.toContain('"community-score-rank"');
+    expect(toolsSrc).not.toContain('"community-score-weights"');
+    expect(queriesSrc).not.toMatch(/getCommunityScoreRank|CommunityScoreItem|CommunityScoreResponse/);
+    expect(
+      existsSync(resolve(__dirname, "../src/local/communityScoreRanking.ts"))
+    ).toBe(false);
+    expect(
+      existsSync(resolve(__dirname, "../tests/communityScoreRanking.test.ts"))
+    ).toBe(false);
+    expect(
+      existsSync(resolve(__dirname, "../tests/e2e/smoke_commute.mjs"))
+    ).toBe(false);
+    expect(
+      existsSync(resolve(__dirname, "../tests/e2e/smoke_community_score.mjs"))
+    ).toBe(false);
+    expect(
+      existsSync(resolve(__dirname, "../tests/e2e/smoke_community_score_weight.mjs"))
+    ).toBe(false);
     const settingsSrc = readFileSync(
       resolve(__dirname, "../src/pages/settings/settings.vue"),
       "utf8"
@@ -417,9 +452,9 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
   it("dashboard.vue v1.121.147 Batch 8：每张核心卡右上角 ✕ 隐藏按钮", () => {
     // 1. CSS 类
     expect(dashSrc).toContain(".card-hide-btn");
-    // 2. 至少 15 张卡有 data-dash-card-hide 属性
+    // 2. 至少 13 张卡有 data-dash-card-hide 属性（v1.123.19 删 2 张死 DOM 卡后 15 → 13）
     const hideMatches = dashSrc.match(/data-dash-card-hide="[a-z][a-z0-9-]+"/g) || [];
-    expect(hideMatches.length).toBeGreaterThanOrEqual(15);
+    expect(hideMatches.length).toBeGreaterThanOrEqual(13);
     // 3. 点击处理
     expect(dashSrc).toContain("toggleCardHidden");
   });

@@ -307,7 +307,8 @@ metro_planning_geo.csv       → metroPlanningGeoAnalysis → 弯曲 + 覆盖率
 lpr_history.csv              → lprHistoryAnalysis     → 利差 / 调息 / 同比 / 全期均值（v1.121.18–21）
 hospitals_geo.csv            → （v1.123.16 派生库已删）→ 坐标 + CBD 半径医疗（v1.121.15/19–21，历史消费）
 wangqian_district_weekly.csv → wangqianTrendRanking  → 周环比 / 突增 / CV 波动（v1.121.13/21）
-commute.csv                  → commuteRanking        → 通勤榜 + 快慢分裂（v0.24 / v1.121.21）
+commute.csv                  → commuteRanking        → heroSlides 平均通勤 + 快慢分裂探针（卡 v0.24~v1.123.18 已删）
+community_score.csv          → store 数据面          → 综合评分（卡 v0.33~v1.123.18 已删；v1.123.19 派生库已删，纯数据面）
 poi_commercial.csv           → poiCommercialRanking  → 周边商业 + 银行覆盖（v1.121.15/21）
 metro_planning.csv           → metroPlanningRanking  → 规划地铁 + 快线（v1.121.14/21）
 listing_tags_summary.csv     → listingTagsComparison → 标签热度 + 跨城渗透（v1.121.14/21）

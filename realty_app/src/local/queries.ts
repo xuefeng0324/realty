@@ -28,7 +28,7 @@ import type {
   SchoolFutureScoreResponse,
   CityItem
 } from "../api/contracts";
-import type { LocalLayoutDistribution, LocalListing, LocalListingTag, LocalDistrictIndex, LocalLifeConvenience, LocalCommunityScore, LocalDistrictPolygon } from "./types";
+import type { LocalLayoutDistribution, LocalListing, LocalListingTag, LocalDistrictIndex, LocalLifeConvenience, LocalDistrictPolygon } from "./types";
 import {
   generateWeeklySnapshot,
   type SnapshotResult
@@ -1874,86 +1874,6 @@ export function getLifeConvenienceRank(params: {
   };
 }
 
-/**
- * v0.33.0: 小区综合评分榜 (按 totalScore 降序)
- * 用于 dashboard "🏅 小区综合评分" 卡片
- */
-export interface CommunityScoreItem {
-  communityId: number;
-  districtName: string;
-  communityName: string;
-  lifeScore: number;
-  schoolScore: number;
-  commuteMinutes: number | null;
-  commuteScore: number;
-  totalScore: number;
-  rankCity: number;
-}
-
-export interface CommunityScoreResponse {
-  cityId: number;
-  cityName: string;
-  avgScore: number;
-  maxScore: number;
-  /** 按 totalScore 降序 */
-  items: CommunityScoreItem[];
-}
-
-export function getCommunityScoreRank(params: {
-  cityId: number;
-  topN?: number;
-  minScore?: number;
-  /** v0.34.0: 自定义权重 (默认 50/30/20, 总和应为 100) */
-  weights?: { life: number; school: number; commute: number };
-}): CommunityScoreResponse | null {
-  const city = store.getCityById(params.cityId);
-  if (!city) return null;
-  const all = store.getCommunityScoresByCity(params.cityId);
-  if (all.length === 0) return null;
-
-  const w = params.weights ?? { life: 50, school: 30, commute: 20 };
-  const wSum = w.life + w.school + w.commute || 100;
-  const wf = { life: w.life / wSum, school: w.school / wSum, commute: w.commute / wSum };
-
-  // v0.34.0: 用自定义权重重新计算 totalScore
-  const withScore = all.map((l) => ({
-    ...l,
-    totalScore: Math.round((l.lifeScore * wf.life + l.schoolScore * wf.school + l.commuteScore * wf.commute) * 10) / 10
-  }));
-  // 按新 totalScore 重新排名
-  const sorted = withScore.slice().sort((a, b) => b.totalScore - a.totalScore);
-  const newRank: Record<number, number> = {};
-  sorted.forEach((r, i) => (newRank[r.communityId] = i + 1));
-
-  const minScore = params.minScore ?? 0;
-  const topN = params.topN ?? 10;
-  const filtered = sorted.filter((l) => l.totalScore >= minScore);
-
-  const items: CommunityScoreItem[] = filtered
-    .slice(0, topN)
-    .map((l) => ({
-      communityId: l.communityId,
-      districtName: l.districtName,
-      communityName: l.communityName,
-      lifeScore: l.lifeScore,
-      schoolScore: l.schoolScore,
-      commuteMinutes: l.commuteMinutes,
-      commuteScore: l.commuteScore,
-      totalScore: l.totalScore,
-      rankCity: newRank[l.communityId] ?? 0
-    }));
-
-  const avg = Math.round((withScore.reduce((s, r) => s + r.totalScore, 0) / withScore.length) * 10) / 10;
-  const max = withScore.reduce((m, r) => (r.totalScore > m ? r.totalScore : m), 0);
-
-  return {
-    cityId: params.cityId,
-    cityName: city.cityName,
-    avgScore: avg,
-    maxScore: max,
-    items
-  };
-}
 /* ============================================================================
  * v0.35.0 map-9: 步行到最近地铁站
  * ========================================================================== */
