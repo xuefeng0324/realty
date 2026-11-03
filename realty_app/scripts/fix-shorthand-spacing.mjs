@@ -51,8 +51,8 @@ for (const filePath of fileList) {
     (match, openTag, body, closeTag) => {
       let count = 0;
       const replaced = body.replace(
-        /^(\s*)(margin|padding)\s*:\s*([^;]+);/gim,
-        (fullMatch, indent, propName, values) => {
+        /(margin|padding)\s*:\s*([^;}\n]+)/gi,
+        (fullMatch, propName, values) => {
           // 拆分简写值，逐个替换可映射的
           const parts = values.trim().split(/\s+/);
           let changed = false;
@@ -62,11 +62,11 @@ for (const filePath of fileList) {
               changed = true;
               return SPACE_MAP[trimmed];
             }
-            return v; // 0、auto、其他 token 等值不动
+            return v; // 0、auto、其他 token、calc() 里的 rpx 等值不动
           });
           if (changed) {
             count++;
-            return `${indent}${propName}: ${newParts.join(" ")};`;
+            return `${propName}: ${newParts.join(" ")}`;
           }
           return fullMatch; // 保持原样
         }

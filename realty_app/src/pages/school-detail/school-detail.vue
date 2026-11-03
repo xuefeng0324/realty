@@ -187,7 +187,7 @@ onLoad((query?: Record<string, string>) => {
 <style lang="scss" scoped>
 .detail-container { padding-bottom: var(--space-6); }
 .quicknav { display: flex; gap: var(--space-2); margin-bottom: 18rpx; }
-.quick-btn { padding: 10rpx 16rpx; border: 1rpx solid var(--color-border); border-radius: var(--radius-pill); background: var(--color-surface); color: var(--color-text-secondary); font-size: 21rpx; }
+.quick-btn { padding: 10rpx var(--space-3); border: 1rpx solid var(--color-border); border-radius: var(--radius-pill); background: var(--color-surface); color: var(--color-text-secondary); font-size: 21rpx; }
 .school-hero { display: flex; justify-content: space-between; align-items: center; gap: 28rpx; padding: 34rpx; border: 1rpx solid var(--color-border); border-radius: var(--radius-lg); background: linear-gradient(135deg, rgba(34, 197, 94, 0.16), var(--color-surface) 62%); box-shadow: var(--shadow-card); }
 .hero-copy { min-width: 0; }
 .hero-eyebrow { color: var(--color-primary); font-size: 19rpx; font-weight: 700; letter-spacing: 2rpx; }
@@ -221,11 +221,11 @@ onLoad((query?: Record<string, string>) => {
 .source-row { display: flex; justify-content: space-between; gap: var(--space-4); padding: 13rpx 0; border-bottom: 1rpx solid var(--color-border); color: var(--color-text-secondary); font-size: 21rpx; }
 .source-row text:first-child { flex: 0 0 auto; color: var(--color-muted); }
 .source-row text:last-child { text-align: right; }
-.source-warning { margin-top: 18rpx; padding: 16rpx; border-radius: 12rpx; background: rgba(245,158,11,.1); color: var(--color-text-secondary); font-size: 20rpx; line-height: 1.65; }
+.source-warning { margin-top: 18rpx; padding: var(--space-3); border-radius: 12rpx; background: rgba(245,158,11,.1); color: var(--color-text-secondary); font-size: 20rpx; line-height: 1.65; }
 .loading-card { padding: 60rpx; text-align: center; color: var(--color-muted); }
 .error-state { padding: 60rpx 30rpx; text-align: center; }
 .error-icon { width: 72rpx; height: 72rpx; margin: 0 auto; border-radius: 50%; background: rgba(239,68,68,.14); color: var(--color-danger); font-size: 42rpx; line-height: 72rpx; }
-.error-title { margin: 18rpx 0 8rpx; color: var(--color-heading); font-size: 29rpx; font-weight: 650; }
+.error-title { margin: 18rpx 0 var(--space-1); color: var(--color-heading); font-size: 29rpx; font-weight: 650; }
 .error-state .btn { margin-top: 20rpx; }
 
 @media (max-width: 720px) {

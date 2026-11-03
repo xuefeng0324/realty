@@ -384,16 +384,16 @@ watch(
 </script>
 
 <style scoped>
-.page { padding: 16rpx; padding-bottom: 80rpx; }
-.header { padding: 16rpx 24rpx; background: var(--color-surface, #fff); border-radius: var(--radius-md); margin-bottom: var(--space-3); }
+.page { padding: var(--space-3); padding-bottom: 80rpx; }
+.header { padding: var(--space-3) var(--space-4); background: var(--color-surface, #fff); border-radius: var(--radius-md); margin-bottom: var(--space-3); }
 .title { font-size: 36rpx; font-weight: 700; color: var(--color-text, #333); }
 .muted { color: var(--color-muted, #666); font-size: 24rpx; }
-.empty { text-align: center; padding: 40rpx 0; color: var(--color-muted, #999); }
+.empty { text-align: center; padding: var(--space-6) 0; color: var(--color-muted, #999); }
 .row-between { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2); }
 .card { background: var(--color-surface, #fff); border-radius: var(--radius-md); padding: 20rpx; margin-bottom: var(--space-3); border: 1rpx solid var(--color-border-soft, #eee); }
 .card-title { font-size: 30rpx; font-weight: 600; color: var(--color-text, #333); }
 .footer { display: flex; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-4); }
-.back-btn, .reload-btn { flex: 1; margin: 0; font-size: 26rpx; padding: 0 24rpx; border-radius: var(--radius-pill) !important; background: var(--color-soft, #f5f5f5) !important; color: var(--color-text, #333) !important; }
+.back-btn, .reload-btn { flex: 1; margin: 0; font-size: 26rpx; padding: 0 var(--space-4); border-radius: var(--radius-pill) !important; background: var(--color-soft, #f5f5f5) !important; color: var(--color-text, #333) !important; }
 
 .map-mode-tabs {
   display: flex;
@@ -421,7 +421,7 @@ watch(
 .map-legend-bar { flex: 1; height: 16rpx; border-radius: 8rpx; }
 .map-legend-min, .map-legend-max { color: var(--color-muted, #666); }
 
-.map-card-full { padding: 12rpx; }
+.map-card-full { padding: var(--space-2); }
 .map-svg-full {
   width: 100%;
   height: 600rpx;
@@ -452,5 +452,5 @@ watch(
 }
 .map-district-name { font-size: 26rpx; font-weight: 600; color: var(--color-text, #333); }
 .map-district-vals { display: flex; gap: var(--space-2); font-size: 20rpx; color: var(--color-muted, #666); }
-.map-stat { background: var(--color-surface, #fff); padding: 4rpx 8rpx; border-radius: 6rpx; }
+.map-stat { background: var(--color-surface, #fff); padding: 4rpx var(--space-1); border-radius: 6rpx; }
 </style>

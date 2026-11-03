@@ -1372,7 +1372,7 @@ onUnmounted(() => {
   }
   .find-hub-title { font-size: 38rpx; }
   .find-hub-subtitle { max-width: 340rpx; }
-  .find-hub-city { padding: 0 12rpx; }
+  .find-hub-city { padding: 0 var(--space-2); }
   .find-hub-segment { gap: 6rpx; }
 }
 
