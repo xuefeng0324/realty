@@ -2566,7 +2566,7 @@ onUnmounted(() => {
 }
 .wq-fill {
   height: 100%;
-  background: linear-gradient(90deg, #38bdf8 0%, #0ea5e9 100%);
+  background: linear-gradient(90deg, var(--color-focus) 0%, #0ea5e9 100%);
   border-radius: 4rpx;
 }
 .wq-units {
@@ -2668,7 +2668,7 @@ onUnmounted(() => {
 .spc-chip-on {
   background: #0ea5e9;
   color: #fff;
-  border-color: #38bdf8;
+  border-color: var(--color-focus);
 }
 .trend-up {
   color: #f87171;

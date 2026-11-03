@@ -666,7 +666,7 @@ onLoad((opts?: Record<string, string>) => {
   color: #4ade80;
 }
 .metric-value.res {
-  color: #38bdf8;
+  color: var(--color-focus);
 }
 .metric-value.all {
   color: #f59e0b;
@@ -693,7 +693,7 @@ onLoad((opts?: Record<string, string>) => {
   border-radius: 2rpx 2rpx 0 0;
 }
 .spark-bar.second {
-  background: linear-gradient(180deg, #38bdf8, #0ea5e9);
+  background: linear-gradient(180deg, var(--color-focus), #0ea5e9);
 }
 .spark-bar.new-bar {
   background: linear-gradient(180deg, #4ade80, #22c55e);
@@ -767,7 +767,7 @@ onLoad((opts?: Record<string, string>) => {
 .wq-col-num {
   width: 120rpx;
   text-align: right;
-  color: #38bdf8;
+  color: var(--color-focus);
   font-weight: 600;
 }
 .wq-col-num.all {

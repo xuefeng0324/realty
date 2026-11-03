@@ -4350,7 +4350,7 @@ onShow(async () => {
 }
 
 .wangqian-res {
-  color: #38bdf8 !important;
+  color: var(--color-focus) !important;
 }
 
 .wangqian-all {
@@ -4412,7 +4412,7 @@ onShow(async () => {
 }
 .trend-bar-fill {
   width: 80%;
-  background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%);
+  background: linear-gradient(180deg, var(--color-focus) 0%, #0ea5e9 100%);
   border-radius: 2rpx 2rpx 0 0;
   min-height: 4rpx;
 }
@@ -4598,7 +4598,7 @@ onShow(async () => {
   color: #22c55e;
 }
 .lc-score-mid {
-  color: #38bdf8;
+  color: var(--color-focus);
 }
 .lc-score-low {
   color: var(--color-muted);
@@ -4645,7 +4645,7 @@ onShow(async () => {
 }
 .wq-fill {
   height: 100%;
-  background: linear-gradient(90deg, #38bdf8 0%, #0ea5e9 100%);
+  background: linear-gradient(90deg, var(--color-focus) 0%, #0ea5e9 100%);
   border-radius: 4rpx;
 }
 .wq-units {
@@ -5385,7 +5385,7 @@ onShow(async () => {
 }
 .home-v122-cover--empty {
   color: rgba(255, 255, 255, 0.84);
-  background: linear-gradient(135deg, #0f766e, #38bdf8);
+  background: linear-gradient(135deg, #0f766e, var(--color-focus));
   font-size: 18rpx;
   font-weight: 800;
   letter-spacing: 2rpx;

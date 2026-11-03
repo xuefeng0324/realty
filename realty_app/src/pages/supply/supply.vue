@@ -496,7 +496,7 @@ onMounted(() => {
   font-size: 28rpx;
 }
 .sheet-item--active {
-  color: var(--color-accent, #38bdf8);
+  color: var(--color-accent, var(--color-focus));
   font-weight: 600;
 }
 .sheet-check {
