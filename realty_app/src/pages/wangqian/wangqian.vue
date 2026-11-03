@@ -553,9 +553,9 @@ const freshLabel = computed(() => {
 const freshClass = computed(() => {
   const n = daysAgo.value;
   if (n == null) return "";
-  if (n <= 3) return "fresh-ok";
-  if (n <= 7) return "fresh-warn";
-  return "fresh-stale";
+  if (n <= 3) return "tag-fresh-ok";
+  if (n <= 7) return "tag-fresh-warn";
+  return "tag-fresh-stale";
 });
 
 function sparkPct(units: number, max: number): number {
@@ -635,18 +635,6 @@ onLoad((opts?: Record<string, string>) => {
   padding: 2rpx 12rpx;
   border-radius: 999rpx;
   font-size: 20rpx;
-}
-.fresh-ok {
-  background: var(--color-success-soft);
-  color: var(--color-on-success-soft);
-}
-.fresh-warn {
-  background: var(--color-warn-soft);
-  color: var(--color-on-warn-soft);
-}
-.fresh-stale {
-  background: var(--color-danger-soft);
-  color: var(--color-on-danger-soft);
 }
 
 .metric-grid {

@@ -3760,9 +3760,9 @@ const wangqianFreshLabel = computed(() => {
 const wangqianFreshClass = computed(() => {
   const n = wangqianDaysAgo.value;
   if (n == null) return "";
-  if (n <= 3) return "wq-fresh-ok";
-  if (n <= 7) return "wq-fresh-warn";
-  return "wq-fresh-stale";
+  if (n <= 3) return "tag-fresh-ok";
+  if (n <= 7) return "tag-fresh-warn";
+  return "tag-fresh-stale";
 });
 
 function formatWangqianUnits(v: number | null): string {
@@ -4347,18 +4347,6 @@ onShow(async () => {
   padding: 2rpx 10rpx;
   border-radius: 999rpx;
   font-size: 20rpx;
-}
-.wq-fresh-ok {
-  background: rgba(34, 197, 94, 0.18);
-  color: #4ade80;
-}
-.wq-fresh-warn {
-  background: rgba(234, 179, 8, 0.18);
-  color: #facc15;
-}
-.wq-fresh-stale {
-  background: rgba(239, 68, 68, 0.18);
-  color: #fca5a5;
 }
 
 .wangqian-res {

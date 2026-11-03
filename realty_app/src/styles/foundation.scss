@@ -199,6 +199,20 @@ textarea {
   color: var(--color-muted);
 }
 
+/* 数据新鲜度状态 tag（跨页面复用：wangqian / dashboard） */
+.tag-fresh-ok {
+  background: var(--color-success-soft);
+  color: var(--color-on-success-soft);
+}
+.tag-fresh-warn {
+  background: var(--color-warn-soft);
+  color: var(--color-on-warn-soft);
+}
+.tag-fresh-stale {
+  background: var(--color-danger-soft);
+  color: var(--color-on-danger-soft);
+}
+
 .tag-warn {
   background: var(--color-warn-soft);
   color: var(--color-on-warn-soft);
