@@ -3134,5 +3134,31 @@ describe("build integrity", () => {
         expect(src, f).not.toMatch(/http:\/\/127\.0\.0\.1:5175/);
       }
     });
+
+    it("v1.123.32 已退役的 12 个 stale orphan 脚本不得复活", () => {
+      const retired = [
+        "smoke_bedroom_area.mjs",
+        "smoke_decorate_age.mjs",
+        "smoke_district_meta.mjs",
+        "smoke_feature_premium.mjs",
+        "smoke_listing_freshness.mjs",
+        "smoke_map.mjs",
+        "smoke_orientation_floor.mjs",
+        "smoke_scatter.mjs",
+        "smoke_tag_combination.mjs",
+        "smoke_life_convenience.mjs",
+        "smoke_district_compare.mjs",
+        "smoke_trend11.mjs"
+      ];
+      for (const f of retired) {
+        expect(existsSync(resolve(ROOT, "tests/e2e", f)), f).toBe(false);
+      }
+    });
+
+    it("_all_smoke 只跑 run_suite 成员（不再 readdir 全量）", () => {
+      const all = readFileSync(resolve(ROOT, "tests/e2e/_all_smoke.mjs"), "utf8");
+      expect(all).toMatch(/run_suite\.mjs/);
+      expect(all).not.toMatch(/readdirSync/);
+    });
   });
 });
