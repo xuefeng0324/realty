@@ -3066,6 +3066,8 @@ async function loadRankingAndDistrict() {
       await reloadListingFreshness();
       // v0.47.0 school-4 学区指标细分
       await reloadSchoolDims();
+      // v0.52.0 map-12 行政区域图
+      await reloadDistrictMap();
       // v0.53.0 macro-1 LPR + 房贷利率
       await reloadLpr();
       // v1.123.2: 学区评分 Top 小区卡数据获取迁入 data-tools.vue
@@ -4752,8 +4754,8 @@ onShow(async () => {
   border-radius: var(--radius-xxs);
 }
 .map-district-p {
-  fill: rgba(186, 230, 253, 0.55);
-  stroke: #1e40af;
+  fill: color-mix(in srgb, var(--color-accent) 28%, transparent);
+  stroke: color-mix(in srgb, var(--color-accent) 70%, #000);
   stroke-width: 1.5;
   stroke-opacity: 0.85;
   stroke-linejoin: round;
@@ -4926,12 +4928,12 @@ onShow(async () => {
   fill-opacity: 0.85;
 }
 .map-district-p:hover {
-  fill: rgba(254, 215, 170, 0.7);
+  fill: color-mix(in srgb, var(--color-warning) 35%, transparent);
 }
 .map-district-lbl {
   font-size: 14px;
   font-weight: var(--font-weight-semibold);
-  fill: #1e3a8a;
+  fill: color-mix(in srgb, var(--color-accent) 55%, var(--color-heading));
   pointer-events: none;
   text-shadow: 0 0 4px rgba(255, 255, 255, 0.9);
 }
@@ -4948,7 +4950,7 @@ onShow(async () => {
 .map-marker-lbl {
   font-size: 12px;
   font-weight: var(--font-weight-medium);
-  fill: #991b1b;
+  fill: color-mix(in srgb, var(--color-danger) 55%, var(--color-heading));
   text-shadow: 0 0 3px rgba(255, 255, 255, 0.9);
   pointer-events: none;
 }
