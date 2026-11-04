@@ -1713,10 +1713,10 @@ onUnmounted(() => {
   transition: width 0.3s ease;
 }
 .minidim-fill-green {
-  background: linear-gradient(90deg, var(--color-primary), #10b981);
+  background: linear-gradient(90deg, var(--color-primary), color-mix(in srgb, var(--color-primary) 60%, #fff));
 }
 .minidim-fill-orange {
-  background: linear-gradient(90deg, #fbbf24, var(--color-warning));
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-warning) 60%, #fff), var(--color-warning));
 }
 .minidim-fill-red {
   background: linear-gradient(90deg, var(--color-trend-up), var(--color-danger));

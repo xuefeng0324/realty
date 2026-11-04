@@ -468,7 +468,7 @@ textarea {
 
 /* 排名奖牌（跨页面复用：dashboard / data-tools） */
 .rank-gold {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-warning) 60%, #fff) 0%, var(--color-warning) 100%);
   color: var(--color-text);
 }
 .rank-silver {

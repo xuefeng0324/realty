@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.123.79 | 2026-11-04 | 语义色 token 迁移（续）：① **listing-detail 来源可信度标签**——`source-trust--real` 背景 `rgba(34,197,94,.18)` → `--color-success-soft`，`source-trust--derived` 背景 `rgba(245,158,11,.18)` → `--color-warn-soft`、文字 `#fbbf24` → `--color-warning`，`derived-warning` 背景/文字同步到 warn 系 token，深浅色自动适配且浅色模式对比度提升；② **listing-filter 迷你维度条**——绿/橙两档渐变硬编码色 `#10b981`/`#fbbf24` → `color-mix(in srgb, var(--color-primary|warning) 60%, #fff)`，红档已用 token；③ **奖牌金色**——`data-tools medal-gold` 与 `foundation rank-gold` 的 `#fbbf24`/`#f59e0b` → `color-mix(in srgb, var(--color-warning) 60%, #fff)` 到 `var(--color-warning)`，金/银/铜奖牌在明暗主题下均保持金属质感（versionCode 414） |
 | v1.123.78 | 2026-11-04 | 学校页语义色 token 化与布局对齐：① **school-detail 硬编码色迁移到语义 token**——`省重点标记`/`市重点标记` 标签、评分环（高/中/低三档）、因子进度条、数据来源警告、错误图标共 10 处 `rgba(#hex)` 改为 `--color-success-soft`/`--color-warn-soft`/`--color-danger-soft` 与 `color-mix()`，深浅色自动适配，且修正 `省重点标记` 文字色误用 `--color-primary` 为 `--color-success`；② **school 教育统计「幼儿园」单元格孤悬**——2 列 grid 下第 5 项独占左列、右列留空，改 `grid-column: 1 / -1` 跨满两列；③ dashboard 移除 3 处装饰 emoji（🔥/🏆/📉），与全站去 emoji 风格一致（versionCode 413） |
 | v1.123.77 | 2026-11-04 | 宏观数据单位修复：① **macro-fx 社融/M2 单位错误**——`sfStockWanYi` 等字段本就是「万亿元」，代码却 `/10000` 并标注「万万亿元」，社融存量显示成「0.05 万万亿元」而非 468.17 万亿元；去掉误除并统一标注「万亿元」，与脚注一致；② macro-rates MLF/OMO 金额「万亿¥」→「万亿元」，与全库货币单位命名统一（versionCode 412） |
 | v1.123.76 | 2026-11-04 | 地图与列表细节修复：① **地图找房首屏城市错位**——默认城市广州，但地图中心硬编码深圳，广州房源与气泡全在视口外 → 新增 `CITY_CENTERS` 按 `cityId` 初始化中心，切城复用同一份坐标；② **地图顶部/底部永久显示高德未加载网格**——容器高度 80vh 时 Amap 只完整绘制落在视口内的区域 → 改 `calc(100vh - 400px)` + `min-height`，整图完整铺满；③ 深色模式底图未加载区闪白 → `.amap-container` 背景统一 `--color-soft-strong`；④ 图层/总价横向 chip 画到卡片外 → scroll-view 宿主补 `overflow:hidden` + 右缘渐隐；⑤ **同小区行标题朝向与结构化朝向冲突**（标题「东南」meta「西」）→ 新增 `listingDisplayTitle` 剔除标题尾部朝向，详情/同小区/找房/小区/地图 sheet 统一使用；⑥ 小区学校「最近 1000m」与列表「1.0km」不一致、网签面积㎡/万㎡混排、供需「万㎡/亿元」换行、趋势 5 列年份表头溢出、找房空封面「房」、5 维迷你条「性价比」换行、地图分析区名与点重叠 → 逐项修复；⑦ 3 个 e2e 测试选择器过期（`.cm-cell`/`.cm-label`、`.wq-rank-gold`、`.btn` 城市按钮）同步为当前 DOM（versionCode 411） |
@@ -705,6 +706,10 @@ gh auth setup-git
 ## 更新日志
 
 详细变更见 [changelog/](./changelog/) 目录。
+
+### v1.123.79（2026-11-04）：语义色 token 迁移（续）
+
+`listing-detail.vue` 来源可信度标签硬编码色迁移到语义 token：`source-trust--real` 背景 `rgba(34,197,94,.18)` → `--color-success-soft`，`source-trust--derived` 背景 `rgba(245,158,11,.18)` → `--color-warn-soft`、文字 `#fbbf24` → `--color-warning`，`derived-warning` 背景/文字同步到 warn 系 token，浅色模式对比度提升。`listing-filter.vue` 迷你维度条绿/橙两档渐变硬编码色 `#10b981`/`#fbbf24` → `color-mix(in srgb, var(--color-primary|warning) 60%, #fff)`。`data-tools.vue` 与 `foundation.scss` 奖牌金色 `#fbbf24`/`#f59e0b` → `color-mix(in srgb, var(--color-warning) 60%, #fff)` 到 `var(--color-warning)`，金/银/铜奖牌明暗主题均保持金属质感。详见 [changelog/2026-11-04-v1.123.79-语义色token迁移续.md](./changelog/2026-11-04-v1.123.79-语义色token迁移续.md)。
 
 ### v1.123.78（2026-11-04）：学校页语义色 token 化与布局对齐
 

@@ -2584,7 +2584,7 @@ onUnmounted(() => {
   margin-bottom: 4rpx;
 }
 .medal-gold {
-  background: linear-gradient(135deg, #fbbf24, var(--color-warning));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-warning) 60%, #fff), var(--color-warning));
 }
 .medal-silver {
   background: linear-gradient(135deg, #cbd5e1, var(--color-muted));

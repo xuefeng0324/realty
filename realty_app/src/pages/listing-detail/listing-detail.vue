@@ -744,16 +744,16 @@ button.source-dock-ghost {
   font-size: var(--font-caption);
   font-weight: var(--font-weight-semibold);
 }
-.source-trust--real { background: rgba(34, 197, 94, 0.18); color: var(--color-trend-down); }
-.source-trust--derived { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
+.source-trust--real { background: var(--color-success-soft); color: var(--color-trend-down); }
+.source-trust--derived { background: var(--color-warn-soft); color: var(--color-warning); }
 .source-trust--estimated,
 .source-trust--unknown { background: rgba(148, 163, 184, 0.18); color: var(--color-text-secondary); }
 .derived-warning {
   margin-top: var(--space-2);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
-  background: rgba(245, 158, 11, 0.12);
-  color: #fde68a;
+  background: var(--color-warn-soft);
+  color: var(--color-on-warn-soft);
   font-size: var(--font-caption);
   line-height: 1.5;
 }
