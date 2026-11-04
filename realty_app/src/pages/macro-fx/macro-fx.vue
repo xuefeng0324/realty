@@ -373,29 +373,29 @@
         <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="社融存量"
-            :value="(pbcFinStats.sfStockWanYi / 10000).toFixed(2) + ' 万万亿元'"
+            :value="pbcFinStats.sfStockWanYi.toFixed(2) + ' 万亿元'"
             :sub="`同比 ${formatPctDelta(pbcFinStats.sfStockYoyPct)}`"
             :subTrendClass="bandFromDelta(pbcFinStats.sfStockYoyPct)"
           />
           <MacroKpiCell
             label="社融增量"
-            :value="(pbcFinStats.sfFlowYtdWanYi / 10000).toFixed(2) + ' 万万亿元'"
+            :value="pbcFinStats.sfFlowYtdWanYi.toFixed(2) + ' 万亿元'"
             subClass="muted"
           />
           <MacroKpiCell
             label="M2"
-            :value="(pbcFinStats.m2WanYi / 10000).toFixed(2) + ' 万万亿元'"
+            :value="pbcFinStats.m2WanYi.toFixed(2) + ' 万亿元'"
             :sub="`同比 ${formatPctDelta(pbcFinStats.m2YoyPct)}`"
             :subTrendClass="bandFromDelta(pbcFinStats.m2YoyPct)"
           />
           <MacroKpiCell
             label="M1"
-            :value="(pbcFinStats.m1WanYi / 10000).toFixed(2) + ' 万万亿元'"
+            :value="pbcFinStats.m1WanYi.toFixed(2) + ' 万亿元'"
             subClass="muted"
           />
           <MacroKpiCell
             label="本外币贷款"
-            :value="(pbcFinStats.rmbLoanYtdWanYi / 10000).toFixed(2) + ' 万万亿元'"
+            :value="pbcFinStats.rmbLoanYtdWanYi.toFixed(2) + ' 万亿元'"
             subClass="muted"
           />
           <MacroKpiCell

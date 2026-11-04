@@ -100,12 +100,12 @@
           />
           <MacroKpiCell
             label="操作量"
-            :value="(mlfLatest.amountYi / 10000).toFixed(0) + ' 万亿¥'"
+            :value="(mlfLatest.amountYi / 10000).toFixed(2) + ' 万亿元'"
             subClass="muted"
           />
           <MacroKpiCell
             label="期末余额"
-            :value="(mlfLatest.balanceYi / 10000).toFixed(2) + ' 万亿¥'"
+            :value="(mlfLatest.balanceYi / 10000).toFixed(2) + ' 万亿元'"
             subClass="muted"
           />
           <MacroKpiCell
@@ -135,7 +135,7 @@
           />
           <MacroKpiCell
             label="操作量"
-            :value="(omoRrLatest.amountYi / 10000).toFixed(2) + ' 万亿¥'"
+            :value="(omoRrLatest.amountYi / 10000).toFixed(2) + ' 万亿元'"
             subClass="muted"
           />
           <MacroKpiCell
