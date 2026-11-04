@@ -881,7 +881,7 @@ button.source-dock-ghost {
 
 .dim-fill {
   height: 100%;
-  background: linear-gradient(90deg, #2563eb, #60a5fa);
+  background: linear-gradient(90deg, var(--color-focus) 0%, color-mix(in srgb, var(--color-focus) 80%, #000) 100%);
   border-radius: var(--radius-sm2);
 }
 

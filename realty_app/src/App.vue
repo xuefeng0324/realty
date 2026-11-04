@@ -400,23 +400,6 @@ uni-app[data-realty-theme="light"] {
   color: var(--color-text);
 }
 
-/* 浅色下分数胶囊不用「深色霓虹字」 */
-[data-realty-theme="light"] .score-high,
-.realty-theme-light .score-high {
-  background: #ecfdf5;
-  color: #166534;
-}
-[data-realty-theme="light"] .score-mid,
-.realty-theme-light .score-mid {
-  background: #fef3c7;
-  color: #92400e;
-}
-[data-realty-theme="light"] .score-low,
-.realty-theme-light .score-low {
-  background: #fef2f2;
-  color: #991b1b;
-}
-
 /* #ifdef H5 */
 /* H5 端原生 tabBar 标签默认 10px 偏小，提升到与 --font-micro(22rpx≈11.4px) 相当 */
 .uni-tabbar__label {

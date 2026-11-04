@@ -4838,19 +4838,19 @@ onShow(async () => {
 }
 .lpr-kpi-cell {
   flex: 1;
-  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  background: var(--color-warn-soft);
   border-radius: var(--radius-sm);
   padding: 14rpx 10rpx;
   text-align: center;
-  border: 1rpx solid #fcd34d;
+  border: 1rpx solid color-mix(in srgb, var(--color-warning) 35%, transparent);
 }
 .lpr-kpi-cell--5y {
-  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  background: var(--color-danger-soft);
   border-color: var(--color-trend-up);
 }
 .lpr-kpi-label {
   font-size: var(--font-micro);
-  color: #78350f;
+  color: color-mix(in srgb, var(--color-warning) 75%, #000);
   margin-bottom: 4rpx;
 }
 .lpr-kpi-val {

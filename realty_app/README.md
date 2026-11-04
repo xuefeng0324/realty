@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.123.84 | 2026-11-05 | 全站渐变审计 + 数据可视化柱条 token 化：① **UI 卡片去渐变**——dashboard LPR KPI 卡片 `.lpr-kpi-cell` 琥珀渐变 `#fef3c7→#fde68a` + 边框 `#fcd34d` → `var(--color-warn-soft)` + `color-mix(var(--color-warning) 35%, transparent)`；`.lpr-kpi-cell--5y` 红渐变 `#fee2e2→#fecaca` → `var(--color-danger-soft)`；标签文字 `#78350f` → `color-mix(var(--color-warning) 75%, #000)`，消除 UI 卡片渐变并统一深浅主题；② **数据可视化柱条 token 化**——community `.chart-fill`/`.dim-fill`、listing-detail `.dim-fill` 的硬编码蓝渐变 `#3b82f6→#60a5fa`/`#2563eb→#60a5fa` → `linear-gradient(90deg, var(--color-focus), color-mix(var(--color-focus) 80%, #000))`，与 wq-fill/trend-bar-fill 既有模式一致；③ **删除冗余覆盖**——App.vue 浅色主题 `.score-high/mid/low` 硬编码覆盖与 foundation.scss token 值完全一致，删除 6 处硬编码色（versionCode 419） |
 | v1.123.83 | 2026-11-05 | 残留 UI 硬编码色 token 化 + 去除违规渐变：① **dashboard 地图模式 tab 选中态**——`.map-mode-tab--active` 靛蓝渐变 `linear-gradient(135deg, #6366f1, #8b5cf6)` → `var(--color-focus)` 纯色，消除 UI 控件渐变（违反 v1.123.73 设计规则），与 `wq-cat-tab-on` 选中态一致；② **dashboard 学区排名数字**——`.sd-rank`/`.sd-rank-sm` 靛蓝文字 `#6366f1` → `var(--color-focus)`；③ **ProgressBar warn 填充**——`.progress-bar__fill--warn` `#f59e0b` → `var(--color-warning)`；④ **community 价格直方图中段**——`.bin-mid` `#f59e0b` → `var(--color-warning)`，与同组 `bin-high`(success)/`bin-low`(danger) 已用 token 对齐（versionCode 418） |
 | v1.123.82 | 2026-11-05 | sky-500 强调色 token 化：全仓扫描残留硬编码 `#0ea5e9`（sky-500）并迁移到 `var(--color-focus)`，覆盖 dashboard（网签品类 tab 选中态、网签进度条渐变、房源新鲜度标题左边框、趋势柱状图渐变）、data-tools（网签进度条渐变、社区价格涨色、价格分段 chip 选中态）、wangqian（spark-bar 第二组渐变）共 8 处；渐变端点统一用 `color-mix(in srgb, var(--color-focus) 80%, #000)` 派生深色端点，浅色模式由 sky-500 切换为品牌蓝 `#2563eb`、深色模式由 sky-400 `#38bdf8` 统一，消除主题间蓝色调不一致；map-view 地铁 POI 标记色属数据可视化，保留原值（versionCode 417） |
 | v1.123.81 | 2026-11-04 | 热力图色阶 token 化 + tag-pill 配色修复 + 地图空区域主题适配：① **trend-analysis 户型×面积热力图**——`.ba-cell--light/mid/deep` 背景 `#eff6ff/#bfdbfe/#1d4ed8` → `var(--color-info-soft)` / `color-mix(in srgb, var(--color-accent) 35%, #fff)` / `var(--color-accent)`，深色模式自动适配；② **listing-filter tag-pill 配色 bug 修复**——背景 `rgba(37,99,235,.12)`（蓝）配文字 `var(--color-primary)`（绿）颜色不匹配 → `var(--color-primary-soft)`（绿底绿字一致）；③ **dashboard 地图空区域**——`districtFill` 返回 `#f1f5f9`（浅灰）→ `var(--color-panel-soft)`，修复深色模式空区域过亮问题（versionCode 416） |
@@ -710,6 +711,10 @@ gh auth setup-git
 ## 更新日志
 
 详细变更见 [changelog/](./changelog/) 目录。
+
+### v1.123.84（2026-11-05）：全站渐变审计 + 数据可视化柱条 token 化
+
+全站扫描 45 处渐变，区分数据可视化（保留）与 UI 控件（去除），并 token 化硬编码色：① **UI 卡片去渐变**——dashboard LPR KPI 卡片 `.lpr-kpi-cell` 琥珀渐变 `#fef3c7→#fde68a` + 边框 `#fcd34d` → `var(--color-warn-soft)` + `color-mix(var(--color-warning) 35%, transparent)`；`.lpr-kpi-cell--5y` 红渐变 `#fee2e2→#fecaca` → `var(--color-danger-soft)`；标签文字 `#78350f` → `color-mix(var(--color-warning) 75%, #000)`，消除 UI 卡片渐变并统一深浅主题；② **数据可视化柱条 token 化**——community `.chart-fill`/`.dim-fill`、listing-detail `.dim-fill` 的硬编码蓝渐变 → `linear-gradient(90deg, var(--color-focus), color-mix(var(--color-focus) 80%, #000))`，与 wq-fill/trend-bar-fill 既有模式一致；③ **删除冗余覆盖**——App.vue 浅色主题 `.score-high/mid/low` 硬编码覆盖与 foundation.scss token 值完全一致，删除 6 处硬编码色。详见 [changelog/2026-11-05-v1.123.84-全站渐变审计与柱条token化.md](./changelog/2026-11-05-v1.123.84-全站渐变审计与柱条token化.md)。
 
 ### v1.123.83（2026-11-05）：残留 UI 硬编码色 token 化 + 去除违规渐变
 
