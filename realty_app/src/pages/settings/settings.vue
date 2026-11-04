@@ -146,7 +146,7 @@
           <text v-else>尚未刷新过，仍用 app 包内数据</text>
         </view>
         <view v-if="lastRefresh.sha" class="muted muted-caption" style="margin-top: 6rpx">
-          sha: {{ lastRefresh.sha }}
+          版本 {{ lastRefresh.sha }}
         </view>
         <view class="row-gap" style="margin-top: var(--space-3)">
           <button class="btn" size="mini" :disabled="refreshing" @click="refreshFromCdn">
@@ -182,13 +182,13 @@
 
       <!-- 政府网签宏观数据 -->
       <view class="card">
-        <view class="card-title">政府网签（深广）</view>
+        <view class="card-title">政府网签（深圳 / 广州）</view>
         <view class="muted">
           <text v-if="lastWangqianRefresh.at">上次刷新：{{ lastWangqianRefresh.at }}</text>
           <text v-else>尚未刷新过，仍用 app 包内网签数据</text>
         </view>
         <view v-if="lastWangqianRefresh.sha" class="muted muted-caption" style="margin-top: 6rpx">
-          sha: {{ lastWangqianRefresh.sha }}
+          版本 {{ lastWangqianRefresh.sha }}
         </view>
         <view class="row-gap" style="margin-top: var(--space-3)">
           <button class="btn" size="mini" :disabled="wangqianRefreshing" @click="refreshWangqianFromCdn">
@@ -199,7 +199,7 @@
           </button>
         </view>
         <text class="muted muted-caption" style="margin-top: var(--space-2)">
-          工作日自动从深圳市住建局官网抓取，经 CDN 同步到本机。
+          工作日自动从深圳市住建局官网抓取，并自动同步到本机。
         </text>
       </view>
 
@@ -352,7 +352,7 @@
           更新内容：{{ updateManifest.notes }}
         </view>
         <text class="muted muted-caption" style="margin-top: var(--space-2); display: block">
-          数据源：GitHub Actions build-app-wgt → jsDelivr CDN；
+          数据源：每日自动构建并分发；
           整包 APK 见 <text class="link" @click="openGithubReleases">Releases</text>。
         </text>
       </view>

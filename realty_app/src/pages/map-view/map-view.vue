@@ -2,10 +2,7 @@
   <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="card map-control-card">
       <view class="row-between">
-        <view>
-          <view class="control-eyebrow">MAP FIND</view>
-          <view class="card-title map-title" style="margin-bottom: 0">地图找房</view>
-        </view>
+        <view class="control-eyebrow">MAP FIND</view>
         <view class="map-summary" data-map-summary>
           {{ citiesReady ? `${visibleListingCount} 套 · ${visibleCommunityCount} 小区` : "加载中…" }}
         </view>
@@ -13,9 +10,9 @@
       <view class="control-section">
         <view class="control-label">城市</view>
         <view class="city-segment">
-          <button class="btn city-option" :class="{ 'city-option--active': app.cityId === 2, 'btn--active': app.cityId === 2 }" size="mini" @click="zoomToCity(2)">深圳</button>
-          <button class="btn city-option" :class="{ 'city-option--active': app.cityId === 1, 'btn--active': app.cityId === 1 }" size="mini" @click="zoomToCity(1)">广州</button>
-          <button class="btn city-option" :class="{ 'city-option--active': app.cityId === 3, 'btn--active': app.cityId === 3 }" size="mini" @click="zoomToCity(3)">珠海</button>
+          <button class="city-option" :class="{ 'city-option--active': app.cityId === 2 }" size="mini" @click="zoomToCity(2)">深圳</button>
+          <button class="city-option" :class="{ 'city-option--active': app.cityId === 1 }" size="mini" @click="zoomToCity(1)">广州</button>
+          <button class="city-option" :class="{ 'city-option--active': app.cityId === 3 }" size="mini" @click="zoomToCity(3)">珠海</button>
         </view>
       </view>
 
@@ -63,27 +60,27 @@
             size="mini"
             @click="setMapMode(item.key)"
           >
-            {{ item.icon }} {{ item.label }}
+            {{ item.label }}
           </button>
         </view>
       </scroll-view>
       <view class="mode-summary-row">
         <view class="mode-summary-dot"></view>
-        <text>当前：{{ modeLabel }} · 点标注看盘 / 进详情</text>
+        <text>当前：{{ modeLabel }} · 点标注查看详情</text>
         <button class="cycle-btn" size="mini" @click="toggleType">切换下一图层</button>
       </view>
       <view class="muted legend">
         <text v-if="mode === 'listings'">
-          找房（对照贝壳/链家）：气泡=房源聚合；点单套房源进详情；点聚合可放大并打开附近小区底栏；上方可筛总价/户型。地图最多展示部分挂牌点；缩小到城市级时按密度过滤（仅保留挂牌较多的小区），放大后恢复。
+          房源气泡按距离聚合；点单套房源进详情，点聚合可放大并打开附近小区；上方可筛总价/户型。地图仅展示部分挂牌点；缩小到城市级时按密度过滤，放大后恢复。
         </text>
         <text v-else-if="mode === 'price'">
-          挂牌均价热力：点地图/小区气泡打开本小区房源底栏（卖方挂牌均价，非成交价）
+          挂牌均价热力：点小区气泡打开本小区房源（卖方挂牌均价，非成交价）
         </text>
         <text v-else-if="mode === 'count'">
-          挂牌数热力：点地图/小区气泡打开本小区房源底栏
+          挂牌数热力：点小区气泡打开本小区房源
         </text>
         <text v-else-if="mode === 'poi'">
-          POI overlay：5 类配套；找房请切回「找房」图层
+          配套图层：学校、医院、商场、公园等生活配套；找房请切回「找房」图层
         </text>
         <text v-else>
           地铁规划线；找房请切回「找房」图层
@@ -93,7 +90,7 @@
       <view v-if="mode === 'metro'" class="curvature-card">
         <view class="row-between">
           <view class="curvature-title">弯曲系数 Top 5</view>
-          <view class="muted muted-caption">actual / straight · 越高越曲折</view>
+          <view class="muted muted-caption">实际路径 ÷ 直线距离 · 越高越曲折</view>
         </view>
         <view class="curvature-desc muted">
           同等直线距离下，实际线路长度比值。比值高 → 站点更多 / 拐弯更多 → 覆盖广
@@ -120,7 +117,7 @@
           :class="['poi-toggle', poiFilter.has(cat) ? 'poi-toggle-on' : 'poi-toggle-off']"
           @click="togglePoiCategory(cat)"
         >
-          <text>{{ poiEmoji(cat) }} {{ poiLabel(cat) }} {{ poiCategoryCounts[cat] }}</text>
+          <text>{{ poiLabel(cat) }} {{ poiCategoryCounts[cat] }}</text>
         </view>
       </view>
     </view>
@@ -221,7 +218,7 @@
     <view v-if="selectedPoi" class="info-card">
       <view class="row-between">
         <text class="info-name">
-          {{ poiEmoji(selectedPoi.poiCategory) }} {{ selectedPoi.poiName }}
+          {{ poiLabel(selectedPoi.poiCategory) }} · {{ selectedPoi.poiName }}
         </text>
         <text class="info-close" @click="closePoiCard">✕</text>
       </view>
@@ -343,12 +340,12 @@ const findSheetOpen = ref(false);
 const priceBandItems = MAP_PRICE_BANDS;
 const bedroomBandItems = MAP_BEDROOM_BANDS;
 
-const mapModeItems: { key: MapMode; icon: string; label: string }[] = [
-  { key: "listings", icon: "🏠", label: "找房" },
-  { key: "count", icon: "🔴", label: "挂牌热力" },
-  { key: "price", icon: "💰", label: "挂牌均价" },
-  { key: "poi", icon: "🏫", label: "POI" },
-  { key: "metro", icon: "🚇", label: "地铁" }
+const mapModeItems: { key: MapMode; label: string }[] = [
+  { key: "listings", label: "找房" },
+  { key: "count", label: "挂牌热力" },
+  { key: "price", label: "挂牌均价" },
+  { key: "poi", label: "配套" },
+  { key: "metro", label: "地铁" }
 ];
 
 function setPriceBand(next: MapPriceBand) {
@@ -393,7 +390,7 @@ function closeMetroCard() {
 
 const modeLabel = computed(() => {
   const item = mapModeItems.find((m) => m.key === mode.value);
-  return item ? `${item.icon} ${item.label}` : mode.value;
+  return item ? item.label : mode.value;
 });
 
 const currentOverlayCount = computed(() => {
@@ -509,10 +506,6 @@ function poiColor(cat: PoiCat): string {
   }[cat];
 }
 
-function poiEmoji(cat: PoiCat): string {
-  return { subway: "🚇", school: "🏫", hospital: "🏥", mall: "🛍", park: "🌳" }[cat];
-}
-
 interface CommunityMarker {
   communityId: number;
   cityId: number;
@@ -580,9 +573,9 @@ const poiMarkers = computed(() => {
           width: 24,
           height: 24,
           iconPath: POI_MARKER_ICONS[cat],
-          title: `${poiEmoji(cat)} ${p.poiName}`,
+          title: `${p.poiName}`,
           callout: {
-            content: `${poiEmoji(cat)} ${p.poiName}\n${poiLabel(cat)} · ${Math.round(p.distanceM)}m`,
+            content: `${p.poiName}\n${poiLabel(cat)} · ${Math.round(p.distanceM)}m`,
             color: "#ffffff",
             bgColor: color,
             padding: 4,
@@ -601,9 +594,9 @@ const poiMarkers = computed(() => {
           width: size,
           height: size,
           iconPath: makePoiClusterIcon(cat, c.count, color),
-          title: `${poiEmoji(cat)} ${poiLabel(cat)} · ${c.count} 个`,
+          title: `${poiLabel(cat)} · ${c.count} 个`,
           callout: {
-            content: `${poiEmoji(cat)} ${poiLabel(cat)} 聚合 ${c.count} 个\n点击放大展开`,
+            content: `${poiLabel(cat)} 聚合 ${c.count} 个\n点击放大展开`,
             color: "#ffffff",
             bgColor: color,
             padding: 4,
@@ -1172,13 +1165,6 @@ onUnmounted(() => {
   height: 100%;
   background: #e8eef5;
 }
-.btn {
-  background: var(--color-primary-strong) !important;
-  color: var(--color-primary-text) !important;
-  font-size: var(--font-body-sm);
-  padding: 4rpx var(--space-3);
-  border-radius: var(--radius-sm2);
-}
 .legend {
   margin-top: var(--space-1);
   font-size: var(--font-caption);
@@ -1401,12 +1387,18 @@ onUnmounted(() => {
   flex: 1 1 auto;
   margin: 0;
   padding: 6rpx 18rpx;
+  border: none;
+  border-radius: var(--radius-sm);
   background: transparent;
+  color: var(--color-text);
+  font-size: var(--font-caption);
+  line-height: 1.6;
 }
 
 .city-option--active {
   background: var(--color-primary);
   color: var(--color-primary-text);
+  font-weight: var(--font-weight-semibold);
 }
 
 .map-mode-scroll {

@@ -62,9 +62,9 @@ export function formatListingTrustLine(s: ListingTrustSummary): string {
   if (s.total === 0) return "暂无挂牌样本";
   const realLabel = listingSourceKindLabel("REAL");
   const derivedLabel = listingSourceKindLabel("DERIVED");
-  const realDate = s.latestRealCrawlDate ? `；真实挂牌最新 ${s.latestRealCrawlDate}` : "；尚无真实挂牌日期";
+  const realDate = s.latestRealCrawlDate ? `；真实最新 ${s.latestRealCrawlDate}` : "；尚无真实挂牌日期";
   return (
-    `${realLabel} ${s.real}（${s.realPct}%）/ ${derivedLabel} ${s.derived} / 其他 ${s.other}` +
+    `${realLabel} ${s.real}（${s.realPct}%）· ${derivedLabel} ${s.derived} · 其他 ${s.other}` +
     realDate
   );
 }

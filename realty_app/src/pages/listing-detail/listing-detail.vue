@@ -26,12 +26,8 @@
         />
         <view v-else class="gallery-empty" @click="data.listing.source_url ? openSource() : undefined">
           <text class="gallery-empty-title">暂无实景图</text>
-          <text class="muted gallery-empty-desc">
-            {{
-              data.listing.source_url
-                ? "暂无实景图；可点此处或底栏打开源站查看图集。"
-                : "暂无实景图"
-            }}
+          <text v-if="data.listing.source_url" class="muted gallery-empty-desc">
+            点此处或底栏打开源站查看图集。
           </text>
         </view>
       </view>

@@ -19,7 +19,7 @@
           />
           <MacroKpiCell
             label="环比变动"
-            :value="safeForexDelta != null ? (safeForexDelta.deltaUsdYi >= 0 ? '+' : '') + safeForexDelta.deltaUsdYi.toFixed(2) + ' 亿$' : '—'"
+            :value="safeForexDelta != null ? (safeForexDelta.deltaUsdYi >= 0 ? '+' : '') + safeForexDelta.deltaUsdYi.toFixed(2) + ' 亿美元' : '—'"
           />
           <MacroKpiCell
             label="前月规模"
@@ -31,7 +31,7 @@
           />
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
-          亿美元 · 月末数 · 不含黄金/SDR/IMF 储备头寸；与房价无直接关系。
+          单位：亿美元 · 月末数 · 不含黄金/SDR/IMF 储备头寸；与房价无直接关系。
         </view>
       </view>
 
@@ -46,7 +46,7 @@
           <MacroKpiCell
             label="储备合计"
             :value="formatForexYi(safeOra.totalUsdYi)"
-            :sub="safeOraDelta != null ? `环比 ${formatDelta(safeOraDelta.totalDelta)} 亿$` : ''"
+            :sub="safeOraDelta != null ? `环比 ${formatDelta(safeOraDelta.totalDelta)} 亿美元` : ''"
             :subTrendClass="bandFromDelta(safeOraDelta?.totalDelta)"
           />
           <MacroKpiCell
@@ -57,7 +57,7 @@
           <MacroKpiCell
             label="黄金"
             :value="formatForexYi(safeOra.goldUsdYi)"
-            :sub="safeOraDelta != null ? `环比 ${formatDelta(safeOraDelta.goldDelta)} 亿$` : ''"
+            :sub="safeOraDelta != null ? `环比 ${formatDelta(safeOraDelta.goldDelta)} 亿美元` : ''"
             :subTrendClass="bandFromDelta(safeOraDelta?.goldDelta)"
           />
           <MacroKpiCell
@@ -85,7 +85,7 @@
           />
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
-          亿美元 · 月末数 · 含外储 + 黄金 + SDR + IMF 储备头寸 + 其他；与房价无直接关系。
+          单位：亿美元 · 月末数 · 含外储 + 黄金 + SDR + IMF 储备头寸 + 其他；与房价无直接关系。
         </view>
       </view>
 
@@ -138,17 +138,17 @@
         <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="总成交"
-            :value="(safeFxMarket.totalUsdWanYi * 10000).toLocaleString() + ' 亿$ (≈ ' + safeFxMarket.totalUsdWanYi.toFixed(0) + ' 万亿$)'"
+            :value="safeFxMarket.totalUsdWanYi.toFixed(2) + ' 万亿美元'"
             subClass="muted"
           />
           <MacroKpiCell
             label="即期 (RMB)"
-            :value="safeFxMarket.spotRmbWanYi.toFixed(2) + ' 万亿¥'"
+            :value="safeFxMarket.spotRmbWanYi.toFixed(2) + ' 万亿元'"
             subClass="muted"
           />
           <MacroKpiCell
             label="衍生品 (RMB)"
-            :value="safeFxMarket.derivativeRmbWanYi.toFixed(2) + ' 万亿¥'"
+            :value="safeFxMarket.derivativeRmbWanYi.toFixed(2) + ' 万亿元'"
             subClass="muted"
           />
           <MacroKpiCell
@@ -182,12 +182,12 @@
           />
           <MacroKpiCell
             label="结售汇顺差"
-            :value="(safeSettle.surplusUsdYi >= 0 ? '+' : '') + safeSettle.surplusUsdYi.toFixed(2) + ' 亿$'"
+            :value="(safeSettle.surplusUsdYi >= 0 ? '+' : '') + safeSettle.surplusUsdYi.toFixed(2) + ' 亿美元'"
             :subTrendClass="bandFromDelta(safeSettle.surplusUsdYi)"
           />
           <MacroKpiCell
             label="涉外收付款顺差"
-            :value="(safeSettle.receiptSurplusUsdYi >= 0 ? '+' : '') + safeSettle.receiptSurplusUsdYi.toFixed(2) + ' 亿$'"
+            :value="(safeSettle.receiptSurplusUsdYi >= 0 ? '+' : '') + safeSettle.receiptSurplusUsdYi.toFixed(2) + ' 亿美元'"
             :subTrendClass="bandFromDelta(safeSettle.receiptSurplusUsdYi)"
           />
           <MacroKpiCell
@@ -216,27 +216,27 @@
           />
           <MacroKpiCell
             label="货物顺差"
-            :value="(safeBop.goodsSurplusUsdYi >= 0 ? '+' : '') + safeBop.goodsSurplusUsdYi.toFixed(2) + ' 亿$'"
+            :value="(safeBop.goodsSurplusUsdYi >= 0 ? '+' : '') + safeBop.goodsSurplusUsdYi.toFixed(2) + ' 亿美元'"
             :subTrendClass="bandFromDelta(safeBop.goodsSurplusUsdYi)"
           />
           <MacroKpiCell
             label="服务顺差"
-            :value="(safeBop.servicesSurplusUsdYi >= 0 ? '+' : '') + safeBop.servicesSurplusUsdYi.toFixed(2) + ' 亿$'"
+            :value="(safeBop.servicesSurplusUsdYi >= 0 ? '+' : '') + safeBop.servicesSurplusUsdYi.toFixed(2) + ' 亿美元'"
             :subTrendClass="bandFromDelta(safeBop.servicesSurplusUsdYi)"
           />
           <MacroKpiCell
             label="初次收入"
-            :value="(safeBop.primaryIncomeUsdYi >= 0 ? '+' : '') + safeBop.primaryIncomeUsdYi.toFixed(2) + ' 亿$'"
+            :value="(safeBop.primaryIncomeUsdYi >= 0 ? '+' : '') + safeBop.primaryIncomeUsdYi.toFixed(2) + ' 亿美元'"
             :subTrendClass="bandFromDelta(safeBop.primaryIncomeUsdYi)"
           />
           <MacroKpiCell
             label="二次收入"
-            :value="(safeBop.secondaryIncomeUsdYi >= 0 ? '+' : '') + safeBop.secondaryIncomeUsdYi.toFixed(2) + ' 亿$'"
+            :value="(safeBop.secondaryIncomeUsdYi >= 0 ? '+' : '') + safeBop.secondaryIncomeUsdYi.toFixed(2) + ' 亿美元'"
             :subTrendClass="bandFromDelta(safeBop.secondaryIncomeUsdYi)"
           />
           <MacroKpiCell
             label="资本+金融账户"
-            :value="(safeBop.capitalFinancialUsdYi >= 0 ? '+' : '') + safeBop.capitalFinancialUsdYi.toFixed(2) + ' 亿$'"
+            :value="(safeBop.capitalFinancialUsdYi >= 0 ? '+' : '') + safeBop.capitalFinancialUsdYi.toFixed(2) + ' 亿美元'"
             :subTrendClass="bandFromDelta(safeBop.capitalFinancialUsdYi)"
           />
           <MacroKpiCell
@@ -275,7 +275,7 @@
           />
           <MacroKpiCell
             label="净头寸"
-            :value="(safeIip.netUsdYi >= 0 ? '+' : '') + safeIip.netUsdYi.toFixed(2) + ' 亿$'"
+            :value="(safeIip.netUsdYi >= 0 ? '+' : '') + safeIip.netUsdYi.toFixed(2) + ' 亿美元'"
             :subTrendClass="bandFromDelta(safeIip.netUsdYi)"
           />
           <MacroKpiCell
@@ -329,7 +329,7 @@
           />
           <MacroKpiCell
             label="货物顺差"
-            :value="(safeBopTrade.goodsSurplusUsdYi >= 0 ? '+' : '') + safeBopTrade.goodsSurplusUsdYi.toFixed(2) + ' 亿$'"
+            :value="(safeBopTrade.goodsSurplusUsdYi >= 0 ? '+' : '') + safeBopTrade.goodsSurplusUsdYi.toFixed(2) + ' 亿美元'"
             :subTrendClass="bandFromDelta(safeBopTrade.goodsSurplusUsdYi)"
           />
           <MacroKpiCell
@@ -344,7 +344,7 @@
           />
           <MacroKpiCell
             label="服务顺差"
-            :value="(safeBopTrade.servicesSurplusUsdYi >= 0 ? '+' : '') + safeBopTrade.servicesSurplusUsdYi.toFixed(2) + ' 亿$'"
+            :value="(safeBopTrade.servicesSurplusUsdYi >= 0 ? '+' : '') + safeBopTrade.servicesSurplusUsdYi.toFixed(2) + ' 亿美元'"
             :subTrendClass="bandFromDelta(safeBopTrade.servicesSurplusUsdYi)"
           />
           <MacroKpiCell
@@ -354,7 +354,7 @@
           />
           <MacroKpiCell
             label="总顺差"
-            :value="(safeBopTrade.totalSurplusUsdYi >= 0 ? '+' : '') + safeBopTrade.totalSurplusUsdYi.toFixed(2) + ' 亿$'"
+            :value="(safeBopTrade.totalSurplusUsdYi >= 0 ? '+' : '') + safeBopTrade.totalSurplusUsdYi.toFixed(2) + ' 亿美元'"
             :subTrendClass="bandFromDelta(safeBopTrade.totalSurplusUsdYi)"
           />
         </view>
@@ -373,29 +373,29 @@
         <view class="stats70-grid" style="margin-top: var(--space-3)">
           <MacroKpiCell
             label="社融存量"
-            :value="(pbcFinStats.sfStockWanYi / 10000).toFixed(2) + ' 万万亿¥'"
+            :value="(pbcFinStats.sfStockWanYi / 10000).toFixed(2) + ' 万万亿元'"
             :sub="`同比 ${formatPctDelta(pbcFinStats.sfStockYoyPct)}`"
             :subTrendClass="bandFromDelta(pbcFinStats.sfStockYoyPct)"
           />
           <MacroKpiCell
             label="社融增量"
-            :value="(pbcFinStats.sfFlowYtdWanYi / 10000).toFixed(2) + ' 万万亿¥'"
+            :value="(pbcFinStats.sfFlowYtdWanYi / 10000).toFixed(2) + ' 万万亿元'"
             subClass="muted"
           />
           <MacroKpiCell
             label="M2"
-            :value="(pbcFinStats.m2WanYi / 10000).toFixed(2) + ' 万万亿¥'"
+            :value="(pbcFinStats.m2WanYi / 10000).toFixed(2) + ' 万万亿元'"
             :sub="`同比 ${formatPctDelta(pbcFinStats.m2YoyPct)}`"
             :subTrendClass="bandFromDelta(pbcFinStats.m2YoyPct)"
           />
           <MacroKpiCell
             label="M1"
-            :value="(pbcFinStats.m1WanYi / 10000).toFixed(2) + ' 万万亿¥'"
+            :value="(pbcFinStats.m1WanYi / 10000).toFixed(2) + ' 万万亿元'"
             subClass="muted"
           />
           <MacroKpiCell
             label="本外币贷款"
-            :value="(pbcFinStats.rmbLoanYtdWanYi / 10000).toFixed(2) + ' 万万亿¥'"
+            :value="(pbcFinStats.rmbLoanYtdWanYi / 10000).toFixed(2) + ' 万万亿元'"
             subClass="muted"
           />
           <MacroKpiCell
@@ -454,7 +454,7 @@
           />
           <MacroKpiCell
             label="占全国社融"
-            :value="pbcRegionSfPeers && pbcRegionSfPeers.length > 0 ? (pbcRegionSfPeers[0]!.sfFlowYi / 10000).toFixed(1) + ' 万亿¥ 区域排名' : '—'"
+            :value="pbcRegionSfPeers && pbcRegionSfPeers.length > 0 ? (pbcRegionSfPeers[0]!.sfFlowYi / 10000).toFixed(1) + ' 万亿元 区域排名' : '—'"
             subClass="muted"
           />
         </view>
@@ -535,7 +535,7 @@ import {
 
 function formatForexYi(v: number): string {
   if (!Number.isFinite(v) || v <= 0) return "—";
-  return v.toLocaleString() + " 亿$";
+  return v.toLocaleString() + " 亿美元";
 }
 function formatPctDelta(v: number | undefined | null): string {
   if (v == null || !Number.isFinite(v)) return "—";

@@ -60,10 +60,12 @@
           </view>
         </view>
         <view v-if="gzInventoryHasNonRes" class="summary muted muted-caption">
-          未售 商业 {{ formatInventoryUnits(gzInventory.unsoldCommercialUnits) }}
+          未售：商业 {{ formatInventoryUnits(gzInventory.unsoldCommercialUnits) }}
           · 办公 {{ formatInventoryUnits(gzInventory.unsoldOfficeUnits) }}
           · 车位 {{ formatInventoryUnits(gzInventory.unsoldParkingUnits) }}
-          · 当日签约 商 {{ gzInventory.signedCommercialUnits }} / 办 {{ gzInventory.signedOfficeUnits }} / 车
+        </view>
+        <view v-if="gzInventoryHasNonRes" class="summary muted muted-caption">
+          当日签约：商 {{ gzInventory.signedCommercialUnits }} · 办 {{ gzInventory.signedOfficeUnits }} · 车
           {{ gzInventory.signedParkingUnits }}
         </view>
         <view v-if="gzInventory.districts[0]" class="summary">
@@ -71,6 +73,12 @@
           {{ gzInventory.districts[0].availableUnits.toLocaleString() }} 套
         </view>
         <view class="section-title">分区明细（住宅）</view>
+        <view class="row-line row-head">
+          <text class="row-name">行政区</text>
+          <text>可售</text>
+          <text>未售</text>
+          <text>签约</text>
+        </view>
         <view
           v-for="row in gzInventory.districts"
           :key="row.district"
@@ -78,9 +86,9 @@
           data-gz-inventory-detail
         >
           <text class="row-name">{{ row.district }}</text>
-          <text>可售 {{ row.availableUnits.toLocaleString() }}</text>
-          <text class="muted">未售 {{ row.unsoldUnits.toLocaleString() }}</text>
-          <text class="muted">签约 {{ row.signedUnits }}</text>
+          <text>{{ row.availableUnits.toLocaleString() }}</text>
+          <text class="muted">{{ row.unsoldUnits.toLocaleString() }}</text>
+          <text class="muted">{{ row.signedUnits }}</text>
         </view>
         <template v-if="gzInventoryHasNonRes">
           <button
@@ -94,6 +102,12 @@
             {{ gzNonResDistrictsOpen ? "收起业态分区" : "查看商业/办公分区" }}
           </button>
           <view v-if="gzNonResDistrictsOpen" class="section-title">分区明细（可售商业 / 办公）</view>
+          <view v-if="gzNonResDistrictsOpen" class="row-line row-head">
+            <text class="row-name">行政区</text>
+            <text>可售商</text>
+            <text>可售办</text>
+            <text>车位</text>
+          </view>
           <view
             v-if="gzNonResDistrictsOpen"
             v-for="row in gzNonResDistricts"
@@ -102,13 +116,13 @@
             data-gz-inventory-nonres-detail
           >
             <text class="row-name">{{ row.district }}</text>
-            <text>商 {{ row.availableCommercialUnits.toLocaleString() }}</text>
-            <text class="muted">办 {{ row.availableOfficeUnits.toLocaleString() }}</text>
-            <text class="muted">车 {{ row.availableParkingUnits.toLocaleString() }}</text>
+            <text>{{ row.availableCommercialUnits.toLocaleString() }}</text>
+            <text class="muted">{{ row.availableOfficeUnits.toLocaleString() }}</text>
+            <text class="muted">{{ row.availableParkingUnits.toLocaleString() }}</text>
           </view>
         </template>
         <view class="note">
-          广州市住建局商品房销售统计。住宅 / 商业 / 办公 / 车位为同一接口分项；可售与未售为不同官方口径；≠挂牌价、≠网签均价。
+          广州市住建局商品房销售统计。住宅 / 商业 / 办公 / 车位为同一接口分项；可售与未售为不同官方口径，与挂牌价、网签均价的统计方式不同。
         </view>
       </view>
 
@@ -219,15 +233,22 @@
           </view>
         </view>
         <view class="section-title">最近成交</view>
-        <view v-for="d in gzLandLatest" :key="d.sourceUrl" class="row-line">
-          <text class="row-name">
-            {{ d.district || "广州" }}
-            <text class="muted" v-if="d.dealDate || d.publishDate"> · {{ (d.dealDate || d.publishDate).slice(0, 10) }}</text>
-          </text>
+        <view class="row-line row-line--3 row-head">
+          <text class="row-name">行政区</text>
+          <text>成交价</text>
+          <text>用地面积</text>
+        </view>
+        <view v-for="d in gzLandLatest" :key="d.sourceUrl" class="row-line row-line--3">
+          <view class="row-name">
+            <text class="row-name-main">{{ d.district || "广州" }}</text>
+            <text v-if="d.dealDate || d.publishDate" class="row-name-sub">
+              {{ (d.dealDate || d.publishDate).slice(0, 10) }}
+            </text>
+          </view>
           <text>{{ formatPrice(d.priceWan) }}</text>
           <text class="muted">{{ formatArea(d.areaSqm) }}</text>
         </view>
-        <view class="note">广州市规划和自然资源局成交公示；土地价款 ≠ 房价均价。</view>
+        <view class="note">广州市规划和自然资源局成交公示；土地价款与房价均价口径不同。</view>
       </view>
 
       <!-- 深圳土地 -->
@@ -262,7 +283,7 @@
             </text>
           </view>
         </view>
-        <view class="note">深圳居住用地已成交样本；起始价口径，≠ 房价。</view>
+        <view class="note">深圳居住用地已成交样本；起始价为出让起始口径，与房价口径不同。</view>
       </view>
 
       <view v-if="!hasAnyCard" class="card">
@@ -449,14 +470,41 @@ onMounted(() => {
   font-size: var(--font-caption);
   font-variant-numeric: tabular-nums;
 }
+.row-line--3 {
+  grid-template-columns: 1.2fr 1fr 1fr;
+}
+.row-head > text:not(.row-name) {
+  text-align: right;
+}
+.row-head {
+  padding: 4rpx 0 8rpx;
+  border-bottom: 1rpx solid var(--color-border-soft);
+  font-size: var(--font-micro);
+  font-weight: 400;
+  color: var(--color-muted);
+}
+.row-head .row-name {
+  font-weight: 400;
+  color: var(--color-muted);
+}
 .row-line > text:not(.row-name) {
   text-align: right;
 }
 .row-name {
   overflow: hidden;
   font-weight: var(--font-weight-semibold);
+}
+.row-name-main {
+  display: block;
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.row-name-sub {
+  display: block;
+  font-size: var(--font-micro);
+  font-weight: 400;
+  color: var(--color-muted);
 }
 .note {
   margin-top: var(--space-2);

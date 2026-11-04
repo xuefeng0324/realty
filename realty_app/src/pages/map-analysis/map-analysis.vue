@@ -221,7 +221,7 @@ const districtLabels = computed<Array<{ code: string; name: string; left: string
   const dm = districtMap.value;
   if (!dm) return [];
   const items = dm.districts.map((d) => {
-    const x = (mapX(d.centerLng, dm.bbox.minLng, dm.bbox.maxLng) / MAP_W) * 100;
+    const x = Math.min(93, Math.max(7, (mapX(d.centerLng, dm.bbox.minLng, dm.bbox.maxLng) / MAP_W) * 100));
     const y = (mapY(d.centerLat, dm.bbox.minLat, dm.bbox.maxLat) / MAP_H) * 100;
     return { code: d.districtCode, name: districtShortName(d.districtName), x, y };
   });
