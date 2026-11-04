@@ -423,7 +423,7 @@ onMounted(() => {
 }
 .kpi-label {
   font-size: 20rpx;
-  color: var(--color-muted, var(--color-muted));
+  color: var(--color-muted);
 }
 .kpi-value {
   font-size: 30rpx;
@@ -450,7 +450,7 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: var(--space-2);
   padding: 10rpx 0;
-  border-bottom: 1rpx dashed var(--color-soft-strong, rgba(148, 163, 184, 0.35));
+  border-bottom: 1rpx dashed var(--color-soft-strong);
   font-size: 22rpx;
 }
 .row-name {
@@ -460,7 +460,7 @@ onMounted(() => {
 .note {
   margin-top: var(--space-2);
   font-size: 21rpx;
-  color: var(--color-muted, var(--color-muted));
+  color: var(--color-muted);
   line-height: 1.45;
 }
 .trend-up {
@@ -479,7 +479,7 @@ onMounted(() => {
 }
 .sheet {
   width: 100%;
-  background: var(--color-card, #0f172a);
+  background: var(--color-card);
   border-radius: var(--radius-lg) 24rpx 0 0;
   padding: var(--space-4) 28rpx 48rpx;
 }
@@ -492,11 +492,11 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   padding: 22rpx var(--space-1);
-  border-bottom: 1rpx solid var(--color-soft-strong, rgba(148, 163, 184, 0.25));
+  border-bottom: 1rpx solid var(--color-soft-strong);
   font-size: 28rpx;
 }
 .sheet-item--active {
-  color: var(--color-accent, var(--color-focus));
+  color: var(--color-accent);
   font-weight: var(--font-weight-semibold);
 }
 .sheet-check {

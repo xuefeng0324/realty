@@ -909,7 +909,7 @@ function openGithubReleases() {
 
 .library-clear {
   margin-left: auto;
-  color: var(--color-danger, var(--color-danger));
+  color: var(--color-danger);
 }
 
 .library-empty {

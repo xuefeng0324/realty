@@ -385,15 +385,15 @@ watch(
 
 <style scoped>
 .page { padding: var(--space-3); padding-bottom: 80rpx; }
-.header { padding: var(--space-3) var(--space-4); background: var(--color-surface, #fff); border-radius: var(--radius-md); margin-bottom: var(--space-3); }
-.title { font-size: 36rpx; font-weight: var(--font-weight-bold); color: var(--color-text, #333); }
-.muted { color: var(--color-muted, #666); font-size: 24rpx; }
-.empty { text-align: center; padding: var(--space-6) 0; color: var(--color-muted, #999); }
+.header { padding: var(--space-3) var(--space-4); background: var(--color-surface); border-radius: var(--radius-md); margin-bottom: var(--space-3); }
+.title { font-size: 36rpx; font-weight: var(--font-weight-bold); color: var(--color-text); }
+.muted { color: var(--color-muted); font-size: 24rpx; }
+.empty { text-align: center; padding: var(--space-6) 0; color: var(--color-muted); }
 .row-between { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2); }
-.card { background: var(--color-surface, #fff); border-radius: var(--radius-md); padding: 20rpx; margin-bottom: var(--space-3); border: 1rpx solid var(--color-border-soft, #eee); }
-.card-title { font-size: 30rpx; font-weight: var(--font-weight-semibold); color: var(--color-text, #333); }
+.card { background: var(--color-surface); border-radius: var(--radius-md); padding: 20rpx; margin-bottom: var(--space-3); border: 1rpx solid var(--color-border-soft); }
+.card-title { font-size: 30rpx; font-weight: var(--font-weight-semibold); color: var(--color-text); }
 .footer { display: flex; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-4); }
-.back-btn, .reload-btn { flex: 1; margin: 0; font-size: 26rpx; padding: 0 var(--space-4); border-radius: var(--radius-pill) !important; background: var(--color-soft, #f5f5f5) !important; color: var(--color-text, #333) !important; }
+.back-btn, .reload-btn { flex: 1; margin: 0; font-size: 26rpx; padding: 0 var(--space-4); border-radius: var(--radius-pill) !important; background: var(--color-soft) !important; color: var(--color-text) !important; }
 
 .map-mode-tabs {
   display: flex;
@@ -406,26 +406,26 @@ watch(
   min-width: 100rpx;
   text-align: center;
   padding: var(--space-2) var(--space-1);
-  background: var(--color-soft, #f5f5f5);
+  background: var(--color-soft);
   border-radius: var(--radius-md2);
 }
 .map-mode-tab--active {
-  background: var(--color-primary, #4f46e5);
+  background: var(--color-primary);
   color: #fff;
 }
 .map-mode-icon { display: block; font-size: 32rpx; }
 .map-mode-label { display: block; font-size: 22rpx; }
 
 .map-legend { margin-top: var(--space-2); display: flex; align-items: center; gap: var(--space-1); font-size: 22rpx; }
-.map-legend-title { color: var(--color-text, #333); font-weight: var(--font-weight-semibold); }
+.map-legend-title { color: var(--color-text); font-weight: var(--font-weight-semibold); }
 .map-legend-bar { flex: 1; height: 16rpx; border-radius: var(--radius-sm2); }
-.map-legend-min, .map-legend-max { color: var(--color-muted, #666); }
+.map-legend-min, .map-legend-max { color: var(--color-muted); }
 
 .map-card-full { padding: var(--space-2); }
 .map-svg-full {
   width: 100%;
   height: 600rpx;
-  background: var(--color-soft, #f5f5f5);
+  background: var(--color-soft);
   border-radius: var(--radius-md2);
 }
 
@@ -447,10 +447,10 @@ watch(
   justify-content: space-between;
   padding: var(--space-1) var(--space-2);
   margin: 4rpx 0;
-  background: var(--color-soft, #f5f5f5);
+  background: var(--color-soft);
   border-radius: var(--radius-sm2);
 }
-.map-district-name { font-size: 26rpx; font-weight: var(--font-weight-semibold); color: var(--color-text, #333); }
-.map-district-vals { display: flex; gap: var(--space-2); font-size: 20rpx; color: var(--color-muted, #666); }
-.map-stat { background: var(--color-surface, #fff); padding: 4rpx var(--space-1); border-radius: var(--radius-xs); }
+.map-district-name { font-size: 26rpx; font-weight: var(--font-weight-semibold); color: var(--color-text); }
+.map-district-vals { display: flex; gap: var(--space-2); font-size: 20rpx; color: var(--color-muted); }
+.map-stat { background: var(--color-surface); padding: 4rpx var(--space-1); border-radius: var(--radius-xs); }
 </style>

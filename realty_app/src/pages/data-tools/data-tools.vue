@@ -2391,7 +2391,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 10rpx 14rpx;
-  background: var(--color-panel, #fafafa);
+  background: var(--color-panel);
   border-radius: var(--radius-sm2);
 }
 .dt-card-info {
@@ -2410,13 +2410,13 @@ onUnmounted(() => {
   flex: 0 0 auto;
   margin: 0;
   border-radius: var(--radius-pill) !important;
-  background: var(--color-primary, #4f46e5) !important;
+  background: var(--color-primary) !important;
   color: #fff !important;
   font-size: 22rpx;
   padding: 0 22rpx;
 }
 .dt-card-toggle--off {
-  background: var(--color-muted, #888) !important;
+  background: var(--color-muted) !important;
 }
 .dt-card-actions {
   margin-top: var(--space-3);
@@ -2444,7 +2444,7 @@ onUnmounted(() => {
   margin: 0 -24rpx var(--space-3);
   padding: var(--space-2) var(--space-4);
   background: var(--color-bg);
-  border-bottom: 1rpx solid var(--color-border-soft, #eee);
+  border-bottom: 1rpx solid var(--color-border-soft);
 }
 .dt-nav-scroll {
   width: 100%;
@@ -2500,7 +2500,7 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   padding: var(--space-1) var(--space-2);
-  background: var(--color-panel, #f5f5f5);
+  background: var(--color-panel);
   border-radius: var(--radius-sm2);
   min-width: 100rpx;
 }
@@ -2521,7 +2521,7 @@ onUnmounted(() => {
 .edu-chip {
   font-size: 22rpx;
   padding: 4rpx 10rpx;
-  background: var(--color-panel, #f5f5f5);
+  background: var(--color-panel);
   border-radius: var(--radius-xs);
   color: #444;
 }

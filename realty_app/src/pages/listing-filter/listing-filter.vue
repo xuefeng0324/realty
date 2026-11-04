@@ -1083,7 +1083,7 @@ onUnmounted(() => {
   min-height: 100vh;
   background:
     radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.1), transparent 32%),
-    var(--color-bg, #f4f7f6);
+    var(--color-bg);
 }
 
 .find-mode-community .container > :not(.find-hub-head):not(.find-entity-panel),
@@ -1093,11 +1093,11 @@ onUnmounted(() => {
 
 .find-hub-head {
   padding: var(--space-5) 30rpx 26rpx;
-  border: 1rpx solid var(--color-border, rgba(15, 118, 110, 0.12));
+  border: 1rpx solid var(--color-border);
   border-radius: 30rpx;
   background:
     radial-gradient(circle at 92% 0%, rgba(56, 189, 248, 0.16), transparent 42%),
-    var(--color-panel, #fff);
+    var(--color-panel);
   box-shadow: 0 16rpx 44rpx rgba(15, 48, 42, 0.08);
 }
 
@@ -1126,7 +1126,7 @@ onUnmounted(() => {
 
 .find-hub-title {
   margin-top: 4rpx;
-  color: var(--color-heading, #102b27);
+  color: var(--color-heading);
   font-size: 44rpx;
   font-weight: var(--font-weight-black);
   letter-spacing: -2rpx;
@@ -1135,7 +1135,7 @@ onUnmounted(() => {
 .find-hub-subtitle {
   display: block;
   margin-top: var(--space-1);
-  color: var(--color-muted, #6b807c);
+  color: var(--color-muted);
   font-size: 21rpx;
 }
 
@@ -1182,7 +1182,7 @@ onUnmounted(() => {
   margin-top: 28rpx;
   padding: var(--space-1);
   border-radius: 20rpx;
-  background: var(--color-soft, #eef4f2);
+  background: var(--color-soft);
 }
 
 .find-hub-segment {
@@ -1193,7 +1193,7 @@ onUnmounted(() => {
   min-height: 68rpx;
   padding: 0 var(--space-2);
   border-radius: 15rpx;
-  color: var(--color-muted, #667c77);
+  color: var(--color-muted);
   background: transparent;
   font-size: 24rpx;
   font-weight: var(--font-weight-bold);
@@ -1201,7 +1201,7 @@ onUnmounted(() => {
 
 .find-hub-segment--active {
   color: #087565;
-  background: var(--color-panel, #fff);
+  background: var(--color-panel);
   box-shadow: 0 6rpx 18rpx rgba(11, 84, 72, 0.1);
 }
 
@@ -1224,9 +1224,9 @@ onUnmounted(() => {
   height: 82rpx;
   margin-top: 20rpx;
   padding: 0 10rpx 0 22rpx;
-  border: 1rpx solid var(--color-border, #dce7e4);
+  border: 1rpx solid var(--color-border);
   border-radius: 20rpx;
-  background: var(--color-soft, #f5f8f7);
+  background: var(--color-soft);
 }
 
 .find-hub-search-icon {
@@ -1240,7 +1240,7 @@ onUnmounted(() => {
   min-width: 0;
   height: 70rpx;
   line-height: 70rpx;
-  color: var(--color-heading, #17322d);
+  color: var(--color-heading);
   font-size: 25rpx;
 }
 
@@ -1258,7 +1258,7 @@ onUnmounted(() => {
 
 .find-hub-caption {
   margin-top: 15rpx;
-  color: var(--color-muted, #6b807c);
+  color: var(--color-muted);
   font-size: 20rpx;
 }
 
@@ -1280,7 +1280,7 @@ onUnmounted(() => {
   gap: 20rpx;
   min-height: 116rpx;
   padding: 19rpx 0;
-  border-top: 1rpx solid var(--color-border, #e9efed);
+  border-top: 1rpx solid var(--color-border);
 }
 
 .find-entity-avatar {
@@ -1312,7 +1312,7 @@ onUnmounted(() => {
 
 .find-entity-name {
   overflow: hidden;
-  color: var(--color-heading, #17322d);
+  color: var(--color-heading);
   font-size: 27rpx;
   font-weight: var(--font-weight-bold-plus);
   text-overflow: ellipsis;
@@ -1323,14 +1323,14 @@ onUnmounted(() => {
   display: block;
   overflow: hidden;
   margin-top: 9rpx;
-  color: var(--color-muted, #6b807c);
+  color: var(--color-muted);
   font-size: 21rpx;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .find-entity-arrow {
-  color: var(--color-muted, #8da09c);
+  color: var(--color-muted);
   font-size: 38rpx;
 }
 
@@ -1344,7 +1344,7 @@ onUnmounted(() => {
   padding: 6rpx 10rpx;
   border-radius: var(--radius-sm2);
   color: var(--color-text-secondary);
-  background: var(--color-soft, #eef3f2);
+  background: var(--color-soft);
   font-size: 18rpx;
 }
 
@@ -1677,7 +1677,7 @@ onUnmounted(() => {
   height: 120rpx;
   border-radius: var(--radius-md2);
   flex-shrink: 0;
-  background: var(--color-soft-strong, #e2e8f0);
+  background: var(--color-soft-strong);
 }
 .listing-thumb--empty {
   display: flex;
@@ -1686,7 +1686,7 @@ onUnmounted(() => {
 }
 .listing-thumb-ph {
   font-size: 28rpx;
-  color: var(--color-muted, var(--color-muted));
+  color: var(--color-muted);
 }
 
 .listing-main {
@@ -1725,7 +1725,7 @@ onUnmounted(() => {
 .listing-price-main {
   font-size: 34rpx;
   font-weight: var(--font-weight-bold);
-  color: var(--color-danger, #e11d48);
+  color: var(--color-danger);
   font-variant-numeric: tabular-nums;
 }
 .listing-price-unit {
@@ -1743,12 +1743,12 @@ onUnmounted(() => {
   color: var(--color-heading);
 }
 .community-filter-clear {
-  color: var(--color-primary, #2563eb);
+  color: var(--color-primary);
   font-size: 22rpx;
 }
 .tag-pill {
   background: rgba(37, 99, 235, 0.12);
-  color: var(--color-primary, #2563eb);
+  color: var(--color-primary);
   border: none;
 }
 
@@ -1769,7 +1769,7 @@ onUnmounted(() => {
 }
 .minidim-label {
   font-size: 18rpx;
-  color: var(--color-muted, var(--color-muted));
+  color: var(--color-muted);
   font-weight: var(--font-weight-medium);
 }
 .minidim-track {

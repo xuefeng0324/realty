@@ -350,23 +350,23 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 }
 .header {
   padding: var(--space-3) var(--space-4);
-  background: var(--color-surface, #fff);
+  background: var(--color-surface);
   border-radius: var(--radius-md);
   margin-bottom: var(--space-3);
 }
 .title {
   font-size: 36rpx;
   font-weight: var(--font-weight-bold);
-  color: var(--color-text, #333);
+  color: var(--color-text);
 }
 .muted {
-  color: var(--color-muted, #666);
+  color: var(--color-muted);
   font-size: 24rpx;
 }
 .empty {
   text-align: center;
   padding: var(--space-6) 0;
-  color: var(--color-muted, #999);
+  color: var(--color-muted);
 }
 .row-between {
   display: flex;
@@ -375,16 +375,16 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   margin-bottom: var(--space-2);
 }
 .card {
-  background: var(--color-surface, #fff);
+  background: var(--color-surface);
   border-radius: var(--radius-md);
   padding: 20rpx;
   margin-bottom: var(--space-3);
-  border: 1rpx solid var(--color-border-soft, #eee);
+  border: 1rpx solid var(--color-border-soft);
 }
 .card-title {
   font-size: 30rpx;
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text, #333);
+  color: var(--color-text);
 }
 .footer {
   display: flex;
@@ -399,8 +399,8 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   font-size: 26rpx;
   padding: 0 var(--space-4);
   border-radius: var(--radius-pill) !important;
-  background: var(--color-soft, #f5f5f5) !important;
-  color: var(--color-text, #333) !important;
+  background: var(--color-soft) !important;
+  color: var(--color-text) !important;
 }
 
 /* BA 热图 */
@@ -421,7 +421,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   padding: 4rpx;
   text-align: center;
   flex: 0 0 90rpx;
-  color: var(--color-muted, #666);
+  color: var(--color-muted);
 }
 .ba-cell {
   flex: 1 1 0;
@@ -431,13 +431,13 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   justify-content: center;
   border-radius: var(--radius-sm2);
   font-size: 22rpx;
-  color: var(--color-text, #333);
+  color: var(--color-text);
 }
-.ba-cell--empty { background: var(--color-soft, #f5f5f5); color: var(--color-muted, #aaa); }
+.ba-cell--empty { background: var(--color-soft); color: var(--color-muted); }
 .ba-cell--light { background: #e3f2fd; }
 .ba-cell--mid { background: #90caf9; color: #fff; }
 .ba-cell--deep { background: #1976d2; color: #fff; font-weight: var(--font-weight-semibold); }
-.ba-empty { color: var(--color-muted, #aaa); }
+.ba-empty { color: var(--color-muted); }
 .ba-count { font-size: 24rpx; font-weight: var(--font-weight-semibold); }
 
 /* OF 朝向×楼层 矩阵 */
@@ -463,7 +463,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   padding: 4rpx;
   text-align: center;
   flex: 0 0 90rpx;
-  color: var(--color-muted, #666);
+  color: var(--color-muted);
 }
 .of-cell,
 .da-cell {
@@ -476,7 +476,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   font-size: 22rpx;
 }
 .of-cell--empty,
-.da-cell--empty { background: var(--color-soft, #f5f5f5); color: var(--color-muted, #aaa); }
+.da-cell--empty { background: var(--color-soft); color: var(--color-muted); }
 .of-cell--up { background: #c8e6c9; }
 .of-cell--down { background: #ffcdd2; }
 .of-cell--flat { background: #fff9c4; }
@@ -496,14 +496,14 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   flex: 1;
   text-align: center;
   padding: var(--space-1);
-  background: var(--color-soft, #f5f5f5);
+  background: var(--color-soft);
   border-radius: var(--radius-sm2);
 }
 .sc-kpi-val {
   display: block;
   font-size: 32rpx;
   font-weight: var(--font-weight-bold);
-  color: var(--color-primary, #4f46e5);
+  color: var(--color-primary);
 }
 .sc-kpi-label {
   display: block;
@@ -513,7 +513,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   position: relative;
   width: 100%;
   height: 200rpx;
-  background: var(--color-soft, #f5f5f5);
+  background: var(--color-soft);
   border-radius: var(--radius-md2);
   overflow: hidden;
 }

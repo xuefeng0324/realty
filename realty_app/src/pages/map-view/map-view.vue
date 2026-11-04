@@ -1366,7 +1366,7 @@ onUnmounted(() => {
   padding: 7rpx 14rpx;
   border-radius: var(--radius-pill);
   background: var(--color-surface-raised);
-  color: var(--color-text-secondary, var(--color-muted));
+  color: var(--color-text-secondary);
   font-size: 20rpx;
 }
 
@@ -1406,7 +1406,7 @@ onUnmounted(() => {
 
 .city-option--active {
   background: var(--color-primary);
-  color: var(--color-primary-text, #052e16);
+  color: var(--color-primary-text);
 }
 
 .map-mode-scroll {

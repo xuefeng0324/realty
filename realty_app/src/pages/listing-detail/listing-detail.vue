@@ -602,7 +602,7 @@ onMounted(async () => {
   width: 100%;
   height: 360rpx;
   display: block;
-  background: var(--color-soft-strong, #e2e8f0);
+  background: var(--color-soft-strong);
 }
 .gallery-empty {
   min-height: 220rpx;
@@ -612,7 +612,7 @@ onMounted(async () => {
   justify-content: center;
   gap: var(--space-1);
   padding: var(--space-5) var(--space-4);
-  background: linear-gradient(180deg, var(--color-soft-strong, #e2e8f0), var(--color-soft, #f1f5f9));
+  background: linear-gradient(180deg, var(--color-soft-strong), var(--color-soft));
 }
 .gallery-empty-title {
   font-size: 28rpx;
@@ -700,10 +700,10 @@ onMounted(async () => {
   gap: var(--space-2);
   padding: var(--space-2) var(--space-1);
   margin: var(--space-1) 0 var(--space-4);
-  background: color-mix(in srgb, var(--color-card, var(--color-surface)) 92%, transparent);
+  background: color-mix(in srgb, var(--color-card) 92%, transparent);
   backdrop-filter: blur(8px);
   border-radius: var(--radius-md);
-  border: 1rpx solid var(--color-border, rgba(148, 163, 184, 0.25));
+  border: 1rpx solid var(--color-border);
 }
 .source-dock-primary,
 button.source-dock-primary {
