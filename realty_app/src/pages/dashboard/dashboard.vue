@@ -927,7 +927,7 @@
       >
         <view class="row-between">
           <view class="card-title card-title--flush">
-            🔥 全品类区级网签热度榜 · {{ districtWangqianRank.cityName }}
+            全品类区级网签热度榜 · {{ districtWangqianRank.cityName }}
           </view>
           <button
             class="card-hide-btn"
@@ -1343,7 +1343,7 @@
 
         <!-- 综合 Top 5 (横向 grid) -->
         <view class="sd-block">
-          <view class="sd-block-title">🏆 综合 Top 5</view>
+          <view class="sd-block-title">综合 Top 5</view>
           <view class="sd-ovr">
             <view v-for="(row, i) in schoolDims.topOverall.slice(0, 5)" :key="'so_' + row.schoolId" class="sd-ovr-row">
               <view class="sd-rank">{{ i + 1 }}</view>
@@ -1479,7 +1479,7 @@
         </view>
 
         <!-- 5Y LPR sparkline (SVG) -->
-        <view class="lpr-chart-title">📉 5Y+ LPR 走势 (近 36 月)</view>
+        <view class="lpr-chart-title">5Y+ LPR 走势 (近 36 月)</view>
         <view class="lpr-chart-wrap">
           <svg :viewBox="`0 0 ${LPR_W} ${LPR_H}`" class="lpr-chart" preserveAspectRatio="none">
             <path

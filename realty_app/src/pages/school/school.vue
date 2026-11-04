@@ -24,7 +24,7 @@
             <text class="muted">小学/初中</text>
             <text>{{ educationOverview.primaryCount }}/{{ educationOverview.juniorHighCount }}</text>
           </view>
-          <view v-if="educationOverview.kindergartenCount > 0" class="edu-cell">
+          <view v-if="educationOverview.kindergartenCount > 0" class="edu-cell edu-cell--full">
             <text class="muted">幼儿园</text>
             <text>{{ educationOverview.kindergartenCount.toLocaleString() }}</text>
           </view>
@@ -382,6 +382,8 @@ async function loadCities() {
   border-radius: var(--radius-md2);
   background: var(--color-panel-soft);
 }
+
+.edu-cell--full { grid-column: 1 / -1; }
 
 .edu-cell > text:last-child {
   color: var(--color-heading);
