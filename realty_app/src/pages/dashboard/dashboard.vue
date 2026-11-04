@@ -3905,7 +3905,7 @@ onShow(async () => {
   margin-top: var(--space-1);
   height: 8rpx;
   border-radius: var(--radius-pill);
-  background: rgba(148, 163, 184, 0.28);
+  background: color-mix(in srgb, var(--color-muted) 28%, transparent);
   overflow: hidden;
 }
 
@@ -4669,7 +4669,7 @@ onShow(async () => {
   align-items: center;
   gap: var(--space-gap-md2);
   padding: 10rpx 0;
-  border-bottom: 1rpx solid #f1f5f9;
+  border-bottom: 1rpx solid var(--color-border-soft);
 }
 .lf-row:last-child {
   border-bottom: none;
@@ -4728,7 +4728,7 @@ onShow(async () => {
 }
 .lf-fresh-mid {
   background: var(--color-warn-soft);
-  color: #d97706;
+  color: var(--color-warning);
 }
 .lf-fresh-down {
   background: var(--color-danger-soft);

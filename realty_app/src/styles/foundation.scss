@@ -462,9 +462,9 @@ textarea {
   font-size: var(--font-caption);
   font-weight: 600;
 }
-.tag-metro-status.st-在建 { background: #d97706; color: #fff; }
-.tag-metro-status.st-即将开通 { background: #16a34a; color: #fff; }
-.tag-metro-status.st-规划 { background: #6b7280; color: #fff; }
+.tag-metro-status.st-在建 { background: var(--color-warning); color: #fff; }
+.tag-metro-status.st-即将开通 { background: var(--color-primary); color: #fff; }
+.tag-metro-status.st-规划 { background: var(--color-muted); color: #fff; }
 
 /* 排名奖牌（跨页面复用：dashboard / data-tools） */
 .rank-gold {
@@ -472,11 +472,11 @@ textarea {
   color: var(--color-text);
 }
 .rank-silver {
-  background: linear-gradient(135deg, #e5e7eb 0%, #94a3b8 100%);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-muted) 55%, #fff) 0%, var(--color-muted) 100%);
   color: var(--color-text);
 }
 .rank-bronze {
-  background: linear-gradient(135deg, #d97706 0%, #92400e 100%);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-warning) 75%, #fff) 0%, color-mix(in srgb, var(--color-warning) 60%, #000) 100%);
   color: #fffbeb;
 }
 .rank-flat {

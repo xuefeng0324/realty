@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.123.80 | 2026-11-04 | 残留语义色 token 化（muted/奖牌铜银/状态标签）：① **muted 软色 4 处**——`dashboard gz-progress-track`、`listing-detail source-trust--estimated/unknown`、`listing-filter freshness-bar` 轨道、`school tag-source-curated` 的 `rgba(148,163,184,α)` → `color-mix(in srgb, var(--color-muted) N%, transparent)`，修复浅色模式误用深色 muted 色值的问题；② **奖牌银/铜**——`data-tools medal-silver/bronze` 与 `foundation rank-silver/bronze` 的 `#cbd5e1/#e5e7eb/#94a3b8/#d97706/#92400e` → `color-mix` 从 `--color-muted`/`--color-warning` 派生，金/银/铜三色明暗主题均保持金属质感；③ **状态标签**——`listing-filter freshness` 中段 `#d97706`→`--color-warning`、陈旧 `#9ca3af`→`--color-muted`，`dashboard lf-fresh-mid` 文字 `#d97706`→`--color-warning`，`foundation 地铁状态` 在建/即将开通/规划 `#d97706/#16a34a/#6b7280`→`--color-warning/--color-primary/--color-muted`；④ `dashboard lf-row` 边框 `#f1f5f9`→`--color-border-soft`，修复深色模式边框不可见（versionCode 415） |
 | v1.123.79 | 2026-11-04 | 语义色 token 迁移（续）：① **listing-detail 来源可信度标签**——`source-trust--real` 背景 `rgba(34,197,94,.18)` → `--color-success-soft`，`source-trust--derived` 背景 `rgba(245,158,11,.18)` → `--color-warn-soft`、文字 `#fbbf24` → `--color-warning`，`derived-warning` 背景/文字同步到 warn 系 token，深浅色自动适配且浅色模式对比度提升；② **listing-filter 迷你维度条**——绿/橙两档渐变硬编码色 `#10b981`/`#fbbf24` → `color-mix(in srgb, var(--color-primary|warning) 60%, #fff)`，红档已用 token；③ **奖牌金色**——`data-tools medal-gold` 与 `foundation rank-gold` 的 `#fbbf24`/`#f59e0b` → `color-mix(in srgb, var(--color-warning) 60%, #fff)` 到 `var(--color-warning)`，金/银/铜奖牌在明暗主题下均保持金属质感（versionCode 414） |
 | v1.123.78 | 2026-11-04 | 学校页语义色 token 化与布局对齐：① **school-detail 硬编码色迁移到语义 token**——`省重点标记`/`市重点标记` 标签、评分环（高/中/低三档）、因子进度条、数据来源警告、错误图标共 10 处 `rgba(#hex)` 改为 `--color-success-soft`/`--color-warn-soft`/`--color-danger-soft` 与 `color-mix()`，深浅色自动适配，且修正 `省重点标记` 文字色误用 `--color-primary` 为 `--color-success`；② **school 教育统计「幼儿园」单元格孤悬**——2 列 grid 下第 5 项独占左列、右列留空，改 `grid-column: 1 / -1` 跨满两列；③ dashboard 移除 3 处装饰 emoji（🔥/🏆/📉），与全站去 emoji 风格一致（versionCode 413） |
 | v1.123.77 | 2026-11-04 | 宏观数据单位修复：① **macro-fx 社融/M2 单位错误**——`sfStockWanYi` 等字段本就是「万亿元」，代码却 `/10000` 并标注「万万亿元」，社融存量显示成「0.05 万万亿元」而非 468.17 万亿元；去掉误除并统一标注「万亿元」，与脚注一致；② macro-rates MLF/OMO 金额「万亿¥」→「万亿元」，与全库货币单位命名统一（versionCode 412） |
@@ -706,6 +707,10 @@ gh auth setup-git
 ## 更新日志
 
 详细变更见 [changelog/](./changelog/) 目录。
+
+### v1.123.80（2026-11-04）：残留语义色 token 化（muted/奖牌铜银/状态标签）
+
+全仓扫描残留硬编码语义色并迁移：① **muted 软色 4 处**——`dashboard gz-progress-track`、`listing-detail source-trust--estimated/unknown`、`listing-filter freshness-bar` 轨道、`school tag-source-curated` 的 `rgba(148,163,184,α)` → `color-mix(in srgb, var(--color-muted) N%, transparent)`，修复浅色模式误用深色 muted 色值的问题；② **奖牌银/铜**——`data-tools medal-silver/bronze` 与 `foundation rank-silver/bronze` 的硬编码灰/琥珀色 → `color-mix` 从 `--color-muted`/`--color-warning` 派生，金/银/铜三色明暗主题均保持金属质感；③ **状态标签**——`listing-filter freshness` 中段/陈旧、`dashboard lf-fresh-mid` 文字、`foundation` 地铁状态（在建/即将开通/规划）迁移到 `--color-warning`/`--color-primary`/`--color-muted`；④ `dashboard lf-row` 边框 `#f1f5f9`→`--color-border-soft`，修复深色模式边框不可见。详见 [changelog/2026-11-04-v1.123.80-残留语义色token化.md](./changelog/2026-11-04-v1.123.80-残留语义色token化.md)。
 
 ### v1.123.79（2026-11-04）：语义色 token 迁移（续）
 

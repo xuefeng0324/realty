@@ -1378,7 +1378,7 @@ onUnmounted(() => {
   height: 12rpx;
   border-radius: var(--radius-sm2);
   overflow: hidden;
-  background: rgba(148, 163, 184, 0.15);
+  background: color-mix(in srgb, var(--color-muted) 15%, transparent);
 }
 
 .freshness-bar-new {
@@ -1387,12 +1387,12 @@ onUnmounted(() => {
 }
 
 .freshness-bar-r4 {
-  background: #d97706; /* 2–4 周 中 */
+  background: var(--color-warning); /* 2–4 周 中 */
   height: 100%;
 }
 
 .freshness-bar-stale {
-  background: #9ca3af; /* 陈旧 */
+  background: var(--color-muted); /* 陈旧 */
   height: 100%;
 }
 
@@ -1401,11 +1401,11 @@ onUnmounted(() => {
 }
 
 .legend-r4 {
-  color: #d97706;
+  color: var(--color-warning);
 }
 
 .legend-stale {
-  color: #9ca3af;
+  color: var(--color-muted);
 }
 
 .form-item {

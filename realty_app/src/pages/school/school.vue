@@ -419,7 +419,7 @@ async function loadCities() {
 }
 
 .tag-source-curated {
-  background: rgba(148, 163, 184, 0.18);
+  background: color-mix(in srgb, var(--color-muted) 18%, transparent);
   color: var(--color-text-secondary);
 }
 </style>

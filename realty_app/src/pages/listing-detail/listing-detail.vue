@@ -747,7 +747,7 @@ button.source-dock-ghost {
 .source-trust--real { background: var(--color-success-soft); color: var(--color-trend-down); }
 .source-trust--derived { background: var(--color-warn-soft); color: var(--color-warning); }
 .source-trust--estimated,
-.source-trust--unknown { background: rgba(148, 163, 184, 0.18); color: var(--color-text-secondary); }
+.source-trust--unknown { background: color-mix(in srgb, var(--color-muted) 18%, transparent); color: var(--color-text-secondary); }
 .derived-warning {
   margin-top: var(--space-2);
   padding: var(--space-2) var(--space-3);
