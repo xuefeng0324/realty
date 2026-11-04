@@ -1,12 +1,12 @@
 {
-  "versionName": "1.123.82",
-  "versionCode": "417",
-  "publishedAt": "2026-11-04T17:07:39Z",
+  "versionName": "1.123.83",
+  "versionCode": "418",
+  "publishedAt": "2026-11-04T17:22:24Z",
   "force": false,
-  "notes": "v1.123.82: sky-500 \u5f3a\u8c03\u8272 token \u5316\n\n2026-07-25-v1.108.0-\u533b\u9662\u8d44\u6e90\u6d3e\u751f: v1.108.0 \u533b\u9662\u8d44\u6e90\u6d3e\u751f\uff08\u4ec5\u6570\u636e\u5c42\uff09\r\n2026-07-25-v1.109.0-\u793e\u533a\u603b\u4ef7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f: v1.109.0 \u2014 \u793e\u533a\u603b\u4ef7\u00d7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f\r\n2026-07-25-v1.110.0-\u89c4\u5212\u5730\u94c1\u6d3e\u751f: v1.110.0 \u2014 \u89c4\u5212\u5730\u94c1\u6d3e\u751f\r\n",
+  "notes": "v1.123.83: \u6b8b\u7559 UI \u786c\u7f16\u7801\u8272 token \u5316 + \u53bb\u9664\u8fdd\u89c4\u6e10\u53d8\n\n2026-07-25-v1.107.0-\u5b66\u533a\u623f\u6ea2\u4ef7\u677f\u5757\u533a\u7ea7\u6d3e\u751f: v1.107.0 \u5b66\u533a\u623f\u6ea2\u4ef7\u677f\u5757/\u533a\u5206\u7ea7\u6d3e\u751f\uff08\u4ec5\u6570\u636e\u5c42\uff09\r\n2026-07-25-v1.108.0-\u533b\u9662\u8d44\u6e90\u6d3e\u751f: v1.108.0 \u533b\u9662\u8d44\u6e90\u6d3e\u751f\uff08\u4ec5\u6570\u636e\u5c42\uff09\r\n2026-07-25-v1.109.0-\u793e\u533a\u603b\u4ef7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f: v1.109.0 \u2014 \u793e\u533a\u603b\u4ef7\u00d7\u5355\u4ef7\u6563\u70b9\u6d3e\u751f\r\n",
   "wgt": {
-    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/417/app.wgt",
-    "sha256": "22e0579accf32c728dd0322cf0ed21a9a2b964f320c619c45ffecce01b5f9e9d"
+    "url": "https://raw.githubusercontent.com/xuefeng0324/realty/main/realty_app/static/update/418/app.wgt",
+    "sha256": "70874714ef112477ecb827aa512e2042c91c52580fc153573ddb992baaecec18"
   },
   "ios": {
     "available": false,
