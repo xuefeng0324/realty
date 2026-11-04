@@ -20,7 +20,12 @@ on:
   push:
     branches: [main]
     paths:
-      - "realty_app/**"
+      - "realty_app/src/**"
+      - "realty_app/scripts/**"
+      - "realty_app/package.json"
+      - "realty_app/src/config.ts"
+      - "realty_app/src/manifest.json"
+      - "!realty_app/static/update/**"
       - ".github/workflows/build-app-wgt.yml"
   workflow_dispatch:
 

@@ -4,12 +4,22 @@ on:
   push:
     branches: [main]
     paths:
-      - "realty_app/**"
+      - "realty_app/src/**"
+      - "realty_app/scripts/**"
+      - "realty_app/package.json"
+      - "realty_app/src/config.ts"
+      - "realty_app/src/manifest.json"
+      - "!realty_app/static/update/**"
       - ".github/workflows/realty-app-tests.yml"
   pull_request:
     branches: [main]
     paths:
-      - "realty_app/**"
+      - "realty_app/src/**"
+      - "realty_app/scripts/**"
+      - "realty_app/package.json"
+      - "realty_app/src/config.ts"
+      - "realty_app/src/manifest.json"
+      - "!realty_app/static/update/**"
       - ".github/workflows/realty-app-tests.yml"
   # 工作日 09:00 北京时间 = 01:00 UTC（与 crawl-daily-wangqian 错开 30 分钟）
   schedule:
