@@ -65,7 +65,7 @@ const clamped = computed(() => {
   background: var(--color-primary-strong);
 }
 .progress-bar__fill--warn {
-  background: #f59e0b;
+  background: var(--color-warning);
 }
 .progress-bar__label {
   min-width: 64rpx;

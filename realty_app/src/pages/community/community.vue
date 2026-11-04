@@ -865,7 +865,7 @@ onMounted(() => {
 }
 
 .bin-mid {
-  background: #f59e0b;
+  background: var(--color-warning);
 }
 
 .bin-low {

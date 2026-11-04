@@ -4786,7 +4786,7 @@ onShow(async () => {
   background: var(--color-soft-strong);
 }
 .map-mode-tab--active {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: var(--color-focus);
   color: #fff;
   font-weight: var(--font-weight-semibold);
 }
@@ -4979,7 +4979,7 @@ onShow(async () => {
 .sd-rank {
   font-size: 28rpx;
   font-weight: var(--font-weight-bold);
-  color: #6366f1;
+  color: var(--color-focus);
   min-width: 28rpx;
   text-align: center;
 }
@@ -5047,7 +5047,7 @@ onShow(async () => {
 }
 .sd-rank-sm {
   font-weight: var(--font-weight-bold);
-  color: #6366f1;
+  color: var(--color-focus);
   width: 18rpx;
   text-align: center;
 }
