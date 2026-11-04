@@ -387,7 +387,7 @@ watch(
 .page { padding: var(--space-3); padding-bottom: 80rpx; }
 .header { padding: var(--space-3) var(--space-4); background: var(--color-surface); border-radius: var(--radius-md); margin-bottom: var(--space-3); }
 .title { font-size: 36rpx; font-weight: var(--font-weight-bold); color: var(--color-text); }
-.muted { color: var(--color-muted); font-size: 24rpx; }
+.muted { color: var(--color-muted); font-size: var(--font-body-sm); }
 .empty { text-align: center; padding: var(--space-6) 0; color: var(--color-muted); }
 .row-between { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2); }
 .card { background: var(--color-surface); border-radius: var(--radius-md); padding: 20rpx; margin-bottom: var(--space-3); border: 1rpx solid var(--color-border-soft); }
@@ -414,9 +414,9 @@ watch(
   color: #fff;
 }
 .map-mode-icon { display: block; font-size: 32rpx; }
-.map-mode-label { display: block; font-size: 22rpx; }
+.map-mode-label { display: block; font-size: var(--font-caption); }
 
-.map-legend { margin-top: var(--space-2); display: flex; align-items: center; gap: var(--space-1); font-size: 22rpx; }
+.map-legend { margin-top: var(--space-2); display: flex; align-items: center; gap: var(--space-1); font-size: var(--font-caption); }
 .map-legend-title { color: var(--color-text); font-weight: var(--font-weight-semibold); }
 .map-legend-bar { flex: 1; height: 16rpx; border-radius: var(--radius-sm2); }
 .map-legend-min, .map-legend-max { color: var(--color-muted); }
@@ -451,6 +451,6 @@ watch(
   border-radius: var(--radius-sm2);
 }
 .map-district-name { font-size: 26rpx; font-weight: var(--font-weight-semibold); color: var(--color-text); }
-.map-district-vals { display: flex; gap: var(--space-2); font-size: 20rpx; color: var(--color-muted); }
+.map-district-vals { display: flex; gap: var(--space-2); font-size: var(--font-micro); color: var(--color-muted); }
 .map-stat { background: var(--color-surface); padding: 4rpx var(--space-1); border-radius: var(--radius-xs); }
 </style>

@@ -407,12 +407,12 @@ onMounted(() => {
 }
 .page-header-sub {
   margin-top: 6rpx;
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   line-height: 1.45;
 }
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-2);
   margin-top: var(--space-3);
 }
@@ -422,7 +422,7 @@ onMounted(() => {
   gap: var(--space-gap-xs);
 }
 .kpi-label {
-  font-size: 20rpx;
+  font-size: var(--font-micro);
   color: var(--color-muted);
 }
 .kpi-value {
@@ -433,16 +433,16 @@ onMounted(() => {
   font-size: var(--font-body);
 }
 .kpi-sub {
-  font-size: 20rpx;
+  font-size: var(--font-micro);
 }
 .summary {
   margin-top: var(--space-2);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
 }
 .section-title {
   margin-top: var(--space-3);
   margin-bottom: var(--space-1);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
   font-weight: var(--font-weight-semibold);
 }
 .row-line {
@@ -451,7 +451,7 @@ onMounted(() => {
   gap: var(--space-2);
   padding: 10rpx 0;
   border-bottom: 1rpx dashed var(--color-soft-strong);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 .row-name {
   min-width: 140rpx;

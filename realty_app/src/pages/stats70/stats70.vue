@@ -413,7 +413,7 @@ function onPickCity(city: string) {
   border-radius: var(--radius-pill);
   background: var(--color-soft);
   color: var(--color-text-secondary);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
   border: 1rpx solid transparent;
 }
 
@@ -445,7 +445,7 @@ function onPickCity(city: string) {
 
 .filter-empty {
   padding: var(--space-3) 0 4rpx;
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
 }
 
 .rank-row {
@@ -519,7 +519,7 @@ function onPickCity(city: string) {
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-1) 0;
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
 }
 
 .trend-bar-track {

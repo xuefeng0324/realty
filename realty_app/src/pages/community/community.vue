@@ -733,7 +733,7 @@ onMounted(() => {
   padding: 14rpx 18rpx;
   border-radius: var(--radius-sm);
   background: var(--color-soft);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
   color: var(--color-chip-text);
   text-align: center;
   cursor: pointer;
@@ -778,7 +778,7 @@ onMounted(() => {
   white-space: nowrap;
 }
 .sibling-meta {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   margin-top: 4rpx;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -795,7 +795,7 @@ onMounted(() => {
   font-variant-numeric: tabular-nums;
 }
 .sibling-unit {
-  font-size: 20rpx;
+  font-size: var(--font-micro);
   margin-top: 2rpx;
 }
 
@@ -814,7 +814,7 @@ onMounted(() => {
 .chart-label {
   width: 100rpx;
   color: var(--color-muted);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 
 .chart-track {
@@ -835,7 +835,7 @@ onMounted(() => {
   width: 200rpx;
   text-align: right;
   color: var(--color-heading);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 
 .bin-row,
@@ -850,7 +850,7 @@ onMounted(() => {
 .dim-name {
   width: 200rpx;
   color: var(--color-text-secondary);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
 }
 
 .bin-track,
@@ -890,7 +890,7 @@ onMounted(() => {
   width: 100rpx;
   text-align: right;
   color: var(--color-heading);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
 }
 
 .tag-row {
@@ -937,7 +937,7 @@ onMounted(() => {
   justify-content: space-between;
   padding: var(--space-1) 0 var(--space-1) var(--space-6);
   border-bottom: 1rpx solid var(--color-soft-strong);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
   color: var(--color-text);
 }
 .poi-row:last-child {
@@ -980,7 +980,7 @@ onMounted(() => {
   align-items: center;
   gap: var(--space-1);
   flex-wrap: wrap;
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 
 /* 未来地铁 (v0.7.0) */
@@ -1013,7 +1013,7 @@ onMounted(() => {
   color: var(--color-heading);
 }
 .metro-detail {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 
 .listing-main {
@@ -1033,7 +1033,7 @@ onMounted(() => {
 /* v0.37.0 trend-17: 5 维小区指标 */
 .cm-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: var(--space-gap-md2);
   margin-top: 8rpx;
 }
@@ -1052,10 +1052,10 @@ onMounted(() => {
   gap: var(--space-gap-xs);
 }
 .cm-icon {
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
 }
 .cm-label {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   color: var(--color-text-secondary);
   font-weight: var(--font-weight-semibold);
 }

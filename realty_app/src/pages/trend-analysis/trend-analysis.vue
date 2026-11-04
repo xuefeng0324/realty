@@ -361,7 +361,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 }
 .muted {
   color: var(--color-muted);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
 }
 .empty {
   text-align: center;
@@ -417,7 +417,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 .ba-corner,
 .ba-row-label,
 .ba-col-label {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   padding: 4rpx;
   text-align: center;
   flex: 0 0 90rpx;
@@ -430,7 +430,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-sm2);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   color: var(--color-text);
 }
 .ba-cell--empty { background: var(--color-soft); color: var(--color-muted); }
@@ -438,7 +438,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 .ba-cell--mid { background: #90caf9; color: #fff; }
 .ba-cell--deep { background: #1976d2; color: #fff; font-weight: var(--font-weight-semibold); }
 .ba-empty { color: var(--color-muted); }
-.ba-count { font-size: 24rpx; font-weight: var(--font-weight-semibold); }
+.ba-count { font-size: var(--font-body-sm); font-weight: var(--font-weight-semibold); }
 
 /* OF 朝向×楼层 矩阵 */
 .of-matrix,
@@ -459,7 +459,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 .da-corner,
 .da-row-label,
 .da-col-label {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   padding: 4rpx;
   text-align: center;
   flex: 0 0 90rpx;
@@ -473,7 +473,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-sm2);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 .of-cell--empty,
 .da-cell--empty { background: var(--color-soft); color: var(--color-muted); }
@@ -507,7 +507,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 }
 .sc-kpi-label {
   display: block;
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 .scatter-svg-wrap {
   position: relative;

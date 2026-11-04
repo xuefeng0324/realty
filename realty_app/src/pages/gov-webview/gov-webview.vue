@@ -85,7 +85,7 @@ function onWebError() {
 
 .toolbar-hint {
   flex: 1;
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 
 .toolbar-btn {
@@ -126,6 +126,6 @@ web-view {
 .fallback-hint {
   display: block;
   margin-top: var(--space-3);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
 }
 </style>

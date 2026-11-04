@@ -1175,13 +1175,13 @@ onUnmounted(() => {
 .btn {
   background: var(--color-accent) !important;
   color: var(--color-accent-text) !important;
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
   padding: 4rpx var(--space-3);
   border-radius: var(--radius-xxs);
 }
 .legend {
   margin-top: var(--space-1);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 .legend-card {
   margin-top: var(--space-2);
@@ -1200,11 +1200,11 @@ onUnmounted(() => {
 }
 .legend-text {
   flex: 1;
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
   color: var(--color-text);
 }
 .legend-range {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   color: var(--color-muted);
   font-variant-numeric: tabular-nums;
 }
@@ -1238,7 +1238,7 @@ onUnmounted(() => {
 .info-line {
   display: block;
   color: var(--color-muted);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   margin-top: 4rpx;
 }
 .info-row {
@@ -1252,7 +1252,7 @@ onUnmounted(() => {
 }
 .info-stat-label {
   color: var(--color-muted);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 .info-stat-value {
   color: var(--color-heading);
@@ -1273,7 +1273,7 @@ onUnmounted(() => {
   font-weight: var(--font-weight-semibold);
 }
 .curvature-desc {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   margin: 10rpx 0 14rpx;
   line-height: 1.5;
 }
@@ -1297,7 +1297,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   font-weight: var(--font-weight-bold);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
   flex-shrink: 0;
 }
 .curvature-meta {
@@ -1313,7 +1313,7 @@ onUnmounted(() => {
   white-space: nowrap;
 }
 .curvature-sub {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   margin-top: 4rpx;
   font-variant-numeric: tabular-nums;
 }
@@ -1335,7 +1335,7 @@ onUnmounted(() => {
 .poi-toggle {
   padding: 4rpx 14rpx;
   border-radius: var(--radius-md);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   border: 1rpx solid transparent;
   cursor: pointer;
 }
@@ -1367,7 +1367,7 @@ onUnmounted(() => {
   border-radius: var(--radius-pill);
   background: var(--color-surface-raised);
   color: var(--color-text-secondary);
-  font-size: 20rpx;
+  font-size: var(--font-micro);
 }
 
 .control-section {
@@ -1444,7 +1444,7 @@ onUnmounted(() => {
   background: var(--color-soft) !important;
   color: var(--color-text) !important;
   border: 1rpx solid var(--color-border) !important;
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   line-height: 1.2;
 }
 .map-filter-btn--active {
@@ -1487,7 +1487,7 @@ onUnmounted(() => {
   color: var(--color-heading);
 }
 .find-sheet-sub {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 .find-sheet-list {
   flex: 1;
@@ -1516,18 +1516,18 @@ onUnmounted(() => {
   white-space: nowrap;
 }
 .find-listing-meta {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 .find-listing-go {
   color: var(--color-primary);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
   font-weight: var(--font-weight-semibold);
   flex-shrink: 0;
 }
 .find-empty {
   padding: var(--space-5) var(--space-1);
   text-align: center;
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
 }
 .find-sheet-actions {
   display: flex;
@@ -1543,7 +1543,7 @@ onUnmounted(() => {
   align-items: center;
   gap: var(--space-gap-md);
   margin-top: var(--space-2);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 
 .map-status {

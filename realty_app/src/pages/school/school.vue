@@ -369,7 +369,7 @@ async function loadCities() {
 
 .form-label {
   color: var(--color-muted);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
 }
 
 .picker-value,

@@ -2412,7 +2412,7 @@ onUnmounted(() => {
   border-radius: var(--radius-pill) !important;
   background: var(--color-primary) !important;
   color: #fff !important;
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   padding: 0 22rpx;
 }
 .dt-card-toggle--off {
@@ -2425,7 +2425,7 @@ onUnmounted(() => {
 }
 .dt-card-action {
   margin: 0;
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 .page-header-title {
   font-size: 32rpx;
@@ -2433,7 +2433,7 @@ onUnmounted(() => {
   color: var(--color-heading);
 }
 .page-header-sub {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   margin-top: 4rpx;
 }
 /* v1.123.3 锚点分组导航：吸顶（让出 uni-page-head）+ 横滚 chips */
@@ -2460,7 +2460,7 @@ onUnmounted(() => {
   margin-left: 4rpx;
   padding-left: var(--space-2);
   border-left: 1rpx solid var(--color-border);
-  font-size: 20rpx;
+  font-size: var(--font-micro);
   color: var(--color-muted);
 }
 .dt-nav-chip {
@@ -2469,7 +2469,7 @@ onUnmounted(() => {
   padding: 0 20rpx;
   height: 52rpx;
   line-height: 52rpx;
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   border-radius: var(--radius-pill);
   background: var(--color-soft);
   color: var(--color-text);
@@ -2519,7 +2519,7 @@ onUnmounted(() => {
   margin-top: var(--space-2);
 }
 .edu-chip {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   padding: 4rpx 10rpx;
   background: var(--color-panel);
   border-radius: var(--radius-xs);
@@ -2544,7 +2544,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   font-weight: var(--font-weight-semibold);
   background: var(--color-soft-strong);
   color: var(--color-text-secondary);
@@ -2571,7 +2571,7 @@ onUnmounted(() => {
 }
 .wq-units {
   width: 180rpx;
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
   color: var(--color-heading);
   text-align: right;
   flex-shrink: 0;
@@ -2619,7 +2619,7 @@ onUnmounted(() => {
   line-height: 36rpx;
   border-radius: 50%;
   font-weight: var(--font-weight-semibold);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   text-align: center;
   color: #fff;
 }
@@ -2644,7 +2644,7 @@ onUnmounted(() => {
   align-items: flex-start;
   gap: var(--space-1);
   padding: 4rpx 0;
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 .spc-label {
   flex: 0 0 90rpx;
@@ -2663,7 +2663,7 @@ onUnmounted(() => {
   background: var(--color-panel);
   border: 1rpx solid var(--color-soft-strong);
   color: var(--color-text-secondary);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 .spc-chip-on {
   background: #0ea5e9;

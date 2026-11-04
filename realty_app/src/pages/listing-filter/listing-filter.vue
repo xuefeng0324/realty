@@ -1195,7 +1195,7 @@ onUnmounted(() => {
   border-radius: 15rpx;
   color: var(--color-muted);
   background: transparent;
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
   font-weight: var(--font-weight-bold);
 }
 
@@ -1252,14 +1252,14 @@ onUnmounted(() => {
   border-radius: var(--radius-md);
   color: #fff;
   background: linear-gradient(135deg, #059669, #0d9488);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   font-weight: var(--font-weight-extrabold);
 }
 
 .find-hub-caption {
   margin-top: 15rpx;
   color: var(--color-muted);
-  font-size: 20rpx;
+  font-size: var(--font-micro);
 }
 
 .find-entity-panel {
@@ -1273,7 +1273,7 @@ onUnmounted(() => {
 }
 
 .find-entity-heading .muted {
-  font-size: 20rpx;
+  font-size: var(--font-micro);
 }
 
 .find-entity-row {
@@ -1452,7 +1452,7 @@ onUnmounted(() => {
   align-items: center;
   gap: var(--space-gap-md);
   padding: 6rpx 0;
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 .drift-rank {
   display: inline-block;
@@ -1492,7 +1492,7 @@ onUnmounted(() => {
 
 .form-label {
   color: var(--color-muted);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
 }
 
 .picker-value {
@@ -1513,7 +1513,7 @@ onUnmounted(() => {
 .range-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   margin-top: 4rpx;
 }
 
@@ -1525,7 +1525,7 @@ onUnmounted(() => {
 
 .picker-caret {
   color: var(--color-muted);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   margin-left: var(--space-1);
 }
 
@@ -1594,7 +1594,7 @@ onUnmounted(() => {
 
 /* v1.118.0 性价比之选卡 */
 .pareto-desc {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   margin: var(--space-2) 0 var(--space-3);
   line-height: 1.5;
 }
@@ -1638,7 +1638,7 @@ onUnmounted(() => {
   white-space: nowrap;
 }
 .pareto-sub {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   margin-top: 4rpx;
 }
 .pareto-stats {
@@ -1655,7 +1655,7 @@ onUnmounted(() => {
   font-variant-numeric: tabular-nums;
 }
 .pareto-price {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1706,7 +1706,7 @@ onUnmounted(() => {
 }
 
 .listing-sub {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   margin-bottom: var(--space-1);
 }
 
@@ -1729,7 +1729,7 @@ onUnmounted(() => {
   font-variant-numeric: tabular-nums;
 }
 .listing-price-unit {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 .community-filter-chip {
   display: flex;
@@ -1739,12 +1739,12 @@ onUnmounted(() => {
   padding: 10rpx 14rpx;
   border-radius: var(--radius-md2);
   background: var(--color-soft-strong);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
   color: var(--color-heading);
 }
 .community-filter-clear {
   color: var(--color-primary);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 .tag-pill {
   background: rgba(37, 99, 235, 0.12);
@@ -1795,7 +1795,7 @@ onUnmounted(() => {
   background: linear-gradient(90deg, var(--color-trend-up), var(--color-danger));
 }
 .minidim-val {
-  font-size: 20rpx;
+  font-size: var(--font-micro);
   font-weight: var(--font-weight-bold);
   color: var(--color-heading);
   font-variant-numeric: tabular-nums;

@@ -551,7 +551,7 @@ const rateTrendRows = computed<RateTrendRow[]>(() => {
   grid-template-columns: minmax(72rpx, 100rpx) minmax(0, 1fr);
   align-items: center;
   gap: var(--space-gap-xs) 8rpx;
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   min-width: 0;
 }
 .rate-trend-label {
@@ -571,7 +571,7 @@ const rateTrendRows = computed<RateTrendRow[]>(() => {
   border-radius: var(--radius-xs);
   background: rgba(127, 127, 127, 0.08);
   font-variant-numeric: tabular-nums;
-  font-size: 20rpx;
+  font-size: var(--font-micro);
   white-space: nowrap;
 }
 .rate-trend-cell.rate-up {
@@ -586,7 +586,7 @@ const rateTrendRows = computed<RateTrendRow[]>(() => {
   grid-column: 2;
   min-width: 0;
   text-align: left;
-  font-size: 20rpx;
+  font-size: var(--font-micro);
   font-variant-numeric: tabular-nums;
 }
 .rate-trend-band.rate-up {

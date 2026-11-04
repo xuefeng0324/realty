@@ -874,7 +874,7 @@ function openGithubReleases() {
   border-radius: var(--radius-pill);
   background: rgba(16, 185, 129, 0.12);
   color: var(--color-primary);
-  font-size: 20rpx;
+  font-size: var(--font-micro);
   font-weight: var(--font-weight-bold);
 }
 
@@ -960,7 +960,7 @@ function openGithubReleases() {
   align-items: center;
   justify-content: center;
   color: var(--color-primary);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
   font-weight: var(--font-weight-bold);
 }
 
@@ -980,7 +980,7 @@ function openGithubReleases() {
 
 .library-meta {
   margin-top: 5rpx;
-  font-size: 20rpx;
+  font-size: var(--font-micro);
 }
 
 .library-remove {
@@ -1022,7 +1022,7 @@ function openGithubReleases() {
 
 .form-label {
   color: var(--color-muted);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
 }
 
 .picker-value {

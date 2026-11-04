@@ -634,7 +634,7 @@ onLoad((opts?: Record<string, string>) => {
   margin-left: var(--space-2);
   padding: 2rpx var(--space-2);
   border-radius: var(--radius-pill);
-  font-size: 20rpx;
+  font-size: var(--font-micro);
 }
 
 .metric-grid {
@@ -656,7 +656,7 @@ onLoad((opts?: Record<string, string>) => {
 }
 .metric-label {
   color: var(--color-muted);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 .metric-value {
   font-size: 40rpx;
@@ -672,11 +672,11 @@ onLoad((opts?: Record<string, string>) => {
   color: var(--color-warning);
 }
 .metric-sub {
-  font-size: 20rpx;
+  font-size: var(--font-micro);
 }
 
 .spark-meta {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   margin: 10rpx 0;
 }
 .spark {
@@ -701,7 +701,7 @@ onLoad((opts?: Record<string, string>) => {
 .spark-axis {
   display: flex;
   justify-content: space-between;
-  font-size: 20rpx;
+  font-size: var(--font-micro);
   margin-top: 6rpx;
 }
 
@@ -722,7 +722,7 @@ onLoad((opts?: Record<string, string>) => {
   flex-direction: column;
 }
 .wq-monthly-sub {
-  font-size: 20rpx;
+  font-size: var(--font-micro);
   margin-top: 4rpx;
 }
 .spark.spark-monthly {

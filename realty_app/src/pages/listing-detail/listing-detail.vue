@@ -620,7 +620,7 @@ onMounted(async () => {
   color: var(--color-heading);
 }
 .gallery-empty-desc {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   text-align: center;
   line-height: 1.45;
   max-width: 560rpx;
@@ -646,11 +646,11 @@ onMounted(async () => {
   line-height: 1.1;
 }
 .price-unit {
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
 }
 .fact-strip {
   margin-top: 10rpx;
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
   line-height: 1.4;
 }
 .listing-tag-pills {
@@ -662,7 +662,7 @@ onMounted(async () => {
 .listing-tag-pill {
   padding: 4rpx var(--space-2);
   border-radius: var(--radius-sm2);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   background: var(--color-soft);
   color: var(--color-chip-text);
   border: 1rpx solid var(--color-border);
@@ -677,7 +677,7 @@ onMounted(async () => {
   background: var(--color-soft);
 }
 .community-chip-label {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   color: var(--color-muted);
 }
 .community-chip-name {
@@ -747,7 +747,7 @@ button.source-dock-ghost {
 .source-trust {
   padding: 4rpx var(--space-2);
   border-radius: var(--radius-pill);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   font-weight: var(--font-weight-semibold);
 }
 .source-trust--real { background: rgba(34, 197, 94, 0.18); color: var(--color-trend-down); }
@@ -760,7 +760,7 @@ button.source-dock-ghost {
   border-radius: var(--radius-sm);
   background: rgba(245, 158, 11, 0.12);
   color: #fde68a;
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   line-height: 1.5;
 }
 /* v0.54.0 detail-1: 顶部快捷导航 */
@@ -776,7 +776,7 @@ button.source-dock-ghost {
   padding: 14rpx 18rpx;
   border-radius: var(--radius-sm);
   background: var(--color-soft);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
   color: var(--color-chip-text);
   text-align: center;
   cursor: pointer;
@@ -823,7 +823,7 @@ button.source-dock-ghost {
   white-space: nowrap;
 }
 .sibling-meta {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   margin-top: 4rpx;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -840,7 +840,7 @@ button.source-dock-ghost {
   font-variant-numeric: tabular-nums;
 }
 .sibling-unit {
-  font-size: 20rpx;
+  font-size: var(--font-micro);
   margin-top: 2rpx;
 }
 
@@ -869,7 +869,7 @@ button.source-dock-ghost {
 .dim-name {
   width: 200rpx;
   color: var(--color-text-secondary);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
 }
 
 .dim-track {
@@ -890,7 +890,7 @@ button.source-dock-ghost {
   width: 100rpx;
   text-align: right;
   color: var(--color-heading);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
 }
 
 /* POI 周边 (v0.4.2) */
@@ -917,7 +917,7 @@ button.source-dock-ghost {
   justify-content: space-between;
   padding: var(--space-1) 0 var(--space-1) var(--space-6);
   border-bottom: 1rpx solid var(--color-soft-strong);
-  font-size: 24rpx;
+  font-size: var(--font-body-sm);
   color: var(--color-text);
 }
 .poi-row:last-child {
@@ -960,7 +960,7 @@ button.source-dock-ghost {
   align-items: center;
   gap: var(--space-1);
   flex-wrap: wrap;
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 
 /* 未来地铁 (v0.7.0) */
@@ -993,7 +993,7 @@ button.source-dock-ghost {
   color: var(--color-heading);
 }
 .metro-detail {
-  font-size: 22rpx;
+  font-size: var(--font-caption);
 }
 
 .tag-row {
@@ -1010,7 +1010,7 @@ button.source-dock-ghost {
   border: 1rpx solid var(--color-soft-strong);
   border-radius: var(--radius-md2);
   font-family: monospace;
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   color: var(--color-text-secondary);
   white-space: pre-wrap;
   word-break: break-all;

@@ -192,10 +192,10 @@ onLoad((query?: Record<string, string>) => {
 .hero-copy { min-width: 0; }
 .hero-eyebrow { color: var(--color-primary); font-size: var(--font-micro); font-weight: var(--font-weight-bold); letter-spacing: 2rpx; }
 .hero-title { margin-top: 10rpx; color: var(--color-heading); font-size: 40rpx; font-weight: var(--font-weight-bold-plus); line-height: 1.3; }
-.hero-official { margin-top: var(--space-1); color: var(--color-text-secondary); font-size: 22rpx; }
+.hero-official { margin-top: var(--space-1); color: var(--color-text-secondary); font-size: var(--font-caption); }
 .tag-row { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-top: 18rpx; }
 .school-favorite-row { margin-top: 18rpx; }
-.profile-tag { padding: 6rpx 13rpx; border-radius: var(--radius-pill); background: var(--color-surface-raised); color: var(--color-text-secondary); font-size: 20rpx; }
+.profile-tag { padding: 6rpx 13rpx; border-radius: var(--radius-pill); background: var(--color-surface-raised); color: var(--color-text-secondary); font-size: var(--font-micro); }
 .profile-tag--success { background: rgba(34,197,94,.14); color: var(--color-primary); }
 .profile-tag--warn { background: rgba(245,158,11,.14); color: #d97706; }
 .score-ring { display: flex; flex: 0 0 132rpx; width: 132rpx; height: 132rpx; flex-direction: column; align-items: center; justify-content: center; border: 10rpx solid rgba(14,165,233,.22); border-radius: 50%; background: var(--color-surface-raised); }
@@ -206,14 +206,14 @@ onLoad((query?: Record<string, string>) => {
 .score-label { margin-top: 5rpx; color: var(--color-muted); font-size: var(--font-micro); }
 .metrics-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-gap-md2); margin: 18rpx 0; }
 .metric-card { padding: 20rpx; border: 1rpx solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); box-shadow: var(--shadow-card); }
-.metric-label { color: var(--color-muted); font-size: 20rpx; }
+.metric-label { color: var(--color-muted); font-size: var(--font-micro); }
 .metric-value { margin-top: 7rpx; color: var(--color-heading); font-size: 32rpx; font-weight: var(--font-weight-bold); }
-.metric-value--text { overflow: hidden; font-size: 22rpx; text-overflow: ellipsis; white-space: nowrap; }
+.metric-value--text { overflow: hidden; font-size: var(--font-caption); text-overflow: ellipsis; white-space: nowrap; }
 .metric-hint { margin-top: 4rpx; color: var(--color-text-secondary); font-size: var(--font-micro); }
 .section-note { margin-top: -4rpx; font-size: var(--font-caption); }
 .factor-list { margin-top: 18rpx; }
 .factor-row + .factor-row { margin-top: 18rpx; }
-.factor-head { display: flex; justify-content: space-between; gap: var(--space-3); color: var(--color-text); font-size: 22rpx; }
+.factor-head { display: flex; justify-content: space-between; gap: var(--space-3); color: var(--color-text); font-size: var(--font-caption); }
 .factor-icon { margin-right: var(--space-1); color: var(--color-primary); }
 .factor-value { color: var(--color-muted); font-variant-numeric: tabular-nums; }
 .factor-track { height: 12rpx; margin-top: 9rpx; overflow: hidden; border-radius: var(--radius-pill); background: var(--color-surface-raised); }
@@ -221,7 +221,7 @@ onLoad((query?: Record<string, string>) => {
 .source-row { display: flex; justify-content: space-between; gap: var(--space-4); padding: 13rpx 0; border-bottom: 1rpx solid var(--color-border); color: var(--color-text-secondary); font-size: var(--font-caption); }
 .source-row text:first-child { flex: 0 0 auto; color: var(--color-muted); }
 .source-row text:last-child { text-align: right; }
-.source-warning { margin-top: 18rpx; padding: var(--space-3); border-radius: var(--radius-md2); background: rgba(245,158,11,.1); color: var(--color-text-secondary); font-size: 20rpx; line-height: 1.65; }
+.source-warning { margin-top: 18rpx; padding: var(--space-3); border-radius: var(--radius-md2); background: rgba(245,158,11,.1); color: var(--color-text-secondary); font-size: var(--font-micro); line-height: 1.65; }
 .loading-card { padding: 60rpx; text-align: center; color: var(--color-muted); }
 .error-state { padding: 60rpx 30rpx; text-align: center; }
 .error-icon { width: 72rpx; height: 72rpx; margin: 0 auto; border-radius: 50%; background: rgba(239,68,68,.14); color: var(--color-danger); font-size: 42rpx; line-height: 72rpx; }
