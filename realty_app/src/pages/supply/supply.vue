@@ -167,15 +167,15 @@
         <view class="kpi-grid">
           <view class="kpi">
             <text class="kpi-label">预售面积</text>
-            <text class="kpi-value">{{ gzHousingPlan.approvedPresaleAreaWanSqm.toFixed(1) }} 万㎡</text>
+            <text class="kpi-value kpi-value--compact">{{ gzHousingPlan.approvedPresaleAreaWanSqm.toFixed(1) }} 万㎡</text>
           </view>
           <view class="kpi">
             <text class="kpi-label">住宅用地</text>
-            <text class="kpi-value">{{ gzHousingPlan.residentialLandHa.toFixed(1) }} 公顷</text>
+            <text class="kpi-value kpi-value--compact">{{ gzHousingPlan.residentialLandHa.toFixed(1) }} 公顷</text>
           </view>
           <view class="kpi">
             <text class="kpi-label">保障房</text>
-            <text class="kpi-value">{{ gzHousingPlan.affordableUnitsWan.toFixed(2) }} 万套</text>
+            <text class="kpi-value kpi-value--compact">{{ gzHousingPlan.affordableUnitsWan.toFixed(2) }} 万套</text>
           </view>
         </view>
         <view class="note">{{ gzHousingPlan.sourceOrg }} · {{ gzHousingPlan.publishDate || gzHousingPlan.year + " 年" }} 印发。</view>
@@ -215,11 +215,11 @@
         <view class="kpi-grid">
           <view class="kpi">
             <text class="kpi-label">成交面积</text>
-            <text class="kpi-value">{{ formatArea(gzLandSummary.totalAreaSqm) }}</text>
+            <text class="kpi-value kpi-value--compact">{{ formatArea(gzLandSummary.totalAreaSqm) }}</text>
           </view>
           <view class="kpi">
             <text class="kpi-label">成交总价</text>
-            <text class="kpi-value">{{ formatPrice(gzLandSummary.totalPriceWan) }}</text>
+            <text class="kpi-value kpi-value--compact">{{ formatPrice(gzLandSummary.totalPriceWan) }}</text>
           </view>
           <view class="kpi">
             <text class="kpi-label">样本均价</text>
@@ -443,6 +443,8 @@ onMounted(() => {
 .kpi-value {
   font-size: var(--font-title-sm);
   font-weight: var(--font-weight-bold);
+  /* 三列 KPI 较窄，单位（万㎡/亿元）不允许被拆到第二行 */
+  white-space: nowrap;
 }
 .kpi-value--compact {
   font-size: var(--font-body);

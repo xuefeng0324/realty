@@ -404,10 +404,10 @@
             data-listing-thumb
           />
           <view v-else class="listing-thumb listing-thumb--empty" aria-hidden="true">
-            <text class="listing-thumb-ph">房</text>
+            <text class="listing-thumb-ph">暂无实拍</text>
           </view>
           <view class="listing-main">
-            <view class="listing-title">{{ it.title }}</view>
+            <view class="listing-title">{{ listingDisplayTitle(it.title, it.orientation) }}</view>
             <view class="listing-price-row">
               <text class="listing-price-main">{{ formatPrice(it.price_total) }}</text>
               <text class="listing-price-unit muted">{{ formatUnitPrice(it.unit_price) }}</text>
@@ -516,6 +516,7 @@ import {
   formatArea,
   formatPrice,
   formatUnitPrice,
+  listingDisplayTitle,
   scoreClass
 } from "../../utils/format";
 import { getListingTagLabels } from "../../local/listingTags";
@@ -1608,8 +1609,10 @@ onUnmounted(() => {
   justify-content: center;
 }
 .listing-thumb-ph {
+  flex: none;
   font-size: 28rpx;
   color: var(--color-muted);
+  white-space: nowrap;
 }
 
 .listing-main {
@@ -1678,7 +1681,7 @@ onUnmounted(() => {
 /* v0.37.0 trend-17: 5 维度迷你评分条 */
 .minidim-row {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-gap-xs);
   margin-top: 10rpx;
   align-items: center;
 }
@@ -1694,6 +1697,7 @@ onUnmounted(() => {
   font-size: var(--font-micro);
   color: var(--color-muted);
   font-weight: var(--font-weight-medium);
+  white-space: nowrap;
 }
 .minidim-track {
   width: 100%;

@@ -35,8 +35,8 @@ try {
   if (await page.locator(".poi-toggle-off").count() !== 0) issues.push("POI 医院开关恢复失败");
 
   for (const city of ["深圳", "广州", "珠海"]) {
-    await page.locator(".btn").filter({ hasText: city }).click();
-    if (await page.locator(".btn--active").count() !== 1) issues.push(`${city} 切换后城市激活状态异常`);
+    await page.locator(".city-option").filter({ hasText: city }).click();
+    if (await page.locator(".city-option--active").count() !== 1) issues.push(`${city} 切换后城市激活状态异常`);
   }
 
   const reloadKeyBefore = Number(await page.locator("#realty-map").getAttribute("data-map-reload-key"));

@@ -17,7 +17,7 @@
       </view>
 
       <view class="control-label layer-label">找房筛选</view>
-      <scroll-view scroll-x class="map-mode-scroll" data-map-price-filters>
+      <scroll-view scroll-x class="map-mode-scroll map-mode-scroll--fade" data-map-price-filters>
         <view class="map-mode-list">
           <button
             v-for="item in priceBandItems"
@@ -49,7 +49,7 @@
       </scroll-view>
 
       <view class="control-label layer-label">图层模式</view>
-      <scroll-view scroll-x class="map-mode-scroll">
+      <scroll-view scroll-x class="map-mode-scroll map-mode-scroll--fade">
         <view class="map-mode-list">
           <button
             v-for="item in mapModeItems"
@@ -196,7 +196,7 @@
           @click="goListingDetail(row.listingId)"
         >
           <view class="find-listing-main">
-            <text class="find-listing-title">{{ row.title || `挂牌 #${row.listingId}` }}</text>
+            <text class="find-listing-title">{{ listingDisplayTitle(row.title, row.orientation) || `挂牌 #${row.listingId}` }}</text>
             <text class="find-listing-meta muted">{{ listingCardLine(row) }}</text>
           </view>
           <text class="find-listing-go">详情</text>
@@ -285,7 +285,7 @@ import {
 import { getCities, getPoisByCommunity } from "../../local/store";
 import { getMetroPlanningGeoByCityCrossReference, type CurvatureEntry } from "../../local/metroPlanningGeoAnalysis";
 import { toErrorMessage } from "../../utils/errorMessage";
-import { showToast } from "../../utils/format";
+import { listingDisplayTitle, showToast } from "../../utils/format";
 import { clusterMarkers, type ClusterInputPoint, type ClusterOutputPoint } from "../../local/cluster";
 import {
   buildCountHeatCircles,
@@ -526,7 +526,14 @@ const totalListings = computed(() =>
   communityMarkers.value.reduce((s, c) => s + c.listingCount, 0)
 );
 
-const mapCenter = ref<{ lat: number; lng: number }>({ lat: 22.543, lng: 114.06 });
+const CITY_CENTERS: Record<number, { lat: number; lng: number }> = {
+  1: { lat: 23.129, lng: 113.264 },
+  2: { lat: 22.543, lng: 114.06 },
+  3: { lat: 22.271, lng: 113.576 }
+};
+
+// 首屏必须跟当前选中城市对齐，否则广州数据会画在深圳视角外，地图上看不到任何房源点
+const mapCenter = ref<{ lat: number; lng: number }>(CITY_CENTERS[app.cityId] ?? CITY_CENTERS[2]);
 const mapScale = ref<number>(11);
 
 function formatCoord(lat: number | null | undefined, lng: number | null | undefined): string {
@@ -1049,12 +1056,7 @@ function zoomToCity(cityId: number) {
   selectedCommunityId.value = null;
   const city = getCities().find((c) => c.cityId === cityId);
   if (!city) return;
-  const centers: Record<number, { lat: number; lng: number }> = {
-    1: { lat: 23.129, lng: 113.264 },
-    2: { lat: 22.543, lng: 114.06 },
-    3: { lat: 22.271, lng: 113.576 }
-  };
-  const c = centers[cityId];
+  const c = CITY_CENTERS[cityId];
   if (c) {
     mapCenter.value = c;
     mapScale.value = 11;
@@ -1152,18 +1154,25 @@ onUnmounted(() => {
 }
 .map-wrap {
   width: 100%;
-  height: 80vh;
+  /* H5 高德底图只绘制初始化时「完整落在视口内」的高度；
+     80vh 会让顶部约 1/3 永远停在未加载网格。按首屏剩余空间给高度。 */
+  height: calc(100vh - 400px);
+  min-height: 300px;
   border-radius: var(--radius-md2);
   overflow: hidden;
   margin-top: var(--space-3);
-  /* 底图未出前的浅色占位：禁止透出页面深色底变成「黑乎乎」 */
-  background: #e8eef5;
+  /* 底图未出前的占位：走主题 token，深色模式不会先闪一块亮白 */
+  background: var(--color-soft-strong);
   border: 1rpx solid var(--color-border);
 }
 .map {
   width: 100%;
   height: 100%;
-  background: #e8eef5;
+  background: var(--color-soft-strong);
+}
+/* 高德容器自带 #f4f4f4 内联底色，未加载瓦片时会在深色模式闪白 */
+.map :deep(.amap-container) {
+  background-color: var(--color-soft-strong) !important;
 }
 .legend {
   margin-top: var(--space-1);
@@ -1404,6 +1413,14 @@ onUnmounted(() => {
 .map-mode-scroll {
   width: 100%;
   white-space: nowrap;
+  /* uni-app H5 的 scroll-view 宿主默认可视溢出，chip 会画到卡片外；这里强制裁切 */
+  overflow: hidden;
+}
+
+/* 右侧渐隐：390px 下总价/图层 chip 会溢出，给出「还能横向滑动」的视觉提示 */
+.map-mode-scroll--fade {
+  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 28rpx), transparent 100%);
+  mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 28rpx), transparent 100%);
 }
 
 .map-mode-list {

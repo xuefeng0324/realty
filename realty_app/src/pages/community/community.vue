@@ -162,7 +162,7 @@
         >
           <view class="poi-cat">
             <text class="poi-cat-name">{{ categoryLabel(grp.category) }}</text>
-            <text class="muted">最近 {{ grp.nearest }}m</text>
+            <text class="muted">最近 {{ formatDistance(grp.nearest) }}</text>
           </view>
           <view
             v-for="p in grp.items"
@@ -275,7 +275,7 @@
           @click="goListing(it.listing_id)"
         >
           <view class="listing-main">
-            <view class="listing-title">{{ it.title }}</view>
+            <view class="listing-title">{{ listingDisplayTitle(it.title, it.orientation) }}</view>
             <view class="muted">
               {{ formatPrice(it.price_total) }} · {{ formatArea(it.area_sqm) }} ·
               {{ it.orientation || "-" }} · {{ it.decorate_type || "-" }}
@@ -351,6 +351,7 @@ import {
   formatArea,
   formatPrice,
   formatUnitPrice,
+  listingDisplayTitle,
   scoreClass,
   dimensionLabelCN
 } from "../../utils/format";

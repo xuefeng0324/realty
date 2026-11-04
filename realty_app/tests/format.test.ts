@@ -6,6 +6,7 @@ import {
   formatArea,
   formatPrice,
   formatUnitPrice,
+  listingDisplayTitle,
   scoreClass,
   showToast
 } from "../src/utils/format";
@@ -45,6 +46,15 @@ describe("显示格式与日期边界", () => {
     expect(dimensionLabelCN("location_score")).toBe("地段");
     expect(dimensionLabelCN("price_value_score")).toBe("性价比");
     expect(dimensionLabelCN("custom_score")).toBe("custom_score");
+  });
+
+  it("标题尾部朝向与结构化朝向并用时剔除，避免自相矛盾", () => {
+    expect(listingDisplayTitle("华润城润府 105㎡ 南北通透", "南")).toBe("华润城润府 105㎡");
+    expect(listingDisplayTitle("新盘·华润城润府 100.5㎡ 南", "南北通透")).toBe("新盘·华润城润府 100.5㎡");
+    expect(listingDisplayTitle("华润城润府 114㎡ 北向", "东南")).toBe("华润城润府 114㎡");
+    // 没有结构化朝向、或标题本身不含朝向时保持原样
+    expect(listingDisplayTitle("华润城润府 88㎡ 南北通透", null)).toBe("华润城润府 88㎡ 南北通透");
+    expect(listingDisplayTitle("领尚花园52平一房两厅 精装出售", "东")).toBe("领尚花园52平一房两厅 精装出售");
   });
 
   it("自然日计算不受当前时刻影响", () => {

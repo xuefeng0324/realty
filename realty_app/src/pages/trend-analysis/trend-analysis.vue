@@ -285,6 +285,9 @@ function ageBandLabel(band: string): string {
   if (band === "new") return "新房(<5年)";
   if (band === "mid") return "次新(5-15年)";
   if (band === "old") return "老房(15+年)";
+  // "2000-2004" 在 5 列窄表头里会溢出卡片，压缩成 "2000-04"
+  const range = band.match(/^(\d{4})-(\d{4})$/);
+  if (range) return `${range[1]}-${range[2].slice(2)}`;
   return band;
 }
 

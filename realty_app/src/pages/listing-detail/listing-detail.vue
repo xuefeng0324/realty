@@ -34,7 +34,7 @@
 
       <view v-if="data" class="card listing-hero">
         <view class="row-between">
-          <view class="card-title listing-title">{{ data.listing.title }}</view>
+          <view class="card-title listing-title">{{ listingHeroTitle }}</view>
           <view class="listing-hero-actions">
             <FavoriteButton v-if="listingLibraryItem" :item="listingLibraryItem" />
             <view class="score-pill" :class="scoreClass(data.score.overall_score_0_100)">
@@ -157,7 +157,7 @@
           @click="goListing(l.listingId)"
         >
           <view class="sibling-mid">
-            <view class="sibling-title">{{ l.title }}</view>
+            <view class="sibling-title">{{ siblingTitle(l) }}</view>
             <view class="sibling-meta muted">
               {{ l.bedrooms }}室{{ l.bathrooms }}卫 · {{ formatArea(l.areaSqm) }} · {{ l.orientation || '-' }}
               · {{ l.decorateType || '-' }}
@@ -318,6 +318,7 @@ import {
   formatArea,
   formatPrice,
   formatUnitPrice,
+  listingDisplayTitle,
   scoreClass
 } from "../../utils/format";
 import { getListingsByCommunity, getCommunityById, getCityById } from "../../local/store";
@@ -347,6 +348,10 @@ const listingLibraryItem = computed<UserLibraryEntityInput | null>(() => {
   };
 });
 const sourceKindLabel = computed(() => data.value ? listingSourceKindLabel(data.value.listing.source_kind) : "");
+/** 标题里的朝向与结构化 orientation 冲突时，以结构化为准（同小区对比时不出现两个朝向） */
+const listingHeroTitle = computed(() =>
+  listingDisplayTitle(data.value?.listing.title, data.value?.listing.orientation)
+);
 const sourceLinkLabel = computed(() => {
   const url = data.value?.listing.source_url;
   if (url) {
@@ -394,6 +399,9 @@ const sameCommunityName = computed(() => {
   const c = getCommunityById(data.value.listing.community_id);
   return c?.communityName ?? "";
 });
+function siblingTitle(l: { title: string; orientation: string | null }): string {
+  return listingDisplayTitle(l.title, l.orientation);
+}
 const pois = ref<PoiItem[]>([]);
 const hospitals = ref<HospitalItem[]>([]);
 const metroPlanning = ref<MetroLineItem[]>([]);

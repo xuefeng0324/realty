@@ -68,7 +68,7 @@ async function expectWangqianCard(page, label, expectedDistricts) {
   if (!hit) {
     throw new Error(`[${label}] 区名不符合预期: ${names.join(",")}`);
   }
-  const gold = await card.locator(".wq-rank-gold").count();
+  const gold = await card.locator(".wq-rank.rank-gold").count();
   console.log(`[${label}] 金牌徽章: ${gold}`);
   if (gold < 1) {
     throw new Error(`[${label}] 缺少金牌徽章`);

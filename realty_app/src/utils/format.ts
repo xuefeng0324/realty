@@ -21,6 +21,22 @@ export function formatArea(area: number | null | undefined): string {
   return `${area.toFixed(1)}㎡`;
 }
 
+/**
+ * 挂牌标题常自带朝向（源站标题），而详情/列表又展示结构化 orientation；
+ * 两者不一致时同一行会出现「东南 / 西」的冲突。结构化为准，展示标题时剔除尾部朝向词。
+ */
+export function listingDisplayTitle(
+  title: string | null | undefined,
+  orientation: string | null | undefined
+): string {
+  const raw = (title ?? "").trim();
+  if (!raw || !orientation) return raw;
+  const stripped = raw
+    .replace(/(?:\s|·|,|，|、|-)+(?:朝|正)?(?:南北通透|南北向|南北|东南向|东北向|西南向|西北向|东南|东北|西南|西北|东向|南向|西向|北向|[东南西北])$/, "")
+    .trim();
+  return stripped || raw;
+}
+
 export function scoreClass(score: number | null | undefined): string {
   if (score == null) return "score-mid";
   if (score >= 80) return "score-high";

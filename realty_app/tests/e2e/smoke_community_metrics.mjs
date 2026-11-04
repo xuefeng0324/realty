@@ -36,10 +36,10 @@ async function run() {
   try {
     // 直接进 community 详情页 (id=1 京基100)
     const baseUrl = `${ORIGIN}/#/pages/community/community?id=7`;
-    // v1.123.31 flake 加固：networkidle → domcontentloaded + 条件等待（5 个 cm-cell 渲染完成）
+    // v1.123.31 flake 加固：networkidle → domcontentloaded + 条件等待（5 个 cm-row 渲染完成）
     await page.goto(baseUrl, { waitUntil: "domcontentloaded", timeout: 15000 });
     await page.locator("text=5 维小区指标").first().waitFor({ state: "visible", timeout: 15000 });
-    await page.waitForFunction(() => document.querySelectorAll(".cm-cell").length === 5, null, {
+    await page.waitForFunction(() => document.querySelectorAll(".cm-row").length === 5, null, {
       timeout: 15000
     });
 
@@ -51,9 +51,9 @@ async function run() {
     }
     console.log("[v0.37.0] 5 维小区指标卡 ✓");
 
-    // 2) 5 列 .cm-cell 都在
-    const cellCount = await page.locator(".cm-cell").count();
-    console.log(`[v0.37.0] cm-cell 数: ${cellCount}`);
+    // 2) 5 列 .cm-row 都在
+    const cellCount = await page.locator(".cm-row").count();
+    console.log(`[v0.37.0] cm-row 数: ${cellCount}`);
     if (cellCount !== 5) {
       console.log(`❌ 单元格数不对: ${cellCount} (应为 5)`);
       process.exit(1);
@@ -63,7 +63,7 @@ async function run() {
     const labels = ["生活", "学区", "通勤", "步行地铁", "规划地铁"];
     let foundCount = 0;
     for (const l of labels) {
-      const c = await page.locator(`.cm-label:has-text("${l}")`).count();
+      const c = await page.locator(`.cm-name:has-text("${l}")`).count();
       if (c > 0) foundCount++;
     }
     console.log(`[v0.37.0] 标签匹配 ${foundCount}/5`);

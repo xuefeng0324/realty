@@ -569,8 +569,9 @@ function fmtUnits(v: number | null): string {
 }
 function fmtArea(v: number | null): string {
   if (v == null) return "";
-  if (v >= 10000) return `${(v / 10000).toFixed(1)} 万㎡`;
-  return `${Math.round(v)} ㎡`;
+  // 同一行三格必须同单位：6867㎡ 与 1.8万㎡ 混排会被误读成量级差
+  const wan = (v / 10000).toFixed(2).replace(/\.?0+$/, "");
+  return `${wan} 万㎡`;
 }
 function fmtShort(dateStr: string): string {
   const parts = dateStr.split("-");

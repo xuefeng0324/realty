@@ -110,6 +110,7 @@
             v-for="p in districtLabels"
             :key="'lbl_' + p.code"
             class="map-lbl map-district-lbl"
+            :class="{ 'map-district-lbl--chip': mapMode === 'marker' }"
             :style="{ left: p.left, top: p.top }"
           >{{ p.name }}</text>
         </view>
@@ -231,7 +232,7 @@ const districtLabels = computed<Array<{ code: string; name: string; left: string
     let y = Math.min(94, Math.max(6, it.y));
     // 中心城区标签容易叠在一起，按横向/纵向间距自动错开
     for (let guard = 0; guard < 8; guard += 1) {
-      const hit = placed.some((p) => Math.abs(p.x - it.x) < 8 && Math.abs(p.y - y) < 5.5);
+      const hit = placed.some((p) => Math.abs(p.x - it.x) < 14 && Math.abs(p.y - y) < 5.5);
       if (!hit) break;
       y = y + 7 <= 94 ? y + 7 : y - 14;
     }
@@ -474,6 +475,14 @@ watch(
 .map-district-p { stroke: var(--color-border); stroke-width: 1.5; fill: var(--color-panel-soft); transition: fill 0.2s; }
 .map-district-p--mode { stroke: var(--color-surface); stroke-width: 1.5; }
 .map-district-lbl { color: var(--color-heading); font-size: 22rpx; font-weight: var(--font-weight-semibold); }
+/* 小区点模式：点标与行政区名容易互相压住，给标签一层主题底色 */
+.map-district-lbl--chip {
+  padding: 1rpx 8rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  box-shadow: 0 0 0 1rpx var(--color-border-soft);
+  text-shadow: none;
+}
 
 .map-marker { fill: #3b82f6; stroke: var(--color-surface); stroke-width: 1.5; }
 .map-marker-hit { fill: transparent; pointer-events: all; }
