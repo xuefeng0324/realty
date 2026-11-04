@@ -176,7 +176,7 @@
           <text class="form-label">总价（万）下限</text>
           <slider
             :min="PRICE_MIN" :max="PRICE_MAX" :step="PRICE_STEP" :value="priceRange[0]"
-            activeColor="#22c55e" backgroundColor="var(--color-soft-strong)" block-size="20"
+            activeColor="var(--color-primary)" backgroundColor="var(--color-soft-strong)" block-size="20"
             show-value
             @change="onPriceLoChange"
             @changing="onPriceLoChange"
@@ -184,7 +184,7 @@
           <text class="form-label">总价（万）上限</text>
           <slider
             :min="PRICE_MIN" :max="PRICE_MAX" :step="PRICE_STEP" :value="priceRange[1]"
-            activeColor="#22c55e" backgroundColor="var(--color-soft-strong)" block-size="20"
+            activeColor="var(--color-primary)" backgroundColor="var(--color-soft-strong)" block-size="20"
             show-value
             @change="onPriceHiChange"
             @changing="onPriceHiChange"
@@ -198,7 +198,7 @@
           <text class="form-label">面积（㎡）下限</text>
           <slider
             :min="AREA_MIN" :max="AREA_MAX" :step="AREA_STEP" :value="areaRange[0]"
-            activeColor="#22c55e" backgroundColor="var(--color-soft-strong)" block-size="20"
+            activeColor="var(--color-primary)" backgroundColor="var(--color-soft-strong)" block-size="20"
             show-value
             @change="onAreaLoChange"
             @changing="onAreaLoChange"
@@ -206,7 +206,7 @@
           <text class="form-label">面积（㎡）上限</text>
           <slider
             :min="AREA_MIN" :max="AREA_MAX" :step="AREA_STEP" :value="areaRange[1]"
-            activeColor="#22c55e" backgroundColor="var(--color-soft-strong)" block-size="20"
+            activeColor="var(--color-primary)" backgroundColor="var(--color-soft-strong)" block-size="20"
             show-value
             @change="onAreaHiChange"
             @changing="onAreaHiChange"

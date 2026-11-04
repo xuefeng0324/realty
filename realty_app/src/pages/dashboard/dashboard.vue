@@ -1486,7 +1486,7 @@
               v-if="lprSpark5y.path"
               :d="lprSpark5y.path"
               fill="none"
-              stroke="#ef4444"
+              stroke="var(--color-trend-up)"
               stroke-width="2"
               stroke-linejoin="round"
             />
@@ -1495,7 +1495,7 @@
               :cx="lprSpark5y.last.x"
               :cy="lprSpark5y.last.y"
               r="3"
-              fill="#ef4444"
+              fill="var(--color-trend-up)"
             >
               <title>{{ lpr.latest?.month }} 5Y LPR = {{ lpr.latest?.lpr5y }}%</title>
             </circle>
@@ -2458,10 +2458,10 @@ async function reloadLpr() {
 }
 
 function schoolDimsColor(score: number): string {
-  if (score >= 70) return "#34d399";
-  if (score >= 50) return "#60a5fa";
-  if (score >= 30) return "#fbbf24";
-  return "#f87171";
+  if (score >= 70) return "var(--color-success)";
+  if (score >= 50) return "var(--color-focus)";
+  if (score >= 30) return "var(--color-warning)";
+  return "var(--color-danger)";
 }
 
 const MAP_W = 660;
