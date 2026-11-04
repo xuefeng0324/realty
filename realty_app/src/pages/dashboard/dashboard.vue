@@ -988,7 +988,7 @@
       <view v-if="wangqianTrendWeeklyReady" class="card-flat">
         <view class="row-between">
           <view class="card-title card-title--flush">
-            📈 网签周环比 · {{ wangqianTrendCityName }}
+            网签周环比 · {{ wangqianTrendCityName }}
           </view>
         </view>
         <view v-if="!wangqianTrendHasCityData" class="empty" style="padding: var(--space-4) 0">
@@ -1325,7 +1325,7 @@
         @click="onOverviewCardClick('school')"
       >
         <view class="row-between">
-          <view class="card-title">🏫 学区 5 维评分 · {{ schoolDims.cityName }}</view>
+          <view class="card-title">学区 5 维评分 · {{ schoolDims.cityName }}</view>
           <button
             class="card-hide-btn"
             hover-class="tap-row--active"
@@ -1364,10 +1364,10 @@
 
         <!-- 各维度最强 (2x2 grid) -->
         <view class="sd-block">
-          <view class="sd-block-title">📊 各维度最强 Top 3</view>
+          <view class="sd-block-title">各维度最强 Top 3</view>
           <view class="sd-grid">
             <view class="sd-cell">
-              <view class="sd-cell-h">📈 评级 levelScore</view>
+              <view class="sd-cell-h">评级 levelScore</view>
               <view v-for="(r, i) in schoolDims.topByLevel.slice(0, 3)" :key="'lvl_' + r.schoolId" class="sd-row">
                 <text class="sd-rank-sm">{{ i + 1 }}</text>
                 <text class="sd-name-sm">{{ r.schoolName.slice(0, 14) }}</text>
@@ -1431,7 +1431,7 @@
         @click="onOverviewCardClick('lpr')"
       >
         <view class="row-between">
-          <view class="card-title">💰 LPR + 房贷利率 · 全国</view>
+          <view class="card-title">LPR + 房贷利率 · 全国</view>
           <button
             class="card-hide-btn"
             hover-class="tap-row--active"
@@ -1956,7 +1956,7 @@
       <!-- v0.20.0 trend-8: 同区多小区对比 (点区/板块对比 区名后展示) -->
       <view v-if="!isCardHidden('multi-community-compare') && (districtCompareResp && districtCompareResp.items.length > 0)" class="card-flat" data-card-key="multi-community-compare">
         <view class="row-between">
-          <view class="card-title">📊 {{ districtCompareResp.districtName }} · {{ districtCompareResp.cityName }} 小区对比</view>
+          <view class="card-title">{{ districtCompareResp.districtName }} · {{ districtCompareResp.cityName }} 小区对比</view>
           <view class="muted tap-target" @click="closeDistrictCompare">✕ 关闭</view>
         </view>
           <button
@@ -3898,7 +3898,7 @@ onShow(async () => {
 }
 
 .gz-inventory-value {
-  font-size: 30rpx;
+  font-size: var(--font-title-sm);
   font-weight: var(--font-weight-bold);
 }
 
@@ -3913,7 +3913,7 @@ onShow(async () => {
 .gz-progress-fill {
   height: 100%;
   border-radius: var(--radius-pill);
-  background: var(--color-accent);
+  background: var(--color-primary-strong);
 }
 
 .gz-inventory-row {
@@ -3971,7 +3971,7 @@ onShow(async () => {
 
 .combo-title {
   color: var(--color-heading);
-  font-size: 25rpx;
+  font-size: var(--font-body-sm);
   font-weight: var(--font-weight-bold);
 }
 
@@ -4119,7 +4119,7 @@ onShow(async () => {
   padding: var(--space-4) var(--space-3);
   border-bottom: 1rpx solid var(--color-soft);
   color: var(--color-heading);
-  font-size: 30rpx;
+  font-size: var(--font-title-sm);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -4139,7 +4139,7 @@ onShow(async () => {
   text-align: center;
   padding: 28rpx 0;
   color: var(--color-muted);
-  font-size: 30rpx;
+  font-size: var(--font-title-sm);
   border-top: 1rpx solid var(--color-soft);
 }
 
@@ -4311,7 +4311,7 @@ onShow(async () => {
 }
 
 .cell-value {
-  font-size: 36rpx;
+  font-size: var(--font-title-md);
   font-weight: var(--font-weight-bold);
   color: var(--color-heading);
 }
@@ -4855,7 +4855,7 @@ onShow(async () => {
   margin-bottom: 4rpx;
 }
 .lpr-kpi-val {
-  font-size: 30rpx;
+  font-size: var(--font-title-sm);
   font-weight: var(--font-weight-bold);
   color: var(--color-heading);
   font-variant-numeric: tabular-nums;
@@ -5106,7 +5106,7 @@ onShow(async () => {
   border-radius: var(--radius-xl);
   color: #f8fffc;
   background:
-    radial-gradient(circle at 95% 5%, rgba(56, 189, 248, 0.28), transparent 38%),
+    radial-gradient(circle at 95% 5%, rgba(94, 234, 212, 0.22), transparent 42%),
     linear-gradient(135deg, #063d35 0%, #075f50 54%, #087d6a 100%);
   box-shadow: 0 22rpx 54rpx rgba(4, 78, 67, 0.2);
 }
@@ -5136,14 +5136,13 @@ onShow(async () => {
   display: block;
   color: #7fffd4;
   font-size: var(--font-micro);
-  font-weight: var(--font-weight-extrabold);
-  letter-spacing: 3rpx;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-eyebrow);
 }
 .home-v122-title {
   margin-top: var(--space-1);
-  font-size: 38rpx;
-  font-weight: var(--font-weight-extrabold);
-  letter-spacing: -1rpx;
+  font-size: var(--font-title);
+  font-weight: var(--font-weight-bold);
 }
 .home-v122-city,
 .home-v122-search-btn,
@@ -5193,31 +5192,32 @@ onShow(async () => {
   box-shadow: 0 14rpx 36rpx rgba(0, 31, 27, 0.2);
 }
 .home-v122-search-icon {
-  color: #0f766e;
-  font-size: 38rpx;
+  color: var(--color-primary-strong);
+  font-size: var(--font-title);
   transform: rotate(-15deg);
 }
 .home-v122-search-input {
   flex: 1;
   min-width: 0;
   box-sizing: border-box;
-  height: 64rpx;
-  line-height: 64rpx;
+  height: 72rpx;
+  line-height: 72rpx;
   padding-left: var(--space-3);
   color: #12342f;
-  font-size: 27rpx;
+  background: transparent;
+  font-size: var(--font-body);
 }
 .home-v122-search-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 104rpx;
-  height: 64rpx;
-  line-height: 64rpx;
-  padding: 0 22rpx;
-  border-radius: 18rpx;
-  color: #fff;
-  background: linear-gradient(135deg, #059669, #0d9488);
+  height: 72rpx;
+  line-height: 72rpx;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md2);
+  color: var(--color-primary-text);
+  background: var(--color-primary-strong);
   font-size: var(--font-body-sm);
   font-weight: var(--font-weight-bold);
 }
@@ -5226,13 +5226,13 @@ onShow(async () => {
   z-index: 1;
   display: flex;
   gap: var(--space-gap-md);
-  margin-top: 18rpx;
+  margin-top: var(--space-3);
 }
 .home-v122-mode {
   min-height: 48rpx;
-  padding: 0 18rpx;
+  padding: 0 var(--space-3);
   border-radius: var(--radius-pill);
-  color: rgba(255, 255, 255, 0.68);
+  color: rgba(255, 255, 255, 0.78);
   font-size: var(--font-caption);
   line-height: 48rpx;
 }
@@ -5245,16 +5245,16 @@ onShow(async () => {
 .home-v122-block,
 .home-v122-trust {
   border: 1rpx solid var(--color-border);
-  border-radius: 28rpx;
+  border-radius: var(--radius-lg);
   background: var(--color-panel);
-  box-shadow: 0 12rpx 36rpx rgba(15, 48, 42, 0.07);
+  box-shadow: var(--shadow-card);
 }
-.home-v122-pulse { padding: 28rpx 28rpx 0; }
-.home-v122-section-head--compact { margin-bottom: 22rpx; }
+.home-v122-pulse { padding: var(--space-4) var(--space-4) 0; }
+.home-v122-section-head--compact { margin-bottom: var(--space-4); }
 .home-v122-section-title {
   color: var(--color-heading);
-  font-size: 31rpx;
-  font-weight: var(--font-weight-extrabold);
+  font-size: var(--font-title-sm);
+  font-weight: var(--font-weight-bold);
 }
 .home-v122-section-sub {
   display: block;
@@ -5263,25 +5263,25 @@ onShow(async () => {
   font-size: var(--font-caption);
 }
 .home-v122-pulse .home-v122-eyebrow {
-  margin-bottom: 6rpx;
-  color: #0f9880;
+  margin-bottom: var(--space-gap-sm);
+  color: var(--color-primary-strong);
 }
 .home-v122-live {
   display: flex;
   align-items: center;
   gap: var(--space-gap-md);
-  color: #0f9880;
+  color: var(--color-primary-strong);
   font-size: var(--font-caption);
 }
 .home-v122-metrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 26rpx;
+  margin-top: var(--space-4);
 }
 .home-v122-metric {
   display: flex;
   min-width: 0;
-  padding: 0 18rpx var(--space-4);
+  padding: 0 var(--space-3) var(--space-4);
   border-right: 1rpx solid var(--color-border);
   flex-direction: column;
 }
@@ -5300,20 +5300,20 @@ onShow(async () => {
 }
 .home-v122-metric-value {
   overflow: hidden;
-  margin: 10rpx 0 7rpx;
+  margin: var(--space-2) 0 var(--space-1);
   color: var(--color-heading);
-  font-size: 31rpx;
-  font-weight: var(--font-weight-extrabold);
+  font-size: var(--font-title-sm);
+  font-weight: var(--font-weight-bold);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .home-v122-pulse-foot {
-  min-height: 70rpx;
+  min-height: 72rpx;
   border-top: 1rpx solid var(--color-border);
-  color: #0f8b76;
+  color: var(--color-primary-strong);
   font-size: var(--font-caption);
 }
-.home-v122-block { padding: 28rpx; }
+.home-v122-block { padding: var(--space-4); }
 .home-v122-quick {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -5338,18 +5338,15 @@ onShow(async () => {
   justify-content: center;
   width: 68rpx;
   height: 68rpx;
-  border-radius: 22rpx;
-  font-size: 25rpx;
-  font-weight: var(--font-weight-black);
+  border-radius: var(--radius-md);
+  color: var(--color-primary-strong);
+  background: var(--color-primary-soft);
+  font-size: var(--font-caption);
+  font-weight: var(--font-weight-bold);
 }
-.home-v122-quick-icon--green { color: #047857; background: #dff8ef; }
-.home-v122-quick-icon--blue { color: #2563eb; background: #e7efff; }
-.home-v122-quick-icon--amber { color: #b45309; background: #fff3d6; }
-.home-v122-quick-icon--cyan { color: #087f8c; background: #def7f8; }
-.home-v122-quick-icon--violet { color: #7c3aed; background: #f0e8ff; }
 .home-v122-more {
   flex-shrink: 0;
-  color: #0f8b76;
+  color: var(--color-primary-strong);
   font-size: var(--font-caption);
 }
 
@@ -5360,10 +5357,10 @@ onShow(async () => {
 .home-v122-listing {
   display: flex;
   align-items: center;
-  gap: 20rpx;
+  gap: var(--space-3);
   min-height: 150rpx;
-  padding: 20rpx 0;
-  border-top: 1rpx solid var(--color-border);
+  padding: var(--space-3) 0;
+  border-top: 1rpx solid var(--color-border-soft);
 }
 .home-v122-listing:first-child {
   border-top: 0;
@@ -5377,18 +5374,18 @@ onShow(async () => {
   justify-content: center;
   width: 176rpx;
   height: 124rpx;
-  border-radius: 20rpx;
+  border-radius: var(--radius-md);
   flex-shrink: 0;
-  background: #dce8e5;
+  background: var(--color-soft);
   /* uni-image 的 H5 内部命中层不得越过封面去拦截固定 TabBar。 */
   pointer-events: none;
 }
 .home-v122-cover--empty {
-  color: rgba(255, 255, 255, 0.84);
-  background: linear-gradient(135deg, #0f766e, var(--color-focus));
+  color: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(135deg, #14532d, #16a34a);
   font-size: var(--font-micro);
-  font-weight: var(--font-weight-extrabold);
-  letter-spacing: 2rpx;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-eyebrow);
 }
 .home-v122-listing-main {
   flex: 1;
@@ -5397,7 +5394,7 @@ onShow(async () => {
 .home-v122-listing-title {
   overflow: hidden;
   color: var(--color-heading);
-  font-size: 27rpx;
+  font-size: var(--font-body);
   font-weight: var(--font-weight-bold);
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -5411,32 +5408,32 @@ onShow(async () => {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.home-v122-listing-foot { margin-top: 13rpx; }
+.home-v122-listing-foot { margin-top: var(--space-2); }
 .home-v122-listing-price {
-  color: #e24a3b;
-  font-size: 27rpx;
-  font-weight: var(--font-weight-extrabold);
+  color: var(--color-danger);
+  font-size: var(--font-body);
+  font-weight: var(--font-weight-bold);
 }
 .home-v122-source {
-  padding: 6rpx 10rpx;
+  padding: var(--space-gap-xs) var(--space-gap-md);
   border-radius: var(--radius-sm2);
-  color: #64748b;
+  color: var(--color-muted);
   background: var(--color-soft);
   font-size: var(--font-micro);
 }
 .home-v122-source--real {
-  color: #047857;
-  background: rgba(16, 185, 129, 0.1);
+  color: var(--color-primary-strong);
+  background: var(--color-primary-soft);
 }
 .home-v122-arrow {
   color: var(--color-muted);
-  font-size: 38rpx;
+  font-size: var(--font-title);
 }
 .home-v122-empty {
-  padding: 42rpx 20rpx;
+  padding: var(--space-6) var(--space-4);
   color: var(--color-muted);
   text-align: center;
-  font-size: 23rpx;
+  font-size: var(--font-caption);
 }
 .home-v122-trust {
   gap: var(--space-gap-lg);
@@ -5454,16 +5451,16 @@ onShow(async () => {
   justify-content: center;
   width: 54rpx;
   height: 54rpx;
-  border-radius: 18rpx;
-  color: #047857;
-  background: #dff8ef;
+  border-radius: var(--radius-md);
+  color: var(--color-primary-strong);
+  background: var(--color-primary-soft);
   flex-shrink: 0;
-  font-weight: var(--font-weight-black);
+  font-weight: var(--font-weight-bold);
 }
 .home-v122-trust-title {
-  margin-bottom: 5rpx;
+  margin-bottom: var(--space-gap-sm);
   color: var(--color-heading);
-  font-size: 23rpx;
+  font-size: var(--font-caption);
   font-weight: var(--font-weight-bold);
 }
 .home-v122-tap,
@@ -5484,14 +5481,14 @@ onShow(async () => {
 @media (max-width: 340px) {
   .home-v122-hero,
   .home-v122-block,
-  .home-v122-pulse { border-radius: 22rpx; }
-  .home-v122-title { font-size: 32rpx; }
-  .home-v122-city { padding: 0 14rpx; }
+  .home-v122-pulse { border-radius: var(--radius-md); }
+  .home-v122-title { font-size: var(--font-title-sm); }
+  .home-v122-city { padding: 0 var(--space-2); }
   .home-v122-metric {
-    padding-right: 10rpx;
-    padding-left: 10rpx;
+    padding-right: var(--space-2);
+    padding-left: var(--space-2);
   }
-  .home-v122-metric-value { font-size: 27rpx; }
+  .home-v122-metric-value { font-size: var(--font-body); }
   .home-v122-cover {
     width: 150rpx;
     height: 112rpx;

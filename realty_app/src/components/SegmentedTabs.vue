@@ -61,7 +61,7 @@ function select(item: SegmentedTabItem): void {
   display: inline-flex;
   min-width: 100%;
   gap: var(--space-1, 8rpx);
-  padding: 6rpx;
+  padding: var(--space-gap-sm, 6rpx);
   border: 1rpx solid var(--color-border-soft);
   border-radius: var(--radius-lg, 24rpx);
   background: var(--color-panel-soft);
@@ -71,9 +71,9 @@ function select(item: SegmentedTabItem): void {
   flex: 1 0 auto;
   min-height: 72rpx;
   padding: 0 var(--space-4, 24rpx);
-  border-radius: 18rpx;
+  border-radius: var(--radius-md2, 12rpx);
   color: var(--color-text-secondary);
-  font-size: var(--font-body-sm, 24rpx);
+  font-size: var(--font-body-sm, 26rpx);
   font-weight: 500;
   white-space: nowrap;
 }
@@ -89,6 +89,6 @@ function select(item: SegmentedTabItem): void {
 .segmented-tabs__badge {
   margin-left: var(--space-1, 8rpx);
   color: var(--color-muted);
-  font-size: 20rpx;
+  font-size: var(--font-micro);
 }
 </style>

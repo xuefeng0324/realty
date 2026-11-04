@@ -202,7 +202,7 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
 
   it("data-tools.vue 首页卡片管理 + 设置入口（首屏不再堆按钮）", () => {
     expect(toolsSrc).toContain("data-dt-card-manager");
-    expect(toolsSrc).toContain("⚙️ 首页卡片管理");
+    expect(toolsSrc).toContain("首页卡片管理");
     expect(toolsSrc).toContain("DASHBOARD_CARDS");
     expect(toolsSrc).toContain("HIDDEN_CARDS_KEY");
     expect(toolsSrc).toContain("toggleDashboardCard");

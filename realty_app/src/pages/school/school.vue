@@ -3,7 +3,7 @@
     <view class="container">
       <view class="card school-hero">
         <view class="hero-eyebrow">EDUCATION SEARCH</view>
-        <view class="card-title" style="margin-bottom: 0">学校查询</view>
+        <view class="card-title" style="margin-bottom: 0">读懂一所学校</view>
         <view class="muted">从学校名称开始查询，结果会标注官方逐校来源或整理样本。</view>
       </view>
 
@@ -44,7 +44,7 @@
         data-school-dimensions
       >
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">🏫 重点学校维度细分</view>
+          <view class="card-title" style="margin-bottom: 0">重点学校维度细分</view>
           <view class="muted muted-caption" data-school-dim-count>
             {{ dimCityCurrent.schoolCount }} 所重点校 · {{ currentCityLabel || educationCityLabel }}
           </view>
@@ -54,7 +54,7 @@
           style="margin-top: 14rpx"
         >
           <view class="muted muted-caption" style="margin-bottom: 6rpx">
-            🛡️ 全维度学校
+            全维度学校
             <text class="muted muted-micro">
               （综合≥80 / 集团实力≥70 / 区均衡度≥70）
             </text>
@@ -145,15 +145,18 @@
               <view class="picker-value">{{ currentCityLabel }}</view>
             </picker>
           </view>
-          <view class="form-item search-input">
-            <input
-              class="input"
-              type="text"
-              v-model="keyword"
-              placeholder="输入学校名关键字"
-              @confirm="search"
-            />
-            <button class="btn" size="mini" @click="search">搜索</button>
+          <view class="form-item form-item--wide">
+            <text class="form-label">学校名称</text>
+            <view class="search-input">
+              <input
+                class="input"
+                type="text"
+                v-model="keyword"
+                placeholder="输入学校名关键字"
+                @confirm="search"
+              />
+              <button class="btn" size="mini" @click="search">搜索</button>
+            </view>
           </view>
         </view>
       </view>
@@ -166,7 +169,6 @@
           <view class="muted result-count" v-if="results">共 {{ results.length }} 所</view>
         </view>
         <view v-if="!results || results.length === 0" class="empty search-empty">
-          <text class="search-empty-icon">{{ keyword ? "⌕" : "🏫" }}</text>
           <text class="search-empty-title">{{ keyword ? "无匹配学校" : "从学校名称开始查询" }}</text>
           <text class="muted">{{ keyword ? "可尝试缩短关键字或切换城市" : "例如：实验、外国语、第一中学" }}</text>
         </view>
@@ -340,16 +342,16 @@ async function loadCities() {
 }
 
 .hero-eyebrow {
-  color: var(--color-primary);
-  font-size: var(--font-micro);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: 3rpx;
   margin-bottom: var(--space-1);
+  color: var(--color-primary-strong);
+  font-size: var(--font-micro);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-eyebrow);
 }
 
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--space-3);
 }
 
@@ -359,12 +361,15 @@ async function loadCities() {
   gap: var(--space-1);
 }
 
+.form-item--wide {
+  grid-column: 1 / -1;
+}
+
 .search-input {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: var(--space-1);
-  margin-bottom: var(--space-3);
 }
 
 .form-label {
@@ -375,29 +380,29 @@ async function loadCities() {
 .picker-value,
 .input {
   box-sizing: border-box;
-  min-height: 64rpx;
+  min-height: 72rpx;
   line-height: 40rpx;
   background: var(--color-surface-raised);
   border-radius: var(--radius-sm2);
   padding: var(--space-2) var(--space-3);
   color: var(--color-heading);
-  font-size: 26rpx;
+  font-size: var(--font-body-sm);
 }
 
 .search-input .input {
   flex: 1;
   min-width: 0;
-  height: 64rpx;
-  line-height: 64rpx;
+  height: 72rpx;
+  line-height: 72rpx;
 }
 
 .search-input .btn {
   /* 与 .search-input .input 同高、同 line-height，
    * 避免 uni-app mini button 默认 min-height 偏小导致上下偏。 */
-  height: 64rpx;
-  min-height: 64rpx;
-  line-height: 64rpx;
-  padding: 0 20rpx;
+  height: 72rpx;
+  min-height: 72rpx;
+  line-height: 72rpx;
+  padding: 0 var(--space-3);
   border-radius: var(--radius-md2);
 }
 
@@ -425,12 +430,8 @@ async function loadCities() {
   padding: 48rpx var(--space-3);
 }
 
-.search-empty-icon {
-  font-size: 48rpx;
-}
-
 .search-empty-title {
-  font-size: 30rpx;
+  font-size: var(--font-title-sm);
   font-weight: var(--font-weight-semibold);
 }
 

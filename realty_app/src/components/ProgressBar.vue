@@ -46,7 +46,7 @@ const clamped = computed(() => {
 .progress-bar__track {
   flex: 1;
   height: 12rpx;
-  border-radius: 999rpx;
+  border-radius: var(--radius-pill);
   background: var(--color-soft);
   overflow: hidden;
 }
@@ -55,14 +55,14 @@ const clamped = computed(() => {
 }
 .progress-bar__fill {
   height: 100%;
-  border-radius: 999rpx;
+  border-radius: var(--radius-pill);
   transition: width 0.25s ease;
 }
 .progress-bar__fill--primary {
   background: linear-gradient(90deg, var(--color-primary), var(--color-primary-contrast));
 }
 .progress-bar__fill--accent {
-  background: var(--color-accent);
+  background: var(--color-primary-strong);
 }
 .progress-bar__fill--warn {
   background: #f59e0b;

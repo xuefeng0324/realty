@@ -2,7 +2,7 @@
   <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="container">
       <view class="card">
-        <view class="card-title">全国 70 城价格指数</view>
+        <view class="card-title">指数口径</view>
         <view class="muted" v-if="latestMonth">
           数据月份：{{ latestMonth }}（来源：国家统计局）
           <text v-if="freshnessLabel"> · {{ freshnessLabel }}</text>
@@ -37,7 +37,7 @@
 
       <view v-if="!hasData" class="card">
         <EmptyState
-          icon="📊"
+          icon="○"
           title="70 城指数未加载"
           desc="请确认网络通畅，且 App 启动时已尝试加载 stats_70.csv。返回总览下拉刷新后再进来。"
           action-text="返回总览"
@@ -387,8 +387,8 @@ function onPickCity(city: string) {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  min-height: 56rpx;
-  padding: var(--space-1) 22rpx;
+  min-height: 64rpx;
+  padding: 0 var(--space-3);
   line-height: 1.2;
   vertical-align: middle;
 }
@@ -409,7 +409,6 @@ function onPickCity(city: string) {
 }
 
 .tab {
-  padding: var(--space-1) 22rpx;
   border-radius: var(--radius-pill);
   background: var(--color-soft);
   color: var(--color-text-secondary);
@@ -418,9 +417,9 @@ function onPickCity(city: string) {
 }
 
 .tab-on {
-  background: var(--color-success-soft);
-  color: var(--color-on-success-soft);
-  border-color: var(--color-on-success-soft);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  border-color: var(--color-primary-soft);
 }
 
 .filter-row {
@@ -434,13 +433,13 @@ function onPickCity(city: string) {
   flex: 1;
   min-width: 0;
   box-sizing: border-box;
-  height: 64rpx;
-  line-height: 64rpx;
+  height: 72rpx;
+  line-height: 72rpx;
   background: var(--color-surface-raised);
-  border-radius: var(--radius-sm2);
+  border-radius: var(--radius-md2);
   padding: 0 var(--space-3);
   color: var(--color-heading);
-  font-size: 26rpx;
+  font-size: var(--font-body-sm);
 }
 
 .filter-empty {
@@ -453,7 +452,7 @@ function onPickCity(city: string) {
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) 0;
-  border-bottom: 1rpx solid var(--color-soft-strong);
+  border-bottom: 1rpx solid var(--color-border-soft);
 }
 
 .rank-row:last-child {
@@ -462,15 +461,17 @@ function onPickCity(city: string) {
 
 .rank-no {
   width: 70rpx;
-  font-weight: var(--font-weight-semibold);
   color: var(--color-text-secondary);
+  font-size: var(--font-body-sm);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-semibold);
 }
 
 .rank-name {
   width: 130rpx;
-  color: var(--color-heading);
-  font-size: 26rpx;
   overflow: hidden;
+  color: var(--color-heading);
+  font-size: var(--font-body-sm);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -478,19 +479,21 @@ function onPickCity(city: string) {
 .rank-bar-track {
   flex: 1;
   height: 14rpx;
+  border-radius: var(--radius-pill);
   background: var(--color-soft-strong);
-  border-radius: 7rpx;
   overflow: hidden;
 }
 
 .rank-bar-fill {
   height: 100%;
-  border-radius: 7rpx;
+  border-radius: var(--radius-pill);
 }
 
 .rank-val {
   width: 110rpx;
   text-align: right;
+  font-size: var(--font-body-sm);
+  font-variant-numeric: tabular-nums;
   font-weight: var(--font-weight-semibold);
 }
 

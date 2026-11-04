@@ -1173,11 +1173,11 @@ onUnmounted(() => {
   background: #e8eef5;
 }
 .btn {
-  background: var(--color-accent) !important;
-  color: var(--color-accent-text) !important;
+  background: var(--color-primary-strong) !important;
+  color: var(--color-primary-text) !important;
   font-size: var(--font-body-sm);
   padding: 4rpx var(--space-3);
-  border-radius: var(--radius-xxs);
+  border-radius: var(--radius-sm2);
 }
 .legend {
   margin-top: var(--space-1);
@@ -1227,7 +1227,7 @@ onUnmounted(() => {
 }
 .info-name {
   color: var(--color-heading);
-  font-size: 30rpx;
+  font-size: var(--font-title-sm);
   font-weight: var(--font-weight-semibold);
 }
 .info-close {
@@ -1256,19 +1256,19 @@ onUnmounted(() => {
 }
 .info-stat-value {
   color: var(--color-heading);
-  font-size: 30rpx;
+  font-size: var(--font-title-sm);
   font-weight: var(--font-weight-semibold);
 }
 /* v1.119.0 弯曲系数 Top 5 卡 */
 .curvature-card {
   margin-top: var(--space-3);
-  padding: var(--space-3) 20rpx;
+  padding: var(--space-3);
   background: var(--color-panel);
-  border: 1rpx solid var(--color-soft);
-  border-radius: 14rpx;
+  border: 1rpx solid var(--color-border-soft);
+  border-radius: var(--radius-md2);
 }
 .curvature-title {
-  font-size: 28rpx;
+  font-size: var(--font-body);
   color: var(--color-heading);
   font-weight: var(--font-weight-semibold);
 }
@@ -1290,7 +1290,7 @@ onUnmounted(() => {
 .curvature-rank {
   width: 40rpx;
   height: 40rpx;
-  border-radius: 20rpx;
+  border-radius: var(--radius-pill);
   background: var(--color-focus);
   color: var(--color-heading);
   display: flex;
@@ -1318,7 +1318,7 @@ onUnmounted(() => {
   font-variant-numeric: tabular-nums;
 }
 .curvature-ratio {
-  font-size: 30rpx;
+  font-size: var(--font-title-sm);
   color: var(--color-on-warn-soft);
   font-weight: var(--font-weight-bold);
   font-variant-numeric: tabular-nums;
@@ -1351,19 +1351,19 @@ onUnmounted(() => {
 }
 
 .map-control-card {
-  padding: 26rpx;
-  border-radius: 22rpx;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
 }
 
 .control-eyebrow {
-  color: #0ea5e9;
+  color: var(--color-primary-strong);
   font-size: var(--font-micro);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: 3rpx;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-eyebrow);
 }
 
 .map-summary {
-  padding: 7rpx 14rpx;
+  padding: var(--space-gap-xs) var(--space-2);
   border-radius: var(--radius-pill);
   background: var(--color-surface-raised);
   color: var(--color-text-secondary);
@@ -1374,7 +1374,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: var(--space-gap-lg);
-  margin-top: 20rpx;
+  margin-top: var(--space-3);
 }
 
 .control-label {
@@ -1385,14 +1385,14 @@ onUnmounted(() => {
 }
 
 .layer-label {
-  margin-top: 18rpx;
+  margin-top: var(--space-3);
 }
 
 .city-segment {
   display: inline-flex;
-  padding: 5rpx;
+  padding: var(--space-gap-sm);
   border: 1rpx solid var(--color-border);
-  border-radius: 14rpx;
+  border-radius: var(--radius-md2);
   background: var(--color-surface-raised);
 }
 
@@ -1482,7 +1482,7 @@ onUnmounted(() => {
   min-width: 0;
 }
 .find-sheet-title {
-  font-size: 30rpx;
+  font-size: var(--font-title-sm);
   font-weight: var(--font-weight-bold);
   color: var(--color-heading);
 }

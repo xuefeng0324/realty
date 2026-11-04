@@ -222,7 +222,7 @@ function restartNow() {
   margin-bottom: var(--space-1);
 }
 .upgrade-title {
-  font-size: 34rpx;
+  font-size: var(--font-title-md);
   font-weight: var(--font-weight-bold);
   color: var(--color-heading);
 }

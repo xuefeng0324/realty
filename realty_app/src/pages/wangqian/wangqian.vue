@@ -3,22 +3,22 @@
     <view class="container">
       <!-- 头部：城市 + 新鲜度 + 刷新 -->
       <view class="card">
-        <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">政府每日网签</view>
-          <button class="btn" size="mini" @click="pickCity">{{ cityName || "选择城市" }} ▾</button>
-        </view>
-        <view v-if="snapshot" class="row-between" style="margin-top: var(--space-2); align-items: center">
-          <view class="muted">
-            最近交易日 {{ snapshot.date }}
-            <text class="fresh-badge" :class="freshClass">{{ freshLabel }}</text>
+        <view class="row-between wq-head">
+          <view class="card-title" style="margin-bottom: 0">网签快照</view>
+          <view class="wq-head-actions">
+            <button class="btn btn-ghost" size="mini" @click="pickCity">{{ cityName || "选择城市" }} ▾</button>
+            <button class="btn btn-ghost" size="mini" :loading="refreshing" @click="doRefresh">
+              {{ refreshing ? "刷新中" : "刷新" }}
+            </button>
           </view>
-          <button class="btn btn-ghost" size="mini" :loading="refreshing" @click="doRefresh">
-            {{ refreshing ? "刷新中" : "刷新" }}
-          </button>
+        </view>
+        <view v-if="snapshot" class="muted wq-status">
+          最近交易日 {{ snapshot.date }}
+          <text class="fresh-badge" :class="freshClass">{{ freshLabel }}</text>
         </view>
         <view v-else>
           <EmptyState
-            icon="📋"
+            icon="空"
             :title="ready ? '该城市暂无网签日更' : '网签数据未加载'"
             :desc="wangqianEmptyDesc"
             action-text="刷新"
@@ -659,17 +659,21 @@ onLoad((opts?: Record<string, string>) => {
   font-size: var(--font-caption);
 }
 .metric-value {
-  font-size: 40rpx;
+  color: var(--color-heading);
+  font-size: var(--font-title);
   font-weight: var(--font-weight-bold);
 }
-.metric-value.new {
-  color: var(--color-trend-down);
+.wq-head {
+  align-items: center;
+  gap: var(--space-2);
 }
-.metric-value.res {
-  color: var(--color-focus);
+.wq-head-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--space-1);
 }
-.metric-value.all {
-  color: var(--color-warning);
+.wq-status {
+  margin-top: var(--space-2);
 }
 .metric-sub {
   font-size: var(--font-micro);
@@ -807,7 +811,7 @@ onLoad((opts?: Record<string, string>) => {
   padding: var(--space-4) var(--space-5);
   border-bottom: 1rpx solid var(--color-soft);
   color: var(--color-heading);
-  font-size: 30rpx;
+  font-size: var(--font-title-sm);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -824,7 +828,7 @@ onLoad((opts?: Record<string, string>) => {
   text-align: center;
   padding: 28rpx 0;
   color: var(--color-muted);
-  font-size: 30rpx;
+  font-size: var(--font-title-sm);
   border-top: 1rpx solid var(--color-soft);
 }
 .trend-up {

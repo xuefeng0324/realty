@@ -9,7 +9,7 @@
         <view class="find-hub-title-row">
           <view>
             <text class="find-hub-eyebrow">DISCOVER</text>
-            <view class="find-hub-title">找房</view>
+            <view class="find-hub-title">今天想找什么？</view>
             <text class="find-hub-subtitle">房源、小区和学校，一个入口查清楚</text>
           </view>
           <button class="find-hub-city" @click="pickCity">
@@ -31,7 +31,7 @@
           </button>
         </view>
 
-        <view class="find-hub-search">
+        <view class="find-hub-search" data-listing-keyword>
           <text class="find-hub-search-icon">⌕</text>
           <input
             v-model="keyword"
@@ -111,18 +111,6 @@
       <!-- 筛选器 -->
       <view class="card">
         <view class="card-title">筛选</view>
-
-        <view class="form-item search-input" data-listing-keyword>
-          <input
-            class="input"
-            type="text"
-            v-model="keyword"
-            placeholder="小区 / 标题 / 行政区关键字"
-            confirm-type="search"
-            @confirm="() => applyFilter(true)"
-          />
-          <button class="btn" size="mini" @click="() => applyFilter(true)">搜索</button>
-        </view>
 
         <view class="form-grid">
           <view class="form-item">
@@ -345,7 +333,7 @@
       <!-- v1.118.0 性价比之选（社区散点 Pareto 派生，仅本市） -->
       <view class="card" v-if="paretoTop.length">
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">⭐ 性价比之选</view>
+          <view class="card-title" style="margin-bottom: 0">性价比之选</view>
           <view class="muted muted-caption">
             改善段 ≤ {{ paretoPriceCapWan }} 万/m² · 面积 Top {{ paretoTop.length }}
           </view>
@@ -1082,7 +1070,7 @@ onUnmounted(() => {
 .find-hub-page {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.1), transparent 32%),
+    radial-gradient(circle at 100% 0%, var(--color-primary-soft), transparent 34%),
     var(--color-bg);
 }
 
@@ -1092,13 +1080,13 @@ onUnmounted(() => {
 }
 
 .find-hub-head {
-  padding: var(--space-5) 30rpx 26rpx;
+  padding: var(--space-5) var(--space-4) var(--space-4);
   border: 1rpx solid var(--color-border);
-  border-radius: 30rpx;
+  border-radius: var(--radius-lg);
   background:
-    radial-gradient(circle at 92% 0%, rgba(56, 189, 248, 0.16), transparent 42%),
+    radial-gradient(circle at 92% 0%, var(--color-primary-soft), transparent 46%),
     var(--color-panel);
-  box-shadow: 0 16rpx 44rpx rgba(15, 48, 42, 0.08);
+  box-shadow: var(--shadow-card);
 }
 
 .find-hub-title-row,
@@ -1118,18 +1106,17 @@ onUnmounted(() => {
 
 .find-hub-eyebrow {
   display: block;
-  color: #0f9880;
+  color: var(--color-primary-strong);
   font-size: var(--font-micro);
-  font-weight: var(--font-weight-black);
-  letter-spacing: 3rpx;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-eyebrow);
 }
 
 .find-hub-title {
-  margin-top: 4rpx;
+  margin-top: var(--space-gap-xs);
   color: var(--color-heading);
-  font-size: 44rpx;
-  font-weight: var(--font-weight-black);
-  letter-spacing: -2rpx;
+  font-size: var(--font-title);
+  font-weight: var(--font-weight-bold);
 }
 
 .find-hub-subtitle {
@@ -1158,30 +1145,30 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  min-height: 62rpx;
-  padding: 0 18rpx;
-  border: 1rpx solid rgba(15, 152, 128, 0.16);
+  min-height: 64rpx;
+  padding: 0 var(--space-3);
+  border: 1rpx solid var(--color-primary-soft);
   border-radius: var(--radius-pill);
-  color: #0f766e;
-  background: rgba(16, 185, 129, 0.08);
-  font-size: 23rpx;
+  color: var(--color-primary-strong);
+  background: var(--color-primary-soft);
+  font-size: var(--font-caption);
 }
 
 .find-hub-city-dot {
   width: 10rpx;
   height: 10rpx;
   border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 0 6rpx rgba(16, 185, 129, 0.12);
+  background: var(--color-primary);
+  box-shadow: 0 0 0 6rpx var(--color-primary-soft);
 }
 
 .find-hub-segments {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-gap-md);
-  margin-top: 28rpx;
+  margin-top: var(--space-4);
   padding: var(--space-1);
-  border-radius: 20rpx;
+  border-radius: var(--radius-md);
   background: var(--color-soft);
 }
 
@@ -1190,19 +1177,19 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: var(--space-gap-md);
-  min-height: 68rpx;
+  min-height: 72rpx;
   padding: 0 var(--space-2);
-  border-radius: 15rpx;
+  border-radius: var(--radius-md2);
   color: var(--color-muted);
   background: transparent;
   font-size: var(--font-body-sm);
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-semibold);
 }
 
 .find-hub-segment--active {
-  color: #087565;
+  color: var(--color-primary-strong);
   background: var(--color-panel);
-  box-shadow: 0 6rpx 18rpx rgba(11, 84, 72, 0.1);
+  box-shadow: var(--shadow-card);
 }
 
 .find-hub-segment-icon {
@@ -1211,9 +1198,9 @@ onUnmounted(() => {
   justify-content: center;
   width: 34rpx;
   height: 34rpx;
-  border-radius: var(--radius-sm);
-  color: #fff;
-  background: linear-gradient(135deg, #10b981, #0ea5e9);
+  border-radius: var(--radius-sm2);
+  color: var(--color-primary-strong);
+  background: var(--color-primary-soft);
   font-size: var(--font-micro);
 }
 
@@ -1221,55 +1208,55 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  height: 82rpx;
-  margin-top: 20rpx;
-  padding: 0 10rpx 0 22rpx;
+  height: 88rpx;
+  margin-top: var(--space-3);
+  padding: 0 var(--space-1) 0 var(--space-4);
   border: 1rpx solid var(--color-border);
-  border-radius: 20rpx;
+  border-radius: var(--radius-md);
   background: var(--color-soft);
 }
 
 .find-hub-search-icon {
-  color: #0f8b76;
-  font-size: 34rpx;
+  color: var(--color-primary-strong);
+  font-size: var(--font-title-sm);
   transform: rotate(-15deg);
 }
 
 .find-hub-search-input {
   flex: 1;
   min-width: 0;
-  height: 70rpx;
-  line-height: 70rpx;
+  height: 72rpx;
+  line-height: 72rpx;
   color: var(--color-heading);
-  font-size: 25rpx;
+  font-size: var(--font-body);
 }
 
 .find-hub-search-btn {
-  min-width: 96rpx;
-  height: 70rpx;
-  line-height: 70rpx;
-  padding: 0 20rpx;
-  border-radius: var(--radius-md);
-  color: #fff;
-  background: linear-gradient(135deg, #059669, #0d9488);
-  font-size: var(--font-caption);
-  font-weight: var(--font-weight-extrabold);
+  min-width: 104rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md2);
+  color: var(--color-primary-text);
+  background: var(--color-primary-strong);
+  font-size: var(--font-body-sm);
+  font-weight: var(--font-weight-bold);
 }
 
 .find-hub-caption {
-  margin-top: 15rpx;
+  margin-top: var(--space-2);
   color: var(--color-muted);
   font-size: var(--font-micro);
 }
 
 .find-entity-panel {
   overflow: hidden;
-  padding: 26rpx 28rpx;
-  border-radius: 28rpx;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
 }
 
 .find-entity-heading {
-  margin-bottom: 10rpx;
+  margin-bottom: var(--space-2);
 }
 
 .find-entity-heading .muted {
@@ -1277,10 +1264,10 @@ onUnmounted(() => {
 }
 
 .find-entity-row {
-  gap: 20rpx;
-  min-height: 116rpx;
-  padding: 19rpx 0;
-  border-top: 1rpx solid var(--color-border);
+  gap: var(--space-3);
+  min-height: 112rpx;
+  padding: var(--space-3) 0;
+  border-top: 1rpx solid var(--color-border-soft);
 }
 
 .find-entity-avatar {
@@ -1289,20 +1276,20 @@ onUnmounted(() => {
   justify-content: center;
   width: 72rpx;
   height: 72rpx;
-  border-radius: 22rpx;
+  border-radius: var(--radius-md);
   flex-shrink: 0;
-  font-size: 23rpx;
-  font-weight: var(--font-weight-black);
+  font-size: var(--font-caption);
+  font-weight: var(--font-weight-bold);
 }
 
 .find-entity-avatar--community {
-  color: #1d4ed8;
-  background: #e6efff;
+  color: var(--color-primary-strong);
+  background: var(--color-primary-soft);
 }
 
 .find-entity-avatar--school {
-  color: #a16207;
-  background: #fff1cb;
+  color: var(--color-on-warn-soft);
+  background: var(--color-warn-soft);
 }
 
 .find-entity-main {
@@ -1313,8 +1300,8 @@ onUnmounted(() => {
 .find-entity-name {
   overflow: hidden;
   color: var(--color-heading);
-  font-size: 27rpx;
-  font-weight: var(--font-weight-bold-plus);
+  font-size: var(--font-body);
+  font-weight: var(--font-weight-semibold-plus);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1322,7 +1309,7 @@ onUnmounted(() => {
 .find-entity-meta {
   display: block;
   overflow: hidden;
-  margin-top: 9rpx;
+  margin-top: var(--space-gap-sm);
   color: var(--color-muted);
   font-size: var(--font-caption);
   text-overflow: ellipsis;
@@ -1331,17 +1318,17 @@ onUnmounted(() => {
 
 .find-entity-arrow {
   color: var(--color-muted);
-  font-size: 38rpx;
+  font-size: var(--font-title-md);
 }
 
 .find-entity-tags {
   flex-wrap: wrap;
   gap: var(--space-1);
-  margin-top: 10rpx;
+  margin-top: var(--space-2);
 }
 
 .find-entity-tag {
-  padding: 6rpx 10rpx;
+  padding: var(--space-gap-xs) var(--space-gap-md);
   border-radius: var(--radius-sm2);
   color: var(--color-text-secondary);
   background: var(--color-soft);
@@ -1349,13 +1336,13 @@ onUnmounted(() => {
 }
 
 .find-entity-tag--key {
-  color: #b45309;
-  background: rgba(245, 158, 11, 0.12);
+  color: var(--color-on-warn-soft);
+  background: var(--color-warn-soft);
 }
 
 .find-entity-tag--official {
-  color: #047857;
-  background: rgba(16, 185, 129, 0.1);
+  color: var(--color-primary-strong);
+  background: var(--color-primary-soft);
 }
 
 @media (min-width: 700px) {
@@ -1370,7 +1357,7 @@ onUnmounted(() => {
     padding-right: 22rpx;
     padding-left: 22rpx;
   }
-  .find-hub-title { font-size: 38rpx; }
+  .find-hub-title { font-size: var(--font-title-md); }
   .find-hub-subtitle { max-width: 340rpx; }
   .find-hub-city { padding: 0 var(--space-2); }
   .find-hub-segment { gap: var(--space-gap-sm); }
@@ -1378,36 +1365,8 @@ onUnmounted(() => {
 
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--space-3);
-}
-
-.search-input {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-3);
-}
-
-.search-input .input {
-  flex: 1;
-  box-sizing: border-box;
-  height: 64rpx;
-  min-height: 64rpx;
-  line-height: 64rpx;
-}
-
-.search-input .btn {
-  /* 与 .search-input .input 同高、同 line-height，
-   * 避免 uni-app mini button 默认 min-height 偏小导致上下偏。 */
-  height: 64rpx;
-  line-height: 64rpx;
-  line-height: 64rpx;
-  padding: 0 20rpx;
-  border-radius: var(--radius-md2);
-  background: var(--color-soft);
-  color: var(--color-heading);
-  font-size: 28rpx;
 }
 
 /* v0.95.0：市场流动性条 */
@@ -1483,13 +1442,6 @@ onUnmounted(() => {
   gap: var(--space-1);
 }
 
-/* v1.122.7: .form-item.search-input 需水平 flex 让 input+button 同高居中。
- * 否则 .form-item 的 column 方向在后面覆盖了 .search-input 的 row。 */
-.form-item.search-input {
-  flex-direction: row;
-  align-items: center;
-}
-
 .form-label {
   color: var(--color-muted);
   font-size: var(--font-body-sm);
@@ -1500,7 +1452,7 @@ onUnmounted(() => {
   border-radius: var(--radius-sm2);
   padding: var(--space-2) var(--space-3);
   color: var(--color-heading);
-  font-size: 26rpx;
+  font-size: var(--font-body-sm);
 }
 
 .slider-row {
@@ -1568,7 +1520,7 @@ onUnmounted(() => {
   padding: var(--space-4) var(--space-3);
   border-bottom: 1rpx solid var(--color-soft);
   color: var(--color-heading);
-  font-size: 30rpx;
+  font-size: var(--font-title-sm);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1588,7 +1540,7 @@ onUnmounted(() => {
   text-align: center;
   padding: 28rpx 0;
   color: var(--color-muted);
-  font-size: 30rpx;
+  font-size: var(--font-title-sm);
   border-top: 1rpx solid var(--color-soft);
 }
 
@@ -1615,14 +1567,14 @@ onUnmounted(() => {
 .pareto-rank {
   width: 44rpx;
   height: 44rpx;
-  border-radius: 22rpx;
-  background: var(--color-on-warn-soft);
+  border-radius: var(--radius-pill);
+  background: var(--color-warn-soft);
   color: var(--color-heading);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: var(--font-weight-bold);
-  font-size: 26rpx;
+  font-size: var(--font-body-sm);
   flex-shrink: 0;
 }
 .pareto-meta {
@@ -1723,7 +1675,7 @@ onUnmounted(() => {
   margin-bottom: 4rpx;
 }
 .listing-price-main {
-  font-size: 34rpx;
+  font-size: var(--font-title-md);
   font-weight: var(--font-weight-bold);
   color: var(--color-danger);
   font-variant-numeric: tabular-nums;

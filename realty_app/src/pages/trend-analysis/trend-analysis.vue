@@ -1,7 +1,7 @@
 <template>
   <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="header">
-      <view class="title">📊 深度可视化分析</view>
+      <view class="title">深度可视化分析</view>
       <view class="muted">
         {{ bedroomArea?.cityName ?? "—" }} · 户型×面积 · 朝向×楼层 · 装修×楼龄 · 总价×单价
       </view>
@@ -355,7 +355,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   margin-bottom: var(--space-3);
 }
 .title {
-  font-size: 36rpx;
+  font-size: var(--font-title-md);
   font-weight: var(--font-weight-bold);
   color: var(--color-text);
 }
@@ -382,7 +382,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   border: 1rpx solid var(--color-border-soft);
 }
 .card-title {
-  font-size: 30rpx;
+  font-size: var(--font-title-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text);
 }

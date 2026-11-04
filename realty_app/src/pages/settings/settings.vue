@@ -4,8 +4,8 @@
       <view class="settings-hero">
         <view>
           <view class="hero-eyebrow">MY REALTY</view>
-          <view class="hero-title">我的</view>
-          <view class="hero-subtitle">收藏、浏览足迹与应用设置</view>
+          <view class="hero-title">你的本机资料库</view>
+          <view class="hero-subtitle">收藏、足迹和偏好，都只留在这台设备</view>
         </view>
       </view>
 
@@ -841,22 +841,22 @@ function openGithubReleases() {
 }
 
 .hero-eyebrow {
-  color: var(--color-primary);
+  color: var(--color-primary-strong);
   font-size: var(--font-micro);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: 3rpx;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-eyebrow);
 }
 
 .hero-title {
-  font-size: 36rpx;
+  margin-top: var(--space-gap-xs);
+  font-size: var(--font-title);
   font-weight: var(--font-weight-bold);
-  margin-top: var(--space-1);
 }
 
 .hero-subtitle {
-  margin-top: 6rpx;
+  margin-top: var(--space-gap-sm);
   color: var(--color-muted);
-  font-size: 23rpx;
+  font-size: var(--font-caption);
 }
 
 .user-library-card {
@@ -870,19 +870,19 @@ function openGithubReleases() {
 
 .local-only-badge {
   flex: 0 0 auto;
-  padding: 7rpx 13rpx;
+  padding: var(--space-gap-xs) var(--space-2);
   border-radius: var(--radius-pill);
-  background: rgba(16, 185, 129, 0.12);
-  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
   font-size: var(--font-micro);
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-semibold);
 }
 
 .library-tabs {
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  margin-top: 18rpx;
+  margin-top: var(--space-3);
 }
 
 .library-tab,
@@ -972,7 +972,7 @@ function openGithubReleases() {
 .library-title {
   overflow: hidden;
   color: var(--color-heading);
-  font-size: 25rpx;
+  font-size: var(--font-body-sm);
   font-weight: var(--font-weight-semibold-plus);
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -990,7 +990,7 @@ function openGithubReleases() {
 
 .library-caret {
   color: var(--color-muted);
-  font-size: 34rpx;
+  font-size: var(--font-title-md);
 }
 
 .theme-options {
@@ -1002,10 +1002,15 @@ function openGithubReleases() {
 .theme-option {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-gap-sm);
+  min-height: 64rpx;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
   background: var(--color-surface-raised);
   color: var(--color-text);
   border: 1rpx solid var(--color-border);
+  font-size: var(--font-caption);
 }
 
 .theme-option--active {
@@ -1031,18 +1036,18 @@ function openGithubReleases() {
   border-radius: var(--radius-sm2);
   padding: var(--space-2) var(--space-3);
   color: var(--color-heading);
-  font-size: 26rpx;
+  font-size: var(--font-body-sm);
 }
 
 .input {
   box-sizing: border-box;
-  min-height: 64rpx;
+  min-height: 72rpx;
   line-height: 40rpx;
   background: var(--color-soft);
   border: 1rpx solid var(--color-border);
   border-radius: var(--radius-sm2);
   padding: var(--space-2) var(--space-3);
   color: var(--color-heading);
-  font-size: 26rpx;
+  font-size: var(--font-body-sm);
 }
 </style>

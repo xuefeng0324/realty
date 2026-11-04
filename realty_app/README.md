@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.123.73 | 2026-11-04 | 设计体系统一：先对齐 M3 / HIG / Ant Design / Refactoring UI 的公认准则，再收敛全站视觉语言——① 字号归并 8 档 token（22/24/26/28/32/36/40/52rpx）、眉标统一 `--font-micro` + 2rpx 字距；② 圆角收敛 4/8/12/16/24/pill，卡片统一 24rpx + `--shadow-card`；③ 主操作统一品牌绿 `--color-primary-strong`，蓝色只留数据可视化，删除 5 个快捷入口的绿/蓝/橙/青/紫渐变与蓝青主按钮；④ 共享组件（AppHeader / SectionHeader / 列表项 / 指标卡 / 分段 / 空态）字号字重 token 化；⑤ 去除 6 处与原生导航重复的页内大标题、装饰性 emoji 与「⭐ 性价比之选」；⑥ 修复深色模式首页搜索框文字不可见、MacroTabNav 硬编码浅色、LPR 连续月数渲染 JSON 三个真实 bug；⑦ 学校页表单补「学校名称」label 并与城市项对齐，输入框改为整行、搜索空态去掉豆腐块字形 |
 | v1.123.34 | 2026-11-03 | UI foundation 补齐变体类 + dashboard 样式治理：foundation.scss 新增 `.card-flat` / `.card-title--flush` / `.muted-caption`（扁平卡基类 + 紧贴上边距标题 + 小号说明文本）；dashboard.vue `<style>` 加 scoped、删除全局 `.card { border-radius: 0; box-shadow: none }` 覆盖，模板里 18 个 `.card` → `.card-flat`、10 个内联 `margin-bottom: 0` → 语义化类、53 个内联 `font-size: 22rpx` → 语义化类；视觉零回归（layout-diff 382 签名 +0/-0） |
 | v1.123.33 | 2026-11-03 | E2E 非 suite 脚本收口：实跑 23 个非 suite 脚本，9 个 FAIL → 分类处置：①3 个 CSV 在线断言（admin/hospital/metro）改 fs 本地读取（dev server 不映射 static/seed，HTTP 永远 404）；②7 个断言过期脚本（school_dims 5186 死端口 / weather / district_trend / district_wangqian_rank / map_find / price_heatmap / poi_overlay）直接删除；新增 3 条门禁；_all_smoke 26/26 不变 |
 | v1.123.32 | 2026-11-03 | E2E orphan 清理：实跑确认 12 个不在任何 suite 的 stale 脚本全部断言已退役卡片 → 整批删除；`_all_smoke` 改为只跑 run_suite 的 26 个成员（统一 env、以退出码判定），从「15 假失败」变 26/26 全过；单测 1333→1335 |

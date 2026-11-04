@@ -2,7 +2,6 @@
   <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="container">
       <view class="page-header" data-data-tools-header>
-        <view class="page-header-title">数据工具</view>
         <view class="page-header-sub muted">从仪表盘迁入的派生数据卡 · Batch 1-6 已迁 16 张 / 共 16 张</view>
       </view>
 
@@ -21,7 +20,7 @@
               hover-class="dt-nav-chip--hover"
               data-dt-nav-item="card-manager"
               @click="scrollToDtCard('card-manager')"
-            >⚙️ 卡片管理</button>
+            >卡片管理</button>
             <template v-for="g in DT_NAV_GROUPS" :key="g.key">
               <view class="dt-nav-group">{{ g.label }}</view>
               <button
@@ -43,7 +42,7 @@
       <!-- v1.121.145 首页卡片管理（设置入口） -->
       <view class="card" data-dt-card-manager>
         <view class="row-between">
-          <view class="card-title">⚙️ 首页卡片管理</view>
+          <view class="card-title">首页卡片管理</view>
           <view class="muted">{{ hiddenCards.size }} 张已隐藏 · 共 {{ DASHBOARD_CARDS.length }} 张</view>
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-1)">
@@ -215,7 +214,7 @@
     class="card district-drift-card" data-dt-district-trend
   >
     <view class="row-between">
-      <view class="card-title" style="margin-bottom: 0">📊 分区近 12 周均价变动</view>
+      <view class="card-title" style="margin-bottom: 0">分区近 12 周均价变动</view>
       <view class="muted muted-caption">
         <text v-if="districtChangeDistribution.strictTotal > 0">
           ≥13 周 · 涨 {{ districtChangeDistribution.strictUp }} ·
@@ -573,7 +572,7 @@
       <!-- v0.38.0 trend-18 区情画像 (行政区代码 + 房价指数 + 学区评分 + 挂牌量 + 楼龄) -->
       <view v-if="districtMeta && districtMeta.items.length > 0" class="card" data-dt-district-meta>
         <view class="row-between">
-          <view class="card-title">📋 区情画像 · {{ districtMeta.cityName }}</view>
+          <view class="card-title">区情画像 · {{ districtMeta.cityName }}</view>
           <view class="muted">{{ districtMeta.items.length }} 区 · {{ districtMeta.withPrice }} 有均价 · {{ districtMeta.withSchool }} 有学区</view>
         </view>
         <view class="dm-chips">
@@ -1193,7 +1192,7 @@
   <!-- v1.121.17 重点学校维度（schoolDimensionRanking，学校页已有；仪表盘此前只有无校名的指标 ID） -->
   <view v-if="dimCityReady" class="card" data-dt-school-dimension>
     <view class="row-between">
-      <view class="card-title">🏫 重点学校维度 · {{ hospitalCityName }}</view>
+      <view class="card-title">重点学校维度 · {{ hospitalCityName }}</view>
       <view class="muted">{{ dimCitySummaryLocal?.schoolCount ?? 0 }} 所</view>
     </view>
     <view v-if="dimCitySummaryLocal" class="edu-summary">
@@ -2378,7 +2377,7 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .page-header {
-  padding: var(--space-4) var(--space-4) var(--space-3);
+  padding: var(--space-2) var(--space-4) var(--space-3);
 }
 .dt-card-list {
   margin-top: var(--space-3);
@@ -2402,21 +2401,24 @@ onUnmounted(() => {
   min-width: 0;
 }
 .dt-card-name {
-  font-size: 26rpx;
+  font-size: var(--font-body-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text);
 }
 .dt-card-toggle {
   flex: 0 0 auto;
   margin: 0;
+  border: 1rpx solid var(--color-border) !important;
   border-radius: var(--radius-pill) !important;
-  background: var(--color-primary) !important;
-  color: #fff !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text-secondary) !important;
   font-size: var(--font-caption);
-  padding: 0 22rpx;
+  padding: 0 var(--space-3);
 }
 .dt-card-toggle--off {
-  background: var(--color-muted) !important;
+  border-color: var(--color-primary-soft) !important;
+  background: var(--color-primary-soft) !important;
+  color: var(--color-primary-strong) !important;
 }
 .dt-card-actions {
   margin-top: var(--space-3);
@@ -2427,14 +2429,8 @@ onUnmounted(() => {
   margin: 0;
   font-size: var(--font-caption);
 }
-.page-header-title {
-  font-size: 32rpx;
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-heading);
-}
 .page-header-sub {
   font-size: var(--font-caption);
-  margin-top: 4rpx;
 }
 /* v1.123.3 锚点分组导航：吸顶（让出 uni-page-head）+ 横滚 chips */
 .dt-nav {
@@ -2466,25 +2462,25 @@ onUnmounted(() => {
 .dt-nav-chip {
   flex: 0 0 auto;
   margin: 0;
-  padding: 0 20rpx;
-  height: 52rpx;
-  line-height: 52rpx;
+  padding: 0 var(--space-3);
+  height: 64rpx;
+  line-height: 64rpx;
   font-size: var(--font-caption);
   border-radius: var(--radius-pill);
   background: var(--color-soft);
-  color: var(--color-text);
+  color: var(--color-text-secondary);
 }
 .dt-nav-chip::after {
   border: none;
 }
 .dt-nav-chip--tool {
-  background: var(--color-primary);
-  color: var(--color-primary-text);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
   font-weight: var(--font-weight-semibold);
 }
 .dt-nav-chip--active {
-  background: var(--color-primary);
-  color: var(--color-primary-text);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
   font-weight: var(--font-weight-semibold);
 }
 .dt-nav-chip--hover {
@@ -2595,7 +2591,7 @@ onUnmounted(() => {
   flex: 1;
 }
 .community-name {
-  font-size: 30rpx;
+  font-size: var(--font-title-sm);
   color: var(--color-heading);
   margin-bottom: 4rpx;
 }

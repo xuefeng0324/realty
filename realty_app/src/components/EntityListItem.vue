@@ -100,14 +100,14 @@ defineEmits<{ click: [] }>();
   min-width: 0;
   flex: 1;
   flex-direction: column;
-  gap: 5rpx;
+  gap: var(--space-gap-sm, 6rpx);
 }
 
 .entity-list-item__eyebrow {
   color: var(--color-primary-strong);
   font-size: var(--font-micro);
-  font-weight: 600;
-  letter-spacing: 1rpx;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-eyebrow, 2rpx);
 }
 
 .entity-list-item__title {
@@ -124,7 +124,7 @@ defineEmits<{ click: [] }>();
 .entity-list-item__meta {
   overflow: hidden;
   color: var(--color-text-secondary);
-  font-size: var(--font-caption, 22rpx);
+  font-size: var(--font-caption, 24rpx);
   line-height: 1.4;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -140,6 +140,6 @@ defineEmits<{ click: [] }>();
   color: var(--color-muted);
 }
 
-.entity-list-item__action { font-size: var(--font-caption, 22rpx); }
-.entity-list-item__chevron { font-size: 40rpx; line-height: 1; }
+.entity-list-item__action { font-size: var(--font-caption, 24rpx); }
+.entity-list-item__chevron { font-size: var(--font-title, 40rpx); line-height: 1; }
 </style>

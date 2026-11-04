@@ -42,8 +42,12 @@ page {
   --font-body-sm: 26rpx;
   --font-body: 28rpx;
   --font-title-sm: 32rpx;
+  --font-title-md: 36rpx;
   --font-title: 40rpx;
   --font-display: 52rpx;
+
+  /* 统一 eyebrow（小标题/眉标）字距：8 步字号体系之外，只保留这一个字距值 */
+  --letter-spacing-eyebrow: 2rpx;
 
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
@@ -111,7 +115,17 @@ textarea {
   margin-bottom: var(--space-3);
   color: var(--color-heading);
   font-size: var(--font-title-sm);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* 眉标：全站唯一写法（大写英文/短语 + 主色 + 固定字距） */
+.eyebrow {
+  display: block;
+  color: var(--color-primary-strong);
+  font-size: var(--font-micro);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-eyebrow);
+  line-height: 1.4;
 }
 
 /* 紧贴上边距的 card-title（dashboard 很多卡标题不想留 space-3 空隙） */
@@ -267,6 +281,7 @@ button::after {
   border: none;
 }
 
+/* 主按钮：全站只允许一种主操作色（品牌绿），蓝色不再用于按钮 */
 .btn,
 button.btn {
   display: inline-flex;
@@ -275,10 +290,11 @@ button.btn {
   min-height: var(--touch-target-min);
   padding: var(--space-3) var(--space-5);
   border: 1rpx solid transparent;
-  border-radius: var(--radius-md);
-  background: var(--color-accent) !important;
-  color: var(--color-accent-text) !important;
+  border-radius: var(--radius-md2);
+  background: var(--color-primary-strong) !important;
+  color: var(--color-primary-text) !important;
   font-size: var(--font-body);
+  font-weight: var(--font-weight-semibold);
   line-height: 1.3;
 }
 
@@ -302,8 +318,8 @@ button.btn-danger {
   min-width: 96rpx;
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-pill);
-  font-size: 26rpx;
-  font-weight: 600;
+  font-size: var(--font-body-sm);
+  font-weight: var(--font-weight-semibold);
 }
 
 .score-high {

@@ -116,21 +116,21 @@ function handleBack(): void {
   display: flex;
   min-width: 0;
   flex-direction: column;
-  gap: 4rpx;
+  gap: var(--space-gap-xs, 4rpx);
 }
 
 .app-header__eyebrow {
   color: var(--color-primary-strong);
-  font-size: 20rpx;
-  font-weight: 600;
-  letter-spacing: 2rpx;
+  font-size: var(--font-micro);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-eyebrow, 2rpx);
 }
 
 .app-header__title {
   overflow: hidden;
   color: var(--color-heading);
-  font-size: 36rpx;
-  font-weight: 650;
+  font-size: var(--font-title-md);
+  font-weight: var(--font-weight-semibold-plus);
   line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -139,7 +139,7 @@ function handleBack(): void {
 .app-header__subtitle {
   overflow: hidden;
   color: var(--color-muted);
-  font-size: 22rpx;
+  font-size: var(--font-caption);
   line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;

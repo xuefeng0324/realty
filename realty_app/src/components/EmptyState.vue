@@ -33,27 +33,27 @@ defineEmits<{
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 48rpx 24rpx;
+  padding: var(--space-6, 40rpx) var(--space-4, 24rpx);
   text-align: center;
-  gap: 10rpx;
+  gap: var(--space-gap-md, 10rpx);
 }
 .empty-state__icon {
-  font-size: 56rpx;
+  font-size: var(--font-display, 52rpx);
   line-height: 1.2;
-  margin-bottom: 4rpx;
+  margin-bottom: var(--space-gap-xs, 4rpx);
 }
 .empty-state__title {
-  font-size: 28rpx;
+  font-size: var(--font-body, 28rpx);
   color: var(--color-heading);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 .empty-state__desc {
-  font-size: 22rpx;
+  font-size: var(--font-caption, 24rpx);
   color: var(--color-muted);
   max-width: 520rpx;
   line-height: 1.5;
 }
 .empty-state__action {
-  margin-top: 12rpx;
+  margin-top: var(--space-2, 12rpx);
 }
 </style>

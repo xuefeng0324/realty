@@ -7,7 +7,6 @@
       :data-macro-tab="t.key"
       @click="onClick(t)"
     >
-      <text class="macro-tab-icon">{{ t.icon }}</text>
       <text class="macro-tab-label">{{ t.label }}</text>
     </view>
   </view>
@@ -26,16 +25,15 @@ export type MacroTabKey = "rates" | "fx" | "industry" | "region" | "trade";
 export interface MacroTab {
   key: MacroTabKey;
   label: string;
-  icon: string;
   path: string;
 }
 
 const TABS: MacroTab[] = [
-  { key: "rates", label: "利率", icon: "💱", path: "/pages/macro-rates/macro-rates" },
-  { key: "fx", label: "汇市", icon: "💴", path: "/pages/macro-fx/macro-fx" },
-  { key: "industry", label: "产业", icon: "🏭", path: "/pages/macro-industry/macro-industry" },
-  { key: "region", label: "区域", icon: "🏙️", path: "/pages/macro-region/macro-region" },
-  { key: "trade", label: "贸易", icon: "🚢", path: "/pages/macro-trade/macro-trade" }
+  { key: "rates", label: "利率", path: "/pages/macro-rates/macro-rates" },
+  { key: "fx", label: "汇市", path: "/pages/macro-fx/macro-fx" },
+  { key: "industry", label: "产业", path: "/pages/macro-industry/macro-industry" },
+  { key: "region", label: "区域", path: "/pages/macro-region/macro-region" },
+  { key: "trade", label: "贸易", path: "/pages/macro-trade/macro-trade" }
 ];
 
 const props = defineProps<{ active: MacroTabKey }>();
@@ -53,29 +51,27 @@ function onClick(t: MacroTab): void {
 .macro-tabs {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8rpx 4rpx;
-  margin-bottom: 16rpx;
+  gap: var(--space-1) var(--space-gap-xs);
+  margin-bottom: var(--space-3);
 }
 .macro-tab {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 12rpx 4rpx;
-  border-radius: 12rpx;
-  background-color: #f7f8fa;
+  justify-content: center;
+  min-height: 64rpx;
+  padding: var(--space-1) var(--space-gap-xs);
+  border-radius: var(--radius-md2);
+  background-color: var(--color-soft);
   transition: background-color 0.15s ease;
 }
 .macro-tab--active {
-  background-color: #e8f1ff;
-  color: #2a6df4;
-}
-.macro-tab-icon {
-  font-size: 32rpx;
-  line-height: 1;
-  margin-bottom: 6rpx;
+  background-color: var(--color-primary-soft);
+  color: var(--color-primary-strong);
 }
 .macro-tab-label {
-  font-size: 22rpx;
+  color: inherit;
+  font-size: var(--font-micro);
+  font-weight: var(--font-weight-semibold);
   line-height: 1.2;
 }
 </style>

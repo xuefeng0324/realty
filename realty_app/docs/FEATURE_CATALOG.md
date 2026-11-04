@@ -649,6 +649,7 @@ v1.123.29 死样式与死 computed 清理——v0.12.0 地图挂牌均价 5 档�
 
 | 日期 | ID | 标题 | 发版 version | 备注 |
 |------|-----|------|--------------|------|
+| 2026-11-04 | F-UI-01 | 设计体系统一：字号/圆角/主色/间距 token 化，去重页标题与装饰 emoji | 1.123.73 | U；foundation.scss token + 全站页面；layout 基线 370 签名 / 42 锚点组 |
 | 2026-11-03 | F-DTOOLS-01 | 数据工具页锚点分组导航（吸顶 + 17 卡四组 chips + 滚动让位） | 1.123.3 | `[data-dt-nav]`；ext smoke_data_tools_nav；H5 自算 scrollTop（uni offset 不透传） |
 | 2026-07-29 | F-DASH-11 | 交通运输部货运/港口经济运行建卡 | 1.121.157 | ≠房价；macro-industry；MOT xxgk |
 | 2026-07-29 | F-DASH-11 | NBS 服务业生产指数建卡（含租赁商务分项） | 1.121.156 | ≠房价；macro-industry；可与 gd_services 对照 |

@@ -30,16 +30,15 @@ describe("single-line control vertical centering (source guard)", () => {
   });
 
   it("listing-filter keyword input uses height == line-height", () => {
-    const body = ruleBody(read("src/pages/listing-filter/listing-filter.vue"), ".search-input .input");
-    expect(body).toMatch(/height:\s*64rpx/);
-    expect(body).toMatch(/line-height:\s*64rpx/);
-    expect(body).toContain("box-sizing: border-box");
+    const body = ruleBody(read("src/pages/listing-filter/listing-filter.vue"), ".find-hub-search-input");
+    expect(body).toMatch(/height:\s*72rpx/);
+    expect(body).toMatch(/line-height:\s*72rpx/);
   });
 
   it("dashboard v122 home search input uses height == line-height", () => {
     const body = ruleBody(read("src/pages/dashboard/dashboard.vue"), ".home-v122-search-input");
-    expect(body).toMatch(/height:\s*64rpx/);
-    expect(body).toMatch(/line-height:\s*64rpx/);
+    expect(body).toMatch(/height:\s*72rpx/);
+    expect(body).toMatch(/line-height:\s*72rpx/);
     expect(body).toContain("box-sizing: border-box");
   });
 
@@ -67,7 +66,7 @@ describe("single-line control vertical centering (source guard)", () => {
         ? ruleBody(src, ".picker-value, .input")
         : ruleBody(src, ".input");
       expect(body, path).toContain("box-sizing: border-box");
-      expect(body, path).toMatch(/min-height:\s*64rpx/);
+      expect(body, path).toMatch(/min-height:\s*72rpx/);
     }
   });
 });

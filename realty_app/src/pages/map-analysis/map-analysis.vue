@@ -136,7 +136,7 @@
 
     <!-- 行政区数据明细列表 -->
     <view v-if="districtMap && districtMap.districts.length > 0" class="card">
-      <view class="card-title">📋 区级数据明细</view>
+      <view class="card-title">区级数据明细</view>
       <view
         v-for="d in districtMap.districts"
         :key="d.districtCode"
@@ -386,12 +386,12 @@ watch(
 <style scoped>
 .page { padding: var(--space-3); padding-bottom: 80rpx; }
 .header { padding: var(--space-3) var(--space-4); background: var(--color-surface); border-radius: var(--radius-md); margin-bottom: var(--space-3); }
-.title { font-size: 36rpx; font-weight: var(--font-weight-bold); color: var(--color-text); }
+.title { font-size: var(--font-title-md); font-weight: var(--font-weight-bold); color: var(--color-text); }
 .muted { color: var(--color-muted); font-size: var(--font-body-sm); }
 .empty { text-align: center; padding: var(--space-6) 0; color: var(--color-muted); }
 .row-between { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2); }
 .card { background: var(--color-surface); border-radius: var(--radius-md); padding: 20rpx; margin-bottom: var(--space-3); border: 1rpx solid var(--color-border-soft); }
-.card-title { font-size: 30rpx; font-weight: var(--font-weight-semibold); color: var(--color-text); }
+.card-title { font-size: var(--font-title-sm); font-weight: var(--font-weight-semibold); color: var(--color-text); }
 .footer { display: flex; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-4); }
 .back-btn, .reload-btn { flex: 1; margin: 0; font-size: 26rpx; padding: 0 var(--space-4); border-radius: var(--radius-pill) !important; background: var(--color-soft) !important; color: var(--color-text) !important; }
 

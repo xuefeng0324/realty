@@ -50,7 +50,7 @@ withDefaults(
 .metric-card__label,
 .metric-card__helper {
   color: var(--color-muted);
-  font-size: var(--font-caption, 22rpx);
+  font-size: var(--font-caption, 24rpx);
   line-height: 1.45;
 }
 
@@ -65,9 +65,9 @@ withDefaults(
   min-width: 0;
   overflow: hidden;
   color: var(--color-heading);
-  font-size: 38rpx;
+  font-size: var(--font-title, 40rpx);
   font-variant-numeric: tabular-nums;
-  font-weight: 650;
+  font-weight: var(--font-weight-semibold-plus);
   line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -75,7 +75,7 @@ withDefaults(
 
 .metric-card__unit {
   color: var(--color-text-secondary);
-  font-size: var(--font-body-sm, 24rpx);
+  font-size: var(--font-body-sm, 26rpx);
 }
 
 .metric-card__helper { display: block; margin-top: var(--space-2, 12rpx); }

@@ -107,8 +107,8 @@ const isBusy = computed(() => props.status === "loading" || props.status === "re
   justify-content: center;
   background: var(--color-soft);
   color: var(--color-text-secondary);
-  font-size: 20rpx;
-  font-weight: 600;
+  font-size: var(--font-micro);
+  font-weight: var(--font-weight-semibold);
 }
 
 .async-state--error .async-state__marker {
@@ -131,7 +131,7 @@ const isBusy = computed(() => props.status === "loading" || props.status === "re
 
 .async-state__description {
   color: var(--color-muted);
-  font-size: var(--font-body-sm, 24rpx);
+  font-size: var(--font-body-sm, 26rpx);
   line-height: 1.55;
 }
 
@@ -142,7 +142,7 @@ const isBusy = computed(() => props.status === "loading" || props.status === "re
   border-radius: var(--radius-pill, 999rpx);
   background: var(--color-surface);
   color: var(--color-primary-strong);
-  font-size: var(--font-body-sm, 24rpx);
+  font-size: var(--font-body-sm, 26rpx);
 }
 
 @keyframes async-state-spin {

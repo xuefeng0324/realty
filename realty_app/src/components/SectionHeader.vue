@@ -44,26 +44,26 @@ defineEmits<{ action: [] }>();
   display: flex;
   min-width: 0;
   flex-direction: column;
-  gap: 6rpx;
+  gap: var(--space-gap-sm, 6rpx);
 }
 
 .section-header__eyebrow {
   color: var(--color-primary-strong);
-  font-size: 20rpx;
-  font-weight: 600;
-  letter-spacing: 2rpx;
+  font-size: var(--font-micro);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-eyebrow, 2rpx);
 }
 
 .section-header__title {
   color: var(--color-heading);
   font-size: var(--font-title-sm, 32rpx);
-  font-weight: 650;
+  font-weight: var(--font-weight-semibold-plus);
   line-height: 1.3;
 }
 
 .section-header__subtitle {
   color: var(--color-muted);
-  font-size: var(--font-body-sm, 24rpx);
+  font-size: var(--font-body-sm, 26rpx);
   line-height: 1.5;
 }
 
@@ -71,6 +71,6 @@ defineEmits<{ action: [] }>();
   flex: 0 0 auto;
   min-height: 64rpx;
   color: var(--color-primary-strong);
-  font-size: var(--font-body-sm, 24rpx);
+  font-size: var(--font-body-sm, 26rpx);
 }
 </style>

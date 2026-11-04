@@ -77,7 +77,7 @@
         </view>
         <view v-if="lprStreak != null" class="rank-row macro-derived" style="margin-top: var(--space-2)">
           <text class="muted muted-caption">最长未调息</text>
-          <text class="rank-val">{{ lprStreak }} 个月（lpr5y）</text>
+          <text class="rank-val">{{ lprStreak.months }} 个月（{{ lprStreak.startMonth }} ~ {{ lprStreak.endMonth }}，lpr5y）</text>
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
           每月 20 日发布（遇节假日顺延）；≠房价/挂牌/网签/70城。

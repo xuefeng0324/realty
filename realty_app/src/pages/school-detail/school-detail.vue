@@ -202,7 +202,7 @@ onLoad((query?: Record<string, string>) => {
 .score-ring--high { border-color: rgba(34,197,94,.45); }
 .score-ring--mid { border-color: rgba(14,165,233,.42); }
 .score-ring--low { border-color: rgba(245,158,11,.42); }
-.score-value { color: var(--color-heading); font-size: 42rpx; font-weight: var(--font-weight-bold-plus); line-height: 1; }
+.score-value { color: var(--color-heading); font-size: var(--font-title); font-weight: var(--font-weight-bold-plus); line-height: 1; }
 .score-label { margin-top: 5rpx; color: var(--color-muted); font-size: var(--font-micro); }
 .metrics-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-gap-md2); margin: 18rpx 0; }
 .metric-card { padding: 20rpx; border: 1rpx solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); box-shadow: var(--shadow-card); }
@@ -224,8 +224,8 @@ onLoad((query?: Record<string, string>) => {
 .source-warning { margin-top: 18rpx; padding: var(--space-3); border-radius: var(--radius-md2); background: rgba(245,158,11,.1); color: var(--color-text-secondary); font-size: var(--font-micro); line-height: 1.65; }
 .loading-card { padding: 60rpx; text-align: center; color: var(--color-muted); }
 .error-state { padding: 60rpx 30rpx; text-align: center; }
-.error-icon { width: 72rpx; height: 72rpx; margin: 0 auto; border-radius: 50%; background: rgba(239,68,68,.14); color: var(--color-danger); font-size: 42rpx; line-height: 72rpx; }
-.error-title { margin: 18rpx 0 var(--space-1); color: var(--color-heading); font-size: 29rpx; font-weight: var(--font-weight-semibold-plus); }
+.error-icon { width: 72rpx; height: 72rpx; margin: 0 auto; border-radius: 50%; background: rgba(239,68,68,.14); color: var(--color-danger); font-size: var(--font-title); line-height: 72rpx; }
+.error-title { margin: 18rpx 0 var(--space-1); color: var(--color-heading); font-size: var(--font-body); font-weight: var(--font-weight-semibold-plus); }
 .error-state .btn { margin-top: 20rpx; }
 
 @media (max-width: 720px) {
@@ -233,9 +233,9 @@ onLoad((query?: Record<string, string>) => {
 }
 @media (max-width: 480px) {
   .school-hero { align-items: flex-start; padding: 26rpx; }
-  .hero-title { font-size: 34rpx; }
+  .hero-title { font-size: var(--font-title-md); }
   .score-ring { flex-basis: 106rpx; width: 106rpx; height: 106rpx; border-width: 8rpx; }
-  .score-value { font-size: 34rpx; }
+  .score-value { font-size: var(--font-title-md); }
   .factor-head, .source-row { flex-direction: column; gap: 5rpx; }
   .source-row text:last-child { text-align: left; }
 }

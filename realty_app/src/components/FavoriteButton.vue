@@ -44,7 +44,7 @@ function toggle(): void {
   gap: 6rpx;
   margin: 0;
   border: 1rpx solid var(--color-border);
-  border-radius: 999rpx;
+  border-radius: var(--radius-pill);
   background: var(--color-surface-raised);
   color: var(--color-text-secondary);
   font-size: 22rpx;

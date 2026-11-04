@@ -98,11 +98,11 @@ function openEntry(path: string): void {
 .market-city {
   min-height: 64rpx;
   padding: 0 var(--space-3, 16rpx);
-  border: 1rpx solid var(--color-border-soft);
+  border: 1rpx solid var(--color-primary-soft);
   border-radius: var(--radius-pill, 999rpx);
-  background: var(--color-panel-soft);
-  color: var(--color-text-secondary);
-  font-size: var(--font-caption, 22rpx);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  font-size: var(--font-caption, 24rpx);
   line-height: 64rpx;
   white-space: nowrap;
 }
@@ -116,9 +116,9 @@ function openEntry(path: string): void {
 
 .market-intro__eyebrow {
   color: var(--color-primary-strong);
-  font-size: var(--font-caption);
+  font-size: var(--font-micro);
   font-weight: var(--font-weight-semibold);
-  letter-spacing: 2rpx;
+  letter-spacing: var(--letter-spacing-eyebrow);
 }
 
 .market-intro__title {
@@ -132,7 +132,7 @@ function openEntry(path: string): void {
 .market-intro__description {
   max-width: 680rpx;
   color: var(--color-text-secondary);
-  font-size: var(--font-body-sm, 24rpx);
+  font-size: var(--font-body-sm, 26rpx);
   line-height: 1.65;
 }
 
@@ -160,6 +160,6 @@ function openEntry(path: string): void {
     grid-template-columns: 1fr;
   }
 
-  .market-intro__title { font-size: 44rpx; }
+  .market-intro__title { font-size: var(--font-title); }
 }
 </style>

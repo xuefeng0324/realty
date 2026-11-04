@@ -2,7 +2,6 @@
   <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="container">
       <view class="page-header" data-supply-header>
-        <view class="page-header-title">供需与土地</view>
         <view class="page-header-sub muted">
           库存 / 计划入市 / 保障房 / 居住用地 · 从总览频道「供需」与金刚区进入 · 非挂牌均价
         </view>
@@ -11,7 +10,7 @@
       <view class="card">
         <view class="row-between">
           <view class="card-title" style="margin-bottom: 0">当前城市</view>
-          <button class="btn" size="mini" @click="pickCity">{{ cityName || "选择城市" }} ▾</button>
+          <button class="btn btn-ghost" size="mini" @click="pickCity">{{ cityName || "选择城市" }} ▾</button>
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-1)">
           数据按城展示；无卡表示该城暂未收录对应官方源。
@@ -21,7 +20,7 @@
       <!-- 广州库存 -->
       <view v-if="gzInventory" id="entry-supply" class="card" data-supply-inventory data-gz-inventory>
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">🏗️ 广州新房库存</view>
+          <view class="card-title" style="margin-bottom: 0">广州新房库存</view>
           <view class="muted muted-caption">{{ gzInventoryFresh.label }}</view>
         </view>
         <view class="kpi-grid">
@@ -148,7 +147,7 @@
       <!-- 广州住房建设计划 -->
       <view v-if="gzHousingPlan" class="card" data-gz-housing-plan>
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">📋 广州住房建设计划</view>
+          <view class="card-title" style="margin-bottom: 0">广州住房建设计划</view>
           <view class="muted muted-caption">{{ gzHousingPlan.year }} 年</view>
         </view>
         <view class="kpi-grid">
@@ -171,7 +170,7 @@
       <!-- 珠海保障房进展 -->
       <view v-if="zhAffordable" class="card" data-zh-affordable>
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">🏠 珠海保障性安居工程</view>
+          <view class="card-title" style="margin-bottom: 0">珠海保障性安居工程</view>
           <view class="muted muted-caption">
             {{ zhAffordable.year }}-{{ String(zhAffordable.month).padStart(2, "0") }}
           </view>
@@ -401,12 +400,7 @@ onMounted(() => {
 .page-header {
   padding: var(--space-1) 4rpx var(--space-3);
 }
-.page-header-title {
-  font-size: 36rpx;
-  font-weight: var(--font-weight-bold);
-}
 .page-header-sub {
-  margin-top: 6rpx;
   font-size: var(--font-caption);
   line-height: 1.45;
 }
@@ -426,7 +420,7 @@ onMounted(() => {
   color: var(--color-muted);
 }
 .kpi-value {
-  font-size: 30rpx;
+  font-size: var(--font-title-sm);
   font-weight: var(--font-weight-bold);
 }
 .kpi-value--compact {
@@ -484,7 +478,7 @@ onMounted(() => {
   padding: var(--space-4) 28rpx 48rpx;
 }
 .sheet-title {
-  font-size: 30rpx;
+  font-size: var(--font-title-sm);
   font-weight: var(--font-weight-bold);
   text-align: center;
   margin-bottom: var(--space-2);
@@ -497,7 +491,7 @@ onMounted(() => {
   font-size: 28rpx;
 }
 .sheet-item--active {
-  color: var(--color-accent);
+  color: var(--color-primary-strong);
   font-weight: var(--font-weight-semibold);
 }
 .sheet-check {
