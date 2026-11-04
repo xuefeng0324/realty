@@ -4411,7 +4411,7 @@ onShow(async () => {
 }
 .trend-bar-fill {
   width: 80%;
-  background: linear-gradient(180deg, var(--color-focus) 0%, #0ea5e9 100%);
+  background: linear-gradient(180deg, var(--color-focus) 0%, color-mix(in srgb, var(--color-focus) 80%, #000) 100%);
   border-radius: var(--radius-xxxs) var(--radius-xxxs) 0 0;
   min-height: 4rpx;
 }
@@ -4441,9 +4441,9 @@ onShow(async () => {
   border: 1rpx solid var(--color-muted);
 }
 .wq-cat-tab-on {
-  background: #0ea5e9;
+  background: var(--color-focus);
   color: #ffffff;
-  border-color: #0ea5e9;
+  border-color: var(--color-focus);
 }
 .wq-cat-tab-off {
   background: transparent;
@@ -4644,7 +4644,7 @@ onShow(async () => {
 }
 .wq-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--color-focus) 0%, #0ea5e9 100%);
+  background: linear-gradient(90deg, var(--color-focus) 0%, color-mix(in srgb, var(--color-focus) 80%, #000) 100%);
   border-radius: var(--radius-xxs);
 }
 .wq-units {
@@ -4662,7 +4662,7 @@ onShow(async () => {
   color: var(--color-heading);
   margin: var(--space-3) 0 var(--space-1);
   padding-left: 6rpx;
-  border-left: 6rpx solid #0ea5e9;
+  border-left: 6rpx solid var(--color-focus);
 }
 .lf-row {
   display: flex;

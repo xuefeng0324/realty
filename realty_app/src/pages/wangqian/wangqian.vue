@@ -697,7 +697,7 @@ onLoad((opts?: Record<string, string>) => {
   border-radius: var(--radius-xxxs) var(--radius-xxxs) 0 0;
 }
 .spark-bar.second {
-  background: linear-gradient(180deg, var(--color-focus), #0ea5e9);
+  background: linear-gradient(180deg, var(--color-focus), color-mix(in srgb, var(--color-focus) 80%, #000));
 }
 .spark-bar.new-bar {
   background: linear-gradient(180deg, var(--color-trend-down), var(--color-primary));

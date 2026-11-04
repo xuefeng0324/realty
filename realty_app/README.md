@@ -10,6 +10,7 @@
 
 | 版本 | 发布日期 | 说明 |
 |------|----------|------|
+| v1.123.82 | 2026-11-05 | sky-500 强调色 token 化：全仓扫描残留硬编码 `#0ea5e9`（sky-500）并迁移到 `var(--color-focus)`，覆盖 dashboard（网签品类 tab 选中态、网签进度条渐变、房源新鲜度标题左边框、趋势柱状图渐变）、data-tools（网签进度条渐变、社区价格涨色、价格分段 chip 选中态）、wangqian（spark-bar 第二组渐变）共 8 处；渐变端点统一用 `color-mix(in srgb, var(--color-focus) 80%, #000)` 派生深色端点，浅色模式由 sky-500 切换为品牌蓝 `#2563eb`、深色模式由 sky-400 `#38bdf8` 统一，消除主题间蓝色调不一致；map-view 地铁 POI 标记色属数据可视化，保留原值（versionCode 417） |
 | v1.123.81 | 2026-11-04 | 热力图色阶 token 化 + tag-pill 配色修复 + 地图空区域主题适配：① **trend-analysis 户型×面积热力图**——`.ba-cell--light/mid/deep` 背景 `#eff6ff/#bfdbfe/#1d4ed8` → `var(--color-info-soft)` / `color-mix(in srgb, var(--color-accent) 35%, #fff)` / `var(--color-accent)`，深色模式自动适配；② **listing-filter tag-pill 配色 bug 修复**——背景 `rgba(37,99,235,.12)`（蓝）配文字 `var(--color-primary)`（绿）颜色不匹配 → `var(--color-primary-soft)`（绿底绿字一致）；③ **dashboard 地图空区域**——`districtFill` 返回 `#f1f5f9`（浅灰）→ `var(--color-panel-soft)`，修复深色模式空区域过亮问题（versionCode 416） |
 | v1.123.80 | 2026-11-04 | 残留语义色 token 化（muted/奖牌铜银/状态标签）：① **muted 软色 4 处**——`dashboard gz-progress-track`、`listing-detail source-trust--estimated/unknown`、`listing-filter freshness-bar` 轨道、`school tag-source-curated` 的 `rgba(148,163,184,α)` → `color-mix(in srgb, var(--color-muted) N%, transparent)`，修复浅色模式误用深色 muted 色值的问题；② **奖牌银/铜**——`data-tools medal-silver/bronze` 与 `foundation rank-silver/bronze` 的 `#cbd5e1/#e5e7eb/#94a3b8/#d97706/#92400e` → `color-mix` 从 `--color-muted`/`--color-warning` 派生，金/银/铜三色明暗主题均保持金属质感；③ **状态标签**——`listing-filter freshness` 中段 `#d97706`→`--color-warning`、陈旧 `#9ca3af`→`--color-muted`，`dashboard lf-fresh-mid` 文字 `#d97706`→`--color-warning`，`foundation 地铁状态` 在建/即将开通/规划 `#d97706/#16a34a/#6b7280`→`--color-warning/--color-primary/--color-muted`；④ `dashboard lf-row` 边框 `#f1f5f9`→`--color-border-soft`，修复深色模式边框不可见（versionCode 415） |
 | v1.123.79 | 2026-11-04 | 语义色 token 迁移（续）：① **listing-detail 来源可信度标签**——`source-trust--real` 背景 `rgba(34,197,94,.18)` → `--color-success-soft`，`source-trust--derived` 背景 `rgba(245,158,11,.18)` → `--color-warn-soft`、文字 `#fbbf24` → `--color-warning`，`derived-warning` 背景/文字同步到 warn 系 token，深浅色自动适配且浅色模式对比度提升；② **listing-filter 迷你维度条**——绿/橙两档渐变硬编码色 `#10b981`/`#fbbf24` → `color-mix(in srgb, var(--color-primary|warning) 60%, #fff)`，红档已用 token；③ **奖牌金色**——`data-tools medal-gold` 与 `foundation rank-gold` 的 `#fbbf24`/`#f59e0b` → `color-mix(in srgb, var(--color-warning) 60%, #fff)` 到 `var(--color-warning)`，金/银/铜奖牌在明暗主题下均保持金属质感（versionCode 414） |
@@ -708,6 +709,10 @@ gh auth setup-git
 ## 更新日志
 
 详细变更见 [changelog/](./changelog/) 目录。
+
+### v1.123.82（2026-11-05）：sky-500 强调色 token 化
+
+全仓扫描残留硬编码 `#0ea5e9`（sky-500）并迁移到 `var(--color-focus)`：**dashboard.vue** 网签品类 tab 选中态 `.wq-cat-tab-on` 背景+边框、网签进度条 `.wq-fill` 渐变端点、房源新鲜度标题 `.lf-section-title` 左边框、趋势柱状图 `.trend-bar-fill` 渐变端点；**data-tools.vue** 网签进度条 `.wq-fill` 渐变端点、社区价格涨色 `.sp-up`、价格分段 chip 选中态 `.spc-chip-on` 背景；**wangqian.vue** `.spark-bar.second` 渐变端点。纯色用法直接换 `var(--color-focus)`，渐变端点统一用 `color-mix(in srgb, var(--color-focus) 80%, #000)` 派生深色端。浅色模式由 sky-500 切换为品牌蓝 `#2563eb`、深色模式由 sky-400 `#38bdf8` 统一，消除主题间蓝色调不一致。map-view 地铁 POI 标记色属数据可视化语义色，保留原值。详见 [changelog/2026-11-05-v1.123.82-sky强调色token化.md](./changelog/2026-11-05-v1.123.82-sky强调色token化.md)。
 
 ### v1.123.81（2026-11-04）：热力图色阶 token 化 + tag-pill 配色修复 + 地图空区域主题适配
 

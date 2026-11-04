@@ -2550,7 +2550,7 @@ onUnmounted(() => {
 }
 .wq-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--color-focus) 0%, #0ea5e9 100%);
+  background: linear-gradient(90deg, var(--color-focus) 0%, color-mix(in srgb, var(--color-focus) 80%, #000) 100%);
   border-radius: var(--radius-xxs);
 }
 .wq-units {
@@ -2608,7 +2608,7 @@ onUnmounted(() => {
   color: #fff;
 }
 .sp-up {
-  color: #0ea5e9;
+  color: var(--color-focus);
   font-weight: var(--font-weight-semibold);
   font-family: "Menlo", "Consolas", monospace;
 }
@@ -2650,7 +2650,7 @@ onUnmounted(() => {
   font-size: var(--font-caption);
 }
 .spc-chip-on {
-  background: #0ea5e9;
+  background: var(--color-focus);
   color: #fff;
   border-color: var(--color-focus);
 }
