@@ -187,7 +187,7 @@ onLoad((query?: Record<string, string>) => {
 <style lang="scss" scoped>
 .detail-container { padding-bottom: var(--space-6); }
 .quicknav { display: flex; gap: var(--space-2); margin-bottom: 18rpx; }
-.quick-btn { padding: 10rpx var(--space-3); border: 1rpx solid var(--color-border); border-radius: var(--radius-pill); background: var(--color-surface); color: var(--color-text-secondary); font-size: 21rpx; }
+.quick-btn { padding: 10rpx var(--space-3); border: 1rpx solid var(--color-border); border-radius: var(--radius-pill); background: var(--color-surface); color: var(--color-text-secondary); font-size: var(--font-caption); }
 .school-hero { display: flex; justify-content: space-between; align-items: center; gap: 28rpx; padding: 34rpx; border: 1rpx solid var(--color-border); border-radius: var(--radius-lg); background: linear-gradient(135deg, rgba(34, 197, 94, 0.16), var(--color-surface) 62%); box-shadow: var(--shadow-card); }
 .hero-copy { min-width: 0; }
 .hero-eyebrow { color: var(--color-primary); font-size: var(--font-micro); font-weight: var(--font-weight-bold); letter-spacing: 2rpx; }
@@ -210,7 +210,7 @@ onLoad((query?: Record<string, string>) => {
 .metric-value { margin-top: 7rpx; color: var(--color-heading); font-size: 32rpx; font-weight: var(--font-weight-bold); }
 .metric-value--text { overflow: hidden; font-size: 22rpx; text-overflow: ellipsis; white-space: nowrap; }
 .metric-hint { margin-top: 4rpx; color: var(--color-text-secondary); font-size: var(--font-micro); }
-.section-note { margin-top: -4rpx; font-size: 21rpx; }
+.section-note { margin-top: -4rpx; font-size: var(--font-caption); }
 .factor-list { margin-top: 18rpx; }
 .factor-row + .factor-row { margin-top: 18rpx; }
 .factor-head { display: flex; justify-content: space-between; gap: var(--space-3); color: var(--color-text); font-size: 22rpx; }
@@ -218,7 +218,7 @@ onLoad((query?: Record<string, string>) => {
 .factor-value { color: var(--color-muted); font-variant-numeric: tabular-nums; }
 .factor-track { height: 12rpx; margin-top: 9rpx; overflow: hidden; border-radius: var(--radius-pill); background: var(--color-surface-raised); }
 .factor-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #0ea5e9, var(--color-primary)); }
-.source-row { display: flex; justify-content: space-between; gap: var(--space-4); padding: 13rpx 0; border-bottom: 1rpx solid var(--color-border); color: var(--color-text-secondary); font-size: 21rpx; }
+.source-row { display: flex; justify-content: space-between; gap: var(--space-4); padding: 13rpx 0; border-bottom: 1rpx solid var(--color-border); color: var(--color-text-secondary); font-size: var(--font-caption); }
 .source-row text:first-child { flex: 0 0 auto; color: var(--color-muted); }
 .source-row text:last-child { text-align: right; }
 .source-warning { margin-top: 18rpx; padding: var(--space-3); border-radius: var(--radius-md2); background: rgba(245,158,11,.1); color: var(--color-text-secondary); font-size: 20rpx; line-height: 1.65; }

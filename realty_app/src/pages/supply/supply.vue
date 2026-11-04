@@ -459,7 +459,7 @@ onMounted(() => {
 }
 .note {
   margin-top: var(--space-2);
-  font-size: 21rpx;
+  font-size: var(--font-caption);
   color: var(--color-muted);
   line-height: 1.45;
 }
@@ -486,6 +486,7 @@ onMounted(() => {
 .sheet-title {
   font-size: 30rpx;
   font-weight: var(--font-weight-bold);
+  text-align: center;
   margin-bottom: var(--space-2);
 }
 .sheet-item {

@@ -1380,7 +1380,7 @@ onUnmounted(() => {
 .control-label {
   flex: 0 0 auto;
   color: var(--color-muted);
-  font-size: 21rpx;
+  font-size: var(--font-caption);
   font-weight: var(--font-weight-semibold-plus);
 }
 

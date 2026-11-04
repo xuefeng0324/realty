@@ -865,7 +865,7 @@ function openGithubReleases() {
 
 .library-privacy {
   margin-top: 4rpx;
-  font-size: 21rpx;
+  font-size: var(--font-caption);
 }
 
 .local-only-badge {
@@ -892,7 +892,7 @@ function openGithubReleases() {
   border: 1rpx solid var(--color-border);
   background: var(--color-surface-raised);
   color: var(--color-text-secondary);
-  font-size: 21rpx;
+  font-size: var(--font-caption);
 }
 
 .library-tab::after,

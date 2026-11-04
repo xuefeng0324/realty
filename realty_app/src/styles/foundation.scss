@@ -35,9 +35,11 @@ page {
   --radius-xl: 32rpx;
   --radius-pill: 999rpx;
 
-  --font-micro: 20rpx;
-  --font-caption: 22rpx;
-  --font-body-sm: 24rpx;
+  /* 移动端 1rpx≈0.52px：20rpx 仅 10.4px，低于可读下限；
+     最小三档整体上调一档，保证说明文字 ≥11.4px */
+  --font-micro: 22rpx;
+  --font-caption: 24rpx;
+  --font-body-sm: 26rpx;
   --font-body: 28rpx;
   --font-title-sm: 32rpx;
   --font-title: 40rpx;
@@ -75,13 +77,8 @@ textarea {
   background: var(--color-soft);
 }
 
-/* 所有页面根容器统一侧向留白，避免内容贴边 */
-/* 页面 scoped style 里 .page { padding: ... } 优先级更高，会覆盖这个全局兜底 */
-.page {
-  padding: var(--space-3);
-  box-sizing: border-box;
-}
-
+/* .container 自身已带 24rpx 侧向留白；不再给 .page 加 padding，
+   否则两者叠加成 40rpx，窄屏内容被挤压 */
 .container {
   width: 100%;
   max-width: var(--content-max-width);

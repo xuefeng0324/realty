@@ -4017,7 +4017,7 @@ onShow(async () => {
   border: 1rpx solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text-secondary);
-  font-size: 21rpx;
+  font-size: var(--font-caption);
 }
 
 .combo-year-btn--active {
@@ -4038,7 +4038,7 @@ onShow(async () => {
   border-radius: var(--radius-md2);
   background: var(--color-surface);
   color: var(--color-text-secondary);
-  font-size: 21rpx;
+  font-size: var(--font-caption);
 }
 
 .combo-result > view {
@@ -4216,7 +4216,7 @@ onShow(async () => {
 }
 .macro-series {
   margin-top: var(--space-1);
-  font-size: 21rpx;
+  font-size: var(--font-caption);
   line-height: 1.5;
   color: var(--color-muted);
 }
@@ -4915,11 +4915,11 @@ onShow(async () => {
   height: 140rpx;
 }
 .lpr-chart-ylbl {
-  font-size: 9px;
+  font-size: 12px;
   fill: var(--color-muted);
 }
 .lpr-chart-xlbl {
-  font-size: 9px;
+  font-size: 12px;
   fill: var(--color-muted);
 }
 /* v0.52.0 map-12: 模式叠加时禁用默认 fill, 使用 :fill 属性 */
@@ -4947,7 +4947,7 @@ onShow(async () => {
   fill-opacity: 0.7;
 }
 .map-marker-lbl {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: var(--font-weight-medium);
   fill: #991b1b;
   text-shadow: 0 0 3px rgba(255, 255, 255, 0.9);
@@ -5260,7 +5260,7 @@ onShow(async () => {
   display: block;
   margin-top: 6rpx;
   color: var(--color-muted);
-  font-size: 21rpx;
+  font-size: var(--font-caption);
 }
 .home-v122-pulse .home-v122-eyebrow {
   margin-bottom: 6rpx;
@@ -5271,7 +5271,7 @@ onShow(async () => {
   align-items: center;
   gap: var(--space-gap-md);
   color: #0f9880;
-  font-size: 21rpx;
+  font-size: var(--font-caption);
 }
 .home-v122-metrics {
   display: grid;
@@ -5350,7 +5350,7 @@ onShow(async () => {
 .home-v122-more {
   flex-shrink: 0;
   color: #0f8b76;
-  font-size: 21rpx;
+  font-size: var(--font-caption);
 }
 
 .home-v122-list {
@@ -5407,7 +5407,7 @@ onShow(async () => {
   overflow: hidden;
   margin-top: var(--space-2);
   color: var(--color-muted);
-  font-size: 21rpx;
+  font-size: var(--font-caption);
   text-overflow: ellipsis;
   white-space: nowrap;
 }

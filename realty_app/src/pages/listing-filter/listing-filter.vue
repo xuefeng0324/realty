@@ -1136,7 +1136,7 @@ onUnmounted(() => {
   display: block;
   margin-top: var(--space-1);
   color: var(--color-muted);
-  font-size: 21rpx;
+  font-size: var(--font-caption);
 }
 
 .find-hub-city,
@@ -1324,7 +1324,7 @@ onUnmounted(() => {
   overflow: hidden;
   margin-top: 9rpx;
   color: var(--color-muted);
-  font-size: 21rpx;
+  font-size: var(--font-caption);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
