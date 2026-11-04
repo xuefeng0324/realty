@@ -5103,11 +5103,11 @@ onShow(async () => {
   overflow: hidden;
   padding: 36rpx var(--space-5) 30rpx;
   border-radius: var(--radius-xl);
-  color: #f8fffc;
+  color: #fff;
   background:
-    radial-gradient(circle at 95% 5%, rgba(94, 234, 212, 0.22), transparent 42%),
-    linear-gradient(135deg, #063d35 0%, #075f50 54%, #087d6a 100%);
-  box-shadow: 0 22rpx 54rpx rgba(4, 78, 67, 0.2);
+    radial-gradient(circle at 95% 5%, color-mix(in srgb, color-mix(in srgb, var(--color-primary) 60%, #fff) 22%, transparent), transparent 42%),
+    linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 18%, #000) 0%, color-mix(in srgb, var(--color-primary) 33%, #000) 54%, color-mix(in srgb, var(--color-primary) 50%, #000) 100%);
+  box-shadow: 0 22rpx 54rpx color-mix(in srgb, var(--color-primary) 20%, transparent);
 }
 .home-v122-hero::after {
   content: "";
@@ -5133,7 +5133,7 @@ onShow(async () => {
 .home-v122-brand,
 .home-v122-eyebrow {
   display: block;
-  color: #7fffd4;
+  color: color-mix(in srgb, var(--color-primary) 60%, #fff);
   font-size: var(--font-micro);
   font-weight: var(--font-weight-semibold);
   letter-spacing: var(--letter-spacing-eyebrow);
@@ -5172,8 +5172,8 @@ onShow(async () => {
   width: 12rpx;
   height: 12rpx;
   border-radius: 50%;
-  background: #5eead4;
-  box-shadow: 0 0 0 6rpx rgba(94, 234, 212, 0.14);
+  background: color-mix(in srgb, var(--color-primary) 60%, #fff);
+  box-shadow: 0 0 0 6rpx color-mix(in srgb, color-mix(in srgb, var(--color-primary) 60%, #fff) 14%, transparent);
 }
 .home-v122-city-caret { color: rgba(255, 255, 255, 0.72); }
 .home-v122-search {
@@ -5188,7 +5188,7 @@ onShow(async () => {
   border: 1rpx solid rgba(255, 255, 255, 0.18);
   border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 14rpx 36rpx rgba(0, 31, 27, 0.2);
+  box-shadow: 0 14rpx 36rpx color-mix(in srgb, var(--color-primary) 15%, transparent);
 }
 .home-v122-search-icon {
   color: var(--color-primary-strong);
@@ -5202,7 +5202,7 @@ onShow(async () => {
   height: 72rpx;
   line-height: 72rpx;
   padding-left: var(--space-3);
-  color: #12342f;
+  color: color-mix(in srgb, var(--color-primary) 12%, #000);
   background: transparent;
   font-size: var(--font-body);
 }
@@ -5236,7 +5236,7 @@ onShow(async () => {
   line-height: 48rpx;
 }
 .home-v122-mode--active {
-  color: #ecfdf5;
+  color: color-mix(in srgb, var(--color-primary) 10%, #fff);
   background: rgba(255, 255, 255, 0.14);
 }
 
