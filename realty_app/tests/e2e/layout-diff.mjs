@@ -5,9 +5,12 @@
 //
 // 判据（全部来自 CSS，不受字体渲染 / 每日数据变动影响）：
 //   1) 壳层锚点几何（DOM 深度 ≤ 8）
-//      - 位置容差 ±8px，尺寸容差 ±16px（吸收跨平台字体度量差）
+//      - 位置容差 ±8px；宽度容差 ±16px；高度容差 max(16px, 基准高度 5%)
+//        （高度是内容驱动的，跨平台字形度量差异会沿长页面累积：
+//          实测同一份构建 Window 1000px vs Linux 1036px = 3.6%，
+//          固定 16px 容差会在这个量级上恒定误报）
 //      - 文本叶子不比较宽高（数字长度随数据变化）
-//      - 不一致锚点组超过 20% → 失败（布局回归，与数据无关）
+//      - 不一致锚点组超过 2% → 失败（布局回归，与数据无关）
 //   2) 签名集合：tag|class|背景色|文字色|字号|字重|圆角
 //      - 差异是**比例**判据，不是「一票否决」：涨跌徽标会在 up/down 之间翻转、
 //        新鲜度徽标会在 ok/warn 之间翻转、列表条数随数据增减 —— 实测一次日更数据
@@ -97,9 +100,12 @@ for (const a of baseline.anchors) {
     const [bx, by, bw, bh] = a.samples[i];
     const [cx, cy, cw, ch] = cur.samples[i];
     const posBad = Math.abs(bx - cx) > TOL.pos || Math.abs(by - cy) > TOL.pos;
+    // 宽度由布局决定，固定 ±16px；高度由内容决定（换行行数会随字形度量变化），
+    // 长容器的绝对差值会随页面长度线性放大，所以按基准高度 5% 相对放宽。
+    const hTol = bh === null ? TOL.size : Math.max(TOL.size, Math.round(bh * 0.05));
     const sizeBad =
       (bw !== null && cw !== null && Math.abs(bw - cw) > TOL.size) ||
-      (bh !== null && ch !== null && Math.abs(bh - ch) > TOL.size);
+      (bh !== null && ch !== null && Math.abs(bh - ch) > hTol);
     if (posBad || sizeBad) bad++;
   }
   if (bad > 0) {
