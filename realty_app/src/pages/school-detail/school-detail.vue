@@ -190,7 +190,7 @@ onLoad((query?: Record<string, string>) => {
 .quick-btn { padding: 10rpx var(--space-3); border: 1rpx solid var(--color-border); border-radius: var(--radius-pill); background: var(--color-surface); color: var(--color-text-secondary); font-size: 21rpx; }
 .school-hero { display: flex; justify-content: space-between; align-items: center; gap: 28rpx; padding: 34rpx; border: 1rpx solid var(--color-border); border-radius: var(--radius-lg); background: linear-gradient(135deg, rgba(34, 197, 94, 0.16), var(--color-surface) 62%); box-shadow: var(--shadow-card); }
 .hero-copy { min-width: 0; }
-.hero-eyebrow { color: var(--color-primary); font-size: 19rpx; font-weight: var(--font-weight-bold); letter-spacing: 2rpx; }
+.hero-eyebrow { color: var(--color-primary); font-size: var(--font-micro); font-weight: var(--font-weight-bold); letter-spacing: 2rpx; }
 .hero-title { margin-top: 10rpx; color: var(--color-heading); font-size: 40rpx; font-weight: var(--font-weight-bold-plus); line-height: 1.3; }
 .hero-official { margin-top: var(--space-1); color: var(--color-text-secondary); font-size: 22rpx; }
 .tag-row { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-top: 18rpx; }
@@ -203,13 +203,13 @@ onLoad((query?: Record<string, string>) => {
 .score-ring--mid { border-color: rgba(14,165,233,.42); }
 .score-ring--low { border-color: rgba(245,158,11,.42); }
 .score-value { color: var(--color-heading); font-size: 42rpx; font-weight: var(--font-weight-bold-plus); line-height: 1; }
-.score-label { margin-top: 5rpx; color: var(--color-muted); font-size: 19rpx; }
+.score-label { margin-top: 5rpx; color: var(--color-muted); font-size: var(--font-micro); }
 .metrics-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-gap-md2); margin: 18rpx 0; }
 .metric-card { padding: 20rpx; border: 1rpx solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); box-shadow: var(--shadow-card); }
 .metric-label { color: var(--color-muted); font-size: 20rpx; }
 .metric-value { margin-top: 7rpx; color: var(--color-heading); font-size: 32rpx; font-weight: var(--font-weight-bold); }
 .metric-value--text { overflow: hidden; font-size: 22rpx; text-overflow: ellipsis; white-space: nowrap; }
-.metric-hint { margin-top: 4rpx; color: var(--color-text-secondary); font-size: 18rpx; }
+.metric-hint { margin-top: 4rpx; color: var(--color-text-secondary); font-size: var(--font-micro); }
 .section-note { margin-top: -4rpx; font-size: 21rpx; }
 .factor-list { margin-top: 18rpx; }
 .factor-row + .factor-row { margin-top: 18rpx; }

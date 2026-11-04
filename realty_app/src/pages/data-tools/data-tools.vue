@@ -2510,7 +2510,7 @@ onUnmounted(() => {
   color: var(--color-heading);
 }
 .edu-kpi-label {
-  font-size: 18rpx;
+  font-size: var(--font-micro);
 }
 .edu-grid {
   display: flex;

@@ -3878,7 +3878,7 @@ onShow(async () => {
 
 .dashboard-eyebrow {
   color: var(--color-primary);
-  font-size: 19rpx;
+  font-size: var(--font-micro);
   font-weight: var(--font-weight-bold);
   letter-spacing: 2rpx;
   margin-bottom: 5rpx;
@@ -4573,7 +4573,7 @@ onShow(async () => {
   min-width: 32rpx;
 }
 .lc-dim-label {
-  font-size: 18rpx;
+  font-size: var(--font-micro);
   color: var(--color-muted);
   font-weight: var(--font-weight-semibold);
 }
@@ -5135,7 +5135,7 @@ onShow(async () => {
 .home-v122-eyebrow {
   display: block;
   color: #7fffd4;
-  font-size: 18rpx;
+  font-size: var(--font-micro);
   font-weight: var(--font-weight-extrabold);
   letter-spacing: 3rpx;
 }
@@ -5386,7 +5386,7 @@ onShow(async () => {
 .home-v122-cover--empty {
   color: rgba(255, 255, 255, 0.84);
   background: linear-gradient(135deg, #0f766e, var(--color-focus));
-  font-size: 18rpx;
+  font-size: var(--font-micro);
   font-weight: var(--font-weight-extrabold);
   letter-spacing: 2rpx;
 }
@@ -5422,7 +5422,7 @@ onShow(async () => {
   border-radius: var(--radius-sm2);
   color: #64748b;
   background: var(--color-soft);
-  font-size: 18rpx;
+  font-size: var(--font-micro);
 }
 .home-v122-source--real {
   color: #047857;

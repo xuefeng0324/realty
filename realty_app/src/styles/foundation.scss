@@ -75,6 +75,13 @@ textarea {
   background: var(--color-soft);
 }
 
+/* 所有页面根容器统一侧向留白，避免内容贴边 */
+/* 页面 scoped style 里 .page { padding: ... } 优先级更高，会覆盖这个全局兜底 */
+.page {
+  padding: var(--space-3);
+  box-sizing: border-box;
+}
+
 .container {
   width: 100%;
   max-width: var(--content-max-width);

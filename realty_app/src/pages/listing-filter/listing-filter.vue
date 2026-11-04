@@ -1119,7 +1119,7 @@ onUnmounted(() => {
 .find-hub-eyebrow {
   display: block;
   color: #0f9880;
-  font-size: 18rpx;
+  font-size: var(--font-micro);
   font-weight: var(--font-weight-black);
   letter-spacing: 3rpx;
 }
@@ -1214,7 +1214,7 @@ onUnmounted(() => {
   border-radius: var(--radius-sm);
   color: #fff;
   background: linear-gradient(135deg, #10b981, #0ea5e9);
-  font-size: 18rpx;
+  font-size: var(--font-micro);
 }
 
 .find-hub-search {
@@ -1345,7 +1345,7 @@ onUnmounted(() => {
   border-radius: var(--radius-sm2);
   color: var(--color-text-secondary);
   background: var(--color-soft);
-  font-size: 18rpx;
+  font-size: var(--font-micro);
 }
 
 .find-entity-tag--key {
@@ -1768,7 +1768,7 @@ onUnmounted(() => {
   gap: var(--space-gap-xs);
 }
 .minidim-label {
-  font-size: 18rpx;
+  font-size: var(--font-micro);
   color: var(--color-muted);
   font-weight: var(--font-weight-medium);
 }

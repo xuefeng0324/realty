@@ -1093,6 +1093,6 @@ onMounted(() => {
   font-variant-numeric: tabular-nums;
 }
 .cm-meta {
-  font-size: 18rpx;
+  font-size: var(--font-micro);
 }
 </style>

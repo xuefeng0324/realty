@@ -842,7 +842,7 @@ function openGithubReleases() {
 
 .hero-eyebrow {
   color: var(--color-primary);
-  font-size: 19rpx;
+  font-size: var(--font-micro);
   font-weight: var(--font-weight-bold);
   letter-spacing: 3rpx;
 }
