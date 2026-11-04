@@ -417,4 +417,11 @@ uni-app[data-realty-theme="light"] {
   color: #991b1b;
 }
 
+/* #ifdef H5 */
+/* H5 端原生 tabBar 标签默认 10px 偏小，提升到与 --font-micro(22rpx≈11.4px) 相当 */
+.uni-tabbar__label {
+  font-size: 11px !important;
+}
+/* #endif */
+
 </style>
