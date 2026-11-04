@@ -3110,14 +3110,15 @@ describe("build integrity", () => {
   });
 
   // ---------- v1.123.31 E2E suite 脚本契约 ----------
-  describe("E2E suite 脚本契约 v1.123.31", () => {
+  describe("E2E suite 脚本契约 v1.123.71", () => {
     const suiteSrc = readFileSync(resolve(ROOT, "tests/e2e/run_suite.mjs"), "utf8");
     const members = [...new Set([...suiteSrc.matchAll(/"([^"]+\.mjs)"/g)].map((m) => m[1]))].filter(
       (f) => f.startsWith("smoke")
     );
 
-    it("core / extended / v093_097 三个组共 26 个脚本", () => {
-      expect(members.length).toBe(26);
+    it("core / extended / v093_097 三个组共 27 个脚本", () => {
+      // v1.123.71: extended 新增 smoke_visual_quality.mjs（裁切文本/最小字号/repeat(N,1fr) 门禁）
+      expect(members.length).toBe(27);
     });
 
     it("suite 内脚本不得用 waitUntil: networkidle（挂起请求会使其超时）", () => {

@@ -34,7 +34,8 @@ const suites = {
     "smoke_school_community.mjs",
     "smoke_wangqian_heatmap.mjs",
     "smoke_stats70_filter.mjs",
-    "smoke_data_tools_nav.mjs"
+    "smoke_data_tools_nav.mjs",
+    "smoke_visual_quality.mjs"
   ],
   "v093_097": [
     "smoke_v093_district_drift_strict.mjs",

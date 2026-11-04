@@ -3918,7 +3918,7 @@ onShow(async () => {
 
 .gz-inventory-row {
   display: grid;
-  grid-template-columns: 1.2fr repeat(3, 1fr);
+  grid-template-columns: 1.2fr repeat(3, minmax(0, 1fr));
   gap: var(--space-1);
   padding: 10rpx 0;
   font-size: var(--font-caption);

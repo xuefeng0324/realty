@@ -91,6 +91,11 @@ jobs:
         # 与字体栅格化无关、与数据内容无关。
         run: node tests/e2e/layout-diff.mjs
 
+      - name: 跑视觉质量门禁（裁切文本/最小字号/repeat(N,1fr) 静态扫描）
+        # v1.123.71: 22 路由 × 390x844，叶子文本被 overflow 祖先裁切 >2px、
+        # 字号低于 --font-micro 探针值、以及 grid repeat(N,1fr) 源码回归都会失败。
+        run: node tests/e2e/smoke_visual_quality.mjs
+
       - name: 上传 E2E artifacts
         if: always()
         uses: actions/upload-artifact@v4

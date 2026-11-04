@@ -105,7 +105,7 @@ defineEmits<{ click: [] }>();
 
 .entity-list-item__eyebrow {
   color: var(--color-primary-strong);
-  font-size: 19rpx;
+  font-size: var(--font-micro);
   font-weight: 600;
   letter-spacing: 1rpx;
 }
