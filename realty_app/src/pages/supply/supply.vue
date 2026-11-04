@@ -3,7 +3,7 @@
     <view class="container">
       <view class="page-header" data-supply-header>
         <view class="page-header-sub muted">
-          库存 / 计划入市 / 保障房 / 居住用地 · 从总览频道「供需」与金刚区进入 · 非挂牌均价
+          库存 / 计划入市 / 保障房 / 居住用地 · 官方口径，非挂牌均价
         </view>
       </view>
 
@@ -121,7 +121,7 @@
         data-sz-planned-supply
       >
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">🏗️ 深圳商品住房计划入市</view>
+          <view class="card-title" style="margin-bottom: 0">深圳商品住房计划入市</view>
           <view class="muted muted-caption">{{ formatSzSupplyPeriod(szPlannedSupply) }}</view>
         </view>
         <view class="kpi-grid">
@@ -195,7 +195,7 @@
       <!-- 广州土地 -->
       <view v-if="gzLandSummary" id="entry-land" class="card" data-supply-land data-gz-land-deals>
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">🗺️ 广州居住用地成交</view>
+          <view class="card-title" style="margin-bottom: 0">广州居住用地成交</view>
           <view class="muted muted-caption">近 {{ gzLandSummary.count }} 宗 · {{ gzLandSummary.latestDate }}</view>
         </view>
         <view class="kpi-grid">
@@ -239,7 +239,7 @@
         data-sz-land-deals
       >
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">🗺️ 深圳居住用地（已成交）</view>
+          <view class="card-title" style="margin-bottom: 0">深圳居住用地（已成交）</view>
           <view class="muted muted-caption">近 {{ szLandSummary.count }} 宗 · {{ szLandSummary.latestDate }}</view>
         </view>
         <view class="kpi-grid">
@@ -440,16 +440,23 @@ onMounted(() => {
   font-weight: var(--font-weight-semibold);
 }
 .row-line {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  padding: 10rpx 0;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr 0.7fr;
+  align-items: baseline;
+  gap: var(--space-1);
+  padding: 12rpx 0;
   border-bottom: 1rpx dashed var(--color-soft-strong);
   font-size: var(--font-caption);
+  font-variant-numeric: tabular-nums;
+}
+.row-line > text:not(.row-name) {
+  text-align: right;
 }
 .row-name {
-  min-width: 140rpx;
+  overflow: hidden;
   font-weight: var(--font-weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .note {
   margin-top: var(--space-2);

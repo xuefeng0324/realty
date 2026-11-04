@@ -63,7 +63,7 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
     expect(toolsSrc).toContain("data-data-tools-header");
     expect(toolsSrc).toContain("data-dt-admin-district");
     expect(toolsSrc).toContain("data-dt-stats70-drift");
-    expect(toolsSrc).toContain("data-dt-notice");
+    expect(toolsSrc).toContain("data-dt-card-manager");
   });
 
   it("data-tools.vue 引用 adminDistrictRanking 模块", () => {
@@ -85,7 +85,7 @@ describe("v1.121.138 数据工具独立页（21 张派生卡已迁出 dashboard�
 
   it("data-tools.vue Batch 1：地铁步行可达性概览派生卡已迁移（HTML + computed）", () => {
     expect(toolsSrc).toContain("data-dt-metro-walk");
-    expect(toolsSrc).toContain("🚶 地铁步行可达性");
+    expect(toolsSrc).toContain("地铁步行可达性");
     expect(toolsSrc).toContain("metroWalkSummary");
     expect(toolsSrc).toContain("metroWalkTop");
     expect(toolsSrc).toContain("metroWalkCityTop");

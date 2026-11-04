@@ -56,7 +56,7 @@
           <view class="muted muted-caption" style="margin-bottom: 6rpx">
             全维度学校
             <text class="muted muted-micro">
-              （综合≥80 / 集团实力≥70 / 区均衡度≥70）
+              综合 ≥80 · 集团 ≥70 · 均衡 ≥70
             </text>
           </view>
           <view
@@ -82,58 +82,22 @@
           <view class="muted muted-caption" style="margin-bottom: 6rpx">
             三维度 Top 1（本市）
           </view>
-          <view class="stats70-grid">
-            <view class="stats70-cell">
-              <text class="cell-label">综合排名分</text>
-              <text class="cell-value">
-                {{ dimTopLevel[0]?.schoolName ?? "-" }}
-              </text>
-              <text class="cell-sub muted">
-                {{ dimTopLevel[0]?.score?.toFixed(1) ?? "-" }} 分
-              </text>
-            </view>
-            <view class="stats70-cell">
-              <text class="cell-label">集团校实力</text>
-              <text class="cell-value">
-                {{ dimTopGroup[0]?.schoolName ?? "-" }}
-              </text>
-              <text class="cell-sub muted">
-                {{ dimTopGroup[0]?.score?.toFixed(1) ?? "-" }} 分
-              </text>
-            </view>
-            <view class="stats70-cell">
-              <text class="cell-label">区均衡度</text>
-              <text class="cell-value">
-                {{ dimTopBalance[0]?.schoolName ?? "-" }}
-              </text>
-              <text class="cell-sub muted">
-                {{ dimTopBalance[0]?.score?.toFixed(1) ?? "-" }} 分
-              </text>
-            </view>
+          <view class="drift-row">
+            <text class="drift-city">综合排名分 · {{ dimTopLevel[0]?.schoolName ?? "-" }}</text>
+            <text class="drift-value">{{ dimTopLevel[0]?.score?.toFixed(1) ?? "-" }} 分</text>
+          </view>
+          <view class="drift-row">
+            <text class="drift-city">集团校实力 · {{ dimTopGroup[0]?.schoolName ?? "-" }}</text>
+            <text class="drift-value">{{ dimTopGroup[0]?.score?.toFixed(1) ?? "-" }} 分</text>
+          </view>
+          <view class="drift-row">
+            <text class="drift-city">区均衡度 · {{ dimTopBalance[0]?.schoolName ?? "-" }}</text>
+            <text class="drift-value">{{ dimTopBalance[0]?.score?.toFixed(1) ?? "-" }} 分</text>
           </view>
         </view>
 
-        <view
-          v-if="cityCompositeTop"
-          style="margin-top: 14rpx"
-          data-school-city-top
-        >
-          <view class="muted muted-caption" style="margin-bottom: 6rpx">
-            本市综合得分最强
-          </view>
-          <view class="drift-row">
-            <text class="drift-rank">1</text>
-            <text class="drift-city">
-              {{ cityCompositeTop.cityName }} · {{ cityCompositeTop.topSchool?.schoolName ?? "-" }}
-            </text>
-            <text class="drift-value drift-up">
-              {{ cityCompositeTop.topSchool?.score?.toFixed(1) ?? "-" }}
-            </text>
-          </view>
-        </view>
         <view class="muted muted-micro" style="margin-top: var(--space-1)">
-          派生：snapshot.schoolDimensions（仅重点学校子集，已按当前城市过滤）。
-          "六边形战士" 同时满足综合≥80 / 集团实力≥70 / 区均衡度≥70。
+          仅展示重点学校；综合 ≥ 80、集团实力 ≥ 70、区均衡度 ≥ 70 即全维度达标。
         </view>
       </view>
 
@@ -220,7 +184,6 @@ import {
   summarizeSchoolDimensionsByCity,
   getSchoolDimensionByDimensionTopN,
   getSchoolDimensionPolymath,
-  getCityByCompositeRank
 } from "../../local/schoolDimensionRanking";
 
 const app = useAppStore();
@@ -281,10 +244,6 @@ const dimTopGroup = computed(() =>
 const dimTopBalance = computed(() =>
   getSchoolDimensionByDimensionTopN("districtBalance", app.cityId, 1)
 );
-const cityCompositeTop = computed(
-  () => getCityByCompositeRank().find((r) => r.cityId === app.cityId) ?? null
-);
-
 function onCityChange(e: { detail: { value: string } }) {
   const c = cities.value[Number(e.detail.value)];
   if (c) {
@@ -382,7 +341,8 @@ async function loadCities() {
   box-sizing: border-box;
   min-height: 72rpx;
   line-height: 40rpx;
-  background: var(--color-surface-raised);
+  background: var(--color-soft);
+  border: 1rpx solid var(--color-border);
   border-radius: var(--radius-sm2);
   padding: var(--space-2) var(--space-3);
   color: var(--color-heading);
@@ -417,9 +377,17 @@ async function loadCities() {
   display: flex;
   flex-direction: column;
   gap: var(--space-gap-xs);
-  padding: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1rpx solid var(--color-border-soft);
   border-radius: var(--radius-md2);
-  background: var(--color-surface-raised);
+  background: var(--color-panel-soft);
+}
+
+.edu-cell > text:last-child {
+  color: var(--color-heading);
+  font-size: var(--font-title-sm);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
 }
 
 .search-empty {

@@ -92,7 +92,7 @@
 
       <view v-if="mode === 'metro'" class="curvature-card">
         <view class="row-between">
-          <view class="curvature-title">🌀 弯曲系数 Top 5</view>
+          <view class="curvature-title">弯曲系数 Top 5</view>
           <view class="muted muted-caption">actual / straight · 越高越曲折</view>
         </view>
         <view class="curvature-desc muted">
@@ -164,7 +164,7 @@
     </view>
 
     <view v-if="mode === 'price' && priceBuckets.length > 0" class="card legend-card">
-      <view class="card-title" style="margin-bottom: 4rpx">🎨 挂牌价格分位图例</view>
+      <view class="card-title" style="margin-bottom: 4rpx">挂牌价格分位图例</view>
       <view class="muted muted-caption" style="margin-bottom: var(--space-1)">
         颜色 = 5 档挂牌单价分位 (绿便宜 → 红贵)；半径 = 价格×挂牌数 (大=贵+多)；非成交价
       </view>
@@ -246,7 +246,7 @@
 
     <view v-if="selectedMetro" class="info-card">
       <view class="row-between">
-        <text class="info-name">🚇 {{ selectedMetro.lineName }}</text>
+        <text class="info-name">{{ selectedMetro.lineName }}</text>
         <text class="info-close" @click="closeMetroCard">✕</text>
       </view>
       <text class="info-line">

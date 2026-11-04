@@ -113,7 +113,7 @@ export function useTrendVisualization() {
       let cohort = "mid";
       if (p.medianUnitPrice < scatter.value!.cityMedianUnit * 0.9) cohort = "value";
       else if (p.medianUnitPrice > scatter.value!.cityMedianUnit * 1.1) cohort = "premium";
-      return { x: p.medianUnitPrice, y: p.medianTotalPrice10w * 10000, cohort };
+      return { x: p.medianUnitPrice, y: p.medianTotalPrice10w, cohort };
     });
   }
 

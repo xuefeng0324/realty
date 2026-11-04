@@ -25,8 +25,8 @@ CITIES = REPO_ROOT / "static" / "seed" / "cities.csv"
 COMMUNITIES = REPO_ROOT / "static" / "seed" / "communities.csv"
 OUT = REPO_ROOT / "static" / "seed" / "listing_freshness.csv"
 
-# 用 listings 中最大的 crawl_date 作为 today
-TODAY = datetime(2026, 7, 13)  # 项目当前日期
+# 以 listings 中最大的 crawl_date 作为 today，避免未来日期导致负挂牌龄
+TODAY = datetime(2026, 7, 13)  # 兜底值；main 会用实际数据覆盖
 
 
 def n(v):
@@ -57,6 +57,7 @@ def main():
                 continue
 
     # group by (city_id, community_id) → list of crawl_date
+    max_crawl_date = ""
     by_community: dict[tuple, list[str]] = defaultdict(list)
     with open(LISTINGS, encoding="utf-8-sig") as f:
         for r in csv.DictReader(f):
@@ -65,8 +66,16 @@ def main():
                 cd = (r.get("crawl_date") or "").strip()
                 if cd:
                     by_community[key].append(cd)
+                    if cd > max_crawl_date:
+                        max_crawl_date = cd
             except (KeyError, ValueError):
                 continue
+
+    # 以数据集里最新的 crawl_date 作为"今天"，保证挂牌龄不为负
+    global TODAY
+    if max_crawl_date:
+        TODAY = datetime.strptime(max_crawl_date, "%Y-%m-%d")
+        print(f"[info] today = {TODAY.date()} (max crawl_date)")
 
     rows = []
     for (city_id, community_id), dates in by_community.items():

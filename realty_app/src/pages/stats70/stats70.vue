@@ -4,8 +4,8 @@
       <view class="card">
         <view class="card-title">指数口径</view>
         <view class="muted" v-if="latestMonth">
-          数据月份：{{ latestMonth }}（来源：国家统计局）
-          <text v-if="freshnessLabel"> · {{ freshnessLabel }}</text>
+          数据月份：{{ latestMonthLabel }}（来源：国家统计局）
+          <text v-if="freshnessWarn"> · {{ freshnessWarn }}</text>
         </view>
         <view class="muted" v-else>
           暂无 70 城指数数据。请确认 app 已联网启动一次。
@@ -47,7 +47,7 @@
 
       <view v-else class="card">
         <view class="row-between">
-          <view class="card-title">榜单（按 {{ kind === "new" ? "新建" : "二手" }}{{ " " }}{{ base }} {{ " " }}{{ sortLabel }}）</view>
+          <view class="card-title">榜单 · {{ kind === "new" ? "新建" : "二手" }}{{ base }}</view>
           <view class="muted">共 {{ ranking.length }} 城</view>
         </view>
         <view class="ranking-tabs">
@@ -229,7 +229,7 @@ import {
 } from "../../local/stats70TrendAnalysis";
 import { useAppStore } from "../../store/app";
 import EmptyState from "../../components/EmptyState.vue";
-import { assessStats70Freshness } from "../../local/stats70Freshness";
+import { assessStats70Freshness, formatStats70MonthLabel } from "../../local/stats70Freshness";
 
 type Base = "同比" | "环比";
 type Kind = "new" | "second";
@@ -248,7 +248,13 @@ const base = ref<Base>("同比");
 const sortDir = ref<SortDir>("desc");
 
 const latestMonth = ref<string | null>(getLatestMonth());
-const freshnessLabel = computed(() => assessStats70Freshness(latestMonth.value).label);
+const latestMonthLabel = computed(() =>
+  latestMonth.value ? formatStats70MonthLabel(latestMonth.value) : ""
+);
+const freshnessWarn = computed(() => {
+  const f = assessStats70Freshness(latestMonth.value);
+  return f.status === "fresh" ? "" : f.label;
+});
 
 const ranking = computed(() => {
   const all = getRanking(base.value, kind.value);
@@ -435,7 +441,8 @@ function onPickCity(city: string) {
   box-sizing: border-box;
   height: 72rpx;
   line-height: 72rpx;
-  background: var(--color-surface-raised);
+  background: var(--color-soft);
+  border: 1rpx solid var(--color-border);
   border-radius: var(--radius-md2);
   padding: 0 var(--space-3);
   color: var(--color-heading);

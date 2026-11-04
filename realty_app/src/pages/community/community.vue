@@ -4,10 +4,10 @@
       <!-- v0.56.0 detail-2: 顶部快捷导航 -->
       <view class="quicknav">
         <view class="qn-btn" @click="goBack">← 返回</view>
-        <view class="qn-btn" @click="goDashboard">📊 仪表盘</view>
-        <view class="qn-btn" @click="goMap">🗺️ 地图视图</view>
+        <view class="qn-btn" @click="goDashboard">仪表盘</view>
+        <view class="qn-btn" @click="goMap">地图视图</view>
         <view v-if="sameDistrictCommunities.length > 0" class="qn-btn qn-btn--primary">
-          🏘️ 同区其他 ({{ sameDistrictCommunities.length }})
+          同区其他 ({{ sameDistrictCommunities.length }})
         </view>
       </view>
 
@@ -17,7 +17,7 @@
         <view class="row-between">
           <view>
             <view class="card-title">{{ communityName }}</view>
-            <view class="muted">小区 ID: {{ communityId }} · {{ currentDistrict }}</view>
+            <view class="muted">{{ currentDistrict }}</view>
           </view>
           <FavoriteButton v-if="communityLibraryItem" :item="communityLibraryItem" />
         </view>
@@ -25,56 +25,67 @@
 
       <!-- v0.37.0 trend-17: 5 维小区指标卡 (生活/学区/通勤/步行地铁/规划地铁) -->
       <view v-if="cmScore && (cmScore.hasLife || cmScore.hasSchool || cmScore.hasCommute || cmScore.hasWalkMetro || cmScore.hasFutureMetro)" class="card">
-        <view class="card-title">🏅 5 维小区指标</view>
-        <view class="cm-grid">
+        <view class="card-title">5 维小区指标</view>
+        <view class="cm-list">
           <view
             v-for="d in CM_DEFS"
             :key="d.key"
-            class="cm-cell"
+            class="cm-row"
           >
-            <view class="cm-cell-head">
-              <text class="cm-icon">{{ d.icon }}</text>
-              <text class="cm-label">{{ d.label }}</text>
-            </view>
+            <text class="cm-name">{{ d.label }}</text>
             <view class="cm-track">
               <view
                 class="cm-fill"
                 :class="cmBand(cmScore[d.key])"
-                :style="{ width: cmScore[d.key] + '%' }"
+                :style="{ width: (cmScore[d.key] ?? 0) + '%' }"
               />
             </view>
-            <view class="cm-foot">
-              <text class="cm-val">{{ cmScore[d.key] }}</text>
-              <text class="cm-meta muted">{{ cmMeta(d.key) }}</text>
-            </view>
+            <text class="cm-score">{{ cmScore[d.key] ?? "—" }}</text>
           </view>
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
-          数据源：life_convenience.csv / school_premium_community.csv / commute.csv / metro_walk.csv / metro_benefit.csv。
-          通勤分 = (transit_minutes - 30) × (50/30) 反向；步行分 = 10min=100 / 30min=0。
+          指标来自生活配套、学校实力、通勤时间与地铁步行/规划覆盖等公开数据；分数越高越便利。
         </view>
       </view>
 
       <!-- 挂牌新鲜度（listing_freshness 派生） -->
       <view v-if="listingFreshness" class="card">
         <view class="card-title">挂牌新鲜度</view>
-        <view class="muted" style="margin-bottom: var(--space-1)">
-          新鲜度分 {{ listingFreshness.freshnessScore.toFixed(0) }}
-          · 中位龄
-          {{
-            listingFreshness.medianAgeDays != null
-              ? listingFreshness.medianAgeDays.toFixed(0) + " 天"
-              : "—"
-          }}
+        <view class="stats70-grid">
+          <view class="stats70-cell">
+            <text class="cell-label">新鲜度分</text>
+            <text class="cell-value">
+              {{ listingFreshness.freshnessScore.toFixed(0) }}
+              <text class="cell-sub"> / 100</text>
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">中位挂牌龄</text>
+            <text class="cell-value">
+              {{
+                listingFreshness.medianAgeDays != null
+                  ? listingFreshness.medianAgeDays.toFixed(0)
+                  : "—"
+              }}
+              <text class="cell-sub"> 天</text>
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">近 4 周新上</text>
+            <text class="cell-value">
+              {{ listingFreshness.recent4wCount }}<text class="cell-sub"> 套</text>
+            </text>
+          </view>
+          <view class="stats70-cell">
+            <text class="cell-label">陈旧挂牌</text>
+            <text class="cell-value">
+              {{ listingFreshness.staleCount }}<text class="cell-sub"> 套</text>
+            </text>
+          </view>
         </view>
-        <view class="muted muted-caption">
-          共 {{ listingFreshness.totalListings }} 套
-          · 近 4 周 {{ listingFreshness.recent4wCount }}
-          · 近 2 周新上 {{ listingFreshness.new2wCount }}
-          · 陈旧 {{ listingFreshness.staleCount }}
-        </view>
-        <view class="muted muted-micro" style="margin-top: var(--space-1)">
-          数据源：listing_freshness.csv（按小区聚合挂牌龄）。
+        <view class="muted muted-micro" style="margin-top: var(--space-2)">
+          共 {{ listingFreshness.totalListings }} 套 · 近 2 周新上 {{ listingFreshness.new2wCount }} 套 ·
+          挂牌龄按房源最近刷新时间计算。
         </view>
       </view>
 
@@ -110,7 +121,6 @@
         <view v-else>
           <view class="muted">
             共 {{ quality.bins.reduce((s, b) => s + b.count, 0) }} 条评分 ·
-            规则 {{ quality.rule_version || "-" }} ·
             均分 {{ quality.scoreStats.avg?.toFixed(1) }}
           </view>
           <view class="bin-row" v-for="b in quality.bins" :key="b.bin">
@@ -143,14 +153,14 @@
 
       <!-- 周边配套 (v0.4.2+) -->
       <view v-if="pois.length > 0" class="card">
-        <view class="card-title">周边配套（{{ poiSummary }}）</view>
+        <view class="card-title" style="margin-bottom: 0">周边配套</view>
+        <view class="muted muted-caption" style="margin-top: 4rpx">{{ poiSummary }}</view>
         <view
           v-for="grp in poiGroups"
           :key="grp.category"
           class="poi-section"
         >
           <view class="poi-cat">
-            <text class="poi-cat-icon">{{ categoryIcon(grp.category) }}</text>
             <text class="poi-cat-name">{{ categoryLabel(grp.category) }}</text>
             <text class="muted">最近 {{ grp.nearest }}m</text>
           </view>
@@ -188,7 +198,7 @@
       <!-- 未来周边地铁 (v0.7.0+) -->
       <view v-if="showMetroCard" class="card">
         <view class="card-title">
-          🚧 未来周边地铁（{{ metroPlanning.length }} 条规划/在建）
+          未来周边地铁（{{ metroPlanning.length }} 条规划/在建）
           <text v-if="nearestSubwayM != null" class="muted muted-caption">现有最近 {{ formatDistance(nearestSubwayM) }}</text>
         </view>
         <view
@@ -282,7 +292,7 @@
 
       <!-- v0.56.0 detail-2: 同区其他小区 -->
       <view v-if="sameDistrictCommunities.length > 0" class="card">
-        <view class="card-title">🏘️ 同区其他小区 · {{ currentDistrict }}</view>
+        <view class="card-title">同区其他小区 · {{ currentDistrict }}</view>
         <view class="muted muted-caption" style="margin-bottom: var(--space-1)">
           横向对比: 共 {{ sameDistrictAll.length }} 个小区, 显示其他 {{ sameDistrictCommunities.length }} 个
           (已按平均单价降序)
@@ -306,7 +316,7 @@
           </view>
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-1)">
-          💡 同区横向对比帮助理解板块均价: 楼龄 / 户型 / 物业差异通常解释 20-30% 单价差。
+          同区横向对比帮助理解板块均价：楼龄 / 户型 / 物业差异通常解释 20-30% 单价差。
         </view>
       </view>
     </view>
@@ -461,33 +471,17 @@ const cmScore = ref<{
 } | null>(null);
 
 const CM_DEFS = [
-  { key: "life", icon: "🧭", label: "生活" },
-  { key: "school", icon: "🎓", label: "学区" },
-  { key: "commute", icon: "🚌", label: "通勤" },
-  { key: "walkMetro", icon: "🚶", label: "步行地铁" },
-  { key: "futureMetro", icon: "🚇", label: "规划地铁" }
+  { key: "life", label: "生活" },
+  { key: "school", label: "学区" },
+  { key: "commute", label: "通勤" },
+  { key: "walkMetro", label: "步行地铁" },
+  { key: "futureMetro", label: "规划地铁" }
 ] as const;
 
 function cmBand(v: number) {
   if (v >= 75) return "cm-fill-green";
   if (v >= 50) return "cm-fill-orange";
   return "cm-fill-red";
-}
-
-function cmMeta(key: "life" | "school" | "commute" | "walkMetro" | "futureMetro"): string {
-  if (!cmScore.value) return "";
-  switch (key) {
-    case "life":
-      return cmScore.value.hasLife ? "life" : "—";
-    case "school":
-      return cmScore.value.hasSchool ? "school" : "—";
-    case "commute":
-      return cmScore.value.hasCommute ? "transit" : "—";
-    case "walkMetro":
-      return cmScore.value.hasWalkMetro ? "walk" : "—";
-    case "futureMetro":
-      return cmScore.value.hasFutureMetro ? "future" : "—";
-  }
 }
 
 const POI_GROUPS: PoiCategory[] = ["subway", "school", "hospital", "mall", "park"];
@@ -520,15 +514,6 @@ function categoryLabel(c: PoiCategory): string {
     hospital: "医院",
     mall: "商场",
     park: "公园"
-  } as const)[c];
-}
-function categoryIcon(c: PoiCategory): string {
-  return ({
-    subway: "🚇",
-    school: "🏫",
-    hospital: "🏥",
-    mall: "🛍",
-    park: "🌳"
   } as const)[c];
 }
 function formatDistance(m: number): string {
@@ -576,7 +561,9 @@ async function loadAll() {
       getTopTags({ communityId: communityId.value, limit: 10 })
     ]);
     communityName.value = trendRes.community_name;
-    trend.value = trendRes.data || [];
+    trend.value = (trendRes.data || []).filter(
+      (t) => t.avg_unit_price != null && t.avg_unit_price > 0
+    );
     // v0.56.0 detail-2: 设置 district
     const cur = currentCommunityObj.value;
     if (cur?.districtName) currentDistrict.value = cur.districtName;
@@ -722,40 +709,45 @@ onMounted(() => {
 <style lang="scss" scoped>
 /* v0.56.0 detail-2: 顶部快捷导航 + 同区其他小区 */
 .quicknav {
-  display: flex;
-  gap: var(--space-2);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-1);
   margin: var(--space-1) 0 var(--space-3);
-  flex-wrap: wrap;
 }
 .qn-btn {
-  flex: 1;
-  min-width: 140rpx;
-  padding: 14rpx 18rpx;
-  border-radius: var(--radius-sm);
-  background: var(--color-soft);
-  font-size: var(--font-body-sm);
-  color: var(--color-chip-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64rpx;
+  padding: 12rpx var(--space-2);
+  border: 1rpx solid var(--color-border-soft);
+  border-radius: var(--radius-sm2);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-caption);
   text-align: center;
   cursor: pointer;
   transition: background 0.15s;
 }
 .qn-btn:hover {
-  background: var(--color-soft-strong);
+  background: var(--color-soft);
 }
 .qn-btn--primary {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #fff;
+  border-color: transparent;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-contrast);
   font-weight: var(--font-weight-semibold);
 }
 .qn-btn--primary:hover {
-  filter: brightness(1.08);
+  background: var(--color-primary-soft);
+  filter: brightness(0.97);
 }
 .sibling-row {
   display: flex;
   align-items: center;
   gap: var(--space-2);
   padding: 14rpx var(--space-2);
-  border-bottom: 1rpx solid #f1f5f9;
+  border-bottom: 1rpx solid var(--color-border-soft);
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -868,20 +860,20 @@ onMounted(() => {
 }
 
 .bin-high {
-  background: var(--color-trend-down);
+  background: var(--color-success);
 }
 
 .bin-mid {
-  background: var(--color-on-warn-soft);
+  background: #f59e0b;
 }
 
 .bin-low {
-  background: #fca5a5;
+  background: var(--color-danger);
 }
 
 .dim-fill {
   height: 100%;
-  background: linear-gradient(90deg, #8b5cf6, #c084fc);
+  background: linear-gradient(90deg, #2563eb, #60a5fa);
   border-radius: var(--radius-sm2);
 }
 
@@ -1031,37 +1023,27 @@ onMounted(() => {
   -webkit-box-orient: vertical;
 }
 /* v0.37.0 trend-17: 5 维小区指标 */
-.cm-grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--space-gap-md2);
-  margin-top: 8rpx;
-}
-.cm-cell {
-  background: var(--color-bg);
-  border: 1rpx solid var(--color-soft-strong);
-  border-radius: var(--radius-sm);
-  padding: var(--space-2) 10rpx;
+.cm-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-gap-sm);
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }
-.cm-cell-head {
+.cm-row {
   display: flex;
   align-items: center;
-  gap: var(--space-gap-xs);
+  gap: var(--space-2);
 }
-.cm-icon {
-  font-size: var(--font-body-sm);
-}
-.cm-label {
-  font-size: var(--font-caption);
+.cm-name {
+  flex: none;
+  width: 104rpx;
   color: var(--color-text-secondary);
+  font-size: var(--font-caption);
   font-weight: var(--font-weight-semibold);
 }
 .cm-track {
-  width: 100%;
-  height: 8rpx;
+  flex: 1;
+  height: 12rpx;
   background: var(--color-soft-strong);
   border-radius: var(--radius-xxs);
   overflow: hidden;
@@ -1069,30 +1051,24 @@ onMounted(() => {
 .cm-fill {
   height: 100%;
   border-radius: var(--radius-xxs);
-  font-variant-numeric: tabular-nums;
   transition: width 0.3s ease;
 }
 .cm-fill-green {
-  background: linear-gradient(90deg, #22c55e, #10b981);
+  background: var(--color-success);
 }
 .cm-fill-orange {
-  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+  background: var(--color-warning);
 }
 .cm-fill-red {
-  background: linear-gradient(90deg, #f87171, #ef4444);
+  background: var(--color-danger);
 }
-.cm-foot {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-gap-sm);
-}
-.cm-val {
-  font-size: 28rpx;
+.cm-score {
+  flex: none;
+  width: 64rpx;
+  color: var(--color-heading);
+  font-size: var(--font-body);
   font-weight: var(--font-weight-bold);
-  color: #e2e8f0;
   font-variant-numeric: tabular-nums;
-}
-.cm-meta {
-  font-size: var(--font-micro);
+  text-align: right;
 }
 </style>

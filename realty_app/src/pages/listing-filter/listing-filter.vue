@@ -230,14 +230,16 @@
         class="card"
       >
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">📡 市场流动性</view>
+          <view class="card-title" style="margin-bottom: 0">市场流动性</view>
           <view class="muted muted-caption">
             {{ freshnessSummary.communityCount }} 个小区样本
           </view>
         </view>
         <view style="margin-top: 10rpx">
           <view class="muted muted-caption">
-            当前城市 {{ freshnessSummary.cityName }} · 总挂牌 {{ freshnessSummary.totalListings }} ·
+            当前城市 {{ freshnessSummary.cityName }} · 总挂牌 {{ freshnessSummary.totalListings }}
+          </view>
+          <view class="muted muted-caption" style="margin-top: 4rpx">
             鲜活度均值 {{ freshnessSummary.avgFreshness.toFixed(1) }}
             <text v-if="freshnessSummary.avgMedianAgeDays != null">
               · 中位挂牌 {{ Math.round(freshnessSummary.avgMedianAgeDays) }} 天
@@ -268,7 +270,7 @@
           style="margin-top: 14rpx"
         >
           <view v-if="freshestTop.length" style="margin-bottom: 6rpx">
-            <view class="muted muted-caption">最最新鲜 Top 3</view>
+            <view class="muted muted-caption">最新鲜 Top 3</view>
             <view
               v-for="(row, i) in freshestTop"
               :key="'fr' + row.communityId"
@@ -284,7 +286,7 @@
             </view>
           </view>
           <view v-if="stalestTop.length">
-            <view class="muted muted-caption">最积压 Top 3</view>
+            <view class="muted muted-caption">挂牌最久 Top 3</view>
             <view
               v-for="(row, i) in stalestTop"
               :key="'st' + row.communityId"
@@ -302,7 +304,7 @@
           </view>
         </view>
         <view class="muted muted-micro" style="margin-top: var(--space-1)">
-          派生：snapshot.listingFreshness。鲜活度 = 近期新增数 / 总挂牌，年龄为小区内挂牌中位天数。
+          鲜活度 = 近期新增挂牌 / 总挂牌；挂牌龄为小区内房源的中位天数。
         </view>
       </view>
 
@@ -312,7 +314,7 @@
         class="card"
       >
         <view class="row-between">
-          <view class="card-title" style="margin-bottom: 0">🏷️ 本市标签特征</view>
+          <view class="card-title" style="margin-bottom: 0">本市标签特征</view>
           <view class="muted muted-caption">
             {{ tagCityLocal.cityName }} · {{ tagCityLocal.topTags.length }} 个
           </view>
@@ -1403,37 +1405,6 @@ onUnmounted(() => {
 
 .legend-stale {
   color: #9ca3af;
-}
-
-/* 复用项目里通用的 drift-row（如果全局已有则会被覆盖） */
-.drift-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-gap-md);
-  padding: 6rpx 0;
-  font-size: var(--font-caption);
-}
-.drift-rank {
-  display: inline-block;
-  width: 28rpx;
-  text-align: center;
-  font-weight: var(--font-weight-semibold);
-  color: var(--muted, var(--color-muted));
-}
-.drift-city {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.drift-value {
-  font-variant-numeric: tabular-nums;
-}
-.drift-up {
-  color: var(--color-primary-strong);
-}
-.drift-down {
-  color: var(--color-danger);
 }
 
 .form-item {

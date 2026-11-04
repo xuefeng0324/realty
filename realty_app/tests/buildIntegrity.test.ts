@@ -1900,11 +1900,11 @@ describe("build integrity", () => {
       expect(content).toMatch(/minidim-fill-red/);
     });
 
-    it("community.vue 5 维小区指标卡 (CM_DEFS + cmBand + 5 列 grid)", () => {
+    it("community.vue 5 维小区指标卡 (CM_DEFS + cmBand + 纵向列表)", () => {
       const content = readFileSync(resolve(ROOT, "src/pages/community/community.vue"), "utf8");
       expect(content).toMatch(/5 维小区指标/);
       expect(content).toMatch(/CM_DEFS/);
-      expect(content).toMatch(/cm-grid/);
+      expect(content).toMatch(/cm-list/);
       expect(content).toMatch(/cmBand/);
       expect(content).toMatch(/cmScore/);
       expect(content).toMatch(/getLifeConvenienceByCommunity/);
@@ -3033,7 +3033,7 @@ describe("build integrity", () => {
 
     it("listing-detail.vue: 同小区其他挂牌卡 + goListing + sibling-row tap-row", () => {
       const f = readFileSync(resolve(ROOT, "src/pages/listing-detail/listing-detail.vue"), "utf8");
-      expect(f).toMatch(/class="card-title">🔁 同小区其他挂牌/);
+      expect(f).toMatch(/class="card-title">同小区其他挂牌/);
       expect(f).toMatch(/sameCommunityListings/);
       expect(f).toMatch(/v-for="l in sameCommunityListings"/);
       expect(f).toMatch(/class="sibling-row tap-row"/);
@@ -3083,7 +3083,7 @@ describe("build integrity", () => {
 
     it("community.vue: 同区其他小区卡 + sibling-row tap-row + goCommunity", () => {
       const f = readFileSync(resolve(ROOT, "src/pages/community/community.vue"), "utf8");
-      expect(f).toMatch(/class="card-title">🏘️ 同区其他小区/);
+      expect(f).toMatch(/class="card-title">同区其他小区/);
       expect(f).toMatch(/sameDistrictCommunities/);
       expect(f).toMatch(/v-for="c in sameDistrictCommunities"/);
       expect(f).toMatch(/class="sibling-row tap-row"/);

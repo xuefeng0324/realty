@@ -96,8 +96,7 @@
       <view class="card">
         <view class="card-title">外观</view>
         <view class="muted">
-          浅色 / 深色 / 跟随系统。对齐 uni-app 官方 DarkMode：原生导航栏与 TabBar 随主题切换；页面内容走 CSS 变量。
-          详见 docs/THEME_ACCEPTANCE.md。
+          跟随系统会随手机的浅色 / 深色设置自动切换；也可以固定为浅色或深色，仅影响本机显示。
         </view>
         <view class="theme-options" style="margin-top: var(--space-3)">
           <button
@@ -131,11 +130,11 @@
           70城指数：{{ stats70FreshnessLine }}
         </view>
         <text class="muted muted-micro" style="margin-top: 4rpx; word-break: break-all; white-space: normal; display: block">
-          REAL 为公开页解析的真实挂牌；DERIVED 为分析样本，不代表逐套成交。见 HOUSING_PRICE Phase C/D。
+          真实挂牌来自公开页面的解析结果；派生样本用于分析，不代表逐套成交。
         </text>
 
         <view class="row-gap" style="margin-top: var(--space-3)">
-          <button class="btn" size="mini" @click="resetToSeed">重置为内置快照</button>
+          <button class="btn btn-ghost" size="mini" @click="resetToSeed">重置为内置快照</button>
         </view>
       </view>
 
@@ -158,7 +157,7 @@
           </button>
         </view>
         <text class="muted muted-caption" style="margin-top: var(--space-2)">
-          一次更新房源与全部衍生指标，避免新房源混用旧榜单。数据来自 GitHub Actions → CDN。
+          一次更新房源与全部衍生指标，避免新房源混用旧榜单。数据由每日构建任务自动同步。
         </text>
       </view>
 
@@ -200,21 +199,21 @@
           </button>
         </view>
         <text class="muted muted-caption" style="margin-top: var(--space-2)">
-          数据源：GitHub Actions 工作日抓 zjj.sz.gov.cn → jsDelivr CDN → 本 app
+          工作日自动从深圳市住建局官网抓取，经 CDN 同步到本机。
         </text>
       </view>
 
       <view v-if="errorMsg" class="error">{{ errorMsg }}</view>
-      <view v-if="infoMsg" class="card muted">{{ infoMsg }}      </view>
+      <view v-if="infoMsg" class="card muted">{{ infoMsg }}</view>
 
       <!-- 首页与分析（对照大厂：次要能力进设置，不堆首屏） -->
       <view class="card" data-settings-home-ia>
         <view class="card-title">首页与分析</view>
         <view class="muted muted-caption">
-          卡片管理、深度分析、精简模式已从总览首屏迁出。频道「工具 / 供需」仍可直达。
+          在这里管理首页卡片、深度分析与精简模式；频道「工具 / 供需」也可直达。
         </view>
         <view class="row-gap" style="margin-top: var(--space-3)">
-          <button class="btn" size="mini" data-settings-go-data-tools @click="goDataTools">
+          <button class="btn btn-ghost" size="mini" data-settings-go-data-tools @click="goDataTools">
             首页卡片管理
           </button>
           <button class="btn btn-ghost" size="mini" data-settings-go-trend @click="goTrendAnalysis">
@@ -235,7 +234,7 @@
           </button>
         </view>
         <text class="muted muted-caption" style="margin-top: var(--space-2); display: block">
-          精简模式影响总览信息流卡数量；切换后回总览立即生效。
+          精简模式会减少首页卡片数量，切换后回首页立即生效。
         </text>
       </view>
 

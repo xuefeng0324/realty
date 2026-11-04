@@ -1,12 +1,8 @@
 <template>
   <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="header">
-      <view class="title">🗺️ 行政区 + 社区 marker 地图</view>
       <view class="muted">
-        {{ districtMap?.cityName ?? "—" }} · 5 种模式聚合 + 行政区 polygon + 社区 marker
-      </view>
-      <view class="muted muted-caption" style="margin-top: 4rpx">
-        v1.121.153 Batch 14 · marker / count / price / school / metro 模式
+        {{ districtMap?.cityName ?? "—" }} · 社区点位与行政区汇总，可切换查看数量、单价、学校与地铁覆盖。
       </view>
     </view>
 
@@ -23,115 +19,101 @@
           :class="['map-mode-tab', { 'map-mode-tab--active': mapMode === m.key }]"
           @click="mapMode = m.key"
         >
-          <text class="map-mode-icon">{{ m.icon }}</text>
           <text class="map-mode-label">{{ m.label }}</text>
         </view>
       </view>
       <view v-if="mapMode !== 'marker'" class="map-legend">
-        <text class="map-legend-title">{{ mapModeTitle }}:</text>
+        <text class="map-legend-title">{{ mapModeTitle }}</text>
         <view class="map-legend-bar" :style="{ background: mapModeGradient }"></view>
         <text class="map-legend-min">{{ mapModeMin }}</text>
-        <text class="map-legend-max">{{ mapModeMax }}</text>
+        <text class="map-legend-max">~ {{ mapModeMax }}</text>
       </view>
     </view>
 
     <!-- 大图 -->
     <view v-if="districtMap && districtMap.districts.length > 0" class="card map-card-full">
-      <svg
-        :viewBox="`0 0 ${MAP_W} ${MAP_H}`"
-        class="map-svg-full"
-        xmlns="http://www.w3.org/2000/svg"
-        preserveAspectRatio="xMidYMid meet"
-      >
-        <g class="map-districts">
-          <path
-            v-for="d in districtMap.districts"
-            :key="'d_' + d.districtCode"
-            :d="districtAllPath(d.polygons, districtMap.bbox.minLng, districtMap.bbox.maxLng, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
-            :class="['map-district-p', { 'map-district-p--mode': mapMode !== 'marker' }]"
-            :data-name="d.districtName"
-            :fill="districtFill(d.districtName)"
-            fill-rule="evenodd"
-          />
-          <text
-            v-for="d in districtMap.districts"
-            :key="'lbl_' + d.districtCode"
-            :x="mapX(d.centerLng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
-            :y="mapY(d.centerLat, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
-            text-anchor="middle"
-            dominant-baseline="middle"
-            class="map-district-lbl"
-          >{{ d.districtName }}</text>
-        </g>
-        <g v-if="mapMode === 'marker' && districtMap.markers.length <= 30">
-          <g
-            v-for="m in districtMap.markers"
-            :key="'m_' + m.communityId"
-            class="map-marker-g tap-row"
-            role="button"
-            tabindex="0"
-            :aria-label="`打开小区：${m.communityName}`"
-            @click="goCommunity(m.communityId)"
-            @keyup.enter="goCommunity(m.communityId)"
-          >
-            <circle
-              :cx="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
-              :cy="mapY(m.lat, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
-              r="32"
-              class="map-marker-hit"
+      <view class="map-canvas">
+        <svg
+          :viewBox="`0 0 ${MAP_W} ${MAP_H}`"
+          class="map-svg-full"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMid meet"
+        >
+          <g class="map-districts">
+            <path
+              v-for="d in districtMap.districts"
+              :key="'d_' + d.districtCode"
+              :d="districtAllPath(d.polygons, districtMap.bbox.minLng, districtMap.bbox.maxLng, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
+              :class="['map-district-p', { 'map-district-p--mode': mapMode !== 'marker' }]"
+              :data-name="d.districtName"
+              :style="{ fill: districtFill(d.districtName) }"
+              fill-rule="evenodd"
             />
-            <circle
-              :cx="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
-              :cy="mapY(m.lat, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
-              r="6"
-              class="map-marker"
-            />
-            <text
-              :x="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng) + 8"
-              :y="mapY(m.lat, districtMap.bbox.minLat, districtMap.bbox.maxLat) + 4"
-              class="map-marker-lbl"
-            >{{ m.communityName }}</text>
           </g>
-        </g>
-        <g v-else-if="mapMode === 'marker'">
-          <g
-            v-for="m in districtMap.markers"
-            :key="'mb_' + m.communityId"
-            class="map-marker-g tap-row"
-            :data-community-id="m.communityId"
-            :data-name="m.communityName"
-            role="button"
-            tabindex="0"
-            :aria-label="`打开小区：${m.communityName}`"
-            @click="goCommunity(m.communityId)"
-            @keyup.enter="goCommunity(m.communityId)"
-          >
-            <circle
-              :cx="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
-              :cy="mapY(m.lat, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
-              r="32"
-              class="map-marker-hit"
-            />
-            <circle
-              :cx="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
-              :cy="mapY(m.lat, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
-              r="3"
-              class="map-marker-bare"
-            ><title>{{ m.communityName }}</title></circle>
+          <g v-if="mapMode === 'marker' && districtMap.markers.length <= 30">
+            <g
+              v-for="m in districtMap.markers"
+              :key="'m_' + m.communityId"
+              class="map-marker-g tap-row"
+              role="button"
+              tabindex="0"
+              :aria-label="`打开小区：${m.communityName}`"
+              @click="goCommunity(m.communityId)"
+              @keyup.enter="goCommunity(m.communityId)"
+            >
+              <circle
+                :cx="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
+                :cy="mapY(m.lat, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
+                r="32"
+                class="map-marker-hit"
+              />
+              <circle
+                :cx="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
+                :cy="mapY(m.lat, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
+                r="6"
+                class="map-marker"
+              />
+            </g>
           </g>
-        </g>
-        <g v-else>
+          <g v-else-if="mapMode === 'marker'">
+            <g
+              v-for="m in districtMap.markers"
+              :key="'mb_' + m.communityId"
+              class="map-marker-g tap-row"
+              :data-community-id="m.communityId"
+              :data-name="m.communityName"
+              role="button"
+              tabindex="0"
+              :aria-label="`打开小区：${m.communityName}`"
+              @click="goCommunity(m.communityId)"
+              @keyup.enter="goCommunity(m.communityId)"
+            >
+              <circle
+                :cx="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
+                :cy="mapY(m.lat, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
+                r="32"
+                class="map-marker-hit"
+              />
+              <circle
+                :cx="mapX(m.lng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
+                :cy="mapY(m.lat, districtMap.bbox.minLat, districtMap.bbox.maxLat)"
+                r="3"
+                class="map-marker-bare"
+              />
+            </g>
+          </g>
+        </svg>
+
+        <!-- SVG 内 <text> 会被 uni-app 编译成 uni-text 而不可见，改用 HTML 叠层定位 -->
+        <view class="map-labels" aria-hidden="true">
           <text
-            v-for="d in districtMap.districts"
-            :key="'v_' + d.districtCode"
-            :x="mapX(d.centerLng, districtMap.bbox.minLng, districtMap.bbox.maxLng)"
-            :y="mapY(d.centerLat, districtMap.bbox.minLat, districtMap.bbox.maxLat) + 22"
-            text-anchor="middle"
-            dominant-baseline="middle"
-            class="map-district-val"
-          >{{ districtStatLabel(d.districtName) }}</text>
-        </g>
-      </svg>
+            v-for="p in districtLabels"
+            :key="'lbl_' + p.code"
+            class="map-lbl map-district-lbl"
+            :style="{ left: p.left, top: p.top }"
+          >{{ p.name }}</text>
+        </view>
+      </view>
     </view>
 
     <!-- 行政区数据明细列表 -->
@@ -143,12 +125,13 @@
         class="map-district-row"
       >
         <view class="map-district-name">{{ d.districtName }}</view>
-        <view class="map-district-vals">
-          <text class="map-stat">count: {{ mapStatVal(d.districtName, "count") }}</text>
-          <text class="map-stat">price: {{ mapStatVal(d.districtName, "avgPrice") }}</text>
-          <text class="map-stat">school: {{ mapStatVal(d.districtName, "avgSchool") }}</text>
-          <text class="map-stat">metro: {{ mapStatVal(d.districtName, "avgMetroMin") }}</text>
+        <view v-if="hasDistrictStats(d.districtName)" class="map-district-vals">
+          <text class="map-stat">数量 {{ mapStatVal(d.districtName, "count") }}</text>
+          <text class="map-stat">单价 {{ mapStatVal(d.districtName, "avgPrice") }}</text>
+          <text class="map-stat">学校 {{ mapStatVal(d.districtName, "avgSchool") }}</text>
+          <text class="map-stat">地铁 {{ mapStatVal(d.districtName, "avgMetroMin") }}</text>
         </view>
+        <text v-else class="map-stat map-stat--empty">暂无样本</text>
       </view>
     </view>
 
@@ -164,7 +147,7 @@
 
     <view class="footer">
       <button class="back-btn" size="mini" hover-class="tap-row--active" @click.stop="goBack">← 返回首页</button>
-      <button class="reload-btn" size="mini" hover-class="tap-row--active" @click.stop="onReload" :disabled="mapLoading">🔄 重新加载</button>
+      <button class="reload-btn" size="mini" hover-class="tap-row--active" @click.stop="onReload" :disabled="mapLoading">重新加载</button>
     </view>
   </view>
 </template>
@@ -181,12 +164,12 @@ type MapModeKey = "marker" | "count" | "price" | "school" | "metro";
 const MAP_W = 660;
 const MAP_H = 480;
 
-const MAP_MODES: { key: MapModeKey; icon: string; label: string }[] = [
-  { key: "marker", icon: "📍", label: "marker" },
-  { key: "count", icon: "🔢", label: "count" },
-  { key: "price", icon: "💰", label: "price" },
-  { key: "school", icon: "🏫", label: "school" },
-  { key: "metro", icon: "🚇", label: "metro" }
+const MAP_MODES: { key: MapModeKey; label: string }[] = [
+  { key: "marker", label: "小区" },
+  { key: "count", label: "数量" },
+  { key: "price", label: "单价" },
+  { key: "school", label: "学校" },
+  { key: "metro", label: "地铁" }
 ];
 
 const app = useAppStore();
@@ -229,6 +212,38 @@ function mapY(lat: number, minLat: number, maxLat: number): number {
   if (maxLat === minLat) return MAP_H / 2;
   return ((lat - minLat) / (maxLat - minLat)) * MAP_H;
 }
+
+function districtShortName(name: string): string {
+  return name.replace(/区$/, "");
+}
+
+const districtLabels = computed<Array<{ code: string; name: string; left: string; top: string }>>(() => {
+  const dm = districtMap.value;
+  if (!dm) return [];
+  const items = dm.districts.map((d) => {
+    const x = (mapX(d.centerLng, dm.bbox.minLng, dm.bbox.maxLng) / MAP_W) * 100;
+    const y = (mapY(d.centerLat, dm.bbox.minLat, dm.bbox.maxLat) / MAP_H) * 100;
+    return { code: d.districtCode, name: districtShortName(d.districtName), x, y };
+  });
+  items.sort((a, b) => a.x - b.x || a.y - b.y);
+  const placed: typeof items = [];
+  for (const it of items) {
+    let y = Math.min(94, Math.max(6, it.y));
+    // 中心城区标签容易叠在一起，按横向/纵向间距自动错开
+    for (let guard = 0; guard < 8; guard += 1) {
+      const hit = placed.some((p) => Math.abs(p.x - it.x) < 8 && Math.abs(p.y - y) < 5.5);
+      if (!hit) break;
+      y = y + 7 <= 94 ? y + 7 : y - 14;
+    }
+    placed.push({ ...it, y });
+  }
+  return placed.map((p) => ({
+    code: p.code,
+    name: p.name,
+    left: p.x.toFixed(2) + "%",
+    top: p.y.toFixed(2) + "%"
+  }));
+});
 
 function districtAllPath(
   districtPolygons: Array<Array<[number, number]>>,
@@ -297,19 +312,9 @@ function mapStatVal(name: string, field: "count" | "avgPrice" | "avgSchool" | "a
   const v = s[field];
   if (field === "count") return String(v);
   if (v === 0) return "—";
+  if (field === "avgPrice") return `${(v / 10000).toFixed(1)}万`;
+  if (field === "avgMetroMin") return `${v.toFixed(0)}分`;
   return v.toFixed(0);
-}
-
-function districtStatLabel(name: string): string {
-  const s = mapDistrictStats.value[name];
-  if (!s) return "—";
-  switch (mapMode.value) {
-    case "count": return String(s.count);
-    case "price": return s.avgPrice > 0 ? Math.round(s.avgPrice / 1000) + "k" : "—";
-    case "school": return s.avgSchool > 0 ? s.avgSchool.toFixed(0) : "—";
-    case "metro": return s.avgMetroMin > 0 ? Math.round(s.avgMetroMin) + "m" : "—";
-    default: return "—";
-  }
 }
 
 const mapStatRange = computed<{ min: number; max: number }>(() => {
@@ -326,45 +331,53 @@ const mapStatRange = computed<{ min: number; max: number }>(() => {
   return { min: Math.min(...vals), max: Math.max(...vals) };
 });
 
-function districtFill(name: string): string {
-  if (mapMode.value === "marker") return "#f1f5f9";
+function hasDistrictStats(name: string): boolean {
   const s = mapDistrictStats.value[name];
-  if (!s) return "#f1f5f9";
+  return !!(s && s.count > 0);
+}
+
+function districtFill(name: string): string {
+  if (mapMode.value === "marker") return "var(--color-surface-raised)";
+  const s = mapDistrictStats.value[name];
+  if (!s || s.count === 0) return "var(--color-surface-raised)";
   const r = mapStatRange.value;
   let v = 0;
   if (mapMode.value === "count") v = s.count;
   else if (mapMode.value === "price") v = s.avgPrice;
   else if (mapMode.value === "school") v = s.avgSchool;
   else if (mapMode.value === "metro") v = s.avgMetroMin;
-  if (r.max === r.min) return "#94a3b8";
+  if (r.max === r.min) return "hsl(214, 80%, 60%)";
   const ratio = (v - r.min) / (r.max - r.min);
-  // 0..1 → 蓝→红
-  const hue = 220 - 220 * ratio;
-  return `hsl(${hue}, 70%, 55%)`;
+  // 蓝色单色阶：浅（低）→ 深（高）
+  return `hsl(214, 88%, ${92 - 52 * ratio}%)`;
 }
 
 const mapModeTitle = computed(() => {
   switch (mapMode.value) {
     case "count": return "挂牌数";
-    case "price": return "均价(元/㎡)";
+    case "price": return "均价（元/㎡）";
     case "school": return "学区评分";
-    case "metro": return "地铁平均时长";
+    case "metro": return "地铁（分钟）";
     default: return "";
   }
 });
 
+function mapLegendValue(v: number): string {
+  return mapMode.value === "price" ? `${(v / 10000).toFixed(1)}万` : Math.round(v).toString();
+}
+
 const mapModeMin = computed(() => {
   if (!mapStatRange.value) return "";
-  return Math.round(mapStatRange.value.min).toString();
+  return mapLegendValue(mapStatRange.value.min);
 });
 
 const mapModeMax = computed(() => {
   if (!mapStatRange.value) return "";
-  return Math.round(mapStatRange.value.max).toString();
+  return mapLegendValue(mapStatRange.value.max);
 });
 
 const mapModeGradient = computed(() => {
-  return "linear-gradient(to right, hsl(220, 70%, 55%), hsl(0, 70%, 55%))";
+  return "linear-gradient(to right, hsl(214, 88%, 92%), hsl(214, 88%, 40%))";
 });
 
 onMounted(async () => {
@@ -402,19 +415,22 @@ watch(
   flex-wrap: wrap;
 }
 .map-mode-tab {
+  display: flex;
   flex: 1;
+  align-items: center;
+  justify-content: center;
   min-width: 100rpx;
-  text-align: center;
+  min-height: 64rpx;
   padding: var(--space-2) var(--space-1);
   background: var(--color-soft);
   border-radius: var(--radius-md2);
+  text-align: center;
 }
 .map-mode-tab--active {
   background: var(--color-primary);
   color: #fff;
 }
-.map-mode-icon { display: block; font-size: 32rpx; }
-.map-mode-label { display: block; font-size: var(--font-caption); }
+.map-mode-label { font-size: var(--font-caption); }
 
 .map-legend { margin-top: var(--space-2); display: flex; align-items: center; gap: var(--space-1); font-size: var(--font-caption); }
 .map-legend-title { color: var(--color-text); font-weight: var(--font-weight-semibold); }
@@ -422,23 +438,46 @@ watch(
 .map-legend-min, .map-legend-max { color: var(--color-muted); }
 
 .map-card-full { padding: var(--space-2); }
-.map-svg-full {
+.map-canvas {
+  position: relative;
   width: 100%;
-  height: 600rpx;
+  padding-top: 72.73%;
+}
+.map-svg-full {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: var(--color-soft);
   border-radius: var(--radius-md2);
 }
+.map-labels {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
+}
+.map-lbl {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  color: var(--color-text-secondary);
+  font-size: 24rpx;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-shadow: 0 0 3rpx var(--color-surface), 0 0 6rpx var(--color-surface);
+}
 
 .map-districts { cursor: pointer; }
-.map-district-p { stroke: #fff; stroke-width: 1; fill: #f1f5f9; transition: fill 0.2s; }
-.map-district-p--mode { stroke: #fff; stroke-width: 1.5; }
-.map-district-lbl { font-size: 14px; fill: var(--color-text-secondary); pointer-events: none; font-weight: var(--font-weight-semibold); }
-.map-district-val { font-size: 12px; fill: #1e293b; font-weight: var(--font-weight-bold); pointer-events: none; }
+.map-district-p { stroke: var(--color-border); stroke-width: 1.5; fill: var(--color-panel-soft); transition: fill 0.2s; }
+.map-district-p--mode { stroke: var(--color-surface); stroke-width: 1.5; }
+.map-district-lbl { color: var(--color-heading); font-size: 22rpx; font-weight: var(--font-weight-semibold); }
 
-.map-marker { fill: #4f46e5; stroke: #fff; stroke-width: 1.5; }
+.map-marker { fill: #3b82f6; stroke: var(--color-surface); stroke-width: 1.5; }
 .map-marker-hit { fill: transparent; pointer-events: all; }
-.map-marker-lbl { font-size: 12px; fill: #4f46e5; font-weight: var(--font-weight-medium); }
-.map-marker-bare { fill: #4f46e5; cursor: pointer; }
+.map-marker-bare { fill: #3b82f6; cursor: pointer; }
 .map-marker-g:hover .map-marker { fill: var(--color-danger); }
 
 .map-district-row {
@@ -451,6 +490,28 @@ watch(
   border-radius: var(--radius-sm2);
 }
 .map-district-name { font-size: 26rpx; font-weight: var(--font-weight-semibold); color: var(--color-text); }
-.map-district-vals { display: flex; gap: var(--space-2); font-size: var(--font-micro); color: var(--color-muted); }
-.map-stat { background: var(--color-surface); padding: 4rpx var(--space-1); border-radius: var(--radius-xs); }
+.map-district-vals {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-gap-xs);
+  margin-left: var(--space-2);
+  color: var(--color-muted);
+  font-size: var(--font-micro);
+  font-variant-numeric: tabular-nums;
+}
+.map-stat {
+  overflow: hidden;
+  padding: 0;
+  background: transparent;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.map-stat--empty {
+  flex: 1;
+  margin-left: var(--space-2);
+  color: var(--color-muted);
+  text-align: right;
+}
 </style>

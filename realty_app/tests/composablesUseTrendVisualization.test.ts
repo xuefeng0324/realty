@@ -137,9 +137,9 @@ describe("composables/useTrendVisualization", () => {
       expect(result.filter((r) => r.cohort === "value")).toHaveLength(2);
       expect(result.filter((r) => r.cohort === "mid")).toHaveLength(2);
       expect(result.filter((r) => r.cohort === "premium")).toHaveLength(2);
-      // y 是 10w * 10000 = 元
-      expect(result[0].y).toBe(800 * 10000);
-      expect(result[4].y).toBe(1500 * 10000);
+      // y 与 scatter.yMin/yMax 同单位（10w / 万），保证散点纵轴归一化正确
+      expect(result[0].y).toBe(800);
+      expect(result[4].y).toBe(1500);
     });
 
     it("x 直接是 medianUnitPrice 数值", () => {

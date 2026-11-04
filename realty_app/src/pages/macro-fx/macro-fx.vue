@@ -31,7 +31,7 @@
           />
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
-          亿美元 · 月末数 · 不含黄金/SDR/IMF 储备头寸；≠房价/挂牌/网签/70城。
+          亿美元 · 月末数 · 不含黄金/SDR/IMF 储备头寸；与房价无直接关系。
         </view>
       </view>
 
@@ -85,7 +85,7 @@
           />
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
-          亿美元 · 月末数 · 含外储 + 黄金 + SDR + IMF 储备头寸 + 其他；≠房价/挂牌/网签/70城。
+          亿美元 · 月末数 · 含外储 + 黄金 + SDR + IMF 储备头寸 + 其他；与房价无直接关系。
         </view>
       </view>
 
@@ -124,7 +124,7 @@
           />
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
-          日度 · 人民币 / 美元 中间价 + 100 外币兑人民币；≠房价/挂牌/网签/70城。
+          日度 · 人民币 / 美元 中间价 + 100 外币兑人民币；与房价无直接关系。
         </view>
       </view>
 
@@ -158,7 +158,7 @@
           />
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
-          万亿元（CFETS 月报口径）；≠房价/挂牌/网签/70城。
+          万亿元（CFETS 月报口径）；与房价无直接关系。
         </view>
       </view>
 
@@ -197,7 +197,7 @@
           />
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
-          亿美元 · 月度 · 银行代客结售汇 + 涉外收付款；≠房价/挂牌/网签/70城。
+          亿美元 · 月度 · 银行代客结售汇 + 涉外收付款；与房价无直接关系。
         </view>
       </view>
 
@@ -251,7 +251,7 @@
           />
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
-          亿美元 · 季度 · BOP 表；≠房价/挂牌/网签/70城。
+          亿美元 · 季度 · BOP 表；与房价无直接关系。
         </view>
       </view>
 
@@ -305,7 +305,7 @@
           />
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
-          亿美元 · 期末数 · IIP；≠房价/挂牌/网签/70城。
+          亿美元 · 期末数 · IIP；与房价无直接关系。
         </view>
       </view>
 
@@ -415,7 +415,7 @@
           />
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
-          万亿元 · 月度 · 社融存量同比反映宏观杠杆；M2/M1 反映货币活化度；≠房价/挂牌/网签/70城。
+          万亿元 · 月度 · 社融存量同比反映宏观杠杆；M2/M1 反映货币活化度；与房价无直接关系。
         </view>
       </view>
 
@@ -459,7 +459,7 @@
           />
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
-          亿元 · 月度 · 省级社融增量对照；广东长期居首；≠房价/挂牌/网签/70城。
+          亿元 · 月度 · 省级社融增量对照；广东长期居首；与房价无直接关系。
         </view>
       </view>
     </view>

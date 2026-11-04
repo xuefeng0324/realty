@@ -155,6 +155,252 @@ textarea {
   font-size: var(--font-body-sm);
 }
 
+/* ===== 数据展示：指标格 / 排名行（跨页面共享） =====
+ * 这些类名原先只在 dashboard / listing-filter 的 scoped 样式里定义，
+ * 其他页面复用同一套 markup 时完全没有样式（数字与名称粘连、格子堆叠）。
+ * 统一放在全局，避免同一份数据卡在各页长得不一样。
+ */
+.stats70-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+/* 恰好 3 个指标时用三列，避免第三个格子独占半行 */
+.stats70-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.stats70-cell {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--space-gap-sm);
+  padding: var(--space-3) 20rpx;
+  border: 1rpx solid var(--color-border-soft);
+  border-radius: var(--radius-md2);
+  background: var(--color-panel-soft);
+}
+
+.cell-label {
+  color: var(--color-muted);
+  font-size: var(--font-body-sm);
+}
+
+.cell-value {
+  color: var(--color-heading);
+  font-size: var(--font-title-md);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.cell-sub {
+  color: var(--color-muted);
+  font-size: var(--font-caption);
+}
+
+.stats70-up {
+  color: var(--color-trend-up) !important;
+}
+
+.stats70-down {
+  color: var(--color-trend-down) !important;
+}
+
+.stats70-flat {
+  color: var(--color-muted) !important;
+}
+
+/* 排名行：drift-row 系列（数据工具 / 学校 / 70 城派生榜） */
+.drift-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-gap-md);
+  padding: var(--space-gap-sm) 0;
+  font-size: var(--font-caption);
+}
+
+.drift-rank {
+  display: inline-block;
+  flex: none;
+  width: 32rpx;
+  color: var(--color-muted);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+}
+
+.drift-city {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drift-value {
+  flex: none;
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 正向 = 绿色（深色模式用亮绿，避免低对比） */
+.drift-up {
+  color: var(--color-trend-down);
+}
+
+.drift-down {
+  color: var(--color-trend-up);
+}
+
+.drift-unknown {
+  color: var(--color-trend-flat);
+}
+
+.trend-up {
+  color: var(--color-trend-up);
+}
+
+.trend-down {
+  color: var(--color-trend-down);
+}
+
+.trend-flat {
+  color: var(--color-trend-flat);
+}
+
+/* 数据月份 chip（dashboard / data-tools） */
+.mp-year-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.mp-year-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-gap-xs);
+  padding: 4rpx var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-soft);
+}
+
+.mp-year-y {
+  color: var(--color-heading);
+  font-size: var(--font-caption);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.mp-year-n {
+  color: var(--color-muted);
+  font-size: var(--font-micro);
+}
+
+/* 宏观页公共文本层级（macro-* 页复用 dashboard 的 markup） */
+.macro-kicker {
+  margin-bottom: var(--space-gap-sm);
+  color: var(--color-muted);
+  font-size: var(--font-micro);
+  letter-spacing: var(--letter-spacing-eyebrow);
+}
+
+.macro-note {
+  margin-top: 10rpx;
+  color: var(--color-muted);
+  font-size: var(--font-micro);
+  line-height: 1.45;
+}
+
+.macro-series {
+  margin-top: var(--space-1);
+  color: var(--color-muted);
+  font-size: var(--font-caption);
+  line-height: 1.5;
+}
+
+.macro-derived .rank-val {
+  font-size: var(--font-body-sm);
+}
+
+.macro-card .gz-inventory-toggle {
+  margin-top: var(--space-1);
+}
+
+/* 结论文本行（宏观摘要），dashboard 的 scoped 版本会覆盖自己那套 */
+.rank-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  border-bottom: 1rpx solid var(--color-border-soft);
+  font-size: var(--font-body-sm);
+}
+
+.rank-row:last-child {
+  border-bottom: 0;
+}
+
+.rank-val {
+  color: var(--color-heading);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* 学校榜单行（data-tools / community 复用） */
+.dim-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-gap-xs) 0;
+}
+
+.dim-rank {
+  flex: none;
+  width: 32rpx;
+  color: var(--color-muted);
+  font-size: var(--font-caption);
+  text-align: center;
+}
+
+.dim-mid {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 2rpx;
+}
+
+.dim-school {
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: var(--font-body-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dim-meta {
+  color: var(--color-muted);
+  font-size: var(--font-micro);
+}
+
+.dim-score {
+  flex: none;
+  color: var(--color-heading);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.tap-row--active {
+  background: var(--color-soft) !important;
+  opacity: 0.8;
+}
+
 .row {
   display: flex;
   align-items: center;

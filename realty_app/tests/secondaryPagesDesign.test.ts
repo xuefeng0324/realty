@@ -11,7 +11,7 @@ describe("secondary page design contracts", () => {
     expect(page).toContain("EDUCATION SEARCH");
     expect(page).toContain("result-count");
     expect(page).toContain("从学校名称开始查询");
-    expect(page).toContain("var(--color-surface-raised)");
+    expect(page).toContain("var(--color-soft)");
     expect(page).toContain("data-education-overview");
     expect(page).toContain("官方教育事业统计");
   });

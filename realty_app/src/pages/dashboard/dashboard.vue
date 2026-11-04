@@ -110,7 +110,7 @@
               @click="goListing(listing.listingId)"
             >
               <image v-if="listing.coverUrl" class="home-v122-cover" :src="listing.coverUrl" mode="aspectFill" lazy-load />
-              <view v-else class="home-v122-cover home-v122-cover--empty"><text>REALTY</text></view>
+              <view v-else class="home-v122-cover home-v122-cover--empty"><text>暂无实拍</text></view>
               <view class="home-v122-listing-main">
                 <view class="home-v122-listing-title">{{ listing.title }}</view>
                 <text class="home-v122-listing-meta">{{ homeListingCommunity(listing.communityId) }} · {{ listing.areaSqm ? `${listing.areaSqm}㎡` : "面积待补" }}</text>
@@ -1153,11 +1153,10 @@
         </view>
 
         <view class="muted muted-caption">
-          数据源：listings.csv (crawl_date) → scripts/compute_listing_freshness.py。<br>
-          公式：freshness = (近 4 周 × 1 + 近 2 周 × 2) ÷ 总数 × 100，min_listings=5。
+          按房源的最近刷新时间聚合；中位数越低越新鲜，活跃度越高说明近期上架越多。
         </view>
         <view v-if="freshnessCitySummary" class="lf-section-title">
-          本市聚合：均鲜 {{ freshnessCitySummary.avgFreshness.toFixed(0) }}
+          本市聚合：平均活跃度 {{ freshnessCitySummary.avgFreshness.toFixed(0) }}
           · 近4周占比 {{ (freshnessCitySummary.recent4wRate * 100).toFixed(0) }}%
           · 积压占比 {{ (freshnessCitySummary.staleRate * 100).toFixed(0) }}%
         </view>
@@ -5381,11 +5380,11 @@ onShow(async () => {
   pointer-events: none;
 }
 .home-v122-cover--empty {
-  color: rgba(255, 255, 255, 0.9);
-  background: linear-gradient(135deg, #14532d, #16a34a);
+  border: 1rpx solid var(--color-border-soft);
+  background: var(--color-panel-soft);
+  color: var(--color-muted);
   font-size: var(--font-micro);
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: var(--letter-spacing-eyebrow);
+  font-weight: var(--font-weight-medium);
 }
 .home-v122-listing-main {
   flex: 1;

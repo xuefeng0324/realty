@@ -70,6 +70,6 @@ describe("school.vue 重点校按城过滤", () => {
     expect(src).toContain("getSchoolDimensionPolymath(app.cityId");
     expect(src).not.toMatch(/getSchoolDimensionPolymath\(undefined/);
     expect(src).not.toMatch(/dimCitySummary\.reduce/);
-    expect(src).toContain("已按当前城市过滤");
+    expect(src).toContain("仅展示重点学校");
   });
 });

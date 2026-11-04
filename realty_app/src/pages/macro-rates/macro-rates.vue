@@ -28,7 +28,7 @@
           </view>
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
-          6 张主卡的关键利率最近 6 期序列 · 升 / 持平 / 降 · 红涨绿跌（人民币利率反向）；≠房价/挂牌/网签/70城。
+          最近 6 期关键利率；红 = 利率上行，绿 = 利率下行。仅反映利率走势，不代表房价。
         </view>
       </view>
 
@@ -70,17 +70,17 @@
             subClass="muted"
           />
           <MacroKpiCell
-            label="5y - 1y 利差"
+            label="5 年期 - 1 年期利差"
             :value="((lprLatest.lpr5y - lprLatest.lpr1y) * 100).toFixed(0) + ' bp'"
             subClass="muted"
           />
         </view>
-        <view v-if="lprStreak != null" class="rank-row macro-derived" style="margin-top: var(--space-2)">
-          <text class="muted muted-caption">最长未调息</text>
-          <text class="rank-val">{{ lprStreak.months }} 个月（{{ lprStreak.startMonth }} ~ {{ lprStreak.endMonth }}，lpr5y）</text>
+        <view v-if="lprStreak != null" style="margin-top: var(--space-2)">
+          <view class="muted muted-caption">5 年期 LPR 最长未调息</view>
+          <view class="lpr-streak-value">{{ lprStreak.months }} 个月（{{ lprStreak.startMonth }} ~ {{ lprStreak.endMonth }}）</view>
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
-          每月 20 日发布（遇节假日顺延）；≠房价/挂牌/网签/70城。
+          每月 20 日发布（遇节假日顺延）；仅反映贷款利率，不代表房价。
         </view>
       </view>
 
@@ -150,7 +150,7 @@
           />
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
-          日度 · 7 天期为主，亦含 14/28 天；≠房价/挂牌/网签/70城。
+          日度 · 7 天期为主，亦含 14/28 天；与房价无直接关系。
         </view>
       </view>
 
@@ -207,7 +207,7 @@
           />
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
-          日度 · 8 个关键期限；≠房价/挂牌/网签/70城。
+          日度 · 8 个关键期限；与房价无直接关系。
         </view>
       </view>
 
@@ -269,7 +269,7 @@
           />
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
-          日度 · 9 个关键期限 + 利差；≠房价/挂牌/网签/70城。
+          日度 · 9 个关键期限 + 利差；与房价无直接关系。
         </view>
       </view>
 
@@ -315,7 +315,7 @@
           />
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-2)">
-          日度 · FR（普通质押式回购）+ FDR（存款类机构质押式回购）；≠房价/挂牌/网签/70城。
+          日度 · FR（普通质押式回购）+ FDR（存款类机构质押式回购）；与房价无直接关系。
         </view>
       </view>
     </view>
@@ -500,7 +500,7 @@ const trendWindowLabel = computed(() => {
   const sorted = [...history].sort((a, b) => a.month.localeCompare(b.month));
   const newest = sorted[sorted.length - 1]?.month ?? "";
   const oldest = sorted[Math.max(0, sorted.length - TREND_WINDOW)]?.month ?? "";
-  return `${newest} ~ ${oldest}`;
+  return `${oldest} ~ ${newest}`;
 });
 
 const rateTrendRows = computed<RateTrendRow[]>(() => {
@@ -540,6 +540,13 @@ const rateTrendRows = computed<RateTrendRow[]>(() => {
 </script>
 
 <style scoped>
+.lpr-streak-value {
+  margin-top: 4rpx;
+  color: var(--color-heading);
+  font-size: var(--font-title-sm);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
 /* T-009 · 利率趋势聚合卡的紧凑网格 */
 .rate-trend-grid {
   display: flex;
@@ -548,7 +555,7 @@ const rateTrendRows = computed<RateTrendRow[]>(() => {
 }
 .rate-trend-row {
   display: grid;
-  grid-template-columns: minmax(72rpx, 100rpx) minmax(0, 1fr);
+  grid-template-columns: minmax(112rpx, 128rpx) minmax(0, 1fr);
   align-items: center;
   gap: var(--space-gap-xs) 8rpx;
   font-size: var(--font-caption);
@@ -556,7 +563,10 @@ const rateTrendRows = computed<RateTrendRow[]>(() => {
 }
 .rate-trend-label {
   min-width: 0;
-  color: var(--muted, #888);
+  color: var(--color-muted);
+  font-size: var(--font-micro);
+  line-height: 1.2;
+  word-break: keep-all;
 }
 .rate-trend-cells {
   min-width: 0;
@@ -575,12 +585,12 @@ const rateTrendRows = computed<RateTrendRow[]>(() => {
   white-space: nowrap;
 }
 .rate-trend-cell.rate-up {
-  color: #d23b3b;
-  background: rgba(210, 59, 59, 0.10);
+  color: var(--color-on-danger-soft);
+  background: var(--color-danger-soft);
 }
 .rate-trend-cell.rate-down {
-  color: #2f8a3a;
-  background: rgba(47, 138, 58, 0.10);
+  color: var(--color-on-success-soft);
+  background: var(--color-success-soft);
 }
 .rate-trend-band {
   grid-column: 2;
@@ -590,12 +600,12 @@ const rateTrendRows = computed<RateTrendRow[]>(() => {
   font-variant-numeric: tabular-nums;
 }
 .rate-trend-band.rate-up {
-  color: #d23b3b;
+  color: var(--color-trend-up);
 }
 .rate-trend-band.rate-down {
-  color: #2f8a3a;
+  color: var(--color-trend-down);
 }
 .rate-trend-band.rate-flat {
-  color: var(--muted, #888);
+  color: var(--color-muted);
 }
 </style>

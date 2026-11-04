@@ -4,10 +4,10 @@
       <!-- v0.54.0 detail-1: 顶部快捷导航 (返回 + 同区其他小区 + 小区详情) -->
       <view class="quicknav">
         <view class="qn-btn" @click="goBack">← 返回</view>
-        <view class="qn-btn" @click="goDashboard">📊 仪表盘</view>
-        <view class="qn-btn" @click="goCommunity">🏘️ 小区详情</view>
+        <view class="qn-btn" @click="goDashboard">仪表盘</view>
+        <view class="qn-btn" @click="goCommunity">小区详情</view>
         <view v-if="sameCommunityListings.length > 0" class="qn-btn qn-btn--primary" @click="scrollToSameCommunity">
-          🔁 同小区其他 ({{ sameCommunityListings.length }})
+          同小区其他 ({{ sameCommunityListings.length }})
         </view>
       </view>
 
@@ -29,8 +29,8 @@
           <text class="muted gallery-empty-desc">
             {{
               data.listing.source_url
-                ? "样本库暂无封面 URL；可点此处或底栏打开源站查看图集。"
-                : "样本库无封面 URL；有真图源后再接入轮播（对照贝壳详情首屏）。"
+                ? "暂无实景图；可点此处或底栏打开源站查看图集。"
+                : "暂无实景图"
             }}
           </text>
         </view>
@@ -61,7 +61,7 @@
         </view>
         <view class="meta-line muted" v-if="data.listing.listing_type || data.listing.crawl_date">
           <text v-if="data.listing.listing_type">类型 {{ data.listing.listing_type }}</text>
-          <text v-if="data.listing.crawl_date"> · 样本日 {{ data.listing.crawl_date }}</text>
+          <text v-if="data.listing.crawl_date"> · 数据日期 {{ data.listing.crawl_date }}</text>
         </view>
         <view class="community-chip tap-row" hover-class="tap-row--active" @click="goCommunity">
           <text class="community-chip-label">小区</text>
@@ -148,7 +148,7 @@
 
       <!-- v0.54.0 detail-1: 同小区其他挂牌 -->
       <view v-if="sameCommunityListings.length > 0" id="same-community-listings" class="card">
-        <view class="card-title">🔁 同小区其他挂牌 · {{ sameCommunityName }}</view>
+        <view class="card-title">同小区其他挂牌 · {{ sameCommunityName }}</view>
         <view class="muted muted-caption" style="margin-bottom: var(--space-1)">
           横向对比: 同小区共 {{ sameCommunityAll.length }} 套样本, 显示其他 {{ sameCommunityListings.length }} 套
           (已按单价降序；无价房源仍列出)
@@ -173,7 +173,7 @@
           </view>
         </view>
         <view class="muted muted-caption" style="margin-top: var(--space-1)">
-          💡 横向对比能更清楚看到不同户型 / 楼层 / 朝向的差价 — 通常同小区同户型差价在 ±5-10% 内属正常议价空间。
+          横向对比能更清楚看到不同户型 / 楼层 / 朝向的差价，通常同小区同户型差价在 ±5-10% 内属正常议价空间。
         </view>
       </view>
 
@@ -227,7 +227,6 @@
           class="poi-section"
         >
           <view class="poi-cat">
-            <text class="poi-cat-icon">{{ categoryIcon(grp.category) }}</text>
             <text class="poi-cat-name">{{ categoryLabel(grp.category) }}</text>
             <text class="muted">最近 {{ grp.nearest }}m</text>
           </view>
@@ -265,7 +264,7 @@
       <!-- 未来周边地铁 (v0.7.0+ metro_planning.csv：规划/在建线路) -->
       <view v-if="showMetroCard" class="card">
         <view class="card-title">
-          🚧 未来周边地铁（{{ metroPlanning.length }} 条规划/在建）
+          未来周边地铁（{{ metroPlanning.length }} 条规划/在建）
           <text v-if="nearestSubwayM != null" class="muted muted-caption">现有最近 {{ formatDistance(nearestSubwayM) }}</text>
         </view>
         <view
@@ -435,15 +434,6 @@ function categoryLabel(c: PoiCategory): string {
     hospital: "医院",
     mall: "商场",
     park: "公园"
-  } as const)[c];
-}
-function categoryIcon(c: PoiCategory): string {
-  return ({
-    subway: "🚇",
-    school: "🏫",
-    hospital: "🏥",
-    mall: "🛍",
-    park: "🌳"
   } as const)[c];
 }
 function formatDistance(m: number): string {
@@ -765,33 +755,38 @@ button.source-dock-ghost {
 }
 /* v0.54.0 detail-1: 顶部快捷导航 */
 .quicknav {
-  display: flex;
-  gap: var(--space-2);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-1);
   margin: var(--space-1) 0 var(--space-3);
-  flex-wrap: wrap;
 }
 .qn-btn {
-  flex: 1;
-  min-width: 140rpx;
-  padding: 14rpx 18rpx;
-  border-radius: var(--radius-sm);
-  background: var(--color-soft);
-  font-size: var(--font-body-sm);
-  color: var(--color-chip-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64rpx;
+  padding: 12rpx var(--space-2);
+  border: 1rpx solid var(--color-border-soft);
+  border-radius: var(--radius-sm2);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-caption);
   text-align: center;
   cursor: pointer;
   transition: background 0.15s;
 }
 .qn-btn:hover {
-  background: var(--color-soft-strong);
+  background: var(--color-soft);
 }
 .qn-btn--primary {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #fff;
+  border-color: transparent;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-contrast);
   font-weight: var(--font-weight-semibold);
 }
 .qn-btn--primary:hover {
-  filter: brightness(1.08);
+  background: var(--color-primary-soft);
+  filter: brightness(0.97);
 }
 
 /* 同小区其他在售 */
@@ -800,7 +795,7 @@ button.source-dock-ghost {
   align-items: center;
   gap: var(--space-2);
   padding: 14rpx var(--space-2);
-  border-bottom: 1rpx solid #f1f5f9;
+  border-bottom: 1rpx solid var(--color-border-soft);
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -882,7 +877,7 @@ button.source-dock-ghost {
 
 .dim-fill {
   height: 100%;
-  background: linear-gradient(90deg, #8b5cf6, #c084fc);
+  background: linear-gradient(90deg, #2563eb, #60a5fa);
   border-radius: var(--radius-sm2);
 }
 
@@ -902,9 +897,6 @@ button.source-dock-ghost {
   align-items: center;
   gap: var(--space-2);
   margin-bottom: var(--space-1);
-}
-.poi-cat-icon {
-  font-size: 28rpx;
 }
 .poi-cat-name {
   font-size: 28rpx;

@@ -43,7 +43,7 @@
           </view>
         </view>
         <view class="muted muted-caption" style="margin-top: 10rpx">
-          {{ zhBdcNew.sourceOrg }} · 登记量 ≠ 日更网签、≠ 挂牌均价。
+          {{ zhBdcNew.sourceOrg }} · 登记量不同于日更网签与挂牌均价。
         </view>
       </view>
 
@@ -72,7 +72,7 @@
           class="muted muted-caption"
           style="margin-top: var(--space-2)"
         >
-          其中非住宅二手约 {{ nonResidential }} 套（全部 − 住宅）。「住宅」来自走势页，「全部」来自分区公示。
+          其中非住宅二手约 {{ nonResidential }} 套（全部减去住宅）。
         </view>
       </view>
 
@@ -161,18 +161,18 @@
           <text class="wq-col-num" v-if="hasDistrictSecond">{{ district.districtSecondSum }}</text>
         </view>
         <view class="muted muted-micro" style="margin-top: var(--space-2)">
-          新房分区=住宅口径（合计=走势新房）；二手分区=全部口径（含非住宅）。分区接口仅当天。
+          新房按住宅口径统计，二手含非住宅；分区数据仅展示当日。
         </view>
       </view>
 
       <!-- 周趋势派生（wangqianTrendRanking） -->
       <view v-if="wqTrendReady" class="card">
-        <view class="card-title">区级周趋势（派生）· {{ cityName }}</view>
+        <view class="card-title">区级周成交趋势 · {{ cityName }}</view>
         <view v-if="wqCategoryTrend" class="muted muted-caption" style="margin-bottom: var(--space-1)">
-          全市 {{ wqCategoryTrend.category }}：近周 {{ wqCategoryTrend.latestUnits }} 套
-          · vs 前均 {{ wqCategoryTrend.recentAvg.toFixed(0) }}
+          全市 {{ wqCategoryTrend.category }}：本周 {{ wqCategoryTrend.latestUnits }} 套
+          · 前 4 周均值 {{ wqCategoryTrend.recentAvg.toFixed(0) }} 套
           <text :class="wqCategoryTrend.changePct >= 0 ? 'trend-up' : 'trend-down'">
-            {{ wqCategoryTrend.changePct >= 0 ? "+" : "" }}{{ formatWowPct(wqCategoryTrend.changePct) }}%
+            {{ wqCategoryTrend.changePct >= 0 ? "+" : "-" }}{{ formatWowPct(wqCategoryTrend.changePct) }}%
           </text>
         </view>
         <view v-if="wqWowUp.length" class="muted muted-caption" style="margin: var(--space-1) 0 4rpx">周环比上升 Top</view>
@@ -185,7 +185,7 @@
         <view v-for="(it, idx) in wqWowDown" :key="'wd-' + it.district" class="wq-table-row">
           <text class="wq-col-name">{{ idx + 1 }}. {{ it.district }}</text>
           <text class="wq-col-num">{{ it.prevUnits }}→{{ it.latestUnits }}</text>
-          <text class="wq-col-num trend-down">{{ formatWowPct(it.changePct) }}%</text>
+          <text class="wq-col-num trend-down">-{{ formatWowPct(it.changePct) }}%</text>
         </view>
         <view v-if="wqSpikes.length" class="muted muted-caption" style="margin: var(--space-1) 0 4rpx">近周突增</view>
         <view v-for="(it, idx) in wqSpikes" :key="'ws-' + it.district" class="wq-table-row">
@@ -200,7 +200,7 @@
           <text class="wq-col-num">CV {{ it.cv.toFixed(2) }}</text>
         </view>
         <view class="muted muted-micro" style="margin-top: var(--space-1)">
-          数据源：wangqian_district_weekly.csv → wangqianTrendRanking。口径默认二手。
+          按区周聚合的网签波动，口径默认二手。
         </view>
       </view>
 
@@ -294,17 +294,16 @@
         hover-class="card-active"
         @click="openPresale"
       >
-        深圳预售公示（楼盘表，需政务账号登录）›
+        深圳预售公示需政务账号登录，暂不在 App 内展示
       </view>
 
       <!-- 数据来源 -->
       <view class="card muted">
         <view style="margin-bottom: var(--space-1); color: var(--color-text-secondary)">关于口径</view>
-        <view>「住宅」= 走势页《房地产成交趋势》getFjzsInfoData，商品住房口径，可回溯 90 交易日。</view>
-        <view style="margin-top: 6rpx">「全部」= 分区/月度公示 getEsf/YsfCjxx*DataNew，含非住宅二手。</view>
+        <view>「住宅」为商品住房网签口径，可回溯 90 个交易日。</view>
+        <view style="margin-top: 6rpx">「全部」含商办等非住宅二手。</view>
         <view style="margin-top: 6rpx">
-          深圳二手两套口径同日常有差异（住宅 &lt; 全部），差额为非住宅（商办等）。数据文件
-          <text style="color: var(--color-primary-contrast)">/static/daily_wangqian.csv</text>。
+          深圳二手两套口径同日常有差异（住宅 &lt; 全部），差额即非住宅部分。
         </view>
       </view>
     </view>

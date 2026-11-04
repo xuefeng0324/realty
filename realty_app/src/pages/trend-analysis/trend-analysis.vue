@@ -1,23 +1,19 @@
 <template>
   <view class="page" :data-realty-theme="realtyTheme" :class="'realty-theme-' + realtyTheme">
     <view class="header">
-      <view class="title">深度可视化分析</view>
       <view class="muted">
-        {{ bedroomArea?.cityName ?? "—" }} · 户型×面积 · 朝向×楼层 · 装修×楼龄 · 总价×单价
+        {{ bedroomArea?.cityName ?? "—" }} · 户型与面积、朝向与楼层、装修与楼龄、总价与单价的组合分析
       </view>
       <view class="muted muted-caption" style="margin-top: 4rpx">
-        v1.121.149 · 联合分布 / 溢价矩阵 / 双轴散点 · minCount ≥ 3 过滤
-      </view>
-      <view class="muted muted-caption" style="margin-top: 4rpx">
-        全部数据本地缓存到 storage；切回首页仍然保留
+        样本不足 3 套的组合留空；数据缓存在本机，切回首页后仍然保留。
       </view>
     </view>
 
     <!-- v0.42.0 trend-22 户型 × 面积 联合热图 -->
     <view v-if="bedroomArea && bedroomArea.bedrooms.length > 0" class="card" data-card-key="trend-bedroom-area" data-ta-trend>
       <view class="row-between">
-        <view class="card-title">📐 户型 × 面积 分布 · {{ bedroomArea.cityName }}</view>
-        <view class="muted">minCount ≥ 3 · 共 {{ bedroomArea.totalCount }} 套</view>
+        <view class="card-title">户型 × 面积 分布 · {{ bedroomArea.cityName }}</view>
+        <view class="muted">样本 ≥ 3 套 · 共 {{ bedroomArea.totalCount }} 套</view>
       </view>
       <view class="ba-heatmap">
         <view class="ba-row ba-header">
@@ -47,15 +43,15 @@
         </view>
       </view>
       <view class="muted muted-caption" style="margin-top: var(--space-1)">
-        数据源：listings.csv (按户型+面积区间聚合)。颜色越深 = 数量越多。空白 = 样本不足 (0 套)。
+        按户型与面积区间聚合；颜色越深表示数量越多，空白表示样本不足。
       </view>
     </view>
 
     <!-- v0.43.0 trend-23 朝向 × 楼层 溢价矩阵 -->
     <view v-if="orientationFloor && orientationFloor.orientations.length > 0" class="card" data-card-key="trend-orientation-floor">
       <view class="row-between">
-        <view class="card-title">🧭 朝向 × 楼层 溢价 · {{ orientationFloor.cityName }}</view>
-        <view class="muted">minCount ≥ 5 · 共 {{ orientationFloor.totalCount }} 套</view>
+        <view class="card-title">朝向 × 楼层 溢价 · {{ orientationFloor.cityName }}</view>
+        <view class="muted">样本 ≥ 5 套 · 共 {{ orientationFloor.totalCount }} 套</view>
       </view>
       <view class="of-matrix">
         <view class="of-row of-header">
@@ -84,15 +80,15 @@
         </view>
       </view>
       <view class="muted muted-caption" style="margin-top: var(--space-1)">
-        数据源：listings.csv (按朝向+楼层聚合平均溢价)。绿 = 高于均价，红 = 低于均价。
+        按朝向 + 楼层聚合平均溢价；绿 = 高于均价，红 = 低于均价。
       </view>
     </view>
 
     <!-- v0.44.0 trend-24 装修 × 楼龄 溢价矩阵 -->
     <view v-if="decorateAge && decorateAge.decorates.length > 0" class="card" data-card-key="trend-decorate-age">
       <view class="row-between">
-        <view class="card-title">🛋️ 装修 × 楼龄 溢价 · {{ decorateAge.cityName }}</view>
-        <view class="muted">minCount ≥ 5 · 共 {{ decorateAge.totalCount }} 套</view>
+        <view class="card-title">装修 × 楼龄 溢价 · {{ decorateAge.cityName }}</view>
+        <view class="muted">样本 ≥ 5 套 · 共 {{ decorateAge.totalCount }} 套</view>
       </view>
       <view class="da-matrix">
         <view class="da-row da-header">
@@ -121,15 +117,15 @@
         </view>
       </view>
       <view class="muted muted-caption" style="margin-top: var(--space-1)">
-        数据源：listings.csv (按装修+楼龄段聚合平均溢价)。深绿 = 强溢价，深红 = 强折价。
+        按装修与楼龄段聚合平均溢价；绿 = 高于均价，红 = 低于均价。
       </view>
     </view>
 
     <!-- v0.45.0 trend-25 社区 总价 × 单价 双轴散点 -->
     <view v-if="scatter && scatter.points.length > 0" class="card" data-card-key="trend-scatter">
-      <view class="row-between">
-        <view class="card-title">💹 社区 总价 × 单价 散点 · {{ scatter.cityName }}</view>
-        <view class="muted">共 {{ scatter.points.length }} 社区 · 中位单价 {{ Math.round(scatter.cityMedianUnit).toLocaleString() }} 元/㎡</view>
+      <view class="card-title" style="margin-bottom: 0">社区总价 × 单价 散点 · {{ scatter.cityName }}</view>
+      <view class="muted muted-caption" style="margin-top: 4rpx">
+        共 {{ scatter.points.length }} 社区 · 中位单价 {{ Math.round(scatter.cityMedianUnit).toLocaleString() }} 元/㎡
       </view>
       <view class="scatter-summary">
         <view class="sc-kpi">
@@ -142,11 +138,23 @@
         </view>
         <view class="sc-kpi">
           <text class="sc-kpi-val">{{ localScatterCohort().length }}</text>
-          <text class="sc-kpi-label muted">完成 cohort 标记</text>
+          <text class="sc-kpi-label muted">已分层</text>
         </view>
       </view>
       <view class="scatter-svg-wrap">
         <view class="scatter-svg">
+          <view class="scatter-axis-lbl scatter-axis-lbl--y">总价 ↑</view>
+          <view class="scatter-axis-lbl scatter-axis-lbl--x">单价 →</view>
+          <view
+            v-if="scatter.yMax !== scatter.yMin"
+            class="scatter-guide scatter-guide--h"
+            :style="{ bottom: scatterY(scatter.cityMedianTotal) + '%' }"
+          ></view>
+          <view
+            v-if="scatter.xMax !== scatter.xMin"
+            class="scatter-guide scatter-guide--v"
+            :style="{ left: scatterX(scatter.cityMedianUnit) + '%' }"
+          ></view>
           <view
             v-for="(p, i) in localScatterCohort()"
             :key="i"
@@ -154,14 +162,14 @@
             :class="'scatter-dot--' + p.cohort"
             :data-sc-dot="i"
             :style="{
-              left: scatterX(p.x) + 'rpx',
-              bottom: scatterY(p.y) + 'rpx'
+              left: scatterX(p.x) + '%',
+              bottom: scatterY(p.y) + '%'
             }"
           ></view>
         </view>
       </view>
       <view class="muted muted-caption" style="margin-top: var(--space-1)">
-        数据源：listings.csv (按社区聚合均价 + 套均价)。横轴 = 单价，纵轴 = 总价，cohort = value(蓝)/mid(灰)/premium(橙)。
+        横轴为单价、纵轴为总价；蓝点 = 低单价，灰点 = 中等，橙点 = 高单价。
       </view>
     </view>
 
@@ -178,7 +186,7 @@
 
     <view class="footer">
       <button class="back-btn" size="mini" hover-class="tap-row--active" @click.stop="goBack">← 返回首页</button>
-      <button class="reload-btn" size="mini" hover-class="tap-row--active" @click.stop="onReload" :disabled="trendVizLoading">🔄 重新加载</button>
+      <button class="reload-btn" size="mini" hover-class="tap-row--active" @click.stop="onReload" :disabled="trendVizLoading">重新加载</button>
     </view>
   </view>
 </template>
@@ -325,15 +333,17 @@ function daCellLabelByIdx(di: number, ai: number): string {
 }
 
 function scatterX(price: number): number {
-  if (!scatter.value || scatter.value.points.length === 0) return 0;
+  if (!scatter.value || scatter.value.points.length === 0) return 50;
   if (scatter.value.xMax === scatter.value.xMin) return 50;
-  return ((price - scatter.value.xMin) / (scatter.value.xMax - scatter.value.xMin)) * 280;
+  const ratio = (price - scatter.value.xMin) / (scatter.value.xMax - scatter.value.xMin);
+  return 4 + ratio * 92;
 }
 
 function scatterY(price: number): number {
-  if (!scatter.value || scatter.value.points.length === 0) return 0;
-  if (scatter.value.yMax === scatter.value.yMin) return 30;
-  return ((price - scatter.value.yMin) / (scatter.value.yMax - scatter.value.yMin)) * 180;
+  if (!scatter.value || scatter.value.points.length === 0) return 50;
+  if (scatter.value.yMax === scatter.value.yMin) return 50;
+  const ratio = (price - scatter.value.yMin) / (scatter.value.yMax - scatter.value.yMin);
+  return 6 + ratio * 88;
 }
 
 function refreshScatterDip() {
@@ -417,11 +427,12 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 .ba-corner,
 .ba-row-label,
 .ba-col-label {
-  font-size: var(--font-caption);
-  padding: 4rpx;
-  text-align: center;
   flex: 0 0 90rpx;
+  padding: 4rpx;
   color: var(--color-muted);
+  font-size: var(--font-micro);
+  text-align: center;
+  white-space: nowrap;
 }
 .ba-cell {
   flex: 1 1 0;
@@ -434,9 +445,9 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   color: var(--color-text);
 }
 .ba-cell--empty { background: var(--color-soft); color: var(--color-muted); }
-.ba-cell--light { background: #e3f2fd; }
-.ba-cell--mid { background: #90caf9; color: #fff; }
-.ba-cell--deep { background: #1976d2; color: #fff; font-weight: var(--font-weight-semibold); }
+.ba-cell--light { background: #eff6ff; color: #0f172a; }
+.ba-cell--mid { background: #bfdbfe; color: #0f172a; }
+.ba-cell--deep { background: #1d4ed8; color: #fff; font-weight: var(--font-weight-semibold); }
 .ba-empty { color: var(--color-muted); }
 .ba-count { font-size: var(--font-body-sm); font-weight: var(--font-weight-semibold); }
 
@@ -459,11 +470,12 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 .da-corner,
 .da-row-label,
 .da-col-label {
-  font-size: var(--font-caption);
+  flex: 0 0 104rpx;
   padding: 4rpx;
-  text-align: center;
-  flex: 0 0 90rpx;
   color: var(--color-muted);
+  font-size: var(--font-micro);
+  text-align: center;
+  white-space: nowrap;
 }
 .of-cell,
 .da-cell {
@@ -477,12 +489,12 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 }
 .of-cell--empty,
 .da-cell--empty { background: var(--color-soft); color: var(--color-muted); }
-.of-cell--up { background: #c8e6c9; }
-.of-cell--down { background: #ffcdd2; }
-.of-cell--flat { background: #fff9c4; }
-.da-cell--up { background: #66bb6a; color: #fff; }
-.da-cell--down { background: #ef5350; color: #fff; }
-.da-cell--flat { background: #fff9c4; }
+.of-cell--up,
+.da-cell--up { background: var(--color-success-soft); color: var(--color-on-success-soft); }
+.of-cell--down,
+.da-cell--down { background: var(--color-danger-soft); color: var(--color-on-danger-soft); }
+.of-cell--flat,
+.da-cell--flat { background: var(--color-soft); color: var(--color-muted); }
 .of-cell-label,
 .da-cell-label { font-weight: var(--font-weight-medium); }
 
@@ -512,7 +524,7 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 .scatter-svg-wrap {
   position: relative;
   width: 100%;
-  height: 200rpx;
+  height: 260rpx;
   background: var(--color-soft);
   border-radius: var(--radius-md2);
   overflow: hidden;
@@ -520,16 +532,31 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
 .scatter-svg {
   position: relative;
   width: 100%;
-  height: 200rpx;
+  height: 260rpx;
 }
+.scatter-axis-lbl {
+  position: absolute;
+  font-size: var(--font-micro);
+  color: var(--color-muted);
+  pointer-events: none;
+}
+.scatter-axis-lbl--y { left: 10rpx; top: 8rpx; }
+.scatter-axis-lbl--x { right: 10rpx; bottom: 8rpx; }
+.scatter-guide {
+  position: absolute;
+  background: var(--color-border);
+  pointer-events: none;
+}
+.scatter-guide--h { left: 0; right: 0; height: 1px; }
+.scatter-guide--v { top: 0; bottom: 0; width: 1px; }
 .scatter-dot {
   position: absolute;
-  width: 12rpx;
-  height: 12rpx;
+  width: 16rpx;
+  height: 16rpx;
   border-radius: 50%;
   transform: translate(-50%, 50%);
 }
-.scatter-dot--value { background: #1976d2; }
-.scatter-dot--mid { background: #9e9e9e; }
-.scatter-dot--premium { background: #ef6c00; }
+.scatter-dot--value { background: var(--color-accent); }
+.scatter-dot--mid { background: var(--color-muted); }
+.scatter-dot--premium { background: var(--color-warning); }
 </style>
