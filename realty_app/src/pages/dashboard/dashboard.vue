@@ -3284,9 +3284,9 @@ const mapStatRange = computed<{ min: number; max: number }>(() => {
 });
 
 function districtFill(name: string): string {
-  if (mapMode.value === "marker") return "#f1f5f9"; // 浅灰
+  if (mapMode.value === "marker") return "var(--color-panel-soft)";
   const s = mapDistrictStats.value[name];
-  if (!s) return "#f1f5f9";
+  if (!s) return "var(--color-panel-soft)";
   const r = mapStatRange.value;
   let v = 0;
   if (mapMode.value === "count") v = s.count;

@@ -448,9 +448,9 @@ watch(scatter, () => refreshScatterDip(), { deep: true, immediate: true });
   color: var(--color-text);
 }
 .ba-cell--empty { background: var(--color-soft); color: var(--color-muted); }
-.ba-cell--light { background: #eff6ff; color: #0f172a; }
-.ba-cell--mid { background: #bfdbfe; color: #0f172a; }
-.ba-cell--deep { background: #1d4ed8; color: #fff; font-weight: var(--font-weight-semibold); }
+.ba-cell--light { background: var(--color-info-soft); color: #0f172a; }
+.ba-cell--mid { background: color-mix(in srgb, var(--color-accent) 35%, #fff); color: #0f172a; }
+.ba-cell--deep { background: var(--color-accent); color: #fff; font-weight: var(--font-weight-semibold); }
 .ba-empty { color: var(--color-muted); }
 .ba-count { font-size: var(--font-body-sm); font-weight: var(--font-weight-semibold); }
 

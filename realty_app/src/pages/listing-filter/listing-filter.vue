@@ -1673,7 +1673,7 @@ onUnmounted(() => {
   font-size: var(--font-caption);
 }
 .tag-pill {
-  background: rgba(37, 99, 235, 0.12);
+  background: var(--color-primary-soft);
   color: var(--color-primary);
   border: none;
 }
