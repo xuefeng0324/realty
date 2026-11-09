@@ -1,4 +1,8 @@
 date,usd_cny,usd_per100,eur_per100,jpy_per100,hkd_per100,gbp_per100,source_url
+2026-11-06,6.7168,671.68,751.91,4.2534,85.712,901.52,https://www.safe.gov.cn/AppStructured/hlw/RMBQuery.do
+2026-11-05,6.7156,671.56,752.43,4.2283,85.601,902.3,https://www.safe.gov.cn/AppStructured/hlw/RMBQuery.do
+2026-11-04,6.7180,671.8,750.43,4.2277,85.62,899.04,https://www.safe.gov.cn/AppStructured/hlw/RMBQuery.do
+2026-11-03,6.7150,671.5,747.6,4.2357,85.581,895.93,https://www.safe.gov.cn/AppStructured/hlw/RMBQuery.do
 2026-11-02,6.7146,671.46,746.5,4.2424,85.595,895.62,https://www.safe.gov.cn/AppStructured/hlw/RMBQuery.do
 2026-10-30,6.7138,671.38,747.92,4.2419,85.594,894.76,https://www.safe.gov.cn/AppStructured/hlw/RMBQuery.do
 2026-10-29,6.7147,671.47,745.7,4.2453,85.596,891.01,https://www.safe.gov.cn/AppStructured/hlw/RMBQuery.do
