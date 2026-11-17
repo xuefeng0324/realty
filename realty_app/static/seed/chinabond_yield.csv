@@ -1,4 +1,6 @@
 date,y3m,y6m,y1y,y3y,y5y,y7y,y10y,y30y,spread_10y_1y,source,source_url
+2026-11-17,1.1663,1.1749,1.1705,1.2494,1.3354,1.4385,1.6055,2.057,0.435,cbrc_html,https://yield.chinabond.com.cn/cbweb-cbrc-web/cbrc/showCbrc
+2026-11-16,1.1655,1.1769,1.1715,1.2575,1.3609,1.4627,1.6511,2.1396,0.4796,api,https://yield.chinabond.com.cn/cbweb-mn/yc/searchXyFxsyl
 2026-11-13,1.165,1.1654,1.1742,1.2475,1.3307,1.4399,1.6123,2.0595,0.4381,cbrc_html,https://yield.chinabond.com.cn/cbweb-cbrc-web/cbrc/showCbrc
 2026-11-12,1.1652,1.1654,1.1786,1.2393,1.3313,1.4325,1.6257,2.1105,0.4471,api,https://yield.chinabond.com.cn/cbweb-mn/yc/searchXyFxsyl
 2026-11-11,1.1642,1.1652,1.1813,1.239,1.3309,1.4318,1.6265,2.108,0.4452,api,https://yield.chinabond.com.cn/cbweb-mn/yc/searchXyFxsyl
