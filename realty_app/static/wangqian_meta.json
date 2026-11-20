@@ -1,8 +1,8 @@
 {
   "csv_url": "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/daily_wangqian.csv",
   "meta_url": "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/wangqian_meta.json",
-  "sha256": "a6847511539c7c43",
-  "row_count": 1684,
-  "generated_at": "2026-11-19T09:10:45+00:00",
+  "sha256": "a336873affc75897",
+  "row_count": 1696,
+  "generated_at": "2026-11-20T08:54:47+00:00",
   "source": "wangqian"
 }
