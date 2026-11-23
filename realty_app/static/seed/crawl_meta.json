@@ -2,7 +2,7 @@
   "csv_url": "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/seed/listings.csv",
   "meta_url": "https://cdn.jsdelivr.net/gh/xuefeng0324/realty@main/realty_app/static/seed/crawl_meta.json",
   "sha256": "81900e3867b1e48d",
-  "snapshot_sha256": "c73d3ecb800b9bd9",
+  "snapshot_sha256": "a67f75276949a5c6",
   "schema_version": 2,
   "row_count": 2225,
   "file_count": 58,
@@ -54,7 +54,7 @@
     "safe_iip.csv": 16,
     "safe_ora.csv": 106,
     "safe_settle.csv": 30,
-    "safe_usd_mid.csv": 438,
+    "safe_usd_mid.csv": 439,
     "school_dimensions.csv": 58,
     "school_indicators.csv": 58,
     "school_premium_community.csv": 62,
@@ -66,6 +66,6 @@
     "weather.csv": 6,
     "xq_seed.csv": 23
   },
-  "generated_at": "2026-11-23T01:12:24+00:00",
+  "generated_at": "2026-11-23T01:37:35+00:00",
   "source": "full-snapshot"
 }
